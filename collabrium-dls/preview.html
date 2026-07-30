@@ -1,0 +1,2944 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Collabrium design system | v0.7.0-draft</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0; height:100%;}
+  body{
+    background:var(--color-neutral-1); color:var(--color-neutral-9);
+    font-family:var(--font-primary); display:flex; flex-direction:column;
+  }
+  .shell{padding:0 32px;}
+
+  /* Top bar */
+  .topbar{
+    flex:none; height:60px; display:flex; align-items:center; gap:10px; padding:0 24px;
+    border-bottom:1px solid var(--color-neutral-3);
+  }
+  .topbar .mark{
+    width:28px; height:28px; border-radius:50%; border:1.5px solid var(--color-neutral-9);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-secondary);
+    font-weight:600; font-size:14px; flex:none;
+  }
+  .topbar .crumb{font-size:14px; color:var(--color-neutral-5); display:flex; align-items:center; gap:8px;}
+  .topbar .crumb b{color:var(--color-neutral-9); font-weight:600;}
+  .flag{
+    display:inline-flex; align-items:center; gap:6px; background:rgba(255,164,37,.16);
+    color:var(--color-neutral-9); font-size:var(--text-label3-size); font-weight:600;
+    letter-spacing:var(--text-label3-tracking); padding:2px var(--spacing-8); border-radius:var(--radius-pill);
+    margin-left:auto;
+  }
+
+  /* Two-pane layout */
+  .layout{display:grid; grid-template-columns:1.1fr 1fr; flex:1; min-height:0;}
+  .pane{overflow-y:auto; min-width:0;}
+  .pane-left{border-right:1px solid var(--color-neutral-3);}
+  .pane-right{display:flex; flex-direction:column; background:var(--color-neutral-1);}
+
+  /* Left pane: jump nav */
+  nav.jumpnav{
+    position:sticky; top:0; z-index:10; background:rgba(255,255,255,.92);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--color-neutral-3);
+  }
+  nav.jumpnav .shell{display:flex; align-items:center; gap:var(--spacing-24); height:52px; overflow-x:auto;}
+  nav.jumpnav a{color:var(--color-neutral-5); text-decoration:none; font-size:var(--text-label2-size); font-weight:600; white-space:nowrap;}
+  nav.jumpnav a:hover{color:var(--color-neutral-9);}
+
+  section{padding:var(--spacing-60) 0; border-bottom:1px solid var(--color-neutral-2);}
+  section:last-of-type{border-bottom:none;}
+  .kicker{font-size:var(--text-label3-size); text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-5); font-weight:600; margin:0 0 var(--spacing-8);}
+  h2.section-title{font-family:var(--font-secondary); font-weight:600; margin:0 0 var(--spacing-24); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); letter-spacing:var(--text-h1-tracking);}
+  .lede{color:var(--color-neutral-5); font-size:var(--text-body1-size); line-height:1.6; max-width:65ch; margin:0 0 var(--spacing-32);}
+
+  .hero-logo{padding:var(--spacing-32) 0 var(--spacing-16);}
+  .hero-logo iframe{width:100%; height:160px; border:none; display:block;}
+  .hero-tagline{color:var(--color-neutral-5); font-size:var(--text-body1-size); margin:0 0 var(--spacing-32);}
+  .writeup p{font-size:var(--text-body1-size); line-height:1.7; margin:0 0 var(--spacing-16); max-width:68ch;}
+  .writeup blockquote{margin:var(--spacing-32) 0; padding:var(--spacing-24) var(--spacing-32); border-left:3px solid var(--color-obsidian); background:var(--color-neutral-2); border-radius:0 var(--radius-md) var(--radius-md) 0; font-family:var(--font-secondary); font-size:var(--text-h5-size); line-height:1.5; font-style:normal;}
+  .writeup blockquote cite{display:block; margin-top:var(--spacing-12); font-family:var(--font-primary); font-style:normal; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .tonepills{display:flex; flex-wrap:wrap; gap:var(--spacing-8); margin:var(--spacing-24) 0 0;}
+  .tonepill{background:var(--color-neutral-2); color:var(--color-neutral-9); font-size:var(--text-label2-size); font-weight:600; padding:6px var(--spacing-12); border-radius:var(--radius-pill);}
+
+  .swatch-group-label{font-size:var(--text-label3-size); text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-5); font-weight:700; margin:var(--spacing-32) 0 var(--spacing-12);}
+  .swatch-group-label:first-of-type{margin-top:0;}
+  .swatches{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:var(--spacing-16);}
+  .swatch{border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); overflow:hidden;}
+  .swatch .fill{height:80px; position:relative;}
+  .swatch .fill button{position:absolute; top:var(--spacing-8); right:var(--spacing-8); border:none; border-radius:var(--radius-sm); background:rgba(255,255,255,.85); color:var(--color-neutral-9); font-size:11px; font-weight:600; padding:4px 8px; cursor:pointer; display:flex; align-items:center; gap:4px; opacity:0; transition:opacity .15s;}
+  .swatch .fill:hover button{opacity:1;}
+  .swatch .meta{padding:var(--spacing-12); background:var(--color-neutral-1);}
+  .swatch .meta b{display:block; font-size:var(--text-label1-size); margin-bottom:2px;}
+  .swatch .meta .hex{font-family:monospace; font-size:12px; color:var(--color-neutral-5); display:block; margin-bottom:var(--spacing-8);}
+  .swatch .meta p{margin:0; font-size:var(--text-body2-size); color:var(--color-neutral-5); line-height:1.5;}
+  .swatch .meta .tag{display:inline-block; margin-top:var(--spacing-8); font-size:11px; font-weight:600; color:var(--color-neutral-9); background:var(--color-neutral-2); padding:2px 8px; border-radius:var(--radius-pill);}
+
+  .type-row{display:flex; align-items:baseline; gap:var(--spacing-16); padding:var(--spacing-16) 0; border-bottom:1px solid var(--color-neutral-2); flex-wrap:wrap;}
+  .type-row:last-child{border-bottom:none;}
+  .type-meta{flex:0 0 170px; font-size:11px; color:var(--color-neutral-5); font-family:monospace; line-height:1.6;}
+  .type-meta b{display:block; font-family:var(--font-primary); font-size:13px; color:var(--color-neutral-9); font-weight:600; margin-bottom:2px;}
+  .type-sample{flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+  #typeToggle{margin-top:var(--spacing-16); background:none; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); padding:8px var(--spacing-16); font-family:inherit; font-size:var(--text-label2-size); font-weight:600; cursor:pointer;}
+  #typeToggle:hover{background:var(--color-neutral-2);}
+  .type-row.hidden{display:none;}
+
+  .fontcards{display:grid; grid-template-columns:1fr; gap:var(--spacing-24);}
+  .fontcard{border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-24);}
+  .fontcard .kicker{margin-bottom:var(--spacing-8);}
+  .fontcard h3{font-size:var(--text-h4-size); margin:0 0 var(--spacing-16); font-weight:600;}
+  .fontcard dl{display:grid; grid-template-columns:auto 1fr; gap:6px var(--spacing-12); font-size:13px; margin:0 0 var(--spacing-16);}
+  .fontcard dt{color:var(--color-neutral-5);}
+  .fontcard dd{margin:0; font-family:monospace;}
+  .fontcard p{font-size:var(--text-body2-size); color:var(--color-neutral-5); line-height:1.6; margin:0;}
+
+  .section-header{display:flex; justify-content:space-between; align-items:flex-end; gap:var(--spacing-16); flex-wrap:wrap; margin-bottom:var(--spacing-24);}
+  .section-header .section-title{margin-bottom:0;}
+  .install-btn{flex:none; display:inline-flex; align-items:center; gap:8px; background:var(--color-obsidian); color:var(--color-neutral-1); font-weight:600; font-size:var(--text-label2-size); text-decoration:none; padding:0 var(--spacing-16); height:40px; border-radius:var(--radius-sm); white-space:nowrap;}
+  .install-btn:hover{background:var(--color-neutral-8);}
+
+  table.spec{width:100%; border-collapse:collapse; margin-bottom:var(--spacing-32);}
+  table.spec th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--color-neutral-5); padding:var(--spacing-8) var(--spacing-12); border-bottom:1px solid var(--color-neutral-3);}
+  table.spec td{padding:var(--spacing-12); border-bottom:1px solid var(--color-neutral-2); font-size:var(--text-body2-size); vertical-align:middle;}
+  table.spec td.token{font-family:monospace; color:var(--color-neutral-9); font-weight:600;}
+  .bar-preview{background:var(--color-obsidian); height:8px; border-radius:2px;}
+  .radius-preview{width:40px; height:40px; background:var(--color-neutral-2); border:1px solid var(--color-neutral-3);}
+  code{font-family:monospace; background:var(--color-neutral-2); padding:1px 5px; border-radius:3px; font-size:11px;}
+  .elevation-row{display:flex; flex-wrap:wrap; gap:var(--spacing-24); margin-bottom:var(--spacing-24);}
+  .elevation-swatch{display:flex; flex-direction:column; align-items:center; gap:var(--spacing-8); width:100px;}
+  .elevation-swatch .box{width:72px; height:56px; background:var(--color-neutral-1); border-radius:var(--radius-sm);}
+  .elevation-swatch .label{font-family:monospace; font-size:11px; color:var(--color-neutral-5); text-align:center;}
+
+  .guide-cols{display:grid; grid-template-columns:1fr; gap:var(--spacing-32);}
+  .guide-col h3{display:flex; align-items:center; gap:8px; font-size:var(--text-h4-size); margin:0 0 var(--spacing-16);}
+  .guide-col.do h3{color:var(--color-green);}
+  .guide-col.dont h3{color:var(--color-red);}
+  .guide-col ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-12);}
+  .guide-col li{display:flex; gap:10px; font-size:var(--text-body2-size); line-height:1.55; color:var(--color-neutral-9);}
+  .guide-col li i{flex:none; margin-top:3px; font-size:14px;}
+  .guide-col.do li i{color:var(--color-green);}
+  .guide-col.dont li i{color:var(--color-red);}
+
+  /* Components */
+  .comp-block{margin-bottom:var(--spacing-60);}
+  .comp-block:last-child{margin-bottom:0;}
+  .comp-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--spacing-16);}
+  .comp-head h3{font-size:var(--text-h4-size); font-weight:var(--text-h4-weight); margin:0;}
+  .copy-markup-btn{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); padding:5px 10px; font-family:inherit; font-size:12px; font-weight:600; color:var(--color-neutral-9); cursor:pointer;}
+  .copy-markup-btn:hover{background:var(--color-neutral-2);}
+  .comp-demo{border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); padding:var(--spacing-24); background:var(--color-neutral-1);}
+  .comp-row{display:flex; flex-wrap:wrap; gap:var(--spacing-12); align-items:center;}
+  .comp-row + .comp-row{margin-top:var(--spacing-16);}
+
+  .c-btn{font-family:inherit; font-weight:700; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background-color var(--duration-fast) var(--ease-standard),transform var(--duration-instant) var(--ease-standard);}
+  .c-btn-md{height:40px; padding:0 var(--spacing-16); font-size:16px; border-radius:var(--radius-md);}
+  .c-btn-sm{height:32px; padding:0 var(--spacing-12); font-size:14px; border-radius:var(--radius-sm);}
+  .c-btn-lg{height:48px; padding:0 var(--spacing-20); font-size:16px; border-radius:var(--radius-md);}
+  .c-btn-primary{background:var(--color-obsidian); color:var(--color-neutral-1);}
+  .c-btn-primary:hover{background:var(--color-neutral-8);}
+  .c-btn-primary:active{background:var(--color-neutral-7);}
+  .c-btn-secondary{background:var(--color-neutral-1); color:var(--color-neutral-9); border:1px solid var(--color-neutral-3); box-shadow:var(--shadow-1);}
+  .c-btn-secondary:hover{background:var(--color-neutral-2);}
+  .c-btn-ghost{background:transparent; color:var(--color-neutral-9);}
+  .c-btn-ghost:hover{background:var(--color-neutral-2);}
+  .c-btn:disabled{background:var(--color-neutral-4); color:var(--color-neutral-1); border-color:var(--color-neutral-3); cursor:not-allowed;}
+  .c-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+
+  .c-field{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
+  .c-field label{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight);}
+  .c-field input{height:40px; border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); padding:0 var(--spacing-12); font-size:var(--text-body2-size); font-family:inherit; color:var(--color-neutral-9);}
+  .c-field input:focus{outline:none; border:2px solid var(--color-obsidian); padding:0 11px;}
+  .c-field-error input{border:2px solid var(--color-red); padding:0 11px;}
+  .c-helper{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .c-field-error .c-helper{color:var(--color-red);}
+  .c-field input:disabled{background:var(--color-neutral-2); color:var(--color-neutral-5);}
+
+  .c-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--spacing-16);}
+  .c-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8); transition:box-shadow var(--duration-base) var(--ease-settle);}
+  .c-card.warm{background:var(--color-canvas-warm-card); border-color:transparent;}
+  .c-card-header{display:flex; align-items:flex-start; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
+  .c-card .icon-chip{display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:var(--radius-sm); background:color-mix(in srgb, var(--color-navy) 12%, transparent); color:var(--color-navy); flex:none;}
+  .c-card-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .c-card h4{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
+  .c-card p{margin:0; font-size:var(--text-body2-size); color:var(--color-neutral-5);}
+  .c-card-accent{border-top:3px solid var(--color-salmon-pink);}
+  .c-card-interactive:hover{background:var(--color-neutral-2); cursor:pointer;}
+
+  .c-badge{display:inline-flex; align-items:center; gap:4px; font-size:var(--text-label3-size); font-weight:700; padding:2px var(--spacing-8); border-radius:var(--radius-pill); border:1px solid transparent;}
+  .c-badge-neutral{background:var(--color-neutral-2); color:var(--color-neutral-9); border-color:var(--color-neutral-3);}
+  .c-badge-success{background:rgba(0,194,110,.12); color:var(--color-green); border-color:rgba(0,194,110,.32);}
+  .c-badge-error{background:rgba(253,51,67,.10); color:var(--color-red); border-color:rgba(253,51,67,.30);}
+  .c-badge-warning{background:rgba(255,164,37,.14); color:var(--color-neutral-9); border-color:rgba(255,164,37,.38);}
+  .c-badge-selected{background:var(--color-neutral-1); color:var(--color-neutral-9); border-color:var(--color-obsidian);}
+  .c-tag{display:inline-flex; align-items:center; gap:4px; font-size:var(--text-caption-size); font-weight:700; height:24px; padding:0 10px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-5);}
+  .c-tag .dot{width:6px; height:6px; border-radius:var(--radius-pill); flex:none;}
+  .c-tag-fire{color:var(--color-orange);} .c-tag-fire .dot{background:var(--color-orange);}
+  .c-tag-wood{color:var(--color-salmon-pink);} .c-tag-wood .dot{background:var(--color-salmon-pink);}
+  .c-tag-water{color:var(--color-navy);} .c-tag-water .dot{background:var(--color-navy);}
+
+  .c-table{width:100%; border-collapse:collapse;}
+  .c-table th{text-align:left; font-size:var(--text-label3-size); text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-5); border-bottom:1px solid var(--color-neutral-3); padding:var(--spacing-12) var(--spacing-8); font-weight:600;}
+  .c-table td{font-size:var(--text-body2-size); border-bottom:1px solid var(--color-neutral-3); padding:var(--spacing-12) var(--spacing-8);}
+  .c-table tr.selected td{background:var(--color-neutral-2); border-left:2px solid var(--color-obsidian);}
+  .c-table tr:hover td{background:var(--color-neutral-2);}
+  .c-table td.num{text-align:right; font-variant-numeric:tabular-nums;}
+
+  .c-modal-stage{background:var(--color-neutral-2); border-radius:var(--radius-md); padding:var(--spacing-60); display:flex; justify-content:center;}
+  .c-modal{background:var(--color-neutral-1); border-radius:var(--radius-lg); width:100%; max-width:400px; box-shadow:var(--shadow-modal);}
+  .c-modal-head{display:flex; justify-content:space-between; align-items:center; padding:var(--spacing-16);}
+  .c-modal-head h4{margin:0; font-size:var(--text-h4-size); font-weight:var(--text-h4-weight);}
+  .c-modal-body{padding:0 var(--spacing-16) var(--spacing-16); font-size:var(--text-body1-size); color:var(--color-neutral-9); line-height:1.5;}
+  .c-modal-foot{display:flex; justify-content:flex-end; gap:var(--spacing-12); padding:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+  .c-icon-btn{width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); background:transparent; border:none; cursor:pointer;}
+  .c-icon-btn:hover{background:var(--color-neutral-2);}
+
+  .c-empty{display:flex; flex-direction:column; align-items:center; text-align:center; gap:var(--spacing-8); padding:var(--spacing-40) var(--spacing-24); color:var(--color-neutral-5);}
+  .c-empty i{font-size:var(--icon-empty); color:var(--color-neutral-4);}
+  .c-empty h4{margin:0; color:var(--color-neutral-9); font-size:var(--text-h4-size); font-weight:var(--text-h4-weight);}
+  .c-empty p{margin:0; max-width:380px; font-size:var(--text-body1-size); font-weight:var(--text-body1-weight);}
+
+  /* SidebarNav */
+  .c-sidebar{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg);}
+  .c-sidebar-header{padding:var(--spacing-8) var(--spacing-8) var(--spacing-16); font-weight:800; font-size:var(--text-h5-size);}
+  .c-sidebar-section{padding:var(--spacing-16) var(--spacing-8) var(--spacing-4); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+  .c-sidebar-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:40px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; cursor:pointer; text-align:left; transition:background-color var(--duration-fast) var(--ease-standard),color var(--duration-fast) var(--ease-standard);}
+  .c-sidebar-item span.label{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .c-sidebar-item span.count{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
+  .c-sidebar-item.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
+  .c-sidebar-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+
+  /* Tabs */
+  .c-tabs{display:flex; gap:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3);}
+  .c-tab{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:0; background:transparent; cursor:pointer; font-family:inherit; font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-5); box-shadow:none; transition:color var(--duration-fast) var(--ease-standard),box-shadow var(--duration-fast) var(--ease-standard);}
+  .c-tab.active{color:var(--color-neutral-9); box-shadow:inset 0 -2px 0 var(--color-obsidian);}
+  .c-tab .count{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-weight:700;}
+
+  /* Select */
+  .c-select{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
+  .c-select label{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-9);}
+  .c-select-box{position:relative; display:flex; align-items:center; height:40px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);}
+  .c-select-box select{appearance:none; flex:1; height:100%; width:100%; border:0; outline:none; background:transparent; padding:0 36px 0 var(--spacing-12); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; color:var(--color-neutral-9); cursor:pointer;}
+  .c-select-box i{position:absolute; right:var(--spacing-12); pointer-events:none; color:var(--color-neutral-5); font-size:var(--icon-sm);}
+  .c-select-box.error{border-color:var(--color-red);}
+  .c-select-box.disabled{background:var(--color-neutral-2);}
+
+  /* Checkbox / Radio / Switch */
+  .c-choice{display:flex; align-items:flex-start; gap:var(--spacing-8); cursor:pointer;}
+  .c-choice.disabled{opacity:.5; cursor:not-allowed;}
+  .c-choice input{position:absolute; opacity:0; width:0; height:0;}
+  .c-choice .text{display:flex; flex-direction:column;}
+  .c-choice .text .label{font-size:var(--text-body1-size); font-weight:500; color:var(--color-neutral-9);}
+  .c-choice .text .desc{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .c-checkbox-box{width:18px; height:18px; flex:none; margin-top:2px; border-radius:6px; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; font-size:12px; transition:background-color var(--duration-fast) var(--ease-standard),border-color var(--duration-fast) var(--ease-standard);}
+  .c-checkbox-box.on{border-color:var(--color-obsidian); background:var(--color-obsidian);}
+  .c-radio-circle{width:18px; height:18px; flex:none; margin-top:2px; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; transition:border-color var(--duration-fast) var(--ease-standard);}
+  .c-radio-circle.on{border-color:var(--color-obsidian);}
+  .c-radio-circle .dot{width:9px; height:9px; border-radius:var(--radius-pill); background:var(--color-obsidian);}
+  .c-choice.switch{align-items:center; gap:var(--spacing-12);}
+  .c-switch-track{position:relative; width:40px; height:24px; flex:none; border-radius:var(--radius-pill); background:var(--color-neutral-4); transition:background-color var(--duration-base) var(--ease-standard);}
+  .c-switch-track.on{background:var(--color-obsidian);}
+  .c-switch-thumb{position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:var(--radius-pill); background:var(--color-neutral-1); box-shadow:var(--shadow-1); transition:left var(--duration-base) var(--ease-settle);}
+  .c-switch-track.on .c-switch-thumb{left:19px;}
+
+  /* Toast */
+  .c-toast{display:flex; align-items:flex-start; gap:var(--spacing-12); min-width:320px; max-width:420px; padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3);}
+  .c-toast i.tone{margin-top:2px; font-size:var(--icon-base);}
+  .c-toast .tone-neutral{color:var(--color-neutral-9);}
+  .c-toast .tone-success{color:var(--color-green);}
+  .c-toast .tone-danger{color:var(--color-red);}
+  .c-toast .tone-warning{color:var(--color-amber);}
+  .c-toast .body{flex:1; min-width:0;}
+  .c-toast .title{font-size:var(--text-body1-size); font-weight:700;}
+  .c-toast .message{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+
+  /* Tooltip */
+  .c-tooltip-demo{display:flex; gap:var(--spacing-32); padding:var(--spacing-40) 0;}
+  .c-tooltip-wrap{position:relative; display:inline-flex;}
+  .c-tooltip-bubble{position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:2; padding:6px 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap;}
+
+  /* DataTable */
+  .c-datatable{border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow:hidden; background:var(--color-neutral-1);}
+  .c-datatable table{width:100%; border-collapse:collapse; font-family:inherit;}
+  .c-datatable th{text-align:left; padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-2); font-size:var(--text-h5-size); font-weight:var(--text-h5-weight); color:var(--color-neutral-9); border-bottom:1px solid var(--color-neutral-3);}
+  .c-datatable td{text-align:left; padding:var(--spacing-12) var(--spacing-16); font-size:var(--text-body2-size); font-weight:500; color:var(--color-neutral-9); border-bottom:1px solid var(--color-neutral-3);}
+  .c-datatable tr:last-child td{border-bottom:none;}
+  .c-datatable tr:hover td{background:var(--color-neutral-2);}
+  .c-datatable td.num{text-align:right; font-variant-numeric:tabular-nums;}
+
+  /* ElementBadge */
+  .c-elbadge{display:inline-flex; align-items:center; gap:var(--spacing-12);}
+  .c-elbadge-chip{display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:var(--radius-sm); flex:none; font-size:17px;}
+  .c-elbadge-fire{background:color-mix(in srgb, var(--color-orange) 12%, transparent); color:var(--color-orange);}
+  .c-elbadge-earth{background:color-mix(in srgb, var(--color-green) 12%, transparent); color:var(--color-green);}
+  .c-elbadge-water{background:color-mix(in srgb, var(--color-navy) 12%, transparent); color:var(--color-navy);}
+  .c-elbadge-gold{background:color-mix(in srgb, var(--color-amber) 12%, transparent); color:var(--color-amber);}
+  .c-elbadge-wood{background:color-mix(in srgb, var(--color-salmon-pink) 12%, transparent); color:var(--color-salmon-pink);}
+  .c-elbadge .text .name{display:block; font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-9);}
+  .c-elbadge .text .fn{display:block; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+
+  footer{padding:var(--spacing-32) 0 var(--spacing-60); color:var(--color-neutral-5); font-size:var(--text-caption-size);}
+  footer a{color:var(--color-neutral-9);}
+
+  /* Right pane: tabbed source viewer */
+  .tabbar{display:flex; align-items:center; gap:22px; padding:0 24px; height:48px; border-bottom:1px solid var(--color-neutral-3); flex:none; overflow-x:auto;}
+  .tabbar button{background:none; border:none; font-family:inherit; font-size:13px; font-weight:600; color:var(--color-neutral-5); cursor:pointer; padding:0; height:48px; border-bottom:2px solid transparent; white-space:nowrap;}
+  .tabbar button.active{color:var(--color-neutral-9); border-bottom-color:var(--color-obsidian);}
+  .subbar{display:flex; align-items:center; gap:8px; padding:10px 24px; border-bottom:1px solid var(--color-neutral-2); flex:none;}
+  .subbar .segmented{display:flex; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); overflow:hidden;}
+  .subbar .segmented button{padding:5px 14px; font-size:12px; font-weight:600; border:none; background:var(--color-neutral-1); cursor:pointer; font-family:inherit; color:var(--color-neutral-9);}
+  .subbar .segmented button.active{background:var(--color-neutral-9); color:var(--color-neutral-1);}
+  .subbar .spacer{flex:1;}
+  .subbar .iconbtn{display:flex; align-items:center; gap:6px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); padding:5px 10px; font-size:12px; font-weight:600; background:var(--color-neutral-1); cursor:pointer; font-family:inherit; color:var(--color-neutral-9);}
+  .subbar .iconbtn:hover{background:var(--color-neutral-2);}
+  .codearea{flex:1; overflow:auto; padding:24px; font-family:'SF Mono', Menlo, Consolas, monospace; font-size:12.5px; line-height:1.7; white-space:pre-wrap; word-break:break-word; color:var(--color-neutral-9);}
+  .codearea .h{color:var(--color-navy); font-weight:700;}
+
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr; height:auto;}
+    .pane{overflow-y:visible;}
+    .pane-left{border-right:none; border-bottom:1px solid var(--color-neutral-3);}
+    body{height:auto;}
+    .codearea{max-height:70vh;}
+  }
+  @media (max-width:600px){
+    .type-row{flex-direction:column; align-items:flex-start; gap:var(--spacing-4);}
+    .type-meta{flex:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="mark">C</span>
+  <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.7.0-draft</span>
+</header>
+
+<div class="layout">
+
+  <div class="pane pane-left">
+    <nav class="jumpnav">
+      <div class="shell">
+        <a href="#collabrium">Collabrium</a>
+        <a href="#color">Color Palette</a>
+        <a href="#typography">Typography</a>
+        <a href="#fonts">Fonts</a>
+        <a href="#spacing">Spacing &amp; Shape</a>
+        <a href="#guidelines">Guidelines</a>
+        <a href="#components">Components</a>
+      </div>
+    </nav>
+
+    <section id="collabrium">
+      <div class="shell">
+        <div class="hero-logo">
+          <iframe src="logo.html" title="Collabrium animated logo" scrolling="no"></iframe>
+        </div>
+        <p class="hero-tagline">The operating system for Astro's digital growth engine — connecting Sales, Media, Influence, Content, and Studio into one system of record.</p>
+
+        <div class="writeup">
+          <p><b>Collabrium</b> — Astro Digital Growth [OS]. From <i>Collab</i>oration + Equi<i>librium</i>. It's the shared home for Astro's digital teams: where six functions (Content, Product, Marketing, Sales, Commercial, Editorial) stop working around each other and start working together, without losing what makes each one good at its job. Unlike siloed tools bolted on team by team, Collabrium starts from the infrastructure up.</p>
+
+          <blockquote>
+            "Collabrium is where Astro's Sales, Media, Influence, Content, and Studio teams stop working in parallel and start working together — so no rep, no editor, no strategist is ever the last to know. Built from the ground up to bring people together, not just tools."
+            <cite>— Positioning statement</cite>
+          </blockquote>
+
+          <p>The name isn't decorative — it states the argument. <b>Collaboration</b> is one shared system: Content, Product, Marketing, Sales, Commercial, and Editorial working as one, not six. <b>Equilibrium</b> is balance restored across execution, measurement, and allocation — not just speed for its own sake.</p>
+
+          <p>Voice: write like you're talking to a teammate, not briefing a system. Favor warm, human verbs (<i>see, share, meet in the middle</i>) over mechanical ones (<i>sync, deploy, restore</i>). Keep it short and plain — confidence doesn't need extra words.</p>
+
+          <div class="tonepills">
+            <span class="tonepill">Team-first</span>
+            <span class="tonepill">Easy confidence</span>
+            <span class="tonepill">Plainspoken</span>
+            <span class="tonepill">Steady</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="color">
+      <div class="shell">
+        <p class="kicker">01 · Foundations</p>
+        <h2 class="section-title">Color Palette</h2>
+        <p class="lede">Five brand accents map one-to-one to a five-element metaphor and a department cluster — they classify what something belongs to, never mean "click me." Obsidian is the system's only actionable color.</p>
+
+        <div class="swatch-group-label">Brand &middot; element &middot; department</div>
+        <div class="swatches" id="swatches-brand"></div>
+
+        <div class="swatch-group-label">Secondary accents</div>
+        <div class="swatches" id="swatches-secondary"></div>
+
+        <div class="swatch-group-label">Functional</div>
+        <div class="swatches" id="swatches-functional"></div>
+
+        <div class="swatch-group-label">Neutrals</div>
+        <div class="swatches" id="swatches-neutral"></div>
+
+        <div class="swatch-group-label">Warm canvas <span style="text-transform:none;font-weight:400;color:var(--color-neutral-5)">&mdash; brand/editorial surfaces only, added v0.6.0</span></div>
+        <div class="swatches" id="swatches-warm"></div>
+
+        <div class="swatch-group-label">Elemental background tints <span style="text-transform:none;font-weight:400;color:var(--color-neutral-5)">&mdash; the only permitted coloured backgrounds, added v0.6.0</span></div>
+        <div class="swatches" id="swatches-elbg"></div>
+      </div>
+    </section>
+
+    <section id="typography">
+      <div class="shell">
+        <p class="kicker">02 · Foundations</p>
+        <h2 class="section-title">Typography</h2>
+        <p class="lede">17-step type scale, Primary (Mulish) for everything functional <b>and every heading</b> (800 ExtraBold), Secondary (Source Serif 4) reserved for deliberate brand-statement moments only. Corrected in v0.6.0 against a teammate's fuller deck extraction — sourced, not guessed, but still not brand-team signed off.</p>
+        <div id="typeScale"></div>
+        <button id="typeToggle" type="button">Show all 17 steps</button>
+      </div>
+    </section>
+
+    <section id="fonts">
+      <div class="shell">
+        <div class="section-header">
+          <div>
+            <p class="kicker">03 · Foundations</p>
+            <h2 class="section-title">Fonts</h2>
+          </div>
+          <a class="install-btn" href="fonts/collabrium-fonts.zip" download title="Downloads real .ttf files for Mulish + Source Serif 4. A browser can't install fonts into your OS directly, so double-click each file afterward and confirm Install Font.">
+            <i class="ph-fill ph-download-simple"></i> Download font pack
+          </a>
+        </div>
+        <div class="fontcards">
+          <div class="fontcard">
+            <p class="kicker">Primary</p>
+            <h3>Mulish</h3>
+            <dl>
+              <dt>Weight</dt><dd>200&ndash;900 &middot; headings 800, labels/buttons 700, body 500</dd>
+              <dt>Sizes</dt><dd>11&ndash;48px &middot; UI range 10&ndash;16px</dd>
+              <dt>Line height</dt><dd>1.0&ndash;1.45</dd>
+              <dt>Letter spacing</dt><dd>0 across the board, headings included (corrected v0.6.0)</dd>
+              <dt>License</dt><dd>SIL OFL 1.1, free, self-hostable</dd>
+              <dt>Fallback</dt><dd>-apple-system, Segoe UI, Roboto</dd>
+            </dl>
+            <p>Carries everything functional &mdash; UI, body, navigation, buttons, tables, captions, data &mdash; <b>and</b> every heading (display through h5) at weight 800 ExtraBold. Neutral, legible, technically reliable across a dashboard-dense product.</p>
+          </div>
+          <div class="fontcard">
+            <p class="kicker">Secondary</p>
+            <h3>Source Serif 4</h3>
+            <dl>
+              <dt>Weight</dt><dd>300&ndash;900 available &middot; use 400</dd>
+              <dt>Sizes</dt><dd>Never below ~18&ndash;20px</dd>
+              <dt>Line height</dt><dd>1.2&ndash;1.5</dd>
+              <dt>Letter spacing</dt><dd>0</dd>
+              <dt>License</dt><dd>SIL OFL 1.1, free, self-hostable</dd>
+              <dt>Fallback</dt><dd>Georgia, Times New Roman</dd>
+            </dl>
+            <p>Not a heading-size token &mdash; a deliberate overlay for brand-statement moments only: pitch-deck ledes, brand story copy, pull quotes, hero display numerals. Never mix fonts inside one sentence (emphasis is weight, not a font swap); never in a dense numeric column; one hero per view. Corrected v0.6.0 &mdash; was previously tied to the heading tokens themselves.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="spacing">
+      <div class="shell">
+        <p class="kicker">04 · Foundations</p>
+        <h2 class="section-title">Spacing &amp; Shape</h2>
+        <p class="lede">4pt base grid. Collabrium is a product surface, not a marketing page &mdash; most layouts run full-bleed within the app shell rather than centering. Radius is per-surface, not one flat scale. Values corrected in v0.6.0 against a teammate's fuller extraction of the same source deck &mdash; see DESIGN.md Changelog.</p>
+
+        <table class="spec" id="spacingTable"></table>
+        <table class="spec" id="radiusTable"></table>
+
+        <div class="swatch-group-label">Elevation</div>
+        <p class="lede" style="margin-bottom:var(--spacing-16)">A real shadow ladder, corrected in v0.6.0 &mdash; not "flat by default." Every shadow is built on Neutral-4 (soft grey), never black. Cards and dialogs use these regularly.</p>
+        <div class="elevation-row" id="elevationRow"></div>
+
+        <div class="swatch-group-label">Motion</div>
+        <p class="lede" style="margin-bottom:var(--spacing-16)">New in v0.6.0 &mdash; previously undocumented. "Movement settles; it never bounces." One easing curve per element, used when motion is thematically tied to that element; <code>--ease-standard</code> is the default for everything else.</p>
+        <table class="spec" id="motionTable"></table>
+      </div>
+    </section>
+
+    <section id="guidelines">
+      <div class="shell">
+        <p class="kicker">05 · Reference</p>
+        <h2 class="section-title">Guidelines</h2>
+        <p class="lede">The condensed, skimmable version of every rule in this system. Full detail and rationale in the DESIGN.md tab.</p>
+        <div class="guide-cols">
+          <div class="guide-col do">
+            <h3><i class="ph-fill ph-check-circle"></i>Do</h3>
+            <ul>
+              <li><i class="ph-fill ph-check"></i>Use Obsidian as the only primary-action fill &mdash; one Primary button per screen.</li>
+              <li><i class="ph-fill ph-check"></i>Use Mulish for 100% of UI text <b>and every heading</b> &mdash; headings at weight 800, letter-spacing 0.</li>
+              <li><i class="ph-fill ph-check"></i>Reserve Source Serif 4 for genuine brand-statement moments only (deck ledes, pull quotes, hero numerals), never as a heading-token swap, never below ~18&ndash;20px.</li>
+              <li><i class="ph-fill ph-check"></i>Use the tinted-fill + bordered pattern for every Badge, and darken Success/Warning text (<code>#00854c</code>, <code>#9a5c00</code>) so it clears AA.</li>
+              <li><i class="ph-fill ph-check"></i>Map department/element colors 1:1 from the Color Palette table &mdash; don't invent one.</li>
+              <li><i class="ph-fill ph-check"></i>Tint a surface only with the element that already owns its content, and only at the -bg (8%) or -bg-strong (16%) step.</li>
+              <li><i class="ph-fill ph-check"></i>Use Phosphor Fill icons everywhere; Remix `-fill` only as fallback.</li>
+              <li><i class="ph-fill ph-check"></i>Pull every spacing, radius, and color value from a token &mdash; no arbitrary values.</li>
+              <li><i class="ph-fill ph-check"></i>Let cards carry shadow-1 at rest, and build every shadow on Neutral-4 (soft grey), never black.</li>
+              <li><i class="ph-fill ph-check"></i>Keep radius soft: 20px cards, 16px buttons, 12px inputs. Never below 12px on an interactive surface.</li>
+              <li><i class="ph-fill ph-check"></i>Give every interactive component its full state set: hover, active, focus, disabled, error.</li>
+              <li><i class="ph-fill ph-check"></i>Right-align numeric table columns with tabular figures.</li>
+            </ul>
+          </div>
+          <div class="guide-col dont">
+            <h3><i class="ph-fill ph-x-circle"></i>Don't</h3>
+            <ul>
+              <li><i class="ph-fill ph-x"></i>Never use a brand/element color as a primary button fill &mdash; those colors classify, they don't mean "click me."</li>
+              <li><i class="ph-fill ph-x"></i>Never use Source Serif 4 in body copy, buttons, inputs, table data, or dense numeric columns.</li>
+              <li><i class="ph-fill ph-x"></i>Never mix two fonts inside a single sentence or heading &mdash; emphasis is a weight change, not a font swap.</li>
+              <li><i class="ph-fill ph-x"></i>Never apply negative letter-spacing to headings &mdash; Collabrium headings are weight 800 at tracking 0.</li>
+              <li><i class="ph-fill ph-x"></i>Never mix Phosphor and Remix, or fill and outline weights, in the same component.</li>
+              <li><i class="ph-fill ph-x"></i>Never build a shadow on black &mdash; every shadow in this system is Neutral-4 based.</li>
+              <li><i class="ph-fill ph-x"></i>Never fill a small badge solid with a brand color and put white text on it &mdash; several accents fail contrast that way.</li>
+              <li><i class="ph-fill ph-x"></i>Never use a radius outside the token set (radius-sm/md/lg/pill/link).</li>
+              <li><i class="ph-fill ph-x"></i>Never tint a surface with an element that doesn't own its content, and never at full or mid strength.</li>
+              <li><i class="ph-fill ph-x"></i>Never use the warm canvas for product UI &mdash; brand/editorial surfaces only.</li>
+              <li><i class="ph-fill ph-x"></i>Never add bounce or overshoot easing &mdash; movement settles.</li>
+              <li><i class="ph-fill ph-x"></i>Never use placeholder text as a substitute for a real label.</li>
+              <li><i class="ph-fill ph-x"></i>Never use a modal for a multi-step flow.</li>
+              <li><i class="ph-fill ph-x"></i>Never let a table exceed ~8&ndash;10 visible columns without a collapse pattern.</li>
+              <li><i class="ph-fill ph-x"></i>Never treat a ⚠️ value in DESIGN.md as final &mdash; it's a draft until the brand team signs off.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="components">
+      <div class="shell">
+        <p class="kicker">06 · Reference</p>
+        <h2 class="section-title">Components</h2>
+        <p class="lede">Live reference for all 17 components &mdash; the original 7 basics plus 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ Still not yet reviewed against a real screen or by the brand team. Stat/KPI cards, filters, pagination, date pickers, and chart color mapping aren't here yet &mdash; those have no source in either system and need an actual design pass, not a transcription.</p>
+
+        <div class="comp-block" id="comp-button">
+          <div class="comp-head"><h3>Button</h3><button class="copy-markup-btn" data-target="comp-button" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row">
+              <button class="c-btn c-btn-primary c-btn-md"><i class="ph-fill ph-plus"></i>Primary</button>
+              <button class="c-btn c-btn-secondary c-btn-md">Secondary</button>
+              <button class="c-btn c-btn-ghost c-btn-md">Ghost</button>
+              <button class="c-btn c-btn-primary c-btn-md" disabled>Disabled</button>
+            </div>
+            <div class="comp-row">
+              <button class="c-btn c-btn-primary c-btn-sm">Small</button>
+              <button class="c-btn c-btn-primary c-btn-md">Medium</button>
+              <button class="c-btn c-btn-primary c-btn-lg">Large</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-input">
+          <div class="comp-head"><h3>Input field</h3><button class="copy-markup-btn" data-target="comp-input" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row">
+              <div class="c-field">
+                <label>Workspace name</label>
+                <input placeholder="e.g. Astro Growth" />
+                <span class="c-helper">Visible to your whole team</span>
+              </div>
+              <div class="c-field c-field-error">
+                <label>Workspace name</label>
+                <input />
+                <span class="c-helper">This field is required</span>
+              </div>
+              <div class="c-field">
+                <label>Workspace name</label>
+                <input value="Astro Growth" disabled />
+                <span class="c-helper">Locked by admin</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-card">
+          <div class="comp-head"><h3>Card</h3><button class="copy-markup-btn" data-target="comp-card" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-cards">
+              <div class="c-card">
+                <h4>Static card</h4>
+                <p>Default surface, hairline border, shadow-1.</p>
+              </div>
+              <div class="c-card c-card-interactive">
+                <h4>Interactive card</h4>
+                <p>Hover to see the Neutral-2 fill.</p>
+              </div>
+              <div class="c-card c-card-accent">
+                <h4>Element-accented</h4>
+                <p>Top border only &mdash; Wood/Strategy example.</p>
+              </div>
+              <div class="c-card">
+                <div class="c-card-header">
+                  <span class="icon-chip"><i class="ph-fill ph-drop"></i></span>
+                  <h4>Icon-chip header</h4>
+                </div>
+                <p>36px chip, element at 12% tint &mdash; not the 8% -bg token.</p>
+              </div>
+              <div class="c-card warm">
+                <h4>Warm surface</h4>
+                <p>Brand/editorial canvas &mdash; decks, specimens, not product UI.</p>
+              </div>
+              <div class="c-card">
+                <h4>With footer</h4>
+                <p>Footer is a distinct, bordered sub-part &mdash; corrected 2026-07-29.</p>
+                <div class="c-card-footer">Updated 2 hours ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-badge">
+          <div class="comp-head"><h3>Badge &amp; Tag</h3><button class="copy-markup-btn" data-target="comp-badge" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Badge &mdash; status/tone, bordered</p>
+            <div class="comp-row">
+              <span class="c-badge c-badge-neutral">Neutral</span>
+              <span class="c-badge c-badge-success"><i class="ph-fill ph-check-circle"></i>Success</span>
+              <span class="c-badge c-badge-error"><i class="ph-fill ph-x-circle"></i>Error</span>
+              <span class="c-badge c-badge-warning"><i class="ph-fill ph-warning"></i>Warning</span>
+              <span class="c-badge c-badge-selected">Selected</span>
+            </div>
+            <p style="margin:var(--spacing-16) 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Tag &mdash; element/department labeling, dot indicator</p>
+            <div class="comp-row">
+              <span class="c-tag c-tag-fire"><span class="dot"></span>Fire &middot; Marketing</span>
+              <span class="c-tag c-tag-wood"><span class="dot"></span>Wood &middot; Strategy</span>
+              <span class="c-tag c-tag-water"><span class="dot"></span>Water &middot; Data</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-table">
+          <div class="comp-head"><h3>Table row</h3><button class="copy-markup-btn" data-target="comp-table" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <table class="c-table">
+              <thead><tr><th>Campaign</th><th>Department</th><th>Status</th><th class="num">Spend</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Q3 Retail Push</td>
+                  <td><span class="c-tag c-tag-fire"><span class="dot"></span>Fire</span></td>
+                  <td><span class="c-badge c-badge-success">Live</span></td>
+                  <td class="num">$12,480.50</td>
+                </tr>
+                <tr class="selected">
+                  <td>Partner Onboarding</td>
+                  <td><span class="c-tag c-tag-water"><span class="dot"></span>Water</span></td>
+                  <td><span class="c-badge c-badge-warning">Paused</span></td>
+                  <td class="num">$3,102.00</td>
+                </tr>
+                <tr>
+                  <td>Vendor Compliance Audit</td>
+                  <td><span class="c-tag">Gold</span></td>
+                  <td><span class="c-badge c-badge-error">Blocked</span></td>
+                  <td class="num">$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-modal">
+          <div class="comp-head"><h3>Modal / dialog</h3><button class="copy-markup-btn" data-target="comp-modal" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-modal-stage">
+              <div class="c-modal">
+                <div class="c-modal-head"><h4>Archive this workspace?</h4><button class="c-icon-btn" type="button"><i class="ph-fill ph-x"></i></button></div>
+                <div class="c-modal-body">Team members will lose access immediately. You can restore it from Settings within 30 days.</div>
+                <div class="c-modal-foot">
+                  <button class="c-btn c-btn-secondary c-btn-md">Cancel</button>
+                  <button class="c-btn c-btn-primary c-btn-md">Archive</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-empty">
+          <div class="comp-head"><h3>Empty state</h3><button class="copy-markup-btn" data-target="comp-empty" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-empty">
+              <i class="ph-fill ph-tray"></i>
+              <h4>No campaigns yet</h4>
+              <p>Create your first campaign to see performance data here.</p>
+              <button class="c-btn c-btn-primary c-btn-md"><i class="ph-fill ph-plus"></i>Create campaign</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-sidebarnav">
+          <div class="comp-head"><h3>SidebarNav <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-sidebarnav" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <nav class="c-sidebar">
+              <div class="c-sidebar-header">Astro Growth</div>
+              <div class="c-sidebar-section">Overview</div>
+              <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span></button>
+              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar"></i><span class="label">Reports</span></button>
+              <div class="c-sidebar-section">Departments</div>
+              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-fire" style="color:var(--color-orange)"></i><span class="label">Marketing</span><span class="count">12</span></button>
+              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-drop" style="color:var(--color-navy)"></i><span class="label">Data</span></button>
+              <div class="c-sidebar-footer">
+                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span></button>
+              </div>
+            </nav>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-tabs">
+          <div class="comp-head"><h3>Tabs <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-tabs" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-tabs" role="tablist">
+              <button class="c-tab active" role="tab" aria-selected="true" type="button">Overview</button>
+              <button class="c-tab" role="tab" aria-selected="false" type="button">Campaigns<span class="count">8</span></button>
+              <button class="c-tab" role="tab" aria-selected="false" type="button"><i class="ph-fill ph-gear"></i>Settings</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-select">
+          <div class="comp-head"><h3>Select <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-select" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row">
+              <div class="c-select">
+                <label>Department</label>
+                <div class="c-select-box">
+                  <select><option>Marketing</option><option>Data</option><option>Finance</option></select>
+                  <i class="ph-fill ph-caret-down"></i>
+                </div>
+              </div>
+              <div class="c-select">
+                <label>Department</label>
+                <div class="c-select-box disabled">
+                  <select disabled><option>Locked</option></select>
+                  <i class="ph-fill ph-caret-down"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-checkbox-radio-switch">
+          <div class="comp-head"><h3>Checkbox, Radio &amp; Switch <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-checkbox-radio-switch" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row">
+              <label class="c-choice">
+                <input type="checkbox" checked />
+                <span class="c-checkbox-box on"><i class="ph-fill ph-check"></i></span>
+                <span class="text"><span class="label">Email notifications</span><span class="desc">Weekly digest every Monday</span></span>
+              </label>
+              <label class="c-choice">
+                <input type="checkbox" />
+                <span class="c-checkbox-box"><i class="ph-fill ph-minus" style="visibility:hidden"></i></span>
+                <span class="text"><span class="label">SMS alerts</span></span>
+              </label>
+            </div>
+            <div class="comp-row">
+              <label class="c-choice">
+                <input type="radio" name="c-radio-demo" checked />
+                <span class="c-radio-circle on"><span class="dot"></span></span>
+                <span class="text"><span class="label">Weekly digest</span></span>
+              </label>
+              <label class="c-choice">
+                <input type="radio" name="c-radio-demo" />
+                <span class="c-radio-circle"></span>
+                <span class="text"><span class="label">Daily digest</span></span>
+              </label>
+            </div>
+            <div class="comp-row">
+              <label class="c-choice switch">
+                <span class="c-switch-track on"><span class="c-switch-thumb"></span></span>
+                <input type="checkbox" role="switch" checked />
+                <span class="text"><span class="label">Auto-publish reports</span></span>
+              </label>
+              <label class="c-choice switch">
+                <span class="c-switch-track"><span class="c-switch-thumb"></span></span>
+                <input type="checkbox" role="switch" />
+                <span class="text"><span class="label">Beta features</span></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-toast">
+          <div class="comp-head"><h3>Toast <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-toast" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="flex-direction:column; align-items:flex-start;">
+              <div class="c-toast" role="status">
+                <i class="ph-fill ph-check-circle tone tone-success"></i>
+                <div class="body"><div class="title">Report published</div><div class="message">Your Q3 performance report is live.</div></div>
+                <button class="c-icon-btn" type="button"><i class="ph-fill ph-x"></i></button>
+              </div>
+              <div class="c-toast" role="status">
+                <i class="ph-fill ph-warning tone tone-warning"></i>
+                <div class="body"><div class="title">Sync delayed</div><div class="message">Retrying in the background.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-tooltip">
+          <div class="comp-head"><h3>Tooltip <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-tooltip" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-tooltip-demo">
+              <span class="c-tooltip-wrap">
+                <button class="c-icon-btn" type="button"><i class="ph-fill ph-info"></i></button>
+                <span class="c-tooltip-bubble" role="tooltip">Visible to your whole team</span>
+              </span>
+              <span class="c-tooltip-wrap">
+                <button class="c-btn c-btn-secondary c-btn-sm">Hover me</button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-datatable">
+          <div class="comp-head"><h3>DataTable <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-datatable" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-datatable">
+              <table>
+                <thead><tr><th>Campaign</th><th>Department</th><th class="num">Spend</th></tr></thead>
+                <tbody>
+                  <tr><td>Q3 Retail Push</td><td>Marketing</td><td class="num">$12,480.50</td></tr>
+                  <tr><td>Partner Onboarding</td><td>Data</td><td class="num">$3,102.00</td></tr>
+                  <tr><td>Vendor Compliance Audit</td><td>Finance</td><td class="num">$0.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-elementbadge">
+          <div class="comp-head"><h3>ElementBadge <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-elementbadge" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row">
+              <span class="c-elbadge-chip c-elbadge-fire" title="Fire"><i class="ph-fill ph-fire"></i></span>
+              <span class="c-elbadge-chip c-elbadge-earth" title="Earth"><i class="ph-fill ph-mountains"></i></span>
+              <span class="c-elbadge-chip c-elbadge-water" title="Water"><i class="ph-fill ph-drop"></i></span>
+              <span class="c-elbadge-chip c-elbadge-gold" title="Gold"><i class="ph-fill ph-scales"></i></span>
+              <span class="c-elbadge-chip c-elbadge-wood" title="Wood"><i class="ph-fill ph-plant"></i></span>
+            </div>
+            <div class="comp-row" style="margin-top:var(--spacing-16)">
+              <span class="c-elbadge">
+                <span class="c-elbadge-chip c-elbadge-fire"><i class="ph-fill ph-fire"></i></span>
+                <span class="text"><span class="name">Fire</span><span class="fn">Visibility &amp; Energy</span></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="shell">
+        Left pane rendered directly from <code>tokens.css</code>. Right pane shows the underlying source files in this folder &mdash; nothing there is fetched, it's all embedded so this page works opened directly, no server required.
+      </div>
+    </footer>
+  </div>
+
+  <div class="pane pane-right">
+    <div class="tabbar">
+      <button type="button" class="tab-btn active" data-tab="md">DESIGN.md</button>
+      <button type="button" class="tab-btn" data-tab="tailwind">Tailwind v4</button>
+      <button type="button" class="tab-btn" data-tab="css">CSS Variables</button>
+      <button type="button" class="tab-btn" data-tab="json">Design Tokens</button>
+    </div>
+    <div class="subbar">
+      <div class="segmented" id="mdModeToggle">
+        <button type="button" class="mode-btn" data-mode="compact">Compact</button>
+        <button type="button" class="mode-btn active" data-mode="extended">Extended</button>
+      </div>
+      <div class="spacer"></div>
+      <button type="button" class="iconbtn" id="copyBtn"><i class="ph-fill ph-copy"></i> Copy</button>
+      <button type="button" class="iconbtn" id="downloadBtn"><i class="ph-fill ph-download-simple"></i> Download</button>
+    </div>
+    <div class="codearea" id="codearea"></div>
+  </div>
+
+</div>
+
+<!-- Embedded source files. Kept as text/plain script blocks (not fetched)
+     so this page works opened directly via file:// with no server. -->
+<script type="text/plain" id="src-md-compact">---
+name: collabrium-dls
+description: Design Language System reference for Collabrium (Astro Digital Growth OS) — brand colors, typography, spacing, iconography, and component tokens. Use whenever designing, mocking up, or building UI screens, dashboards, marketing pages, decks, or any other visual asset for Collabrium, to stay visually consistent with the brand.
+---
+
+# Collabrium DLS
+
+Quick-reference cheat sheet for building Collabrium surfaces. Full token
+detail, rationale, and open gaps live in `DESIGN-SYSTEM.md` in this same
+folder — read it before building anything beyond a trivial mockup.
+Paste-able CSS custom properties are in `tokens.css`. `preview.html` is a
+browsable brand overview microsite (writeup, real logo, color palette,
+typography, fonts, spacing & shape, guidelines) — open it directly, it
+links `tokens.css` and embeds `logo.html`. `logo.html` is the real,
+corrected animated Collabrium wordmark — the canonical logo asset, embed
+it wherever the mark is needed rather than screenshotting it. `SVG/`
+holds the confirmed true vector source for every letter and element icon
+individually — use those files (not a screenshot, not a hand-traced
+copy) if you need a piece of the mark on its own. `fonts/` has real,
+installable variable-font files for both typefaces (sourced from
+Google's official repo, not the web-embed subsets) — point people there
+instead of them hunting Google Fonts themselves. `preview.html` also has
+a live **Components** section — 17 total: the 7 basics (Button, Input,
+Card, Badge & Tag, Table row, Modal, Empty state) plus 10 more added in
+v0.7.0 and transcribed from the teammate's real component source
+(SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip,
+DataTable, ElementBadge) — each with copy-able markup. Use it as the
+reference implementation when building real screens, not just the spec
+tables. Still missing: stat/KPI cards, filters, pagination, date
+pickers, chart color mapping — no source in either system, needs an
+actual design pass.
+
+**Standing rule:** any change to this skill's files (preview.html,
+logo.html, tokens.css, SVG/, fonts/, new components) must be reflected
+back into `DESIGN-SYSTEM.md` — content, version bump, changelog entry —
+in the same pass, not as a follow-up.
+
+**Reference point:** `~/Desktop/Collabrium Design System/` is a second,
+independently built Collabrium system from the same source deck, with
+production React components, an app UI kit, and deck templates this
+skill doesn't have. As of v0.6.0 the token values here were reconciled
+against it — see DESIGN-SYSTEM.md's Reconciliation section for exactly
+what changed and why before treating either system as more current.
+
+## Brand in one line
+
+Warm, collaborative, quietly confident. Talks like a colleague, not a
+control panel. Voice favors human verbs (see, share, meet in the middle)
+over mechanical ones (sync, deploy, restore).
+
+## Core tokens (cheat sheet)
+
+- **Primary font — Mulish:** all UI text — body, buttons, nav, tables,
+  labels, captions — **and every heading**, weight 800, letter-spacing 0.
+- **Secondary font — Source Serif 4:** *not* a heading token. A deliberate
+  overlay for brand-statement moments only (deck ledes, pull quotes, hero
+  numerals), never below ~18–20px, never mixed mid-sentence.
+- **Icons — Phosphor (Fill weight)** primary, **Remix (`-fill` suffix)**
+  fallback when Phosphor lacks the icon. Never mix outline and fill styles.
+  Icons inherit surrounding text color; don't hardcode elemental colors
+  outside a department-specific surface.
+- **Primary action color:** Obsidian `#2B2B2C` — all main CTA buttons.
+- **Neutrals:** `#080808` (primary text) → `#ffffff` (canvas), full 9-step
+  ramp in DESIGN-SYSTEM.md. Plus a **warm canvas** (`#FCFAF5`/`#FAF7F2`)
+  for brand/editorial surfaces only — never product UI.
+- **Brand accents (all confirmed canonical):** Orange `#FF5825`, Salmon
+  Pink `#FF7A90`, Green `#00C26E`, Navy Blue `#1473E6`, Amber `#FFA425`.
+  Each has an 8%/16% background-tint pair (`-bg`/`-bg-strong`) — the only
+  permitted colored backgrounds, and only for the element that owns the
+  content.
+- **5-element system:** each brand color maps to an element and a
+  department cluster (Fire/Orange = Marketing·PR·Sales, Wood/Salmon Pink =
+  Strategy·R&D·Product, Earth/Green = HR·CS·Admin, Water/Navy =
+  Data·Logistics, Gold/Amber = Finance·Legal·Compliance). Use this mapping
+  when color-coding anything department-specific.
+- **Radius is soft and per-surface:** 12px inputs/small buttons, 16px
+  standard buttons, 20px cards/modals/nav, pill for badges/tags/avatars.
+  Never below 12px on an interactive surface.
+- **Elevation is real, not "flat by default":** cards carry `shadow-1` at
+  rest. Every shadow is Neutral-4-based (soft grey), never black.
+- **Motion settles, never bounces:** one easing curve per element
+  (`--ease-flow` for Water, `--ease-flare` for Fire, etc.), `--ease-standard`
+  otherwise. Durations 80–900ms.
+
+## Before you build
+
+1. Check the **Needs Input** list at the top of `DESIGN-SYSTEM.md`. Most
+   token gaps (type scale, spacing, radius) are now resolved and sourced,
+   not guessed — what's left (accessibility targets, a static logo
+   lockup) still needs a placeholder flagged in your output.
+2. Keep Source Serif 4 out of anything dense or functional — body copy,
+   forms, tables, dense numeric columns always stay in Mulish.
+3. Don't invent new brand colors, background tints, shadows, or easing
+   curves — pull from DESIGN-SYSTEM.md's token tables.
+4. For the logo, use `logo.html` (embed it live, e.g. via iframe) rather
+   than a screenshot — there's still no exported static lockup, so a
+   screenshot isn't a real asset.
+
+## Version
+
+v0.7.0-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+Slides). Component specs and rules added in v0.2.0; letter-spacing,
+elevation policy, a consolidated Guidelines list, and tokens.css added in
+v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
+`preview.html` added in v0.4.0; `preview.html` rebuilt again in v0.4.1 into
+a two-pane layout; the `SVG/` vector source library documented in v0.4.2;
+`logo.html`'s label/play-pause UI stripped in v0.4.3; a real installable
+`fonts/` pack in v0.4.4; the Fonts tab compacted in v0.4.5; a live
+Components section added in v0.5.0; radius, elevation, typography, and
+spacing corrected — and warm canvas, elemental tints, and motion added —
+in v0.6.0, reconciled against a teammate's independent build of the same
+deck; two errors from that reconciliation (Button type size, Card
+icon-chip tint) caught on re-verification and fixed in v0.6.1; **10 more
+component specs (SidebarNav, Tabs, Select, Checkbox, Radio, Switch,
+Toast, Tooltip, DataTable, ElementBadge) transcribed from the teammate's
+real source and live-rendered in `preview.html` in v0.7.0 (2026-07-30) —
+bringing the total to 17 built components, with 5 dashboard components
+still flagged as needing an actual design pass.** See changelog at the
+bottom of DESIGN-SYSTEM.md.
+</script>
+
+<script type="text/plain" id="src-md-extended"># Collabrium Design Language System
+
+**v0.7.0-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+(Google Slides). This is a first pass: everything under "Needs Input" below
+is a placeholder, not a signed-off value. Build with it, but flag it in
+your output.
+
+## Overview
+
+Collabrium renders on a near-black-on-white interface (Neutral-9 text on
+Neutral-1 canvas) that reads as calm and product-grade rather than as a
+marketing surface — this is a dense, multi-department dashboard, not a
+landing page. Mulish carries every functional string *and every
+heading* (800 ExtraBold, letter-spacing 0): labels, buttons, tables,
+nav, display through h5. Source Serif 4 is a deliberate overlay for
+brand-statement moments only — a pitch-deck lede, a pull quote, a hero
+numeral — never a heading token, never anything you'd call "UI." Five
+saturated accent colors (Orange, Salmon Pink, Green, Navy, Amber) map
+one-to-one to a five-element metaphor and a department cluster; they
+classify what something belongs to, they never mean "click me" —
+Obsidian `#2B2B2C` is the system's only actionable color, and every
+screen earns exactly one Primary button. Shapes are **soft and
+generous** (20px cards, 16px buttons, 12px inputs — corrected in v0.6.0
+from an earlier, much tighter guess), and elevation is a real
+Neutral-4-based shadow ladder used routinely, not just on modals —
+cards carry `shadow-1` at rest.
+
+---
+
+## Needs Input (read this first)
+
+Items below are either missing from the source brand deck or contradicted
+themselves across slides. Each has a placeholder so work isn't blocked —
+replace with confirmed values as the brand team signs off, and update the
+changelog when you do.
+
+| # | Gap | What's happening | Placeholder in use |
+|---|-----|-------------------|---------------------|
+| 1 | Pink hex conflict | Deck lists Pink `#FF4BB9` on one slide and Salmon Pink `#FF7A90` (tied to the Wood element + department system) on another, more developed slide; the real logo asset added in v0.4.0 also shipped with a third value (`#FFA6A8`) | **✅ Resolved 2026-07-29** — user confirmed this document is the canonical source; `#FF7A90` is final. The logo asset (`logo.html`) has been corrected to match. |
+| 2 | Functional green hex | Deck lists functional Green as `#FD3343`, identical to the Red error color — almost certainly a copy/paste typo; the real logo asset added in v0.4.0 also shipped with a third value (`#00D97B`) for its Earth frame | **✅ Resolved 2026-07-29** — user confirmed this document is the canonical source; `#00C26E` is final. The logo asset (`logo.html`) has been corrected to match. |
+| 3 | No numeric type scale | Typescale tokens had use cases but no sourced size/weight/line-height/letter-spacing — v0.1-v0.5 used an invented guess | **✅ Resolved 2026-07-29 (v0.6.0)** — sourced from a teammate's fuller deck extraction; see [Typescale](#typescale--needs-input-3--resolved-v060) and [Reconciliation](#reconciliation--teammates-design-system) |
+| 4 | No spacing scale | Only "4px base unit, 16px card padding, 8px gap" mentioned — v0.1-v0.5 used an invented 9-step guess | **✅ Resolved 2026-07-29 (v0.6.0)** — real scale sourced from the teammate's extraction; see [Spacing](#spacing--needs-input-4--resolved-v060) |
+| 5 | No border-radius values | No numbers in the deck as originally read — v0.1-v0.5 used an invented flat 4/8/12px guess | **✅ Resolved 2026-07-29 (v0.6.0)** — real per-surface radii (12/16/20px) sourced from the teammate's extraction; see [Radius](#radius--needs-input-5--resolved-v060) |
+| 6 | No accessibility targets | Section exists with blank fields (min body text, min contrast, max line length) | WCAG 2.1 AA defaults proposed in [Accessibility](#accessibility) |
+| 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | First full draft (v0.2.0) in [Components](#components)/[Component Rules](#component-rules), now also **live-rendered** in `preview.html`'s Components section (v0.5.0) with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
+| 8 | No final logo asset | **Further resolved 2026-07-29** — a real animated wordmark + mark SVG (`logo.html`, corrected to this document's palette) plus the full vector source library (`SVG/` — every letter and element icon) now exist. Still missing: a combined static lockup export, clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
+| 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
+| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | Not proposed — needs eng input, not a design guess |
+
+---
+
+## Brand Foundation
+
+**Name:** Collabrium — Astro Digital Growth [OS]. From *Collab*oration +
+Equi*librium*.
+
+**Essence:** The shared home for Astro's digital teams — where six
+functions (Content, Product, Marketing, Sales, Commercial, Editorial) stop
+working around each other and start working together, without losing what
+makes each one good at its job.
+
+**Positioning statement:** "Collabrium is where Astro's Sales, Media,
+Influence, Content, and Studio teams stop working in parallel and start
+working together — so no rep, no editor, no strategist is ever the last to
+know. Built from the ground up to bring people together, not just tools."
+
+**Tone & personality:** Warm, collaborative, quietly confident.
+- **Team-first** — talks like a colleague, not a control panel
+- **Easy confidence** — sure of itself without needing to prove it
+- **Plainspoken** — says the true thing simply, no jargon
+- **Steady** — calm and dependable
+
+**Voice & copywriting:** Write like you're talking to a teammate, not
+briefing a system. Favor warm, human verbs (*see, share, meet in the
+middle*) over mechanical ones (*sync, deploy, restore*). Keep it short and
+plain — confidence doesn't need extra words.
+
+**Content rules ✅ (enriched v0.6.0, sourced from the teammate's
+extraction):**
+- **Person.** Second person for the reader ("Nothing waiting on you"),
+  first-person plural only for the system's own actions ("We'll try
+  again in a minute"). Never "the user."
+- **Casing.** Sentence case everywhere — headings, buttons, table
+  headers, toasts. UPPERCASE is reserved for eyebrow labels and section
+  kickers, always at `--tracking-eyebrow` (0.12em) wide tracking.
+- **Emoji: never.** Not in UI, not in decks. Status is carried by a
+  Phosphor Fill icon and a color.
+- **Numbers.** Malaysian ringgit, `RM 100,000` — space after RM, comma
+  thousands. Tabular figures in Mulish wherever numbers appear in a
+  column.
+- **Empty and error states stay human.** "Nothing waiting on you. When a
+  brief needs your call, it lands here." — not "No records found."
+- **One idea per sentence.** Fragments are fine as a lede.
+- **The em-dash aside is a Collabrium house move** in the product's own
+  copy, for the second beat of a thought ("Balance restored across
+  execution, measurement, and allocation — not just speed for its own
+  sake"). This describes Collabrium's brand voice specifically, not a
+  general writing instruction for this document.
+
+---
+
+## Color Palette
+
+### Brand accents
+
+| Name | Hex | Usage | Element | Department cluster |
+|---|---|---|---|---|
+| Orange | `#FF5825` | Visibility & energy — brand/decorative | Fire | Marketing · PR · Sales · Brand & Creative |
+| Salmon Pink | `#FF7A90` | Growth & vision — brand/decorative. Canonical value (Needs Input #1, resolved) | Wood | Strategy · R&D · Innovation · Product Design |
+| Green | `#00C26E` | Support & stability — brand/decorative. Canonical value (Needs Input #2, resolved) | Earth | HR · People Ops · Customer Success · Admin |
+| Navy Blue | `#1473E6` | Depth & flow — brand/decorative | Water | Data Analytics · Logistics · Supply Chain · Exec Strategy |
+| Amber | `#FFA425` | Order & structure, warnings, celebratory highlights, chart series 6 | Gold | Finance · Legal · Compliance · QA & Audit |
+| Obsidian | `#2B2B2C` | Primary action background, filled CTA buttons, active link borders, selected badge strokes — the dominant CTA color regardless of what brand colors share the screen | — | — |
+
+### Secondary accents (not yet department-mapped)
+
+| Name | Hex | Usage |
+|---|---|---|
+| Purple | `#9F56FF` | AI and premium feature UI, secondary tags, chart series 5 |
+| Turquoise | `#00D9D9` | Additional secondary accent, reserved for future elements |
+
+### Functional colors
+
+| Name | Hex | Usage |
+|---|---|---|
+| Red | `#FD3343` | Errors, destructive actions, invalid input |
+| Green | `#00C26E` | Success icons, valid input. Canonical value (Needs Input #2, resolved — deck's stated hex duplicated Red) |
+
+### Neutrals
+
+| Token | Hex | Usage |
+|---|---|---|
+| Neutral-9 | `#080808` | Primary text, headings, icon strokes, dark surface fills |
+| Neutral-8 | `#171717` | Deepest dark surface — footer bands, full-bleed dark sections |
+| Neutral-7 | `#222222` | Dark surface for inverted sections and modal overlays |
+| Neutral-6 | `#292929` | Near-black accent surface, layered dark contexts |
+| Neutral-5 | `#5a5a5a` | Secondary body text, icon secondary state, muted description, footer copy |
+| Neutral-4 | `#bdbdbd` | Subtle shadow base, disabled control fills |
+| Neutral-3 | `#d8d8d8` | Hairline borders on cards, dividers, input outlines, button strokes |
+| Neutral-2 | `#f0f0f0` | Subtle background tint — alternating sections, card hover, input fills |
+| Neutral-1 | `#ffffff` | Page canvas, card surfaces, button text on dark fills, inverted text |
+
+### Warm canvas ✅ (new in v0.6.0)
+
+A deliberate **second surface** for brand and editorial contexts — decks,
+landing pages, type specimens, printed collateral. Product UI stays on
+white (`Neutral-1`). This is not a dark-mode-style global theme swap;
+it's a context choice.
+
+| Token | Hex | Usage |
+|---|---|---|
+| Canvas warm | `#FCFAF5` | Page canvas on brand/editorial surfaces |
+| Canvas warm card | `#FAF7F2` | Card fill on the warm canvas |
+
+### Elemental background tints ✅ (new in v0.6.0)
+
+**These are the only permitted coloured backgrounds in the system.** A
+surface may take a background colour, but only the lightest shade of the
+element that *already owns that content* — 8% element on white, or the
+`-strong` step (16%) for a nested or hovered layer inside an
+already-tinted panel. Never a mid or full-strength element colour as a
+fill, and never an element that doesn't own the content.
+
+| Element | `-bg` (8%) | `-bg-strong` (16%) | Owns |
+|---|---|---|---|
+| Fire | `#FFEEE9` | `#FFDED3` | Marketing · PR · Sales · Brand & Creative |
+| Wood | `#FFF2F4` | `#FFE4E9` | Strategy · R&D · Innovation · Product Design |
+| Earth | `#E6F9F1` | `#CDF3E2` | HR · People Ops · Customer Success · Admin |
+| Water | `#E8F1FD` | `#D0E3FB` | Data · Logistics · Supply Chain · Exec Strategy |
+| Gold | `#FFF6E9` | `#FFEDD3` | Finance · Legal · Compliance · QA & Audit |
+
+### Elements — motif & motion (for department-colored surfaces)
+
+| Element | Motif | Motion |
+|---|---|---|
+| Fire (Orange) | Burst patterns, upward-tapered forms, irregular organic edges | Pulse outward, rise upward, flare briefly; expanding ring, warm radial glow |
+| Wood (Salmon Pink) | Branching line structures, cross-section texture, organic curves | Branch outward from a point, growing line, expand from a single point |
+| Earth (Green) | Grid structures, horizontal banded layers, concentric squares | Settle downward, gentle weight, anchored transitions |
+| Water (Navy) | Sinuous single-line curves, droplet/teardrop forms, flow diagrams | Flow in from the side, liquid-fill chart animation, continuous transitions |
+| Gold (Amber) | Hexagonal grid, sharp diagonal cuts, faceted forms, ledger lines | Arrive with sharp precision, clean geometric wipes, brief glint on hover |
+
+---
+
+## Typography
+
+**Primary — Mulish.** Carries **everything functional and every
+heading**: display through h5, body copy, navigation, buttons, form
+fields, table content, captions, metadata, small UI labels. Keep in the
+10–16px range for UI contexts. Headings are weight **800 ExtraBold** at
+**letter-spacing 0** — the weight does the work, not tracking. SIL Open
+Font License 1.1, free, self-hosting and commercial use permitted, no
+attribution required.
+
+**Secondary — Source Serif 4.** ⚠️ **Corrected in v0.6.0** — this is
+*not* the display/heading font, as earlier drafts of this document
+wrongly implied. Mulish owns the heading tokens. Source Serif 4 is a
+deliberate **overlay for brand-statement moments only**: pitch-deck
+ledes, brand story copy, pull quotes, and hero display numerals. Rules:
+never below ~18–20px; never mix fonts inside a single sentence
+(emphasis is a weight change, not a font swap); never in a dense
+numeric column or table; at most one serif hero moment per view. Same
+license terms as Mulish.
+
+**Fallback stack:**
+```css
+font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+```
+
+**Local install — `fonts/collabrium-fonts.zip`.** A real font pack in
+this folder, sourced directly from Google's official font repository
+(github.com/google/fonts, not the web-embed CSS API — those are
+unicode-range subsets, not proper desktop files): one variable-font
+`.ttf` per family/style (covers every weight in a single file — no
+separate Light/Regular/Bold downloads needed), plus each family's
+`OFL.txt`. `preview.html`'s Fonts tab has a "Download font pack" button
+wired to it. A browser cannot install a font into the OS directly (no
+website can — that's a hard, universal security boundary, not something
+specific to this page), so after downloading, the last step is always
+manual: double-click each `.ttf` and confirm "Install Font."
+
+### Typescale ✅ (Needs Input #3 — resolved v0.6.0)
+
+Every token below is Mulish (Primary) at letter-spacing 0 unless noted.
+Values are sourced, not guessed: they were corrected in v0.6.0 against a
+teammate's independent extraction of the same source deck (see
+[Reconciliation](#reconciliation--teammates-design-system)). What changed
+from the earlier draft: heading weights went 600 → **800**, negative
+letter-spacing was removed entirely, sizes shifted down (display 56 →
+40), `display` moved from Secondary to Primary font, and a **responsive
+`-lg` tier** was added for ≥1280px viewports.
+
+| Token | Size | Line-height | Size (lg) | Line-height (lg) | Weight | Use case |
+|---|---|---|---|---|---|---|
+| display | 40px | 56px | 48px | 66px | 800 | Hero headlines, cover slides |
+| h1 | 32px | 38px | 40px | 56px | 800 | Page-level heading |
+| h2 | 26px | 36px | 32px | 44px | 800 | Section headings |
+| h3 | 22px | 30px | 24px | 34px | 800 | Card/subsection titles |
+| h4 | 20px | 28px | 22px | 30px | 800 | Minor headers/section label |
+| h5 | 16px | 20px | — | — | 700 | Table group headers |
+| body1 | 16px | 22px | — | — | 500 | Default body copy |
+| body1 strong | 16px | 22px | — | — | 700 | Emphasis in body copy |
+| body2 | 14px | 20px | — | 22px | 400 | Secondary supporting text |
+| body2 strong | 14px | 20px | — | 22px | 700 | Emphasis in body2 |
+| label1 | 14px | 20px | — | — | 700 | Prominent form/field labels |
+| label2 | 13px | 18px | — | — | 700 | Buttons, tags, chips |
+| label3 | 11px | 16px | — | — | 700 | Metadata tags, dense table headers (uppercase, +0.04em) |
+| link1 | 16px | 24px | — | — | 500 | Primary inline links |
+| link2 | 13px | 18px | — | — | 500 | Footer links, inline micro-actions |
+| footnote | 12px | 16px | — | — | 400 | Legal disclaimers, citations |
+| caption | 12px | 16px | — | — | 400 | Timestamps, image captions |
+
+**Eyebrow/kicker tracking:** `+0.12em` (`--tracking-eyebrow`) for small
+uppercase labels above a heading. This is the only other place tracking
+is applied besides `label3`.
+
+Note: the deck's two usage-matrix slides disagree on the pitch-deck/
+marketing row (one says Secondary font for "pitch deck title slides" and
+"quote/testimonial callouts," the other broadens this to general marketing
+copy and even the logo wordmark). Treated the narrower, first version as
+canonical — logo wordmark should be neither font per the deck's own
+"Logo wordmark: Neither" row on the first matrix.
+
+---
+
+## Iconography
+
+Two-library system, filled variants only — no outlines, no mixed styles.
+
+- **Primary — Phosphor** (phosphoricons.com, MIT License, free). Use the
+  **Fill** weight exclusively.
+- **Fallback — Remix Icon** (remixicon.com, Apache 2.0, free). Only when
+  Phosphor lacks the icon. Always the `-fill` suffix variant.
+
+**Color rule:** icons inherit the text color of their surrounding context.
+They don't use elemental/accent colors unless inside a department-specific
+surface where that element's color is already established.
+
+**Size scale:**
+
+| Token | Size | Usage |
+|---|---|---|
+| icon-micro | 14px | Table cells, tag labels, badge indicators |
+| icon-sm | 16px | Inline with body text, buttons, form field icons, status indicators |
+| icon-base | 20px | Sidebar navigation, card action buttons, standard UI |
+| icon-md | 24px | Card headers, section titles, modal headers, featured actions |
+| icon-lg | 32px | Department indicators, feature highlights, onboarding steps |
+| icon-empty | 48px | Empty state panels, zero-data views, section placeholders |
+| icon-hero | 64px | Full-page empty states, first-run onboarding, error pages |
+
+---
+
+## Spacing & Shape
+
+### Spacing ✅ (Needs Input #4 — resolved v0.6.0)
+
+Base unit 4px. Tokens are **value-named** (`spacing-16` = 16px) rather
+than step-numbered, matching the source scale exactly. Corrected v0.6.0:
+the real scale includes 20px and 40px steps the earlier draft missed, and
+tops out at 120px rather than 96px.
+
+| Token | Value | Purpose |
+|---|---|---|
+| spacing-4 | 4px | Base unit |
+| spacing-8 | 8px | Element gap — default gap between elements |
+| spacing-12 | 12px | Tight internal padding (button horizontal padding, table cells) |
+| spacing-16 | 16px | Card padding — the deck's stated default |
+| spacing-20 | 20px | Compact section-internal spacing |
+| spacing-24 | 24px | Section-internal spacing (card title block to body), dialog padding |
+| spacing-32 | 32px | Page gutter — horizontal page padding |
+| spacing-40 | 40px | Large internal spacing (empty-state vertical padding) |
+| spacing-48 | 48px | Section gap — between distinct dashboard sections |
+| spacing-60 | 60px | Large section gap — between major page regions |
+| spacing-120 | 120px | Full-page / hero-level spacing |
+
+**Semantic aliases:** `--card-padding` (16px), `--element-gap` (8px),
+`--section-gap` (48px), `--page-gutter` (32px). Prefer these in component
+code — they say *why*, not just how much.
+
+**Content max-width:** 1200px for centered, reading-width content
+(settings forms, detail panels). Collabrium is a product surface, so most
+layouts run full-bleed within the app shell rather than centering.
+
+### Radius ✅ (Needs Input #5 — resolved v0.6.0)
+
+⚠️ **The earlier 4/8/12px scale was wrong** — a guess, and much too
+tight. Collabrium is a distinctly **soft-cornered** system: 20px on
+cards, 16px on buttons. Radius is specified **per surface**, not as one
+abstract ramp.
+
+| Token | Value | Applies to |
+|---|---|---|
+| radius-sm | 12px | Inputs, small buttons, icon buttons |
+| radius-md | 16px | Standard and large buttons |
+| radius-lg | 20px | Cards, modals, nav, feature panels, swap widgets |
+| radius-pill | 999px | Pills, badges, tags, avatars |
+| radius-link | 32px | Link-styled pill CTAs |
+
+**Rule:** one radius token per component type across the whole product —
+see [Component Rules](#component-rules), Rule 1. Never go below 12px on
+an interactive surface; sharp corners are off-brand here.
+
+### Elevation ✅ (corrected v0.6.0)
+
+⚠️ **The earlier "flat by default" policy was wrong.** Collabrium has a
+real shadow ladder and uses it routinely — cards carry `shadow-1` at
+rest, not just a border. Every shadow is built on **Neutral-4
+(`#bdbdbd`), never black** — that's what keeps them soft and on-brand.
+
+| Token | Value | Use |
+|---|---|---|
+| shadow-hairline | `0 0 0 1px #d8d8d8` | Hairline ring (border substitute) |
+| shadow-1 | `0 1px 2px rgba(189,189,189,.45)` | Cards, secondary buttons — default resting elevation |
+| shadow-2 | `0 2px 8px rgba(189,189,189,.42)` | Hover / raised state |
+| shadow-3 | `0 8px 24px rgba(189,189,189,.40)` | Popovers, dropdowns |
+| shadow-4 | `0 16px 48px rgba(189,189,189,.44)` | Dialogs / modals |
+| shadow-inset | `inset 0 1px 0 rgba(255,255,255,.6)` | Optional top-edge highlight |
+| shadow-focus | `0 0 0 3px rgba(20,115,230,.28)` | Focus ring (Water-based) |
+| shadow-overlay | `rgba(8,8,8,.56)` | Modal scrim (a fill, not a shadow) |
+
+**Focus rings are Water (Navy), not Obsidian** — corrected v0.6.0. This
+is the one place an element color legitimately drives an interactive
+state.
+
+### Motion ✅ (new in v0.6.0)
+
+Previously undocumented — this section didn't exist before. The
+governing principle: **"Movement settles; it never bounces."** No
+overshoot, no elastic easing.
+
+| Token | Value | Use |
+|---|---|---|
+| duration-instant | 80ms | Micro feedback (press, toggle) |
+| duration-fast | 140ms | Hover, focus transitions |
+| duration-base | 220ms | Default UI transitions |
+| duration-slow | 360ms | Panel / section reveals |
+| duration-ambient | 900ms | Background / ambient motion |
+
+Each element owns an easing curve, used when the motion is thematically
+tied to that element (e.g. a Water-owned panel slides with
+`--ease-flow`). `--ease-standard` is the default for everything else —
+reach for an elemental curve deliberately, not by default.
+
+| Token | Curve | Character |
+|---|---|---|
+| ease-standard | `cubic-bezier(.2,.6,.2,1)` | Default UI easing — quick out, soft settle |
+| ease-settle | `cubic-bezier(.16,.84,.24,1)` | **Earth** — anchored arrivals |
+| ease-flow | `cubic-bezier(.37,0,.29,1)` | **Water** — continuous, uninterrupted |
+| ease-flare | `cubic-bezier(.05,.7,.1,1)` | **Fire** — pulse outward, rise |
+| ease-precise | `cubic-bezier(.4,0,.2,1)` | **Gold** — sharp, decisive |
+| ease-grow | `cubic-bezier(.25,.46,.45,.94)` | **Wood** — branching growth |
+
+---
+
+## Logo
+
+**Concept — "Balance in motion."** Collabrium's mark is built on a
+5-elements theory (Gold, Fire, Water, Wood, Earth) representing how
+different functions/energies sustain each other in balance — none succeeds
+alone, the system depends on collaboration to maintain equilibrium. Each
+element maps to a brand color and department cluster (see [Color
+Palette](#color-palette)).
+
+**The real asset — `logo.html`.** A working animated wordmark exists in
+this folder: the word "COLLABRIUM" with the O rendered as a looping
+filmstrip that cycles through the five elements, plus four additional
+decorative frames (sun, moon, cloud, mountain) that are **motion-graphic
+variety only** — they're not part of the 5-element/department
+classification system and don't map to any documented color or
+department. All 9 frames, including moon, are in the loop — the source
+asset originally shipped with a visible element-name label and a
+play/pause control; both were removed at the user's request (2026-07-29)
+so the file embeds as a clean, always-animating mark with no dev/debug
+UI. The animation content itself is unchanged. As received, two of the five element frames used
+off-palette hex values (Wood `#FFA6A8`, Earth `#00D97B`); both have been
+corrected to the canonical values in this document (`#FF7A90`,
+`#00C26E` — see Needs Input #1/#2, resolved). The wordmark itself uses
+its own ink color, `#2F2F2F`, a deliberately softer black than
+Neutral-9 — this is a legitimate independent logo choice, not a
+conflict with the UI neutral ramp, and hasn't been changed.
+
+**Vector source library — `SVG/`.** This folder holds the individual
+vector files `logo.html` is assembled from — confirmed by diffing them
+against the animation's path data, they match exactly (letters and the
+five core-element icons are byte-identical to what's embedded in
+`logo.html`). Use these, not a screenshot or a hand-traced copy, for any
+new build that needs the mark in pieces (e.g. a static lockup, a
+single-element icon on its own, print work).
+
+- **Wordmark letters (8 files):** `a.svg`, `b.svg`, `c.svg`, `i.svg`,
+  `l.svg`, `m.svg`, `r.svg`, `u.svg` — every unique letter in
+  "C•LLABRIUM" except the O, which is the animated element mark, not a
+  static letter.
+- **Element icons (10 files):** `fire.svg`, `wood.svg`, `earth.svg`,
+  `water.svg`, `gold.svg` (the five documented elements) plus `sun.svg`,
+  `moon.svg`, `cloud.svg`, `mountain.svg` (the four decorative-only
+  extras already noted above) and **`coin.svg`** — a tenth icon that
+  is **not** in `logo.html`'s 9-frame animation and doesn't map to any
+  documented element or department. ⚠️ Flagging, not guessing: is `coin`
+  meant to extend the animation, replace `gold`, or serve an unrelated
+  use (billing/pricing UI)? Confirm with the brand team before building
+  on it.
+- **Motive variants (5 files):** `motive sun.svg` and `motive moon.svg`
+  are byte-identical duplicates of `sun.svg`/`moon.svg` (no actual
+  difference). `motive water.svg`, `motive cloud.svg`, and
+  `motive coin.svg` are genuinely different artwork from their base
+  icon — doubled/grounded/alternate compositions that read as
+  background-texture motifs rather than a small mark, consistent with
+  the "Motif" column in the Elements table above. Their exact intended
+  usage (pattern fill vs. standalone icon) isn't documented anywhere —
+  flagged as unconfirmed, not guessed.
+- **⚠️ Known color drift in the raw exports:** `wood.svg` still carries
+  the original off-palette `#FFA6A8` and `earth.svg`/`mountain.svg`
+  still carry `#00D97B` — the same conflict already resolved in
+  `logo.html` (Needs Input #1/#2). These source files have **not** been
+  edited to match, since they may be managed as master exports outside
+  this repo (e.g. from Figma/Illustrator) — don't silently "fix" them;
+  confirm with whoever owns that source before touching fill colors
+  there. `logo.html`'s corrected values remain the canonical reference
+  for Wood and Earth either way.
+
+⚠️ **Needs Input #8 — further resolved, not closed.** Individual static
+vector assets now exist for every letter and element (see `SVG/` above),
+closing most of the original gap. Still missing: a single **combined**
+static lockup (all letters + a chosen element frame composed as one
+file, for contexts that can't run the animation — favicons, print,
+email, a static deck slide), a clear-space rule, a minimum size, and
+monochrome/reverse versions. Don't treat a screenshot of `logo.html`, or
+an ad-hoc composite of the `SVG/` files, as a final lockup — confirm
+with the brand team before using one in a real build.
+
+## Photography & Visual Direction
+
+⚠️ **Needs Input #9 — explicitly blocked.** The source deck states:
+"Placeholder. Will be incorporated later when we nail down the logo." No
+draft proposed; this depends on the logo work above.
+
+---
+
+## Accessibility
+
+⚠️ **Needs Input #6.** Deck has an Accessibility section with blank
+values. Proposed WCAG 2.1 AA defaults below — confirm with brand/eng
+before treating as policy.
+
+| Target | Draft value |
+|---|---|
+| Minimum body text | 14px (matches body2 token) |
+| Minimum contrast ratio | 4.5:1 for body text, 3:1 for large text (24px+) and UI components |
+| Maximum line length | ~75 characters |
+
+## Technical Implementation
+
+⚠️ **Needs Input #10.** Deck has this section with blank values (loading
+strategy, font-display value, file formats served, design tokens/CSS
+variable format). This needs engineering input, not a design placeholder —
+flagged, not guessed.
+
+## Component Rules
+
+These apply to every component below. They exist so ten different people
+(or ten different Claude sessions) building ten different screens produce
+one consistent product, not ten dialects.
+
+1. **One radius per component type.** Buttons, inputs, and tags always use
+   the same radius token across the whole product — don't let one screen's
+   button be `radius-sm` and another's `radius-md`. See the mapping in each
+   component below.
+2. **Obsidian is the only primary-action color.** Brand/element colors
+   (Orange, Salmon Pink, Green, Navy, Amber) classify — they mark which
+   department or element something belongs to. They never mean "click me."
+   A green badge on an HR record and a green primary button are not the
+   same kind of signal; only Obsidian carries the second one.
+3. **Only use tokens, never raw values.** Padding, gaps, font sizes, radii,
+   and colors all come from the tables in this document. If a screen needs
+   a value that isn't a token, that's a sign the token set is incomplete —
+   flag it, don't invent a one-off pixel value.
+4. **Every interactive component defines its full state set.** Default,
+   hover, active/pressed, focus-visible, and disabled at minimum; add error
+   for anything that takes input. A component spec that only shows the
+   default state isn't finished.
+5. **Contrast is checked, not assumed.** Every text/background and
+   icon/background pairing in a component must clear the ratios in
+   [Accessibility](#accessibility) (draft: 4.5:1 body, 3:1 large
+   text/UI). This applies inside brand-colored surfaces too — e.g. white
+   text on Amber `#FFA425` fails AA; use Obsidian text on light accent
+   fills instead (see each component's notes).
+6. **Icons stay Phosphor Fill inside components**, per
+   [Iconography](#iconography). Never mix in a Remix icon next to a
+   Phosphor one within the same component instance.
+7. **Secondary font (Source Serif 4) does not appear inside components.**
+   Buttons, inputs, tags, table cells, and modal body copy are Primary
+   font only, per [Typography](#typography). A modal *title* may use `h3`
+   (Primary, per the resolved typescale) — Secondary stays reserved for
+   marketing/hero moments outside the component layer.
+
+---
+
+## Components
+
+⚠️ **First full draft (v0.2.0) — see Needs Input #7.** Built from the
+token set above since the source deck defined none of this. Treat sizes,
+paddings, and state colors as a starting point for review, not a
+signed-off spec — nothing here has been checked against a real screen or
+by the brand/design team yet.
+
+**Live gallery — `preview.html`, Components tab (v0.7.0).** Every
+component below is also rendered live in `preview.html`'s left pane,
+right next to this same spec in the DESIGN.md tab on the right — each
+with a "Copy markup" button. That page is the reference implementation;
+these tables are the reference spec. If they ever disagree, that's a
+bug — fix both together (see the doc-sync rule: nothing here ships
+without preview.html matching, and nothing in preview.html ships
+without this file updated to match).
+
+**Scope note:** 17 components are specced and built now — the original
+7 basics (Button, Input field, Card, Badge & Tag, Table row, Modal /
+dialog, Empty state) plus 10 more transcribed directly from the
+teammate's real component source in v0.7.0 (SidebarNav, Tabs, Select,
+Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) — see
+each section below for source notes. **Still not specced or built:**
+stat/KPI cards, filters, pagination, and date pickers (dashboard
+components with no source in either the original brand deck or the
+teammate's build — these need an actual design pass, not a
+transcription) and chart color mapping (needs a real chart library
+decision first). Don't skip straight to markup for a new component —
+write the spec here first (variants, sizes, states, Do/Don't), the same
+process every component above went through.
+
+### Button
+
+All buttons are **weight 700**. Corrected v0.6.0: radius now varies by
+size, Secondary carries `shadow-1`, and two variants were added.
+
+| Variant | Fill | Text/icon color | Border | Use for |
+|---|---|---|---|---|
+| Primary | Obsidian `#2B2B2C` | Neutral-1 `#ffffff` | none | The one main action on a screen or card |
+| Secondary | Neutral-1 `#ffffff` | Neutral-9 `#080808` | 1px Neutral-3 + `shadow-1` | Secondary actions alongside a primary button |
+| Ghost | transparent | Neutral-9 `#080808` | none | Low-emphasis actions, toolbar/table-row actions |
+| Danger | Red `#FD3343` | Neutral-1 `#ffffff` | none | Destructive commit actions (delete, revoke) |
+| Link | transparent | Neutral-9 `#080808` | none, underlined (3px offset) | Inline text-level actions; no height or padding |
+
+**Sizes:**
+
+⚠️ **Font sizes corrected 2026-07-29** — re-verified directly against the
+teammate's `Button.jsx` (not just their docs) and the earlier v0.6.0 pass
+had this wrong: it mapped button type to the `label1/2/3` scale (14/13/11px),
+but the real component uses **14px for sm, and 16px for both md and lg**
+— md and lg share a type size and differ only in height/padding. That
+16px doesn't correspond to any named label token in this document; it's
+a component-specific override, not a scale mismatch to "fix" elsewhere.
+
+| Size | Height | Horizontal padding | Type size | Weight | Radius |
+|---|---|---|---|---|---|
+| sm | 32px | spacing-12 (12px) | 14px | 700 | `radius-sm` (12px) |
+| md (default) | 40px | spacing-16 (16px) | 16px | 700 | `radius-md` (16px) |
+| lg | 48px | spacing-20 (20px) | 16px | 700 | `radius-md` (16px) |
+
+**States:**
+
+| State | Primary | Secondary | Ghost |
+|---|---|---|---|
+| Default | Obsidian fill | Neutral-1 fill, Neutral-3 border | transparent |
+| Hover | Neutral-8 `#171717` fill | Neutral-2 `#f0f0f0` fill | Neutral-2 fill |
+| Active/pressed | Neutral-7 `#222222` fill | Neutral-3 fill | Neutral-3 fill |
+| Focus-visible | above + 2px Obsidian outline, 2px offset | same | same |
+| Disabled | Neutral-4 `#bdbdbd` fill, Neutral-1 text | Neutral-3 border, Neutral-4 text | Neutral-4 text |
+| Loading | Primary fill, centered spinner replaces label, button width unchanged | same pattern | same pattern |
+
+Leading icon optional, `icon-sm` (16px), same color as label. Icon-only
+buttons use a square hit area matching the button's height (e.g. 40×40 for
+md) and require an `aria-label`.
+
+**Do:** keep one Primary button per screen/card region. **Don't:** use an
+element/department color as a button fill — that's a classification color,
+not an action color (Rule 2 above).
+
+### Input field
+
+Anatomy, top to bottom: label → input box → helper or error text.
+
+| Part | Spec |
+|---|---|
+| Label | caption token at weight 700, Neutral-9 text, spacing-4 (4px) below it before the input |
+| Input box | 40px height (md; sm 32px, lg 48px), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) horizontal padding, body1 type at weight 500 |
+| Helper text | caption token, Neutral-5, spacing-4 above it |
+| Error text | caption token at weight 700, Red `#FD3343`, replaces helper text |
+
+**States:**
+
+| State | Border | Fill | Notes |
+|---|---|---|---|
+| Default | Neutral-3 | Neutral-1 | — |
+| Focus | Neutral-3 + `shadow-focus` | Neutral-1 | Water-based 3px ring, not an Obsidian border swap (corrected v0.6.0) |
+| Error | 1px Red `#FD3343` | Neutral-1 | Error text replaces helper text below |
+| Disabled | Neutral-3 | Neutral-2 | Neutral-5 text, no cursor |
+
+Optional leading/trailing icon, `icon-sm` (16px), Neutral-5 — sits inside
+the input box, spacing-8 from the text.
+
+**Do:** always render a `<label>`, even if visually hidden. **Don't:** use
+placeholder text as a substitute for a label — placeholders disappear the
+moment someone types, per the source deck's own accessibility intent.
+
+### Card
+
+Base surface for grouping content — dashboard tiles, list items, panels.
+
+| Property | Value |
+|---|---|
+| Fill | Neutral-1 `#ffffff` |
+| Border | 1px Neutral-3 `#d8d8d8` |
+| Elevation | `shadow-1` at rest — cards carry both border and shadow (corrected v0.6.0) |
+| Radius | `radius-lg` (20px) |
+| Padding | spacing-16 (16px), per the deck's stated card padding |
+| Header gap | spacing-12 (12px) between icon-chip and title block — ⚠️ corrected 2026-07-29, was wrongly generalized to spacing-8 |
+| Header-to-body gap | spacing-16 (16px), only when a subtitle or body content follows the header |
+| Title | h5 (16px/700). Subtitle: caption, Neutral-5, weight 400 |
+| Transition | `box-shadow var(--duration-base) var(--ease-settle)` |
+
+**Footer (optional)** — ⚠️ added 2026-07-29, missing from earlier drafts:
+spacing-16 (16px) margin above it, spacing-12 (12px) top padding, 1px
+Neutral-3 top border, caption type, Neutral-5. Same visual pattern as
+the Modal footer's divider, scaled down.
+
+**Variants:**
+- **Static** — default surface above, no interaction.
+- **Interactive/clickable** — hover raises to `shadow-2`; cursor pointer; focus-visible gets `shadow-focus`.
+- **Element-accented** — a 3px top border in the owning element's color. The rest of the card stays neutral.
+- **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color. ⚠️ **Tint corrected 2026-07-29:** the chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
+- **Warm** — `canvas-warm-card` fill, border dropped. Brand/editorial contexts only, never product UI.
+- **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
+
+**Do:** let cards carry `shadow-1` — that's the intended resting state.
+Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
+they're not interchangeable. **Don't:** tint a card with an element that
+doesn't own its content.
+
+### Badge & Tag
+
+⚠️ **Corrected v0.6.0 — these are two separate components**, previously
+merged into one here.
+
+**Badge** — conveys *status or tone*. 22px tall, `spacing-8` horizontal
+padding, caption type at weight 700, `radius-pill`, and — new in v0.6.0 —
+**a 1px border** in a stronger tint of the same hue, which is what makes
+these read as deliberate at small sizes.
+
+| Variant | Fill | Text | Border |
+|---|---|---|---|
+| Neutral | Neutral-2 `#f0f0f0` | Neutral-5 | Neutral-3 |
+| Success | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Danger | Red at 10% | Red `#FD3343` | Red at 30% |
+| Warning | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
+| Info | Water at 10% | Water `#1473E6` | Water at 28% |
+| Selected | Neutral-1 | Neutral-9 | Obsidian `#2B2B2C` |
+
+Note the darkened Success and Warning text values — full-strength Green
+and Amber both fail AA on their own light fills at this size.
+
+**Tag** — labels *which element/department owns* something. 24px tall,
+10px horizontal padding, caption type at weight 700, `radius-pill`,
+Neutral-2 fill, with a **6px dot** in the element's full-strength color
+and matching text color. Distinct from Badge because ownership is not a
+status.
+
+Both accept an optional leading `icon-micro` (14px) in the text color.
+
+**Do:** use Badge for state (Live, Paused, Blocked), Tag for ownership
+(Fire · Marketing). **Don't:** fill either solid with a brand color and
+put white text on it — several accents fail contrast that way at this
+size.
+
+### Table row
+
+| Part | Spec |
+|---|---|
+| Header row | label3, Neutral-5 text, uppercase, 1px Neutral-3 border-bottom only |
+| Body row | body2, Neutral-9 text, 1px Neutral-3 border-bottom, spacing-12 (12px) vertical padding |
+| Row hover | Neutral-2 fill |
+| Row selected | Neutral-2 fill + 2px Obsidian left border |
+| Numeric columns | right-aligned, tabular figures if the font supports them |
+| Cell icon | `icon-micro` (14px), inherits cell text color |
+
+**Do:** apply the border only to `border-bottom`, never both top and
+bottom on every row — a table with hairlines on all four sides of every
+cell reads as noisy at data-table density. **Don't:** exceed roughly 8-10
+visible columns before reaching for horizontal scroll or a
+column-priority/collapse pattern; a table that requires zooming out to
+read is a layout failure, not a data problem.
+
+### Modal / dialog
+
+| Part | Spec |
+|---|---|
+| Overlay | `shadow-overlay` — Neutral-9 at 56% opacity, covers viewport |
+| Panel | Neutral-1 fill, 1px Neutral-3 border, `radius-lg` (20px), `shadow-4`, max-width ~480px for simple confirmations, wider for forms |
+| Header | h3 title (22px/800) + optional description in body1/Neutral-5 + Ghost icon-button close (`icon-base`, 20px, top-right) |
+| Body | body1, `spacing-24` padding on all sides |
+| Footer | Secondary button + Primary button, right-aligned, `spacing-8` gap, `spacing-24` above |
+
+**Do:** put the Primary (commit) action on the right, Secondary (cancel)
+on the left of it, matching the button order convention above. **Don't:**
+use a modal for anything that isn't a focused, single decision — long
+forms or multi-step flows need a full page or panel, not a modal (this
+mirrors the deck's own steady, uncluttered tone).
+
+### Empty state
+
+| Part | Spec |
+|---|---|
+| Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color (corrected v0.6.0 — was Neutral-5) |
+| Heading | h4 (20px/800), Neutral-9 |
+| Body | body1 at weight 500, Neutral-5, max-width ~380px |
+| Action | optional Primary button below the body text, `spacing-8` above it |
+| Container | `spacing-40` vertical / `spacing-24` horizontal padding, `spacing-8` internal gap, centered |
+
+**Do:** always say what causes the empty state and, where possible, how to
+resolve it ("No campaigns yet — create your first one") rather than a bare
+"No data." **Don't:** use a generic spinner or blank card as a stand-in
+for a real empty state — the deck's icon-empty/icon-hero tokens exist
+specifically so this state gets real visual weight.
+
+### SidebarNav
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
+Primary app-level navigation, not a page-local menu.
+
+| Part | Spec |
+|---|---|
+| Container | 240px width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding, spacing-4 (4px) gap between items |
+| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot |
+| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 |
+| Nav item | 40px height, full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
+| Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
+| Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Icon | `icon-base` (20px); may take an element color override when the item is department-specific |
+| Trailing count | optional, caption/700/Neutral-5, right-aligned |
+| Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
+| Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
+
+Label truncates with ellipsis rather than wrapping.
+
+**Do:** use section labels to group items by department/area, one level
+deep. **Don't:** nest a second level of grouping — if the hierarchy needs
+more than one level, that's a sign the item belongs in a sub-page's Tabs
+instead.
+
+### Tabs
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Tabs.jsx`.**
+In-page section switching, not app-level navigation (use SidebarNav for that).
+
+| Part | Spec |
+|---|---|
+| Container | flex row, spacing-4 gap, 1px Neutral-3 border-bottom (full-width track) |
+| Tab | inline-flex, spacing-8 gap, 40px height, 0/spacing-12 padding, no fill or border, body1 weight 700 |
+| Tab — active | Neutral-9 text, 2px Obsidian underline (drawn as an **inset** `box-shadow: inset 0 -2px 0 var(--color-obsidian)`, not a real border — keeps the underline from shifting row height) |
+| Tab — inactive | Neutral-5 text, no underline |
+| Icon (optional) | `icon-sm` (16px), leading |
+| Trailing count (optional) | caption/700/Neutral-5 |
+| Transition | `color`, `box-shadow` — `var(--duration-fast) var(--ease-standard)` |
+
+**Do:** keep tabs to a single row — wrap the container or let it scroll
+horizontally rather than shrinking labels to fit. **Don't:** use Tabs for
+more than ~6 sections; beyond that, use SidebarNav or a Select instead.
+
+### Select
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Select.jsx`.**
+Same anatomy and sizing as Input field, so the two align in a form row.
+
+| Part | Spec |
+|---|---|
+| Label (optional) | caption, weight 700, Neutral-9, spacing-4 below it |
+| Box | height by size (sm 32 / md 40 / lg 48, same as Button/Input), `radius-sm` (12px), 1px Neutral-3 border (Red on error), Neutral-1 fill (Neutral-2 when disabled) |
+| Native `<select>` | fills the box, spacing-12 (12px) left padding, 36px right padding (room for the caret), body1 weight 500, transparent background, no native appearance |
+| Caret | `caret-down`, `icon-sm` (16px), absolute right spacing-12, Neutral-5, `pointer-events: none` |
+| Hint text | caption, Neutral-5, below the box |
+| Error text | caption, weight 700, Red, replaces hint |
+| Disabled | Neutral-2 fill, `cursor: not-allowed` |
+
+**Do:** reuse Input field's exact sizing/radius/border so Select and text
+inputs align cleanly in the same form row. **Don't:** restyle the native
+option list — leave it browser-default; this component only styles the
+closed state.
+
+### Checkbox
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Checkbox.jsx`.**
+Supports multi-select and an indeterminate (partial-selection) state.
+
+| Part | Spec |
+|---|---|
+| Box | 18×18px, 6px radius (⚠️ a one-off literal value — doesn't map to `radius-sm` or any named token; a compact control gets its own smaller radius), spacing-8 gap to the text, 2px top margin for optical alignment with the first text line |
+| Box — unchecked | 1px Neutral-3 border, Neutral-1 fill |
+| Box — checked / indeterminate | Obsidian border and fill, `icon-micro` (14px) check or minus glyph in Neutral-1 |
+| Label text | body1, weight 500, Neutral-9 |
+| Description (optional) | caption, Neutral-5, below the label |
+| Disabled | 50% opacity, `cursor: not-allowed` |
+| Transition | `background-color`, `border-color` — `var(--duration-fast) var(--ease-standard)` |
+
+**Do:** pair every checkbox with a real `<label>`, never an icon alone.
+**Don't:** reuse the 6px box radius anywhere else — it belongs to this
+control's compact size only, not the shared radius scale.
+
+### Radio
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Radio.jsx`.**
+Same text/spacing pattern as Checkbox; visually an outline that never
+fills solid.
+
+| Part | Spec |
+|---|---|
+| Circle | 18×18px, `radius-pill`, spacing-8 gap to the text, 2px top margin for optical alignment |
+| Circle — unchecked | 1px Neutral-3 border, Neutral-1 fill |
+| Circle — checked | 1px Obsidian border, Neutral-1 fill, inner 9×9 Obsidian dot (`radius-pill`) |
+| Label / description | same as Checkbox — body1/weight 500/Neutral-9, caption/Neutral-5 |
+| Disabled | 50% opacity, `cursor: not-allowed` |
+| Transition | `border-color` — `var(--duration-fast) var(--ease-standard)` |
+
+Grouped via a shared native `name` attribute — only one Radio per group
+may be checked.
+
+**Do:** use Radio for a mutually-exclusive choice of ≤4-5 visible
+options; reach for Select once it's more than that. **Don't:** mix Radio
+and Checkbox visuals within the same choice group — the outline-only vs.
+filled-box distinction signals single- vs. multi-select.
+
+### Switch
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Switch.jsx`.**
+For an immediately-applied binary setting — no separate Save step. Use
+Checkbox instead when the choice is part of a form that gets submitted.
+
+| Part | Spec |
+|---|---|
+| Track | 40×24px, `radius-pill`, spacing-12 gap to the text (wider than Checkbox/Radio's spacing-8, since the track itself is the primary visual) |
+| Track — off | Neutral-4 fill |
+| Track — on | Obsidian fill |
+| Track transition | `background-color` — `var(--duration-base) var(--ease-standard)` |
+| Thumb | 18×18px circle, `radius-pill`, Neutral-1 fill, `shadow-1`, 3px from top |
+| Thumb position | left: 3px (off) → 19px (on) |
+| Thumb transition | `left` — `var(--duration-base) var(--ease-settle)` (the anchored-arrival easing, matching the toggle's physical drop) |
+| Label / description | same as Checkbox — body1/weight 500/Neutral-9, caption/Neutral-5 |
+| Disabled | 50% opacity, `cursor: not-allowed` |
+
+**Do:** label a Switch with what it controls ("Email notifications"), not
+its state ("On/Off"). **Don't:** use Switch inside a form that requires
+an explicit Save — that implies deferred application, which contradicts
+what a Switch signals.
+
+### Toast
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Toast.jsx`.**
+Transient, auto-dismissing system feedback — not a place for a decision
+with real consequences.
+
+| Part | Spec |
+|---|---|
+| Container | 320–420px width, spacing-12/spacing-16 padding, Neutral-1 fill, 1px Neutral-3 border, `radius-md` (16px — a compact transient surface, not the Card's 20px), `shadow-3`, spacing-12 gap, `role="status"` |
+| Icon | `icon-base` (20px), 2px top margin for optical alignment with the title |
+| Title (optional) | body1, weight 700 |
+| Message (optional) | caption, Neutral-5 |
+| Action slot (optional) | spacing-8 above it — holds a Link or Ghost button |
+| Close (optional) | Ghost IconButton, sm, top-right, `aria-label="Dismiss"` |
+
+**Tone → icon/color:**
+
+| Tone | Icon | Color |
+|---|---|---|
+| Neutral | `info` | Neutral-9 |
+| Success | `check-circle` | Green |
+| Danger | `x-circle` | Red |
+| Warning | `warning` | Amber |
+
+**Do:** keep one Toast on screen at a time — stack only if truly
+necessary, newest on top. **Don't:** put a destructive action in a
+Toast's action slot; a surface that disappears on its own is the wrong
+place for an irreversible decision.
+
+### Tooltip
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Tooltip.jsx`.**
+Supplementary, non-interactive information only.
+
+| Part | Spec |
+|---|---|
+| Trigger wrapper | relatively-positioned inline-flex around the trigger content |
+| Bubble | 6px/10px padding (a one-off compact value, not the spacing scale), `radius-sm` (12px), Neutral-7 fill, Neutral-1 text, caption size, weight 500, `white-space: nowrap` |
+| Placement | top (default) / bottom / left / right, centered on the trigger's cross-axis, 8px gap from the trigger |
+| Visibility | opacity 0 → 1 on hover **or** keyboard focus; `pointer-events: none` at all times |
+| Transition | `opacity` — `var(--duration-fast) var(--ease-standard)` |
+
+**Do:** trigger on focus as well as hover, so keyboard users get the same
+information sighted mouse users do. **Don't:** put interactive content
+(links, buttons) inside a Tooltip — `pointer-events: none` means nothing
+inside is ever clickable by design.
+
+### DataTable
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `DataTable.jsx`.**
+A composed, bordered table container — distinct from the bare Table row
+spec above, which is for inline use inside another surface. Pick one per
+data view; don't mix them in the same screen.
+
+| Part | Spec |
+|---|---|
+| Container | 1px Neutral-3 border, `radius-lg` (20px, matches Card), `overflow: hidden` (clips the header to the radius), Neutral-1 fill |
+| Header cell | spacing-12/spacing-16 padding, Neutral-2 fill, **h5 type (16px/700 — heavier than the bare Table row header's label3/uppercase)**, Neutral-9, 1px Neutral-3 border-bottom, align per-column |
+| Body cell | spacing-12/spacing-16 padding, **body2 type (14px/20px — this is the source's own "footnote" token, which maps to this doc's body2 scale, not the 12px footnote token)**, weight 500, Neutral-9, tabular figures when numeric, 1px Neutral-3 border-bottom (none on the last row) |
+| Row | `cursor: pointer` only when `onRowClick` is set; reuses Table row's Neutral-2 hover fill for consistency (DataTable has no separate hover token of its own yet) |
+
+**Do:** keep header labels short — the heavier h5 weight wraps
+awkwardly on long labels. **Don't:** add a fifth border style here; it
+inherits Table row's border and hover conventions on purpose.
+
+### ElementBadge
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `ElementBadge.jsx`.**
+Distinct from Tag (above): use ElementBadge when the visual specifically
+needs the element's icon, not just a color dot.
+
+| Part | Spec |
+|---|---|
+| Chip | default 32×32px (size prop), `radius-sm` (12px), fill = owning element color at **12% tint** (the same one-off `color-mix` used by the Card icon-chip pattern — not the 8% `-bg` token) |
+| Glyph | sized at 60% of the chip box, centered |
+| Label (optional, `showLabel`) | spacing-12 gap from the chip; element name (caption, weight 700, `tracking-eyebrow`, uppercase, Neutral-9) over a sublabel (caption, Neutral-5 — defaults to the element's function, e.g. "Visibility & Energy") |
+| No label | chip renders alone with a native `title` attribute carrying the element name, for accessibility |
+
+**Elements:** Fire (Orange · Visibility & Energy) · Earth (Green ·
+Support & Stability) · Water (Navy · Depth & Flow) · Gold (Amber · Order
+& Structure) · Wood (Salmon Pink · Growth & Vision).
+
+⚠️ **Asset gap:** the source component renders a raster PNG glyph per
+element (`assets/elements/*.png`) rather than a Phosphor icon — this
+skill doesn't have those PNGs, only the `SVG/` wordmark/letter library.
+Until element glyphs are added here, substitute the closest Phosphor
+icon for each element's motif (flame, mountain, drop, etc.) rather than
+leaving the chip empty.
+
+**Do:** use ElementBadge whenever a department-owned item needs its
+icon, not just Tag's color dot. **Don't:** recolor the chip tint away
+from its owning element — this is a fixed identity marker, not a
+themeable accent.
+
+---
+
+## Guidelines
+
+A condensed, skimmable version of every rule in this document. If you only
+read one section before building, read this one.
+
+### Do
+
+- Use Obsidian `#2B2B2C` as the only primary-action fill. Every screen has
+  exactly one Primary button doing the main job.
+- Use Mulish for 100% of UI text **and every heading** — headings at
+  weight 800, letter-spacing 0.
+- Reserve Source Serif 4 for genuine brand-statement moments only (deck
+  ledes, pull quotes, hero numerals), never as a heading-token swap, and
+  never below ~18–20px.
+- Use the tinted-fill + bordered pattern for every Badge, and darken
+  Success/Warning text (`#00854c`, `#9a5c00`) so it clears AA.
+- Map department/element colors 1:1 using the table in
+  [Color Palette](#color-palette) — don't invent a color for a department
+  that isn't listed there.
+- Tint a surface only with the element that already owns its content, and
+  only at the `-bg` (8%) or `-bg-strong` (16%) step.
+- Use Phosphor Fill icons everywhere; fall back to Remix `-fill` only
+  when Phosphor has no matching glyph.
+- Pull every spacing, radius, and color value from a token in this
+  document — no arbitrary pixel or hex values.
+- Let cards carry `shadow-1` at rest, and build every shadow on
+  Neutral-4 (soft grey), never black.
+- Keep radius soft: 20px cards, 16px buttons, 12px inputs. Never below
+  12px on an interactive surface.
+- Give every interactive component its full state set — hover, active,
+  focus-visible, disabled, plus error for anything that takes input.
+- Right-align numeric table columns and use tabular figures where the
+  font supports them.
+- Always render a real `<label>` on form inputs, even if visually hidden.
+
+### Don't
+
+- Never use a brand/element color (Orange, Salmon Pink, Green, Navy,
+  Amber) as a primary button fill — those colors classify, they don't
+  mean "click me."
+- Never use Source Serif 4 in body copy, buttons, form inputs, table
+  data, or dense numeric columns.
+- Never mix two fonts inside a single sentence or heading — emphasis is a
+  weight change, not a font swap.
+- Never apply negative letter-spacing to headings — Collabrium headings
+  are weight 800 at tracking 0.
+- Never mix Phosphor and Remix icon styles, or fill and outline weights,
+  within the same component instance.
+- Never build a shadow on black — every shadow in this system is
+  Neutral-4 based.
+- Never fill a small badge/tag solid with a brand color and put white
+  text on it — several accents (Amber, Salmon Pink) fail contrast at that
+  size and weight.
+- Never use a radius outside the token set (`radius-sm/md/lg/pill/link`) —
+  no one-off corner values.
+- Never tint a surface with an element that doesn't own its content, and
+  never at full or mid strength — `-bg`/`-bg-strong` only.
+- Never use the warm canvas for product UI — it's for brand/editorial
+  surfaces only.
+- Never add bounce or overshoot easing — movement settles.
+- Never use placeholder text as a substitute for a real label.
+- Never use a modal for a multi-step flow — modals are for one focused
+  decision; multi-step work needs a full page or panel.
+- Never let a table exceed roughly 8–10 visible columns without a
+  collapse or horizontal-scroll pattern.
+- Never introduce a new accent color for a one-off UI need — flag it as a
+  gap in [Needs Input](#needs-input) instead of guessing.
+- Never treat any value in this document as final while it's still
+  marked ⚠️ — call it a draft in your own output too.
+
+---
+
+## Reconciliation — teammate's design system
+
+In v0.6.0 this document was cross-checked against a second, independently
+built Collabrium design system at
+`~/Desktop/Collabrium Design System/`, derived from the same source deck
+(its `uploads/[KULT][EXT] Collabrium DLS.pptx`). That build extracted the
+deck far more thoroughly than this one had, so **where the two disagreed
+on a sourced value, theirs won** — every correction marked "corrected
+v0.6.0" above comes from that reconciliation.
+
+**Confirmed identical (no change needed):** all five element colors and
+their department mappings, Obsidian as sole action color, the full 9-step
+neutral ramp, the functional Red/Green, the Purple/Turquoise reserves,
+both font families, the complete 7-step icon size scale, the Phosphor-fill
+icon rule, and the brand voice/tone.
+
+**Corrected here from their values:** radius (was a 4/8/12px guess, is
+really 12/16/20px per-surface), elevation (was "flat by default", is
+really a 4-step Neutral-4 shadow ladder used routinely), heading weight
+(600 → 800), heading letter-spacing (negative → 0), the type scale sizes
+and its responsive `-lg` tier, `display` moving from Secondary to Primary
+font, body weight (400 → 500), the spacing scale (missing 20/40px steps,
+wrong 64/96 top end), focus rings (Obsidian → Water), and Badge/Tag
+being two components rather than one.
+
+**Added from their system:** the warm canvas surface, the elemental
+background tint system, all motion tokens, semantic spacing aliases, the
+Danger and Link button variants, and the card icon-chip pattern.
+
+**What this system still has that theirs doesn't:** the real vector logo
+source (`SVG/`, every letter and element as an editable SVG) and the
+animated `logo.html` — their `assets/logo/` is PNG-only, which their own
+readme flags as a gap. Also the installable desktop font pack
+(`fonts/`), where theirs loads from Google Fonts via `@import`.
+
+**What theirs has that this doesn't (deliberately not migrated):** a
+production React component library (`components/*.jsx` with `.d.ts`
+types and per-component `.prompt.md` files), a full app UI kit
+(`ui_kits/collabrium-app`), deck slide templates (`slides/`), an
+oxlint-based adherence config, and a `_ds_manifest.json` for tooling.
+Those are a genuinely bigger engineering asset than this HTML gallery.
+This system stayed documentation-and-tokens-first rather than absorbing
+them — if the team wants one canonical thing, **their repo is the better
+base to converge on**, with this one's logo/font assets and gap-tracking
+folded in.
+
+**v0.7.0 update:** 10 more component specs (SidebarNav, Tabs, Select,
+Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) were
+transcribed directly from the teammate's real `.jsx` source — same
+methodology as the v0.6.0 reconciliation, not a guess. One asset gap
+surfaced in the process: ElementBadge relies on raster PNG element
+glyphs (`assets/elements/*.png`) that this skill doesn't have — see that
+component's spec for the interim substitution. The remaining 5
+dashboard components (stat/KPI cards, filters, pagination, date pickers,
+chart color mapping) exist in neither system and still need an actual
+design pass, not a transcription.
+
+---
+
+## Design Tokens
+
+Every value in this document is also available as CSS custom properties
+in `tokens.css`, in this same folder — colors (including warm canvas and
+elemental tints), the full spacing scale with semantic aliases, radius,
+the type scale with responsive tiers, the elevation ladder, motion
+durations and easings, and icon sizes. It's a mechanical rendering of the
+tables above, not a new source of truth; if a value changes here, update
+`tokens.css` to match.
+
+```css
+@import url("tokens.css");
+
+.btn-primary {
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+  border-radius: var(--radius-md);
+  padding: 0 var(--spacing-16);
+}
+```
+
+`preview.html` in this folder is a two-pane microsite: the left pane
+renders the live visual system (logo, palette, type, spacing) against
+`tokens.css`; the right pane is a source viewer with four tabs —
+**DESIGN.md** (this file, Compact/Extended toggle, Compact mirrors
+`SKILL.md`), **Tailwind v4** (a full `@theme` mapping), **CSS Variables**
+(the raw `tokens.css`), and **Design Tokens** (a JSON export) — each with
+Copy and Download. Everything is embedded inline so the page works
+opened directly via `file://`, no server required.
+
+If your stack is Tailwind v4, map the same values into a `@theme` block
+rather than maintaining two token sources by hand:
+
+```css
+@import "tailwindcss";
+@import url("tokens.css");
+
+@theme {
+  --color-obsidian: var(--color-obsidian);
+  --color-orange: var(--color-orange);
+  --radius-md: var(--radius-md);
+  --spacing-16: var(--spacing-16);
+  /* ...map the rest of tokens.css as needed — see preview.html's
+     Tailwind v4 tab for the full mapping */
+}
+```
+
+---
+
+## Licensing Attribution
+
+| | Mulish | Source Serif 4 |
+|---|---|---|
+| Designer | Vernon Adams, with further development by Jacques Le Bailly (Cyreal) | Frank Grießhammer, Adobe |
+| Publisher | Google Fonts | Adobe (Source type superfamily) |
+| License | SIL Open Font License 1.1 | SIL Open Font License 1.1 |
+| Distribution | Google Fonts, GitHub | Google Fonts, GitHub (Adobe Fonts repo) |
+| Attribution required | No | No |
+| Commercial use | Yes, unrestricted | Yes, unrestricted |
+| Self-hosting | Yes | Yes |
+| Modification | Yes | Yes |
+| Cost | Free | Free |
+
+---
+
+## Changelog
+
+- **v0.7.0-draft — 2026-07-30** — Wrote specs for 10 more components —
+  SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip,
+  DataTable, ElementBadge — transcribed directly from the teammate's
+  real `.jsx` source, same methodology as every prior component. Scoped
+  deliberately: these 10 exist as real components in the teammate's
+  build, so they could be transcribed rather than designed from scratch;
+  the remaining 5 dashboard components (stat/KPI cards, filters,
+  pagination, date pickers, chart color mapping) have no source in
+  either system and were left out on purpose, flagged for a separate
+  design pass. One asset gap surfaced: **ElementBadge** relies on raster
+  PNG element glyphs (`assets/elements/*.png`) that this skill doesn't
+  have — documented an interim Phosphor-icon substitution. All 10 also
+  live-rendered in `preview.html`'s Components section with matching
+  markup and "Copy markup" buttons, per the doc-sync standing rule — the
+  Components lede, scope note, and Reconciliation section were all
+  updated in the same pass, and the top-bar version flag bumped.
+- **v0.6.1-draft — 2026-07-29** — User asked for explicit confirmation
+  that components matched the teammate's build and were actually
+  projected into `preview.html`. Re-verification against the real
+  `.jsx` source (not just the earlier read-through) found two things
+  the v0.6.0 pass got wrong: **Button** type size was mapped to the
+  `label1/2/3` scale (11/13/14px) when the real component uses 14px
+  (sm) and 16px (md/lg, sharing a size) — not a token match at all, a
+  component-specific override; live gallery's `lg` padding was also
+  `spacing-24` instead of the correct `spacing-20`. **Card**'s icon-chip
+  background is a one-off 12% element tint (`color-mix`), not the
+  documented 8% `-bg` token used for full-card tinting — conflating the
+  two was wrong; the header's icon-to-title gap is `spacing-12`, not
+  `spacing-8`; and Card has an optional bordered **Footer** sub-part
+  that was missing from the spec entirely. All four fixed in
+  `DESIGN-SYSTEM.md`, `tokens.css` usage, and `preview.html`'s live
+  Components gallery (icon-chip now sits in a proper header row next to
+  the title; added a Footer example card), then re-verified in-browser.
+  Everything else cross-checked clean: Badge's tone map, Tag, Input,
+  Dialog, and Empty State all match the source exactly.
+
+  Also caught while verifying: `preview.html`'s **Guidelines section had
+  its own separate, hardcoded Do/Don't list** (distinct from the
+  DESIGN.md tab's copy) that never got updated during the v0.6.0 pass —
+  it was still saying "flat by default," 600-weight headings, and a
+  4-token radius scale. Rewritten to match. Same for the Typography
+  section's lede, which still framed the type scale as an open draft
+  gap after Needs Input #3 was resolved. This is exactly the kind of
+  drift the doc-sync standing rule exists to catch — a reminder to check
+  static prose blocks, not just data-driven tables, when a token value
+  changes.
+- **v0.6.0-draft — 2026-07-29** — Reconciled against a teammate's
+  independent, more thorough design system built from the same source
+  deck (`~/Desktop/Collabrium Design System/`) — see
+  [Reconciliation](#reconciliation--teammates-design-system) for the
+  full diff. Resolves Needs Input #3/#4/#5 with real sourced values.
+  Corrected: radius (4/8/12px guess → real 12/16/20px per-surface
+  scale), elevation ("flat by default" → a real Neutral-4 shadow ladder
+  used routinely), heading weight/tracking (600 → 800, negative →
+  zero), the type scale + a new responsive `-lg` tier, body weight (400
+  → 500), the spacing scale (added 20/40px, corrected the 64/96 top
+  end), and focus rings (Obsidian → Water). Added: warm canvas surface,
+  elemental background tints, the full motion token set (durations +
+  6 easing curves), Danger/Link button variants, the card icon-chip
+  pattern, and split Badge/Tag into two distinct components. All
+  changes applied to `tokens.css` and `preview.html`'s live Components
+  gallery in the same pass, per the v0.5.0 standing rule.
+- **v0.5.0-draft — 2026-07-29** — Added a live Components section to
+  `preview.html` (7th nav item, after Guidelines): Button, Input field,
+  Card, Badge/Tag, Table row, Modal/dialog, and Empty state, each
+  rendered per the existing spec with a "Copy markup" button. Further
+  resolves Needs Input #7 — the spec now has a working reference
+  implementation alongside it, not just tables. Established a standing
+  rule (user request): every future build/update to this skill must be
+  reflected back into this file in the same pass, not as a follow-up.
+- **v0.4.5-draft — 2026-07-29** — `preview.html`: compacted the Fonts
+  tab's install callout — replaced the boxed description + button with
+  a single button inline on the section header row, right-aligned next
+  to the "Fonts" title.
+- **v0.4.4-draft — 2026-07-29** — Added `fonts/collabrium-fonts.zip`,
+  a real desktop font pack (variable-font `.ttf` for Mulish and Source
+  Serif 4, both weights/styles, plus OFL licenses), sourced from
+  Google's official font repository rather than the web-embed CSS
+  subsets. Added a "Download font pack" button to `preview.html`'s
+  Fonts tab. True one-click OS-level install isn't possible from a
+  browser (no website can write into a system Fonts folder — verified
+  and explained inline rather than assumed); this delivers the closest
+  feasible thing, a one-click *download* of the real files.
+- **v0.4.3-draft — 2026-07-29** — `logo.html`: removed the visible
+  element-name label and play/pause button (dev/debug UI from the
+  source asset), so it embeds as a clean, always-animating mark. All 9
+  animation frames, including moon, are unchanged. Also dropped
+  `logo.html`'s now-unused Google Fonts/Phosphor/`tokens.css`
+  dependencies since no text renders in it anymore. `preview.html`'s
+  embedded-logo iframe height reduced (240px → 160px) to match.
+- **v0.4.2-draft — 2026-07-29** — Documented `SVG/`, the confirmed true
+  vector source library for the logo (8 letter files, 10 element icons
+  including an unintegrated `coin.svg`, 5 motive variants — 2 of which
+  are duplicates). Further resolves Needs Input #8. Flagged, not fixed:
+  `coin.svg`'s role is unconfirmed, and `wood.svg`/`earth.svg`/
+  `mountain.svg` still carry the pre-correction off-palette colors in
+  their raw form (left untouched, since they may be externally-managed
+  master exports).
+- **v0.4.1-draft — 2026-07-29** — Rebuilt `preview.html` into a two-pane
+  layout matching the reference the user pointed to
+  (styles.refero.design): left pane is the live visual system, right
+  pane is a tabbed source viewer (DESIGN.md with Compact/Extended,
+  Tailwind v4, CSS Variables, Design Tokens JSON) with Copy/Download.
+  All four tabs are embedded inline (not fetched) so the page keeps
+  working when opened directly via `file://`.
+- **v0.4.0-draft — 2026-07-29** — Added the real animated logo asset
+  (`logo.html`), corrected to this document's canonical colors; resolved
+  Needs Input #1 and #2 (Salmon Pink `#FF7A90` and Green `#00C26E` are
+  now final, per explicit user decision that this document is the
+  source of truth). Rebuilt `preview.html` from a component-states demo
+  into a refero.design-style brand microsite (Collabrium overview + logo,
+  Color Palette, Typography, Fonts, Spacing & Shape, Guidelines) per the
+  user's request — the component-state demos that used to live there now
+  only exist as the tables in this document.
+- **v0.3.0-draft — 2026-07-29** — Added an Overview summary paragraph,
+  letter-spacing values on the type scale, content max-width and an
+  explicit elevation policy in Spacing & Shape, a consolidated top-level
+  Guidelines (Do/Don't) section, and `tokens.css` (paste-able CSS custom
+  properties, now the single source of values for `preview.html`).
+  Brought the doc's comprehensiveness in line with a reference style
+  guide the user pointed to. Still unreviewed by brand/design team.
+- **v0.2.0-draft — 2026-07-29** — Added Component Rules and full specs for
+  Button, Input field, Card, Badge/Tag, Table row, Modal/Dialog, and Empty
+  state (resolves Needs Input #7 with a first draft). Still unreviewed by
+  brand/design team.
+- **v0.1.0-draft — 2026-07-29** — Initial DLS drafted from the Collabrium
+  brand deck (Google Slides). 10 gaps flagged under Needs Input; see table
+  at top. Not yet reviewed by brand team.
+</script>
+
+<script type="text/plain" id="src-css-vars">/*
+  Collabrium Design Tokens — v0.6.0-draft
+  Generated from DESIGN-SYSTEM.md in this folder. That file is the source
+  of truth — this file is a mechanical, paste-able rendering of its
+  tables as CSS custom properties. Re-generate by hand whenever
+  DESIGN-SYSTEM.md's token tables change, and bump the version comment.
+
+  Spacing, radius, typography, elevation, and motion values below were
+  corrected in v0.6.0 against a teammate's independent, more thorough
+  extraction of the same source deck (uploads/[KULT][EXT] Collabrium
+  DLS.pptx) — see DESIGN-SYSTEM.md's Needs Input table and Changelog for
+  what changed and why. Color values were already correct (cross-checked
+  and confirmed, not changed).
+*/
+
+:root {
+  /* Brand accents */
+  --color-orange: #FF5825;
+  --color-salmon-pink: #FF7A90;
+  --color-green: #00C26E;
+  --color-navy: #1473E6;
+  --color-amber: #FFA425;
+  --color-obsidian: #2B2B2C;      /* the only primary-action color */
+
+  /* Secondary accents (reserved for elements added after v1.0) */
+  --color-purple: #9F56FF;
+  --color-turquoise: #00D9D9;
+
+  /* Functional */
+  --color-red: #FD3343;
+
+  /* Neutrals */
+  --color-neutral-9: #080808;
+  --color-neutral-8: #171717;
+  --color-neutral-7: #222222;
+  --color-neutral-6: #292929;
+  --color-neutral-5: #5a5a5a;
+  --color-neutral-4: #bdbdbd;
+  --color-neutral-3: #d8d8d8;
+  --color-neutral-2: #f0f0f0;
+  --color-neutral-1: #ffffff;
+
+  /* Warm canvas — brand/editorial surfaces (decks, landing pages, specimens).
+     Product UI stays on white (--color-neutral-1); this is a deliberate
+     second surface, not a dark-mode-style global swap. Added v0.6.0. */
+  --color-canvas-warm: #FCFAF5;
+  --color-canvas-warm-card: #FAF7F2;
+
+  /* Elemental background tints — the ONLY permitted coloured backgrounds.
+     A surface may take a background colour, but only the lightest shade
+     of the element that already owns that content (8% element on white,
+     16% for a nested/hovered layer). Never a mid or full-strength
+     element colour as a fill. Added v0.6.0. */
+  --color-fire-bg: #FFEEE9;        --color-fire-bg-strong: #FFDED3;
+  --color-earth-bg: #E6F9F1;       --color-earth-bg-strong: #CDF3E2;
+  --color-water-bg: #E8F1FD;       --color-water-bg-strong: #D0E3FB;
+  --color-gold-bg: #FFF6E9;        --color-gold-bg-strong: #FFEDD3;
+  --color-wood-bg: #FFF2F4;        --color-wood-bg-strong: #FFE4E9;
+
+  /* Fonts */
+  --font-primary: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-secondary: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+
+  /* Named weight scale (Mulish ships 200-900) */
+  --weight-extralight: 200; --weight-light: 300; --weight-regular: 400;
+  --weight-medium: 500;     --weight-semibold: 600; --weight-bold: 700;
+  --weight-extrabold: 800;  --weight-black: 900;
+
+  /* Type scale: size / line-height / weight / letter-spacing.
+     Corrected v0.6.0 — headings are 800 ExtraBold at letter-spacing 0
+     (not 600 with negative tracking, as originally guessed). "sm" size
+     is the default; a "-lg" variant is provided for >=1280px viewports,
+     per the source deck's responsive scale. */
+  --text-display-size: 40px;   --text-display-lh: 56px; --text-display-weight: 800; --text-display-tracking: 0;
+  --text-display-size-lg: 48px; --text-display-lh-lg: 66px;
+  --text-h1-size: 32px;        --text-h1-lh: 38px;      --text-h1-weight: 800;      --text-h1-tracking: 0;
+  --text-h1-size-lg: 40px;     --text-h1-lh-lg: 56px;
+  --text-h2-size: 26px;        --text-h2-lh: 36px;      --text-h2-weight: 800;      --text-h2-tracking: 0;
+  --text-h2-size-lg: 32px;     --text-h2-lh-lg: 44px;
+  --text-h3-size: 22px;        --text-h3-lh: 30px;      --text-h3-weight: 800;      --text-h3-tracking: 0;
+  --text-h3-size-lg: 24px;     --text-h3-lh-lg: 34px;
+  --text-h4-size: 20px;        --text-h4-lh: 28px;      --text-h4-weight: 800;      --text-h4-tracking: 0;
+  --text-h4-size-lg: 22px;     --text-h4-lh-lg: 30px;
+  --text-h5-size: 16px;        --text-h5-lh: 20px;      --text-h5-weight: 700;      --text-h5-tracking: 0;
+  --text-body1-size: 16px;     --text-body1-lh: 22px;   --text-body1-weight: 500;   --text-body1-tracking: 0;
+  --text-body1-strong-weight: 700;
+  --text-body2-size: 14px;     --text-body2-lh: 20px;   --text-body2-weight: 400;   --text-body2-tracking: 0;
+  --text-body2-lh-lg: 22px;    --text-body2-strong-weight: 700;
+  --text-label1-size: 14px;    --text-label1-lh: 20px;  --text-label1-weight: 700;  --text-label1-tracking: 0;
+  --text-label2-size: 13px;    --text-label2-lh: 18px;  --text-label2-weight: 700;  --text-label2-tracking: 0;
+  --text-label3-size: 11px;    --text-label3-lh: 16px;  --text-label3-weight: 700;  --text-label3-tracking: 0.04em;
+  --text-link1-size: 16px;     --text-link1-lh: 24px;   --text-link1-weight: 500;   --text-link1-tracking: 0;
+  --text-link2-size: 13px;     --text-link2-lh: 18px;   --text-link2-weight: 500;   --text-link2-tracking: 0;
+  --text-footnote-size: 12px;  --text-footnote-lh: 16px; --text-footnote-weight: 400; --text-footnote-tracking: 0;
+  --text-caption-size: 12px;   --text-caption-lh: 16px;  --text-caption-weight: 400;  --text-caption-tracking: 0;
+
+  --tracking-eyebrow: 0.12em; /* uppercase kickers/eyebrows only */
+
+  /* Spacing — corrected v0.6.0. Value-named to match the source scale
+     exactly (base unit 4px: 4·8·12·16·20·24·32·40·48·60·120). */
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-60: 60px;
+  --spacing-120: 120px;
+
+  /* Semantic spacing aliases */
+  --card-padding: var(--spacing-16);
+  --element-gap: var(--spacing-8);
+  --section-gap: var(--spacing-48);
+  --page-gutter: var(--spacing-32);
+  --content-max-width: 1200px; /* reading-width content only (forms/settings), not full-bleed dashboard layouts */
+
+  /* Radius — corrected v0.6.0. Was a flat 4/8/12px guess; the source
+     deck specifies radius per surface, not a single scale. Kept as a
+     3-tier + pill system for simplicity, with values now matching real
+     per-surface targets: sm = inputs/small buttons/icon buttons (12px,
+     exactly matches source radius-input and radius-button-sm), md =
+     standard buttons (16px, matches source radius-button), lg =
+     cards/modals/nav/feature panels (20px, matches source
+     radius-card/radius-nav/radius-widget). */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --radius-link: 32px; /* link-styled pill CTAs — distinct from radius-pill's badge/avatar use */
+
+  /* Elevation — corrected v0.6.0. Was "flat by default, one black-tinted
+     modal shadow"; the source deck specifies a real shadow ladder, all
+     built on Neutral-4 (soft grey), never black. Cards/dialogs use
+     these regularly, not as an exception. */
+  --shadow-hairline: 0 0 0 1px var(--color-neutral-3);
+  --shadow-1: 0 1px 2px rgba(189, 189, 189, .45);
+  --shadow-2: 0 2px 8px rgba(189, 189, 189, .42);
+  --shadow-3: 0 8px 24px rgba(189, 189, 189, .40);
+  --shadow-4: 0 16px 48px rgba(189, 189, 189, .44);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, .6);
+  --shadow-focus: 0 0 0 3px rgba(20, 115, 230, .28);
+  --shadow-overlay: rgba(8, 8, 8, .56); /* modal scrim */
+  --shadow-modal: var(--shadow-4); /* alias kept for backward compatibility */
+
+  /* Motion — new in v0.6.0, previously undocumented. "Movement settles;
+     it never bounces." One easing curve per element, used for motion
+     that's thematically tied to that element (e.g. a Water-owned panel
+     transitions with --ease-flow); --ease-standard is the default for
+     everything else. */
+  --duration-instant: 80ms;
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 360ms;
+  --duration-ambient: 900ms;
+  --ease-standard: cubic-bezier(.2, .6, .2, 1);   /* default UI easing */
+  --ease-settle: cubic-bezier(.16, .84, .24, 1);  /* earth: anchored arrivals */
+  --ease-flow: cubic-bezier(.37, 0, .29, 1);      /* water: continuous */
+  --ease-flare: cubic-bezier(.05, .7, .1, 1);     /* fire: pulse outward, rise */
+  --ease-precise: cubic-bezier(.4, 0, .2, 1);     /* gold: sharp, decisive */
+  --ease-grow: cubic-bezier(.25, .46, .45, .94);  /* wood: branching growth */
+
+  /* Icon sizes */
+  --icon-micro: 14px;
+  --icon-sm: 16px;
+  --icon-base: 20px;
+  --icon-md: 24px;
+  --icon-lg: 32px;
+  --icon-empty: 48px;
+  --icon-hero: 64px;
+}
+</script>
+
+<script type="text/plain" id="src-tailwind">/*
+  Collabrium — Tailwind v4 theme mapping.
+  Import tokens.css first, then map into @theme so Tailwind utilities
+  (bg-orange, rounded-sm, p-4, etc.) resolve to Collabrium's tokens.
+  Hand-maintained alongside tokens.css — regenerate if the token tables
+  in DESIGN-SYSTEM.md change.
+*/
+
+@import "tailwindcss";
+@import url("tokens.css");
+
+@theme {
+  /* Color */
+  --color-orange: var(--color-orange);
+  --color-salmon-pink: var(--color-salmon-pink);
+  --color-green: var(--color-green);
+  --color-navy: var(--color-navy);
+  --color-amber: var(--color-amber);
+  --color-obsidian: var(--color-obsidian);
+  --color-purple: var(--color-purple);
+  --color-turquoise: var(--color-turquoise);
+  --color-red: var(--color-red);
+  --color-neutral-9: var(--color-neutral-9);
+  --color-neutral-8: var(--color-neutral-8);
+  --color-neutral-7: var(--color-neutral-7);
+  --color-neutral-6: var(--color-neutral-6);
+  --color-neutral-5: var(--color-neutral-5);
+  --color-neutral-4: var(--color-neutral-4);
+  --color-neutral-3: var(--color-neutral-3);
+  --color-neutral-2: var(--color-neutral-2);
+  --color-neutral-1: var(--color-neutral-1);
+  --color-canvas-warm: var(--color-canvas-warm);
+  --color-canvas-warm-card: var(--color-canvas-warm-card);
+  --color-fire-bg: var(--color-fire-bg);
+  --color-earth-bg: var(--color-earth-bg);
+  --color-water-bg: var(--color-water-bg);
+  --color-gold-bg: var(--color-gold-bg);
+  --color-wood-bg: var(--color-wood-bg);
+
+  /* Typography */
+  --font-primary: var(--font-primary);
+  --font-secondary: var(--font-secondary);
+
+  /* Spacing (p-4 -> --spacing-4; these are raw px keys, not Tailwind's
+     default 0.25rem-multiple scale — matches Collabrium's real scale) */
+  --spacing-4: var(--spacing-4);
+  --spacing-8: var(--spacing-8);
+  --spacing-12: var(--spacing-12);
+  --spacing-16: var(--spacing-16);
+  --spacing-20: var(--spacing-20);
+  --spacing-24: var(--spacing-24);
+  --spacing-32: var(--spacing-32);
+  --spacing-40: var(--spacing-40);
+  --spacing-48: var(--spacing-48);
+  --spacing-60: var(--spacing-60);
+  --spacing-120: var(--spacing-120);
+
+  /* Radius (rounded-sm -> --radius-sm) */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+  --radius-link: var(--radius-link);
+
+  /* Shadow (shadow-1 -> --shadow-1) */
+  --shadow-1: var(--shadow-1);
+  --shadow-2: var(--shadow-2);
+  --shadow-3: var(--shadow-3);
+  --shadow-4: var(--shadow-4);
+  --shadow-focus: var(--shadow-focus);
+
+  /* Motion */
+  --duration-instant: var(--duration-instant);
+  --duration-fast: var(--duration-fast);
+  --duration-base: var(--duration-base);
+  --duration-slow: var(--duration-slow);
+  --duration-ambient: var(--duration-ambient);
+  --ease-standard: var(--ease-standard);
+  --ease-settle: var(--ease-settle);
+  --ease-flow: var(--ease-flow);
+  --ease-flare: var(--ease-flare);
+  --ease-precise: var(--ease-precise);
+  --ease-grow: var(--ease-grow);
+}
+</script>
+
+<script type="text/plain" id="src-json">{
+  "$schema": "collabrium-design-tokens",
+  "version": "0.6.0-draft",
+  "lastUpdated": "2026-07-29",
+  "color": {
+    "brand": {
+      "orange": "#FF5825",
+      "salmonPink": "#FF7A90",
+      "green": "#00C26E",
+      "navy": "#1473E6",
+      "amber": "#FFA425",
+      "obsidian": "#2B2B2C"
+    },
+    "secondary": {
+      "purple": "#9F56FF",
+      "turquoise": "#00D9D9"
+    },
+    "functional": {
+      "red": "#FD3343",
+      "green": "#00C26E"
+    },
+    "neutral": {
+      "neutral9": "#080808",
+      "neutral8": "#171717",
+      "neutral7": "#222222",
+      "neutral6": "#292929",
+      "neutral5": "#5a5a5a",
+      "neutral4": "#bdbdbd",
+      "neutral3": "#d8d8d8",
+      "neutral2": "#f0f0f0",
+      "neutral1": "#ffffff"
+    },
+    "canvasWarm": { "canvas": "#FCFAF5", "card": "#FAF7F2" },
+    "elementBackgrounds": {
+      "fire": { "bg": "#FFEEE9", "bgStrong": "#FFDED3" },
+      "earth": { "bg": "#E6F9F1", "bgStrong": "#CDF3E2" },
+      "water": { "bg": "#E8F1FD", "bgStrong": "#D0E3FB" },
+      "gold": { "bg": "#FFF6E9", "bgStrong": "#FFEDD3" },
+      "wood": { "bg": "#FFF2F4", "bgStrong": "#FFE4E9" }
+    }
+  },
+  "elementMap": {
+    "fire": { "color": "orange", "department": "Marketing, PR, Sales, Brand & Creative" },
+    "wood": { "color": "salmonPink", "department": "Strategy, R&D, Innovation, Product Design" },
+    "earth": { "color": "green", "department": "HR, People Ops, Customer Success, Admin" },
+    "water": { "color": "navy", "department": "Data Analytics, Logistics, Supply Chain, Exec Strategy" },
+    "gold": { "color": "amber", "department": "Finance, Legal, Compliance, QA & Audit" }
+  },
+  "typography": {
+    "fontFamily": {
+      "primary": "'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      "secondary": "'Source Serif 4', Georgia, 'Times New Roman', serif"
+    },
+    "scale": {
+      "display":      { "font": "primary", "size": 40, "sizeLg": 48, "lineHeight": 56, "lineHeightLg": 66, "weight": 800, "letterSpacing": "0" },
+      "h1":           { "font": "primary", "size": 32, "sizeLg": 40, "lineHeight": 38, "lineHeightLg": 56, "weight": 800, "letterSpacing": "0" },
+      "h2":           { "font": "primary", "size": 26, "sizeLg": 32, "lineHeight": 36, "lineHeightLg": 44, "weight": 800, "letterSpacing": "0" },
+      "h3":           { "font": "primary", "size": 22, "sizeLg": 24, "lineHeight": 30, "lineHeightLg": 34, "weight": 800, "letterSpacing": "0" },
+      "h4":           { "font": "primary", "size": 20, "sizeLg": 22, "lineHeight": 28, "lineHeightLg": 30, "weight": 800, "letterSpacing": "0" },
+      "h5":           { "font": "primary", "size": 16, "lineHeight": 20, "weight": 700, "letterSpacing": "0" },
+      "body1":        { "font": "primary", "size": 16, "lineHeight": 22, "weight": 500, "letterSpacing": "0" },
+      "body1Strong":  { "font": "primary", "size": 16, "lineHeight": 22, "weight": 700, "letterSpacing": "0" },
+      "body2":        { "font": "primary", "size": 14, "lineHeight": 20, "weight": 400, "letterSpacing": "0" },
+      "body2Strong":  { "font": "primary", "size": 14, "lineHeight": 20, "weight": 700, "letterSpacing": "0" },
+      "label1":       { "font": "primary", "size": 14, "lineHeight": 20, "weight": 700, "letterSpacing": "0" },
+      "label2":       { "font": "primary", "size": 13, "lineHeight": 18, "weight": 700, "letterSpacing": "0" },
+      "label3":       { "font": "primary", "size": 11, "lineHeight": 16, "weight": 700, "letterSpacing": "0.04em" },
+      "link1":        { "font": "primary", "size": 16, "lineHeight": 24, "weight": 500, "letterSpacing": "0" },
+      "link2":        { "font": "primary", "size": 13, "lineHeight": 18, "weight": 500, "letterSpacing": "0" },
+      "footnote":     { "font": "primary", "size": 12, "lineHeight": 16, "weight": 400, "letterSpacing": "0" },
+      "caption":      { "font": "primary", "size": 12, "lineHeight": 16, "weight": 400, "letterSpacing": "0" }
+    },
+    "note": "Secondary font (Source Serif 4) is used only for deliberate brand-statement moments (pitch-deck ledes, pull quotes, hero numerals) layered on top of this functional scale, not as a swap-in for any token above — see DESIGN-SYSTEM.md Typography."
+  },
+  "spacing": {
+    "spacing4": 4, "spacing8": 8, "spacing12": 12, "spacing16": 16, "spacing20": 20,
+    "spacing24": 24, "spacing32": 32, "spacing40": 40, "spacing48": 48, "spacing60": 60,
+    "spacing120": 120,
+    "cardPadding": 16, "elementGap": 8, "sectionGap": 48, "pageGutter": 32,
+    "contentMaxWidth": 1200
+  },
+  "radius": {
+    "sm": 12, "md": 16, "lg": 20, "pill": 999, "link": 32
+  },
+  "elevation": {
+    "hairline": "0 0 0 1px #d8d8d8",
+    "shadow1": "0 1px 2px rgba(189,189,189,.45)",
+    "shadow2": "0 2px 8px rgba(189,189,189,.42)",
+    "shadow3": "0 8px 24px rgba(189,189,189,.40)",
+    "shadow4": "0 16px 48px rgba(189,189,189,.44)",
+    "focus": "0 0 0 3px rgba(20,115,230,.28)",
+    "overlay": "rgba(8,8,8,.56)"
+  },
+  "motion": {
+    "duration": { "instant": 80, "fast": 140, "base": 220, "slow": 360, "ambient": 900 },
+    "easing": {
+      "standard": "cubic-bezier(.2,.6,.2,1)",
+      "settle": "cubic-bezier(.16,.84,.24,1)",
+      "flow": "cubic-bezier(.37,0,.29,1)",
+      "flare": "cubic-bezier(.05,.7,.1,1)",
+      "precise": "cubic-bezier(.4,0,.2,1)",
+      "grow": "cubic-bezier(.25,.46,.45,.94)"
+    }
+  },
+  "icon": {
+    "micro": 14, "sm": 16, "base": 20, "md": 24, "lg": 32, "empty": 48, "hero": 64
+  }
+}
+</script>
+
+<script>
+function copyHex(hex, btn){
+  navigator.clipboard.writeText(hex);
+  const old = btn.innerHTML;
+  btn.innerHTML = '<i class="ph-fill ph-check"></i> Copied';
+  setTimeout(() => btn.innerHTML = old, 1200);
+}
+
+function swatchCard(name, hex, desc, tag){
+  const el = document.createElement('div');
+  el.className = 'swatch';
+  el.innerHTML = `
+    <div class="fill" style="background:${hex}">
+      <button type="button" onclick="copyHex('${hex}', this)"><i class="ph-fill ph-copy"></i> Copy</button>
+    </div>
+    <div class="meta">
+      <b>${name}</b>
+      <span class="hex">${hex}</span>
+      <p>${desc}</p>
+      ${tag ? `<span class="tag">${tag}</span>` : ''}
+    </div>`;
+  return el;
+}
+
+const brandColors = [
+  ['Orange', '#FF5825', 'Visibility & energy — brand/decorative', 'Fire · Marketing, PR, Sales'],
+  ['Salmon Pink', '#FF7A90', 'Growth & vision — brand/decorative', 'Wood · Strategy, R&D, Product'],
+  ['Green', '#00C26E', 'Support & stability — brand/decorative', 'Earth · HR, CS, Admin'],
+  ['Navy Blue', '#1473E6', 'Depth & flow — brand/decorative', 'Water · Data, Logistics, Exec'],
+  ['Amber', '#FFA425', 'Order & structure, warnings, celebratory highlights', 'Gold · Finance, Legal, Compliance'],
+  ['Obsidian', '#2B2B2C', 'Primary action background — the only CTA color, dominant regardless of what else is on screen', null],
+];
+const secondaryColors = [
+  ['Purple', '#9F56FF', 'AI and premium feature UI, secondary tags, chart series 5'],
+  ['Turquoise', '#00D9D9', 'Additional secondary accent, reserved for future elements'],
+];
+const functionalColors = [
+  ['Red', '#FD3343', 'Errors, destructive actions, invalid input'],
+  ['Green', '#00C26E', 'Success icons, valid input'],
+];
+const neutralColors = [
+  ['Neutral-9', '#080808', 'Primary text, headings, icon strokes'],
+  ['Neutral-8', '#171717', 'Deepest dark surface'],
+  ['Neutral-7', '#222222', 'Dark surface, modal overlays'],
+  ['Neutral-6', '#292929', 'Near-black accent surface'],
+  ['Neutral-5', '#5a5a5a', 'Secondary body text, muted description'],
+  ['Neutral-4', '#bdbdbd', 'Shadow base, disabled fills'],
+  ['Neutral-3', '#d8d8d8', 'Hairline borders, dividers'],
+  ['Neutral-2', '#f0f0f0', 'Subtle background tint, hover fills'],
+  ['Neutral-1', '#ffffff', 'Page canvas, card surfaces'],
+];
+
+document.getElementById('swatches-brand').append(...brandColors.map(([n,h,d,t]) => swatchCard(n,h,d,t)));
+document.getElementById('swatches-secondary').append(...secondaryColors.map(([n,h,d]) => swatchCard(n,h,d)));
+document.getElementById('swatches-functional').append(...functionalColors.map(([n,h,d]) => swatchCard(n,h,d)));
+document.getElementById('swatches-neutral').append(...neutralColors.map(([n,h,d]) => swatchCard(n,h,d)));
+
+const warmColors = [
+  ['Canvas warm', '#FCFAF5', 'Page canvas for brand/editorial surfaces (decks, landing pages, specimens). Product UI stays white.'],
+  ['Canvas warm card', '#FAF7F2', 'Card fill on the warm canvas.'],
+];
+const elementBgColors = [
+  ['Fire bg', '#FFEEE9', '8% Fire on white — Marketing/Sales panels'],
+  ['Earth bg', '#E6F9F1', '8% Earth on white — HR/CS panels'],
+  ['Water bg', '#E8F1FD', '8% Water on white — Data/Ops panels'],
+  ['Gold bg', '#FFF6E9', '8% Gold on white — Finance/Legal panels'],
+  ['Wood bg', '#FFF2F4', '8% Wood on white — Strategy/Product panels'],
+];
+document.getElementById('swatches-warm').append(...warmColors.map(([n,h,d]) => swatchCard(n,h,d)));
+document.getElementById('swatches-elbg').append(...elementBgColors.map(([n,h,d]) => swatchCard(n,h,d)));
+
+const typeScaleData = [
+  ['display','Primary',40,56,800,'0'],
+  ['h1','Primary',32,38,800,'0'],
+  ['h2','Primary',26,36,800,'0'],
+  ['h3','Primary',22,30,800,'0'],
+  ['h4','Primary',20,28,800,'0'],
+  ['h5','Primary',16,20,700,'0'],
+  ['body1','Primary',16,22,500,'0'],
+  ['body1 strong','Primary',16,22,700,'0'],
+  ['body2','Primary',14,20,400,'0'],
+  ['body2 strong','Primary',14,20,700,'0'],
+  ['label1','Primary',14,20,700,'0'],
+  ['label2','Primary',13,18,700,'0'],
+  ['label3','Primary',11,16,700,'+0.04em'],
+  ['link1','Primary',16,24,500,'0'],
+  ['link2','Primary',13,18,500,'0'],
+  ['footnote','Primary',12,16,400,'0'],
+  ['caption','Primary',12,16,400,'0'],
+];
+const VISIBLE = 6;
+const typeScaleEl = document.getElementById('typeScale');
+typeScaleData.forEach(([token,font,size,lh,weight,tracking], i) => {
+  const row = document.createElement('div');
+  row.className = 'type-row' + (i >= VISIBLE ? ' hidden' : '');
+  const fam = font === 'Secondary' ? "'Source Serif 4', Georgia, serif" : "'Mulish', sans-serif";
+  row.innerHTML = `
+    <div class="type-meta"><b>${token}</b>${font} &middot; ${size}px &middot; ${weight} &middot; lh ${lh}px &middot; ${tracking}</div>
+    <div class="type-sample" style="font-family:${fam}; font-size:${size}px; line-height:${lh}px; font-weight:${weight}; letter-spacing:${tracking}">The quick brown fox jumps</div>`;
+  typeScaleEl.appendChild(row);
+});
+document.getElementById('typeToggle').addEventListener('click', function(){
+  const hidden = document.querySelectorAll('.type-row.hidden');
+  const willShow = hidden.length > 0;
+  document.querySelectorAll('.type-row').forEach((r,i) => {
+    if(i >= VISIBLE) r.classList.toggle('hidden', !willShow);
+  });
+  this.textContent = willShow ? 'Show fewer' : 'Show all 17 steps';
+});
+
+const spacingData = [
+  ['spacing-4','4px','Base unit'],
+  ['spacing-8','8px','Element gap — default gap between elements'],
+  ['spacing-12','12px','Tight internal padding (buttons, table cells)'],
+  ['spacing-16','16px','Card padding — default'],
+  ['spacing-20','20px','Compact section-internal spacing'],
+  ['spacing-24','24px','Section-internal spacing (card title block to body)'],
+  ['spacing-32','32px','Page gutter — horizontal page padding'],
+  ['spacing-40','40px','Large internal spacing'],
+  ['spacing-48','48px','Section gap — between dashboard sections'],
+  ['spacing-60','60px','Large section gap — between major page regions'],
+  ['spacing-120','120px','Full-page / hero-level spacing'],
+];
+document.getElementById('spacingTable').innerHTML = `<tr><th>Token</th><th>Value</th><th>Purpose</th><th>Preview</th></tr>` +
+  spacingData.map(([tok,val,purpose]) => `<tr>
+    <td class="token">${tok}</td><td>${val}</td><td>${purpose}</td>
+    <td style="width:140px"><div class="bar-preview" style="width:${parseInt(val)}px"></div></td>
+  </tr>`).join('');
+
+const radiusData = [
+  ['radius-sm','12px','Inputs, small buttons, icon buttons'],
+  ['radius-md','16px','Standard/large buttons'],
+  ['radius-lg','20px','Cards, modals, nav, feature panels'],
+  ['radius-pill','999px','Pills, badges, tags, avatars'],
+  ['radius-link','32px','Link-styled pill CTAs'],
+];
+document.getElementById('radiusTable').innerHTML = `<tr><th>Element</th><th>Value</th><th>Usage</th><th>Preview</th></tr>` +
+  radiusData.map(([tok,val,usage]) => `<tr>
+    <td class="token">${tok}</td><td>${val}</td><td>${usage}</td>
+    <td><div class="radius-preview" style="border-radius:${val}"></div></td>
+  </tr>`).join('');
+
+const elevationData = [
+  ['shadow-hairline','0 0 0 1px #d8d8d8','Hairline ring'],
+  ['shadow-1','0 1px 2px rgba(189,189,189,.45)','Cards, default resting elevation'],
+  ['shadow-2','0 2px 8px rgba(189,189,189,.42)','Hover / raised state'],
+  ['shadow-3','0 8px 24px rgba(189,189,189,.40)','Popovers, dropdowns'],
+  ['shadow-4','0 16px 48px rgba(189,189,189,.44)','Dialogs / modals'],
+];
+document.getElementById('elevationRow').innerHTML = elevationData.map(([tok,val,usage]) => `
+  <div class="elevation-swatch">
+    <div class="box" style="box-shadow:${val}"></div>
+    <span class="label"><b style="display:block;color:var(--color-neutral-9)">${tok}</b>${usage}</span>
+  </div>
+`).join('');
+
+const motionData = [
+  ['duration-instant','80ms','Micro feedback (press, toggle)'],
+  ['duration-fast','140ms','Hover, focus transitions'],
+  ['duration-base','220ms','Default UI transitions'],
+  ['duration-slow','360ms','Panel/section reveals'],
+  ['duration-ambient','900ms','Background/ambient motion'],
+];
+const easingData = [
+  ['ease-standard','cubic-bezier(.2,.6,.2,1)','Default UI easing'],
+  ['ease-settle','cubic-bezier(.16,.84,.24,1)','Earth — anchored arrivals'],
+  ['ease-flow','cubic-bezier(.37,0,.29,1)','Water — continuous'],
+  ['ease-flare','cubic-bezier(.05,.7,.1,1)','Fire — pulse outward, rise'],
+  ['ease-precise','cubic-bezier(.4,0,.2,1)','Gold — sharp, decisive'],
+  ['ease-grow','cubic-bezier(.25,.46,.45,.94)','Wood — branching growth'],
+];
+document.getElementById('motionTable').innerHTML = `<tr><th>Token</th><th>Value</th><th>Usage</th></tr>` +
+  motionData.map(([tok,val,usage]) => `<tr><td class="token">${tok}</td><td>${val}</td><td>${usage}</td></tr>`).join('') +
+  easingData.map(([tok,val,usage]) => `<tr><td class="token">${tok}</td><td>${val}</td><td>${usage}</td></tr>`).join('');
+
+/* ---------- Components: copy markup ---------- */
+
+document.querySelectorAll('.copy-markup-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const demo = document.getElementById(btn.dataset.target).querySelector('.comp-demo');
+    const markup = demo.innerHTML.trim().replace(/^\s+/gm, '');
+    navigator.clipboard.writeText(markup);
+    const old = btn.innerHTML;
+    btn.innerHTML = '<i class="ph-fill ph-check"></i> Copied';
+    setTimeout(() => btn.innerHTML = old, 1200);
+  });
+});
+
+/* ---------- Right pane: tabbed source viewer ---------- */
+
+const src = {
+  mdCompact: document.getElementById('src-md-compact').textContent.trim(),
+  mdExtended: document.getElementById('src-md-extended').textContent.trim(),
+  cssVars: document.getElementById('src-css-vars').textContent.trim(),
+  tailwind: document.getElementById('src-tailwind').textContent.trim(),
+  json: document.getElementById('src-json').textContent.trim(),
+};
+
+let activeTab = 'md';
+let mdMode = 'extended';
+let currentRaw = '';
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderColored(text){
+  return text.split('\n').map(line => {
+    const esc = escapeHtml(line);
+    return /^#{1,6}\s/.test(line) ? `<span class="h">${esc}</span>` : esc;
+  }).join('\n');
+}
+
+function currentFilename(){
+  if(activeTab === 'md') return mdMode === 'compact' ? 'collabrium-cheatsheet.md' : 'collabrium-design-system.md';
+  if(activeTab === 'tailwind') return 'collabrium-tailwind-theme.css';
+  if(activeTab === 'css') return 'tokens.css';
+  return 'collabrium-tokens.json';
+}
+
+function renderTab(){
+  const codearea = document.getElementById('codearea');
+  document.getElementById('mdModeToggle').style.display = activeTab === 'md' ? 'flex' : 'none';
+
+  if(activeTab === 'md'){
+    currentRaw = mdMode === 'compact' ? src.mdCompact : src.mdExtended;
+    codearea.innerHTML = renderColored(currentRaw);
+  } else {
+    currentRaw = activeTab === 'tailwind' ? src.tailwind : activeTab === 'css' ? src.cssVars : src.json;
+    codearea.textContent = currentRaw;
+  }
+  codearea.scrollTop = 0;
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTab = btn.dataset.tab;
+    renderTab();
+  });
+});
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    mdMode = btn.dataset.mode;
+    renderTab();
+  });
+});
+
+document.getElementById('copyBtn').addEventListener('click', function(){
+  navigator.clipboard.writeText(currentRaw);
+  const old = this.innerHTML;
+  this.innerHTML = '<i class="ph-fill ph-check"></i> Copied';
+  setTimeout(() => this.innerHTML = old, 1200);
+});
+
+document.getElementById('downloadBtn').addEventListener('click', function(){
+  const blob = new Blob([currentRaw], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = currentFilename();
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+renderTab();
+</script>
+</body>
+</html>
