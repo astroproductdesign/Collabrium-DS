@@ -46,6 +46,7 @@ changelog when you do.
 | 8 | No final logo asset | **Further resolved 2026-07-29** — a real animated wordmark + mark SVG (`logo.html`, corrected to this document's palette) plus the full vector source library (`SVG/` — every letter and element icon) now exist. Still missing: a combined static lockup export, clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
 | 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | Not proposed — needs eng input, not a design guess |
+| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split (2026-07-31), with no cited source (deck or teammate build) | **Resolved 2026-07-31** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery (~40 icons across all 21 components) have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
 
 ---
 
@@ -265,12 +266,53 @@ canonical — logo wordmark should be neither font per the deck's own
 
 ## Iconography
 
-Two-library system, filled variants only — no outlines, no mixed styles.
+⚠️ **Weight policy changed 2026-07-31 — see gap notes below before treating
+as final.** Collabrium icons are bold, chunky silhouettes with rounded,
+organic forms, from a two-library system in **two weights** — the weight is
+decided by what the icon *does*, not by taste. This replaces the earlier
+"Fill exclusively, no outlines" rule; see [Needs Input #11](#needs-input-read-this-first).
 
-- **Primary — Phosphor** (phosphoricons.com, MIT License, free). Use the
-  **Fill** weight exclusively.
+- **Primary — Phosphor** (phosphoricons.com, MIT License, free). Both weight
+  stylesheets load together: Regular for Tier 1 icons, Fill for Tier 2 (see
+  below).
 - **Fallback — Remix Icon** (remixicon.com, Apache 2.0, free). Only when
-  Phosphor lacks the icon. Always the `-fill` suffix variant.
+  Phosphor lacks the glyph, following the same tier split (e.g. `ri-plus-line`
+  for Tier 1, `ri-check-circle-fill` for Tier 2).
+
+### The two tiers
+
+**Tier 1 — functional/control icons → Regular (outline).** Icons inside
+buttons, toolbars, and as affordances: these are actions the user *performs*,
+not concepts being communicated. At `icon-sm` (16px) and `icon-base` (20px),
+Regular reads more precisely and feels less heavy than Fill — Fill on a small
+`+` or `×` reads as visually heavy. Applies to: add, close, more-horizontal,
+more-vertical, chevron up/down/left/right, arrow up/down/left/right, sort,
+drag handle, expand, collapse, refresh, search (inside an input field),
+filter, check and minus (the Checkbox marks), pencil-simple, trash,
+download-simple, upload-simple.
+
+Where a slug legitimately serves both tiers, the status meaning wins the
+default and the control call site opts out — e.g. `x-circle` is Tier 2 (the
+error status indicator in `Toast`), while a remove affordance uses plain `x`
+instead (see `Tag`'s remove button).
+
+**Tier 2 — expressive/status/decorative icons → Fill.** Icons that
+communicate meaning, status, or context rather than trigger an action; they
+carry visual weight intentionally, and at `icon-md` (24px) and above, Fill
+reads naturally. Applies to: status indicators (success, warning, error,
+info), sidebar navigation items, card header icons, department indicators,
+feature highlights, empty-state illustrations, onboarding icons.
+
+| Icon type | Examples | Weight | Class prefix |
+|---|---|---|---|
+| Action inside a button | Plus, X, DotsThree | Regular | `ph` |
+| Toolbar affordance | Sort, Filter, Refresh | Regular | `ph` |
+| Navigation control | ChevronDown, ArrowLeft | Regular | `ph` |
+| Search inside input | MagnifyingGlass | Regular | `ph` |
+| Sidebar nav item | House, Users, Chart | Fill | `ph-fill` |
+| Status indicator | CheckCircle, Warning | Fill | `ph-fill` |
+| Card / section header | Calendar, Briefcase | Fill | `ph-fill` |
+| Empty state | FolderOpen, CloudSlash | Fill | `ph-fill` |
 
 **Color rule:** icons inherit the text color of their surrounding context.
 They don't use elemental/accent colors unless inside a department-specific
@@ -525,8 +567,9 @@ one consistent product, not ten dialects.
    text/UI). This applies inside brand-colored surfaces too — e.g. white
    text on Amber `#FFA425` fails AA; use Obsidian text on light accent
    fills instead (see each component's notes).
-6. **Icons stay Phosphor Fill inside components**, per
-   [Iconography](#iconography). Never mix in a Remix icon next to a
+6. **Icon weight follows the Tier 1/Tier 2 split, not taste**, per
+   [Iconography](#iconography) — Regular for functional/control icons, Fill
+   for expressive/status icons. Never mix in a Remix icon next to a
    Phosphor one within the same component instance.
 7. **Secondary font (Source Serif 4) does not appear inside components.**
    Buttons, inputs, tags, table cells, and modal body copy are Primary
@@ -623,9 +666,12 @@ a component-specific override, not a scale mismatch to "fix" elsewhere.
 | Disabled | Neutral-4 `#bdbdbd` fill, Neutral-1 text | Neutral-3 border, Neutral-4 text | Neutral-4 text |
 | Loading | Primary fill, centered spinner replaces label, button width unchanged | same pattern | same pattern |
 
-Leading icon optional, `icon-sm` (16px), same color as label. Icon-only
-buttons use a square hit area matching the button's height (e.g. 40×40 for
-md) and require an `aria-label`.
+Leading icon optional, `icon-sm` (16px), same color as label — weight
+follows the icon's own [Iconography](#iconography) tier, not the button
+(e.g. a leading `plus` is **Tier 1, Regular**; a leading `check-circle`
+would stay **Tier 2, Fill**). Icon-only buttons use a square hit area
+matching the button's height (e.g. 40×40 for md) and require an
+`aria-label`.
 
 **Do:** keep one Primary button per screen/card region. **Don't:** use an
 element/department color as a button fill — that's a classification color,
@@ -652,7 +698,9 @@ Anatomy, top to bottom: label → input box → helper or error text.
 | Disabled | Neutral-3 | Neutral-2 | Neutral-5 text, no cursor |
 
 Optional leading/trailing icon, `icon-sm` (16px), Neutral-5 — sits inside
-the input box, spacing-8 from the text.
+the input box, spacing-8 from the text. Weight follows the icon's own
+[Iconography](#iconography) tier (e.g. a trailing `magnifying-glass` for
+in-field search is **Tier 1, Regular**).
 
 **Do:** always render a `<label>`, even if visually hidden. **Don't:** use
 placeholder text as a substitute for a label — placeholders disappear the
@@ -683,7 +731,7 @@ the Modal footer's divider, scaled down.
 - **Static** — default surface above, no interaction.
 - **Interactive/clickable** — hover raises to `shadow-2`; cursor pointer; focus-visible gets `shadow-focus`.
 - **Element-accented** — a 3px top border in the owning element's color. The rest of the card stays neutral.
-- **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color. ⚠️ **Tint corrected 2026-07-29:** the chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
+- **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). ⚠️ **Tint corrected 2026-07-29:** the chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
 - **Warm** — `canvas-warm-card` fill, border dropped. Brand/editorial contexts only, never product UI.
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
 
@@ -725,7 +773,10 @@ Neutral-2 fill, with a **6px dot** in the element's full-strength color
 and matching text color. Distinct from Badge because ownership is not a
 status.
 
-Both accept an optional leading `icon-micro` (14px) in the text color.
+Both accept an optional leading `icon-micro` (14px) in the text color —
+weight follows the icon's own [Iconography](#iconography) tier (a Tag's
+element motif icon, e.g. `flame`/`drop`, is **Tier 2, Fill**, since it's a
+department indicator, not a control).
 
 **Do:** use Badge for state (Live, Paused, Blocked), Tag for ownership
 (Fire · Marketing). **Don't:** fill either solid with a brand color and
@@ -741,7 +792,7 @@ size.
 | Row hover | Neutral-2 fill |
 | Row selected | Neutral-2 fill + 2px Obsidian left border |
 | Numeric columns | right-aligned, tabular figures if the font supports them |
-| Cell icon | `icon-micro` (14px), inherits cell text color |
+| Cell icon | `icon-micro` (14px), inherits cell text color — weight follows the icon's own [Iconography](#iconography) tier |
 
 **Do:** apply the border only to `border-bottom`, never both top and
 bottom on every row — a table with hairlines on all four sides of every
@@ -756,7 +807,7 @@ read is a layout failure, not a data problem.
 |---|---|
 | Overlay | `shadow-overlay` — Neutral-9 at 56% opacity, covers viewport |
 | Panel | Neutral-1 fill, 1px Neutral-3 border, `radius-lg` (20px), `shadow-4`, max-width ~480px for simple confirmations, wider for forms |
-| Header | h3 title (22px/800) + optional description in body1/Neutral-5 + Ghost icon-button close (`icon-base`, 20px, top-right) |
+| Header | h3 title (22px/800) + optional description in body1/Neutral-5 + Ghost icon-button close (`x`, `icon-base`, 20px, top-right) — **Tier 1, Regular** (a close affordance, per [Iconography](#iconography)) |
 | Body | body1, `spacing-24` padding on all sides |
 | Footer | Secondary button + Primary button, right-aligned, `spacing-8` gap, `spacing-24` above |
 
@@ -770,7 +821,7 @@ mirrors the deck's own steady, uncluttered tone).
 
 | Part | Spec |
 |---|---|
-| Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color (corrected v0.6.0 — was Neutral-5) |
+| Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color (corrected v0.6.0 — was Neutral-5); **Tier 2, Fill** (an empty-state illustration, per [Iconography](#iconography)) |
 | Heading | h4 (20px/800), Neutral-9 |
 | Body | body1 at weight 500, Neutral-5, max-width ~380px |
 | Action | optional Primary button below the body text, `spacing-8` above it |
@@ -795,7 +846,7 @@ Primary app-level navigation, not a page-local menu.
 | Nav item | 40px height, full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
 | Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
 | Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
-| Icon | `icon-base` (20px); may take an element color override when the item is department-specific |
+| Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
 | Trailing count | optional, caption/700/Neutral-5, right-aligned |
 | Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
 | Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
@@ -818,7 +869,7 @@ In-page section switching, not app-level navigation (use SidebarNav for that).
 | Tab | inline-flex, spacing-8 gap, 40px height, 0/spacing-12 padding, no fill or border, body1 weight 700 |
 | Tab — active | Neutral-9 text, 2px Obsidian underline (drawn as an **inset** `box-shadow: inset 0 -2px 0 var(--color-obsidian)`, not a real border — keeps the underline from shifting row height) |
 | Tab — inactive | Neutral-5 text, no underline |
-| Icon (optional) | `icon-sm` (16px), leading |
+| Icon (optional) | `icon-sm` (16px), leading; **Tier 2, Fill** — a judgment call, not explicit in [Iconography](#iconography)'s examples; treated like SidebarNav (a persistent selection control) rather than a generic Tier 1 nav control, see [Needs Input #11](#needs-input-read-this-first) |
 | Trailing count (optional) | caption/700/Neutral-5 |
 | Transition | `color`, `box-shadow` — `var(--duration-fast) var(--ease-standard)` |
 
@@ -836,7 +887,7 @@ Same anatomy and sizing as Input field, so the two align in a form row.
 | Label (optional) | caption, weight 700, Neutral-9, spacing-4 below it |
 | Box | height by size (sm 32 / md 40 / lg 48, same as Button/Input), `radius-sm` (12px), 1px Neutral-3 border (Red on error), Neutral-1 fill (Neutral-2 when disabled) |
 | Native `<select>` | fills the box, spacing-12 (12px) left padding, 36px right padding (room for the caret), body1 weight 500, transparent background, no native appearance |
-| Caret | `caret-down`, `icon-sm` (16px), absolute right spacing-12, Neutral-5, `pointer-events: none` |
+| Caret | `caret-down`, `icon-sm` (16px), absolute right spacing-12, Neutral-5, `pointer-events: none` — **Tier 1, Regular** (a navigation/control chevron, per [Iconography](#iconography)) |
 | Hint text | caption, Neutral-5, below the box |
 | Error text | caption, weight 700, Red, replaces hint |
 | Disabled | Neutral-2 fill, `cursor: not-allowed` |
@@ -855,7 +906,7 @@ Supports multi-select and an indeterminate (partial-selection) state.
 |---|---|
 | Box | 18×18px, 6px radius (⚠️ a one-off literal value — doesn't map to `radius-sm` or any named token; a compact control gets its own smaller radius), spacing-8 gap to the text, 2px top margin for optical alignment with the first text line |
 | Box — unchecked | 1px Neutral-3 border, Neutral-1 fill |
-| Box — checked / indeterminate | Obsidian border and fill, `icon-micro` (14px) check or minus glyph in Neutral-1 |
+| Box — checked / indeterminate | Obsidian border and fill, `icon-micro` (14px) check or minus glyph in Neutral-1 — **Tier 1, Regular** (the Checkbox marks are explicitly called out in [Iconography](#iconography)) |
 | Label text | body1, weight 500, Neutral-9 |
 | Description (optional) | caption, Neutral-5, below the label |
 | Disabled | 50% opacity, `cursor: not-allowed` |
@@ -920,13 +971,15 @@ with real consequences.
 | Part | Spec |
 |---|---|
 | Container | 320–420px width, spacing-12/spacing-16 padding, Neutral-1 fill, 1px Neutral-3 border, `radius-md` (16px — a compact transient surface, not the Card's 20px), `shadow-3`, spacing-12 gap, `role="status"` |
-| Icon | `icon-base` (20px), 2px top margin for optical alignment with the title |
+| Icon | `icon-base` (20px), 2px top margin for optical alignment with the title; **Tier 2, Fill** (a status indicator, per [Iconography](#iconography) — see the tone table below) |
 | Title (optional) | body1, weight 700 |
 | Message (optional) | caption, Neutral-5 |
 | Action slot (optional) | spacing-8 above it — holds a Link or Ghost button |
-| Close (optional) | Ghost IconButton, sm, top-right, `aria-label="Dismiss"` |
+| Close (optional) | Ghost IconButton, sm, top-right, `x`, **Tier 1, Regular** (a close affordance), `aria-label="Dismiss"` |
 
 **Tone → icon/color:**
+
+All four are **Tier 2, Fill** status indicators, per [Iconography](#iconography) — none are clickable, so none are Tier 1 despite `x-circle`'s slug overlap with the Tier 1 `x` remove affordance used elsewhere (e.g. Tag/filter-pill removal).
 
 | Tone | Icon | Color |
 |---|---|---|
@@ -985,7 +1038,7 @@ needs the element's icon, not just a color dot.
 | Part | Spec |
 |---|---|
 | Chip | default 32×32px (size prop), `radius-sm` (12px), fill = owning element color at **12% tint** (the same one-off `color-mix` used by the Card icon-chip pattern — not the 8% `-bg` token) |
-| Glyph | sized at 60% of the chip box, centered |
+| Glyph | sized at 60% of the chip box, centered — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)) |
 | Label (optional, `showLabel`) | spacing-12 gap from the chip; element name (caption, weight 700, `tracking-eyebrow`, uppercase, Neutral-9) over a sublabel (caption, Neutral-5 — defaults to the element's function, e.g. "Visibility & Energy") |
 | No label | chip renders alone with a native `title` attribute carrying the element name, for accessibility |
 
@@ -1020,9 +1073,9 @@ doesn't replace it.
 | Container | same as base Card: `radius-lg` (20px), Neutral-1 fill, 1px Neutral-3 border, `shadow-1` at rest, spacing-16 padding |
 | Label | caption, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — the metric name (e.g. "TOTAL SPEND") |
 | Value | h1 (32px/800) for a standard tile; the `display` size (40px/800) for a single featured/hero stat card in a row of otherwise-standard tiles — never mix the two sizes within one row |
-| Trend | inline row below the value, spacing-8 gap above it: `caret-up`/`caret-down`/`minus` (`icon-micro`, 14px) + delta value + comparison period, all caption/700 |
+| Trend | inline row below the value, spacing-8 gap above it: `caret-up`/`caret-down`/`minus` (`icon-micro`, 14px) + delta value + comparison period, all caption/700; **Tier 2, Fill** — a judgment call, not explicit in [Iconography](#iconography)'s examples; treated as expressive/informational (not clickable) despite "arrow up/down" appearing in the Tier 1 example list, see [Needs Input #11](#needs-input-read-this-first) |
 | Trend color | Green = positive change, Red = negative change, Neutral-5 = flat/no comparison available — reuses the exact Badge success/danger hues, not new colors |
-| Icon chip (optional) | top-right or top-left, same 36×36 `radius-sm` chip at 12% element tint as Card's icon-chip pattern — marks which department the metric belongs to |
+| Icon chip (optional) | top-right or top-left, same 36×36 `radius-sm` chip at 12% element tint as Card's icon-chip pattern — marks which department the metric belongs to; **Tier 2, Fill** (a department indicator) |
 | Footer (optional) | same as Card's Footer sub-part — spacing-16 margin-top, spacing-12 padding-top, 1px Neutral-3 top border, caption/Neutral-5 (e.g. "As of 9:41am") |
 | Sparkline slot (optional) | reserved space below the trend row for a mini inline chart — see Chart color mapping below for how its line/fill should be colored; this spec doesn't define chart rendering itself |
 
@@ -1050,11 +1103,11 @@ Table row list or DataTable.
 | Part | Spec |
 |---|---|
 | Bar | horizontal flex row, spacing-8 gap, wraps on overflow, spacing-16 margin-bottom |
-| Search input | Input field, sm (32px), leading `magnifying-glass` (`icon-sm`, Neutral-5), placeholder text — sits first in the bar |
-| Filter trigger | Button Secondary, sm or md — leading `sliders`/`funnel` icon + label; gets a small circular Obsidian count badge (caption/700, Neutral-1 text) trailing the label once ≥1 option is selected inside it |
+| Search input | Input field, sm (32px), leading `magnifying-glass` (`icon-sm`, Neutral-5), placeholder text — sits first in the bar; **Tier 1, Regular** (search inside an input field, per [Iconography](#iconography)) |
+| Filter trigger | Button Secondary, sm or md — leading `sliders`/`funnel` icon + label; **Tier 1, Regular** (filter, per [Iconography](#iconography)); gets a small circular Obsidian count badge (caption/700, Neutral-1 text) trailing the label once ≥1 option is selected inside it |
 | Filter trigger — active | 1px Obsidian border + Neutral-9 text (replaces the default Neutral-3/Neutral-9 Secondary styling) whenever it holds a selection, so an applied filter is never visually silent |
 | Dropdown panel | `radius-md` (16px — a compact popover, not the full 20px Card radius), 1px Neutral-3 border, `shadow-3`, spacing-16 padding, positioned 8px below the trigger |
-| Applied filter pill | reuses Tag's pill shape (`radius-pill`, 24px height, 10px horizontal padding, caption/700) but Neutral-2 fill / Neutral-9 text, with a trailing `x` (`icon-micro`) to remove it individually |
+| Applied filter pill | reuses Tag's pill shape (`radius-pill`, 24px height, 10px horizontal padding, caption/700) but Neutral-2 fill / Neutral-9 text, with a trailing `x` (`icon-micro`) to remove it individually — **Tier 1, Regular** (a remove affordance uses plain `x`, per [Iconography](#iconography)) |
 | Clear all | Link-style button (transparent, Neutral-9, underlined), right-aligned in the bar, **only rendered once ≥1 filter is applied** |
 
 **Do:** surface a live count on the trigger the instant a filter is
@@ -1079,7 +1132,7 @@ Sits as a table or list footer — same border convention as DataTable.
 | Page number — default | transparent fill, Neutral-5 text |
 | Page number — hover | Neutral-2 fill, Neutral-9 text |
 | Page number — current | Obsidian fill, Neutral-1 text — the only filled state, kept unambiguous against its neighbors |
-| Prev / Next | 32×32px Ghost icon-buttons (`caret-left`/`caret-right`, `icon-sm`); disabled at the first/last page — Neutral-4 icon, `cursor: not-allowed` |
+| Prev / Next | 32×32px Ghost icon-buttons (`caret-left`/`caret-right`, `icon-sm`); **Tier 1, Regular** (navigation control, per [Iconography](#iconography)); disabled at the first/last page — Neutral-4 icon, `cursor: not-allowed` |
 | Ellipsis | static "…" in the same 32×32 box for alignment, caption/Neutral-5, no interactive state |
 | Page-size select (optional) | Select, sm, right-aligned, spacing-8 gap from the Next button (e.g. "20 / page") |
 
@@ -1099,9 +1152,9 @@ review.
 
 | Part | Spec |
 |---|---|
-| Trigger | same box as Select (sm/md/lg heights, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill) but with a leading `calendar` icon (`icon-sm`, Neutral-5) instead of a trailing caret; shows the formatted date (body1/weight 500) or placeholder text (Neutral-5) |
+| Trigger | same box as Select (sm/md/lg heights, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill) but with a leading `calendar` icon (`icon-sm`, Neutral-5) instead of a trailing caret; **Tier 2, Fill** — kept Fill per [Iconography](#iconography)'s own "Card / section header: Calendar... Fill" example, despite sitting inside a trigger button; shows the formatted date (body1/weight 500) or placeholder text (Neutral-5) |
 | Popover panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-16 padding, 8px below the trigger — same popover convention as Filters |
-| Month header | flex row, `justify-content: space-between`; prev/next month Ghost icon-buttons (32×32) flank a centered month/year label (h5, 16px/700) |
+| Month header | flex row, `justify-content: space-between`; prev/next month Ghost icon-buttons (32×32, `caret-left`/`caret-right`) — **Tier 1, Regular** (navigation control) — flank a centered month/year label (h5, 16px/700) |
 | Weekday row | 7-column grid, caption/700/uppercase/Neutral-5, spacing-4 bottom gap |
 | Day cell | 36×36px, `radius-sm` (12px), numeral centered (caption or body2) |
 | Day — default | transparent fill, Neutral-9 text |
@@ -1165,8 +1218,9 @@ read one section before building, read this one.
   that isn't listed there.
 - Tint a surface only with the element that already owns its content, and
   only at the `-bg` (8%) or `-bg-strong` (16%) step.
-- Use Phosphor Fill icons everywhere; fall back to Remix `-fill` only
-  when Phosphor has no matching glyph.
+- Use Regular weight for Tier 1 (functional/control) icons and Fill for
+  Tier 2 (expressive/status) icons; fall back to Remix only when Phosphor
+  has no matching glyph, following the same tier split.
 - Pull every spacing, radius, and color value from a token in this
   document — no arbitrary pixel or hex values.
 - Let cards carry `shadow-1` at rest, and build every shadow on
@@ -1190,8 +1244,9 @@ read one section before building, read this one.
   weight change, not a font swap.
 - Never apply negative letter-spacing to headings — Collabrium headings
   are weight 800 at tracking 0.
-- Never mix Phosphor and Remix icon styles, or fill and outline weights,
-  within the same component instance.
+- Never assign icon weight by taste — Regular for Tier 1, Fill for Tier 2 —
+  and never mix Phosphor and Remix icon styles within the same component
+  instance.
 - Never build a shadow on black — every shadow in this system is
   Neutral-4 based.
 - Never fill a small badge/tag solid with a brand color and put white
