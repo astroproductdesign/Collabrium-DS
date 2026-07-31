@@ -43,7 +43,7 @@ changelog when you do.
 | 5 | No border-radius values | No numbers in the deck as originally read — v0.1-v0.5 used an invented flat 4/8/12px guess | **✅ Resolved 2026-07-29 (v0.6.0)** — real per-surface radii (12/16/20px) sourced from the teammate's extraction; see [Radius](#radius--needs-input-5--resolved-v060) |
 | 6 | No accessibility targets | Section exists with blank fields (min body text, min contrast, max line length) | WCAG 2.1 AA defaults proposed in [Accessibility](#accessibility) |
 | 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | First full draft (v0.2.0) in [Components](#components)/[Component Rules](#component-rules), now also **live-rendered** in `preview.html`'s Components section (v0.5.0) with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
-| 8 | No final logo asset | **Further resolved 2026-07-29** — a real animated wordmark + mark SVG (`logo.html`, corrected to this document's palette) plus the full vector source library (`SVG/` — every letter and element icon) now exist. Still missing: a combined static lockup export, clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
+| 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Fire→Wood→Water→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/gold.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/gold.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
 | 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | Not proposed — needs eng input, not a design guess |
 | 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split (2026-07-31), with no cited source (deck or teammate build) | **Resolved 2026-07-31** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery (~40 icons across all 21 components) have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
@@ -443,23 +443,66 @@ alone, the system depends on collaboration to maintain equilibrium. Each
 element maps to a brand color and department cluster (see [Color
 Palette](#color-palette)).
 
+> Like the elements themselves, work moves constantly, unpredictably, and
+> rarely in sync. What it needs isn't less movement — it's a structure
+> grounded enough to hold it and harmonious enough to let each element
+> feed the next instead of fighting it. Collabrium is that structure: a
+> daily reading of where your elements stand, what's overflowing, what's
+> stalled, and where balance needs restoring — so the same forces that
+> could create chaos are the ones that create your outcome.
+
+### Default static lockup — `logo-lockups/gold.svg`
+
+⚠️ **New 2026-07-31 — further resolves Needs Input #8.** A combined,
+non-animated wordmark lockup, with the "O" rendered as a solid Gold/Amber
+`#FFA425` ring rather than the animated filmstrip. This is the asset for
+any context that can't run `logo.html`'s animation (favicons, print,
+email, static deck slides, social previews).
+
+**Default-logo rule:** whenever the Collabrium mark is used without a
+specific department/element context, **this Gold lockup is the default**
+— not a static frame grabbed from the animation, not any other element's
+color. Only when the surface is already department-specific (e.g. a
+Marketing-owned deck cover, a Finance report header) does the mark switch
+to that department's own element-colored lockup instead:
+
+| Element | Department | Lockup file |
+|---|---|---|
+| Gold | Finance · Legal · Compliance · QA & Audit | `logo-lockups/gold.svg` ✅ |
+| Fire | Marketing · PR · Sales | `logo-lockups/fire.svg` — not yet provided |
+| Wood | Strategy · R&D · Product | `logo-lockups/wood.svg` — not yet provided |
+| Water | Data · Logistics · Exec | `logo-lockups/water.svg` — not yet provided |
+| Earth | HR · CS · Admin | `logo-lockups/earth.svg` — not yet provided |
+
+✅ **Ink-color discrepancy, resolved 2026-07-31:** `logo.html`'s wordmark
+was rebuilt on a new font (see below) and now uses `#2B2B2C` (Obsidian),
+matching this lockup exactly. The two logo assets no longer disagree on
+wordmark black.
+
 **The real asset — `logo.html`.** A working animated wordmark exists in
 this folder: the word "COLLABRIUM" with the O rendered as a looping
-filmstrip that cycles through the five elements, plus four additional
-decorative frames (sun, moon, cloud, mountain) that are **motion-graphic
-variety only** — they're not part of the 5-element/department
-classification system and don't map to any documented color or
-department. All 9 frames, including moon, are in the loop — the source
-asset originally shipped with a visible element-name label and a
-play/pause control; both were removed at the user's request (2026-07-29)
-so the file embeds as a clean, always-animating mark with no dev/debug
-UI. The animation content itself is unchanged. As received, two of the five element frames used
-off-palette hex values (Wood `#FFA6A8`, Earth `#00D97B`); both have been
-corrected to the canonical values in this document (`#FF7A90`,
-`#00C26E` — see Needs Input #1/#2, resolved). The wordmark itself uses
-its own ink color, `#2F2F2F`, a deliberately softer black than
-Neutral-9 — this is a legitimate independent logo choice, not a
-conflict with the UI neutral ramp, and hasn't been changed.
+filmstrip. **Trimmed 2026-07-31** to the 5 documented elements only, in
+a fixed sequence — **Gold → Fire → Wood → Water → Earth** — rather than
+cycling through all 5 plus 4 extra decorative frames. The previous
+9-frame loop (which also included sun, moon, cloud, mountain —
+**motion-graphic variety only**, never part of the 5-element/department
+classification system) has been replaced; those 4 decorative frames are
+no longer in the animation at all. The Gold frame's artwork is now
+`coin.svg`, not the `gold.svg` bracket icon used elsewhere in this
+system (Color Palette, ElementBadge, sidebar-nav dots, etc.) — see the
+Vector source library note below for why. The source asset originally
+shipped with a visible element-name label and a play/pause control; both
+were removed at the user's request (2026-07-29) so the file embeds as a
+clean, always-animating mark with no dev/debug UI. **Rebuilt on a new
+font 2026-07-31:** every static letter's path data was replaced, kerning
+recalculated from the new letterforms' widths (consistent 8px gaps, same
+convention as before), and the wordmark's ink color changed from
+`#2F2F2F` to `#2B2B2C` (Obsidian) to match the new font's source files
+— see the Default static lockup section above for why that resolves a
+previously-flagged discrepancy. As received, two of the five element
+frames used off-palette hex values (Wood `#FFA6A8`, Earth `#00D97B`);
+both were corrected to the canonical values in this document (`#FF7A90`,
+`#00C26E` — see Needs Input #1/#2, resolved) before the frame-trim above.
 
 **Vector source library — `SVG/`.** This folder holds the individual
 vector files `logo.html` is assembled from — confirmed by diffing them
@@ -472,16 +515,20 @@ single-element icon on its own, print work).
 - **Wordmark letters (8 files):** `a.svg`, `b.svg`, `c.svg`, `i.svg`,
   `l.svg`, `m.svg`, `r.svg`, `u.svg` — every unique letter in
   "C•LLABRIUM" except the O, which is the animated element mark, not a
-  static letter.
+  static letter. **Replaced 2026-07-31** with a new font — new path data,
+  new dimensions per letter, `fill` changed from `#2F2F2F` to `#2B2B2C`.
 - **Element icons (10 files):** `fire.svg`, `wood.svg`, `earth.svg`,
-  `water.svg`, `gold.svg` (the five documented elements) plus `sun.svg`,
-  `moon.svg`, `cloud.svg`, `mountain.svg` (the four decorative-only
-  extras already noted above) and **`coin.svg`** — a tenth icon that
-  is **not** in `logo.html`'s 9-frame animation and doesn't map to any
-  documented element or department. ⚠️ Flagging, not guessing: is `coin`
-  meant to extend the animation, replace `gold`, or serve an unrelated
-  use (billing/pricing UI)? Confirm with the brand team before building
-  on it.
+  `water.svg` (4 of the 5 documented elements, all used live in
+  `logo.html`'s animation) plus `sun.svg`, `moon.svg`, `cloud.svg`,
+  `mountain.svg` (decorative-only, **no longer used in `logo.html` as of
+  2026-07-31** — the animation was trimmed to 5 frames, see above) and
+  `coin.svg`. ✅ **`coin.svg`'s role resolved 2026-07-31** — it's now the
+  Gold frame's artwork in `logo.html`'s animation, replacing `gold.svg`
+  there. `gold.svg` (the bracket-shaped icon) remains the Gold element
+  icon used everywhere *else* in this system (Color Palette, ElementBadge,
+  sidebar-nav dots, Chart color mapping) — the two are deliberately
+  different assets for different purposes now, not a duplicate to
+  reconcile.
 - **Motive variants (5 files):** `motive sun.svg` and `motive moon.svg`
   are byte-identical duplicates of `sun.svg`/`moon.svg` (no actual
   difference). `motive water.svg`, `motive cloud.svg`, and
