@@ -161,6 +161,10 @@
   .c-btn-md{height:40px; padding:0 var(--spacing-16); font-size:16px; border-radius:var(--radius-md);}
   .c-btn-sm{height:32px; padding:0 var(--spacing-12); font-size:14px; border-radius:var(--radius-sm);}
   .c-btn-lg{height:48px; padding:0 var(--spacing-20); font-size:16px; border-radius:var(--radius-md);}
+  .c-btn-icon{padding:0; justify-content:center;}
+  .c-btn-icon.c-btn-sm{width:32px;}
+  .c-btn-icon.c-btn-md{width:40px;}
+  .c-btn-icon.c-btn-lg{width:48px;}
   .c-btn-primary{background:var(--color-obsidian); color:var(--color-neutral-1);}
   .c-btn-primary:hover{background:var(--color-neutral-8);}
   .c-btn-primary:active{background:var(--color-neutral-7);}
@@ -695,12 +699,21 @@
         <div class="comp-block" id="comp-button">
           <div class="comp-head"><h3>Button</h3><button class="copy-markup-btn" data-target="comp-button" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Variant</p>
             <div class="comp-row">
-              <button class="c-btn c-btn-primary c-btn-md"><i class="ph ph-plus"></i>Primary</button>
+              <button class="c-btn c-btn-primary c-btn-md">Primary</button>
               <button class="c-btn c-btn-secondary c-btn-md">Secondary</button>
               <button class="c-btn c-btn-ghost c-btn-md">Ghost</button>
               <button class="c-btn c-btn-primary c-btn-md" disabled>Disabled</button>
             </div>
+            <div class="comp-row">
+              <button class="c-btn c-btn-primary c-btn-md"><i class="ph ph-plus"></i>Add</button>
+              <button class="c-btn c-btn-primary c-btn-md c-btn-icon" aria-label="Add"><i class="ph ph-plus"></i></button>
+              <button class="c-btn c-btn-secondary c-btn-md c-btn-icon" aria-label="Delete"><i class="ph ph-trash"></i></button>
+              <button class="c-btn c-btn-ghost c-btn-md c-btn-icon" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+              <button class="c-btn c-btn-primary c-btn-md c-btn-icon" aria-label="Add" disabled><i class="ph ph-plus"></i></button>
+            </div>
+            <p style="margin:var(--spacing-16) 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Sizes</p>
             <div class="comp-row">
               <button class="c-btn c-btn-primary c-btn-sm">Small</button>
               <button class="c-btn c-btn-primary c-btn-md">Medium</button>
@@ -2002,9 +2015,19 @@ a component-specific override, not a scale mismatch to "fix" elsewhere.
 Leading icon optional, `icon-sm` (16px), same color as label — weight
 follows the icon's own [Iconography](#iconography) tier, not the button
 (e.g. a leading `plus` is **Tier 1, Regular**; a leading `check-circle`
-would stay **Tier 2, Fill**). Icon-only buttons use a square hit area
-matching the button's height (e.g. 40×40 for md) and require an
-`aria-label`.
+would stay **Tier 2, Fill**).
+
+**Icon-only — added 2026-08-03.** Any color variant except Link (which
+has no fixed height to square against) can render icon-only: no visible
+label, square hit area matching the button's own height at that size
+(32×32 sm, 40×40 md, 48×48 lg), zero horizontal padding, centered icon
+at `icon-sm` (16px). The icon must be pulled from **Tier 1 (functional/
+control)** of [Iconography](#iconography) — e.g. `dots-three`, `x`,
+`pencil-simple`, `trash` — never a Tier 2 icon, since the button itself
+is already the control action; a Tier 2 icon there would double up a
+status/decorative mark where an action mark belongs. Always requires an
+`aria-label` describing the action (e.g. "More options"), since there's
+no visible text for assistive tech to read.
 
 **Do:** keep one Primary button per screen/card region. **Don't:** use an
 element/department color as a button fill — that's a classification color,

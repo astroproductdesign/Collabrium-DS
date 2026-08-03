@@ -716,9 +716,19 @@ a component-specific override, not a scale mismatch to "fix" elsewhere.
 Leading icon optional, `icon-sm` (16px), same color as label — weight
 follows the icon's own [Iconography](#iconography) tier, not the button
 (e.g. a leading `plus` is **Tier 1, Regular**; a leading `check-circle`
-would stay **Tier 2, Fill**). Icon-only buttons use a square hit area
-matching the button's height (e.g. 40×40 for md) and require an
-`aria-label`.
+would stay **Tier 2, Fill**).
+
+**Icon-only — added 2026-08-03.** Any color variant except Link (which
+has no fixed height to square against) can render icon-only: no visible
+label, square hit area matching the button's own height at that size
+(32×32 sm, 40×40 md, 48×48 lg), zero horizontal padding, centered icon
+at `icon-sm` (16px). The icon must be pulled from **Tier 1 (functional/
+control)** of [Iconography](#iconography) — e.g. `dots-three`, `x`,
+`pencil-simple`, `trash` — never a Tier 2 icon, since the button itself
+is already the control action; a Tier 2 icon there would double up a
+status/decorative mark where an action mark belongs. Always requires an
+`aria-label` describing the action (e.g. "More options"), since there's
+no visible text for assistive tech to read.
 
 **Do:** keep one Primary button per screen/card region. **Don't:** use an
 element/department color as a button fill — that's a classification color,
