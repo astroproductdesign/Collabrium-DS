@@ -20,8 +20,8 @@ artwork (not `gold.svg`, which is a separate icon used elsewhere in this
 system).
 `logo-lockups/` holds combined, non-animated wordmark lockups for
 contexts that can't run the animation (favicons, print, email, static
-deck slides) — `gold.svg` is the **default** mark whenever no
-department/element context applies; the other 4 element-colored variants
+deck slides) — `collabrium-default-logo.svg` is the **default** mark
+whenever no department/element context applies; the other 4 element-colored variants
 (Fire, Wood, Water, Earth) don't exist yet. `SVG/`
 holds the confirmed true vector source for every letter and element icon
 individually — use those files (not a screenshot, not a hand-traced
@@ -109,8 +109,9 @@ over mechanical ones (sync, deploy, restore).
    curves — pull from DESIGN-SYSTEM.md's token tables.
 4. For the logo: use `logo.html` (embed it live, e.g. via iframe) wherever
    the mark can animate. Where it can't, use a static lockup from
-   `logo-lockups/` instead of a screenshot — `gold.svg` by default, or
-   the matching element's variant if the surface is already
+   `logo-lockups/` instead of a screenshot —
+   `collabrium-default-logo.svg` by default, or the matching element's
+   variant if the surface is already
    department-specific (see DESIGN-SYSTEM.md's Logo section for the
    full rule). Never extract a still frame from `logo.html` as a
    substitute lockup.
