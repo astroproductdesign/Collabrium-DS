@@ -14,7 +14,7 @@ typography, fonts, spacing & shape, guidelines) — open it directly, it
 links `tokens.css` and embeds `logo.html`. `logo.html` is the real,
 corrected animated Collabrium wordmark — the canonical *live* asset, embed
 it wherever the mark can animate rather than screenshotting it. Its "O"
-cycles through a fixed 5-frame sequence — **Gold → Fire → Wood → Water →
+cycles through a fixed 5-frame sequence — **Gold → Water → Wood → Fire →
 Earth**, no decorative extras — with `SVG/coin.svg` as the Gold frame's
 artwork (not `gold.svg`, which is a separate icon used elsewhere in this
 system).
@@ -151,7 +151,7 @@ all actually respond to input now; **a combined static logo lockup
 (`logo-lockups/gold.svg`) added 2026-07-31**, the new default mark for
 any context that can't run `logo.html`'s animation — further resolving
 Needs Input #8; **`logo.html` rebuilt on a new font and its animation
-trimmed from 9 frames to a fixed 5-frame Gold→Fire→Wood→Water→Earth
+trimmed from 9 frames to a fixed 5-frame Gold→Water→Wood→Fire→Earth
 sequence, also 2026-07-31** — the new font resolved the `#2B2B2C` vs
 `#2F2F2F` ink-color discrepancy against the static lockup (both now
 `#2B2B2C`), and `coin.svg` is now confirmed as the Gold frame's artwork,

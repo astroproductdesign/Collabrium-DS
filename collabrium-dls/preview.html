@@ -63,6 +63,8 @@
   .hero-logo iframe{width:100%; height:160px; border:none; display:block;}
   .logo-lockup-card{border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-24); display:inline-flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-12); background:var(--color-neutral-1);}
   .logo-lockup-card img{width:100%; max-width:420px; height:auto; display:block;}
+  .element-icon{width:18px; height:18px; vertical-align:middle; margin-right:6px;}
+  td.element-cell{white-space:nowrap;}
   .hero-tagline{color:var(--color-neutral-5); font-size:var(--text-body1-size); margin:0 0 var(--spacing-32);}
   .writeup p{font-size:var(--text-body1-size); line-height:1.7; margin:0 0 var(--spacing-16); max-width:68ch;}
   .writeup blockquote{margin:var(--spacing-32) 0; padding:var(--spacing-24) var(--spacing-32); border-left:3px solid var(--color-obsidian); background:var(--color-neutral-2); border-radius:0 var(--radius-md) var(--radius-md) 0; font-family:var(--font-secondary); font-size:var(--text-h5-size); line-height:1.5; font-style:normal;}
@@ -453,12 +455,12 @@
         </div>
         <p class="lede" style="margin:var(--spacing-16) 0">Whenever the mark is used without a specific department context, this Gold lockup is the default &mdash; not a still frame from the animation, not another element's color. Department-specific surfaces (e.g. a Marketing deck cover, a Finance report header) switch to that element's own lockup instead.</p>
         <table class="spec">
-          <tr><th>Element</th><th>Department</th><th>Lockup</th></tr>
-          <tr><td>Gold</td><td>Finance &middot; Legal &middot; Compliance &middot; QA &amp; Audit</td><td>Default (shown above)</td></tr>
-          <tr><td>Fire</td><td>Marketing &middot; PR &middot; Sales</td><td>Not yet provided</td></tr>
-          <tr><td>Wood</td><td>Strategy &middot; R&amp;D &middot; Product</td><td>Not yet provided</td></tr>
-          <tr><td>Water</td><td>Data &middot; Logistics &middot; Exec</td><td>Not yet provided</td></tr>
-          <tr><td>Earth</td><td>HR &middot; CS &middot; Admin</td><td>Not yet provided</td></tr>
+          <tr><th>Element</th><th>Usage</th><th>Department</th></tr>
+          <tr><td class="element-cell"><img class="element-icon" src="SVG/gold.svg" alt="" />Gold</td><td>Order &amp; structure</td><td>Finance &middot; Legal &middot; Compliance &middot; QA &amp; Audit</td></tr>
+          <tr><td class="element-cell"><img class="element-icon" src="SVG/water.svg" alt="" />Water</td><td>Depth &amp; flow</td><td>Data &middot; Logistics &middot; Exec</td></tr>
+          <tr><td class="element-cell"><img class="element-icon" src="SVG/wood.svg" alt="" />Wood</td><td>Growth &amp; vision</td><td>Strategy &middot; R&amp;D &middot; Product</td></tr>
+          <tr><td class="element-cell"><img class="element-icon" src="SVG/fire.svg" alt="" />Fire</td><td>Visibility &amp; energy</td><td>Marketing &middot; PR &middot; Sales</td></tr>
+          <tr><td class="element-cell"><img class="element-icon" src="SVG/earth.svg" alt="" />Earth</td><td>Support &amp; stability</td><td>HR &middot; CS &middot; Admin</td></tr>
         </table>
       </div>
     </section>
@@ -1327,7 +1329,7 @@ changelog when you do.
 | 5 | No border-radius values | No numbers in the deck as originally read — v0.1-v0.5 used an invented flat 4/8/12px guess | **✅ Resolved 2026-07-29 (v0.6.0)** — real per-surface radii (12/16/20px) sourced from the teammate's extraction; see [Radius](#radius--needs-input-5--resolved-v060) |
 | 6 | No accessibility targets | Section exists with blank fields (min body text, min contrast, max line length) | WCAG 2.1 AA defaults proposed in [Accessibility](#accessibility) |
 | 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | First full draft (v0.2.0) in [Components](#components)/[Component Rules](#component-rules), now also **live-rendered** in `preview.html`'s Components section (v0.5.0) with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
-| 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Fire→Wood→Water→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/gold.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/gold.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
+| 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/gold.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/gold.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
 | 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | Not proposed — needs eng input, not a design guess |
 | 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split (2026-07-31), with no cited source (deck or teammate build) | **Resolved 2026-07-31** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery (~40 icons across all 21 components) have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
@@ -1766,7 +1768,7 @@ wordmark black.
 **The real asset — `logo.html`.** A working animated wordmark exists in
 this folder: the word "COLLABRIUM" with the O rendered as a looping
 filmstrip. **Trimmed 2026-07-31** to the 5 documented elements only, in
-a fixed sequence — **Gold → Fire → Wood → Water → Earth** — rather than
+a fixed sequence — **Gold → Water → Wood → Fire → Earth** — rather than
 cycling through all 5 plus 4 extra decorative frames. The previous
 9-frame loop (which also included sun, moon, cloud, mountain —
 **motion-graphic variety only**, never part of the 5-element/department
