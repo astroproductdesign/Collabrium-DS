@@ -7,8 +7,10 @@ your output.
 
 ## Overview
 
-Collabrium renders on a near-black-on-white interface (Neutral-9 text on
-Neutral-1 canvas) that reads as calm and product-grade rather than as a
+Collabrium renders on a near-black-on-warm-canvas interface (Neutral-9
+text on the `Canvas warm` `#FCFAF5` background — see [Color
+Palette](#color-palette); ⚠️ rule changed 2026-08-03, was pure white
+`Neutral-1`) that reads as calm and product-grade rather than as a
 marketing surface — this is a dense, multi-department dashboard, not a
 landing page. Mulish carries every functional string *and every
 heading* (800 ExtraBold, letter-spacing 0): labels, buttons, tables,
@@ -139,19 +141,25 @@ extraction):**
 | Neutral-4 | `#bdbdbd` | Subtle shadow base, disabled control fills |
 | Neutral-3 | `#d8d8d8` | Hairline borders on cards, dividers, input outlines, button strokes |
 | Neutral-2 | `#f0f0f0` | Subtle background tint — alternating sections, card hover, input fills |
-| Neutral-1 | `#ffffff` | Page canvas, card surfaces, button text on dark fills, inverted text |
+| Neutral-1 | `#ffffff` | Card surfaces, button text on dark fills, inverted text — no longer the page canvas (see Warm canvas below) |
 
-### Warm canvas ✅ (new in v0.6.0)
+### Warm canvas ⚠️ Rule changed 2026-08-03 (added in v0.6.0)
 
-A deliberate **second surface** for brand and editorial contexts — decks,
-landing pages, type specimens, printed collateral. Product UI stays on
-white (`Neutral-1`). This is not a dark-mode-style global theme swap;
-it's a context choice.
+**Now the default page canvas everywhere** — product UI (app/dashboard
+screens) and brand/editorial contexts (decks, landing pages, type
+specimens, printed collateral) alike. This reverses the original v0.6.0
+rule, which restricted this surface to brand/editorial only and kept
+product UI on pure white (`Neutral-1`); see the Overview above and
+Component Rules/Guidelines below, all updated to match. Component fills
+(cards, inputs, and so on) are **not** affected by this change — they
+keep their own documented values, mostly `Neutral-1` white, which now
+sits as a deliberate figure-ground contrast against this warmer page
+background instead of blending into a same-white canvas.
 
 | Token | Hex | Usage |
 |---|---|---|
-| Canvas warm | `#FCFAF5` | Page canvas on brand/editorial surfaces |
-| Canvas warm card | `#FAF7F2` | Card fill on the warm canvas |
+| Canvas warm | `#FCFAF5` | Page canvas — the default background for every screen, product and editorial alike |
+| Canvas warm card | `#FAF7F2` | Fill for a surface that's meant to blend into the warm canvas (e.g. a quote block, a featured stat) rather than stand apart from it |
 
 ### Elemental background tints ✅ (new in v0.6.0)
 
@@ -789,7 +797,7 @@ the Modal footer's divider, scaled down.
 - **Interactive/clickable** — hover raises to `shadow-2`; cursor pointer; focus-visible gets `shadow-focus`.
 - **Element-accented** — a 3px top border in the owning element's color. The rest of the card stays neutral.
 - **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). ⚠️ **Tint corrected 2026-07-29:** the chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
-- **Warm** — `canvas-warm-card` fill, border dropped. Brand/editorial contexts only, never product UI.
+- **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
 
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
@@ -1263,6 +1271,11 @@ read one section before building, read this one.
 
 - Use Obsidian `#2B2B2C` as the only primary-action fill. Every screen has
   exactly one Primary button doing the main job.
+- Use the warm canvas (`#FCFAF5`) as the page background for every
+  screen — product/dashboard and brand/editorial alike (⚠️ rule changed
+  2026-08-03; see [Color Palette](#color-palette)'s Warm canvas note).
+  Component fills (cards, inputs, etc.) keep their own documented values
+  — mostly `Neutral-1` white — unaffected by this.
 - Use Mulish for 100% of UI text **and every heading** — headings at
   weight 800, letter-spacing 0.
 - Reserve Source Serif 4 for genuine brand-statement moments only (deck
@@ -1313,8 +1326,6 @@ read one section before building, read this one.
   no one-off corner values.
 - Never tint a surface with an element that doesn't own its content, and
   never at full or mid strength — `-bg`/`-bg-strong` only.
-- Never use the warm canvas for product UI — it's for brand/editorial
-  surfaces only.
 - Never add bounce or overshoot easing — movement settles.
 - Never use placeholder text as a substitute for a real label.
 - Never use a modal for a multi-step flow — modals are for one focused
