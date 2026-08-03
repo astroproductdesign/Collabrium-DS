@@ -184,6 +184,68 @@
   .c-field-error .c-helper{color:var(--color-red);}
   .c-field input:disabled{background:var(--color-neutral-2); color:var(--color-neutral-5);}
 
+  /* Success state — DESIGN-SYSTEM.md Input field, "Success / valid state"
+     table: 1px Green border, trailing check-circle icon (Tier 2 Fill). */
+  .c-field-success input{border:1px solid var(--color-green);}
+
+  /* Leading/trailing icon + icon-button plumbing shared by Password field
+     and Search input — DESIGN-SYSTEM.md Input field, "Optional leading/
+     trailing icon" paragraph. */
+  .c-field .input-wrap{position:relative; display:flex; align-items:center;}
+  /* Row-flex containers don't stretch a child to fill the main axis the
+     way .c-field's own column flex does for the plain Default/Error/
+     Disabled inputs above — without this, the input falls back to its
+     browser-default intrinsic width, which left the box short of the
+     field's full width and made trailing icons/buttons read as sitting
+     outside the box instead of inset inside it. */
+  .c-field .input-wrap input{width:100%; min-width:0;}
+  .c-field .icon-leading,.c-field .icon-trailing{position:absolute; display:flex; pointer-events:none; color:var(--color-neutral-5); font-size:var(--icon-sm);}
+  .c-field .icon-leading{left:var(--spacing-12);}
+  .c-field .icon-trailing{right:var(--spacing-12);}
+
+  /* Success icon color must come after the generic .icon-trailing rule
+     above so it isn't overridden by it (equal specificity, source order
+     decides) — DESIGN-SYSTEM.md Input field, "Success / valid state" table. */
+  .c-field-success .icon-trailing{color:var(--color-green);}
+  .c-field .input-wrap.has-leading-icon input{padding-left:36px;}
+  .c-field .input-wrap.has-trailing-icon input{padding-right:36px;}
+  .c-field .input-wrap.has-icon-btn input{padding-right:36px;}
+  .c-field .icon-btn{position:absolute; right:var(--spacing-12); display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; color:var(--color-neutral-5); font-size:var(--icon-sm); cursor:pointer; pointer-events:auto;}
+  .c-field .icon-btn:hover{color:var(--color-neutral-9);}
+  .c-field .icon-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+  .c-field .clear-btn[hidden]{display:none;}
+
+  /* Prefix/suffix adornments — DESIGN-SYSTEM.md Input field, "Prefix/
+     suffix text adornments" rule: fixed non-editable text, caption
+     token, Neutral-5, no background, vertically centered. */
+  .c-field .adornment{position:absolute; display:flex; align-items:center; font-size:var(--text-caption-size); color:var(--color-neutral-5); pointer-events:none;}
+  .c-field .adornment-prefix{left:var(--spacing-12);}
+  .c-field .adornment-suffix{right:var(--spacing-12);}
+  .c-field .input-wrap.has-prefix input{padding-left:28px;}
+  .c-field .input-wrap.has-suffix input{padding-right:32px;}
+
+  /* Character counter — DESIGN-SYSTEM.md Input field, "Character/word
+     counter" rule: caption, Neutral-5, right-aligned, shares the
+     helper-text line, turns Red at/over the limit. */
+  .counter-row{display:flex; justify-content:flex-end;}
+  .char-counter{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .char-counter.at-limit{color:var(--color-red);}
+
+  /* Section divider between Input field's sub-sections (States / Prefix
+     Suffix / Search Input / Password Field / Character Counter /
+     Textarea) — reuses the same hairline the rest of the file already
+     uses for section separators (e.g. .c-card-footer, .c-pagination). */
+  .comp-divider{border:none; border-top:1px solid var(--color-neutral-3); margin:var(--spacing-24) 0 var(--spacing-16);}
+
+  /* Password field — DESIGN-SYSTEM.md "Password field", Input box row:
+     40px right padding reserved regardless of size, for the toggle. */
+  .c-field.password-field input{padding-right:40px;}
+
+  /* Textarea — DESIGN-SYSTEM.md "Textarea", Box + Resize rows: min-height
+     96px, spacing-12 padding all sides, resize: vertical only. */
+  .c-field textarea{width:100%; min-height:96px; padding:var(--spacing-12); border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); resize:vertical;}
+  .c-field textarea:focus{outline:none; border:2px solid var(--color-obsidian); padding:11px;}
+
   .c-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--spacing-16);}
   .c-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8); transition:box-shadow var(--duration-base) var(--ease-settle);}
   .c-card.warm{background:var(--color-canvas-warm-card); border-color:transparent;}
@@ -725,6 +787,9 @@
         <div class="comp-block" id="comp-input">
           <div class="comp-head"><h3>Input field</h3><button class="copy-markup-btn" data-target="comp-input" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
+
+            <!-- States — DESIGN-SYSTEM.md Input field, States table (+ Success / valid state table) -->
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">States</p>
             <div class="comp-row">
               <div class="c-field">
                 <label>Workspace name</label>
@@ -741,7 +806,93 @@
                 <input value="Astro Growth" disabled />
                 <span class="c-helper">Locked by admin</span>
               </div>
+              <div class="c-field c-field-success">
+                <label for="input-success-demo">Workspace name</label>
+                <div class="input-wrap has-trailing-icon">
+                  <input id="input-success-demo" value="Astro Growth" aria-describedby="helper-success-demo" />
+                  <span class="icon-trailing" aria-hidden="true"><i class="ph-fill ph-check-circle"></i></span>
+                </div>
+                <span class="c-helper" id="helper-success-demo">Name is available</span>
+              </div>
             </div>
+
+            <!-- Prefix / suffix — DESIGN-SYSTEM.md Input field, "Prefix/suffix text adornments" rule -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Prefix / Suffix</p>
+            <div class="comp-row">
+              <div class="c-field">
+                <label for="input-prefix-demo">Monthly budget</label>
+                <div class="input-wrap has-prefix">
+                  <span class="adornment adornment-prefix" aria-hidden="true">$</span>
+                  <input type="text" id="input-prefix-demo" placeholder="0.00" aria-describedby="helper-prefix-demo" />
+                </div>
+                <span class="c-helper" id="helper-prefix-demo">In USD</span>
+              </div>
+              <div class="c-field">
+                <label for="input-suffix-demo">Package weight</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="input-suffix-demo" placeholder="0" aria-describedby="helper-suffix-demo" />
+                  <span class="adornment adornment-suffix" aria-hidden="true">kg</span>
+                </div>
+                <span class="c-helper" id="helper-suffix-demo">Rounded to the nearest 0.1kg</span>
+              </div>
+            </div>
+
+            <!-- Search input clear button — DESIGN-SYSTEM.md "Search input clear button" section -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Search Input</p>
+            <div class="comp-row">
+              <div class="c-field">
+                <label for="search-demo">Search members</label>
+                <div class="input-wrap has-leading-icon has-icon-btn">
+                  <span class="icon-leading" aria-hidden="true"><i class="ph ph-magnifying-glass"></i></span>
+                  <input type="text" id="search-demo" class="js-search-input" placeholder="Search by name or email" aria-describedby="helper-search-demo" />
+                  <button type="button" class="icon-btn clear-btn js-search-clear" hidden aria-label="Clear search"><i class="ph ph-x"></i></button>
+                </div>
+                <span class="c-helper" id="helper-search-demo">Type to see the clear button appear</span>
+              </div>
+            </div>
+
+            <!-- Password field — DESIGN-SYSTEM.md "Password field" section -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Password Field</p>
+            <div class="comp-row">
+              <div class="c-field password-field">
+                <label for="password-demo">Password</label>
+                <div class="input-wrap">
+                  <input type="password" id="password-demo" class="js-password-input" value="hunter22collabrium" aria-describedby="helper-password-demo" />
+                  <button type="button" class="icon-btn js-password-toggle" aria-label="Show password"><i class="ph ph-eye"></i></button>
+                </div>
+                <span class="c-helper" id="helper-password-demo">Minimum 8 characters</span>
+              </div>
+            </div>
+
+            <!-- Character counter — DESIGN-SYSTEM.md Input field, "Character/word counter" rule -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Character Counter</p>
+            <div class="comp-row">
+              <div class="c-field">
+                <label for="counter-demo">Status update</label>
+                <div class="input-wrap">
+                  <input type="text" id="counter-demo" class="js-counter-input" maxlength="60" placeholder="What's happening in your team?" aria-describedby="counter-demo-count" />
+                </div>
+                <div class="counter-row">
+                  <span class="char-counter" id="counter-demo-count">0/60</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Textarea — DESIGN-SYSTEM.md "Textarea" section -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Textarea</p>
+            <div class="comp-row">
+              <div class="c-field">
+                <label for="textarea-demo">Project description</label>
+                <textarea id="textarea-demo" placeholder="Describe what this project is for&hellip;" aria-describedby="helper-textarea-demo"></textarea>
+                <span class="c-helper" id="helper-textarea-demo">Visible to everyone with access to this workspace</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -2049,7 +2200,7 @@ Anatomy, top to bottom: label → input box → helper or error text.
 | Part | Spec |
 |---|---|
 | Label | caption token at weight 700, Neutral-9 text, spacing-4 (4px) below it before the input |
-| Input box | 40px height (md; sm 32px, lg 48px), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) horizontal padding, body1 type at weight 500 |
+| Input box | 40px height (md; sm 32px, lg 48px), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) horizontal padding, body2 type at weight 400 (reverted 2026-08-03 — matches the shipped component; see the Focus behavior note below) |
 | Helper text | caption token, Neutral-5, spacing-4 above it |
 | Error text | caption token at weight 700, Red `#FD3343`, replaces helper text |
 
@@ -2058,7 +2209,7 @@ Anatomy, top to bottom: label → input box → helper or error text.
 | State | Border | Fill | Notes |
 |---|---|---|---|
 | Default | Neutral-3 | Neutral-1 | — |
-| Focus | Neutral-3 + `shadow-focus` | Neutral-1 | Water-based 3px ring, not an Obsidian border swap (corrected v0.6.0) |
+| Focus | 2px Obsidian `#2B2B2C` (border swap; padding reduces from spacing-12 to 11px to compensate) | Neutral-1 | ⚠️ Reverted 2026-08-03 — the v0.6.0 "corrected" shadow-focus/Water-ring treatment was never actually implemented in the shipped component (`preview.html`'s Input field has always used a plain 2px Obsidian border swap); this row now documents the real, canonical behavior instead of a rule the code never followed. This makes Input field (and Textarea/Password field/Search input, which all inherit its States table) a deliberate exception to the system-wide "Focus rings are Water, not Obsidian" policy in [Elevation](#elevation--corrected-v060) — that policy still holds for Card, Empty state, and everything else |
 | Error | 1px Red `#FD3343` | Neutral-1 | Error text replaces helper text below |
 | Disabled | Neutral-3 | Neutral-2 | Neutral-5 text, no cursor |
 
@@ -2070,6 +2221,123 @@ in-field search is **Tier 1, Regular**).
 **Do:** always render a `<label>`, even if visually hidden. **Don't:** use
 placeholder text as a substitute for a label — placeholders disappear the
 moment someone types, per the source deck's own accessibility intent.
+
+⚠️ **New 2026-08-03 — designed, not sourced.** The rules below fill gaps
+the original deck and the teammate's build never covered (placeholder
+styling, a required-field marker, a success state, autofill, adornments,
+a counter, and ARIA wiring). Treat as a first pass pending real
+design/brand review, same status as the v0.8.0 dashboard components.
+
+**Placeholder text** — Neutral-5, same body2/weight 400 as entered text
+(not italic, not a separate lighter weight) so it reads as a hint rather
+than disabled content. Still never a substitute for the `<label>` above.
+
+**Required field indicator** — a single Red `#FD3343` asterisk (`*`)
+directly after the label text, no gap token needed (`4px`/`margin-left:
+spacing-4` from the last character), no parenthetical "(required)"
+string. Optional fields get no marker at all — don't add "(optional)"
+text either; the absence of `*` is the signal.
+
+**Success / valid state:**
+
+| State | Border | Fill | Notes |
+|---|---|---|---|
+| Success | 1px Green `#00C26E` | Neutral-1 | Trailing `check-circle`, `icon-sm` (16px), Green, **Tier 2, Fill** (a status confirmation, per [Iconography](#iconography)) — fires after the field passes validation (on blur or submit), not on every valid keystroke |
+
+**Autofill styling** — browser autofill (`:-webkit-autofill` and
+`:autofill`) must be overridden so the fill stays Neutral-1, not the
+browser's default yellow/blue tint: use a same-color `box-shadow inset`
+trick (`box-shadow: 0 0 0 1000px var(--color-neutral-1) inset`) plus
+`-webkit-text-fill-color: var(--color-neutral-9)` rather than fighting
+`background-color`, which autofill ignores.
+
+**Focus behavior** — plain `:focus`, not `:focus-visible` — a mouse click
+into a field shows the same 2px Obsidian border swap a keyboard `Tab`
+does; this is a border-color/width change, not an outline or shadow ring,
+so the box's overall size is kept constant by dropping the horizontal
+padding from spacing-12 (12px) to 11px at the same time the border grows
+from 1px to 2px.
+
+**Prefix/suffix text adornments** — a fixed, non-editable string (e.g.
+`$`, `kg`, `@`) inside the box, opposite the label side from a leading/
+trailing icon if both are present: caption token, Neutral-5, no
+background, spacing-8 from the editable text, vertically centered.
+Never interactive — if it needs to be clickable, it's a leading/trailing
+icon instead, not a text adornment.
+
+**Character/word counter** — caption token, Neutral-5, right-aligned
+under the box at the same spacing-4 offset as helper text (shares that
+line, doesn't stack a second line unless an error is also showing).
+Format `12/280`. Switches to Red `#FD3343` once the limit is reached or
+exceeded, replacing the count color only — not the border, unless the
+field also fails validation.
+
+**Accessibility wiring** — helper text needs `aria-describedby` pointing
+at its `id` from the input; when the field enters the Error state, the
+input also needs `aria-invalid="true"` and the `aria-describedby` target
+swapped to the error text's `id` (not both helper and error referenced
+at once). Draft, pending [Needs Input #6](#needs-input-read-this-first).
+
+**Responsive sizing clarification** — the sm/md/lg sizes are a density
+choice picked per context (e.g. a table's inline edit vs. a full form),
+not tied to a viewport breakpoint. Don't swap an input's size at a media
+query; if a form needs to adapt on a narrow screen, change the layout
+(stack fields, go full-width) and keep the chosen size fixed.
+
+### Textarea
+
+⚠️ **New 2026-08-03 — designed, not sourced.** Extends Input field for
+multi-line content; shares its label, border, fill, and type tokens so
+the two align in a form.
+
+| Part | Spec |
+|---|---|
+| Label | same as Input field |
+| Box | `min-height` 96px (~4 lines at body1's 22px line-height), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding on all sides, body1 type at weight 500 |
+| Resize | `resize: vertical` only, `min-height` above as the floor, no max — never `resize: both` or `resize: horizontal` |
+| Helper text / Error text | same as Input field |
+
+**States:** same Default/Focus/Error/Disabled table as Input field above.
+
+**Do:** reuse Input field's border, radius, and type tokens so a form
+mixing single- and multi-line fields stays visually consistent. **Don't:**
+let the box shrink below its `min-height`, including mid-resize-drag.
+
+### Password field
+
+⚠️ **New 2026-08-03 — designed, not sourced.** Same anatomy as Input
+field with one fixed trailing control.
+
+| Part | Spec |
+|---|---|
+| Input box | identical to Input field's spec, but always reserves 40px right padding regardless of size, so masked text never runs under the toggle |
+| Masking | native `type="password"` dot masking — no custom mask character |
+| Show/hide toggle | `eye` / `eye-slash`, `icon-sm` (16px), Neutral-5, trailing inside the box at spacing-12 from the right edge; **Tier 1, Regular** (a functional control, per [Iconography](#iconography)) |
+| Toggle behavior | click swaps the input's type between `password`/`text` and swaps the icon `eye` ↔ `eye-slash`; state doesn't persist across a page reload |
+
+**Do:** give the toggle a real, focusable button with an `aria-label`
+that updates between "Show password" and "Hide password" as state
+changes. **Don't:** rely on the icon swap alone to communicate state to
+assistive tech.
+
+### Search input clear button
+
+⚠️ **New 2026-08-03 — designed, not sourced.** Adds a clear affordance to
+the existing search-input pattern (leading `magnifying-glass`, per
+[Component Rules](#component-rules) and the Filters bar's own search
+field).
+
+| Part | Spec |
+|---|---|
+| Leading icon | `magnifying-glass`, `icon-sm` (16px), Neutral-5, **Tier 1, Regular** (existing rule, unchanged) |
+| Clear ("x") button | appears only once the field has a non-empty value; trailing, `icon-sm` (16px), Neutral-5 default / Neutral-9 hover, spacing-12 from the right edge |
+| Trigger | click, or `Enter`/`Space` while focused, clears the value and returns focus to the input (not away from it) |
+| Visibility | hidden — not just visually suppressed but removed from tab order — when the field is empty, so an empty search input shows only the leading icon |
+
+**Do:** keep the clear button keyboard-reachable via `Tab` once it's
+visible. **Don't:** show both a clear button and a separate trailing
+icon at once — the clear button replaces any other trailing icon the
+moment text is entered.
 
 ### Card
 
@@ -3637,6 +3905,52 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
         el.classList.remove('selected', 'range', 'range-start', 'range-end', 'today'));
       day.classList.add('selected');
       return;
+    }
+
+    // Password field — toggle native masking + icon + aria-label together,
+    // per DESIGN-SYSTEM.md "Password field", Toggle behavior row
+    const pwToggle = e.target.closest('.js-password-toggle');
+    if (pwToggle) {
+      const input = pwToggle.closest('.c-field').querySelector('.js-password-input');
+      const icon = pwToggle.querySelector('i');
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      icon.className = showing ? 'ph ph-eye' : 'ph ph-eye-slash';
+      pwToggle.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+      return;
+    }
+
+    // Search input — clear button empties the field and returns focus to it,
+    // per DESIGN-SYSTEM.md "Search input clear button", Trigger row
+    const searchClear = e.target.closest('.js-search-clear');
+    if (searchClear) {
+      const input = searchClear.closest('.c-field').querySelector('.js-search-input');
+      input.value = '';
+      searchClear.hidden = true;
+      input.focus();
+      return;
+    }
+  });
+
+  // Search input — show/hide the clear button as its value changes, per
+  // DESIGN-SYSTEM.md "Search input clear button", Visibility row
+  root.addEventListener('input', (e) => {
+    const searchInput = e.target.closest('.js-search-input');
+    if (searchInput) {
+      const clearBtn = searchInput.closest('.c-field').querySelector('.js-search-clear');
+      clearBtn.hidden = searchInput.value.length === 0;
+      return;
+    }
+
+    // Character counter — update count, flip to Red at the limit, per
+    // DESIGN-SYSTEM.md Input field, "Character/word counter" rule
+    const counterInput = e.target.closest('.js-counter-input');
+    if (counterInput) {
+      const counter = counterInput.closest('.c-field').querySelector('.char-counter');
+      const max = parseInt(counterInput.getAttribute('maxlength'), 10);
+      const len = counterInput.value.length;
+      counter.textContent = len + '/' + max;
+      counter.classList.toggle('at-limit', len >= max);
     }
   });
 

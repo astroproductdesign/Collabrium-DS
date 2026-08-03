@@ -749,7 +749,7 @@ Anatomy, top to bottom: label → input box → helper or error text.
 | Part | Spec |
 |---|---|
 | Label | caption token at weight 700, Neutral-9 text, spacing-4 (4px) below it before the input |
-| Input box | 40px height (md; sm 32px, lg 48px), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) horizontal padding, body1 type at weight 500 |
+| Input box | 40px height (md; sm 32px, lg 48px), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) horizontal padding, body2 type at weight 400 (reverted 2026-08-03 — matches the shipped component; see the Focus behavior note below) |
 | Helper text | caption token, Neutral-5, spacing-4 above it |
 | Error text | caption token at weight 700, Red `#FD3343`, replaces helper text |
 
@@ -758,7 +758,7 @@ Anatomy, top to bottom: label → input box → helper or error text.
 | State | Border | Fill | Notes |
 |---|---|---|---|
 | Default | Neutral-3 | Neutral-1 | — |
-| Focus | Neutral-3 + `shadow-focus` | Neutral-1 | Water-based 3px ring, not an Obsidian border swap (corrected v0.6.0) |
+| Focus | 2px Obsidian `#2B2B2C` (border swap; padding reduces from spacing-12 to 11px to compensate) | Neutral-1 | ⚠️ Reverted 2026-08-03 — the v0.6.0 "corrected" shadow-focus/Water-ring treatment was never actually implemented in the shipped component (`preview.html`'s Input field has always used a plain 2px Obsidian border swap); this row now documents the real, canonical behavior instead of a rule the code never followed. This makes Input field (and Textarea/Password field/Search input, which all inherit its States table) a deliberate exception to the system-wide "Focus rings are Water, not Obsidian" policy in [Elevation](#elevation--corrected-v060) — that policy still holds for Card, Empty state, and everything else |
 | Error | 1px Red `#FD3343` | Neutral-1 | Error text replaces helper text below |
 | Disabled | Neutral-3 | Neutral-2 | Neutral-5 text, no cursor |
 
@@ -770,6 +770,123 @@ in-field search is **Tier 1, Regular**).
 **Do:** always render a `<label>`, even if visually hidden. **Don't:** use
 placeholder text as a substitute for a label — placeholders disappear the
 moment someone types, per the source deck's own accessibility intent.
+
+⚠️ **New 2026-08-03 — designed, not sourced.** The rules below fill gaps
+the original deck and the teammate's build never covered (placeholder
+styling, a required-field marker, a success state, autofill, adornments,
+a counter, and ARIA wiring). Treat as a first pass pending real
+design/brand review, same status as the v0.8.0 dashboard components.
+
+**Placeholder text** — Neutral-5, same body2/weight 400 as entered text
+(not italic, not a separate lighter weight) so it reads as a hint rather
+than disabled content. Still never a substitute for the `<label>` above.
+
+**Required field indicator** — a single Red `#FD3343` asterisk (`*`)
+directly after the label text, no gap token needed (`4px`/`margin-left:
+spacing-4` from the last character), no parenthetical "(required)"
+string. Optional fields get no marker at all — don't add "(optional)"
+text either; the absence of `*` is the signal.
+
+**Success / valid state:**
+
+| State | Border | Fill | Notes |
+|---|---|---|---|
+| Success | 1px Green `#00C26E` | Neutral-1 | Trailing `check-circle`, `icon-sm` (16px), Green, **Tier 2, Fill** (a status confirmation, per [Iconography](#iconography)) — fires after the field passes validation (on blur or submit), not on every valid keystroke |
+
+**Autofill styling** — browser autofill (`:-webkit-autofill` and
+`:autofill`) must be overridden so the fill stays Neutral-1, not the
+browser's default yellow/blue tint: use a same-color `box-shadow inset`
+trick (`box-shadow: 0 0 0 1000px var(--color-neutral-1) inset`) plus
+`-webkit-text-fill-color: var(--color-neutral-9)` rather than fighting
+`background-color`, which autofill ignores.
+
+**Focus behavior** — plain `:focus`, not `:focus-visible` — a mouse click
+into a field shows the same 2px Obsidian border swap a keyboard `Tab`
+does; this is a border-color/width change, not an outline or shadow ring,
+so the box's overall size is kept constant by dropping the horizontal
+padding from spacing-12 (12px) to 11px at the same time the border grows
+from 1px to 2px.
+
+**Prefix/suffix text adornments** — a fixed, non-editable string (e.g.
+`$`, `kg`, `@`) inside the box, opposite the label side from a leading/
+trailing icon if both are present: caption token, Neutral-5, no
+background, spacing-8 from the editable text, vertically centered.
+Never interactive — if it needs to be clickable, it's a leading/trailing
+icon instead, not a text adornment.
+
+**Character/word counter** — caption token, Neutral-5, right-aligned
+under the box at the same spacing-4 offset as helper text (shares that
+line, doesn't stack a second line unless an error is also showing).
+Format `12/280`. Switches to Red `#FD3343` once the limit is reached or
+exceeded, replacing the count color only — not the border, unless the
+field also fails validation.
+
+**Accessibility wiring** — helper text needs `aria-describedby` pointing
+at its `id` from the input; when the field enters the Error state, the
+input also needs `aria-invalid="true"` and the `aria-describedby` target
+swapped to the error text's `id` (not both helper and error referenced
+at once). Draft, pending [Needs Input #6](#needs-input-read-this-first).
+
+**Responsive sizing clarification** — the sm/md/lg sizes are a density
+choice picked per context (e.g. a table's inline edit vs. a full form),
+not tied to a viewport breakpoint. Don't swap an input's size at a media
+query; if a form needs to adapt on a narrow screen, change the layout
+(stack fields, go full-width) and keep the chosen size fixed.
+
+### Textarea
+
+⚠️ **New 2026-08-03 — designed, not sourced.** Extends Input field for
+multi-line content; shares its label, border, fill, and type tokens so
+the two align in a form.
+
+| Part | Spec |
+|---|---|
+| Label | same as Input field |
+| Box | `min-height` 96px (~4 lines at body1's 22px line-height), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding on all sides, body1 type at weight 500 |
+| Resize | `resize: vertical` only, `min-height` above as the floor, no max — never `resize: both` or `resize: horizontal` |
+| Helper text / Error text | same as Input field |
+
+**States:** same Default/Focus/Error/Disabled table as Input field above.
+
+**Do:** reuse Input field's border, radius, and type tokens so a form
+mixing single- and multi-line fields stays visually consistent. **Don't:**
+let the box shrink below its `min-height`, including mid-resize-drag.
+
+### Password field
+
+⚠️ **New 2026-08-03 — designed, not sourced.** Same anatomy as Input
+field with one fixed trailing control.
+
+| Part | Spec |
+|---|---|
+| Input box | identical to Input field's spec, but always reserves 40px right padding regardless of size, so masked text never runs under the toggle |
+| Masking | native `type="password"` dot masking — no custom mask character |
+| Show/hide toggle | `eye` / `eye-slash`, `icon-sm` (16px), Neutral-5, trailing inside the box at spacing-12 from the right edge; **Tier 1, Regular** (a functional control, per [Iconography](#iconography)) |
+| Toggle behavior | click swaps the input's type between `password`/`text` and swaps the icon `eye` ↔ `eye-slash`; state doesn't persist across a page reload |
+
+**Do:** give the toggle a real, focusable button with an `aria-label`
+that updates between "Show password" and "Hide password" as state
+changes. **Don't:** rely on the icon swap alone to communicate state to
+assistive tech.
+
+### Search input clear button
+
+⚠️ **New 2026-08-03 — designed, not sourced.** Adds a clear affordance to
+the existing search-input pattern (leading `magnifying-glass`, per
+[Component Rules](#component-rules) and the Filters bar's own search
+field).
+
+| Part | Spec |
+|---|---|
+| Leading icon | `magnifying-glass`, `icon-sm` (16px), Neutral-5, **Tier 1, Regular** (existing rule, unchanged) |
+| Clear ("x") button | appears only once the field has a non-empty value; trailing, `icon-sm` (16px), Neutral-5 default / Neutral-9 hover, spacing-12 from the right edge |
+| Trigger | click, or `Enter`/`Space` while focused, clears the value and returns focus to the input (not away from it) |
+| Visibility | hidden — not just visually suppressed but removed from tab order — when the field is empty, so an empty search input shows only the leading icon |
+
+**Do:** keep the clear button keyboard-reachable via `Tab` once it's
+visible. **Don't:** show both a clear button and a separate trailing
+icon at once — the clear button replaces any other trailing icon the
+moment text is entered.
 
 ### Card
 
