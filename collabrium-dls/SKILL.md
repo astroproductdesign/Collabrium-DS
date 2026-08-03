@@ -148,7 +148,7 @@ from static markup to genuinely interactive in v0.8.2 (2026-07-30)** —
 nav items, tabs, checkboxes/radios/switches, table row selection,
 toast/modal dismiss, filters, pagination, and date-picker day selection
 all actually respond to input now; **a combined static logo lockup
-(`logo-lockups/gold.svg`) added 2026-07-31**, the new default mark for
+(`logo-lockups/collabrium-default-logo.svg`) added 2026-07-31**, the new default mark for
 any context that can't run `logo.html`'s animation — further resolving
 Needs Input #8; **`logo.html` rebuilt on a new font and its animation
 trimmed from 9 frames to a fixed 5-frame Gold→Water→Wood→Fire→Earth

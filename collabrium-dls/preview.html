@@ -454,7 +454,7 @@
 
         <div class="swatch-group-label">Logo</div>
         <div class="logo-lockup-card">
-          <img src="logo-lockups/gold.svg" alt="Collabrium default logo lockup, Gold" />
+          <img src="logo-lockups/collabrium-default-logo.svg" alt="Collabrium default logo lockup, Gold" />
           <p class="kicker" style="margin:0">Default &middot; Gold</p>
         </div>
         <p class="lede" style="margin:var(--spacing-16) 0">Whenever the mark is used without a specific department context, this Gold lockup is the default &mdash; not a still frame from the animation, not another element's color. Department-specific surfaces (e.g. a Marketing deck cover, a Finance report header) switch to that element's own lockup instead.</p>
@@ -1130,7 +1130,7 @@
 
     <footer>
       <div class="shell">
-        Left pane rendered directly from <code>tokens.css</code>. Right pane shows the underlying source files in this folder &mdash; nothing there is fetched, it's all embedded so this page works opened directly, no server required.
+        Left pane rendered directly from <code>tokens.css</code>. Right pane shows the underlying source files in this folder &mdash; nothing there is fetched, it's all embedded so this page works opened directly, no server required. The one exception is "Download dls (.zip)," which links out to GitHub's repo archive &mdash; that one needs an internet connection, unlike everything else on this page.
       </div>
     </footer>
   </div>
@@ -1149,7 +1149,8 @@
       </div>
       <div class="spacer"></div>
       <button type="button" class="iconbtn" id="copyBtn"><i class="ph ph-copy"></i> Copy</button>
-      <button type="button" class="iconbtn" id="downloadBtn"><i class="ph ph-download-simple"></i> Download</button>
+      <button type="button" class="iconbtn" id="downloadBtn"><i class="ph ph-download-simple"></i> Download (.md)</button>
+      <a class="iconbtn" style="text-decoration:none" href="https://github.com/astroproductdesign/Collabrium-DS/archive/refs/heads/main.zip" title="Downloads the whole collabrium-dls folder (this file, DESIGN-SYSTEM.md, tokens.css, logo.html, logo-lockups/, SVG/, fonts/) as a zip from GitHub, not just this tab's text"><i class="ph ph-download-simple"></i> Download dls (.zip)</a>
     </div>
     <div class="codearea" id="codearea"></div>
   </div>
@@ -1342,7 +1343,7 @@ changelog when you do.
 | 5 | No border-radius values | No numbers in the deck as originally read — v0.1-v0.5 used an invented flat 4/8/12px guess | **✅ Resolved 2026-07-29 (v0.6.0)** — real per-surface radii (12/16/20px) sourced from the teammate's extraction; see [Radius](#radius--needs-input-5--resolved-v060) |
 | 6 | No accessibility targets | Section exists with blank fields (min body text, min contrast, max line length) | WCAG 2.1 AA defaults proposed in [Accessibility](#accessibility) |
 | 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | First full draft (v0.2.0) in [Components](#components)/[Component Rules](#component-rules), now also **live-rendered** in `preview.html`'s Components section (v0.5.0) with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
-| 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/gold.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/gold.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
+| 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
 | 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | Not proposed — needs eng input, not a design guess |
 | 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split (2026-07-31), with no cited source (deck or teammate build) | **Resolved 2026-07-31** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery (~40 icons across all 21 components) have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
@@ -1750,7 +1751,7 @@ Palette](#color-palette)).
 > stalled, and where balance needs restoring — so the same forces that
 > could create chaos are the ones that create your outcome.
 
-### Default static lockup — `logo-lockups/gold.svg`
+### Default static lockup — `logo-lockups/collabrium-default-logo.svg`
 
 ⚠️ **New 2026-07-31 — further resolves Needs Input #8.** A combined,
 non-animated wordmark lockup, with the "O" rendered as a solid Gold/Amber
@@ -1767,7 +1768,7 @@ to that department's own element-colored lockup instead:
 
 | Element | Department | Lockup file |
 |---|---|---|
-| Gold | Finance · Legal · Compliance · QA & Audit | `logo-lockups/gold.svg` ✅ |
+| Gold | Finance · Legal · Compliance · QA & Audit | `logo-lockups/collabrium-default-logo.svg` ✅ |
 | Fire | Marketing · PR · Sales | `logo-lockups/fire.svg` — not yet provided |
 | Wood | Strategy · R&D · Product | `logo-lockups/wood.svg` — not yet provided |
 | Water | Data · Logistics · Exec | `logo-lockups/water.svg` — not yet provided |
@@ -2725,8 +2726,14 @@ renders the live visual system (logo, palette, type, spacing) against
 **DESIGN.md** (this file, Compact/Extended toggle, Compact mirrors
 `SKILL.md`), **Tailwind v4** (a full `@theme` mapping), **CSS Variables**
 (the raw `tokens.css`), and **Design Tokens** (a JSON export) — each with
-Copy and Download. Everything is embedded inline so the page works
-opened directly via `file://`, no server required.
+Copy and a per-tab **Download** button whose label updates dynamically
+to match the active tab's extension (`.md`, `.css`, or `.json`).
+Everything is embedded inline so the page works opened directly via
+`file://`, no server required. A
+separate **Download dls (.zip)** button next to the per-tab controls
+links out to GitHub's repo archive for the whole `collabrium-dls` folder
+(all assets, not just this panel's text) — the one thing on this page
+that needs an internet connection, since it isn't embedded.
 
 If your stack is Tailwind v4, map the same values into a `@theme` block
 rather than maintaining two token sources by hand:
@@ -3698,6 +3705,9 @@ function renderTab(){
     codearea.textContent = currentRaw;
   }
   codearea.scrollTop = 0;
+
+  const ext = currentFilename().split('.').pop();
+  document.getElementById('downloadBtn').innerHTML = '<i class="ph ph-download-simple"></i> Download (.' + ext + ')';
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
