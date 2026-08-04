@@ -129,7 +129,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.0-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.1-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -198,4 +198,22 @@ introduced. Also corrected in this pass:
 the Components section's own scope note had undercounted for a full day
 (missing the four 2026-08-03 additions) — exactly the kind of drift App
 Shell exists to prevent, caught here as a reminder to keep it current
-going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
+going forward; **v0.9.1 (2026-08-04) audited all 5 places this system's
+content gets duplicated** (SKILL.md, DESIGN-SYSTEM.md, and preview.html's
+3 embedded copies — markdown, CSS Variables, Tailwind v4, Design Tokens
+JSON) against their real sources instead of assuming the doc-sync rule
+had held. The markdown and CSS Variables copies were exactly in sync;
+`tokens.css` and the JSON export both carried a stale `v0.6.0-draft`
+stamp despite correct values; the Tailwind v4 mapping had a real gap —
+only 59 of 162 actual tokens.css tokens were mapped, missing the entire
+typography scale, icon sizes, several shadow variants, and the semantic
+spacing aliases — traced to a token-counting script that silently
+undercounted tokens.css as 101 instead of 162 (it only saw the first of
+several `--token: value;` declarations packed on a single line).
+Rebuilt the mapping from a corrected extraction, verified
+programmatically at 162/162 with zero missing and zero orphaned. This
+doesn't fix the larger, separate problem a teammate hit applying the
+system to an existing project — the actual component CSS has never been
+extracted into anything portable, and the icon/font CDN links aren't
+documented as a requirement — only the token-layer piece of it. See
+changelog at the bottom of DESIGN-SYSTEM.md.

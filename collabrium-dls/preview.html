@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.0-draft</title>
+<title>Collabrium design system | v0.9.1-draft</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -484,7 +484,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.0-draft</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.1-draft</span>
 </header>
 
 <div class="layout">
@@ -1507,7 +1507,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.0-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.1-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -1576,12 +1576,30 @@ introduced. Also corrected in this pass:
 the Components section's own scope note had undercounted for a full day
 (missing the four 2026-08-03 additions) — exactly the kind of drift App
 Shell exists to prevent, caught here as a reminder to keep it current
-going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
+going forward; **v0.9.1 (2026-08-04) audited all 5 places this system's
+content gets duplicated** (SKILL.md, DESIGN-SYSTEM.md, and preview.html's
+3 embedded copies — markdown, CSS Variables, Tailwind v4, Design Tokens
+JSON) against their real sources instead of assuming the doc-sync rule
+had held. The markdown and CSS Variables copies were exactly in sync;
+`tokens.css` and the JSON export both carried a stale `v0.6.0-draft`
+stamp despite correct values; the Tailwind v4 mapping had a real gap —
+only 59 of 162 actual tokens.css tokens were mapped, missing the entire
+typography scale, icon sizes, several shadow variants, and the semantic
+spacing aliases — traced to a token-counting script that silently
+undercounted tokens.css as 101 instead of 162 (it only saw the first of
+several `--token: value;` declarations packed on a single line).
+Rebuilt the mapping from a corrected extraction, verified
+programmatically at 162/162 with zero missing and zero orphaned. This
+doesn't fix the larger, separate problem a teammate hit applying the
+system to an existing project — the actual component CSS has never been
+extracted into anything portable, and the icon/font CDN links aren't
+documented as a requirement — only the token-layer piece of it. See
+changelog at the bottom of DESIGN-SYSTEM.md.
 </script>
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.0-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.1-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3308,6 +3326,38 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.1-draft — 2026-08-04** — Cross-checked all 5 places this system's
+  content gets duplicated — `SKILL.md`, `DESIGN-SYSTEM.md`, and the three
+  embedded copies inside `preview.html` (the DESIGN.md tab's compact/
+  extended text, the CSS Variables tab, the Tailwind v4 tab, and the
+  Design Tokens JSON tab) — against their real source files, rather than
+  assuming the doc-sync rule had been holding. Found: the two markdown
+  copies and the CSS Variables copy were exactly in sync (byte-identical);
+  `tokens.css` and its embedded copy both carried a stale `v0.6.0-draft`
+  header comment despite the system being 3 minor versions ahead (values
+  were still correct — only the stamp was stale); the Design Tokens JSON
+  export's own metadata carried the same stale `0.6.0-draft` stamp
+  (values also still correct); and the Tailwind v4 theme mapping had a
+  real, substantial gap — only 59 of tokens.css's 162 actual tokens were
+  mapped into `@theme`, missing the entire typography scale (every
+  `text-*`/`weight-*`/`tracking-*` token), all 7 icon-size tokens, 4
+  shadow variants, the 5 semantic spacing aliases, and the 5
+  `-bg-strong` element tint steps. Root cause of the gap: the token count
+  used to judge coverage was itself wrong at first pass — a naive,
+  line-start-anchored extraction script undercounted tokens.css as 101
+  tokens instead of 162, because several lines pack multiple
+  `--token: value;` declarations together and a regex anchored to each
+  line's start only ever saw the first one. Rebuilt the Tailwind mapping
+  from a corrected, exhaustive token extraction; it now covers all 162
+  and was verified programmatically (162 tokens.css tokens ↔ 162 mapped,
+  zero missing, zero orphaned) rather than by eye. Fixed both stale
+  version stamps to `v0.9.1-draft` / 2026-08-04. This was prompted by a
+  teammate report that applying the system to an existing project left
+  colors, pills, and icons not rendering correctly — a separate,
+  larger problem (the component CSS itself has never been extracted
+  into anything portable, and icon/font CDN links are undocumented as a
+  requirement) that this pass does not fix, only the token-layer piece
+  of it.
 - **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
   composition layer this document never had. Prompted by real downstream
   builds: separate teams built dashboards on this system and produced
@@ -3535,11 +3585,18 @@ rather than maintaining two token sources by hand:
 </script>
 
 <script type="text/plain" id="src-css-vars">/*
-  Collabrium Design Tokens — v0.6.0-draft
+  Collabrium Design Tokens — v0.9.1-draft
   Generated from DESIGN-SYSTEM.md in this folder. That file is the source
   of truth — this file is a mechanical, paste-able rendering of its
   tables as CSS custom properties. Re-generate by hand whenever
   DESIGN-SYSTEM.md's token tables change, and bump the version comment.
+
+  Re-confirmed current as of v0.9.1-draft (2026-08-04) — this header had
+  been silently stuck at v0.6.0 since then. No token *values* had
+  actually drifted (spacing/radius/elevation/motion/color tables haven't
+  changed since v0.6.0), but nothing forced this stamp to be checked, so
+  don't trust it to self-report staleness next time either — diff
+  against DESIGN-SYSTEM.md's token tables directly if in doubt.
 
   Spacing, radius, typography, elevation, and motion values below were
   corrected in v0.6.0 against a teammate's independent, more thorough
@@ -3715,6 +3772,13 @@ rather than maintaining two token sources by hand:
   (bg-orange, rounded-sm, p-4, etc.) resolve to Collabrium's tokens.
   Hand-maintained alongside tokens.css — regenerate if the token tables
   in DESIGN-SYSTEM.md change.
+
+  Rebuilt from a full token-by-token audit on 2026-08-04 (v0.9.0-draft) —
+  the previous version only mapped 59 of tokens.css's 162 actual tokens.
+  Missing entirely: the full typography scale (every text-*/weight-*/
+  tracking-* token), all 7 icon-size tokens, 4 shadow variants, the 5
+  semantic spacing aliases, and the 5 -bg-strong element tint steps. This
+  version covers all 162 — verify token count still matches on next edit.
 */
 
 @import "tailwindcss";
@@ -3743,17 +3807,109 @@ rather than maintaining two token sources by hand:
   --color-canvas-warm: var(--color-canvas-warm);
   --color-canvas-warm-card: var(--color-canvas-warm-card);
   --color-fire-bg: var(--color-fire-bg);
+  --color-fire-bg-strong: var(--color-fire-bg-strong);
   --color-earth-bg: var(--color-earth-bg);
+  --color-earth-bg-strong: var(--color-earth-bg-strong);
   --color-water-bg: var(--color-water-bg);
+  --color-water-bg-strong: var(--color-water-bg-strong);
   --color-gold-bg: var(--color-gold-bg);
+  --color-gold-bg-strong: var(--color-gold-bg-strong);
   --color-wood-bg: var(--color-wood-bg);
+  --color-wood-bg-strong: var(--color-wood-bg-strong);
 
-  /* Typography */
+  /* Typography — font family */
   --font-primary: var(--font-primary);
   --font-secondary: var(--font-secondary);
 
-  /* Spacing (p-4 -> --spacing-4; these are raw px keys, not Tailwind's
-     default 0.25rem-multiple scale — matches Collabrium's real scale) */
+  /* Typography — weight scale */
+  --weight-extralight: var(--weight-extralight);
+  --weight-light: var(--weight-light);
+  --weight-regular: var(--weight-regular);
+  --weight-medium: var(--weight-medium);
+  --weight-semibold: var(--weight-semibold);
+  --weight-bold: var(--weight-bold);
+  --weight-extrabold: var(--weight-extrabold);
+  --weight-black: var(--weight-black);
+
+  /* Typography — type scale */
+  --text-display-size: var(--text-display-size);
+  --text-display-lh: var(--text-display-lh);
+  --text-display-weight: var(--text-display-weight);
+  --text-display-tracking: var(--text-display-tracking);
+  --text-display-size-lg: var(--text-display-size-lg);
+  --text-display-lh-lg: var(--text-display-lh-lg);
+  --text-h1-size: var(--text-h1-size);
+  --text-h1-lh: var(--text-h1-lh);
+  --text-h1-weight: var(--text-h1-weight);
+  --text-h1-tracking: var(--text-h1-tracking);
+  --text-h1-size-lg: var(--text-h1-size-lg);
+  --text-h1-lh-lg: var(--text-h1-lh-lg);
+  --text-h2-size: var(--text-h2-size);
+  --text-h2-lh: var(--text-h2-lh);
+  --text-h2-weight: var(--text-h2-weight);
+  --text-h2-tracking: var(--text-h2-tracking);
+  --text-h2-size-lg: var(--text-h2-size-lg);
+  --text-h2-lh-lg: var(--text-h2-lh-lg);
+  --text-h3-size: var(--text-h3-size);
+  --text-h3-lh: var(--text-h3-lh);
+  --text-h3-weight: var(--text-h3-weight);
+  --text-h3-tracking: var(--text-h3-tracking);
+  --text-h3-size-lg: var(--text-h3-size-lg);
+  --text-h3-lh-lg: var(--text-h3-lh-lg);
+  --text-h4-size: var(--text-h4-size);
+  --text-h4-lh: var(--text-h4-lh);
+  --text-h4-weight: var(--text-h4-weight);
+  --text-h4-tracking: var(--text-h4-tracking);
+  --text-h4-size-lg: var(--text-h4-size-lg);
+  --text-h4-lh-lg: var(--text-h4-lh-lg);
+  --text-h5-size: var(--text-h5-size);
+  --text-h5-lh: var(--text-h5-lh);
+  --text-h5-weight: var(--text-h5-weight);
+  --text-h5-tracking: var(--text-h5-tracking);
+  --text-body1-size: var(--text-body1-size);
+  --text-body1-lh: var(--text-body1-lh);
+  --text-body1-weight: var(--text-body1-weight);
+  --text-body1-tracking: var(--text-body1-tracking);
+  --text-body1-strong-weight: var(--text-body1-strong-weight);
+  --text-body2-size: var(--text-body2-size);
+  --text-body2-lh: var(--text-body2-lh);
+  --text-body2-weight: var(--text-body2-weight);
+  --text-body2-tracking: var(--text-body2-tracking);
+  --text-body2-lh-lg: var(--text-body2-lh-lg);
+  --text-body2-strong-weight: var(--text-body2-strong-weight);
+  --text-label1-size: var(--text-label1-size);
+  --text-label1-lh: var(--text-label1-lh);
+  --text-label1-weight: var(--text-label1-weight);
+  --text-label1-tracking: var(--text-label1-tracking);
+  --text-label2-size: var(--text-label2-size);
+  --text-label2-lh: var(--text-label2-lh);
+  --text-label2-weight: var(--text-label2-weight);
+  --text-label2-tracking: var(--text-label2-tracking);
+  --text-label3-size: var(--text-label3-size);
+  --text-label3-lh: var(--text-label3-lh);
+  --text-label3-weight: var(--text-label3-weight);
+  --text-label3-tracking: var(--text-label3-tracking);
+  --text-link1-size: var(--text-link1-size);
+  --text-link1-lh: var(--text-link1-lh);
+  --text-link1-weight: var(--text-link1-weight);
+  --text-link1-tracking: var(--text-link1-tracking);
+  --text-link2-size: var(--text-link2-size);
+  --text-link2-lh: var(--text-link2-lh);
+  --text-link2-weight: var(--text-link2-weight);
+  --text-link2-tracking: var(--text-link2-tracking);
+  --text-footnote-size: var(--text-footnote-size);
+  --text-footnote-lh: var(--text-footnote-lh);
+  --text-footnote-weight: var(--text-footnote-weight);
+  --text-footnote-tracking: var(--text-footnote-tracking);
+  --text-caption-size: var(--text-caption-size);
+  --text-caption-lh: var(--text-caption-lh);
+  --text-caption-weight: var(--text-caption-weight);
+  --text-caption-tracking: var(--text-caption-tracking);
+
+  /* Typography — tracking */
+  --tracking-eyebrow: var(--tracking-eyebrow);
+
+  /* Spacing */
   --spacing-4: var(--spacing-4);
   --spacing-8: var(--spacing-8);
   --spacing-12: var(--spacing-12);
@@ -3765,20 +3921,29 @@ rather than maintaining two token sources by hand:
   --spacing-48: var(--spacing-48);
   --spacing-60: var(--spacing-60);
   --spacing-120: var(--spacing-120);
+  --card-padding: var(--card-padding);
+  --element-gap: var(--element-gap);
+  --section-gap: var(--section-gap);
+  --page-gutter: var(--page-gutter);
+  --content-max-width: var(--content-max-width);
 
-  /* Radius (rounded-sm -> --radius-sm) */
+  /* Radius */
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
   --radius-pill: var(--radius-pill);
   --radius-link: var(--radius-link);
 
-  /* Shadow (shadow-1 -> --shadow-1) */
+  /* Elevation */
+  --shadow-hairline: var(--shadow-hairline);
   --shadow-1: var(--shadow-1);
   --shadow-2: var(--shadow-2);
   --shadow-3: var(--shadow-3);
   --shadow-4: var(--shadow-4);
+  --shadow-inset: var(--shadow-inset);
   --shadow-focus: var(--shadow-focus);
+  --shadow-overlay: var(--shadow-overlay);
+  --shadow-modal: var(--shadow-modal);
 
   /* Motion */
   --duration-instant: var(--duration-instant);
@@ -3792,13 +3957,22 @@ rather than maintaining two token sources by hand:
   --ease-flare: var(--ease-flare);
   --ease-precise: var(--ease-precise);
   --ease-grow: var(--ease-grow);
+
+  /* Icon sizes */
+  --icon-micro: var(--icon-micro);
+  --icon-sm: var(--icon-sm);
+  --icon-base: var(--icon-base);
+  --icon-md: var(--icon-md);
+  --icon-lg: var(--icon-lg);
+  --icon-empty: var(--icon-empty);
+  --icon-hero: var(--icon-hero);
 }
 </script>
 
 <script type="text/plain" id="src-json">{
   "$schema": "collabrium-design-tokens",
-  "version": "0.6.0-draft",
-  "lastUpdated": "2026-07-29",
+  "version": "0.9.1-draft",
+  "lastUpdated": "2026-08-04",
   "color": {
     "brand": {
       "orange": "#FF5825",

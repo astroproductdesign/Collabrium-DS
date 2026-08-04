@@ -1,9 +1,16 @@
 /*
-  Collabrium Design Tokens — v0.6.0-draft
+  Collabrium Design Tokens — v0.9.1-draft
   Generated from DESIGN-SYSTEM.md in this folder. That file is the source
   of truth — this file is a mechanical, paste-able rendering of its
   tables as CSS custom properties. Re-generate by hand whenever
   DESIGN-SYSTEM.md's token tables change, and bump the version comment.
+
+  Re-confirmed current as of v0.9.1-draft (2026-08-04) — this header had
+  been silently stuck at v0.6.0 since then. No token *values* had
+  actually drifted (spacing/radius/elevation/motion/color tables haven't
+  changed since v0.6.0), but nothing forced this stamp to be checked, so
+  don't trust it to self-report staleness next time either — diff
+  against DESIGN-SYSTEM.md's token tables directly if in doubt.
 
   Spacing, radius, typography, elevation, and motion values below were
   corrected in v0.6.0 against a teammate's independent, more thorough

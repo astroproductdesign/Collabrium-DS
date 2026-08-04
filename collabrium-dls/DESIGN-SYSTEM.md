@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.0-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.1-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1727,6 +1727,38 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.1-draft — 2026-08-04** — Cross-checked all 5 places this system's
+  content gets duplicated — `SKILL.md`, `DESIGN-SYSTEM.md`, and the three
+  embedded copies inside `preview.html` (the DESIGN.md tab's compact/
+  extended text, the CSS Variables tab, the Tailwind v4 tab, and the
+  Design Tokens JSON tab) — against their real source files, rather than
+  assuming the doc-sync rule had been holding. Found: the two markdown
+  copies and the CSS Variables copy were exactly in sync (byte-identical);
+  `tokens.css` and its embedded copy both carried a stale `v0.6.0-draft`
+  header comment despite the system being 3 minor versions ahead (values
+  were still correct — only the stamp was stale); the Design Tokens JSON
+  export's own metadata carried the same stale `0.6.0-draft` stamp
+  (values also still correct); and the Tailwind v4 theme mapping had a
+  real, substantial gap — only 59 of tokens.css's 162 actual tokens were
+  mapped into `@theme`, missing the entire typography scale (every
+  `text-*`/`weight-*`/`tracking-*` token), all 7 icon-size tokens, 4
+  shadow variants, the 5 semantic spacing aliases, and the 5
+  `-bg-strong` element tint steps. Root cause of the gap: the token count
+  used to judge coverage was itself wrong at first pass — a naive,
+  line-start-anchored extraction script undercounted tokens.css as 101
+  tokens instead of 162, because several lines pack multiple
+  `--token: value;` declarations together and a regex anchored to each
+  line's start only ever saw the first one. Rebuilt the Tailwind mapping
+  from a corrected, exhaustive token extraction; it now covers all 162
+  and was verified programmatically (162 tokens.css tokens ↔ 162 mapped,
+  zero missing, zero orphaned) rather than by eye. Fixed both stale
+  version stamps to `v0.9.1-draft` / 2026-08-04. This was prompted by a
+  teammate report that applying the system to an existing project left
+  colors, pills, and icons not rendering correctly — a separate,
+  larger problem (the component CSS itself has never been extracted
+  into anything portable, and icon/font CDN links are undocumented as a
+  requirement) that this pass does not fix, only the token-layer piece
+  of it.
 - **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
   composition layer this document never had. Prompted by real downstream
   builds: separate teams built dashboards on this system and produced
