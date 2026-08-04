@@ -293,14 +293,94 @@
   .c-empty p{margin:0; max-width:380px; font-size:var(--text-body1-size); font-weight:var(--text-body1-weight);}
 
   /* SidebarNav */
-  .c-sidebar{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg);}
-  .c-sidebar-header{padding:var(--spacing-8) var(--spacing-8) var(--spacing-16); font-weight:800; font-size:var(--text-h5-size);}
+  .c-sidebar-shell{position:relative; display:inline-block;} /* wraps nav + toggle so the toggle can live outside .c-sidebar's own clip, see .c-sidebar-toggle below */
+  .c-sidebar{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow-x:clip; transition:width var(--duration-slow) var(--ease-standard);}
+  .c-sidebar.is-collapsed{width:72px;} /* one-off literal, not a spacing token — see DESIGN-SYSTEM.md's Collapsible state row */
+  .c-sidebar-header{padding:var(--spacing-8) var(--spacing-8) var(--spacing-16); display:flex; align-items:center;}
+  .c-sidebar.is-collapsed .c-sidebar-header{justify-content:center;} /* logo independently centered, no longer paired with the toggle */
+  .c-sidebar-logo{display:flex; align-items:center;}
+  .c-sidebar-logo img{height:22px; width:auto; display:block;}
+  .c-sidebar.is-collapsed .c-sidebar-logo img{height:24px; width:24px;}
   .c-sidebar-section{padding:var(--spacing-16) var(--spacing-8) var(--spacing-4); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
-  .c-sidebar-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:40px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; cursor:pointer; text-align:left; transition:background-color var(--duration-fast) var(--ease-standard),color var(--duration-fast) var(--ease-standard);}
-  .c-sidebar-item span.label{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .c-sidebar-divider{border:none; border-top:1px solid var(--color-neutral-3); margin:var(--spacing-8) 0 0;}
+  .c-sidebar.is-collapsed .c-sidebar-section,
+  .c-sidebar.is-collapsed .c-sidebar-divider,
+  .c-sidebar.is-collapsed .c-sidebar-item span.label,
+  .c-sidebar.is-collapsed .c-sidebar-item span.count{display:none;}
+  .c-sidebar-item{position:relative; display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:40px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; cursor:pointer; text-align:left; transition:background-color var(--duration-fast) var(--ease-standard),color var(--duration-fast) var(--ease-standard);}
+  .c-sidebar-item:hover{background:var(--color-neutral-2);} /* reuses Table row hover / Button Ghost hover */
+  .c-sidebar-item:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+  .c-sidebar-item:active{background:var(--color-neutral-3);}
+  .c-sidebar-item:disabled{color:var(--color-neutral-4); background:transparent; cursor:not-allowed;}
+  .c-sidebar-item:disabled:hover{background:transparent;}
+  .c-sidebar-item span.label{flex:1; white-space:normal; overflow-wrap:break-word;} /* wraps, doesn't truncate — 240px is a hard max-width with no horizontal scroll */
   .c-sidebar-item span.count{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
   .c-sidebar-item.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
+  .c-sidebar.is-collapsed .c-sidebar-item{justify-content:center; padding:0;} /* every item icon independently centered within the 72px rail */
   .c-sidebar-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+
+  /* Toggle — a sibling of .c-sidebar inside .c-sidebar-shell, not a
+     descendant of it: .c-sidebar has overflow-x:clip (never
+     horizontally scrollable), and a clipped ancestor clips absolutely-
+     positioned descendants too, no matter their offsets — the
+     collapsed toggle deliberately straddles the rail's own border
+     (half in / half out), so it can't live inside .c-sidebar without
+     being cut off. */
+  .c-sidebar-toggle{position:absolute; display:flex; align-items:center; justify-content:center; background:none; border:none; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+  .c-sidebar-toggle:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+  .c-sidebar:not(.is-collapsed) ~ .c-sidebar-toggle{top:32px; right:8px; transform:translateY(-50%); width:28px; height:28px;} /* same row as the logo, right-aligned, vertically centered */
+  .c-sidebar:not(.is-collapsed) ~ .c-sidebar-toggle:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+  .c-sidebar.is-collapsed ~ .c-sidebar-toggle{top:33px; right:-10px; transform:translateY(-50%); width:24px; height:24px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); box-shadow:var(--shadow-1);} /* floating overlay, straddles the rail's own border, sized down so it doesn't crowd the independently-centered logo */
+  .c-sidebar.is-collapsed ~ .c-sidebar-toggle:hover{background:var(--color-neutral-2);}
+  .c-sidebar-toggle svg{width:18px; height:18px;}
+  .c-sidebar.is-collapsed ~ .c-sidebar-toggle svg{width:16px; height:16px;}
+
+  /* Collapsed — hover label. SidebarNav's own sub-pattern (not a
+     reused Tooltip instance) — see DESIGN-SYSTEM.md's "Collapsed —
+     hover label" row for why. A single shared element, `position:
+     fixed`, repositioned via JS to the hovered/focused icon. */
+  .c-sidebar-hover-label{position:fixed; padding:6px 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard); z-index:20;}
+  .c-sidebar-hover-label.is-visible{opacity:1;}
+  .c-sidebar-item .c-sidebar-hover-text{display:none;} /* text source only — read by JS, never shown itself */
+
+  /* Second-level navigation — a parent item expanding to show its own
+     child items, one level deep. Chevron is Tier 1, Regular (per
+     Iconography's own Tier 1 examples — "chevron up/down", "expand,
+     collapse"). Clicking anywhere on the parent toggles it, not just
+     the chevron. Each parent's open/closed state is independent — no
+     single-open-at-a-time grouping. */
+  .c-sidebar-item .c-nav-parent-toggle{margin-left:auto; width:var(--icon-base); height:var(--icon-base); flex:0 0 var(--icon-base); display:flex; align-items:center; justify-content:center; transition:transform var(--duration-fast) var(--ease-standard);}
+  /* "Active parent with active child — parent shows weight 700 text,
+     but no active fill" — the fill signal stays exclusively on the
+     active child. */
+  .c-sidebar-item.parent-active-child{font-weight:700; background:transparent; color:var(--color-neutral-9);}
+  /* Collapsed — the "no fill, text stays the only signal" rule above
+     relies on the label, which is hidden entirely at 72px (see
+     .c-sidebar.is-collapsed .c-sidebar-item span.label above), so a
+     parent with an active child would look identical to a plain
+     inactive icon with nothing else to look at. The child's own fill
+     isn't around to compete with here either — it's hidden too — so
+     the collapsed parent icon safely takes the normal Active fill
+     instead, same as any other active item gets. */
+  .c-sidebar.is-collapsed .c-sidebar-item.parent-active-child{background:var(--color-neutral-2);}
+  /* Grid 0fr->1fr technique: animating max-height directly squeezes
+     fixed-height child buttons via flex-shrink instead of properly
+     sizing them (see DESIGN-SYSTEM.md's "Expand/collapse transition"
+     row) — a single-row grid track animates to the content's real
+     height with no guessed cap. */
+  .c-nav-children{display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--duration-slow) var(--ease-standard);}
+  .c-nav-children.is-open{grid-template-rows:1fr;}
+  .c-nav-children-inner{overflow:hidden; min-height:0; display:flex; flex-direction:column; gap:var(--spacing-4);}
+  .c-sidebar.is-collapsed .c-nav-children,
+  .c-sidebar.is-collapsed .c-sidebar-item .c-nav-parent-toggle{display:none;} /* accordion closes, children aren't accessible while collapsed */
+  /* Child item — 36px (one-off literal, not a token — same precedent
+     as Tooltip's 6px/10px padding and Checkbox's 6px radius), full
+     width with spacing-16 left padding doing the indent instead of an
+     outer margin. */
+  .c-nav-child{height:36px; width:100%; padding:0 var(--spacing-12) 0 var(--spacing-16); border-radius:var(--radius-sm); display:flex; align-items:center; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); background:transparent; border:0; cursor:pointer; font-family:inherit; text-align:left; color:var(--color-neutral-5); transition:background-color var(--duration-fast) var(--ease-standard);}
+  .c-nav-child:hover{background:var(--color-neutral-2);}
+  .c-nav-child:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+  .c-nav-child.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
 
   /* Tabs */
   .c-tabs{display:flex; gap:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3);}
@@ -1011,22 +1091,58 @@
         </div>
 
         <div class="comp-block" id="comp-sidebarnav">
-          <div class="comp-head"><h3>SidebarNav <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-sidebarnav" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-head"><h3>SidebarNav <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0, collapsible state added 2026-08-04</span></h3><button class="copy-markup-btn" data-target="comp-sidebarnav" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
-            <nav class="c-sidebar">
-              <div class="c-sidebar-header">Astro Growth</div>
-              <div class="c-sidebar-section">Overview</div>
-              <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span></button>
-              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar"></i><span class="label">Reports</span></button>
-              <div class="c-sidebar-section">Departments</div>
-              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-fire" style="color:var(--color-orange)"></i><span class="label">Marketing</span><span class="count">12</span></button>
-              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-drop" style="color:var(--color-navy)"></i><span class="label">Data</span></button>
-              <div class="c-sidebar-footer">
-                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span></button>
-              </div>
-            </nav>
+            <div class="c-sidebar-shell">
+              <nav class="c-sidebar" id="compSidebarNav">
+                <div class="c-sidebar-header">
+                  <div class="c-sidebar-logo">
+                    <img class="js-sidebar-logo-img"
+                         src="logo-lockups/collabrium-default-logo.svg"
+                         data-expanded-src="logo-lockups/collabrium-default-logo.svg"
+                         data-collapsed-src="SVG/coin.svg"
+                         alt="Collabrium" />
+                  </div>
+                </div>
+                <div class="c-sidebar-section">Overview</div>
+                <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span><span class="c-sidebar-hover-text">Dashboard</span></button>
+                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar"></i><span class="label">Reports</span><span class="c-sidebar-hover-text">Reports</span></button>
+                <button class="c-sidebar-item" type="button" disabled aria-disabled="true"><i class="ph-fill ph-credit-card"></i><span class="label">Billing</span><span class="c-sidebar-hover-text">Billing</span></button>
+                <hr class="c-sidebar-divider" />
+                <div class="c-sidebar-section">Departments</div>
+                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-fire" style="color:var(--color-orange)"></i><span class="label">Marketing</span><span class="count">12</span><span class="c-sidebar-hover-text">Marketing (12)</span></button>
+                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-drop" style="color:var(--color-navy)"></i><span class="label">Data</span><span class="c-sidebar-hover-text">Data</span></button>
+                <hr class="c-sidebar-divider" />
+                <div class="c-sidebar-section">Workspace</div>
+                <button class="c-sidebar-item js-nav-parent-toggle" type="button" aria-expanded="true" data-nav-parent="team">
+                  <i class="ph-fill ph-users-three"></i><span class="label">Team</span><span class="c-sidebar-hover-text">Team</span>
+                  <span class="c-nav-parent-toggle"><svg viewBox="0 0 16 16"><path class="js-nav-parent-chevron" d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/></svg></span>
+                </button>
+                <div class="c-nav-children is-open" data-nav-panel="team">
+                  <div class="c-nav-children-inner">
+                    <button class="c-nav-child" type="button">Members</button>
+                    <button class="c-nav-child" type="button">Roles &amp; access</button>
+                  </div>
+                </div>
+                <div class="c-sidebar-footer">
+                  <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span><span class="c-sidebar-hover-text">Settings</span></button>
+                </div>
+              </nav>
+              <button class="c-sidebar-toggle js-sidebar-toggle" type="button" aria-label="Collapse sidebar" data-sidebar-toggle="compSidebarNav">
+                <!-- Remix Icon ri-sidebar-fold-line / ri-sidebar-unfold-line, Tier 1 Regular —
+                     "expand, collapse" is one of Iconography's own Tier 1 examples. Remix
+                     fallback since Phosphor has no equivalent glyph. -->
+                <svg class="js-sidebar-toggle-icon" viewBox="0 0 20 20" fill="none">
+                  <rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+                  <line x1="9" y1="3.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.4"/>
+                  <path class="js-sidebar-toggle-arrow" d="M13.5 7 11 10l2.5 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
+
+        <div class="c-sidebar-hover-label" id="compSidebarHoverLabel" role="tooltip"></div>
 
         <div class="comp-block" id="comp-tabs">
           <div class="comp-head"><h3>Tabs <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-tabs" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
@@ -2468,28 +2584,128 @@ specifically so this state gets real visual weight.
 
 ### SidebarNav
 
+**Global navigation rule — added 2026-08-04.** SidebarNav is the
+canonical navigation pattern for all Collabrium builds. No alternative
+navigation orientation (top nav, bottom nav, tab bar) should be used
+unless explicitly documented as an exception for a specific context.
+
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
 Primary app-level navigation, not a page-local menu.
 
 | Part | Spec |
 |---|---|
-| Container | 240px width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding, spacing-4 (4px) gap between items |
-| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot |
-| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 |
-| Nav item | 40px height, full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
+| Container | 240px width (expanded) / 72px width (collapsed) — ⚠️ **hard max-width in both states, changed 2026-08-04:** `overflow-x: hidden`, never horizontally scrollable at either width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding **on all four sides equally** (⚠️ clarified 2026-08-04 — left and right padding must match; any implementation where the right edge reads as wider than the left is a bug, not a variant), spacing-4 (4px) gap between items (⚠️ reverted 2026-08-04 — the earlier "reads as no gap at all" complaint traced to a missing gap implementation between individual nav items, not the token value itself; now that it's wired correctly, spacing-4 is the intended tight gap) |
+| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot, **horizontal padding equal on both sides**; see Header logo rule below. ⚠️ **Layout changed 2026-08-04, revised twice same day:** expanded stays a flex row, `align-items: center`, logo left-aligned, toggle right-aligned, both in normal flex flow, same row. Collapsed is no longer this same flex row — the logo is independently centered as the header's only in-flow content, and the toggle is a separate floating overlay button anchored to the rail's own right edge (see Collapsible state below for both) — visually still "the same row," just no longer achieved via shared flex layout |
+| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5. ⚠️ **Divider added 2026-08-04:** a 1px Neutral-3 hairline sits above every section label except the first one in the list (e.g. between Overview and Workspace), separating one department/area group from the next — it sits above the label's own spacing-16 top padding, not stacked as extra whitespace |
+| Nav item | 40px height minimum (grows to fit a wrapped 2-line label — see the wrapping rule below), full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
 | Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
 | Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Nav item — hover ⚠️ added 2026-08-04 | Neutral-2 fill, text color unchanged from whatever active/inactive state it already has — reuses Table row's own hover token (`Row hover \| Neutral-2 fill`) and Button Ghost's hover, rather than a nav-specific value |
+| Nav item — focus-visible ⚠️ added 2026-08-04 | 2px Obsidian outline, 2px offset, additive on top of the current fill — reuses Button's exact focus-visible token; Nav item is a clickable row control at `radius-sm` like Button, not a Card-like surface, so this is used instead of Card's `shadow-focus`/Water-ring exception |
+| Nav item — active-pressed ⚠️ added 2026-08-04 | Neutral-3 fill — direct match to Button Ghost's `Active/pressed \| Neutral-3 fill`, same unfilled-by-default control family |
+| Nav item — disabled ⚠️ added 2026-08-04 | Neutral-4 text/icon, fill stays transparent, `cursor: not-allowed` — matches Button Ghost's disabled and Pagination's Ghost icon-button disabled, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not row-based nav items) |
 | Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
 | Trailing count | optional, caption/700/Neutral-5, right-aligned |
 | Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
 | Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
 
-Label truncates with ellipsis rather than wrapping.
+⚠️ **Note on "active" vs. "active-pressed"** — these are different axes.
+"Active"/"inactive" (above) is the *persistent selection* state (which
+page you're on); "active-pressed" is the *momentary* mouse-down state,
+and can land on either an active or inactive item. Hover, focus-visible,
+active-pressed, and disabled all apply orthogonally on top of whichever
+active/inactive state the item already has.
+
+⚠️ **Changed 2026-08-04 — labels wrap, they no longer truncate.** 240px
+(expanded) is a hard max-width with no horizontal scroll; a label too
+long for one line wraps to a second line instead of truncating with an
+ellipsis or overflowing the container. This replaces the earlier
+"truncates with ellipsis" rule.
 
 **Do:** use section labels to group items by department/area, one level
 deep. **Don't:** nest a second level of grouping — if the hierarchy needs
 more than one level, that's a sign the item belongs in a sub-page's Tabs
 instead.
+
+**Collapsible state — added 2026-08-04.**
+
+| Part | Spec |
+|---|---|
+| Collapsed width | ⚠️ **widened 2026-08-04, 60px → 72px** — a one-off literal, not a named spacing token (same precedent as Second-level navigation's 36px child-item height and Tooltip's 6px/10px padding): the collapsed rail now needs to fit the logo/element icon and the toggle icon side by side on one row, which 60px (`spacing-60`) didn't leave room for |
+| Expanded width | 240px (existing, unchanged) |
+| Toggle trigger — expanded | ⚠️ **changed 2026-08-04:** same row as the header logo, right-aligned, vertically centered — no longer positioned separately below the logo |
+| Toggle trigger — collapsed | ⚠️ **changed 2026-08-04, revised twice same day.** No longer inline with the logo/element icon at all — it's a separate floating overlay button, `position: absolute`, anchored to the rail's own right edge and vertically centered to the same row as the logo, straddling the rail's own border (half in / half out) rather than sitting fully inside the padding. This replaces both the original "centered below the icon mark" layout (60px had no room for both on one row) and the following "side by side, centered together as a pair" fix (72px fit both, but paired the toggle with the logo instead of letting the logo center independently — see Collapsed — alignment below). Sized down from the expanded toggle's 28px button / 18px icon to a **24px button / 16px icon** — a deliberate reduction (not the same size as expanded), since the full expanded size crowded the now-independently-centered logo in the 72px rail |
+| Toggle trigger — icon | ⚠️ **changed 2026-08-04:** Remix Icon's `ri-sidebar-fold-line` (collapse) / `ri-sidebar-unfold-line` (expand), replacing `chevron-left`/`chevron-right`. Phosphor has no equivalent glyph for this specific affordance, so this correctly invokes the documented Remix **fallback** rule in [Iconography](#iconography) ("only when Phosphor lacks the glyph"), not a by-taste library swap. **Tier 1, Regular** (hence the `-line` suffix) — corrected 2026-08-04 from an earlier Tier 2/Fill judgment call: collapsing/expanding a panel is literally one of Iconography's own listed Tier 1 examples ("expand, collapse"), so this is the documented default, not an exception |
+| Collapsed — visible elements | icon only; labels, section labels, and trailing count text are all hidden |
+| Collapsed — alignment | ⚠️ **added 2026-08-04, revised twice same day:** every nav item's icon is center-aligned horizontally within the 72px rail — corrects the earlier "always left-aligned" rule below, which didn't hold up at this width. The header logo/element icon is **independently** centered the same way (no longer paired with the toggle icon as a centered group — that was an interim fix; the toggle is now a floating overlay anchored to the rail's own right edge instead, see Toggle trigger — collapsed, above, and doesn't participate in this centered alignment at all). Expanded stays left-aligned throughout |
+| Collapsed — trailing count | converts to an 8px dot badge (matches `spacing-8`) in the item's owning element accent color (same override logic as the Icon row above), overlaid top-right on the icon |
+| Collapsed — logo | collapses to the individual department element icon, `SVG/{element}.svg` (`fire.svg`/`wood.svg`/`earth.svg`/`water.svg`); the default (no department context) collapses to `SVG/coin.svg` specifically — not `logo-lockups/collabrium-default-logo.svg`, which stays the expanded-state default per the Logo section above |
+| Toggle behavior — logo asset | ⚠️ **added 2026-08-04:** the logo's underlying image **asset must swap** on toggle, not just resize or reposition. Expanding swaps back to the full wordmark/lockup (`logo-lockups/`); collapsing swaps to the element icon/`coin.svg` (`SVG/`). Resizing the *same* wordmark asset down into the 72px rail (instead of swapping the source) is the bug this replaces — the wordmark doesn't fit and overflows the collapsed rail |
+| Collapsed — hover label | ⚠️ **changed 2026-08-04 — SidebarNav's own sub-pattern, no longer a reused [Tooltip](#tooltip) instance.** Appears on icon hover **or keyboard focus**, shows the full nav item label, positioned to the right of the icon: same bubble visuals as Tooltip (6px/10px padding, `radius-sm`, Neutral-7 fill, Neutral-1 text, caption/500, opacity-only transition, `pointer-events: none`) but built and owned independently, because Tooltip's own spec assumes a plain relatively-positioned trigger wrapper — that model doesn't survive being placed inside SidebarNav's own scrolling item list (a vertically-scrolling container's `overflow-x` is forced to clip too, per the CSS overflow spec, which silently cuts off anything trying to render past its edge). SidebarNav's hover label is implemented as a single element that positions itself against the hovered icon directly, escaping that scroll container rather than living inside it |
+| Transition | `width` — `var(--duration-slow) var(--ease-standard)` (`duration-slow`'s stated purpose is "panel / section reveals," an exact match; `ease-standard` since a sidebar collapse isn't owned by a specific brand element — per Motion's own rule, "reach for an elemental curve deliberately, not by default") |
+| Persistence | collapsed/expanded state saved to `localStorage`, restored on load |
+
+**Header logo rule — added 2026-08-04.**
+
+| Context | Logo |
+|---|---|
+| Default (expanded, no department context) | full Collabrium wordmark — `logo-lockups/collabrium-default-logo.svg` |
+| Department-specific (expanded, passed via prop) | the matching department's element-colored lockup from `logo-lockups/` (see the Logo section's table above — only the Gold/default variant currently exists; the other 4 are flagged not-yet-provided) |
+| Collapsed (any context) | individual department element icon, `SVG/{element}.svg`; default collapses to `SVG/coin.svg` specifically (same as the Collapsible state row above) |
+| Alignment | ⚠️ **revised 2026-08-04, twice.** Expanded: always left-aligned. Collapsed: **independently** center-aligned within the 72px rail (see the Collapsible state's "Collapsed — alignment" row above) — the toggle trigger sits on the same row but no longer shares this centered alignment, since it's now a floating overlay anchored to the rail's own right edge instead (see "Toggle trigger — collapsed," above). This corrects the interim "paired with the toggle trigger, centered together" rule, which itself had corrected the original "always left-aligned, expanded and collapsed alike" rule that didn't hold up at this width |
+
+**Do:** always reference the logo library (`logo-lockups/` expanded,
+`SVG/` collapsed) — never build or embed a custom one-off logo asset for
+a header.
+
+**Second-level navigation — added 2026-08-04.**
+
+⚠️ Distinct from the section-label Do/Don't above, which governs
+*section labels* grouping items (still capped at zero extra nesting).
+This is a separate structural concept — an individual **nav item**
+expanding to show its own **child items** — and is supported up to one
+level deep.
+
+| Part | Spec |
+|---|---|
+| Depth supported | 2 levels maximum (parent + children); a third level isn't supported — content needing 3 levels belongs in page-level Tabs or a sub-page instead |
+| Parent item | shows a trailing chevron, `chevron-down`/`chevron-up` — **Tier 1, Regular** (corrected 2026-08-04 alongside the Collapsible state's toggle trigger above: "chevron up/down" and "expand, collapse" are both Iconography's own Tier 1 examples, so this was never actually an exception) |
+| Expand trigger | ⚠️ **added 2026-08-04:** clicking anywhere on the parent item toggles it — not just the trailing chevron. The chevron swaps `chevron-down` ↔ `chevron-up` to reflect the parent's own open/closed state |
+| Expand behavior | accordion — children render inline below the parent, no separate panel/overlay. ⚠️ **Clarified 2026-08-04 — independent, not mutually exclusive:** each parent's open/closed state is its own; opening one parent does **not** close any other open parent. There's no single-open-at-a-time grouping in this spec |
+| Expand/collapse transition | ⚠️ **added 2026-08-04:** children reveal/hide via a height transition, `var(--duration-slow) var(--ease-standard)` — reuses the same "panel/section reveals" duration as the Collapsible state's own width transition above, and the same default (non-elemental) easing, since an accordion isn't owned by a specific brand element either |
+| Closing preserves state | ⚠️ **added 2026-08-04:** collapsing a parent doesn't reset which child was active — reopening it shows the same active child again, exactly as it was left |
+| Children width/indent | ⚠️ **changed 2026-08-04 — full width, not inset.** Children are no longer a narrower block indented from the icon column; each child item spans the same full width as any other Nav item, with spacing-16 (16px) left padding on the item itself doing the indent instead of an outer margin (replaces the earlier spacing-24 block-indent approach) |
+| Child item height | 36px (⚠️ a one-off literal value, not a named token — same precedent as Tooltip's 6px/10px padding and Checkbox's 6px radius: a smaller nested control gets its own compact size, smaller than the parent Nav item's 40px) |
+| Child item type | body2 (14px), weight 500 inactive, weight 700 active |
+| Active child | shows Nav item's own active state (Neutral-2 fill, Neutral-9 text, weight 700) |
+| Active parent with active child | parent shows weight 700 text, but **no** active fill — the fill signal stays exclusively on the active child, so the two don't both read as "selected" at once. ⚠️ **Clarified 2026-08-04 — the parent's weight-700 state is only ever a side effect of one of its own children being selected, never of clicking/expanding the parent header itself.** Expanding or collapsing a parent (Expand trigger, above) never changes anyone's active state on its own — it's a pure open/closed toggle. ⚠️ **Collapsed exception, added 2026-08-04:** this "text-only, no fill" treatment relies on the label, which is hidden entirely at 72px — with nothing else left to signal selection, the collapsed parent icon takes the normal Active fill instead (Neutral-2 background), same as any other active item gets. This doesn't reintroduce the "two things read as selected" problem the fill-less rule exists to avoid, because the active child isn't visible either while collapsed — there's nothing on screen to compete with |
+| Sidebar-wide exclusivity | ⚠️ **added 2026-08-04.** Exactly one destination is ever the active selection across the whole nav at a time — whether that's a top-level Nav item or a second-level child. Selecting any item (top-level or child) clears every other item's active state **and** any active child in any other (or the same) accordion panel first, so a plain Nav item and a leftover active child, or two different parents' active children, can never both read as "selected" simultaneously |
+| Collapsed sidebar | accordion closes, and the parent's own children are never shown while collapsed — the icon-hover label (Collapsible state, above) shows the parent's own label only, not its children. ⚠️ **Clarified 2026-08-04 — the parent icon stays clickable, it just does something different than expanded.** With no room to reveal children at 72px, clicking the parent icon isn't a dead click waiting for a rail width it'll never get: it routes straight to the parent's **first child** instead, selecting it as the sidebar's one active destination (same "click a group icon, land on its default sub-page" pattern collapsed rails commonly use) — the parent picks up its own active styling as the usual side effect of that child being selected, per the Active parent with active child row above |
+
+**Overflow behavior — added 2026-08-04.**
+
+- The nav item list scrolls (`overflow-y: auto`) once items exceed the
+  container's available height.
+- ⚠️ **Horizontal scroll is never permitted, in either state** — the
+  container's `overflow-x: hidden` (see Container row above) applies at
+  both the 240px expanded and 72px collapsed widths. Content that would
+  overflow horizontally (a long label, an unswapped logo asset) must wrap
+  or be resized to fit, never scroll sideways.
+- Scrollbar is hidden by default, visible on hover of the container —
+  ⚠️ **must overlay content, changed 2026-08-04:** implement as a thin
+  overlay scrollbar (e.g. `scrollbar-gutter` left unreserved, or an
+  absolutely-positioned custom thumb) that never reserves layout space.
+  Showing it on hover must not shift or shrink the nav items' own width
+  — that reads as content resizing under the cursor, which is the bug
+  this replaces.
+- Footer (existing optional sub-part above) is pinned outside the
+  scrolling region via its own `margin-top: auto` and never scrolls with
+  the item list.
+
+⚠️ **Needs Input — SidebarNav (added 2026-08-04).**
+- Mobile/responsive behavior — not yet defined, out of scope for v0.7.0.
+- Keyboard navigation (arrow keys, `Enter`, `Escape` on the accordion) —
+  to be defined in a future accessibility pass.
 
 ### Tabs
 
@@ -3803,11 +4019,95 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
   if (!root) return;
 
   root.addEventListener('click', (e) => {
-    // SidebarNav — switch active item within its own nav
+    // SidebarNav — collapse/expand toggle. Swaps the logo asset itself
+    // (not just resizing it — see "Toggle behavior — logo asset" in
+    // DESIGN-SYSTEM.md) and the toggle icon's arrow direction.
+    const sidebarToggle = e.target.closest('.js-sidebar-toggle');
+    if (sidebarToggle) {
+      const nav = document.getElementById(sidebarToggle.dataset.sidebarToggle);
+      const collapsing = !nav.classList.contains('is-collapsed');
+      nav.classList.toggle('is-collapsed');
+      sidebarToggle.setAttribute('aria-label', collapsing ? 'Expand sidebar' : 'Collapse sidebar');
+
+      const img = nav.querySelector('.js-sidebar-logo-img');
+      img.src = collapsing ? img.dataset.collapsedSrc : img.dataset.expandedSrc;
+
+      const arrow = sidebarToggle.querySelector('.js-sidebar-toggle-arrow');
+      arrow.setAttribute('d', collapsing ? 'M11.5 7 14 10l-2.5 3' : 'M13.5 7 11 10l2.5 3');
+      return;
+    }
+
+    // SidebarNav — select a second-level child as the sidebar's one
+    // active destination: clears every other top-level item's
+    // active/parent-active-child state and any other panel's active
+    // child first, marks this child active, and marks its own parent
+    // active too (weight-700 text, no fill — the fill stays on the
+    // child). Shared by the .c-nav-child click handler below and by
+    // the collapsed parent-icon routing shortcut above it.
+    function selectNavChild(navChild) {
+      const sidebar = navChild.closest('.c-sidebar');
+      sidebar.querySelectorAll('.c-sidebar-item').forEach(el => el.classList.remove('active', 'parent-active-child'));
+      sidebar.querySelectorAll('.c-nav-child').forEach(el => el.classList.remove('active'));
+      navChild.classList.add('active');
+      const parentToggle = navChild.closest('.c-nav-children').previousElementSibling;
+      parentToggle.classList.add('parent-active-child');
+    }
+
+    // SidebarNav — second-level nav, parent icon. Expanded: clicking
+    // anywhere on the parent toggles it open/closed, not just the
+    // chevron; each parent is independent (no single-open grouping);
+    // the chevron swaps direction; closing doesn't reset which child
+    // was active (see DESIGN-SYSTEM.md's Second-level navigation
+    // table). This is PURELY an open/closed toggle when expanded — it
+    // never touches active state on its own.
+    //
+    // ⚠️ Collapsed: there's no accordion to open (children are hidden
+    // entirely at 72px — see .c-sidebar.is-collapsed .c-nav-children
+    // above), so the parent icon isn't just a dead click waiting for
+    // a rail width it'll never get: clicking it routes straight to its
+    // first child instead, the same "click a group icon, land on its
+    // default sub-page" pattern collapsed rails commonly use.
+    const navParentToggle = e.target.closest('.js-nav-parent-toggle');
+    if (navParentToggle) {
+      const sidebar = navParentToggle.closest('.c-sidebar');
+      if (sidebar.classList.contains('is-collapsed')) {
+        const key = navParentToggle.dataset.navParent;
+        const panel = navParentToggle.parentElement.querySelector(`[data-nav-panel="${key}"]`);
+        const firstChild = panel.querySelector('.c-nav-child');
+        if (firstChild) selectNavChild(firstChild);
+        return;
+      }
+
+      const key = navParentToggle.dataset.navParent;
+      const panel = navParentToggle.parentElement.querySelector(`[data-nav-panel="${key}"]`);
+      const opening = !panel.classList.contains('is-open');
+      panel.classList.toggle('is-open');
+      navParentToggle.setAttribute('aria-expanded', String(opening));
+      const chevron = navParentToggle.querySelector('.js-nav-parent-chevron');
+      chevron.setAttribute('d', opening ? 'M4 6l4 4 4-4' : 'M6 4l4 4-4 4');
+      return;
+    }
+
+    // SidebarNav — switch active child within its own accordion panel.
+    // Checked before the generic .c-sidebar-item handler below since a
+    // .c-nav-child is not a .c-sidebar-item.
+    const navChild = e.target.closest('.c-nav-child');
+    if (navChild) {
+      selectNavChild(navChild);
+      return;
+    }
+
+    // SidebarNav — switch active item within its own nav. Only one
+    // item is ever the persistent "active" selection at a time —
+    // clears every other top-level item's active/parent-active-child
+    // AND any active child in any accordion panel, so selecting a
+    // different destination (e.g. Dashboard) always fully deselects
+    // Team and whichever of its children was previously active.
     const navItem = e.target.closest('.c-sidebar-item');
     if (navItem) {
-      navItem.closest('.c-sidebar').querySelectorAll('.c-sidebar-item')
-        .forEach(el => el.classList.remove('active'));
+      const sidebar = navItem.closest('.c-sidebar');
+      sidebar.querySelectorAll('.c-sidebar-item').forEach(el => el.classList.remove('active', 'parent-active-child'));
+      sidebar.querySelectorAll('.c-nav-child').forEach(el => el.classList.remove('active'));
       navItem.classList.add('active');
       return;
     }
@@ -3930,6 +4230,45 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
       input.focus();
       return;
     }
+  });
+
+  // SidebarNav — collapsed hover label. A single shared, fixed-position
+  // element (not a per-item absolutely-positioned one — see
+  // DESIGN-SYSTEM.md's "Collapsed — hover label" row for why: it isn't
+  // a reused Tooltip instance, because Tooltip's own trigger-wrapper
+  // model doesn't survive living inside a scrolling nav list). Uses
+  // mouseover/mouseout (they bubble) rather than mouseenter/mouseleave
+  // so this can stay event-delegated like everything else here.
+  const sidebarHoverLabel = document.getElementById('compSidebarHoverLabel');
+  function showSidebarHoverLabel(item) {
+    const nav = item.closest('.c-sidebar');
+    const source = item.querySelector('.c-sidebar-hover-text');
+    if (!sidebarHoverLabel || !nav || !nav.classList.contains('is-collapsed') || !source) return;
+    const iconRect = item.querySelector('i').getBoundingClientRect();
+    sidebarHoverLabel.textContent = source.textContent;
+    sidebarHoverLabel.style.left = (iconRect.right + 8) + 'px';
+    sidebarHoverLabel.style.top = (iconRect.top + iconRect.height / 2) + 'px';
+    sidebarHoverLabel.style.transform = 'translateY(-50%)';
+    sidebarHoverLabel.classList.add('is-visible');
+  }
+  function hideSidebarHoverLabel() {
+    if (sidebarHoverLabel) sidebarHoverLabel.classList.remove('is-visible');
+  }
+  root.addEventListener('mouseover', (e) => {
+    const item = e.target.closest('.c-sidebar-item');
+    if (item && !item.contains(e.relatedTarget)) showSidebarHoverLabel(item);
+  });
+  root.addEventListener('mouseout', (e) => {
+    const item = e.target.closest('.c-sidebar-item');
+    if (item && !item.contains(e.relatedTarget)) hideSidebarHoverLabel();
+  });
+  root.addEventListener('focusin', (e) => {
+    const item = e.target.closest('.c-sidebar-item');
+    if (item) showSidebarHoverLabel(item);
+  });
+  root.addEventListener('focusout', (e) => {
+    const item = e.target.closest('.c-sidebar-item');
+    if (item) hideSidebarHoverLabel();
   });
 
   // Search input — show/hide the clear button as its value changes, per

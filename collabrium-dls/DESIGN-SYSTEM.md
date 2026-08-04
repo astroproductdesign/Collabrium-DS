@@ -1017,28 +1017,128 @@ specifically so this state gets real visual weight.
 
 ### SidebarNav
 
+**Global navigation rule — added 2026-08-04.** SidebarNav is the
+canonical navigation pattern for all Collabrium builds. No alternative
+navigation orientation (top nav, bottom nav, tab bar) should be used
+unless explicitly documented as an exception for a specific context.
+
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
 Primary app-level navigation, not a page-local menu.
 
 | Part | Spec |
 |---|---|
-| Container | 240px width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding, spacing-4 (4px) gap between items |
-| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot |
-| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 |
-| Nav item | 40px height, full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
+| Container | 240px width (expanded) / 72px width (collapsed) — ⚠️ **hard max-width in both states, changed 2026-08-04:** `overflow-x: hidden`, never horizontally scrollable at either width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding **on all four sides equally** (⚠️ clarified 2026-08-04 — left and right padding must match; any implementation where the right edge reads as wider than the left is a bug, not a variant), spacing-4 (4px) gap between items (⚠️ reverted 2026-08-04 — the earlier "reads as no gap at all" complaint traced to a missing gap implementation between individual nav items, not the token value itself; now that it's wired correctly, spacing-4 is the intended tight gap) |
+| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot, **horizontal padding equal on both sides**; see Header logo rule below. ⚠️ **Layout changed 2026-08-04, revised twice same day:** expanded stays a flex row, `align-items: center`, logo left-aligned, toggle right-aligned, both in normal flex flow, same row. Collapsed is no longer this same flex row — the logo is independently centered as the header's only in-flow content, and the toggle is a separate floating overlay button anchored to the rail's own right edge (see Collapsible state below for both) — visually still "the same row," just no longer achieved via shared flex layout |
+| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5. ⚠️ **Divider added 2026-08-04:** a 1px Neutral-3 hairline sits above every section label except the first one in the list (e.g. between Overview and Workspace), separating one department/area group from the next — it sits above the label's own spacing-16 top padding, not stacked as extra whitespace |
+| Nav item | 40px height minimum (grows to fit a wrapped 2-line label — see the wrapping rule below), full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
 | Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
 | Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Nav item — hover ⚠️ added 2026-08-04 | Neutral-2 fill, text color unchanged from whatever active/inactive state it already has — reuses Table row's own hover token (`Row hover \| Neutral-2 fill`) and Button Ghost's hover, rather than a nav-specific value |
+| Nav item — focus-visible ⚠️ added 2026-08-04 | 2px Obsidian outline, 2px offset, additive on top of the current fill — reuses Button's exact focus-visible token; Nav item is a clickable row control at `radius-sm` like Button, not a Card-like surface, so this is used instead of Card's `shadow-focus`/Water-ring exception |
+| Nav item — active-pressed ⚠️ added 2026-08-04 | Neutral-3 fill — direct match to Button Ghost's `Active/pressed \| Neutral-3 fill`, same unfilled-by-default control family |
+| Nav item — disabled ⚠️ added 2026-08-04 | Neutral-4 text/icon, fill stays transparent, `cursor: not-allowed` — matches Button Ghost's disabled and Pagination's Ghost icon-button disabled, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not row-based nav items) |
 | Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
 | Trailing count | optional, caption/700/Neutral-5, right-aligned |
 | Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
 | Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
 
-Label truncates with ellipsis rather than wrapping.
+⚠️ **Note on "active" vs. "active-pressed"** — these are different axes.
+"Active"/"inactive" (above) is the *persistent selection* state (which
+page you're on); "active-pressed" is the *momentary* mouse-down state,
+and can land on either an active or inactive item. Hover, focus-visible,
+active-pressed, and disabled all apply orthogonally on top of whichever
+active/inactive state the item already has.
+
+⚠️ **Changed 2026-08-04 — labels wrap, they no longer truncate.** 240px
+(expanded) is a hard max-width with no horizontal scroll; a label too
+long for one line wraps to a second line instead of truncating with an
+ellipsis or overflowing the container. This replaces the earlier
+"truncates with ellipsis" rule.
 
 **Do:** use section labels to group items by department/area, one level
 deep. **Don't:** nest a second level of grouping — if the hierarchy needs
 more than one level, that's a sign the item belongs in a sub-page's Tabs
 instead.
+
+**Collapsible state — added 2026-08-04.**
+
+| Part | Spec |
+|---|---|
+| Collapsed width | ⚠️ **widened 2026-08-04, 60px → 72px** — a one-off literal, not a named spacing token (same precedent as Second-level navigation's 36px child-item height and Tooltip's 6px/10px padding): the collapsed rail now needs to fit the logo/element icon and the toggle icon side by side on one row, which 60px (`spacing-60`) didn't leave room for |
+| Expanded width | 240px (existing, unchanged) |
+| Toggle trigger — expanded | ⚠️ **changed 2026-08-04:** same row as the header logo, right-aligned, vertically centered — no longer positioned separately below the logo |
+| Toggle trigger — collapsed | ⚠️ **changed 2026-08-04, revised twice same day.** No longer inline with the logo/element icon at all — it's a separate floating overlay button, `position: absolute`, anchored to the rail's own right edge and vertically centered to the same row as the logo, straddling the rail's own border (half in / half out) rather than sitting fully inside the padding. This replaces both the original "centered below the icon mark" layout (60px had no room for both on one row) and the following "side by side, centered together as a pair" fix (72px fit both, but paired the toggle with the logo instead of letting the logo center independently — see Collapsed — alignment below). Sized down from the expanded toggle's 28px button / 18px icon to a **24px button / 16px icon** — a deliberate reduction (not the same size as expanded), since the full expanded size crowded the now-independently-centered logo in the 72px rail |
+| Toggle trigger — icon | ⚠️ **changed 2026-08-04:** Remix Icon's `ri-sidebar-fold-line` (collapse) / `ri-sidebar-unfold-line` (expand), replacing `chevron-left`/`chevron-right`. Phosphor has no equivalent glyph for this specific affordance, so this correctly invokes the documented Remix **fallback** rule in [Iconography](#iconography) ("only when Phosphor lacks the glyph"), not a by-taste library swap. **Tier 1, Regular** (hence the `-line` suffix) — corrected 2026-08-04 from an earlier Tier 2/Fill judgment call: collapsing/expanding a panel is literally one of Iconography's own listed Tier 1 examples ("expand, collapse"), so this is the documented default, not an exception |
+| Collapsed — visible elements | icon only; labels, section labels, and trailing count text are all hidden |
+| Collapsed — alignment | ⚠️ **added 2026-08-04, revised twice same day:** every nav item's icon is center-aligned horizontally within the 72px rail — corrects the earlier "always left-aligned" rule below, which didn't hold up at this width. The header logo/element icon is **independently** centered the same way (no longer paired with the toggle icon as a centered group — that was an interim fix; the toggle is now a floating overlay anchored to the rail's own right edge instead, see Toggle trigger — collapsed, above, and doesn't participate in this centered alignment at all). Expanded stays left-aligned throughout |
+| Collapsed — trailing count | converts to an 8px dot badge (matches `spacing-8`) in the item's owning element accent color (same override logic as the Icon row above), overlaid top-right on the icon |
+| Collapsed — logo | collapses to the individual department element icon, `SVG/{element}.svg` (`fire.svg`/`wood.svg`/`earth.svg`/`water.svg`); the default (no department context) collapses to `SVG/coin.svg` specifically — not `logo-lockups/collabrium-default-logo.svg`, which stays the expanded-state default per the Logo section above |
+| Toggle behavior — logo asset | ⚠️ **added 2026-08-04:** the logo's underlying image **asset must swap** on toggle, not just resize or reposition. Expanding swaps back to the full wordmark/lockup (`logo-lockups/`); collapsing swaps to the element icon/`coin.svg` (`SVG/`). Resizing the *same* wordmark asset down into the 72px rail (instead of swapping the source) is the bug this replaces — the wordmark doesn't fit and overflows the collapsed rail |
+| Collapsed — hover label | ⚠️ **changed 2026-08-04 — SidebarNav's own sub-pattern, no longer a reused [Tooltip](#tooltip) instance.** Appears on icon hover **or keyboard focus**, shows the full nav item label, positioned to the right of the icon: same bubble visuals as Tooltip (6px/10px padding, `radius-sm`, Neutral-7 fill, Neutral-1 text, caption/500, opacity-only transition, `pointer-events: none`) but built and owned independently, because Tooltip's own spec assumes a plain relatively-positioned trigger wrapper — that model doesn't survive being placed inside SidebarNav's own scrolling item list (a vertically-scrolling container's `overflow-x` is forced to clip too, per the CSS overflow spec, which silently cuts off anything trying to render past its edge). SidebarNav's hover label is implemented as a single element that positions itself against the hovered icon directly, escaping that scroll container rather than living inside it |
+| Transition | `width` — `var(--duration-slow) var(--ease-standard)` (`duration-slow`'s stated purpose is "panel / section reveals," an exact match; `ease-standard` since a sidebar collapse isn't owned by a specific brand element — per Motion's own rule, "reach for an elemental curve deliberately, not by default") |
+| Persistence | collapsed/expanded state saved to `localStorage`, restored on load |
+
+**Header logo rule — added 2026-08-04.**
+
+| Context | Logo |
+|---|---|
+| Default (expanded, no department context) | full Collabrium wordmark — `logo-lockups/collabrium-default-logo.svg` |
+| Department-specific (expanded, passed via prop) | the matching department's element-colored lockup from `logo-lockups/` (see the Logo section's table above — only the Gold/default variant currently exists; the other 4 are flagged not-yet-provided) |
+| Collapsed (any context) | individual department element icon, `SVG/{element}.svg`; default collapses to `SVG/coin.svg` specifically (same as the Collapsible state row above) |
+| Alignment | ⚠️ **revised 2026-08-04, twice.** Expanded: always left-aligned. Collapsed: **independently** center-aligned within the 72px rail (see the Collapsible state's "Collapsed — alignment" row above) — the toggle trigger sits on the same row but no longer shares this centered alignment, since it's now a floating overlay anchored to the rail's own right edge instead (see "Toggle trigger — collapsed," above). This corrects the interim "paired with the toggle trigger, centered together" rule, which itself had corrected the original "always left-aligned, expanded and collapsed alike" rule that didn't hold up at this width |
+
+**Do:** always reference the logo library (`logo-lockups/` expanded,
+`SVG/` collapsed) — never build or embed a custom one-off logo asset for
+a header.
+
+**Second-level navigation — added 2026-08-04.**
+
+⚠️ Distinct from the section-label Do/Don't above, which governs
+*section labels* grouping items (still capped at zero extra nesting).
+This is a separate structural concept — an individual **nav item**
+expanding to show its own **child items** — and is supported up to one
+level deep.
+
+| Part | Spec |
+|---|---|
+| Depth supported | 2 levels maximum (parent + children); a third level isn't supported — content needing 3 levels belongs in page-level Tabs or a sub-page instead |
+| Parent item | shows a trailing chevron, `chevron-down`/`chevron-up` — **Tier 1, Regular** (corrected 2026-08-04 alongside the Collapsible state's toggle trigger above: "chevron up/down" and "expand, collapse" are both Iconography's own Tier 1 examples, so this was never actually an exception) |
+| Expand trigger | ⚠️ **added 2026-08-04:** clicking anywhere on the parent item toggles it — not just the trailing chevron. The chevron swaps `chevron-down` ↔ `chevron-up` to reflect the parent's own open/closed state |
+| Expand behavior | accordion — children render inline below the parent, no separate panel/overlay. ⚠️ **Clarified 2026-08-04 — independent, not mutually exclusive:** each parent's open/closed state is its own; opening one parent does **not** close any other open parent. There's no single-open-at-a-time grouping in this spec |
+| Expand/collapse transition | ⚠️ **added 2026-08-04:** children reveal/hide via a height transition, `var(--duration-slow) var(--ease-standard)` — reuses the same "panel/section reveals" duration as the Collapsible state's own width transition above, and the same default (non-elemental) easing, since an accordion isn't owned by a specific brand element either |
+| Closing preserves state | ⚠️ **added 2026-08-04:** collapsing a parent doesn't reset which child was active — reopening it shows the same active child again, exactly as it was left |
+| Children width/indent | ⚠️ **changed 2026-08-04 — full width, not inset.** Children are no longer a narrower block indented from the icon column; each child item spans the same full width as any other Nav item, with spacing-16 (16px) left padding on the item itself doing the indent instead of an outer margin (replaces the earlier spacing-24 block-indent approach) |
+| Child item height | 36px (⚠️ a one-off literal value, not a named token — same precedent as Tooltip's 6px/10px padding and Checkbox's 6px radius: a smaller nested control gets its own compact size, smaller than the parent Nav item's 40px) |
+| Child item type | body2 (14px), weight 500 inactive, weight 700 active |
+| Active child | shows Nav item's own active state (Neutral-2 fill, Neutral-9 text, weight 700) |
+| Active parent with active child | parent shows weight 700 text, but **no** active fill — the fill signal stays exclusively on the active child, so the two don't both read as "selected" at once. ⚠️ **Clarified 2026-08-04 — the parent's weight-700 state is only ever a side effect of one of its own children being selected, never of clicking/expanding the parent header itself.** Expanding or collapsing a parent (Expand trigger, above) never changes anyone's active state on its own — it's a pure open/closed toggle. ⚠️ **Collapsed exception, added 2026-08-04:** this "text-only, no fill" treatment relies on the label, which is hidden entirely at 72px — with nothing else left to signal selection, the collapsed parent icon takes the normal Active fill instead (Neutral-2 background), same as any other active item gets. This doesn't reintroduce the "two things read as selected" problem the fill-less rule exists to avoid, because the active child isn't visible either while collapsed — there's nothing on screen to compete with |
+| Sidebar-wide exclusivity | ⚠️ **added 2026-08-04.** Exactly one destination is ever the active selection across the whole nav at a time — whether that's a top-level Nav item or a second-level child. Selecting any item (top-level or child) clears every other item's active state **and** any active child in any other (or the same) accordion panel first, so a plain Nav item and a leftover active child, or two different parents' active children, can never both read as "selected" simultaneously |
+| Collapsed sidebar | accordion closes, and the parent's own children are never shown while collapsed — the icon-hover label (Collapsible state, above) shows the parent's own label only, not its children. ⚠️ **Clarified 2026-08-04 — the parent icon stays clickable, it just does something different than expanded.** With no room to reveal children at 72px, clicking the parent icon isn't a dead click waiting for a rail width it'll never get: it routes straight to the parent's **first child** instead, selecting it as the sidebar's one active destination (same "click a group icon, land on its default sub-page" pattern collapsed rails commonly use) — the parent picks up its own active styling as the usual side effect of that child being selected, per the Active parent with active child row above |
+
+**Overflow behavior — added 2026-08-04.**
+
+- The nav item list scrolls (`overflow-y: auto`) once items exceed the
+  container's available height.
+- ⚠️ **Horizontal scroll is never permitted, in either state** — the
+  container's `overflow-x: hidden` (see Container row above) applies at
+  both the 240px expanded and 72px collapsed widths. Content that would
+  overflow horizontally (a long label, an unswapped logo asset) must wrap
+  or be resized to fit, never scroll sideways.
+- Scrollbar is hidden by default, visible on hover of the container —
+  ⚠️ **must overlay content, changed 2026-08-04:** implement as a thin
+  overlay scrollbar (e.g. `scrollbar-gutter` left unreserved, or an
+  absolutely-positioned custom thumb) that never reserves layout space.
+  Showing it on hover must not shift or shrink the nav items' own width
+  — that reads as content resizing under the cursor, which is the bug
+  this replaces.
+- Footer (existing optional sub-part above) is pinned outside the
+  scrolling region via its own `margin-top: auto` and never scrolls with
+  the item list.
+
+⚠️ **Needs Input — SidebarNav (added 2026-08-04).**
+- Mobile/responsive behavior — not yet defined, out of scope for v0.7.0.
+- Keyboard navigation (arrow keys, `Enter`, `Escape` on the accordion) —
+  to be defined in a future accessibility pass.
 
 ### Tabs
 
