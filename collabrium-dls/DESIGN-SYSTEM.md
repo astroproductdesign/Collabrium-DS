@@ -705,23 +705,30 @@ internals correctly. What was missing is the composition layer that
 says how those pieces combine into an actual screen. This section is
 that layer.
 
-**Canonical pattern: sidebar-only, no mandatory top bar.** [SidebarNav](#sidebarnav)
-already has its own Header slot (logo/workspace switcher) and Footer
-slot (account/profile) — that's a complete app frame without a second
-nav surface. A Top bar is an **optional addition**, only for
-global-scope controls the sidebar doesn't carry (search, notifications)
-— never a substitute for the sidebar, and never a place for primary
-navigation or a page title (that lives in Page header, below).
+**Canonical pattern: sidebar-only. No separate Top bar chrome — Page
+header is the top of every screen.** [SidebarNav](#sidebarnav) already
+has its own Header slot (logo/workspace switcher) and Footer slot
+(account/profile) — that's a complete app frame without a second nav
+surface. ⚠️ **Revised 2026-08-04:** an earlier draft of this section
+specced an optional Top bar (notifications, account menu) as a second
+piece of persistent chrome above the content. That's been dropped for
+now — no persistent bar runs across the top independent of the page's
+own content. Instead, **Page header**, below, *is* the top of the
+screen: full width, title/subtitle on the
+left, CTAs/actions right-aligned. Global-scope controls (notifications,
+account) have nowhere defined to live yet as a result — that's an
+explicit, acknowledged gap, not a silent omission; revisit this
+decision if/when the product actually needs them.
 
 **Page canvas:** `Canvas warm` `#FCFAF5` for the entire viewport
 background, per the Color Palette's Warm canvas rule (now default
-everywhere as of 2026-08-03). Sidebar and Top bar keep their own
-documented `Neutral-1` white fill — that's the intended figure-ground
-contrast against the canvas, not a mismatch to correct. Note the
-timing: that "warm everywhere" rule is one day old at the time of
-writing, so a build made before 2026-08-03 landing on plain white or
-grey product UI isn't a spec violation — it was correct under the rule
-that existed when it was built.
+everywhere as of 2026-08-03). Sidebar and Card keep their own documented
+`Neutral-1` white fill — that's the intended figure-ground contrast
+against the canvas, not a mismatch to correct. Note the timing: that
+"warm everywhere" rule is one day old at the time of writing, so a
+build made before 2026-08-03 landing on plain white or grey product UI
+isn't a spec violation — it was correct under the rule that existed
+when it was built.
 
 #### Sidebar placement (extends SidebarNav)
 
@@ -758,22 +765,6 @@ instead); below 768px, the sidebar becomes an off-canvas drawer — and
 border on all sides) actually applies, sliding in over the content with
 `shadow-4` beneath it.
 
-#### Top bar (new, optional)
-
-| Property | Value |
-|---|---|
-| Height | 64px — new token, not yet in [Spacing & Shape](#spacing--shape), needs review |
-| Fill / border | Neutral-1, 1px Neutral-3 bottom border — matches Card/Sidebar's chrome language |
-| Horizontal padding | `--page-gutter` (32px) — deliberately the same value as the Content region below it, so bar contents line up with the content edge rather than introducing a new alignment |
-| Left slot | empty by default; a page-context crumb only if the product genuinely needs one — never primary nav, never a duplicate of Sidebar's own Header logo |
-| Right slot | notification control + account control, right-aligned, `--element-gap` (8px) between them |
-| Notification dot | 8px circle, Danger red `#FD3343`, top-right of the bell icon, no border — new pattern, provisional |
-| Account control | avatar + name, opens an account menu — **depends on the still-unspecced Avatar component** (see gap notes). Until Avatar exists, use a 32px circle, Neutral-2 fill, Neutral-9 initials, `label2` weight, as an interim, not a final pattern |
-
-**Do:** treat Top bar as strictly optional and strictly global-scope.
-**Don't:** run Sidebar and Top bar as two competing primary-nav
-surfaces — pick one home for "where do I navigate" per screen, not both.
-
 #### Content region
 
 | Property | Value |
@@ -784,27 +775,32 @@ surfaces — pick one home for "where do I navigate" per screen, not both.
 | Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |
 | Grid gutter | spacing-16–20 between tiles in a stat-card row — pick one value per product and hold it, don't vary row to row |
 
-#### Page header (inside the content region)
+#### Page header — the top of every screen
 
 The title/subtitle/actions block every downstream build has been
-inventing from scratch — this gives it one shape.
+inventing from scratch — this gives it one shape, and — since the
+2026-08-04 revision above — it's also the *only* top-of-screen chrome
+the shell has, not a block nested below a separate bar.
 
 | Property | Value |
 |---|---|
+| Width | 100% of the main column (everything to the right of Sidebar) — full-bleed, matching Content region's own full-bleed rule, not a padded/inset block among the cards below it |
 | Title | h1 (32px/800) |
 | Subtitle | body2, Neutral-5, directly below the title |
-| Actions | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — a period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control |
+| Actions / CTAs | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — a period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control. Zero, one, or several CTAs are all valid; the row simply collapses when empty |
 | Gap to content below | `--section-gap` (48px) |
 
 **Do:** let Sidebar own primary navigation and its own Header/Footer
-slots before reaching for a Top bar. Keep the whole viewport on
-`Canvas warm` and let Sidebar/Top bar/Card read as white surfaces
+slots — there's no second nav surface to reach for. Keep the whole
+viewport on `Canvas warm` and let Sidebar/Card read as white surfaces
 against it — that contrast is the system now, not an inconsistency to
 fix. **Don't:** invent a new sidebar width, radius, or border treatment
 per app — 240px flush-rail is the one canonical shell; the
 floating-panel treatment (`radius-lg`, 4-sided border) is reserved for
-inset/off-canvas contexts only, never the primary rail. **Don't:** put
-primary navigation in both Sidebar and Top bar at once.
+inset/off-canvas contexts only, never the primary rail. **Don't:** add
+a persistent global top bar back in without revisiting the 2026-08-04
+decision above — if notifications or an account menu become a real
+requirement, that's a spec change, not a quiet addition on top of this.
 
 ### Button
 
@@ -1739,23 +1735,26 @@ rather than maintaining two token sources by hand:
   miss. The existing component tables weren't wrong — SidebarNav, Card,
   and Badge & Tag already specified their own internals correctly — the
   gap was that nothing said how those pieces combine into an actual
-  screen. App Shell defines: a canonical sidebar-only pattern (Top bar is
-  optional, global-scope only, never primary nav); a flush, full-height
-  **placement variant** of SidebarNav for the primary rail (240px, no
-  radius, right-edge border only) — SidebarNav's existing spec
-  (`radius-lg`, border on all four sides) is now documented as the
+  screen. App Shell defines: a canonical sidebar-only pattern; a flush,
+  full-height **placement variant** of SidebarNav for the primary rail
+  (240px, no radius, right-edge border only) — SidebarNav's existing
+  spec (`radius-lg`, border on all four sides) is now documented as the
   floating-panel/off-canvas variant, not a contradiction; a new Locked/
-  "Soon" nav-item state; a new Top bar spec (notification dot, account
-  control — the latter flagged as depending on the still-unspecced
-  Avatar component); Content region and Page header patterns. Every
-  value reuses existing spacing/radius/elevation/motion tokens — no new
-  scale was introduced, only two new dimensions (sidebar width was
-  already specced at 240px; Top bar height, new at 64px). Marked ⚠️
-  **designed, not transcribed**, same provisional status as the v0.8.0
-  batch. Also corrected in this pass: the Components section's own scope
-  note had undercounted for a full day (see the v0.8.3 entry below) —
-  exactly the kind of drift App Shell exists to prevent elsewhere, caught
-  here in the same file that names the problem.
+  "Soon" nav-item state; Content region; and Page header, promoted (in a
+  same-day revision, still within this draft) to be the shell's *only*
+  top-of-screen chrome, full width, in place of an initially-drafted
+  separate Top bar. That first draft's Top bar (notification dot,
+  account control depending on the still-unspecced Avatar component) was
+  cut before shipping — global-scope controls have nowhere defined to
+  live as a result, an acknowledged open gap rather than a silent one.
+  Every value reuses existing spacing/radius/elevation/motion tokens —
+  no new scale was introduced (sidebar width was already specced at
+  240px). Marked ⚠️ **designed, not transcribed**, same provisional
+  status as the v0.8.0 batch. Also corrected in this pass: the
+  Components section's own scope note had undercounted for a full day
+  (see the v0.8.3 entry below) — exactly the kind of drift App Shell
+  exists to prevent elsewhere, caught here in the same file that names
+  the problem.
 - **v0.8.3-draft — 2026-08-03** — Four changes shipped this day without a
   version bump at the time; reconstructed and folded in here
   retroactively so the changelog matches what the file actually says.

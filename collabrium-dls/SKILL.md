@@ -39,7 +39,8 @@ plus a Chart color mapping guideline, 4 more folded into Button/Input
 field on 2026-08-03 (Button's Icon-only variant, plus Input field's
 Textarea/Password field/Search input clear button siblings), and —
 **this pass, v0.9.0** — **App Shell**, the page-level composition layer
-(Sidebar placement, Top bar, Content region, Page header) covering how
+(Sidebar placement, Content region, Page header — no separate Top bar,
+Page header is the shell's only top-of-screen chrome) covering how
 everything else actually gets framed into a real screen. Each has
 copy-able markup. Use it as the reference implementation when building
 real screens, not just the spec tables. The v0.8.0 batch and App Shell
@@ -84,9 +85,9 @@ over mechanical ones (sync, deploy, restore).
   ramp in DESIGN-SYSTEM.md. Plus **warm canvas** (`#FCFAF5`/`#FAF7F2`) —
   ⚠️ **now the default page background everywhere as of 2026-08-03**,
   product UI included, not just brand/editorial. Component fills (cards,
-  inputs, sidebar, top bar) keep their own documented values, mostly
-  `Neutral-1` white, which now reads as a deliberate figure-ground
-  contrast against the warmer canvas.
+  inputs, sidebar) keep their own documented values, mostly `Neutral-1`
+  white, which now reads as a deliberate figure-ground contrast against
+  the warmer canvas.
 - **Brand accents (all confirmed canonical):** Orange `#FF5825`, Salmon
   Pink `#FF7A90`, Green `#00C26E`, Navy Blue `#1473E6`, Amber `#FFA425`.
   Each has an 8%/16% background-tint pair (`-bg`/`-bg-strong`) — the only
@@ -185,10 +186,15 @@ wrong but because nothing defined how they compose into an actual page.
 App Shell is that composition layer: a flush full-height placement
 variant of SidebarNav (240px, no radius, right-edge border only — the
 existing `radius-lg`/4-sided-border SidebarNav spec is now documented as
-the floating-panel/off-canvas variant, not the primary rail), a new
-optional Top bar for global-scope controls only, Content region, and
-Page header, all built from already-existing tokens with no new spacing/
-radius/elevation/motion values introduced. Also corrected in this pass:
+the floating-panel/off-canvas variant, not the primary rail), Content
+region, and Page header — promoted, in a same-day revision within this
+same draft, to be the shell's *only* top-of-screen chrome (full width,
+right-aligned CTA capability) after an initially-drafted separate Top
+bar was cut before shipping. Global-scope controls (notifications,
+account) have nowhere defined to live as a result — an acknowledged
+open gap, revisit if the product actually needs them. All built from
+already-existing tokens, no new spacing/radius/elevation/motion values
+introduced. Also corrected in this pass:
 the Components section's own scope note had undercounted for a full day
 (missing the four 2026-08-03 additions) — exactly the kind of drift App
 Shell exists to prevent, caught here as a reminder to keep it current
