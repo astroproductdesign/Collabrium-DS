@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.1-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
+**v0.9.2-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -683,8 +683,9 @@ sibling components (Textarea, Password field, Search input clear
 button) — all four dated 2026-08-03 in their own sections — plus **App
 Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
-gallery never had, and **Stepper** (v0.9.1) — a multi-step progress
-indicator, also designed from scratch with no source in either system.
+gallery never had, **Stepper** (v0.9.1) — a multi-step progress
+indicator, also designed from scratch with no source in either system —
+and **UserPicker** (v0.9.2), a searchable person picker, same status.
 This note existing-but-undercounting for a full day is itself the
 doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
@@ -720,6 +721,7 @@ through.
 - [Textarea](#textarea)
 - [Toast](#toast)
 - [Tooltip](#tooltip)
+- [UserPicker](#userpicker)
 
 ### App Shell
 
@@ -1165,6 +1167,39 @@ the two align in a form.
 **Do:** reuse Input field's border, radius, and type tokens so a form
 mixing single- and multi-line fields stays visually consistent. **Don't:**
 let the box shrink below its `min-height`, including mid-resize-drag.
+
+### UserPicker
+
+⚠️ **Designed 2026-08-04, v0.9.2 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Input field's box anatomy, Filters'/Date
+picker's popover convention, and Table row's hover treatment — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+Searches and selects a single person (an Account Executive, in this
+app) from a list — collapses to a compact summary once a value is set.
+
+| Part | Spec |
+|---|---|
+| Collapsed row | same box as Input field (40px height, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill, spacing-12 horizontal padding) so collapsing/expanding doesn't change footprint |
+| Avatar | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
+| Name | body2 (14px/20px), weight 700, Neutral-9, truncates with ellipsis |
+| Role | caption (12px), Neutral-5, directly below the name |
+| Clear (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+| Search input | Input field's own anatomy and states, including its 2px Obsidian focus-border swap (not the Water shadow-focus ring) |
+| Search icon | leading `magnifying-glass`, `icon-sm`, Neutral-5, **Tier 1, Regular** (search inside an input field, per Iconography) |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-8 below the trigger — same popover convention as Filters/Date picker |
+| Dropdown row | avatar + name + role, spacing-12 gap, spacing-8/spacing-12 padding, Neutral-2 fill on hover — same hover token as Table row |
+| Empty state | "No matches found", body2, Neutral-5, centered, spacing-16 padding |
+
+**Variants:** Collapsed (value set), Open — searching, Open — no results.
+
+**Do:** keep the collapsed row and the search input at the same 40px
+height so selecting/clearing a person doesn't reflow the surrounding
+layout. **Don't:** style the dropdown's empty state as a full [Empty
+state](#empty-state) (icon + heading + body) — it's an inline "nothing
+matched" message inside a compact popover, not a page-level empty
+state.
 
 ### Checkbox
 
@@ -1792,6 +1827,23 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.2-draft — 2026-08-04** — Added **UserPicker**, a searchable
+  input for finding and selecting a single person (an Account Executive,
+  in this app) — collapses to an avatar/name/role summary with a clear
+  action once a value is set. Designed from scratch, no source in either
+  the brand deck or the teammate's build; reuses Input field's box
+  anatomy and focus behavior, Filters'/Date picker's popover convention,
+  and Table row's hover treatment rather than inventing new patterns.
+  Built per the user's own 3-step process: component first
+  (`components/forms/UserPicker.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval — including a
+  mid-review fix (avatar initials moved from a literal monospace stack,
+  since this system has no `--font-mono` token, to `--font-primary` like
+  every other piece of text in the component) — then this spec, added
+  only after that preview was explicitly approved. Slotted alphabetically
+  into the Basics group (after Textarea) rather than a new category, same
+  call as Stepper's v0.7.0-batch placement. Updated the ToC and Scope
+  note to match.
 - **v0.9.1-draft — 2026-08-04** — Added **Stepper**, a multi-step
   progress indicator (Horizontal/Vertical orientation × optional
   per-step description, three states — Completed/Active/Upcoming).
