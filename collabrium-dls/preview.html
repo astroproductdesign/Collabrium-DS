@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.3-draft</title>
+<title>Collabrium design system | v0.9.4-draft</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -473,6 +473,60 @@
   .c-uploader-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
   .c-uploader-remove:hover{background:var(--color-neutral-2);}
 
+  /* MultiSelect — v0.9.4, designed not transcribed (supersedes an
+     earlier single-select DropdownMenuWithSelection draft on this same
+     file — replaced per explicit user direction)
+     Trigger default matches Button Secondary exactly (Neutral-1 fill,
+     1px Neutral-3 border, shadow-1, radius-md, md size). Has-Selection's
+     border swaps to 1px Obsidian, the same "holds a value" recipe
+     Filters' own Filter trigger — active state uses. Has selection shows
+     one Badge-Neutral chip per selected option's label (capped at 2,
+     then a "+N" overflow chip) instead of the placeholder, built on
+     Badge's real box model (22px, spacing-8 padding, radius-pill,
+     caption/700, nowrap, 1px border) rather than an ad-hoc chip — and
+     stays shown while open too, so the user can see what's active while
+     browsing the checklist. Each visible chip has its own 14px × to
+     remove just that option; the overflow "+N" chip has no × since it
+     doesn't represent one single, removable option. Open is 2px Obsidian
+     with padding reduced 1px/side to compensate, the same
+     swap-and-compensate pattern Input field's focus state uses. Dropdown
+     panel reuses Filters'/Date picker's popover convention (radius-md,
+     1px Neutral-3 border, shadow-3). Group labels reuse SidebarNav's own
+     Section label recipe (caption/700/tracking-eyebrow/uppercase/
+     Neutral-5), --font-primary same as every other piece of text in the
+     component. Checkbox rows reuse this system's own Checkbox component spec
+     exactly (18×18px, 6px radius, Obsidian border+fill when checked).
+     Footer reuses Button's Ghost/Primary variants at sm size with
+     Modal footer's divider convention. */
+  .c-ms{position:relative; display:inline-block;}
+  .c-ms-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); box-shadow:var(--shadow-1); cursor:pointer;}
+  .c-ms-trigger:hover{background:var(--color-neutral-2);}
+  .c-ms-trigger.has-selection{border-color:var(--color-obsidian);}
+  .c-ms-trigger.open{border:2px solid var(--color-obsidian); padding:0 15px;}
+  .c-ms-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--font-primary); font-size:16px; font-weight:700; color:var(--color-neutral-9);}
+  .c-ms-badge{flex:none; height:22px; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-5); border:1px solid var(--color-neutral-3); display:inline-flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
+  .c-ms-badge.removable{gap:4px; padding:0 4px 0 var(--spacing-8);}
+  .c-ms-badge-remove{flex:none; display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border:none; background:transparent; padding:0; color:var(--color-neutral-5); cursor:pointer;}
+  .c-ms-badge-remove i{font-size:10px;}
+  .c-ms-clear{flex:none; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+  .c-ms-chevron{flex:none; font-size:16px; color:var(--color-neutral-5); transition:transform var(--duration-fast) var(--ease-standard);}
+  .c-ms-trigger.open .c-ms-chevron{transform:rotate(180deg);}
+  .c-ms-panel{position:static; margin-top:var(--spacing-8); width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+  .c-ms-list{max-height:320px; overflow-y:auto; padding:var(--spacing-8) 0;}
+  .c-ms-divider{height:1px; background:var(--color-neutral-3); margin:var(--spacing-8) 0;}
+  .c-ms-group{padding:var(--spacing-4) var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+  .c-ms-row{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+  .c-ms-row:hover{background:var(--color-neutral-2);}
+  .c-ms-checkbox{flex:none; width:18px; height:18px; border-radius:6px; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; font-size:12px;}
+  .c-ms-checkbox.checked{border:none; background:var(--color-obsidian);}
+  .c-ms-row-label{font-family:var(--font-primary); font-size:var(--text-body1-size); font-weight:var(--text-body1-weight); color:var(--color-neutral-9);}
+  .c-ms-footer{display:flex; justify-content:space-between; gap:var(--spacing-8); padding:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+  .c-ms-footer button{height:32px; padding:0 var(--spacing-12); border:none; border-radius:var(--radius-sm); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:var(--text-label2-weight); cursor:pointer;}
+  .c-ms-footer .clear{background:transparent; color:var(--color-neutral-9);}
+  .c-ms-footer .clear:hover{background:var(--color-neutral-2);}
+  .c-ms-footer .done{background:var(--color-obsidian); color:var(--color-neutral-1);}
+  .c-ms-footer .done:hover{background:var(--color-neutral-8);}
+
   /* UserPicker — v0.9.2, designed not transcribed
      Collapsed row and the search input box share Input field's own
      anatomy (40px height, radius-sm, 1px Neutral-3 border) so the two
@@ -569,7 +623,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.3-draft</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.4-draft</span>
 </header>
 
 <div class="layout">
@@ -857,7 +911,7 @@
       <div class="shell">
         <p class="kicker">07 · Reference</p>
         <h2 class="section-title">Components</h2>
-        <p class="lede">Live reference for 28 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b>, and 7 more since &mdash; App Shell, Textarea, Password field, Search input clear button, Stepper, UserPicker, and FileUploader &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0/App Shell/Stepper/UserPicker/FileUploader additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
+        <p class="lede">Live reference for 29 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b>, and 8 more since &mdash; App Shell, Textarea, Password field, Search input clear button, Stepper, UserPicker, FileUploader, and MultiSelect &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0/App Shell/Stepper/UserPicker/FileUploader/MultiSelect additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
 
         <div class="comp-block" id="comp-appshell">
           <div class="comp-head"><h3>App Shell <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.0, designed not sourced</span></h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
@@ -1184,6 +1238,110 @@
                 </div>
               </div>
               <button class="c-btn c-btn-secondary c-btn-md c-modal-reopen" type="button">Reopen modal</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-multiselect">
+          <div class="comp-head"><h3>MultiSelect <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.4, designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-multiselect" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="align-items:flex-start; flex-wrap:wrap">
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger">
+                    <span class="c-ms-label">All brands</span>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has Selection</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger has-selection">
+                    <span class="c-ms-badge removable">Nescafé<button type="button" class="c-ms-badge-remove" aria-label="Remove Nescafé"><i class="ph ph-x"></i></button></span>
+                    <span class="c-ms-badge removable">Milo<button type="button" class="c-ms-badge-remove" aria-label="Remove Milo"><i class="ph ph-x"></i></button></span>
+                    <button type="button" class="c-ms-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has Selection &mdash; 3+ selected (overflow)</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger has-selection">
+                    <span class="c-ms-badge removable">Nescafé<button type="button" class="c-ms-badge-remove" aria-label="Remove Nescafé"><i class="ph ph-x"></i></button></span>
+                    <span class="c-ms-badge removable">Milo<button type="button" class="c-ms-badge-remove" aria-label="Remove Milo"><i class="ph ph-x"></i></button></span>
+                    <span class="c-ms-badge">+1</span>
+                    <button type="button" class="c-ms-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Open &mdash; nothing selected</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger open">
+                    <span class="c-ms-label">All brands</span>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                  <div class="c-ms-panel">
+                    <div class="c-ms-list">
+                      <div class="c-ms-group">FMCG</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Nescafé</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Milo</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Dutch Lady</span></label>
+                      <div class="c-ms-divider"></div>
+                      <div class="c-ms-group">Telco</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Celcom</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Maxis</span></label>
+                      <div class="c-ms-divider"></div>
+                      <div class="c-ms-group">Finance</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">CIMB</span></label>
+                    </div>
+                    <div class="c-ms-footer">
+                      <button type="button" class="clear">Clear</button>
+                      <button type="button" class="done">Done</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Open &mdash; has selection</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger open has-selection">
+                    <span class="c-ms-badge removable">Nescafé<button type="button" class="c-ms-badge-remove" aria-label="Remove Nescafé"><i class="ph ph-x"></i></button></span>
+                    <span class="c-ms-badge removable">Milo<button type="button" class="c-ms-badge-remove" aria-label="Remove Milo"><i class="ph ph-x"></i></button></span>
+                    <button type="button" class="c-ms-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                  <div class="c-ms-panel">
+                    <div class="c-ms-list">
+                      <div class="c-ms-group">FMCG</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox checked"><i class="ph-fill ph-check"></i></span><span class="c-ms-row-label">Nescafé</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox checked"><i class="ph-fill ph-check"></i></span><span class="c-ms-row-label">Milo</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Dutch Lady</span></label>
+                      <div class="c-ms-divider"></div>
+                      <div class="c-ms-group">Telco</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Celcom</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Maxis</span></label>
+                      <div class="c-ms-divider"></div>
+                      <div class="c-ms-group">Finance</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">CIMB</span></label>
+                    </div>
+                    <div class="c-ms-footer">
+                      <button type="button" class="clear">Clear</button>
+                      <button type="button" class="done">Done</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -1903,7 +2061,7 @@ going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.3-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
+**v0.9.4-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2588,9 +2746,11 @@ Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
 gallery never had, **Stepper** (v0.9.1) — a multi-step progress
 indicator, also designed from scratch with no source in either system —
-**UserPicker** (v0.9.2), a searchable person picker, same status — and
+**UserPicker** (v0.9.2), a searchable person picker, same status —
 **FileUploader** (v0.9.3), click-to-browse/drag-and-drop file
-attachment, also designed from scratch with no source in either system.
+attachment, same status — and **MultiSelect** (v0.9.4), a grouped
+checkbox dropdown with removable selection chips, also designed from
+scratch with no source in either system.
 This note existing-but-undercounting for a full day is itself the
 doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
@@ -2613,6 +2773,7 @@ through.
 - [Filters](#filters)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
+- [MultiSelect](#multiselect)
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Radio](#radio)
@@ -3032,6 +3193,42 @@ on the left of it, matching the button order convention above. **Don't:**
 use a modal for anything that isn't a focused, single decision — long
 forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone).
+
+### MultiSelect
+
+⚠️ **Designed 2026-08-04, v0.9.4 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Button Secondary, Filters' trigger/popover
+patterns, Badge's box model, and this system's own Checkbox spec — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A trigger button that opens a grouped checkbox list for selecting
+multiple options — the trigger reflects the current selection as
+individually-removable chips.
+
+| Part | Spec |
+|---|---|
+| Trigger — default | matches Button Secondary exactly: Neutral-1 fill, 1px Neutral-3 border, `shadow-1`, `radius-md`, md size (40px height, spacing-16 padding, 16px type) |
+| Trigger — has selection | border swaps to 1px Obsidian, the same "holds a value" recipe Filters' own Filter trigger — active state uses |
+| Trigger — open | 2px Obsidian border, padding reduced 1px/side to compensate — the same swap-and-compensate pattern Input field's focus state uses; chevron rotates 180° via CSS `transform` |
+| Selection chips | one Badge-Neutral chip per selected option's label (22px tall, spacing-8 padding, `radius-pill`, caption/700, 1px Neutral-3 border) instead of the placeholder — stay visible whether the menu is open or closed, capped at 2 visible then a "+N" overflow chip |
+| Chip remove (×) | 14px `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography), stops click propagation so it never reopens/toggles the menu; the overflow "+N" chip has no × since it isn't one single removable option |
+| Clear-all (×) | 20×20px hit target, Neutral-5, same propagation-stopping behavior, clears every selection at once |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill — same popover convention as Filters/Date picker |
+| Group label | caption (12px), weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — same recipe as SidebarNav's own Section label |
+| Group divider | 1px Neutral-3 line between groups |
+| Checkbox row | reuses this system's own Checkbox spec exactly: 18×18px box, 6px radius, 1px Neutral-3 border unchecked, Obsidian border+fill checked, `icon-micro` check glyph in Neutral-1; Neutral-2 fill on hover, same token as Table row's own hover |
+| Footer | Ghost "Clear" + Primary "Done", space-between, `spacing-8` gap, 1px Neutral-3 top border, `spacing-12` padding — Modal footer's divider convention at a smaller scale |
+
+**Variants:** Default, Has Selection, Open — nothing selected, Open —
+has selection.
+
+**Do:** let the footer's Clear empty the selection while leaving the
+menu open (so more options can be picked), and let Done close the menu
+without touching the selection — they're deliberately different scopes.
+**Don't:** give the overflow "+N" chip its own remove control — it
+doesn't correspond to one option, only the clear-all can remove what it
+represents.
 
 ### Password field
 
@@ -3765,6 +3962,30 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
+  button that opens a grouped checkbox list for selecting multiple
+  options — the trigger reflects the current selection as
+  individually-removable Badge-Neutral chips (capped at 2, then a "+N"
+  overflow chip), visible whether the menu is open or closed. Designed
+  from scratch, no source in either the brand deck or the teammate's
+  build; reuses Button Secondary for the default trigger, Filters'
+  trigger/popover conventions, Badge's real box model for the chips, and
+  this system's own Checkbox spec for the rows, rather than inventing
+  new patterns. Built per the user's own 3-step process: component first
+  (`components/forms/DropdownMenuWithSelection.tsx` — file path kept
+  from an earlier single-select draft on the same file, replaced per
+  explicit user direction; the exported component/types are
+  `MultiSelect`/`MultiSelectOption`/`MultiSelectProps`), then a live
+  preview in `preview.html`'s Components gallery for approval — through
+  several rounds of review (Badge-based selection display instead of a
+  plain count, dynamic "{count} selected" trigger copy, removing the
+  count badge from the open states, then individually-removable
+  per-item chips that stay visible while open, which superseded the
+  count-badge/text approach) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  Basics group (between Modal / dialog and Password field) rather than
+  a new category, same call as Stepper's/UserPicker's/FileUploader's own
+  placements. Updated the ToC and Scope note to match.
 - **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
   click-to-browse/drag-and-drop attachment control — attached files list
   as rows below the drop zone with a kind badge, name, size, and a

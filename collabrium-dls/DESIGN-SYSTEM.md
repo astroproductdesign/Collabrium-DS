@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.3-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
+**v0.9.4-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -685,9 +685,11 @@ Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
 gallery never had, **Stepper** (v0.9.1) — a multi-step progress
 indicator, also designed from scratch with no source in either system —
-**UserPicker** (v0.9.2), a searchable person picker, same status — and
+**UserPicker** (v0.9.2), a searchable person picker, same status —
 **FileUploader** (v0.9.3), click-to-browse/drag-and-drop file
-attachment, also designed from scratch with no source in either system.
+attachment, same status — and **MultiSelect** (v0.9.4), a grouped
+checkbox dropdown with removable selection chips, also designed from
+scratch with no source in either system.
 This note existing-but-undercounting for a full day is itself the
 doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
@@ -710,6 +712,7 @@ through.
 - [Filters](#filters)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
+- [MultiSelect](#multiselect)
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Radio](#radio)
@@ -1129,6 +1132,42 @@ on the left of it, matching the button order convention above. **Don't:**
 use a modal for anything that isn't a focused, single decision — long
 forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone).
+
+### MultiSelect
+
+⚠️ **Designed 2026-08-04, v0.9.4 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Button Secondary, Filters' trigger/popover
+patterns, Badge's box model, and this system's own Checkbox spec — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A trigger button that opens a grouped checkbox list for selecting
+multiple options — the trigger reflects the current selection as
+individually-removable chips.
+
+| Part | Spec |
+|---|---|
+| Trigger — default | matches Button Secondary exactly: Neutral-1 fill, 1px Neutral-3 border, `shadow-1`, `radius-md`, md size (40px height, spacing-16 padding, 16px type) |
+| Trigger — has selection | border swaps to 1px Obsidian, the same "holds a value" recipe Filters' own Filter trigger — active state uses |
+| Trigger — open | 2px Obsidian border, padding reduced 1px/side to compensate — the same swap-and-compensate pattern Input field's focus state uses; chevron rotates 180° via CSS `transform` |
+| Selection chips | one Badge-Neutral chip per selected option's label (22px tall, spacing-8 padding, `radius-pill`, caption/700, 1px Neutral-3 border) instead of the placeholder — stay visible whether the menu is open or closed, capped at 2 visible then a "+N" overflow chip |
+| Chip remove (×) | 14px `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography), stops click propagation so it never reopens/toggles the menu; the overflow "+N" chip has no × since it isn't one single removable option |
+| Clear-all (×) | 20×20px hit target, Neutral-5, same propagation-stopping behavior, clears every selection at once |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill — same popover convention as Filters/Date picker |
+| Group label | caption (12px), weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — same recipe as SidebarNav's own Section label |
+| Group divider | 1px Neutral-3 line between groups |
+| Checkbox row | reuses this system's own Checkbox spec exactly: 18×18px box, 6px radius, 1px Neutral-3 border unchecked, Obsidian border+fill checked, `icon-micro` check glyph in Neutral-1; Neutral-2 fill on hover, same token as Table row's own hover |
+| Footer | Ghost "Clear" + Primary "Done", space-between, `spacing-8` gap, 1px Neutral-3 top border, `spacing-12` padding — Modal footer's divider convention at a smaller scale |
+
+**Variants:** Default, Has Selection, Open — nothing selected, Open —
+has selection.
+
+**Do:** let the footer's Clear empty the selection while leaving the
+menu open (so more options can be picked), and let Done close the menu
+without touching the selection — they're deliberately different scopes.
+**Don't:** give the overflow "+N" chip its own remove control — it
+doesn't correspond to one option, only the clear-all can remove what it
+represents.
 
 ### Password field
 
@@ -1862,6 +1901,30 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
+  button that opens a grouped checkbox list for selecting multiple
+  options — the trigger reflects the current selection as
+  individually-removable Badge-Neutral chips (capped at 2, then a "+N"
+  overflow chip), visible whether the menu is open or closed. Designed
+  from scratch, no source in either the brand deck or the teammate's
+  build; reuses Button Secondary for the default trigger, Filters'
+  trigger/popover conventions, Badge's real box model for the chips, and
+  this system's own Checkbox spec for the rows, rather than inventing
+  new patterns. Built per the user's own 3-step process: component first
+  (`components/forms/DropdownMenuWithSelection.tsx` — file path kept
+  from an earlier single-select draft on the same file, replaced per
+  explicit user direction; the exported component/types are
+  `MultiSelect`/`MultiSelectOption`/`MultiSelectProps`), then a live
+  preview in `preview.html`'s Components gallery for approval — through
+  several rounds of review (Badge-based selection display instead of a
+  plain count, dynamic "{count} selected" trigger copy, removing the
+  count badge from the open states, then individually-removable
+  per-item chips that stay visible while open, which superseded the
+  count-badge/text approach) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  Basics group (between Modal / dialog and Password field) rather than
+  a new category, same call as Stepper's/UserPicker's/FileUploader's own
+  placements. Updated the ToC and Scope note to match.
 - **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
   click-to-browse/drag-and-drop attachment control — attached files list
   as rows below the drop zone with a kind badge, name, size, and a
