@@ -9,8 +9,7 @@ your output.
 
 Collabrium renders on a near-black-on-warm-canvas interface (Neutral-9
 text on the `Canvas warm` `#FCFAF5` background — see [Color
-Palette](#color-palette); ⚠️ rule changed 2026-08-03, was pure white
-`Neutral-1`) that reads as calm and product-grade rather than as a
+Palette](#color-palette)) that reads as calm and product-grade rather than as a
 marketing surface — this is a dense, multi-department dashboard, not a
 landing page. Mulish carries every functional string *and every
 heading* (800 ExtraBold, letter-spacing 0): labels, buttons, tables,
@@ -22,8 +21,7 @@ one-to-one to a five-element metaphor and a department cluster; they
 classify what something belongs to, they never mean "click me" —
 Obsidian `#2B2B2C` is the system's only actionable color, and every
 screen earns exactly one Primary button. Shapes are **soft and
-generous** (20px cards, 16px buttons, 12px inputs — corrected in v0.6.0
-from an earlier, much tighter guess), and elevation is a real
+generous** (20px cards, 16px buttons, 12px inputs), and elevation is a real
 Neutral-4-based shadow ladder used routinely, not just on modals —
 cards carry `shadow-1` at rest.
 
@@ -38,17 +36,17 @@ changelog when you do.
 
 | # | Gap | What's happening | Placeholder in use |
 |---|-----|-------------------|---------------------|
-| 1 | Pink hex conflict | Deck lists Pink `#FF4BB9` on one slide and Salmon Pink `#FF7A90` (tied to the Wood element + department system) on another, more developed slide; the real logo asset added in v0.4.0 also shipped with a third value (`#FFA6A8`) | **✅ Resolved 2026-07-29** — user confirmed this document is the canonical source; `#FF7A90` is final. The logo asset (`logo.html`) has been corrected to match. |
-| 2 | Functional green hex | Deck lists functional Green as `#FD3343`, identical to the Red error color — almost certainly a copy/paste typo; the real logo asset added in v0.4.0 also shipped with a third value (`#00D97B`) for its Earth frame | **✅ Resolved 2026-07-29** — user confirmed this document is the canonical source; `#00C26E` is final. The logo asset (`logo.html`) has been corrected to match. |
-| 3 | No numeric type scale | Typescale tokens had use cases but no sourced size/weight/line-height/letter-spacing — v0.1-v0.5 used an invented guess | **✅ Resolved 2026-07-29 (v0.6.0)** — sourced from a teammate's fuller deck extraction; see [Typescale](#typescale--needs-input-3--resolved-v060) and [Reconciliation](#reconciliation--teammates-design-system) |
-| 4 | No spacing scale | Only "4px base unit, 16px card padding, 8px gap" mentioned — v0.1-v0.5 used an invented 9-step guess | **✅ Resolved 2026-07-29 (v0.6.0)** — real scale sourced from the teammate's extraction; see [Spacing](#spacing--needs-input-4--resolved-v060) |
-| 5 | No border-radius values | No numbers in the deck as originally read — v0.1-v0.5 used an invented flat 4/8/12px guess | **✅ Resolved 2026-07-29 (v0.6.0)** — real per-surface radii (12/16/20px) sourced from the teammate's extraction; see [Radius](#radius--needs-input-5--resolved-v060) |
+| 1 | Pink hex conflict | Deck lists Pink `#FF4BB9` on one slide and Salmon Pink `#FF7A90` (tied to the Wood element + department system) on another, more developed slide; the real logo asset shipped with a third value (`#FFA6A8`) | **✅ Resolved** — user confirmed this document is the canonical source; `#FF7A90` is final. The logo asset (`logo.html`) has been corrected to match. See [Changelog](#changelog). |
+| 2 | Functional green hex | Deck lists functional Green as `#FD3343`, identical to the Red error color — almost certainly a copy/paste typo; the real logo asset shipped with a third value (`#00D97B`) for its Earth frame | **✅ Resolved** — user confirmed this document is the canonical source; `#00C26E` is final. The logo asset (`logo.html`) has been corrected to match. See [Changelog](#changelog). |
+| 3 | No numeric type scale | Typescale tokens had use cases but no sourced size/weight/line-height/letter-spacing — an earlier draft used an invented guess | **✅ Resolved** — sourced from a teammate's fuller deck extraction; see [Typescale](#typescale) and [Reconciliation](#reconciliation--teammates-design-system) |
+| 4 | No spacing scale | Only "4px base unit, 16px card padding, 8px gap" mentioned — an earlier draft used an invented 9-step guess | **✅ Resolved** — real scale sourced from the teammate's extraction; see [Spacing](#spacing--shape) |
+| 5 | No border-radius values | No numbers in the deck as originally read — an earlier draft used an invented flat 4/8/12px guess | **✅ Resolved** — real per-surface radii (12/16/20px) sourced from the teammate's extraction; see [Radius](#spacing--shape) |
 | 6 | No accessibility targets | Section exists with blank fields (min body text, min contrast, max line length) | WCAG 2.1 AA defaults proposed in [Accessibility](#accessibility) |
-| 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | First full draft (v0.2.0) in [Components](#components)/[Component Rules](#component-rules), now also **live-rendered** in `preview.html`'s Components section (v0.5.0) with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
-| 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
+| 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | Full spec in [Components](#components)/[Component Rules](#component-rules), also **live-rendered** in `preview.html`'s Components section with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
+| 8 | No final logo asset | A real animated wordmark + mark SVG (`logo.html`, trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The ink-color discrepancy between the static lockup and the animated mark is **resolved** — both use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
-| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved 2026-08-04** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
-| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split (2026-07-31), with no cited source (deck or teammate build) | **Resolved 2026-07-31** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery (~40 icons across all 21 components) have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
+| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
+| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
 
 ---
 
@@ -78,8 +76,8 @@ briefing a system. Favor warm, human verbs (*see, share, meet in the
 middle*) over mechanical ones (*sync, deploy, restore*). Keep it short and
 plain — confidence doesn't need extra words.
 
-**Content rules ✅ (enriched v0.6.0, sourced from the teammate's
-extraction):**
+**Content rules** (sourced from the teammate's
+extraction):
 - **Person.** Second person for the reader ("Nothing waiting on you"),
   first-person plural only for the system's own actions ("We'll try
   again in a minute"). Never "the user."
@@ -143,16 +141,13 @@ extraction):**
 | Neutral-2 | `#f0f0f0` | Subtle background tint — alternating sections, card hover, input fills |
 | Neutral-1 | `#ffffff` | Card surfaces, button text on dark fills, inverted text — no longer the page canvas (see Warm canvas below) |
 
-### Warm canvas ⚠️ Rule changed 2026-08-03 (added in v0.6.0)
+### Warm canvas
 
-**Now the default page canvas everywhere** — product UI (app/dashboard
+**The default page canvas everywhere** — product UI (app/dashboard
 screens) and brand/editorial contexts (decks, landing pages, type
-specimens, printed collateral) alike. This reverses the original v0.6.0
-rule, which restricted this surface to brand/editorial only and kept
-product UI on pure white (`Neutral-1`); see the Overview above and
-Component Rules/Guidelines below, all updated to match. Component fills
-(cards, inputs, and so on) are **not** affected by this change — they
-keep their own documented values, mostly `Neutral-1` white, which now
+specimens, printed collateral) alike. Component fills
+(cards, inputs, and so on) are **not** affected by this — they
+keep their own documented values, mostly `Neutral-1` white, which
 sits as a deliberate figure-ground contrast against this warmer page
 background instead of blending into a same-white canvas.
 
@@ -161,7 +156,7 @@ background instead of blending into a same-white canvas.
 | Canvas warm | `#FCFAF5` | Page canvas — the default background for every screen, product and editorial alike |
 | Canvas warm card | `#FAF7F2` | Fill for a surface that's meant to blend into the warm canvas (e.g. a quote block, a featured stat) rather than stand apart from it |
 
-### Elemental background tints ✅ (new in v0.6.0)
+### Elemental background tints
 
 **These are the only permitted coloured backgrounds in the system.** A
 surface may take a background colour, but only the lightest shade of the
@@ -200,9 +195,8 @@ fields, table content, captions, metadata, small UI labels. Keep in the
 Font License 1.1, free, self-hosting and commercial use permitted, no
 attribution required.
 
-**Secondary — Source Serif 4.** ⚠️ **Corrected in v0.6.0** — this is
-*not* the display/heading font, as earlier drafts of this document
-wrongly implied. Mulish owns the heading tokens. Source Serif 4 is a
+**Secondary — Source Serif 4.** This is
+*not* the display/heading font. Mulish owns the heading tokens. Source Serif 4 is a
 deliberate **overlay for brand-statement moments only**: pitch-deck
 ledes, brand story copy, pull quotes, and hero display numerals. Rules:
 never below ~18–20px; never mix fonts inside a single sentence
@@ -228,16 +222,14 @@ website can — that's a hard, universal security boundary, not something
 specific to this page), so after downloading, the last step is always
 manual: double-click each `.ttf` and confirm "Install Font."
 
-### Typescale ✅ (Needs Input #3 — resolved v0.6.0)
+### Typescale
 
 Every token below is Mulish (Primary) at letter-spacing 0 unless noted.
-Values are sourced, not guessed: they were corrected in v0.6.0 against a
+Values are sourced, not guessed: they come from a
 teammate's independent extraction of the same source deck (see
-[Reconciliation](#reconciliation--teammates-design-system)). What changed
-from the earlier draft: heading weights went 600 → **800**, negative
-letter-spacing was removed entirely, sizes shifted down (display 56 →
-40), `display` moved from Secondary to Primary font, and a **responsive
-`-lg` tier** was added for ≥1280px viewports.
+[Reconciliation](#reconciliation--teammates-design-system)). Heading weights are **800**
+at letter-spacing 0, `display` uses the Primary font, and there's a
+**responsive `-lg` tier** for ≥1280px viewports.
 
 | Token | Size | Line-height | Size (lg) | Line-height (lg) | Weight | Use case |
 |---|---|---|---|---|---|---|
@@ -274,11 +266,10 @@ canonical — logo wordmark should be neither font per the deck's own
 
 ## Iconography
 
-⚠️ **Weight policy changed 2026-07-31 — see gap notes below before treating
-as final.** Collabrium icons are bold, chunky silhouettes with rounded,
+Collabrium icons are bold, chunky silhouettes with rounded,
 organic forms, from a two-library system in **two weights** — the weight is
-decided by what the icon *does*, not by taste. This replaces the earlier
-"Fill exclusively, no outlines" rule; see [Needs Input #11](#needs-input-read-this-first).
+decided by what the icon *does*, not by taste. See [Needs Input #11](#needs-input-read-this-first)
+for open judgment calls on this split.
 
 - **Primary — Phosphor** (phosphoricons.com, MIT License, free). Both weight
   stylesheets load together: Regular for Tier 1 icons, Fill for Tier 2 (see
@@ -342,12 +333,10 @@ surface where that element's color is already established.
 
 ## Spacing & Shape
 
-### Spacing ✅ (Needs Input #4 — resolved v0.6.0)
+### Spacing
 
 Base unit 4px. Tokens are **value-named** (`spacing-16` = 16px) rather
-than step-numbered, matching the source scale exactly. Corrected v0.6.0:
-the real scale includes 20px and 40px steps the earlier draft missed, and
-tops out at 120px rather than 96px.
+than step-numbered, matching the source scale exactly.
 
 | Token | Value | Purpose |
 |---|---|---|
@@ -371,10 +360,9 @@ code — they say *why*, not just how much.
 (settings forms, detail panels). Collabrium is a product surface, so most
 layouts run full-bleed within the app shell rather than centering.
 
-### Radius ✅ (Needs Input #5 — resolved v0.6.0)
+### Radius
 
-⚠️ **The earlier 4/8/12px scale was wrong** — a guess, and much too
-tight. Collabrium is a distinctly **soft-cornered** system: 20px on
+Collabrium is a distinctly **soft-cornered** system: 20px on
 cards, 16px on buttons. Radius is specified **per surface**, not as one
 abstract ramp.
 
@@ -390,9 +378,9 @@ abstract ramp.
 see [Component Rules](#component-rules), Rule 1. Never go below 12px on
 an interactive surface; sharp corners are off-brand here.
 
-### Elevation ✅ (corrected v0.6.0)
+### Elevation
 
-⚠️ **The earlier "flat by default" policy was wrong.** Collabrium has a
+Collabrium has a
 real shadow ladder and uses it routinely — cards carry `shadow-1` at
 rest, not just a border. Every shadow is built on **Neutral-4
 (`#bdbdbd`), never black** — that's what keeps them soft and on-brand.
@@ -408,13 +396,13 @@ rest, not just a border. Every shadow is built on **Neutral-4
 | shadow-focus | `0 0 0 3px rgba(20,115,230,.28)` | Focus ring (Water-based) |
 | shadow-overlay | `rgba(8,8,8,.56)` | Modal scrim (a fill, not a shadow) |
 
-**Focus rings are Water (Navy), not Obsidian** — corrected v0.6.0. This
+**Focus rings are Water (Navy), not Obsidian.** This
 is the one place an element color legitimately drives an interactive
 state.
 
-### Motion ✅ (new in v0.6.0)
+### Motion
 
-Previously undocumented — this section didn't exist before. The
+The
 governing principle: **"Movement settles; it never bounces."** No
 overshoot, no elastic easing.
 
@@ -461,7 +449,7 @@ Palette](#color-palette)).
 
 ### Default static lockup — `logo-lockups/collabrium-default-logo.svg`
 
-⚠️ **New 2026-07-31 — further resolves Needs Input #8.** A combined,
+A combined,
 non-animated wordmark lockup, with the "O" rendered as a solid Gold/Amber
 `#FFA425` ring rather than the animated filmstrip. This is the asset for
 any context that can't run `logo.html`'s animation (favicons, print,
@@ -482,35 +470,18 @@ to that department's own element-colored lockup instead:
 | Water | Data · Logistics · Exec | `logo-lockups/water.svg` — not yet provided |
 | Earth | HR · CS · Admin | `logo-lockups/earth.svg` — not yet provided |
 
-✅ **Ink-color discrepancy, resolved 2026-07-31:** `logo.html`'s wordmark
-was rebuilt on a new font (see below) and now uses `#2B2B2C` (Obsidian),
-matching this lockup exactly. The two logo assets no longer disagree on
-wordmark black.
+`logo.html`'s wordmark and this lockup both use `#2B2B2C` (Obsidian) — the two
+logo assets agree on wordmark black.
 
 **The real asset — `logo.html`.** A working animated wordmark exists in
 this folder: the word "COLLABRIUM" with the O rendered as a looping
-filmstrip. **Trimmed 2026-07-31** to the 5 documented elements only, in
-a fixed sequence — **Gold → Water → Wood → Fire → Earth** — rather than
-cycling through all 5 plus 4 extra decorative frames. The previous
-9-frame loop (which also included sun, moon, cloud, mountain —
-**motion-graphic variety only**, never part of the 5-element/department
-classification system) has been replaced; those 4 decorative frames are
-no longer in the animation at all. The Gold frame's artwork is now
+filmstrip, in a fixed sequence — **Gold → Water → Wood → Fire → Earth**
+— matching the 5 documented elements. The Gold frame's artwork is
 `coin.svg`, not the `gold.svg` bracket icon used elsewhere in this
 system (Color Palette, ElementBadge, sidebar-nav dots, etc.) — see the
-Vector source library note below for why. The source asset originally
-shipped with a visible element-name label and a play/pause control; both
-were removed at the user's request (2026-07-29) so the file embeds as a
-clean, always-animating mark with no dev/debug UI. **Rebuilt on a new
-font 2026-07-31:** every static letter's path data was replaced, kerning
-recalculated from the new letterforms' widths (consistent 8px gaps, same
-convention as before), and the wordmark's ink color changed from
-`#2F2F2F` to `#2B2B2C` (Obsidian) to match the new font's source files
-— see the Default static lockup section above for why that resolves a
-previously-flagged discrepancy. As received, two of the five element
-frames used off-palette hex values (Wood `#FFA6A8`, Earth `#00D97B`);
-both were corrected to the canonical values in this document (`#FF7A90`,
-`#00C26E` — see Needs Input #1/#2, resolved) before the frame-trim above.
+Vector source library note below for why. The file embeds as a
+clean, always-animating mark with no dev/debug UI (no visible
+element-name label or play/pause control).
 
 **Vector source library — `SVG/`.** This folder holds the individual
 vector files `logo.html` is assembled from — confirmed by diffing them
@@ -523,20 +494,16 @@ single-element icon on its own, print work).
 - **Wordmark letters (8 files):** `a.svg`, `b.svg`, `c.svg`, `i.svg`,
   `l.svg`, `m.svg`, `r.svg`, `u.svg` — every unique letter in
   "C•LLABRIUM" except the O, which is the animated element mark, not a
-  static letter. **Replaced 2026-07-31** with a new font — new path data,
-  new dimensions per letter, `fill` changed from `#2F2F2F` to `#2B2B2C`.
+  static letter.
 - **Element icons (10 files):** `fire.svg`, `wood.svg`, `earth.svg`,
   `water.svg` (4 of the 5 documented elements, all used live in
   `logo.html`'s animation) plus `sun.svg`, `moon.svg`, `cloud.svg`,
-  `mountain.svg` (decorative-only, **no longer used in `logo.html` as of
-  2026-07-31** — the animation was trimmed to 5 frames, see above) and
-  `coin.svg`. ✅ **`coin.svg`'s role resolved 2026-07-31** — it's now the
-  Gold frame's artwork in `logo.html`'s animation, replacing `gold.svg`
-  there. `gold.svg` (the bracket-shaped icon) remains the Gold element
-  icon used everywhere *else* in this system (Color Palette, ElementBadge,
-  sidebar-nav dots, Chart color mapping) — the two are deliberately
-  different assets for different purposes now, not a duplicate to
-  reconcile.
+  `mountain.svg` (decorative-only, not used in `logo.html`'s animation)
+  and `coin.svg` — the Gold frame's artwork in `logo.html`'s animation,
+  replacing `gold.svg` there. `gold.svg` (the bracket-shaped icon)
+  remains the Gold element icon used everywhere *else* in this system
+  (Color Palette, ElementBadge, sidebar-nav dots, Chart color mapping) —
+  the two are deliberately different assets for different purposes.
 - **Motive variants (5 files):** `motive sun.svg` and `motive moon.svg`
   are byte-identical duplicates of `sun.svg`/`moon.svg` (no actual
   difference). `motive water.svg`, `motive cloud.svg`, and
@@ -588,7 +555,7 @@ before treating as policy.
 
 ## Technical Implementation
 
-⚠️ **Needs Input #10 — partially resolved 2026-08-04.** The deck's
+⚠️ **Needs Input #10 — partially resolved.** The deck's
 original blank fields (loading strategy, `font-display` value, file
 formats served, design tokens/CSS variable format) needed engineering
 input, not a design guess — that's still true for loading strategy and
@@ -599,11 +566,8 @@ below for exactly what a consuming project needs and in what order.
 
 ### Using this system in an existing project
 
-Prompted by a real integration failure (2026-08-04): a teammate applied
-this system to an existing project and colors, pills, and icons didn't
-render — not because any component rule was wrong, but because nothing
-documented what a consuming project actually needs to load. Five files,
-needed together, in this order:
+A project adopting this system needs five files, together, in this order,
+or colors, pills, and icons won't render correctly:
 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -620,7 +584,7 @@ needed together, in this order:
 | 1 | Google Fonts — Mulish + Source Serif 4 | the two typefaces | text falls back to a system font — doesn't crash, just doesn't look right |
 | 2–3 | Phosphor Icons, **both** the Regular and Fill stylesheets, pinned to `@2.1.1` | every icon in every component (see [Iconography](#iconography)'s two-tier weight system — both weights are genuinely needed, not one-or-the-other) | icon classes (`ph-house`, `ph-fill ph-house`) render as an empty box — this was the literal "icons not pulling" report |
 | 4 | `tokens.css` | every color/spacing/radius/shadow/motion value, as CSS custom properties | components render with no color, no radius, no spacing — everything collapses to unstyled browser defaults |
-| 5 | `components.css` | the actual component CSS rules (`.c-btn`, `.c-badge`, `.c-card`, etc.) — extracted 2026-08-04 from `preview.html`'s own inline styles, where it previously had no separate, importable copy | this is the one that broke first: markup copied from `preview.html`'s "Copy markup" buttons had class names with no CSS behind them anywhere else, so nothing was styled at all |
+| 5 | `components.css` | the actual component CSS rules (`.c-btn`, `.c-badge`, `.c-card`, etc.) | markup copied from `preview.html`'s "Copy markup" buttons has class names with no CSS behind them anywhere else, so nothing is styled at all |
 
 `components.css` depends on `tokens.css` — every rule in it references
 a `var(--token-name)`, none are hardcoded — so load `tokens.css` first,
@@ -681,7 +645,7 @@ one consistent product, not ten dialects.
 
 ## Components
 
-⚠️ **First full draft (v0.2.0) — see Needs Input #7.** Built from the
+⚠️ **First full draft — see Needs Input #7.** Built from the
 token set above since the source deck defined none of this. Treat sizes,
 paddings, and state colors as a starting point for review, not a
 signed-off spec — nothing here has been checked against a real screen or
@@ -696,8 +660,7 @@ fix both together (see the doc-sync rule: nothing here ships without
 preview.html matching, and nothing in preview.html ships without this
 file updated to match).
 
-⚠️ **`components.css` is the actual portable copy of this CSS (added
-2026-08-04).** Every rule you see rendered in the gallery lives there,
+⚠️ **`components.css` is the actual portable copy of this CSS.** Every rule you see rendered in the gallery lives there,
 not just inline in `preview.html` — `preview.html` itself now loads it
 via `<link>` rather than duplicating a private copy, specifically so
 the two can't drift the way `tokens.css` and its own embedded copy once
@@ -708,7 +671,7 @@ for the full integration checklist. If you add or change a component
 here, `components.css` needs the matching edit in the same pass, same
 as `preview.html` does.
 
-**It's genuinely interactive, not just styled markup (v0.8.2).**
+**It's genuinely interactive, not just styled markup.**
 SidebarNav and Tabs switch on click, Checkbox/Radio/Switch actually
 toggle (including via keyboard, not just mouse), Table rows and
 DataTable rows select on click, Toast and Modal dismiss and — for
@@ -720,36 +683,29 @@ toggle (which would hide the calendar with no way to reveal it in a
 static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
-**Scope note — corrected 2026-08-04, this count had drifted stale.**
-21 components were specced through v0.8.2 — the original 7 basics
+**Scope note.**
+29 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 10 transcribed directly from the teammate's real
-component source in v0.7.0 (SidebarNav, Tabs, Select, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 4 more **designed
-from scratch in v0.8.0** — Stat/KPI card, Filters, Pagination, Date
+component source (SidebarNav, Tabs, Select, Checkbox, Radio,
+Switch, Toast, Tooltip, DataTable, ElementBadge), 4 **designed
+from scratch** — Stat/KPI card, Filters, Pagination, Date
 picker — plus a Chart color mapping guideline (not a rendered
-component). Those last 5 have **no source in either the original brand
-deck or the teammate's build**; they're built entirely from this
+component), and 8 more: **App Shell** (the page-level composition
+layer — Sidebar placement, Content region, Page header), Textarea,
+Password field, Search input clear button, **Stepper** (a multi-step
+progress indicator), **UserPicker** (a searchable person picker),
+**FileUploader** (click-to-browse/drag-and-drop file attachment), and
+**MultiSelect** (a grouped checkbox dropdown with removable selection
+chips). The Stat/KPI card batch, App Shell, Stepper, UserPicker,
+FileUploader, and MultiSelect have **no source in either the original
+brand deck or the teammate's build**; they're built entirely from this
 document's own token system (color, type, spacing, radius, elevation,
 motion) and marked ⚠️ **designed, not transcribed** in their own
 sections — treat them as a first pass needing real design/brand review
 before shipping, more provisional than the transcribed components above
-them. **Since then, and never previously reflected in this note:**
-Button gained an Icon-only variant, and Input field gained three
-sibling components (Textarea, Password field, Search input clear
-button) — all four dated 2026-08-03 in their own sections — plus **App
-Shell**, added here in this same pass, the page-level composition layer
-(Sidebar placement, Top bar, Content region, Page header) that the
-gallery never had, **Stepper** (v0.9.1) — a multi-step progress
-indicator, also designed from scratch with no source in either system —
-**UserPicker** (v0.9.2), a searchable person picker, same status —
-**FileUploader** (v0.9.3), click-to-browse/drag-and-drop file
-attachment, same status — and **MultiSelect** (v0.9.4), a grouped
-checkbox dropdown with removable selection chips, also designed from
-scratch with no source in either system.
-This note existing-but-undercounting for a full day is itself the
-doc-sync failure App Shell was written to prevent
-elsewhere — see each section below for source notes and don't let a
+them.
+See each section below for source notes, and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
 sizes, states, Do/Don't), the same process every component above went
@@ -788,9 +744,8 @@ through.
 
 ### App Shell
 
-⚠️ **New — designed from scratch, no source in the brand deck or the
-teammate's build**, same status as the v0.8.0 batch (Stat/KPI card,
-Filters, Pagination, Date picker). Added after real downstream builds
+⚠️ **Designed from scratch, no source in the brand deck or the
+teammate's build.** Added after real downstream builds
 showed why it was missing: separate teams built dashboards on this spec
 and produced different navigation shells (pure sidebar, top-bar-only,
 sidebar **and** top-bar) plus a card-chrome deviation and a Badge
@@ -800,7 +755,7 @@ internals correctly. What was missing is the composition layer that
 says how those pieces combine into an actual screen. This section is
 that layer.
 
-⚠️ **Scope rule, added 2026-08-04:** App Shell governs **structure and
+App Shell governs **structure and
 layout only** — placement, size, spacing, and which region a component
 occupies. It never defines or restates a component's own style (fill,
 border, radius, typography, state colors) — that's the owning
@@ -808,48 +763,30 @@ component's section, always. Where App Shell needs to mention a style
 property at all (e.g. that the canvas is warm-toned), it references the
 token or the component's own section rather than restating the value,
 and if a style decision doesn't already belong to some component, that's
-a sign it belongs in that component's spec, not here. The Locked/"Soon"
-nav-item state briefly lived in this section in an earlier draft before
-being moved to [SidebarNav](#sidebarnav) for exactly this reason.
+a sign it belongs in that component's spec, not here.
 
 **Canonical pattern: sidebar-only. No separate Top bar chrome — Page
 header is the top of every screen.** [SidebarNav](#sidebarnav) already
 has its own Header slot (logo/workspace switcher) and Footer slot
 (account/profile) — that's a complete app frame without a second nav
-surface. ⚠️ **Revised 2026-08-04:** an earlier draft of this section
-specced an optional Top bar (notifications, account menu) as a second
-piece of persistent chrome above the content. That's been dropped for
-now — no persistent bar runs across the top independent of the page's
+surface. No persistent bar runs across the top independent of the page's
 own content. Instead, **Page header**, below, *is* the top of the
 screen: full width, title/subtitle on the
 left, CTAs/actions right-aligned. Global-scope controls (notifications,
-account) have nowhere defined to live yet as a result — that's an
+account) have nowhere defined to live yet — that's an
 explicit, acknowledged gap, not a silent omission; revisit this
 decision if/when the product actually needs them.
 
 **Page canvas — a structural fact, not a new color:** the whole
 viewport is one continuous background region using whatever [Color
-Palette](#color-palette)'s Warm canvas token currently resolves to
-(default everywhere as of 2026-08-03) — App Shell doesn't set or
+Palette](#color-palette)'s Warm canvas token currently resolves to —
+App Shell doesn't set or
 restate that value, it just establishes that there's a single shared
 background behind everything, not per-section fills. Sidebar and Card
 sit on top of it using whatever fill their own component sections
-document — again, not App Shell's to state. Note the timing: the
-"warm everywhere" rule is one day old at the time of writing, so a
-build made before 2026-08-03 landing on plain white or grey product UI
-isn't a spec violation — it was correct under the rule that existed
-when it was built.
+document — again, not App Shell's to state.
 
 #### Main nav — a direct instance of SidebarNav, not a variant
-
-⚠️ **Revised 2026-08-04.** An earlier draft of this section defined a
-separate "flush rail" placement variant for App Shell's main nav — no
-radius, a single right-edge border, running flush against the viewport
-edge — reasoning that [SidebarNav](#sidebarnav)'s own spec (`radius-lg`,
-border on all four sides) would show canvas colour bleeding through its
-rounded corners if stretched flush against the browser edge. That
-reasoning was sound but the conclusion was wrong: the fix isn't a
-second, divergent spec for the same component, it's **inset spacing**.
 
 **The main nav follows the SidebarNav component exactly** — same 240px
 width, `radius-lg`, 1px border on all four sides, `Neutral-1` fill, same
@@ -868,10 +805,10 @@ already provides the visual gap to whatever sits next to it.
 | Placement | inset `spacing-16` (16px) from the viewport's top, left, and bottom edges; no inset on the right edge |
 | Height | `calc(100dvh - 32px)` |
 
-⚠️ **Moved 2026-08-04:** the Locked/"Soon" nav-item state used to be
-defined here. It's a component state (fill, text color, icon opacity,
+The Locked/"Soon" nav-item state is
+a component state (fill, text color, icon opacity,
 cursor, a Badge) — that's [SidebarNav](#sidebarnav)'s concern, not a
-layout/placement one, so it now lives in that component's own table
+layout/placement one, so it lives in that component's own table
 instead. App Shell only says *where* SidebarNav sits, never *how it
 looks* — see the scope note in this section's opening paragraph.
 
@@ -895,8 +832,7 @@ affordance, not a third variant.
 #### Page header — the top of every screen
 
 The title/subtitle/actions block every downstream build has been
-inventing from scratch — this gives it one shape, and — since the
-2026-08-04 revision above — it's also the *only* top-of-screen chrome
+inventing from scratch — this gives it one shape, and it's also the *only* top-of-screen chrome
 the shell has, not a block nested below a separate bar.
 
 | Property | Value |
@@ -915,23 +851,20 @@ fix. **Don't:** override any of SidebarNav's own properties (width,
 radius, border, fill) to make it work as the main nav — if it doesn't
 fit, adjust placement (inset/margin), not the component; a component
 used two different ways is still one component, not two specs to keep
-in sync. **Don't:** add a persistent global top bar back in without
-revisiting the 2026-08-04 decision above — if notifications or an
+in sync. **Don't:** add a persistent global top bar back in without a
+deliberate spec change — if notifications or an
 account menu become a real requirement, that's a spec change, not a
 quiet addition on top of this.
 
 ### Badge & Tag
 
-⚠️ **Corrected v0.6.0 — these are two separate components**, previously
-merged into one here.
+**These are two separate components.**
 
 **Badge** — conveys *status or tone*. 22px tall, `spacing-8` horizontal
-padding, caption type at weight 700, `radius-pill`, and — new in v0.6.0 —
+padding, caption type at weight 700, `radius-pill`,
 **a 1px border** in a stronger tint of the same hue, which is what makes
 these read as deliberate at small sizes. **`white-space: nowrap`** is
-required — added v0.8.1 after a real build wrapped a "Follow-up" label
-onto two lines, which broke the fixed 22px height and the pill shape
-along with it. A fixed-height pill and wrapping text are incompatible;
+required — a fixed-height pill and wrapping text are incompatible;
 if a label risks being that long, shorten the label rather than let the
 component reflow.
 
@@ -965,8 +898,8 @@ size.
 
 ### Button
 
-All buttons are **weight 700**. Corrected v0.6.0: radius now varies by
-size, Secondary carries `shadow-1`, and two variants were added.
+All buttons are **weight 700**. Radius varies by
+size, and Secondary carries `shadow-1`.
 
 | Variant | Fill | Text/icon color | Border | Use for |
 |---|---|---|---|---|
@@ -978,10 +911,8 @@ size, Secondary carries `shadow-1`, and two variants were added.
 
 **Sizes:**
 
-⚠️ **Font sizes corrected 2026-07-29** — re-verified directly against the
-teammate's `Button.jsx` (not just their docs) and the earlier v0.6.0 pass
-had this wrong: it mapped button type to the `label1/2/3` scale (14/13/11px),
-but the real component uses **14px for sm, and 16px for both md and lg**
+Verified directly against the
+teammate's `Button.jsx`: the real component uses **14px for sm, and 16px for both md and lg**
 — md and lg share a type size and differ only in height/padding. That
 16px doesn't correspond to any named label token in this document; it's
 a component-specific override, not a scale mismatch to "fix" elsewhere.
@@ -1008,7 +939,7 @@ follows the icon's own [Iconography](#iconography) tier, not the button
 (e.g. a leading `plus` is **Tier 1, Regular**; a leading `check-circle`
 would stay **Tier 2, Fill**).
 
-**Icon-only — added 2026-08-03.** Any color variant except Link (which
+**Icon-only.** Any color variant except Link (which
 has no fixed height to square against) can render icon-only: no visible
 label, square hit area matching the button's own height at that size
 (32×32 sm, 40×40 md, 48×48 lg), zero horizontal padding, centered icon
@@ -1032,15 +963,15 @@ Base surface for grouping content — dashboard tiles, list items, panels.
 |---|---|
 | Fill | Neutral-1 `#ffffff` |
 | Border | 1px Neutral-3 `#d8d8d8` |
-| Elevation | `shadow-1` at rest — cards carry both border and shadow (corrected v0.6.0) |
+| Elevation | `shadow-1` at rest — cards carry both border and shadow |
 | Radius | `radius-lg` (20px) |
 | Padding | spacing-16 (16px), per the deck's stated card padding |
-| Header gap | spacing-12 (12px) between icon-chip and title block — ⚠️ corrected 2026-07-29, was wrongly generalized to spacing-8 |
+| Header gap | spacing-12 (12px) between icon-chip and title block |
 | Header-to-body gap | spacing-16 (16px), only when a subtitle or body content follows the header |
 | Title | h5 (16px/700). Subtitle: caption, Neutral-5, weight 400 |
 | Transition | `box-shadow var(--duration-base) var(--ease-settle)` |
 
-**Footer (optional)** — ⚠️ added 2026-07-29, missing from earlier drafts:
+**Footer (optional)** —
 spacing-16 (16px) margin above it, spacing-12 (12px) top padding, 1px
 Neutral-3 top border, caption type, Neutral-5. Same visual pattern as
 the Modal footer's divider, scaled down.
@@ -1049,7 +980,7 @@ the Modal footer's divider, scaled down.
 - **Static** — default surface above, no interaction.
 - **Interactive/clickable** — hover raises to `shadow-2`; cursor pointer; focus-visible gets `shadow-focus`.
 - **Element-accented** — a 3px top border in the owning element's color. The rest of the card stays neutral.
-- **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). ⚠️ **Tint corrected 2026-07-29:** the chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
+- **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). The chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
 - **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
 
@@ -1062,7 +993,7 @@ doesn't own its content.
 
 | Part | Spec |
 |---|---|
-| Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color (corrected v0.6.0 — was Neutral-5); **Tier 2, Fill** (an empty-state illustration, per [Iconography](#iconography)) |
+| Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color; **Tier 2, Fill** (an empty-state illustration, per [Iconography](#iconography)) |
 | Heading | h4 (20px/800), Neutral-9 |
 | Body | body1 at weight 500, Neutral-5, max-width ~380px |
 | Action | optional Primary button below the body text, `spacing-8` above it |
@@ -1076,7 +1007,7 @@ specifically so this state gets real visual weight.
 
 ### FileUploader
 
-⚠️ **Designed 2026-08-04, v0.9.3 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system by reusing Badge-Neutral's box model, Table row's/
 SidebarNav's active-state recipe, and the Filters/Date picker popover
@@ -1113,7 +1044,7 @@ Anatomy, top to bottom: label → input box → helper or error text.
 | Part | Spec |
 |---|---|
 | Label | caption token at weight 700, Neutral-9 text, spacing-4 (4px) below it before the input |
-| Input box | 40px height (md; sm 32px, lg 48px), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) horizontal padding, body2 type at weight 400 (reverted 2026-08-03 — matches the shipped component; see the Focus behavior note below) |
+| Input box | 40px height (md; sm 32px, lg 48px), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) horizontal padding, body2 type at weight 400 (matches the shipped component; see the Focus behavior note below) |
 | Helper text | caption token, Neutral-5, spacing-4 above it |
 | Error text | caption token at weight 700, Red `#FD3343`, replaces helper text |
 
@@ -1122,7 +1053,7 @@ Anatomy, top to bottom: label → input box → helper or error text.
 | State | Border | Fill | Notes |
 |---|---|---|---|
 | Default | Neutral-3 | Neutral-1 | — |
-| Focus | 2px Obsidian `#2B2B2C` (border swap; padding reduces from spacing-12 to 11px to compensate) | Neutral-1 | ⚠️ Reverted 2026-08-03 — the v0.6.0 "corrected" shadow-focus/Water-ring treatment was never actually implemented in the shipped component (`preview.html`'s Input field has always used a plain 2px Obsidian border swap); this row now documents the real, canonical behavior instead of a rule the code never followed. This makes Input field (and Textarea/Password field/Search input, which all inherit its States table) a deliberate exception to the system-wide "Focus rings are Water, not Obsidian" policy in [Elevation](#elevation--corrected-v060) — that policy still holds for Card, Empty state, and everything else |
+| Focus | 2px Obsidian `#2B2B2C` (border swap; padding reduces from spacing-12 to 11px to compensate) | Neutral-1 | Input field (and Textarea/Password field/Search input, which all inherit its States table) is a deliberate exception to the system-wide "Focus rings are Water, not Obsidian" policy in [Elevation](#elevation) — that policy still holds for Card, Empty state, and everything else |
 | Error | 1px Red `#FD3343` | Neutral-1 | Error text replaces helper text below |
 | Disabled | Neutral-3 | Neutral-2 | Neutral-5 text, no cursor |
 
@@ -1135,11 +1066,11 @@ in-field search is **Tier 1, Regular**).
 placeholder text as a substitute for a label — placeholders disappear the
 moment someone types, per the source deck's own accessibility intent.
 
-⚠️ **New 2026-08-03 — designed, not sourced.** The rules below fill gaps
+⚠️ **Designed, not sourced.** The rules below fill gaps
 the original deck and the teammate's build never covered (placeholder
 styling, a required-field marker, a success state, autofill, adornments,
 a counter, and ARIA wiring). Treat as a first pass pending real
-design/brand review, same status as the v0.8.0 dashboard components.
+design/brand review.
 
 **Placeholder text** — Neutral-5, same body2/weight 400 as entered text
 (not italic, not a separate lighter weight) so it reads as a hint rather
@@ -1215,7 +1146,7 @@ mirrors the deck's own steady, uncluttered tone).
 
 ### MultiSelect
 
-⚠️ **Designed 2026-08-04, v0.9.4 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system by reusing Button Secondary, Filters' trigger/popover
 patterns, Badge's box model, and this system's own Checkbox spec — not
@@ -1251,7 +1182,7 @@ represents.
 
 ### Password field
 
-⚠️ **New 2026-08-03 — designed, not sourced.** Same anatomy as Input
+⚠️ **Designed, not sourced.** Same anatomy as Input
 field with one fixed trailing control.
 
 | Part | Spec |
@@ -1268,7 +1199,7 @@ assistive tech.
 
 ### Search input clear button
 
-⚠️ **New 2026-08-03 — designed, not sourced.** Adds a clear affordance to
+⚠️ **Designed, not sourced.** Adds a clear affordance to
 the existing search-input pattern (leading `magnifying-glass`, per
 [Component Rules](#component-rules) and the Filters bar's own search
 field).
@@ -1305,7 +1236,7 @@ read is a layout failure, not a data problem.
 
 ### Textarea
 
-⚠️ **New 2026-08-03 — designed, not sourced.** Extends Input field for
+⚠️ **Designed, not sourced.** Extends Input field for
 multi-line content; shares its label, border, fill, and type tokens so
 the two align in a form.
 
@@ -1324,7 +1255,7 @@ let the box shrink below its `min-height`, including mid-resize-drag.
 
 ### UserPicker
 
-⚠️ **Designed 2026-08-04, v0.9.2 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system by reusing Input field's box anatomy, Filters'/Date
 picker's popover convention, and Table row's hover treatment — not
@@ -1357,7 +1288,7 @@ state.
 
 ### Checkbox
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Checkbox.jsx`.**
+**Transcribed from the teammate's `Checkbox.jsx`.**
 Supports multi-select and an indeterminate (partial-selection) state.
 
 | Part | Spec |
@@ -1376,7 +1307,7 @@ control's compact size only, not the shared radius scale.
 
 ### DataTable
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `DataTable.jsx`.**
+**Transcribed from the teammate's `DataTable.jsx`.**
 A composed, bordered table container — distinct from the bare Table row
 spec above, which is for inline use inside another surface. Pick one per
 data view; don't mix them in the same screen.
@@ -1394,7 +1325,7 @@ inherits Table row's border and hover conventions on purpose.
 
 ### ElementBadge
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `ElementBadge.jsx`.**
+**Transcribed from the teammate's `ElementBadge.jsx`.**
 Distinct from Tag (above): use ElementBadge when the visual specifically
 needs the element's icon, not just a color dot.
 
@@ -1423,7 +1354,7 @@ themeable accent.
 
 ### Radio
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Radio.jsx`.**
+**Transcribed from the teammate's `Radio.jsx`.**
 Same text/spacing pattern as Checkbox; visually an outline that never
 fills solid.
 
@@ -1446,7 +1377,7 @@ filled-box distinction signals single- vs. multi-select.
 
 ### Select
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Select.jsx`.**
+**Transcribed from the teammate's `Select.jsx`.**
 Same anatomy and sizing as Input field, so the two align in a form row.
 
 | Part | Spec |
@@ -1466,90 +1397,86 @@ closed state.
 
 ### SidebarNav
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
-Primary app-level navigation, not a page-local menu. ⚠️ **This is also
-what App Shell uses as the main nav (revised 2026-08-04)** — same
+**Transcribed from the teammate's `SidebarNav.jsx`.**
+Primary app-level navigation, not a page-local menu. This is also
+what App Shell uses as the main nav — same
 component, unmodified, just inset from the viewport edges rather than
 centered on a page; see [App Shell](#app-shell) for the placement rule.
-An earlier draft had a separate flush/no-radius variant for that
-use — cut in favor of inset spacing so there's one spec to maintain,
-not two.
 
-**Global navigation rule — added 2026-08-04.** SidebarNav is the
+**Global navigation rule.** SidebarNav is the
 canonical navigation pattern for all Collabrium builds. No alternative
 navigation orientation (top nav, bottom nav, tab bar) should be used
 unless explicitly documented as an exception for a specific context.
 
 | Part | Spec |
 |---|---|
-| Container | 240px width (expanded) / 72px width (collapsed) — ⚠️ **hard max-width in both states, changed 2026-08-04:** `overflow-x: hidden`, never horizontally scrollable at either width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding **on all four sides equally** (⚠️ clarified 2026-08-04 — left and right padding must match; any implementation where the right edge reads as wider than the left is a bug, not a variant), spacing-4 (4px) gap between items (⚠️ reverted 2026-08-04 — the earlier "reads as no gap at all" complaint traced to a missing gap implementation between individual nav items, not the token value itself; now that it's wired correctly, spacing-4 is the intended tight gap) |
-| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot, **horizontal padding equal on both sides**; see Header logo rule below. ⚠️ **Layout changed 2026-08-04, revised twice same day:** expanded stays a flex row, `align-items: center`, logo left-aligned, toggle right-aligned, both in normal flex flow, same row. Collapsed is no longer this same flex row — the logo is independently centered as the header's only in-flow content, and the toggle is a separate floating overlay button anchored to the rail's own right edge (see Collapsible state below for both) — visually still "the same row," just no longer achieved via shared flex layout |
-| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5. ⚠️ **Divider added 2026-08-04:** a 1px Neutral-3 hairline sits above every section label except the first one in the list (e.g. between Overview and Workspace), separating one department/area group from the next — it sits above the label's own spacing-16 top padding, not stacked as extra whitespace |
+| Container | 240px width (expanded) / 72px width (collapsed) — hard max-width in both states: `overflow-x: hidden`, never horizontally scrollable at either width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding **on all four sides equally**, spacing-4 (4px) gap between items |
+| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot, **horizontal padding equal on both sides**; see Header logo rule below. Expanded is a flex row, `align-items: center`, logo left-aligned, toggle right-aligned, both in normal flex flow, same row. Collapsed is not this same flex row — the logo is independently centered as the header's only in-flow content, and the toggle is a separate floating overlay button anchored to the rail's own right edge (see Collapsible state below for both) |
+| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5. A 1px Neutral-3 hairline sits above every section label except the first one in the list (e.g. between Overview and Workspace), separating one department/area group from the next |
 | Nav item | 40px height minimum (grows to fit a wrapped 2-line label — see the wrapping rule below), full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
 | Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
 | Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
-| Nav item — locked/soon ⚠️ added 2026-08-04 | for sections that exist in the IA but aren't built yet. Transparent fill (same as inactive), Neutral-4 text (one step more muted than inactive's Neutral-5), icon at 40% opacity, `cursor: not-allowed`, no hover/focus feedback. Trailing slot carries a Badge (Neutral variant, "Soon" label) instead of the trailing-count slot — the two are mutually exclusive on one item |
-| Nav item — hover ⚠️ added 2026-08-04 | Neutral-2 fill, text color unchanged from whatever active/inactive state it already has — reuses Table row's own hover token (`Row hover \| Neutral-2 fill`) and Button Ghost's hover, rather than a nav-specific value |
-| Nav item — focus-visible ⚠️ added 2026-08-04 | 2px Obsidian outline, 2px offset, additive on top of the current fill — reuses Button's exact focus-visible token; Nav item is a clickable row control at `radius-sm` like Button, not a Card-like surface, so this is used instead of Card's `shadow-focus`/Water-ring exception |
-| Nav item — active-pressed ⚠️ added 2026-08-04 | Neutral-3 fill — direct match to Button Ghost's `Active/pressed \| Neutral-3 fill`, same unfilled-by-default control family |
-| Nav item — disabled ⚠️ added 2026-08-04 | Neutral-4 text/icon, fill stays transparent, `cursor: not-allowed` — matches Button Ghost's disabled and Pagination's Ghost icon-button disabled, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not row-based nav items) |
+| Nav item — locked/soon | for sections that exist in the IA but aren't built yet. Transparent fill (same as inactive), Neutral-4 text (one step more muted than inactive's Neutral-5), icon at 40% opacity, `cursor: not-allowed`, no hover/focus feedback. Trailing slot carries a Badge (Neutral variant, "Soon" label) instead of the trailing-count slot — the two are mutually exclusive on one item |
+| Nav item — hover | Neutral-2 fill, text color unchanged from whatever active/inactive state it already has — reuses Table row's own hover token (`Row hover \| Neutral-2 fill`) and Button Ghost's hover, rather than a nav-specific value |
+| Nav item — focus-visible | 2px Obsidian outline, 2px offset, additive on top of the current fill — reuses Button's exact focus-visible token; Nav item is a clickable row control at `radius-sm` like Button, not a Card-like surface, so this is used instead of Card's `shadow-focus`/Water-ring exception |
+| Nav item — active-pressed | Neutral-3 fill — direct match to Button Ghost's `Active/pressed \| Neutral-3 fill`, same unfilled-by-default control family |
+| Nav item — disabled | Neutral-4 text/icon, fill stays transparent, `cursor: not-allowed` — matches Button Ghost's disabled and Pagination's Ghost icon-button disabled, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not row-based nav items) |
 | Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
 | Trailing count | optional, caption/700/Neutral-5, right-aligned |
 | Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
 | Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
 
-⚠️ **Note on "active" vs. "active-pressed"** — these are different axes.
+**Note on "active" vs. "active-pressed"** — these are different axes.
 "Active"/"inactive" (above) is the *persistent selection* state (which
 page you're on); "active-pressed" is the *momentary* mouse-down state,
 and can land on either an active or inactive item. Hover, focus-visible,
 active-pressed, and disabled all apply orthogonally on top of whichever
 active/inactive state the item already has.
 
-⚠️ **Changed 2026-08-04 — labels wrap, they no longer truncate.** 240px
+**Labels wrap, they don't truncate.** 240px
 (expanded) is a hard max-width with no horizontal scroll; a label too
 long for one line wraps to a second line instead of truncating with an
-ellipsis or overflowing the container. This replaces the earlier
-"truncates with ellipsis" rule.
+ellipsis or overflowing the container.
 
 **Do:** use section labels to group items by department/area, one level
 deep. **Don't:** nest a second level of grouping — if the hierarchy needs
 more than one level, that's a sign the item belongs in a sub-page's Tabs
 instead.
 
-**Collapsible state — added 2026-08-04.**
+**Collapsible state.**
 
 | Part | Spec |
 |---|---|
-| Collapsed width | ⚠️ **widened 2026-08-04, 60px → 72px** — a one-off literal, not a named spacing token (same precedent as Second-level navigation's 36px child-item height and Tooltip's 6px/10px padding): the collapsed rail now needs to fit the logo/element icon and the toggle icon side by side on one row, which 60px (`spacing-60`) didn't leave room for |
-| Expanded width | 240px (existing, unchanged) |
-| Toggle trigger — expanded | ⚠️ **changed 2026-08-04:** same row as the header logo, right-aligned, vertically centered — no longer positioned separately below the logo |
-| Toggle trigger — collapsed | ⚠️ **changed 2026-08-04, revised twice same day.** No longer inline with the logo/element icon at all — it's a separate floating overlay button, `position: absolute`, anchored to the rail's own right edge and vertically centered to the same row as the logo, straddling the rail's own border (half in / half out) rather than sitting fully inside the padding. This replaces both the original "centered below the icon mark" layout (60px had no room for both on one row) and the following "side by side, centered together as a pair" fix (72px fit both, but paired the toggle with the logo instead of letting the logo center independently — see Collapsed — alignment below). Sized down from the expanded toggle's 28px button / 18px icon to a **24px button / 16px icon** — a deliberate reduction (not the same size as expanded), since the full expanded size crowded the now-independently-centered logo in the 72px rail |
-| Toggle trigger — icon | ⚠️ **changed 2026-08-04:** Remix Icon's `ri-sidebar-fold-line` (collapse) / `ri-sidebar-unfold-line` (expand), replacing `chevron-left`/`chevron-right`. Phosphor has no equivalent glyph for this specific affordance, so this correctly invokes the documented Remix **fallback** rule in [Iconography](#iconography) ("only when Phosphor lacks the glyph"), not a by-taste library swap. **Tier 1, Regular** (hence the `-line` suffix) — corrected 2026-08-04 from an earlier Tier 2/Fill judgment call: collapsing/expanding a panel is literally one of Iconography's own listed Tier 1 examples ("expand, collapse"), so this is the documented default, not an exception |
+| Collapsed width | 72px — a one-off literal, not a named spacing token (same precedent as Second-level navigation's 36px child-item height and Tooltip's 6px/10px padding): the collapsed rail needs to fit the logo/element icon and the toggle icon side by side on one row |
+| Expanded width | 240px |
+| Toggle trigger — expanded | same row as the header logo, right-aligned, vertically centered |
+| Toggle trigger — collapsed | a separate floating overlay button, `position: absolute`, anchored to the rail's own right edge and vertically centered to the same row as the logo, straddling the rail's own border (half in / half out) rather than sitting fully inside the padding. Sized down from the expanded toggle's 28px button / 18px icon to a **24px button / 16px icon**, since the full expanded size would crowd the independently-centered logo in the 72px rail |
+| Toggle trigger — icon | Remix Icon's `ri-sidebar-fold-line` (collapse) / `ri-sidebar-unfold-line` (expand), replacing `chevron-left`/`chevron-right`. Phosphor has no equivalent glyph for this specific affordance, so this correctly invokes the documented Remix **fallback** rule in [Iconography](#iconography) ("only when Phosphor lacks the glyph"), not a by-taste library swap. **Tier 1, Regular** (hence the `-line` suffix) — collapsing/expanding a panel is literally one of Iconography's own listed Tier 1 examples ("expand, collapse") |
 | Collapsed — visible elements | icon only; labels, section labels, and trailing count text are all hidden |
-| Collapsed — alignment | ⚠️ **added 2026-08-04, revised twice same day:** every nav item's icon is center-aligned horizontally within the 72px rail — corrects the earlier "always left-aligned" rule below, which didn't hold up at this width. The header logo/element icon is **independently** centered the same way (no longer paired with the toggle icon as a centered group — that was an interim fix; the toggle is now a floating overlay anchored to the rail's own right edge instead, see Toggle trigger — collapsed, above, and doesn't participate in this centered alignment at all). Expanded stays left-aligned throughout |
+| Collapsed — alignment | every nav item's icon is center-aligned horizontally within the 72px rail. The header logo/element icon is **independently** centered the same way (not paired with the toggle icon — the toggle is a floating overlay anchored to the rail's own right edge instead, see Toggle trigger — collapsed, above, and doesn't participate in this centered alignment at all). Expanded stays left-aligned throughout |
 | Collapsed — trailing count | converts to an 8px dot badge (matches `spacing-8`) in the item's owning element accent color (same override logic as the Icon row above), overlaid top-right on the icon |
 | Collapsed — logo | collapses to the individual department element icon, `SVG/{element}.svg` (`fire.svg`/`wood.svg`/`earth.svg`/`water.svg`); the default (no department context) collapses to `SVG/coin.svg` specifically — not `logo-lockups/collabrium-default-logo.svg`, which stays the expanded-state default per the Logo section above |
-| Toggle behavior — logo asset | ⚠️ **added 2026-08-04:** the logo's underlying image **asset must swap** on toggle, not just resize or reposition. Expanding swaps back to the full wordmark/lockup (`logo-lockups/`); collapsing swaps to the element icon/`coin.svg` (`SVG/`). Resizing the *same* wordmark asset down into the 72px rail (instead of swapping the source) is the bug this replaces — the wordmark doesn't fit and overflows the collapsed rail |
-| Collapsed — hover label | ⚠️ **changed 2026-08-04 — SidebarNav's own sub-pattern, no longer a reused [Tooltip](#tooltip) instance.** Appears on icon hover **or keyboard focus**, shows the full nav item label, positioned to the right of the icon: same bubble visuals as Tooltip (6px/10px padding, `radius-sm`, Neutral-7 fill, Neutral-1 text, caption/500, opacity-only transition, `pointer-events: none`) but built and owned independently, because Tooltip's own spec assumes a plain relatively-positioned trigger wrapper — that model doesn't survive being placed inside SidebarNav's own scrolling item list (a vertically-scrolling container's `overflow-x` is forced to clip too, per the CSS overflow spec, which silently cuts off anything trying to render past its edge). SidebarNav's hover label is implemented as a single element that positions itself against the hovered icon directly, escaping that scroll container rather than living inside it |
+| Toggle behavior — logo asset | the logo's underlying image **asset swaps** on toggle, not just resizes or repositions. Expanding swaps back to the full wordmark/lockup (`logo-lockups/`); collapsing swaps to the element icon/`coin.svg` (`SVG/`) |
+| Collapsed — hover label | SidebarNav's own sub-pattern, not a reused [Tooltip](#tooltip) instance. Appears on icon hover **or keyboard focus**, shows the full nav item label, positioned to the right of the icon: same bubble visuals as Tooltip (6px/10px padding, `radius-sm`, Neutral-7 fill, Neutral-1 text, caption/500, opacity-only transition, `pointer-events: none`) but built and owned independently, because Tooltip's own spec assumes a plain relatively-positioned trigger wrapper — that model doesn't survive being placed inside SidebarNav's own scrolling item list (a vertically-scrolling container's `overflow-x` is forced to clip too, per the CSS overflow spec, which silently cuts off anything trying to render past its edge). SidebarNav's hover label is implemented as a single element that positions itself against the hovered icon directly, escaping that scroll container rather than living inside it |
 | Transition | `width` — `var(--duration-slow) var(--ease-standard)` (`duration-slow`'s stated purpose is "panel / section reveals," an exact match; `ease-standard` since a sidebar collapse isn't owned by a specific brand element — per Motion's own rule, "reach for an elemental curve deliberately, not by default") |
 | Persistence | collapsed/expanded state saved to `localStorage`, restored on load |
 
-**Header logo rule — added 2026-08-04.**
+**Header logo rule.**
 
 | Context | Logo |
 |---|---|
 | Default (expanded, no department context) | full Collabrium wordmark — `logo-lockups/collabrium-default-logo.svg` |
 | Department-specific (expanded, passed via prop) | the matching department's element-colored lockup from `logo-lockups/` (see the Logo section's table above — only the Gold/default variant currently exists; the other 4 are flagged not-yet-provided) |
 | Collapsed (any context) | individual department element icon, `SVG/{element}.svg`; default collapses to `SVG/coin.svg` specifically (same as the Collapsible state row above) |
-| Alignment | ⚠️ **revised 2026-08-04, twice.** Expanded: always left-aligned. Collapsed: **independently** center-aligned within the 72px rail (see the Collapsible state's "Collapsed — alignment" row above) — the toggle trigger sits on the same row but no longer shares this centered alignment, since it's now a floating overlay anchored to the rail's own right edge instead (see "Toggle trigger — collapsed," above). This corrects the interim "paired with the toggle trigger, centered together" rule, which itself had corrected the original "always left-aligned, expanded and collapsed alike" rule that didn't hold up at this width |
+| Alignment | Expanded: always left-aligned. Collapsed: **independently** center-aligned within the 72px rail (see the Collapsible state's "Collapsed — alignment" row above) — the toggle trigger sits on the same row but doesn't share this centered alignment, since it's a floating overlay anchored to the rail's own right edge instead (see "Toggle trigger — collapsed," above) |
 
 **Do:** always reference the logo library (`logo-lockups/` expanded,
 `SVG/` collapsed) — never build or embed a custom one-off logo asset for
 a header.
 
-**Second-level navigation — added 2026-08-04.**
+**Second-level navigation.**
 
-⚠️ Distinct from the section-label Do/Don't above, which governs
+Distinct from the section-label Do/Don't above, which governs
 *section labels* grouping items (still capped at zero extra nesting).
 This is a separate structural concept — an individual **nav item**
 expanding to show its own **child items** — and is supported up to one
@@ -1558,47 +1485,44 @@ level deep.
 | Part | Spec |
 |---|---|
 | Depth supported | 2 levels maximum (parent + children); a third level isn't supported — content needing 3 levels belongs in page-level Tabs or a sub-page instead |
-| Parent item | shows a trailing chevron, `chevron-down`/`chevron-up` — **Tier 1, Regular** (corrected 2026-08-04 alongside the Collapsible state's toggle trigger above: "chevron up/down" and "expand, collapse" are both Iconography's own Tier 1 examples, so this was never actually an exception) |
-| Expand trigger | ⚠️ **added 2026-08-04:** clicking anywhere on the parent item toggles it — not just the trailing chevron. The chevron swaps `chevron-down` ↔ `chevron-up` to reflect the parent's own open/closed state |
-| Expand behavior | accordion — children render inline below the parent, no separate panel/overlay. ⚠️ **Clarified 2026-08-04 — independent, not mutually exclusive:** each parent's open/closed state is its own; opening one parent does **not** close any other open parent. There's no single-open-at-a-time grouping in this spec |
-| Expand/collapse transition | ⚠️ **added 2026-08-04:** children reveal/hide via a height transition, `var(--duration-slow) var(--ease-standard)` — reuses the same "panel/section reveals" duration as the Collapsible state's own width transition above, and the same default (non-elemental) easing, since an accordion isn't owned by a specific brand element either |
-| Closing preserves state | ⚠️ **added 2026-08-04:** collapsing a parent doesn't reset which child was active — reopening it shows the same active child again, exactly as it was left |
-| Children width/indent | ⚠️ **changed 2026-08-04 — full width, not inset.** Children are no longer a narrower block indented from the icon column; each child item spans the same full width as any other Nav item, with spacing-16 (16px) left padding on the item itself doing the indent instead of an outer margin (replaces the earlier spacing-24 block-indent approach) |
-| Child item height | 36px (⚠️ a one-off literal value, not a named token — same precedent as Tooltip's 6px/10px padding and Checkbox's 6px radius: a smaller nested control gets its own compact size, smaller than the parent Nav item's 40px) |
+| Parent item | shows a trailing chevron, `chevron-down`/`chevron-up` — **Tier 1, Regular** ("chevron up/down" and "expand, collapse" are both Iconography's own Tier 1 examples) |
+| Expand trigger | clicking anywhere on the parent item toggles it — not just the trailing chevron. The chevron swaps `chevron-down` ↔ `chevron-up` to reflect the parent's own open/closed state |
+| Expand behavior | accordion — children render inline below the parent, no separate panel/overlay. Independent, not mutually exclusive: each parent's open/closed state is its own; opening one parent does **not** close any other open parent. There's no single-open-at-a-time grouping in this spec |
+| Expand/collapse transition | children reveal/hide via a height transition, `var(--duration-slow) var(--ease-standard)` — reuses the same "panel/section reveals" duration as the Collapsible state's own width transition above, and the same default (non-elemental) easing, since an accordion isn't owned by a specific brand element either |
+| Closing preserves state | collapsing a parent doesn't reset which child was active — reopening it shows the same active child again, exactly as it was left |
+| Children width/indent | full width, not inset. Children are not a narrower block indented from the icon column; each child item spans the same full width as any other Nav item, with spacing-16 (16px) left padding on the item itself doing the indent instead of an outer margin |
+| Child item height | 36px (a one-off literal value, not a named token — same precedent as Tooltip's 6px/10px padding and Checkbox's 6px radius: a smaller nested control gets its own compact size, smaller than the parent Nav item's 40px) |
 | Child item type | body2 (14px), weight 500 inactive, weight 700 active |
 | Active child | shows Nav item's own active state (Neutral-2 fill, Neutral-9 text, weight 700) |
-| Active parent with active child | parent shows weight 700 text, but **no** active fill — the fill signal stays exclusively on the active child, so the two don't both read as "selected" at once. ⚠️ **Clarified 2026-08-04 — the parent's weight-700 state is only ever a side effect of one of its own children being selected, never of clicking/expanding the parent header itself.** Expanding or collapsing a parent (Expand trigger, above) never changes anyone's active state on its own — it's a pure open/closed toggle. ⚠️ **Collapsed exception, added 2026-08-04:** this "text-only, no fill" treatment relies on the label, which is hidden entirely at 72px — with nothing else left to signal selection, the collapsed parent icon takes the normal Active fill instead (Neutral-2 background), same as any other active item gets. This doesn't reintroduce the "two things read as selected" problem the fill-less rule exists to avoid, because the active child isn't visible either while collapsed — there's nothing on screen to compete with |
-| Sidebar-wide exclusivity | ⚠️ **added 2026-08-04.** Exactly one destination is ever the active selection across the whole nav at a time — whether that's a top-level Nav item or a second-level child. Selecting any item (top-level or child) clears every other item's active state **and** any active child in any other (or the same) accordion panel first, so a plain Nav item and a leftover active child, or two different parents' active children, can never both read as "selected" simultaneously |
-| Collapsed sidebar | accordion closes, and the parent's own children are never shown while collapsed — the icon-hover label (Collapsible state, above) shows the parent's own label only, not its children. ⚠️ **Clarified 2026-08-04 — the parent icon stays clickable, it just does something different than expanded.** With no room to reveal children at 72px, clicking the parent icon isn't a dead click waiting for a rail width it'll never get: it routes straight to the parent's **first child** instead, selecting it as the sidebar's one active destination (same "click a group icon, land on its default sub-page" pattern collapsed rails commonly use) — the parent picks up its own active styling as the usual side effect of that child being selected, per the Active parent with active child row above |
+| Active parent with active child | parent shows weight 700 text, but **no** active fill — the fill signal stays exclusively on the active child, so the two don't both read as "selected" at once. The parent's weight-700 state is only ever a side effect of one of its own children being selected, never of clicking/expanding the parent header itself — expanding or collapsing a parent never changes anyone's active state on its own, it's a pure open/closed toggle. Collapsed exception: this "text-only, no fill" treatment relies on the label, which is hidden entirely at 72px — with nothing else left to signal selection, the collapsed parent icon takes the normal Active fill instead (Neutral-2 background), same as any other active item gets. This doesn't reintroduce the "two things read as selected" problem the fill-less rule exists to avoid, because the active child isn't visible either while collapsed |
+| Sidebar-wide exclusivity | exactly one destination is ever the active selection across the whole nav at a time — whether that's a top-level Nav item or a second-level child. Selecting any item (top-level or child) clears every other item's active state **and** any active child in any other (or the same) accordion panel first, so a plain Nav item and a leftover active child, or two different parents' active children, can never both read as "selected" simultaneously |
+| Collapsed sidebar | accordion closes, and the parent's own children are never shown while collapsed — the icon-hover label (Collapsible state, above) shows the parent's own label only, not its children. The parent icon stays clickable, it just does something different than expanded: with no room to reveal children at 72px, clicking the parent icon routes straight to the parent's **first child** instead, selecting it as the sidebar's one active destination (same "click a group icon, land on its default sub-page" pattern collapsed rails commonly use) — the parent picks up its own active styling as the usual side effect of that child being selected, per the Active parent with active child row above |
 
-**Overflow behavior — added 2026-08-04.**
+**Overflow behavior.**
 
 - The nav item list scrolls (`overflow-y: auto`) once items exceed the
   container's available height.
-- ⚠️ **Horizontal scroll is never permitted, in either state** — the
+- Horizontal scroll is never permitted, in either state — the
   container's `overflow-x: hidden` (see Container row above) applies at
   both the 240px expanded and 72px collapsed widths. Content that would
   overflow horizontally (a long label, an unswapped logo asset) must wrap
   or be resized to fit, never scroll sideways.
-- Scrollbar is hidden by default, visible on hover of the container —
-  ⚠️ **must overlay content, changed 2026-08-04:** implement as a thin
-  overlay scrollbar (e.g. `scrollbar-gutter` left unreserved, or an
+- Scrollbar is hidden by default, visible on hover of the container as
+  a thin overlay scrollbar (e.g. `scrollbar-gutter` left unreserved, or an
   absolutely-positioned custom thumb) that never reserves layout space.
-  Showing it on hover must not shift or shrink the nav items' own width
-  — that reads as content resizing under the cursor, which is the bug
-  this replaces.
+  Showing it on hover must not shift or shrink the nav items' own width.
 - Footer (existing optional sub-part above) is pinned outside the
   scrolling region via its own `margin-top: auto` and never scrolls with
   the item list.
 
-⚠️ **Needs Input — SidebarNav (added 2026-08-04).**
-- Mobile/responsive behavior — not yet defined, out of scope for v0.7.0.
+⚠️ **Needs Input — SidebarNav.**
+- Mobile/responsive behavior — not yet defined.
 - Keyboard navigation (arrow keys, `Enter`, `Escape` on the accordion) —
   to be defined in a future accessibility pass.
 
 ### Stepper
 
-⚠️ **Designed 2026-08-04, v0.9.1 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system by reusing Checkbox/Radio's on/off treatment, SidebarNav's
 active/inactive label weighting, and the caption token for supporting
@@ -1633,7 +1557,7 @@ it fixed/equal on purpose (see the Connector rows above).
 
 ### Switch
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Switch.jsx`.**
+**Transcribed from the teammate's `Switch.jsx`.**
 For an immediately-applied binary setting — no separate Save step. Use
 Checkbox instead when the choice is part of a form that gets submitted.
 
@@ -1656,7 +1580,7 @@ what a Switch signals.
 
 ### Tabs
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Tabs.jsx`.**
+**Transcribed from the teammate's `Tabs.jsx`.**
 In-page section switching, not app-level navigation (use SidebarNav for that).
 
 | Part | Spec |
@@ -1675,7 +1599,7 @@ more than ~6 sections; beyond that, use SidebarNav or a Select instead.
 
 ### Toast
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Toast.jsx`.**
+**Transcribed from the teammate's `Toast.jsx`.**
 Transient, auto-dismissing system feedback — not a place for a decision
 with real consequences.
 
@@ -1706,7 +1630,7 @@ place for an irreversible decision.
 
 ### Tooltip
 
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Tooltip.jsx`.**
+**Transcribed from the teammate's `Tooltip.jsx`.**
 Supplementary, non-interactive information only.
 
 | Part | Spec |
@@ -1724,7 +1648,7 @@ inside is ever clickable by design.
 
 ### Date picker
 
-⚠️ **Designed 2026-07-30, v0.8.0 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system by extension from the Select and Modal footer patterns,
 not transcribed. Treat as a first pass needing real design/brand
@@ -1753,7 +1677,7 @@ boundary days only.
 
 ### Filters
 
-⚠️ **Designed 2026-07-30, v0.8.0 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system by composing existing Button, Input, Select, and Tag
 patterns, not transcribed. Treat as a first pass needing real
@@ -1779,7 +1703,7 @@ require an explicit action inside the dropdown, then apply on close.
 
 ### Pagination
 
-⚠️ **Designed 2026-07-30, v0.8.0 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system, not transcribed. Treat as a first pass needing real
 design/brand review.
@@ -1806,7 +1730,7 @@ so the control cluster doesn't shift width across pages.
 
 ### Stat / KPI card
 
-⚠️ **Designed 2026-07-30, v0.8.0 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system by extension from the existing Card spec, not
 transcribed. Treat as a first pass needing real design/brand review.
@@ -1837,7 +1761,7 @@ period.
 
 ### Chart color mapping
 
-⚠️ **Designed 2026-07-30, v0.8.0 — a guideline, not a rendered
+⚠️ **Designed from scratch — a guideline, not a rendered
 component; no source in either the original brand deck or the
 teammate's build, and no chart library has been chosen yet.** This maps
 existing tokens onto chart roles so that whichever library gets picked
@@ -1861,7 +1785,7 @@ introduce a color that isn't already a token in this document.
 
 ### PageHeader
 
-⚠️ **Designed 2026-08-04, v0.8.3 — no source in either the original
+⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
 token system by reusing the existing Typescale's h1 and body1 tokens,
 not transcribed. Treat as a first pass needing real design/brand review.
@@ -1896,8 +1820,8 @@ read one section before building, read this one.
 - Use Obsidian `#2B2B2C` as the only primary-action fill. Every screen has
   exactly one Primary button doing the main job.
 - Use the warm canvas (`#FCFAF5`) as the page background for every
-  screen — product/dashboard and brand/editorial alike (⚠️ rule changed
-  2026-08-03; see [Color Palette](#color-palette)'s Warm canvas note).
+  screen — product/dashboard and brand/editorial alike (see [Color
+  Palette](#color-palette)'s Warm canvas note).
   Component fills (cards, inputs, etc.) keep their own documented values
   — mostly `Neutral-1` white — unaffected by this.
 - Use Mulish for 100% of UI text **and every heading** — headings at
@@ -1965,13 +1889,12 @@ read one section before building, read this one.
 
 ## Reconciliation — teammate's design system
 
-In v0.6.0 this document was cross-checked against a second, independently
+This document was cross-checked against a second, independently
 built Collabrium design system at
 `~/Desktop/Collabrium Design System/`, derived from the same source deck
 (its `uploads/[KULT][EXT] Collabrium DLS.pptx`). That build extracted the
 deck far more thoroughly than this one had, so **where the two disagreed
-on a sourced value, theirs won** — every correction marked "corrected
-v0.6.0" above comes from that reconciliation.
+on a sourced value, theirs won.**
 
 **Confirmed identical (no change needed):** all five element colors and
 their department mappings, Obsidian as sole action color, the full 9-step
@@ -2009,27 +1932,23 @@ them — if the team wants one canonical thing, **their repo is the better
 base to converge on**, with this one's logo/font assets and gap-tracking
 folded in.
 
-**v0.7.0 update:** 10 more component specs (SidebarNav, Tabs, Select,
+10 more component specs (SidebarNav, Tabs, Select,
 Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) were
 transcribed directly from the teammate's real `.jsx` source — same
-methodology as the v0.6.0 reconciliation, not a guess. One asset gap
+methodology as the reconciliation above, not a guess. One asset gap
 surfaced in the process: ElementBadge relies on raster PNG element
 glyphs (`assets/elements/*.png`) that this skill doesn't have — see that
-component's spec for the interim substitution. The remaining 5
-dashboard components (stat/KPI cards, filters, pagination, date pickers,
-chart color mapping) exist in neither system and still need an actual
-design pass, not a transcription.
+component's spec for the interim substitution.
 
-**v0.8.0 update:** those remaining 5 are now specced — Stat/KPI card,
-Filters, Pagination, Date picker, and a Chart color mapping guideline.
-This batch is explicitly **not** a reconciliation, since there was
-nothing to reconcile against: neither this system nor the teammate's
-build has these components. They're a first design pass built on this
+The remaining 5 dashboard components — Stat/KPI card,
+Filters, Pagination, Date picker, and a Chart color mapping guideline —
+exist in neither system, so they're explicitly **not** a reconciliation:
+there was nothing to reconcile against. They're a first design pass built on this
 document's own token system, not transcribed from anything, and are
 flagged as more provisional than every component above them —
 candidates for real review once a design/brand pass is available, and
 also worth checking against the teammate's build if/when they add
-these themselves, the same way v0.6.0's reconciliation worked in the
+these themselves, the same way the reconciliation above worked in the
 other direction.
 
 ---
@@ -2107,6 +2026,109 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+**This is where version and date information lives — not in the spec
+sections above.** When you change a component or token, update its spec
+section to describe the current state only (no "added on [date]" or
+"changed in vX.Y" language inline), then add a new entry here, newest
+first, in the same `- **vX.Y-draft — YYYY-MM-DD** — ` format as the
+entries below: what changed, why, and what it replaces. This is also
+what powers `preview.html`'s Changelog page (the button next to the
+version flag in the top bar) — that page renders this section directly,
+so an entry added here is the same pass that makes it show up there,
+with nothing else to keep in sync.
+
+- **v0.9.5-draft — 2026-08-04** — Added **SidebarNav's collapsible
+  state, second-level navigation, and overflow behavior** — the
+  largest single update to an existing component in this system.
+  Collapsible state: the rail toggles between 240px expanded and 72px
+  collapsed (icon-only), with a floating overlay toggle button, an
+  independently-centered header logo/element icon, an 8px dot badge
+  standing in for the trailing count, a logo asset swap (wordmark ↔
+  element icon, not just a resize) on toggle, a SidebarNav-owned hover
+  label for collapsed icons (not a reused Tooltip instance, since
+  Tooltip's plain-wrapper model doesn't survive SidebarNav's scrolling
+  item list), and collapsed/expanded persistence to `localStorage`.
+  Container gained a hard max-width in both states (`overflow-x:
+  hidden`, no horizontal scroll ever), equal padding on all four sides,
+  and labels now wrap instead of truncating with an ellipsis. New Nav
+  item states: locked/soon (a Badge "Soon" label for un-built IA
+  sections), hover, focus-visible, active-pressed, and disabled — all
+  reusing existing Table row/Button Ghost tokens rather than inventing
+  nav-specific ones. Second-level navigation: a nav item can now expand
+  to show child items, one level deep — independent per-parent
+  open/closed state, a height-based expand transition, full-width
+  (not inset) children, and sidebar-wide exclusivity so only one
+  destination is ever the active selection; a collapsed parent routes
+  straight to its first child on click, since there's no room to reveal
+  children at 72px. Overflow behavior: vertical scroll once items
+  exceed the container's height, a thin overlay scrollbar that never
+  reserves layout space, and the footer stays pinned outside the
+  scrolling region. The collapse-icon and second-level chevron were
+  both reclassified **Tier 1, Regular** — "expand, collapse" and
+  "chevron up/down" are both listed Tier 1 examples in
+  [Iconography](#iconography), not judgment calls. Still open: mobile/
+  responsive behavior and full keyboard navigation (arrow keys, `Enter`,
+  `Escape` on the accordion). `preview.html`'s gallery and
+  `components.css` updated to match.
+- **v0.8.4-draft — 2026-08-04** — Added **PageHeader**, a page-level
+  title block (title + optional subtitle), no background/border/padding
+  of its own — flush in the surrounding layout. Designed from scratch,
+  no source in either the brand deck or the teammate's build, by
+  reusing the existing Typescale's h1/body1 tokens. Also live-rendered
+  in `preview.html`'s Components gallery.
+- **v0.6.2-draft — 2026-07-31** — Two unrelated fixes shipped this day.
+  Reclassified icon weights (resolves [Needs Input #11](#needs-input-read-this-first)):
+  moved from "Fill exclusively" to the two-tier Regular/Fill split
+  documented in [Iconography](#iconography) — [Component Rules](#component-rules)
+  #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now
+  loading both Regular and Fill), and every icon instance in
+  `preview.html`'s live gallery were reclassified per-tier. Four
+  judgment calls, none brand-team-confirmed: the Tabs "Settings" tab
+  icon treated Tier 2 like SidebarNav rather than Tier 1 like a generic
+  nav control; the Stat/KPI card's trend indicators (caret-up/down,
+  flat minus) treated Tier 2 since they're not clickable, despite
+  "arrow up/down" appearing in the Tier 1 example list; Date picker's
+  trigger-button calendar icon kept Tier 2 per the explicit "Card /
+  section header: Calendar... Fill" example despite sitting inside a
+  button; and the "Copied" confirmation checkmark treated as a Tier 2
+  status confirmation rather than inheriting the Copy button's own Tier
+  1 weight. Also finalized the logo assets (further resolves [Needs
+  Input #8](#needs-input-read-this-first)): added the default static
+  lockup (`logo-lockups/collabrium-default-logo.svg`, a Gold ring "O",
+  for contexts that can't run the animation); trimmed `logo.html` from
+  9 frames to the 5 documented elements (Gold → Water → Wood → Fire →
+  Earth), dropping the decorative-only sun/moon/cloud/mountain frames;
+  rebuilt the wordmark on a new font (new path data per letter, ink
+  color `#2F2F2F` → `#2B2B2C` to match the default lockup, resolving a
+  prior mismatch between the two assets); corrected the two off-palette
+  element frame colors (Wood `#FFA6A8` → `#FF7A90`, Earth `#00D97B` →
+  `#00C26E`) before the trim; and moved the Gold frame's artwork to
+  `coin.svg`, leaving `gold.svg` as the Gold element icon used
+  elsewhere in the system (Color Palette, ElementBadge, sidebar dots,
+  Chart color mapping) — deliberately two different assets now.
+  Confirmed the `SVG/` vector source library (letters + 5 core-element
+  icons) is byte-identical to `logo.html`'s embedded path data. Known
+  gap: `wood.svg`/`earth.svg`/`mountain.svg`'s raw exports still carry
+  the off-palette colors (left untouched, since they may be externally
+  managed master exports) — `logo.html`'s corrected values remain
+  canonical. Still open: 4 of 5 department-colored lockup variants, a
+  clear-space rule, minimum size, and monochrome/reverse versions.
+- **v0.6.1.1-draft — 2026-08-03** — Filled gaps in Input field that the
+  deck and the teammate's build never covered (designed, not sourced):
+  placeholder text styling (Neutral-5, same body2/weight 400 as entered
+  text — not italic or a separate lighter weight); a required-field
+  marker (a single Red asterisk after the label, with no "(optional)"
+  text on non-required fields); a Success/valid state (1px Green
+  border, trailing check-circle icon, fires after validation on blur or
+  submit, not every keystroke); autofill styling so a browser's
+  autofill doesn't override the field's fill color; plain `:focus` (not
+  `:focus-visible`) so mouse and keyboard users see the same treatment;
+  prefix/suffix text adornments; a character/word counter that turns
+  Red at/over the limit; and ARIA wiring (`aria-describedby` to helper
+  text, swapping to `aria-invalid` plus the error text's `id` on
+  Error). Also clarified that the sm/md/lg sizes are a density choice
+  per context, not tied to a viewport breakpoint. Treat as a first pass
+  needing real design/brand review.
 - **v0.9.4-draft — 2026-08-04** — Added **`components.css`**, the actual
   portable copy of every component's CSS (Button, Input field, Card,
   Badge & Tag, Table row, Modal, Empty state, SidebarNav, App Shell
