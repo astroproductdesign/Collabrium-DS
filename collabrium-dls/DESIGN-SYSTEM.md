@@ -668,7 +668,7 @@ just stays permanently visible so you can see it.
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 10 transcribed directly from the teammate's real
 component source in v0.7.0 (SidebarNav, Tabs, Select, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), and 4 more **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 4 more **designed
 from scratch in v0.8.0** — Stat/KPI card, Filters, Pagination, Date
 picker — plus a Chart color mapping guideline (not a rendered
 component). Those last 5 have **no source in either the original brand
@@ -1677,6 +1677,31 @@ inventing chart-specific colors.
 table in order, not arbitrarily. **Don't:** use more than one hue
 family within a single sequential or diverging scale, or let a legend
 introduce a color that isn't already a token in this document.
+
+### PageHeader
+
+⚠️ **Designed 2026-08-04, v0.8.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing the existing Typescale's h1 and body1 tokens,
+not transcribed. Treat as a first pass needing real design/brand review.
+
+A page-level title block — sits flush at the top of a page or panel,
+no background or border of its own.
+
+| Part | Spec |
+|---|---|
+| Title | `h1` token (32px/38px, 40px/56px at `-lg`, weight 800), Neutral-9 — the largest heading weight in the system, matching the Typescale's "Page-level heading" use case |
+| Subtitle (optional) | `body1` token (16px/22px, weight 500), Neutral-5 — sits directly below the title |
+| Gap | `spacing-8` (8px) between title and subtitle |
+| Container | no background, no border, no padding — flush in the surrounding page layout |
+
+**Variants:** Default (title only) and With subtitle (title + sub).
+
+**Do:** reserve PageHeader for the single page-level title per view —
+it's not for card or section headers, which have their own patterns
+(see [Card](#card)). **Don't:** add a border, background fill, or
+bottom divider to PageHeader itself; if a page needs a divider under
+its header, that belongs to the page layout, not this component.
 
 ---
 

@@ -587,6 +587,10 @@
   .c-step-label.active{font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
   .c-step-label.completed, .c-step-label.upcoming{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
   .c-step-desc{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+  /* PageHeader — v0.8.3, designed not transcribed */
+  .c-pageheader{display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .c-pageheader h1{margin:0; font-family:var(--font-primary); font-weight:var(--text-h1-weight); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); letter-spacing:var(--text-h1-tracking); color:var(--color-neutral-9);}
+  .c-pageheader .sub{margin:0; font-family:var(--font-primary); font-weight:var(--text-body1-weight); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); color:var(--color-neutral-5);}
 
   footer{padding:var(--spacing-32) 0 var(--spacing-60); color:var(--color-neutral-5); font-size:var(--text-caption-size);}
   footer a{color:var(--color-neutral-9);}
@@ -912,6 +916,7 @@
         <p class="kicker">07 · Reference</p>
         <h2 class="section-title">Components</h2>
         <p class="lede">Live reference for 29 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b>, and 8 more since &mdash; App Shell, Textarea, Password field, Search input clear button, Stepper, UserPicker, FileUploader, and MultiSelect &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0/App Shell/Stepper/UserPicker/FileUploader/MultiSelect additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
+        <p class="lede">Live reference for 22 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b>, and PageHeader <b>designed from scratch in v0.8.3</b> &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0/v0.8.3 additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
 
         <div class="comp-block" id="comp-appshell">
           <div class="comp-head"><h3>App Shell <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.0, designed not sourced</span></h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
@@ -1822,6 +1827,21 @@
             </div>
           </div>
         </div>
+
+        <div class="comp-block" id="comp-pageheader">
+          <div class="comp-head"><h3>PageHeader <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.8.3, designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-pageheader" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
+              <div class="c-pageheader">
+                <h1>Campaign Dashboard</h1>
+              </div>
+              <div class="c-pageheader">
+                <h1>Campaign Dashboard</h1>
+                <p class="sub">Track performance across every active campaign in one place.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2729,7 +2749,7 @@ just stays permanently visible so you can see it.
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 10 transcribed directly from the teammate's real
 component source in v0.7.0 (SidebarNav, Tabs, Select, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), and 4 more **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 4 more **designed
 from scratch in v0.8.0** — Stat/KPI card, Filters, Pagination, Date
 picker — plus a Chart color mapping guideline (not a rendered
 component). Those last 5 have **no source in either the original brand
@@ -3738,6 +3758,31 @@ inventing chart-specific colors.
 table in order, not arbitrarily. **Don't:** use more than one hue
 family within a single sequential or diverging scale, or let a legend
 introduce a color that isn't already a token in this document.
+
+### PageHeader
+
+⚠️ **Designed 2026-08-04, v0.8.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing the existing Typescale's h1 and body1 tokens,
+not transcribed. Treat as a first pass needing real design/brand review.
+
+A page-level title block — sits flush at the top of a page or panel,
+no background or border of its own.
+
+| Part | Spec |
+|---|---|
+| Title | `h1` token (32px/38px, 40px/56px at `-lg`, weight 800), Neutral-9 — the largest heading weight in the system, matching the Typescale's "Page-level heading" use case |
+| Subtitle (optional) | `body1` token (16px/22px, weight 500), Neutral-5 — sits directly below the title |
+| Gap | `spacing-8` (8px) between title and subtitle |
+| Container | no background, no border, no padding — flush in the surrounding page layout |
+
+**Variants:** Default (title only) and With subtitle (title + sub).
+
+**Do:** reserve PageHeader for the single page-level title per view —
+it's not for card or section headers, which have their own patterns
+(see [Card](#card)). **Don't:** add a border, background fill, or
+bottom divider to PageHeader itself; if a page needs a divider under
+its header, that belongs to the page layout, not this component.
 
 ---
 
