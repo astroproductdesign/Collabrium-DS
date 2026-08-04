@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.8.2-draft</title>
+<title>Collabrium design system | v0.9.0-draft</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -302,6 +302,26 @@
   .c-sidebar-item.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
   .c-sidebar-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
 
+  /* App Shell — v0.9.0, designed not sourced. Rail is a placement variant of
+     SidebarNav (flush, no radius, right-edge border only), not a new component. */
+  .comp-demo.shell-demo{padding:0; overflow:hidden; background:var(--color-canvas-warm);}
+  .c-shell{display:flex; height:480px;}
+  .c-shell-rail{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; flex:0 0 240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:0; border-right:1px solid var(--color-neutral-3); border-radius:0; overflow-y:auto;}
+  .c-sidebar-item.soon{cursor:not-allowed;}
+  .c-sidebar-item.soon i{opacity:.4;}
+  .c-sidebar-item.soon span.label{color:var(--color-neutral-4);}
+  .c-sidebar-item.soon .c-badge{margin-left:auto;}
+  .c-shell-main{flex:1; display:flex; flex-direction:column; min-width:0;}
+  .c-shell-topbar{display:flex; align-items:center; justify-content:flex-end; gap:var(--element-gap); height:64px; flex:0 0 64px; padding:0 var(--page-gutter); background:var(--color-neutral-1); border-bottom:1px solid var(--color-neutral-3);}
+  .c-shell-bell{position:relative;}
+  .c-shell-dot{position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--color-red);}
+  .c-shell-avatar{display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--color-neutral-2); color:var(--color-neutral-9); font-size:var(--text-label2-size); font-weight:700;}
+  .c-shell-content{flex:1; overflow-y:auto; padding:var(--page-gutter); padding-top:var(--section-gap);}
+  .c-shell-page-header{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-16); margin-bottom:var(--section-gap);}
+  .c-shell-page-header h1{margin:0 0 var(--spacing-4); font-size:var(--text-h1-size); font-weight:var(--text-h1-weight); color:var(--color-neutral-9);}
+  .c-shell-page-header p{margin:0; color:var(--color-neutral-5); font-size:var(--text-body2-size);}
+  .c-shell-actions{display:flex; gap:var(--element-gap); flex:0 0 auto;}
+
   /* Tabs */
   .c-tabs{display:flex; gap:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3);}
   .c-tab{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:0; background:transparent; cursor:pointer; font-family:inherit; font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-5); box-shadow:none; transition:color var(--duration-fast) var(--ease-standard),box-shadow var(--duration-fast) var(--ease-standard);}
@@ -468,7 +488,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.8.2-draft</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.0-draft</span>
 </header>
 
 <div class="layout">
@@ -757,6 +777,60 @@
         <p class="kicker">07 · Reference</p>
         <h2 class="section-title">Components</h2>
         <p class="lede">Live reference for 21 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, and 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b> &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0 additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
+
+        <div class="comp-block" id="comp-appshell">
+          <div class="comp-head"><h3>App Shell <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.0, designed not sourced</span></h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo shell-demo">
+            <div class="c-shell">
+              <nav class="c-shell-rail c-sidebar">
+                <div class="c-sidebar-header">Astro Growth</div>
+                <div class="c-sidebar-section">Overview</div>
+                <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span></button>
+                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar"></i><span class="label">Reports</span></button>
+                <div class="c-sidebar-section">Departments</div>
+                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-fire" style="color:var(--color-orange)"></i><span class="label">Marketing</span><span class="count">12</span></button>
+                <button class="c-sidebar-item soon" type="button" disabled aria-disabled="true"><i class="ph-fill ph-drop"></i><span class="label">Data</span><span class="c-badge c-badge-neutral">Soon</span></button>
+                <div class="c-sidebar-footer">
+                  <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span></button>
+                </div>
+              </nav>
+              <div class="c-shell-main">
+                <header class="c-shell-topbar">
+                  <button class="c-icon-btn c-shell-bell" type="button" aria-label="Notifications"><i class="ph-fill ph-bell"></i><span class="c-shell-dot"></span></button>
+                  <span class="c-shell-avatar">AT</span>
+                </header>
+                <div class="c-shell-content">
+                  <div class="c-shell-page-header">
+                    <div>
+                      <h1>Overview</h1>
+                      <p>Here's what you've used across your projects.</p>
+                    </div>
+                    <div class="c-shell-actions">
+                      <button class="c-filter-trigger" type="button">This month<i class="ph ph-caret-down"></i></button>
+                      <button class="c-btn c-btn-primary c-btn-sm"><i class="ph ph-download-simple"></i>Export</button>
+                    </div>
+                  </div>
+                  <div class="c-stats">
+                    <div class="c-stat">
+                      <div class="c-stat-top"><span class="c-stat-label">Est. spend</span><span class="icon-chip"><i class="ph-fill ph-currency-circle-dollar"></i></span></div>
+                      <span class="c-stat-value">$85.87</span>
+                      <span class="c-stat-trend up"><i class="ph-fill ph-caret-up"></i>12.4% <span class="period">vs last month</span></span>
+                    </div>
+                    <div class="c-stat">
+                      <div class="c-stat-top"><span class="c-stat-label">Active projects</span></div>
+                      <span class="c-stat-value">3</span>
+                      <span class="c-stat-trend flat"><i class="ph-fill ph-minus"></i>No change</span>
+                    </div>
+                  </div>
+                  <div class="c-card" style="margin-top:var(--spacing-20)">
+                    <h4>Usage by project</h4>
+                    <p>Content region fill is Canvas warm, same as the page &mdash; the Card is what carries the white figure-ground contrast, not a second background here.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="comp-block" id="comp-button">
           <div class="comp-head"><h3>Button</h3><button class="copy-markup-btn" data-target="comp-button" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
@@ -1324,28 +1398,43 @@ Paste-able CSS custom properties are in `tokens.css`. `preview.html` is a
 browsable brand overview microsite (writeup, real logo, color palette,
 typography, fonts, spacing & shape, guidelines) — open it directly, it
 links `tokens.css` and embeds `logo.html`. `logo.html` is the real,
-corrected animated Collabrium wordmark — the canonical logo asset, embed
-it wherever the mark is needed rather than screenshotting it. `SVG/`
+corrected animated Collabrium wordmark — the canonical *live* asset, embed
+it wherever the mark can animate rather than screenshotting it. Its "O"
+cycles through a fixed 5-frame sequence — **Gold → Water → Wood → Fire →
+Earth**, no decorative extras — with `SVG/coin.svg` as the Gold frame's
+artwork (not `gold.svg`, which is a separate icon used elsewhere in this
+system).
+`logo-lockups/` holds combined, non-animated wordmark lockups for
+contexts that can't run the animation (favicons, print, email, static
+deck slides) — `collabrium-default-logo.svg` is the **default** mark
+whenever no department/element context applies; the other 4 element-colored variants
+(Fire, Wood, Water, Earth) don't exist yet. `SVG/`
 holds the confirmed true vector source for every letter and element icon
 individually — use those files (not a screenshot, not a hand-traced
 copy) if you need a piece of the mark on its own. `fonts/` has real,
 installable variable-font files for both typefaces (sourced from
 Google's official repo, not the web-embed subsets) — point people there
 instead of them hunting Google Fonts themselves. `preview.html` also has
-a live **Components** section — 21 total: the 7 basics (Button, Input,
-Card, Badge & Tag, Table row, Modal, Empty state), 10 more added in
-v0.7.0 and transcribed from the teammate's real component source
-(SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip,
-DataTable, ElementBadge), and 4 more **designed from scratch in v0.8.0**
-(Stat/KPI card, Filters, Pagination, Date picker, flagged red in the
-gallery) plus a Chart color mapping guideline — each with copy-able
-markup. Use it as the reference implementation when building real
-screens, not just the spec tables. The v0.8.0 additions have no source
-in either system, so treat them as more provisional than everything
-transcribed above them — a first design pass, not yet reviewed.
+a live **Components** section — the 7 basics (Button, Input, Card,
+Badge & Tag, Table row, Modal, Empty state), 10 more added in v0.7.0 and
+transcribed from the teammate's real component source (SidebarNav,
+Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable,
+ElementBadge), 4 more **designed from scratch in v0.8.0** (Stat/KPI
+card, Filters, Pagination, Date picker, flagged red in the gallery)
+plus a Chart color mapping guideline, 4 more folded into Button/Input
+field on 2026-08-03 (Button's Icon-only variant, plus Input field's
+Textarea/Password field/Search input clear button siblings), and —
+**this pass, v0.9.0** — **App Shell**, the page-level composition layer
+(Sidebar placement, Top bar, Content region, Page header) covering how
+everything else actually gets framed into a real screen. Each has
+copy-able markup. Use it as the reference implementation when building
+real screens, not just the spec tables. The v0.8.0 batch and App Shell
+have no source in either the brand deck or the teammate's build, so
+treat them as more provisional than everything transcribed above them —
+a first design pass, not yet reviewed.
 
 **Standing rule:** any change to this skill's files (preview.html,
-logo.html, tokens.css, SVG/, fonts/, new components) must be reflected
+logo.html, logo-lockups/, tokens.css, SVG/, fonts/, new components) must be reflected
 back into `DESIGN-SYSTEM.md` — content, version bump, changelog entry —
 in the same pass, not as a follow-up.
 
@@ -1378,8 +1467,12 @@ over mechanical ones (sync, deploy, restore).
   department-specific surface.
 - **Primary action color:** Obsidian `#2B2B2C` — all main CTA buttons.
 - **Neutrals:** `#080808` (primary text) → `#ffffff` (canvas), full 9-step
-  ramp in DESIGN-SYSTEM.md. Plus a **warm canvas** (`#FCFAF5`/`#FAF7F2`)
-  for brand/editorial surfaces only — never product UI.
+  ramp in DESIGN-SYSTEM.md. Plus **warm canvas** (`#FCFAF5`/`#FAF7F2`) —
+  ⚠️ **now the default page background everywhere as of 2026-08-03**,
+  product UI included, not just brand/editorial. Component fills (cards,
+  inputs, sidebar, top bar) keep their own documented values, mostly
+  `Neutral-1` white, which now reads as a deliberate figure-ground
+  contrast against the warmer canvas.
 - **Brand accents (all confirmed canonical):** Orange `#FF5825`, Salmon
   Pink `#FF7A90`, Green `#00C26E`, Navy Blue `#1473E6`, Amber `#FFA425`.
   Each has an 8%/16% background-tint pair (`-bg`/`-bg-strong`) — the only
@@ -1403,19 +1496,25 @@ over mechanical ones (sync, deploy, restore).
 
 1. Check the **Needs Input** list at the top of `DESIGN-SYSTEM.md`. Most
    token gaps (type scale, spacing, radius) are now resolved and sourced,
-   not guessed — what's left (accessibility targets, a static logo
-   lockup) still needs a placeholder flagged in your output.
+   not guessed — what's left (accessibility targets, a clear-space rule,
+   minimum size, monochrome/reverse versions, and 4 of 5 department logo
+   lockups) still needs a placeholder flagged in your output.
 2. Keep Source Serif 4 out of anything dense or functional — body copy,
    forms, tables, dense numeric columns always stay in Mulish.
 3. Don't invent new brand colors, background tints, shadows, or easing
    curves — pull from DESIGN-SYSTEM.md's token tables.
-4. For the logo, use `logo.html` (embed it live, e.g. via iframe) rather
-   than a screenshot — there's still no exported static lockup, so a
-   screenshot isn't a real asset.
+4. For the logo: use `logo.html` (embed it live, e.g. via iframe) wherever
+   the mark can animate. Where it can't, use a static lockup from
+   `logo-lockups/` instead of a screenshot —
+   `collabrium-default-logo.svg` by default, or the matching element's
+   variant if the surface is already
+   department-specific (see DESIGN-SYSTEM.md's Logo section for the
+   full rule). Never extract a still frame from `logo.html` as a
+   substitute lockup.
 
 ## Version
 
-v0.8.2-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.0-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -1445,13 +1544,46 @@ system's, so only Badge needed a fix here; **the whole gallery went
 from static markup to genuinely interactive in v0.8.2 (2026-07-30)** —
 nav items, tabs, checkboxes/radios/switches, table row selection,
 toast/modal dismiss, filters, pagination, and date-picker day selection
-all actually respond to input now. See changelog at the bottom of
-DESIGN-SYSTEM.md.
+all actually respond to input now; **a combined static logo lockup
+(`logo-lockups/collabrium-default-logo.svg`) added 2026-07-31**, the new default mark for
+any context that can't run `logo.html`'s animation — further resolving
+Needs Input #8; **`logo.html` rebuilt on a new font and its animation
+trimmed from 9 frames to a fixed 5-frame Gold→Water→Wood→Fire→Earth
+sequence, also 2026-07-31** — the new font resolved the `#2B2B2C` vs
+`#2F2F2F` ink-color discrepancy against the static lockup (both now
+`#2B2B2C`), and `coin.svg` is now confirmed as the Gold frame's artwork,
+replacing `gold.svg` there (`gold.svg` itself is unchanged and still
+used elsewhere in this system). Still open: the other 4
+department-colored lockup variants (Fire, Wood, Water, Earth) don't
+exist yet; **four more changes landed 2026-08-03 without a version bump
+at the time — folded into v0.8.3-draft retroactively**: Warm canvas
+became the default page background everywhere (previously
+brand/editorial only), Button gained an Icon-only variant, Input field
+gained a Focus-state correction (plain Obsidian border, not the
+Water-ring the v0.6.0 policy implied — the shipped component never
+actually used it), and three Input field siblings (Textarea, Password
+field, Search input clear button) were specced and live-rendered; **App
+Shell added in v0.9.0 (2026-08-04)** — real downstream builds on this
+system had produced three different navigation shells (pure sidebar,
+top-bar-only, sidebar-and-top-bar) plus a Card chrome deviation and a
+Badge semantics miss, not because the existing component tables were
+wrong but because nothing defined how they compose into an actual page.
+App Shell is that composition layer: a flush full-height placement
+variant of SidebarNav (240px, no radius, right-edge border only — the
+existing `radius-lg`/4-sided-border SidebarNav spec is now documented as
+the floating-panel/off-canvas variant, not the primary rail), a new
+optional Top bar for global-scope controls only, Content region, and
+Page header, all built from already-existing tokens with no new spacing/
+radius/elevation/motion values introduced. Also corrected in this pass:
+the Components section's own scope note had undercounted for a full day
+(missing the four 2026-08-03 additions) — exactly the kind of drift App
+Shell exists to prevent, caught here as a reminder to keep it current
+going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
 </script>
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.8.2-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.0-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2114,9 +2246,10 @@ toggle (which would hide the calendar with no way to reveal it in a
 static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
-**Scope note:** 21 components are specced and built now — the original
-7 basics (Button, Input field, Card, Badge & Tag, Table row, Modal /
-dialog, Empty state), 10 transcribed directly from the teammate's real
+**Scope note — corrected 2026-08-04, this count had drifted stale.**
+21 components were specced through v0.8.2 — the original 7 basics
+(Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
+Empty state), 10 transcribed directly from the teammate's real
 component source in v0.7.0 (SidebarNav, Tabs, Select, Checkbox, Radio,
 Switch, Toast, Tooltip, DataTable, ElementBadge), and 4 more **designed
 from scratch in v0.8.0** — Stat/KPI card, Filters, Pagination, Date
@@ -2127,10 +2260,134 @@ document's own token system (color, type, spacing, radius, elevation,
 motion) and marked ⚠️ **designed, not transcribed** in their own
 sections — treat them as a first pass needing real design/brand review
 before shipping, more provisional than the transcribed components above
-them. See each section below for source notes. Don't skip straight to
-markup for a new component — write the spec here first (variants,
+them. **Since then, and never previously reflected in this note:**
+Button gained an Icon-only variant, and Input field gained three
+sibling components (Textarea, Password field, Search input clear
+button) — all four dated 2026-08-03 in their own sections — plus **App
+Shell**, added here in this same pass, the page-level composition layer
+(Sidebar placement, Top bar, Content region, Page header) that the
+gallery never had. This note existing-but-undercounting for a full day
+is itself the doc-sync failure App Shell was written to prevent
+elsewhere — see each section below for source notes and don't let a
+new component ship without updating this count too. Don't skip straight
+to markup for a new component — write the spec here first (variants,
 sizes, states, Do/Don't), the same process every component above went
 through.
+
+### App Shell
+
+⚠️ **New — designed from scratch, no source in the brand deck or the
+teammate's build**, same status as the v0.8.0 batch (Stat/KPI card,
+Filters, Pagination, Date picker). Added after real downstream builds
+showed why it was missing: separate teams built dashboards on this spec
+and produced different navigation shells (pure sidebar, top-bar-only,
+sidebar **and** top-bar) plus a card-chrome deviation and a Badge
+semantics miss. The component tables weren't wrong — [SidebarNav](#sidebarnav),
+[Card](#card), and [Badge & Tag](#badge--tag) already specify their own
+internals correctly. What was missing is the composition layer that
+says how those pieces combine into an actual screen. This section is
+that layer.
+
+**Canonical pattern: sidebar-only, no mandatory top bar.** [SidebarNav](#sidebarnav)
+already has its own Header slot (logo/workspace switcher) and Footer
+slot (account/profile) — that's a complete app frame without a second
+nav surface. A Top bar is an **optional addition**, only for
+global-scope controls the sidebar doesn't carry (search, notifications)
+— never a substitute for the sidebar, and never a place for primary
+navigation or a page title (that lives in Page header, below).
+
+**Page canvas:** `Canvas warm` `#FCFAF5` for the entire viewport
+background, per the Color Palette's Warm canvas rule (now default
+everywhere as of 2026-08-03). Sidebar and Top bar keep their own
+documented `Neutral-1` white fill — that's the intended figure-ground
+contrast against the canvas, not a mismatch to correct. Note the
+timing: that "warm everywhere" rule is one day old at the time of
+writing, so a build made before 2026-08-03 landing on plain white or
+grey product UI isn't a spec violation — it was correct under the rule
+that existed when it was built.
+
+#### Sidebar placement (extends SidebarNav)
+
+[SidebarNav](#sidebarnav)'s own spec (240px, `radius-lg`, 1px border on
+all four sides) describes a **self-contained floating panel** — correct
+for an inset or off-canvas usage, but not for the primary shell rail,
+which runs the full viewport height flush against the browser edge. A
+100dvh-tall panel with rounded top and bottom corners flush against the
+viewport edge would show canvas colour bleeding through those corners,
+so the rail is a distinct placement variant, not a re-spec of the
+component itself:
+
+| Property | Value |
+|---|---|
+| Height | 100dvh, fixed to the left edge |
+| Width | 240px — unchanged from SidebarNav's own spec |
+| Radius | none — flush corners top and bottom, unlike the floating-panel default |
+| Border | right edge only, `shadow-hairline` (1px Neutral-3) — the other three edges are flush against the viewport, no border needed there |
+| Fill | Neutral-1 — unchanged |
+| Internal anatomy | unchanged — Header, Section label, Nav item (active/inactive), icon, trailing count, Footer all per [SidebarNav](#sidebarnav) as written |
+
+**New state — Locked / "Soon":** a third nav-item state, for sections
+that exist in the IA but aren't built yet (this has already shown up
+organically in a real build). Transparent fill (same as inactive),
+Neutral-4 text (one step more muted than inactive's Neutral-5), icon at
+40% opacity, `cursor: not-allowed`, no hover/focus feedback. The
+trailing slot carries a Badge (Neutral variant, "Soon" label) instead
+of the trailing-count slot — the two are mutually exclusive on one item.
+
+**Responsive** ⚠️ provisional, first pass, no source: below 1024px,
+collapse to a 72px icon-only rail (labels hidden, tooltip on hover
+instead); below 768px, the sidebar becomes an off-canvas drawer — and
+*that's* where SidebarNav's original floating-panel spec (`radius-lg`,
+border on all sides) actually applies, sliding in over the content with
+`shadow-4` beneath it.
+
+#### Top bar (new, optional)
+
+| Property | Value |
+|---|---|
+| Height | 64px — new token, not yet in [Spacing & Shape](#spacing--shape), needs review |
+| Fill / border | Neutral-1, 1px Neutral-3 bottom border — matches Card/Sidebar's chrome language |
+| Horizontal padding | `--page-gutter` (32px) — deliberately the same value as the Content region below it, so bar contents line up with the content edge rather than introducing a new alignment |
+| Left slot | empty by default; a page-context crumb only if the product genuinely needs one — never primary nav, never a duplicate of Sidebar's own Header logo |
+| Right slot | notification control + account control, right-aligned, `--element-gap` (8px) between them |
+| Notification dot | 8px circle, Danger red `#FD3343`, top-right of the bell icon, no border — new pattern, provisional |
+| Account control | avatar + name, opens an account menu — **depends on the still-unspecced Avatar component** (see gap notes). Until Avatar exists, use a 32px circle, Neutral-2 fill, Neutral-9 initials, `label2` weight, as an interim, not a final pattern |
+
+**Do:** treat Top bar as strictly optional and strictly global-scope.
+**Don't:** run Sidebar and Top bar as two competing primary-nav
+surfaces — pick one home for "where do I navigate" per screen, not both.
+
+#### Content region
+
+| Property | Value |
+|---|---|
+| Fill | `Canvas warm` `#FCFAF5` — same as the page canvas; this region doesn't get its own background |
+| Padding | `--page-gutter` (32px) horizontal, `--section-gap` (48px) top — reusing existing [Spacing & Shape](#spacing--shape) tokens, no new values introduced |
+| Max-width | full-bleed by default; 1200px centered only for reading-width content (settings, detail panels) — existing rule, unchanged |
+| Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |
+| Grid gutter | spacing-16–20 between tiles in a stat-card row — pick one value per product and hold it, don't vary row to row |
+
+#### Page header (inside the content region)
+
+The title/subtitle/actions block every downstream build has been
+inventing from scratch — this gives it one shape.
+
+| Property | Value |
+|---|---|
+| Title | h1 (32px/800) |
+| Subtitle | body2, Neutral-5, directly below the title |
+| Actions | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — a period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control |
+| Gap to content below | `--section-gap` (48px) |
+
+**Do:** let Sidebar own primary navigation and its own Header/Footer
+slots before reaching for a Top bar. Keep the whole viewport on
+`Canvas warm` and let Sidebar/Top bar/Card read as white surfaces
+against it — that contrast is the system now, not an inconsistency to
+fix. **Don't:** invent a new sidebar width, radius, or border treatment
+per app — 240px flush-rail is the one canonical shell; the
+floating-panel treatment (`radius-lg`, 4-sided border) is reserved for
+inset/off-canvas contexts only, never the primary rail. **Don't:** put
+primary navigation in both Sidebar and Top bar at once.
 
 ### Button
 
@@ -2470,6 +2727,12 @@ specifically so this state gets real visual weight.
 
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
 Primary app-level navigation, not a page-local menu.
+
+⚠️ **Two placement contexts, not a contradiction (added v0.9.0):** the
+spec below (`radius-lg`, border on all four sides) describes this as a
+self-contained floating panel — correct for an inset or off-canvas/drawer
+use. When it's the primary shell rail instead, see [App Shell](#app-shell)
+for the flush, full-height variant (no radius, right-edge border only).
 
 | Part | Spec |
 |---|---|
@@ -3051,6 +3314,48 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
+  composition layer this document never had. Prompted by real downstream
+  builds: separate teams built dashboards on this system and produced
+  three different navigation shells (pure sidebar, top-bar-only, sidebar
+  **and** top-bar), plus a Card chrome deviation and a Badge semantics
+  miss. The existing component tables weren't wrong — SidebarNav, Card,
+  and Badge & Tag already specified their own internals correctly — the
+  gap was that nothing said how those pieces combine into an actual
+  screen. App Shell defines: a canonical sidebar-only pattern (Top bar is
+  optional, global-scope only, never primary nav); a flush, full-height
+  **placement variant** of SidebarNav for the primary rail (240px, no
+  radius, right-edge border only) — SidebarNav's existing spec
+  (`radius-lg`, border on all four sides) is now documented as the
+  floating-panel/off-canvas variant, not a contradiction; a new Locked/
+  "Soon" nav-item state; a new Top bar spec (notification dot, account
+  control — the latter flagged as depending on the still-unspecced
+  Avatar component); Content region and Page header patterns. Every
+  value reuses existing spacing/radius/elevation/motion tokens — no new
+  scale was introduced, only two new dimensions (sidebar width was
+  already specced at 240px; Top bar height, new at 64px). Marked ⚠️
+  **designed, not transcribed**, same provisional status as the v0.8.0
+  batch. Also corrected in this pass: the Components section's own scope
+  note had undercounted for a full day (see the v0.8.3 entry below) —
+  exactly the kind of drift App Shell exists to prevent elsewhere, caught
+  here in the same file that names the problem.
+- **v0.8.3-draft — 2026-08-03** — Four changes shipped this day without a
+  version bump at the time; reconstructed and folded in here
+  retroactively so the changelog matches what the file actually says.
+  Warm canvas (`#FCFAF5`) became the default page background **everywhere**,
+  reversing the v0.6.0 rule that restricted it to brand/editorial
+  surfaces — product UI was pure white before this. Button gained an
+  Icon-only variant (square hit area, Tier 1 icon required, mandatory
+  `aria-label`). Input field's Focus state was corrected to match what
+  `preview.html` actually ships — a plain 2px Obsidian border swap, not
+  the Water-ring `shadow-focus` treatment the v0.6.0 "Focus rings are
+  Water" policy implied; that policy still holds everywhere else (Card,
+  Empty state), Input field (and everything that inherits its States
+  table) is now documented as a deliberate exception. Three Input field
+  sibling components were specced and live-rendered: Textarea, Password
+  field, Search input clear button. None of these four were reflected in
+  the Components section's scope note or this changelog until the
+  v0.9.0 pass above caught it.
 - **v0.8.2-draft — 2026-07-30** — The Components gallery in
   `preview.html` was static markup — buttons that looked clickable but
   weren't, checkboxes with a hardcoded `.on` class, tabs that never

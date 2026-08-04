@@ -29,17 +29,23 @@ copy) if you need a piece of the mark on its own. `fonts/` has real,
 installable variable-font files for both typefaces (sourced from
 Google's official repo, not the web-embed subsets) — point people there
 instead of them hunting Google Fonts themselves. `preview.html` also has
-a live **Components** section — 21 total: the 7 basics (Button, Input,
-Card, Badge & Tag, Table row, Modal, Empty state), 10 more added in
-v0.7.0 and transcribed from the teammate's real component source
-(SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip,
-DataTable, ElementBadge), and 4 more **designed from scratch in v0.8.0**
-(Stat/KPI card, Filters, Pagination, Date picker, flagged red in the
-gallery) plus a Chart color mapping guideline — each with copy-able
-markup. Use it as the reference implementation when building real
-screens, not just the spec tables. The v0.8.0 additions have no source
-in either system, so treat them as more provisional than everything
-transcribed above them — a first design pass, not yet reviewed.
+a live **Components** section — the 7 basics (Button, Input, Card,
+Badge & Tag, Table row, Modal, Empty state), 10 more added in v0.7.0 and
+transcribed from the teammate's real component source (SidebarNav,
+Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable,
+ElementBadge), 4 more **designed from scratch in v0.8.0** (Stat/KPI
+card, Filters, Pagination, Date picker, flagged red in the gallery)
+plus a Chart color mapping guideline, 4 more folded into Button/Input
+field on 2026-08-03 (Button's Icon-only variant, plus Input field's
+Textarea/Password field/Search input clear button siblings), and —
+**this pass, v0.9.0** — **App Shell**, the page-level composition layer
+(Sidebar placement, Top bar, Content region, Page header) covering how
+everything else actually gets framed into a real screen. Each has
+copy-able markup. Use it as the reference implementation when building
+real screens, not just the spec tables. The v0.8.0 batch and App Shell
+have no source in either the brand deck or the teammate's build, so
+treat them as more provisional than everything transcribed above them —
+a first design pass, not yet reviewed.
 
 **Standing rule:** any change to this skill's files (preview.html,
 logo.html, logo-lockups/, tokens.css, SVG/, fonts/, new components) must be reflected
@@ -75,8 +81,12 @@ over mechanical ones (sync, deploy, restore).
   department-specific surface.
 - **Primary action color:** Obsidian `#2B2B2C` — all main CTA buttons.
 - **Neutrals:** `#080808` (primary text) → `#ffffff` (canvas), full 9-step
-  ramp in DESIGN-SYSTEM.md. Plus a **warm canvas** (`#FCFAF5`/`#FAF7F2`)
-  for brand/editorial surfaces only — never product UI.
+  ramp in DESIGN-SYSTEM.md. Plus **warm canvas** (`#FCFAF5`/`#FAF7F2`) —
+  ⚠️ **now the default page background everywhere as of 2026-08-03**,
+  product UI included, not just brand/editorial. Component fills (cards,
+  inputs, sidebar, top bar) keep their own documented values, mostly
+  `Neutral-1` white, which now reads as a deliberate figure-ground
+  contrast against the warmer canvas.
 - **Brand accents (all confirmed canonical):** Orange `#FF5825`, Salmon
   Pink `#FF7A90`, Green `#00C26E`, Navy Blue `#1473E6`, Amber `#FFA425`.
   Each has an 8%/16% background-tint pair (`-bg`/`-bg-strong`) — the only
@@ -118,7 +128,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.8.2-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.0-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -159,4 +169,27 @@ sequence, also 2026-07-31** — the new font resolved the `#2B2B2C` vs
 replacing `gold.svg` there (`gold.svg` itself is unchanged and still
 used elsewhere in this system). Still open: the other 4
 department-colored lockup variants (Fire, Wood, Water, Earth) don't
-exist yet. See changelog at the bottom of DESIGN-SYSTEM.md.
+exist yet; **four more changes landed 2026-08-03 without a version bump
+at the time — folded into v0.8.3-draft retroactively**: Warm canvas
+became the default page background everywhere (previously
+brand/editorial only), Button gained an Icon-only variant, Input field
+gained a Focus-state correction (plain Obsidian border, not the
+Water-ring the v0.6.0 policy implied — the shipped component never
+actually used it), and three Input field siblings (Textarea, Password
+field, Search input clear button) were specced and live-rendered; **App
+Shell added in v0.9.0 (2026-08-04)** — real downstream builds on this
+system had produced three different navigation shells (pure sidebar,
+top-bar-only, sidebar-and-top-bar) plus a Card chrome deviation and a
+Badge semantics miss, not because the existing component tables were
+wrong but because nothing defined how they compose into an actual page.
+App Shell is that composition layer: a flush full-height placement
+variant of SidebarNav (240px, no radius, right-edge border only — the
+existing `radius-lg`/4-sided-border SidebarNav spec is now documented as
+the floating-panel/off-canvas variant, not the primary rail), a new
+optional Top bar for global-scope controls only, Content region, and
+Page header, all built from already-existing tokens with no new spacing/
+radius/elevation/motion values introduced. Also corrected in this pass:
+the Components section's own scope note had undercounted for a full day
+(missing the four 2026-08-03 additions) — exactly the kind of drift App
+Shell exists to prevent, caught here as a reminder to keep it current
+going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
