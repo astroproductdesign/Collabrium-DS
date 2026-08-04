@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.8.2-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.0-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -663,9 +663,10 @@ toggle (which would hide the calendar with no way to reveal it in a
 static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
-**Scope note:** 21 components are specced and built now — the original
-7 basics (Button, Input field, Card, Badge & Tag, Table row, Modal /
-dialog, Empty state), 10 transcribed directly from the teammate's real
+**Scope note — corrected 2026-08-04, this count had drifted stale.**
+21 components were specced through v0.8.2 — the original 7 basics
+(Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
+Empty state), 10 transcribed directly from the teammate's real
 component source in v0.7.0 (SidebarNav, Tabs, Select, Checkbox, Radio,
 Switch, Toast, Tooltip, DataTable, ElementBadge), and 4 more **designed
 from scratch in v0.8.0** — Stat/KPI card, Filters, Pagination, Date
@@ -676,10 +677,130 @@ document's own token system (color, type, spacing, radius, elevation,
 motion) and marked ⚠️ **designed, not transcribed** in their own
 sections — treat them as a first pass needing real design/brand review
 before shipping, more provisional than the transcribed components above
-them. See each section below for source notes. Don't skip straight to
-markup for a new component — write the spec here first (variants,
+them. **Since then, and never previously reflected in this note:**
+Button gained an Icon-only variant, and Input field gained three
+sibling components (Textarea, Password field, Search input clear
+button) — all four dated 2026-08-03 in their own sections — plus **App
+Shell**, added here in this same pass, the page-level composition layer
+(Sidebar placement, Top bar, Content region, Page header) that the
+gallery never had. This note existing-but-undercounting for a full day
+is itself the doc-sync failure App Shell was written to prevent
+elsewhere — see each section below for source notes and don't let a
+new component ship without updating this count too. Don't skip straight
+to markup for a new component — write the spec here first (variants,
 sizes, states, Do/Don't), the same process every component above went
 through.
+
+### App Shell
+
+⚠️ **New — designed from scratch, no source in the brand deck or the
+teammate's build**, same status as the v0.8.0 batch (Stat/KPI card,
+Filters, Pagination, Date picker). Added after real downstream builds
+showed why it was missing: separate teams built dashboards on this spec
+and produced different navigation shells (pure sidebar, top-bar-only,
+sidebar **and** top-bar) plus a card-chrome deviation and a Badge
+semantics miss. The component tables weren't wrong — [SidebarNav](#sidebarnav),
+[Card](#card), and [Badge & Tag](#badge--tag) already specify their own
+internals correctly. What was missing is the composition layer that
+says how those pieces combine into an actual screen. This section is
+that layer.
+
+**Canonical pattern: sidebar-only. No separate Top bar chrome — Page
+header is the top of every screen.** [SidebarNav](#sidebarnav) already
+has its own Header slot (logo/workspace switcher) and Footer slot
+(account/profile) — that's a complete app frame without a second nav
+surface. ⚠️ **Revised 2026-08-04:** an earlier draft of this section
+specced an optional Top bar (notifications, account menu) as a second
+piece of persistent chrome above the content. That's been dropped for
+now — no persistent bar runs across the top independent of the page's
+own content. Instead, **Page header**, below, *is* the top of the
+screen: full width, title/subtitle on the
+left, CTAs/actions right-aligned. Global-scope controls (notifications,
+account) have nowhere defined to live yet as a result — that's an
+explicit, acknowledged gap, not a silent omission; revisit this
+decision if/when the product actually needs them.
+
+**Page canvas:** `Canvas warm` `#FCFAF5` for the entire viewport
+background, per the Color Palette's Warm canvas rule (now default
+everywhere as of 2026-08-03). Sidebar and Card keep their own documented
+`Neutral-1` white fill — that's the intended figure-ground contrast
+against the canvas, not a mismatch to correct. Note the timing: that
+"warm everywhere" rule is one day old at the time of writing, so a
+build made before 2026-08-03 landing on plain white or grey product UI
+isn't a spec violation — it was correct under the rule that existed
+when it was built.
+
+#### Sidebar placement (extends SidebarNav)
+
+[SidebarNav](#sidebarnav)'s own spec (240px, `radius-lg`, 1px border on
+all four sides) describes a **self-contained floating panel** — correct
+for an inset or off-canvas usage, but not for the primary shell rail,
+which runs the full viewport height flush against the browser edge. A
+100dvh-tall panel with rounded top and bottom corners flush against the
+viewport edge would show canvas colour bleeding through those corners,
+so the rail is a distinct placement variant, not a re-spec of the
+component itself:
+
+| Property | Value |
+|---|---|
+| Height | 100dvh, fixed to the left edge |
+| Width | 240px — unchanged from SidebarNav's own spec |
+| Radius | none — flush corners top and bottom, unlike the floating-panel default |
+| Border | right edge only, `shadow-hairline` (1px Neutral-3) — the other three edges are flush against the viewport, no border needed there |
+| Fill | Neutral-1 — unchanged |
+| Internal anatomy | unchanged — Header, Section label, Nav item (active/inactive), icon, trailing count, Footer all per [SidebarNav](#sidebarnav) as written |
+
+**New state — Locked / "Soon":** a third nav-item state, for sections
+that exist in the IA but aren't built yet (this has already shown up
+organically in a real build). Transparent fill (same as inactive),
+Neutral-4 text (one step more muted than inactive's Neutral-5), icon at
+40% opacity, `cursor: not-allowed`, no hover/focus feedback. The
+trailing slot carries a Badge (Neutral variant, "Soon" label) instead
+of the trailing-count slot — the two are mutually exclusive on one item.
+
+**Responsive** ⚠️ provisional, first pass, no source: below 1024px,
+collapse to a 72px icon-only rail (labels hidden, tooltip on hover
+instead); below 768px, the sidebar becomes an off-canvas drawer — and
+*that's* where SidebarNav's original floating-panel spec (`radius-lg`,
+border on all sides) actually applies, sliding in over the content with
+`shadow-4` beneath it.
+
+#### Content region
+
+| Property | Value |
+|---|---|
+| Fill | `Canvas warm` `#FCFAF5` — same as the page canvas; this region doesn't get its own background |
+| Padding | `--page-gutter` (32px) horizontal, `--section-gap` (48px) top — reusing existing [Spacing & Shape](#spacing--shape) tokens, no new values introduced |
+| Max-width | full-bleed by default; 1200px centered only for reading-width content (settings, detail panels) — existing rule, unchanged |
+| Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |
+| Grid gutter | spacing-16–20 between tiles in a stat-card row — pick one value per product and hold it, don't vary row to row |
+
+#### Page header — the top of every screen
+
+The title/subtitle/actions block every downstream build has been
+inventing from scratch — this gives it one shape, and — since the
+2026-08-04 revision above — it's also the *only* top-of-screen chrome
+the shell has, not a block nested below a separate bar.
+
+| Property | Value |
+|---|---|
+| Width | 100% of the main column (everything to the right of Sidebar) — full-bleed, matching Content region's own full-bleed rule, not a padded/inset block among the cards below it |
+| Title | h1 (32px/800) |
+| Subtitle | body2, Neutral-5, directly below the title |
+| Actions / CTAs | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — a period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control. Zero, one, or several CTAs are all valid; the row simply collapses when empty |
+| Gap to content below | `--section-gap` (48px) |
+
+**Do:** let Sidebar own primary navigation and its own Header/Footer
+slots — there's no second nav surface to reach for. Keep the whole
+viewport on `Canvas warm` and let Sidebar/Card read as white surfaces
+against it — that contrast is the system now, not an inconsistency to
+fix. **Don't:** invent a new sidebar width, radius, or border treatment
+per app — 240px flush-rail is the one canonical shell; the
+floating-panel treatment (`radius-lg`, 4-sided border) is reserved for
+inset/off-canvas contexts only, never the primary rail. **Don't:** add
+a persistent global top bar back in without revisiting the 2026-08-04
+decision above — if notifications or an account menu become a real
+requirement, that's a spec change, not a quiet addition on top of this.
 
 ### Button
 
@@ -1019,6 +1140,12 @@ specifically so this state gets real visual weight.
 
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
 Primary app-level navigation, not a page-local menu.
+
+⚠️ **Two placement contexts, not a contradiction (added v0.9.0):** the
+spec below (`radius-lg`, border on all four sides) describes this as a
+self-contained floating panel — correct for an inset or off-canvas/drawer
+use. When it's the primary shell rail instead, see [App Shell](#app-shell)
+for the flush, full-height variant (no radius, right-edge border only).
 
 | Part | Spec |
 |---|---|
@@ -1600,6 +1727,51 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
+  composition layer this document never had. Prompted by real downstream
+  builds: separate teams built dashboards on this system and produced
+  three different navigation shells (pure sidebar, top-bar-only, sidebar
+  **and** top-bar), plus a Card chrome deviation and a Badge semantics
+  miss. The existing component tables weren't wrong — SidebarNav, Card,
+  and Badge & Tag already specified their own internals correctly — the
+  gap was that nothing said how those pieces combine into an actual
+  screen. App Shell defines: a canonical sidebar-only pattern; a flush,
+  full-height **placement variant** of SidebarNav for the primary rail
+  (240px, no radius, right-edge border only) — SidebarNav's existing
+  spec (`radius-lg`, border on all four sides) is now documented as the
+  floating-panel/off-canvas variant, not a contradiction; a new Locked/
+  "Soon" nav-item state; Content region; and Page header, promoted (in a
+  same-day revision, still within this draft) to be the shell's *only*
+  top-of-screen chrome, full width, in place of an initially-drafted
+  separate Top bar. That first draft's Top bar (notification dot,
+  account control depending on the still-unspecced Avatar component) was
+  cut before shipping — global-scope controls have nowhere defined to
+  live as a result, an acknowledged open gap rather than a silent one.
+  Every value reuses existing spacing/radius/elevation/motion tokens —
+  no new scale was introduced (sidebar width was already specced at
+  240px). Marked ⚠️ **designed, not transcribed**, same provisional
+  status as the v0.8.0 batch. Also corrected in this pass: the
+  Components section's own scope note had undercounted for a full day
+  (see the v0.8.3 entry below) — exactly the kind of drift App Shell
+  exists to prevent elsewhere, caught here in the same file that names
+  the problem.
+- **v0.8.3-draft — 2026-08-03** — Four changes shipped this day without a
+  version bump at the time; reconstructed and folded in here
+  retroactively so the changelog matches what the file actually says.
+  Warm canvas (`#FCFAF5`) became the default page background **everywhere**,
+  reversing the v0.6.0 rule that restricted it to brand/editorial
+  surfaces — product UI was pure white before this. Button gained an
+  Icon-only variant (square hit area, Tier 1 icon required, mandatory
+  `aria-label`). Input field's Focus state was corrected to match what
+  `preview.html` actually ships — a plain 2px Obsidian border swap, not
+  the Water-ring `shadow-focus` treatment the v0.6.0 "Focus rings are
+  Water" policy implied; that policy still holds everywhere else (Card,
+  Empty state), Input field (and everything that inherits its States
+  table) is now documented as a deliberate exception. Three Input field
+  sibling components were specced and live-rendered: Textarea, Password
+  field, Search input clear button. None of these four were reflected in
+  the Components section's scope note or this changelog until the
+  v0.9.0 pass above caught it.
 - **v0.8.2-draft — 2026-07-30** — The Components gallery in
   `preview.html` was static markup — buttons that looked clickable but
   weren't, checkboxes with a hardcoded `.on` class, tabs that never
