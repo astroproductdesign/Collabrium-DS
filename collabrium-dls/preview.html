@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
 <link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
 <style>
   *{box-sizing:border-box;}
   html,body{margin:0; height:100%;}
@@ -157,125 +158,11 @@
   .comp-row{display:flex; flex-wrap:wrap; gap:var(--spacing-12); align-items:center;}
   .comp-row + .comp-row{margin-top:var(--spacing-16);}
 
-  .c-btn{font-family:inherit; font-weight:700; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background-color var(--duration-fast) var(--ease-standard),transform var(--duration-instant) var(--ease-standard);}
-  .c-btn-md{height:40px; padding:0 var(--spacing-16); font-size:16px; border-radius:var(--radius-md);}
-  .c-btn-sm{height:32px; padding:0 var(--spacing-12); font-size:14px; border-radius:var(--radius-sm);}
-  .c-btn-lg{height:48px; padding:0 var(--spacing-20); font-size:16px; border-radius:var(--radius-md);}
-  .c-btn-icon{padding:0; justify-content:center;}
-  .c-btn-icon.c-btn-sm{width:32px;}
-  .c-btn-icon.c-btn-md{width:40px;}
-  .c-btn-icon.c-btn-lg{width:48px;}
-  .c-btn-primary{background:var(--color-obsidian); color:var(--color-neutral-1);}
-  .c-btn-primary:hover{background:var(--color-neutral-8);}
-  .c-btn-primary:active{background:var(--color-neutral-7);}
-  .c-btn-secondary{background:var(--color-neutral-1); color:var(--color-neutral-9); border:1px solid var(--color-neutral-3); box-shadow:var(--shadow-1);}
-  .c-btn-secondary:hover{background:var(--color-neutral-2);}
-  .c-btn-ghost{background:transparent; color:var(--color-neutral-9);}
-  .c-btn-ghost:hover{background:var(--color-neutral-2);}
-  .c-btn:disabled{background:var(--color-neutral-4); color:var(--color-neutral-1); border-color:var(--color-neutral-3); cursor:not-allowed;}
-  .c-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
-
-  .c-field{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
-  .c-field label{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight);}
-  .c-field input{height:40px; border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); padding:0 var(--spacing-12); font-size:var(--text-body2-size); font-family:inherit; color:var(--color-neutral-9);}
-  .c-field input:focus{outline:none; border:2px solid var(--color-obsidian); padding:0 11px;}
-  .c-field-error input{border:2px solid var(--color-red); padding:0 11px;}
-  .c-helper{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-  .c-field-error .c-helper{color:var(--color-red);}
-  .c-field input:disabled{background:var(--color-neutral-2); color:var(--color-neutral-5);}
-
-  /* Success state — DESIGN-SYSTEM.md Input field, "Success / valid state"
-     table: 1px Green border, trailing check-circle icon (Tier 2 Fill). */
-  .c-field-success input{border:1px solid var(--color-green);}
-
-  /* Leading/trailing icon + icon-button plumbing shared by Password field
-     and Search input — DESIGN-SYSTEM.md Input field, "Optional leading/
-     trailing icon" paragraph. */
-  .c-field .input-wrap{position:relative; display:flex; align-items:center;}
-  /* Row-flex containers don't stretch a child to fill the main axis the
-     way .c-field's own column flex does for the plain Default/Error/
-     Disabled inputs above — without this, the input falls back to its
-     browser-default intrinsic width, which left the box short of the
-     field's full width and made trailing icons/buttons read as sitting
-     outside the box instead of inset inside it. */
-  .c-field .input-wrap input{width:100%; min-width:0;}
-  .c-field .icon-leading,.c-field .icon-trailing{position:absolute; display:flex; pointer-events:none; color:var(--color-neutral-5); font-size:var(--icon-sm);}
-  .c-field .icon-leading{left:var(--spacing-12);}
-  .c-field .icon-trailing{right:var(--spacing-12);}
-
-  /* Success icon color must come after the generic .icon-trailing rule
-     above so it isn't overridden by it (equal specificity, source order
-     decides) — DESIGN-SYSTEM.md Input field, "Success / valid state" table. */
-  .c-field-success .icon-trailing{color:var(--color-green);}
-  .c-field .input-wrap.has-leading-icon input{padding-left:36px;}
-  .c-field .input-wrap.has-trailing-icon input{padding-right:36px;}
-  .c-field .input-wrap.has-icon-btn input{padding-right:36px;}
-  .c-field .icon-btn{position:absolute; right:var(--spacing-12); display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; color:var(--color-neutral-5); font-size:var(--icon-sm); cursor:pointer; pointer-events:auto;}
-  .c-field .icon-btn:hover{color:var(--color-neutral-9);}
-  .c-field .icon-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
-  .c-field .clear-btn[hidden]{display:none;}
-
-  /* Prefix/suffix adornments — DESIGN-SYSTEM.md Input field, "Prefix/
-     suffix text adornments" rule: fixed non-editable text, caption
-     token, Neutral-5, no background, vertically centered. */
-  .c-field .adornment{position:absolute; display:flex; align-items:center; font-size:var(--text-caption-size); color:var(--color-neutral-5); pointer-events:none;}
-  .c-field .adornment-prefix{left:var(--spacing-12);}
-  .c-field .adornment-suffix{right:var(--spacing-12);}
-  .c-field .input-wrap.has-prefix input{padding-left:28px;}
-  .c-field .input-wrap.has-suffix input{padding-right:32px;}
-
-  /* Character counter — DESIGN-SYSTEM.md Input field, "Character/word
-     counter" rule: caption, Neutral-5, right-aligned, shares the
-     helper-text line, turns Red at/over the limit. */
-  .counter-row{display:flex; justify-content:flex-end;}
-  .char-counter{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-  .char-counter.at-limit{color:var(--color-red);}
-
   /* Section divider between Input field's sub-sections (States / Prefix
      Suffix / Search Input / Password Field / Character Counter /
      Textarea) — reuses the same hairline the rest of the file already
      uses for section separators (e.g. .c-card-footer, .c-pagination). */
   .comp-divider{border:none; border-top:1px solid var(--color-neutral-3); margin:var(--spacing-24) 0 var(--spacing-16);}
-
-  /* Password field — DESIGN-SYSTEM.md "Password field", Input box row:
-     40px right padding reserved regardless of size, for the toggle. */
-  .c-field.password-field input{padding-right:40px;}
-
-  /* Textarea — DESIGN-SYSTEM.md "Textarea", Box + Resize rows: min-height
-     96px, spacing-12 padding all sides, resize: vertical only. */
-  .c-field textarea{width:100%; min-height:96px; padding:var(--spacing-12); border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); resize:vertical;}
-  .c-field textarea:focus{outline:none; border:2px solid var(--color-obsidian); padding:11px;}
-
-  .c-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--spacing-16);}
-  .c-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8); transition:box-shadow var(--duration-base) var(--ease-settle);}
-  .c-card.warm{background:var(--color-canvas-warm-card); border-color:transparent;}
-  .c-card-header{display:flex; align-items:flex-start; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
-  .c-card .icon-chip{display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:var(--radius-sm); background:color-mix(in srgb, var(--color-navy) 12%, transparent); color:var(--color-navy); flex:none;}
-  .c-card-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-  .c-card h4{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
-  .c-card p{margin:0; font-size:var(--text-body2-size); color:var(--color-neutral-5);}
-  .c-card-accent{border-top:3px solid var(--color-salmon-pink);}
-  .c-card-interactive:hover{background:var(--color-neutral-2); cursor:pointer;}
-
-  .c-badge{display:inline-flex; align-items:center; gap:4px; font-size:var(--text-label3-size); font-weight:700; padding:2px var(--spacing-8); border-radius:var(--radius-pill); border:1px solid transparent; white-space:nowrap;}
-  .c-badge-neutral{background:var(--color-neutral-2); color:var(--color-neutral-9); border-color:var(--color-neutral-3);}
-  .c-badge-success{background:rgba(0,194,110,.12); color:var(--color-green); border-color:rgba(0,194,110,.32);}
-  .c-badge-error{background:rgba(253,51,67,.10); color:var(--color-red); border-color:rgba(253,51,67,.30);}
-  .c-badge-warning{background:rgba(255,164,37,.14); color:var(--color-neutral-9); border-color:rgba(255,164,37,.38);}
-  .c-badge-selected{background:var(--color-neutral-1); color:var(--color-neutral-9); border-color:var(--color-obsidian);}
-  .c-tag{display:inline-flex; align-items:center; gap:4px; font-size:var(--text-caption-size); font-weight:700; height:24px; padding:0 10px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-5);}
-  .c-tag .dot{width:6px; height:6px; border-radius:var(--radius-pill); flex:none;}
-  .c-tag-fire{color:var(--color-orange);} .c-tag-fire .dot{background:var(--color-orange);}
-  .c-tag-wood{color:var(--color-salmon-pink);} .c-tag-wood .dot{background:var(--color-salmon-pink);}
-  .c-tag-water{color:var(--color-navy);} .c-tag-water .dot{background:var(--color-navy);}
-
-  .c-table{width:100%; border-collapse:collapse;}
-  .c-table th{text-align:left; font-size:var(--text-label3-size); text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-5); border-bottom:1px solid var(--color-neutral-3); padding:var(--spacing-12) var(--spacing-8); font-weight:600;}
-  .c-table td{font-size:var(--text-body2-size); border-bottom:1px solid var(--color-neutral-3); padding:var(--spacing-12) var(--spacing-8);}
-  .c-table tr.selected td{background:var(--color-neutral-2); border-left:2px solid var(--color-obsidian);}
-  .c-table tr:hover td{background:var(--color-neutral-2);}
-  .c-table tbody tr{cursor:pointer;}
-  .c-table td.num{text-align:right; font-variant-numeric:tabular-nums;}
 
   .c-modal-stage{background:var(--color-neutral-2); border-radius:var(--radius-md); padding:var(--spacing-60); display:flex; justify-content:center;}
   .c-modal-reopen{display:none;}
@@ -384,149 +271,7 @@
   /* App Shell — v0.9.0, designed not sourced. Rail is a placement variant of
      SidebarNav (flush, no radius, right-edge border only), not a new component. */
   .comp-demo.shell-demo{padding:0; overflow:hidden; background:var(--color-canvas-warm);}
-  .c-shell{display:flex; height:480px;}
-  .c-shell-rail{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; flex:0 0 240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:0; border-right:1px solid var(--color-neutral-3); border-radius:0; overflow-y:auto;}
-  .c-sidebar-item.soon{cursor:not-allowed;}
-  .c-sidebar-item.soon i{opacity:.4;}
-  .c-sidebar-item.soon span.label{color:var(--color-neutral-4);}
-  .c-sidebar-item.soon .c-badge{margin-left:auto;}
-  .c-shell-main{flex:1; display:flex; flex-direction:column; min-width:0;}
-  .c-shell-content{flex:1; overflow-y:auto; padding:var(--page-gutter); padding-top:var(--section-gap);}
-  .c-shell-page-header{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-16); margin-bottom:var(--section-gap);}
-  .c-shell-page-header h1{margin:0 0 var(--spacing-4); font-size:var(--text-h1-size); font-weight:var(--text-h1-weight); color:var(--color-neutral-9);}
-  .c-shell-page-header p{margin:0; color:var(--color-neutral-5); font-size:var(--text-body2-size);}
-  .c-shell-actions{display:flex; gap:var(--element-gap); flex:0 0 auto;}
-
-  /* Tabs */
-  .c-tabs{display:flex; gap:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3);}
-  .c-tab{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:0; background:transparent; cursor:pointer; font-family:inherit; font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-5); box-shadow:none; transition:color var(--duration-fast) var(--ease-standard),box-shadow var(--duration-fast) var(--ease-standard);}
-  .c-tab.active{color:var(--color-neutral-9); box-shadow:inset 0 -2px 0 var(--color-obsidian);}
-  .c-tab .count{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-weight:700;}
-
-  /* Select */
-  .c-select{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
-  .c-select label{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-9);}
-  .c-select-box{position:relative; display:flex; align-items:center; height:40px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);}
-  .c-select-box select{appearance:none; flex:1; height:100%; width:100%; border:0; outline:none; background:transparent; padding:0 36px 0 var(--spacing-12); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; color:var(--color-neutral-9); cursor:pointer;}
-  .c-select-box i{position:absolute; right:var(--spacing-12); pointer-events:none; color:var(--color-neutral-5); font-size:var(--icon-sm);}
-  .c-select-box.error{border-color:var(--color-red);}
-  .c-select-box.disabled{background:var(--color-neutral-2);}
-
-  /* Checkbox / Radio / Switch */
-  .c-choice{display:flex; align-items:flex-start; gap:var(--spacing-8); cursor:pointer;}
-  .c-choice.disabled{opacity:.5; cursor:not-allowed;}
-  .c-choice input{position:absolute; opacity:0; width:0; height:0;}
-  .c-choice .text{display:flex; flex-direction:column;}
-  .c-choice .text .label{font-size:var(--text-body1-size); font-weight:500; color:var(--color-neutral-9);}
-  .c-choice .text .desc{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-  .c-checkbox-box{width:18px; height:18px; flex:none; margin-top:2px; border-radius:6px; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; font-size:12px; transition:background-color var(--duration-fast) var(--ease-standard),border-color var(--duration-fast) var(--ease-standard);}
-  .c-checkbox-box.on{border-color:var(--color-obsidian); background:var(--color-obsidian);}
-  .c-radio-circle{width:18px; height:18px; flex:none; margin-top:2px; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; transition:border-color var(--duration-fast) var(--ease-standard);}
-  .c-radio-circle.on{border-color:var(--color-obsidian);}
-  .c-radio-circle .dot{width:9px; height:9px; border-radius:var(--radius-pill); background:var(--color-obsidian);}
-  .c-choice.switch{align-items:center; gap:var(--spacing-12);}
-  .c-switch-track{position:relative; width:40px; height:24px; flex:none; border-radius:var(--radius-pill); background:var(--color-neutral-4); transition:background-color var(--duration-base) var(--ease-standard);}
-  .c-switch-track.on{background:var(--color-obsidian);}
-  .c-switch-thumb{position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:var(--radius-pill); background:var(--color-neutral-1); box-shadow:var(--shadow-1); transition:left var(--duration-base) var(--ease-settle);}
-  .c-switch-track.on .c-switch-thumb{left:19px;}
-
-  /* Toast */
-  .c-toast{display:flex; align-items:flex-start; gap:var(--spacing-12); min-width:320px; max-width:420px; padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3);}
-  .c-toast i.tone{margin-top:2px; font-size:var(--icon-base);}
-  .c-toast .tone-neutral{color:var(--color-neutral-9);}
-  .c-toast .tone-success{color:var(--color-green);}
-  .c-toast .tone-danger{color:var(--color-red);}
-  .c-toast .tone-warning{color:var(--color-amber);}
-  .c-toast .body{flex:1; min-width:0;}
-  .c-toast .title{font-size:var(--text-body1-size); font-weight:700;}
-  .c-toast .message{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-
-  /* Tooltip */
   .c-tooltip-demo{display:flex; gap:var(--spacing-32); padding:var(--spacing-40) 0;}
-  .c-tooltip-wrap{position:relative; display:inline-flex;}
-  .c-tooltip-bubble{position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:2; padding:6px 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap;}
-
-  /* DataTable */
-  .c-datatable{border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow:hidden; background:var(--color-neutral-1);}
-  .c-datatable table{width:100%; border-collapse:collapse; font-family:inherit;}
-  .c-datatable th{text-align:left; padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-2); font-size:var(--text-h5-size); font-weight:var(--text-h5-weight); color:var(--color-neutral-9); border-bottom:1px solid var(--color-neutral-3);}
-  .c-datatable td{text-align:left; padding:var(--spacing-12) var(--spacing-16); font-size:var(--text-body2-size); font-weight:500; color:var(--color-neutral-9); border-bottom:1px solid var(--color-neutral-3);}
-  .c-datatable tr:last-child td{border-bottom:none;}
-  .c-datatable tr:hover td{background:var(--color-neutral-2);}
-  .c-datatable tbody tr{cursor:pointer;}
-  .c-datatable tr.selected td{background:var(--color-neutral-2); border-left:2px solid var(--color-obsidian);}
-  .c-datatable td.num{text-align:right; font-variant-numeric:tabular-nums;}
-
-  /* ElementBadge */
-  .c-elbadge{display:inline-flex; align-items:center; gap:var(--spacing-12);}
-  .c-elbadge-chip{display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:var(--radius-sm); flex:none; font-size:17px;}
-  .c-elbadge-fire{background:color-mix(in srgb, var(--color-orange) 12%, transparent); color:var(--color-orange);}
-  .c-elbadge-earth{background:color-mix(in srgb, var(--color-green) 12%, transparent); color:var(--color-green);}
-  .c-elbadge-water{background:color-mix(in srgb, var(--color-navy) 12%, transparent); color:var(--color-navy);}
-  .c-elbadge-gold{background:color-mix(in srgb, var(--color-amber) 12%, transparent); color:var(--color-amber);}
-  .c-elbadge-wood{background:color-mix(in srgb, var(--color-salmon-pink) 12%, transparent); color:var(--color-salmon-pink);}
-  .c-elbadge .text .name{display:block; font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-9);}
-  .c-elbadge .text .fn{display:block; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-
-  /* Stat / KPI card — v0.8.0, designed not transcribed */
-  .c-stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--spacing-16);}
-  .c-stat{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8);}
-  .c-stat-top{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-12);}
-  .c-stat-label{font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
-  .c-stat-value{font-size:var(--text-h1-size); font-weight:var(--text-h1-weight); color:var(--color-neutral-9);}
-  .c-stat-value.hero{font-size:var(--text-display-size);}
-  .c-stat-trend{display:inline-flex; align-items:center; gap:4px; font-size:var(--text-caption-size); font-weight:700;}
-  .c-stat-trend.up{color:var(--color-green);}
-  .c-stat-trend.down{color:var(--color-red);}
-  .c-stat-trend.flat{color:var(--color-neutral-5);}
-  .c-stat-trend .period{color:var(--color-neutral-5); font-weight:400;}
-  .c-stat-footer{margin-top:var(--spacing-8); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-
-  /* Filters — v0.8.0, designed not transcribed */
-  .c-filterbar{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8);}
-  .c-filter-search{display:flex; align-items:center; gap:6px; height:32px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); color:var(--color-neutral-5); font-size:var(--text-body2-size);}
-  .c-filter-search input{border:0; outline:none; background:transparent; font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); width:120px;}
-  .c-filter-trigger{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body2-size); font-weight:600; cursor:pointer;}
-  .c-filter-trigger.active{border-color:var(--color-obsidian);}
-  .c-filter-trigger .count{display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; padding:0 4px; border-radius:var(--radius-pill); background:var(--color-obsidian); color:var(--color-neutral-1); font-size:10px; font-weight:700;}
-  .c-filter-pill{display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 10px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); font-size:var(--text-caption-size); font-weight:700;}
-  .c-filter-pill i{cursor:pointer; color:var(--color-neutral-5); font-size:12px;}
-  .c-filter-clear{background:none; border:0; color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
-
-  /* Pagination — v0.8.0, designed not transcribed */
-  .c-pagination{display:flex; align-items:center; justify-content:space-between; padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
-  .c-pagination .count{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-  .c-page-controls{display:flex; align-items:center; gap:4px;}
-  .c-page-btn{width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;}
-  .c-page-btn:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
-  .c-page-btn.current{background:var(--color-obsidian); color:var(--color-neutral-1);}
-  .c-page-btn:disabled{color:var(--color-neutral-4); cursor:not-allowed; background:transparent;}
-  .c-page-ellipsis{width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:var(--color-neutral-5); font-size:var(--text-caption-size);}
-
-  /* Date picker — v0.8.0, designed not transcribed */
-  .c-dp-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body1-size); font-weight:500;}
-  .c-dp-trigger i{color:var(--color-neutral-5);}
-  .c-dp-panel{width:280px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); background:var(--color-neutral-1); padding:var(--spacing-16);}
-  .c-dp-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--spacing-12);}
-  .c-dp-header h5{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
-  .c-dp-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px;}
-  .c-dp-weekday{text-align:center; font-size:var(--text-caption-size); font-weight:700; text-transform:uppercase; color:var(--color-neutral-5); padding-bottom:var(--spacing-4);}
-  .c-dp-day{width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); border:0; background:transparent; color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body2-size); cursor:pointer;}
-  .c-dp-day:hover{background:var(--color-neutral-2);}
-  .c-dp-day.today{border:1px solid var(--color-obsidian); background:transparent;}
-  .c-dp-day.selected{background:var(--color-obsidian); color:var(--color-neutral-1);}
-  .c-dp-day.range{background:var(--color-neutral-2); border-radius:0;}
-  .c-dp-day.range-start{background:var(--color-obsidian); color:var(--color-neutral-1); border-radius:var(--radius-sm) 0 0 var(--radius-sm);}
-  .c-dp-day.range-end{background:var(--color-obsidian); color:var(--color-neutral-1); border-radius:0 var(--radius-sm) var(--radius-sm) 0;}
-  .c-dp-day.disabled{color:var(--color-neutral-4); cursor:not-allowed;}
-  .c-dp-day.disabled:hover{background:transparent;}
-
-  /* Chart color mapping — v0.8.0, guideline reference, not a rendered component */
-  .c-chartmap-row{display:flex; align-items:center; gap:var(--spacing-8); flex-wrap:wrap; margin-bottom:var(--spacing-16);}
-  .c-chartmap-row:last-child{margin-bottom:0;}
-  .c-chartmap-label{width:180px; flex:none; font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
-  .c-chartmap-swatch{width:28px; height:20px; border-radius:4px; flex:none;}
-  .c-chartmap-ramp{flex:1; min-width:160px; height:20px; border-radius:4px;}
 
   /* FileUploader — v0.9.3, designed not transcribed
      Drag-over reuses the Obsidian-border + Neutral-2-fill recipe this
@@ -1001,7 +746,7 @@
           <div class="comp-head"><h3>App Shell <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.0, designed not sourced</span></h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo shell-demo">
             <div class="c-shell">
-              <nav class="c-shell-rail c-sidebar">
+              <nav class="c-sidebar">
                 <div class="c-sidebar-header">Astro Growth</div>
                 <div class="c-sidebar-section">Overview</div>
                 <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span></button>
@@ -2026,10 +1771,18 @@ description: Design Language System reference for Collabrium (Astro Digital Grow
 Quick-reference cheat sheet for building Collabrium surfaces. Full token
 detail, rationale, and open gaps live in `DESIGN-SYSTEM.md` in this same
 folder — read it before building anything beyond a trivial mockup.
-Paste-able CSS custom properties are in `tokens.css`. `preview.html` is a
-browsable brand overview microsite (writeup, real logo, color palette,
-typography, fonts, spacing & shape, guidelines) — open it directly, it
-links `tokens.css` and embeds `logo.html`. `logo.html` is the real,
+Paste-able CSS custom properties are in `tokens.css`; the actual
+component CSS (every `.c-btn`/`.c-card`/`.c-badge`/etc. rule) is in
+`components.css` — added 2026-08-04, this is the real portable copy,
+not `preview.html`'s markup alone. **To use this system in another
+project, you need both files plus the Phosphor Icons and Google Fonts
+`<link>` tags** — see DESIGN-SYSTEM.md's Technical Implementation
+section for the exact snippet and load order; skipping any of them is
+why a real integration attempt broke (colors/pills/icons not
+rendering). `preview.html` is a browsable brand overview microsite
+(writeup, real logo, color palette, typography, fonts, spacing & shape,
+guidelines) — open it directly, it links `tokens.css`, `components.css`,
+and embeds `logo.html`. `logo.html` is the real,
 corrected animated Collabrium wordmark — the canonical *live* asset, embed
 it wherever the mark can animate rather than screenshotting it. Its "O"
 cycles through a fixed 5-frame sequence — **Gold → Water → Wood → Fire →
@@ -2067,9 +1820,13 @@ treat them as more provisional than everything transcribed above them —
 a first design pass, not yet reviewed.
 
 **Standing rule:** any change to this skill's files (preview.html,
-logo.html, logo-lockups/, tokens.css, SVG/, fonts/, new components) must be reflected
-back into `DESIGN-SYSTEM.md` — content, version bump, changelog entry —
-in the same pass, not as a follow-up.
+logo.html, logo-lockups/, tokens.css, components.css, SVG/, fonts/, new
+components) must be reflected back into `DESIGN-SYSTEM.md` — content,
+version bump, changelog entry — in the same pass, not as a follow-up.
+A new or changed component needs the matching edit in **both**
+`preview.html` (live demo) **and** `components.css` (the portable
+copy) — they must never diverge from each other any more than either
+may diverge from `DESIGN-SYSTEM.md`.
 
 **Reference point:** `~/Desktop/Collabrium Design System/` is a second,
 independently built Collabrium system from the same source deck, with
@@ -2147,7 +1904,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.0-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.4-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -2216,7 +1973,50 @@ introduced. Also corrected in this pass:
 the Components section's own scope note had undercounted for a full day
 (missing the four 2026-08-03 additions) — exactly the kind of drift App
 Shell exists to prevent, caught here as a reminder to keep it current
-going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
+going forward; **v0.9.1 (2026-08-04) audited all 5 places this system's
+content gets duplicated** (SKILL.md, DESIGN-SYSTEM.md, and preview.html's
+3 embedded copies — markdown, CSS Variables, Tailwind v4, Design Tokens
+JSON) against their real sources instead of assuming the doc-sync rule
+had held. The markdown and CSS Variables copies were exactly in sync;
+`tokens.css` and the JSON export both carried a stale `v0.6.0-draft`
+stamp despite correct values; the Tailwind v4 mapping had a real gap —
+only 59 of 162 actual tokens.css tokens were mapped, missing the entire
+typography scale, icon sizes, several shadow variants, and the semantic
+spacing aliases — traced to a token-counting script that silently
+undercounted tokens.css as 101 instead of 162 (it only saw the first of
+several `--token: value;` declarations packed on a single line).
+Rebuilt the mapping from a corrected extraction, verified
+programmatically at 162/162 with zero missing and zero orphaned. This
+doesn't fix the larger, separate problem a teammate hit applying the
+system to an existing project — the actual component CSS has never been
+extracted into anything portable, and the icon/font CDN links aren't
+documented as a requirement — only the token-layer piece of it;
+**v0.9.2 (2026-08-04) simplified App Shell's main nav** — the v0.9.0
+"flush rail" placement variant (no radius, right-edge border only) is
+gone. The main nav is now SidebarNav completely unmodified — same
+width/radius/border/fill/anatomy — just inset `spacing-16` (16px) from
+the viewport's top/left/bottom edges instead of flush, at height
+`calc(100dvh - 32px)`, so its rounded corners render cleanly instead of
+clipping against the browser edge. One component, one spec, in two
+placement contexts, instead of a second divergent spec to keep in sync;
+**v0.9.3 (2026-08-04) added an explicit scope rule to App Shell** — it
+governs structure and layout only, never a component's own style — and
+fixed the one real violation an audit against that rule turned up: the
+Locked/"Soon" nav-item state (fill, text color, icon opacity, cursor, a
+Badge) had been defined inside App Shell instead of SidebarNav; it's
+now a third `Nav item` row in SidebarNav's own table. Also trimmed two
+places that redundantly restated `Canvas warm`'s hex value instead of
+referencing the token; **v0.9.4 (2026-08-04) added `components.css`** —
+the real portable copy of every component's CSS, extracted from
+`preview.html`'s own inline styles after a teammate's integration
+attempt broke on missing colors/pills/icons. `preview.html` now links
+it instead of duplicating a private copy. Also fixed a real bug the
+extraction surfaced: the shared 36×36 icon-chip pattern was scoped to
+`.c-card .icon-chip` only, so it had rendered completely unstyled
+everywhere else it's documented to work (every Stat card, since
+v0.8.0) — unscoped to plain `.icon-chip`. Resolved the practical half
+of long-open Needs Input #10 with a real integration guide instead of
+a placeholder. See changelog at the bottom of DESIGN-SYSTEM.md.
 </script>
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
@@ -2268,7 +2068,7 @@ changelog when you do.
 | 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | First full draft (v0.2.0) in [Components](#components)/[Component Rules](#component-rules), now also **live-rendered** in `preview.html`'s Components section (v0.5.0) with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
 | 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
-| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | Not proposed — needs eng input, not a design guess |
+| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved 2026-08-04** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
 | 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split (2026-07-31), with no cited source (deck or teammate build) | **Resolved 2026-07-31** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery (~40 icons across all 21 components) have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
 
 ---
@@ -2809,10 +2609,55 @@ before treating as policy.
 
 ## Technical Implementation
 
-⚠️ **Needs Input #10.** Deck has this section with blank values (loading
-strategy, font-display value, file formats served, design tokens/CSS
-variable format). This needs engineering input, not a design placeholder —
-flagged, not guessed.
+⚠️ **Needs Input #10 — partially resolved 2026-08-04.** The deck's
+original blank fields (loading strategy, `font-display` value, file
+formats served, design tokens/CSS variable format) needed engineering
+input, not a design guess — that's still true for loading strategy and
+`font-display`, left open below. File formats and the token/CSS format
+are answerable now: this system ships as plain CSS custom properties
+(no build step, no CSS-in-JS, no Sass) and literal CSS class rules — see
+below for exactly what a consuming project needs and in what order.
+
+### Using this system in an existing project
+
+Prompted by a real integration failure (2026-08-04): a teammate applied
+this system to an existing project and colors, pills, and icons didn't
+render — not because any component rule was wrong, but because nothing
+documented what a consuming project actually needs to load. Five files,
+needed together, in this order:
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+```
+
+| # | File | What it's for | If missing |
+|---|---|---|---|
+| 1 | Google Fonts — Mulish + Source Serif 4 | the two typefaces | text falls back to a system font — doesn't crash, just doesn't look right |
+| 2–3 | Phosphor Icons, **both** the Regular and Fill stylesheets, pinned to `@2.1.1` | every icon in every component (see [Iconography](#iconography)'s two-tier weight system — both weights are genuinely needed, not one-or-the-other) | icon classes (`ph-house`, `ph-fill ph-house`) render as an empty box — this was the literal "icons not pulling" report |
+| 4 | `tokens.css` | every color/spacing/radius/shadow/motion value, as CSS custom properties | components render with no color, no radius, no spacing — everything collapses to unstyled browser defaults |
+| 5 | `components.css` | the actual component CSS rules (`.c-btn`, `.c-badge`, `.c-card`, etc.) — extracted 2026-08-04 from `preview.html`'s own inline styles, where it previously had no separate, importable copy | this is the one that broke first: markup copied from `preview.html`'s "Copy markup" buttons had class names with no CSS behind them anywhere else, so nothing was styled at all |
+
+`components.css` depends on `tokens.css` — every rule in it references
+a `var(--token-name)`, none are hardcoded — so load `tokens.css` first,
+or component styling silently falls back to inherited/default values
+with no error to point at.
+
+**Class names are `c-`-prefixed** (`.c-btn`, `.c-card`, `.c-badge`, …)
+specifically to reduce collision risk with a consuming project's own
+existing classes. Don't rename them when adopting the system, and don't
+reuse the `c-` prefix for unrelated classes in the same project.
+
+**Still genuinely open, needs engineering input, not a design guess:**
+loading strategy (is `components.css` a hard dependency on every page,
+or code-split per component used?) and the exact `font-display` value
+(the deck never specified one; `swap` above is what `preview.html`
+itself uses, not a confirmed brand decision).
 
 ## Component Rules
 
@@ -2863,14 +2708,26 @@ paddings, and state colors as a starting point for review, not a
 signed-off spec — nothing here has been checked against a real screen or
 by the brand/design team yet.
 
-**Live gallery — `preview.html`, Components tab (v0.8.2).** Every
-component below is also rendered live in `preview.html`'s left pane,
-right next to this same spec in the DESIGN.md tab on the right — each
-with a "Copy markup" button. That page is the reference implementation;
-these tables are the reference spec. If they ever disagree, that's a
-bug — fix both together (see the doc-sync rule: nothing here ships
-without preview.html matching, and nothing in preview.html ships
-without this file updated to match).
+**Live gallery — `preview.html`, Components tab.** Every component
+below is also rendered live in `preview.html`'s left pane, right next
+to this same spec in the DESIGN.md tab on the right — each with a
+"Copy markup" button. That page is the reference implementation; these
+tables are the reference spec. If they ever disagree, that's a bug —
+fix both together (see the doc-sync rule: nothing here ships without
+preview.html matching, and nothing in preview.html ships without this
+file updated to match).
+
+⚠️ **`components.css` is the actual portable copy of this CSS (added
+2026-08-04).** Every rule you see rendered in the gallery lives there,
+not just inline in `preview.html` — `preview.html` itself now loads it
+via `<link>` rather than duplicating a private copy, specifically so
+the two can't drift the way `tokens.css` and its own embedded copy once
+did. "Copy markup" gives you HTML; `components.css` (plus `tokens.css`
+and the Phosphor/Google Fonts links) is what actually makes that HTML
+look like anything — see [Technical Implementation](#technical-implementation)
+for the full integration checklist. If you add or change a component
+here, `components.css` needs the matching edit in the same pass, same
+as `preview.html` does.
 
 **It's genuinely interactive, not just styled markup (v0.8.2).**
 SidebarNav and Tabs switch on click, Checkbox/Radio/Switch actually
@@ -2964,6 +2821,18 @@ internals correctly. What was missing is the composition layer that
 says how those pieces combine into an actual screen. This section is
 that layer.
 
+⚠️ **Scope rule, added 2026-08-04:** App Shell governs **structure and
+layout only** — placement, size, spacing, and which region a component
+occupies. It never defines or restates a component's own style (fill,
+border, radius, typography, state colors) — that's the owning
+component's section, always. Where App Shell needs to mention a style
+property at all (e.g. that the canvas is warm-toned), it references the
+token or the component's own section rather than restating the value,
+and if a style decision doesn't already belong to some component, that's
+a sign it belongs in that component's spec, not here. The Locked/"Soon"
+nav-item state briefly lived in this section in an earlier draft before
+being moved to [SidebarNav](#sidebarnav) for exactly this reason.
+
 **Canonical pattern: sidebar-only. No separate Top bar chrome — Page
 header is the top of every screen.** [SidebarNav](#sidebarnav) already
 has its own Header slot (logo/workspace switcher) and Footer slot
@@ -2979,56 +2848,66 @@ account) have nowhere defined to live yet as a result — that's an
 explicit, acknowledged gap, not a silent omission; revisit this
 decision if/when the product actually needs them.
 
-**Page canvas:** `Canvas warm` `#FCFAF5` for the entire viewport
-background, per the Color Palette's Warm canvas rule (now default
-everywhere as of 2026-08-03). Sidebar and Card keep their own documented
-`Neutral-1` white fill — that's the intended figure-ground contrast
-against the canvas, not a mismatch to correct. Note the timing: that
+**Page canvas — a structural fact, not a new color:** the whole
+viewport is one continuous background region using whatever [Color
+Palette](#color-palette)'s Warm canvas token currently resolves to
+(default everywhere as of 2026-08-03) — App Shell doesn't set or
+restate that value, it just establishes that there's a single shared
+background behind everything, not per-section fills. Sidebar and Card
+sit on top of it using whatever fill their own component sections
+document — again, not App Shell's to state. Note the timing: the
 "warm everywhere" rule is one day old at the time of writing, so a
 build made before 2026-08-03 landing on plain white or grey product UI
 isn't a spec violation — it was correct under the rule that existed
 when it was built.
 
-#### Sidebar placement (extends SidebarNav)
+#### Main nav — a direct instance of SidebarNav, not a variant
 
-[SidebarNav](#sidebarnav)'s own spec (240px, `radius-lg`, 1px border on
-all four sides) describes a **self-contained floating panel** — correct
-for an inset or off-canvas usage, but not for the primary shell rail,
-which runs the full viewport height flush against the browser edge. A
-100dvh-tall panel with rounded top and bottom corners flush against the
-viewport edge would show canvas colour bleeding through those corners,
-so the rail is a distinct placement variant, not a re-spec of the
-component itself:
+⚠️ **Revised 2026-08-04.** An earlier draft of this section defined a
+separate "flush rail" placement variant for App Shell's main nav — no
+radius, a single right-edge border, running flush against the viewport
+edge — reasoning that [SidebarNav](#sidebarnav)'s own spec (`radius-lg`,
+border on all four sides) would show canvas colour bleeding through its
+rounded corners if stretched flush against the browser edge. That
+reasoning was sound but the conclusion was wrong: the fix isn't a
+second, divergent spec for the same component, it's **inset spacing**.
+
+**The main nav follows the SidebarNav component exactly** — same 240px
+width, `radius-lg`, 1px border on all four sides, `Neutral-1` fill, same
+internal anatomy (Header, Section label, Nav item, icon, trailing count,
+Footer) — no properties overridden. It simply doesn't sit flush: it's
+inset by `spacing-16` (16px) from the top, left, and bottom edges of the
+viewport, so its rounded corners and border render cleanly against the
+`Canvas warm` background instead of clipping against the browser edge.
+Height is `calc(100dvh - 32px)` to account for the two 16px insets. The
+right edge needs no inset of its own — Content region's `page-gutter`
+already provides the visual gap to whatever sits next to it.
 
 | Property | Value |
 |---|---|
-| Height | 100dvh, fixed to the left edge |
-| Width | 240px — unchanged from SidebarNav's own spec |
-| Radius | none — flush corners top and bottom, unlike the floating-panel default |
-| Border | right edge only, `shadow-hairline` (1px Neutral-3) — the other three edges are flush against the viewport, no border needed there |
-| Fill | Neutral-1 — unchanged |
-| Internal anatomy | unchanged — Header, Section label, Nav item (active/inactive), icon, trailing count, Footer all per [SidebarNav](#sidebarnav) as written |
+| Component | [SidebarNav](#sidebarnav), unmodified — width, radius, border, fill, and internal anatomy all as documented there |
+| Placement | inset `spacing-16` (16px) from the viewport's top, left, and bottom edges; no inset on the right edge |
+| Height | `calc(100dvh - 32px)` |
 
-**New state — Locked / "Soon":** a third nav-item state, for sections
-that exist in the IA but aren't built yet (this has already shown up
-organically in a real build). Transparent fill (same as inactive),
-Neutral-4 text (one step more muted than inactive's Neutral-5), icon at
-40% opacity, `cursor: not-allowed`, no hover/focus feedback. The
-trailing slot carries a Badge (Neutral variant, "Soon" label) instead
-of the trailing-count slot — the two are mutually exclusive on one item.
+⚠️ **Moved 2026-08-04:** the Locked/"Soon" nav-item state used to be
+defined here. It's a component state (fill, text color, icon opacity,
+cursor, a Badge) — that's [SidebarNav](#sidebarnav)'s concern, not a
+layout/placement one, so it now lives in that component's own table
+instead. App Shell only says *where* SidebarNav sits, never *how it
+looks* — see the scope note in this section's opening paragraph.
 
 **Responsive** ⚠️ provisional, first pass, no source: below 1024px,
 collapse to a 72px icon-only rail (labels hidden, tooltip on hover
-instead); below 768px, the sidebar becomes an off-canvas drawer — and
-*that's* where SidebarNav's original floating-panel spec (`radius-lg`,
-border on all sides) actually applies, sliding in over the content with
-`shadow-4` beneath it.
+instead); below 768px, becomes an off-canvas drawer, sliding in over the
+content with `shadow-4` beneath it — still the same SidebarNav instance
+and the same inset placement rule, just triggered by a different
+affordance, not a third variant.
 
 #### Content region
 
 | Property | Value |
 |---|---|
-| Fill | `Canvas warm` `#FCFAF5` — same as the page canvas; this region doesn't get its own background |
+| Background | none of its own — inherits the page canvas described above |
 | Padding | `--page-gutter` (32px) horizontal, `--section-gap` (48px) top — reusing existing [Spacing & Shape](#spacing--shape) tokens, no new values introduced |
 | Max-width | full-bleed by default; 1200px centered only for reading-width content (settings, detail panels) — existing rule, unchanged |
 | Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |
@@ -3053,13 +2932,14 @@ the shell has, not a block nested below a separate bar.
 slots — there's no second nav surface to reach for. Keep the whole
 viewport on `Canvas warm` and let Sidebar/Card read as white surfaces
 against it — that contrast is the system now, not an inconsistency to
-fix. **Don't:** invent a new sidebar width, radius, or border treatment
-per app — 240px flush-rail is the one canonical shell; the
-floating-panel treatment (`radius-lg`, 4-sided border) is reserved for
-inset/off-canvas contexts only, never the primary rail. **Don't:** add
-a persistent global top bar back in without revisiting the 2026-08-04
-decision above — if notifications or an account menu become a real
-requirement, that's a spec change, not a quiet addition on top of this.
+fix. **Don't:** override any of SidebarNav's own properties (width,
+radius, border, fill) to make it work as the main nav — if it doesn't
+fit, adjust placement (inset/margin), not the component; a component
+used two different ways is still one component, not two specs to keep
+in sync. **Don't:** add a persistent global top bar back in without
+revisiting the 2026-08-04 decision above — if notifications or an
+account menu become a real requirement, that's a spec change, not a
+quiet addition on top of this.
 
 ### Badge & Tag
 
@@ -3507,7 +3387,13 @@ navigation orientation (top nav, bottom nav, tab bar) should be used
 unless explicitly documented as an exception for a specific context.
 
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
-Primary app-level navigation, not a page-local menu.
+Primary app-level navigation, not a page-local menu. ⚠️ **This is also
+what App Shell uses as the main nav (revised 2026-08-04)** — same
+component, unmodified, just inset from the viewport edges rather than
+centered on a page; see [App Shell](#app-shell) for the placement rule.
+An earlier draft had a separate flush/no-radius variant for that
+use — cut in favor of inset spacing so there's one spec to maintain,
+not two.
 
 | Part | Spec |
 |---|---|
@@ -3517,6 +3403,7 @@ Primary app-level navigation, not a page-local menu.
 | Nav item | 40px height minimum (grows to fit a wrapped 2-line label — see the wrapping rule below), full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
 | Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
 | Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Nav item — locked/soon ⚠️ added 2026-08-04 | for sections that exist in the IA but aren't built yet. Transparent fill (same as inactive), Neutral-4 text (one step more muted than inactive's Neutral-5), icon at 40% opacity, `cursor: not-allowed`, no hover/focus feedback. Trailing slot carries a Badge (Neutral variant, "Soon" label) instead of the trailing-count slot — the two are mutually exclusive on one item |
 | Nav item — hover ⚠️ added 2026-08-04 | Neutral-2 fill, text color unchanged from whatever active/inactive state it already has — reuses Table row's own hover token (`Row hover \| Neutral-2 fill`) and Button Ghost's hover, rather than a nav-specific value |
 | Nav item — focus-visible ⚠️ added 2026-08-04 | 2px Obsidian outline, 2px offset, additive on top of the current fill — reuses Button's exact focus-visible token; Nav item is a clickable row control at `radius-sm` like Button, not a Card-like surface, so this is used instead of Card's `shadow-focus`/Water-ring exception |
 | Nav item — active-pressed ⚠️ added 2026-08-04 | Neutral-3 fill — direct match to Button Ghost's `Active/pressed \| Neutral-3 fill`, same unfilled-by-default control family |
@@ -4265,84 +4152,111 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
-- **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
-  button that opens a grouped checkbox list for selecting multiple
-  options — the trigger reflects the current selection as
-  individually-removable Badge-Neutral chips (capped at 2, then a "+N"
-  overflow chip), visible whether the menu is open or closed. Designed
-  from scratch, no source in either the brand deck or the teammate's
-  build; reuses Button Secondary for the default trigger, Filters'
-  trigger/popover conventions, Badge's real box model for the chips, and
-  this system's own Checkbox spec for the rows, rather than inventing
-  new patterns. Built per the user's own 3-step process: component first
-  (`components/forms/DropdownMenuWithSelection.tsx` — file path kept
-  from an earlier single-select draft on the same file, replaced per
-  explicit user direction; the exported component/types are
-  `MultiSelect`/`MultiSelectOption`/`MultiSelectProps`), then a live
-  preview in `preview.html`'s Components gallery for approval — through
-  several rounds of review (Badge-based selection display instead of a
-  plain count, dynamic "{count} selected" trigger copy, removing the
-  count badge from the open states, then individually-removable
-  per-item chips that stay visible while open, which superseded the
-  count-badge/text approach) — then this spec, added only after that
-  preview was explicitly approved. Slotted alphabetically into the
-  Basics group (between Modal / dialog and Password field) rather than
-  a new category, same call as Stepper's/UserPicker's/FileUploader's own
-  placements. Updated the ToC and Scope note to match.
-- **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
-  click-to-browse/drag-and-drop attachment control — attached files list
-  as rows below the drop zone with a kind badge, name, size, and a
-  remove action. Designed from scratch, no source in either the brand
-  deck or the teammate's build; reuses Badge-Neutral's box model for the
-  kind badge, Table row's/SidebarNav's Obsidian-border + Neutral-2-fill
-  "currently engaged" recipe for the drag-over state, and the
-  Filters/Date picker popover convention for file rows, rather than
-  inventing new patterns. Built per the user's own 3-step process:
-  component first (`components/forms/FileUploader.tsx`), then a live
-  preview in `preview.html`'s Components gallery for approval —
-  including a mid-review fix (kind badge moved from a literal monospace
-  stack to `--font-primary`, same call as UserPicker's avatar-initials
-  fix) — then this spec, added only after that preview was explicitly
-  approved. Slotted alphabetically into the Basics group (between Empty
-  state and Input field) rather than a new category, same call as
-  Stepper's and UserPicker's own placements. Updated the ToC and Scope
-  note to match.
-- **v0.9.2-draft — 2026-08-04** — Added **UserPicker**, a searchable
-  input for finding and selecting a single person (an Account Executive,
-  in this app) — collapses to an avatar/name/role summary with a clear
-  action once a value is set. Designed from scratch, no source in either
-  the brand deck or the teammate's build; reuses Input field's box
-  anatomy and focus behavior, Filters'/Date picker's popover convention,
-  and Table row's hover treatment rather than inventing new patterns.
-  Built per the user's own 3-step process: component first
-  (`components/forms/UserPicker.tsx`), then a live preview in
-  `preview.html`'s Components gallery for approval — including a
-  mid-review fix (avatar initials moved from a literal monospace stack,
-  since this system has no `--font-mono` token, to `--font-primary` like
-  every other piece of text in the component) — then this spec, added
-  only after that preview was explicitly approved. Slotted alphabetically
-  into the Basics group (after Textarea) rather than a new category, same
-  call as Stepper's v0.7.0-batch placement. Updated the ToC and Scope
-  note to match.
-- **v0.9.1-draft — 2026-08-04** — Added **Stepper**, a multi-step
-  progress indicator (Horizontal/Vertical orientation × optional
-  per-step description, three states — Completed/Active/Upcoming).
-  Designed from scratch, no source in either the brand deck or the
-  teammate's build. Built per the user's own 3-step process: component
-  first (`components/navigation/Stepper.tsx`), then a live preview in
-  `preview.html`'s Components gallery for approval — including two
-  rounds of visual fixes caught in that preview (equal-length dividers
-  in both orientations, a divider touching its neighboring indicator in
-  the vertical layout, and the Completed indicator showing a checkmark
-  instead of its step number) — then this spec, added only after that
-  preview was explicitly approved. Slotted alphabetically into the
-  existing v0.7.0 batch (between SidebarNav and Switch) rather than a
-  new Navigation category, per explicit user direction — SidebarNav and
-  Tabs stay where they are. Updated the ToC and Scope note to match, and
-  fixed `preview.html`'s Components lede, which had drifted stale at
-  "21 components" since App Shell/Textarea/Password field/Search input
-  clear button were added in v0.9.0 without updating it — folded that
-  fix into this same pass rather than leaving it for a third drift.
+- **v0.9.4-draft — 2026-08-04** — Added **`components.css`**, the actual
+  portable copy of every component's CSS (Button, Input field, Card,
+  Badge & Tag, Table row, Modal, Empty state, SidebarNav, App Shell
+  layout, Tabs, Select, Checkbox/Radio/Switch, Toast, Tooltip,
+  DataTable, ElementBadge, Stat/KPI card, Filters, Pagination, Date
+  picker, Chart color mapping) — extracted from `preview.html`'s own
+  inline `<style>`, where it had lived with no separate, importable
+  copy since v0.5.0. Root cause of a real integration failure: a
+  teammate applied this system to an existing project and copying
+  markup out of "Copy markup" buttons produced class names with no CSS
+  behind them anywhere else, so colors/pills/spacing/icons didn't
+  render at all outside `preview.html` itself. `preview.html` now links
+  `components.css` (`<link rel="stylesheet">`) instead of duplicating a
+  private copy, so the gallery and the shipped file can't drift apart —
+  same fix pattern as the `tokens.css`/`src-css-vars` alignment from
+  v0.9.1. Verified byte-for-byte: every one of 22 `.c-*` component
+  selector groups present in exactly one file, zero duplicated, zero
+  dropped, and every demo-page-only rule (`.comp-block`, `.c-modal-stage`,
+  `.comp-demo.shell-demo`, etc. — gallery chrome, not real component
+  CSS) correctly stayed out of `components.css`.
+
+  Also fixed a real bug caught during the extraction, unrelated to the
+  packaging itself: the 36×36 icon-chip pattern — documented as shared
+  by Card's header **and** Stat/KPI card's icon slot — was scoped to
+  `.c-card .icon-chip` only, so every Stat card's icon in the gallery
+  (and App Shell's demo, which reuses Stat card) had rendered completely
+  unstyled since v0.8.0. Unscoped to plain `.icon-chip` so it works
+  wherever the spec says it should.
+
+  Resolved the file-formats/token-format half of long-open **Needs
+  Input #10** with a real answer instead of a placeholder: [Technical
+  Implementation](#technical-implementation) now states the 5 files an
+  existing project needs and the order to load them in (Google Fonts →
+  Phosphor Regular → Phosphor Fill → `tokens.css` → `components.css`),
+  and why each one's absence produces exactly the symptom that was
+  reported. Loading strategy and `font-display` remain open — genuinely
+  need engineering input, not a design guess.
+- **v0.9.3-draft — 2026-08-04** — Added an explicit scope rule to App
+  Shell: it governs **structure and layout only** (placement, size,
+  spacing, which region a component occupies) and never defines or
+  restates a component's own style (fill, border, radius, typography,
+  state colors) — that stays the owning component's job. Prompted by a
+  direct question about whether this was actually being held to.
+  Auditing the section against its own new rule found one real
+  violation and two smaller ones. The violation: the Locked/"Soon"
+  nav-item state (fill, text color, icon opacity, cursor, a Badge) was
+  defined inside App Shell's Main nav subsection — that's a SidebarNav
+  component state, not a layout fact, so it moved to
+  [SidebarNav](#sidebarnav)'s own table as a third `Nav item` row
+  alongside active/inactive. The smaller ones: the "Page canvas"
+  paragraph and Content region's table both restated `Canvas warm`'s
+  hex value (`#FCFAF5`) redundantly with [Color Palette](#color-palette)
+  — reworded to reference the token rather than repeat its value, and
+  to state the structural fact (one continuous background region, not
+  per-section fills) that's actually App Shell's to own. `preview.html`
+  updated to match — the `.c-sidebar-item.soon` CSS rules moved out of
+  the App Shell code comment block into the SidebarNav one, no visual
+  or behavioral change.
+- **v0.9.2-draft — 2026-08-04** — App Shell's main nav tweak: dropped the
+  separate "flush rail" placement variant (no radius, right-edge border
+  only) introduced in v0.9.0. That variant existed to solve a real
+  problem — SidebarNav's own spec (`radius-lg`, border on all four
+  sides) would show canvas colour bleeding through its rounded corners
+  if stretched flush against the browser edge — but the fix duplicated
+  the component into two specs that could drift apart. Replaced with
+  **inset spacing**: the main nav is now SidebarNav, completely
+  unmodified (same width/radius/border/fill/anatomy), placed
+  `spacing-16` (16px) in from the viewport's top, left, and bottom edges
+  instead of flush, with height `calc(100dvh - 32px)`. One component,
+  one spec, used in two placement contexts (inset-as-main-nav,
+  floating-panel-as-inset-or-drawer) rather than two components pretending
+  to be one. SidebarNav's own section now points to App Shell for the
+  placement rule instead of describing a second variant inline.
+- **v0.9.1-draft — 2026-08-04** — Cross-checked all 5 places this system's
+  content gets duplicated — `SKILL.md`, `DESIGN-SYSTEM.md`, and the three
+  embedded copies inside `preview.html` (the DESIGN.md tab's compact/
+  extended text, the CSS Variables tab, the Tailwind v4 tab, and the
+  Design Tokens JSON tab) — against their real source files, rather than
+  assuming the doc-sync rule had been holding. Found: the two markdown
+  copies and the CSS Variables copy were exactly in sync (byte-identical);
+  `tokens.css` and its embedded copy both carried a stale `v0.6.0-draft`
+  header comment despite the system being 3 minor versions ahead (values
+  were still correct — only the stamp was stale); the Design Tokens JSON
+  export's own metadata carried the same stale `0.6.0-draft` stamp
+  (values also still correct); and the Tailwind v4 theme mapping had a
+  real, substantial gap — only 59 of tokens.css's 162 actual tokens were
+  mapped into `@theme`, missing the entire typography scale (every
+  `text-*`/`weight-*`/`tracking-*` token), all 7 icon-size tokens, 4
+  shadow variants, the 5 semantic spacing aliases, and the 5
+  `-bg-strong` element tint steps. Root cause of the gap: the token count
+  used to judge coverage was itself wrong at first pass — a naive,
+  line-start-anchored extraction script undercounted tokens.css as 101
+  tokens instead of 162, because several lines pack multiple
+  `--token: value;` declarations together and a regex anchored to each
+  line's start only ever saw the first one. Rebuilt the Tailwind mapping
+  from a corrected, exhaustive token extraction; it now covers all 162
+  and was verified programmatically (162 tokens.css tokens ↔ 162 mapped,
+  zero missing, zero orphaned) rather than by eye. Fixed both stale
+  version stamps to `v0.9.1-draft` / 2026-08-04. This was prompted by a
+  teammate report that applying the system to an existing project left
+  colors, pills, and icons not rendering correctly — a separate,
+  larger problem (the component CSS itself has never been extracted
+  into anything portable, and icon/font CDN links are undocumented as a
+  requirement) that this pass does not fix, only the token-layer piece
+  of it.
 - **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
   composition layer this document never had. Prompted by real downstream
   builds: separate teams built dashboards on this system and produced
@@ -4570,11 +4484,18 @@ rather than maintaining two token sources by hand:
 </script>
 
 <script type="text/plain" id="src-css-vars">/*
-  Collabrium Design Tokens — v0.6.0-draft
+  Collabrium Design Tokens — v0.9.1-draft
   Generated from DESIGN-SYSTEM.md in this folder. That file is the source
   of truth — this file is a mechanical, paste-able rendering of its
   tables as CSS custom properties. Re-generate by hand whenever
   DESIGN-SYSTEM.md's token tables change, and bump the version comment.
+
+  Re-confirmed current as of v0.9.1-draft (2026-08-04) — this header had
+  been silently stuck at v0.6.0 since then. No token *values* had
+  actually drifted (spacing/radius/elevation/motion/color tables haven't
+  changed since v0.6.0), but nothing forced this stamp to be checked, so
+  don't trust it to self-report staleness next time either — diff
+  against DESIGN-SYSTEM.md's token tables directly if in doubt.
 
   Spacing, radius, typography, elevation, and motion values below were
   corrected in v0.6.0 against a teammate's independent, more thorough
@@ -4750,6 +4671,13 @@ rather than maintaining two token sources by hand:
   (bg-orange, rounded-sm, p-4, etc.) resolve to Collabrium's tokens.
   Hand-maintained alongside tokens.css — regenerate if the token tables
   in DESIGN-SYSTEM.md change.
+
+  Rebuilt from a full token-by-token audit on 2026-08-04 (v0.9.0-draft) —
+  the previous version only mapped 59 of tokens.css's 162 actual tokens.
+  Missing entirely: the full typography scale (every text-*/weight-*/
+  tracking-* token), all 7 icon-size tokens, 4 shadow variants, the 5
+  semantic spacing aliases, and the 5 -bg-strong element tint steps. This
+  version covers all 162 — verify token count still matches on next edit.
 */
 
 @import "tailwindcss";
@@ -4778,17 +4706,109 @@ rather than maintaining two token sources by hand:
   --color-canvas-warm: var(--color-canvas-warm);
   --color-canvas-warm-card: var(--color-canvas-warm-card);
   --color-fire-bg: var(--color-fire-bg);
+  --color-fire-bg-strong: var(--color-fire-bg-strong);
   --color-earth-bg: var(--color-earth-bg);
+  --color-earth-bg-strong: var(--color-earth-bg-strong);
   --color-water-bg: var(--color-water-bg);
+  --color-water-bg-strong: var(--color-water-bg-strong);
   --color-gold-bg: var(--color-gold-bg);
+  --color-gold-bg-strong: var(--color-gold-bg-strong);
   --color-wood-bg: var(--color-wood-bg);
+  --color-wood-bg-strong: var(--color-wood-bg-strong);
 
-  /* Typography */
+  /* Typography — font family */
   --font-primary: var(--font-primary);
   --font-secondary: var(--font-secondary);
 
-  /* Spacing (p-4 -> --spacing-4; these are raw px keys, not Tailwind's
-     default 0.25rem-multiple scale — matches Collabrium's real scale) */
+  /* Typography — weight scale */
+  --weight-extralight: var(--weight-extralight);
+  --weight-light: var(--weight-light);
+  --weight-regular: var(--weight-regular);
+  --weight-medium: var(--weight-medium);
+  --weight-semibold: var(--weight-semibold);
+  --weight-bold: var(--weight-bold);
+  --weight-extrabold: var(--weight-extrabold);
+  --weight-black: var(--weight-black);
+
+  /* Typography — type scale */
+  --text-display-size: var(--text-display-size);
+  --text-display-lh: var(--text-display-lh);
+  --text-display-weight: var(--text-display-weight);
+  --text-display-tracking: var(--text-display-tracking);
+  --text-display-size-lg: var(--text-display-size-lg);
+  --text-display-lh-lg: var(--text-display-lh-lg);
+  --text-h1-size: var(--text-h1-size);
+  --text-h1-lh: var(--text-h1-lh);
+  --text-h1-weight: var(--text-h1-weight);
+  --text-h1-tracking: var(--text-h1-tracking);
+  --text-h1-size-lg: var(--text-h1-size-lg);
+  --text-h1-lh-lg: var(--text-h1-lh-lg);
+  --text-h2-size: var(--text-h2-size);
+  --text-h2-lh: var(--text-h2-lh);
+  --text-h2-weight: var(--text-h2-weight);
+  --text-h2-tracking: var(--text-h2-tracking);
+  --text-h2-size-lg: var(--text-h2-size-lg);
+  --text-h2-lh-lg: var(--text-h2-lh-lg);
+  --text-h3-size: var(--text-h3-size);
+  --text-h3-lh: var(--text-h3-lh);
+  --text-h3-weight: var(--text-h3-weight);
+  --text-h3-tracking: var(--text-h3-tracking);
+  --text-h3-size-lg: var(--text-h3-size-lg);
+  --text-h3-lh-lg: var(--text-h3-lh-lg);
+  --text-h4-size: var(--text-h4-size);
+  --text-h4-lh: var(--text-h4-lh);
+  --text-h4-weight: var(--text-h4-weight);
+  --text-h4-tracking: var(--text-h4-tracking);
+  --text-h4-size-lg: var(--text-h4-size-lg);
+  --text-h4-lh-lg: var(--text-h4-lh-lg);
+  --text-h5-size: var(--text-h5-size);
+  --text-h5-lh: var(--text-h5-lh);
+  --text-h5-weight: var(--text-h5-weight);
+  --text-h5-tracking: var(--text-h5-tracking);
+  --text-body1-size: var(--text-body1-size);
+  --text-body1-lh: var(--text-body1-lh);
+  --text-body1-weight: var(--text-body1-weight);
+  --text-body1-tracking: var(--text-body1-tracking);
+  --text-body1-strong-weight: var(--text-body1-strong-weight);
+  --text-body2-size: var(--text-body2-size);
+  --text-body2-lh: var(--text-body2-lh);
+  --text-body2-weight: var(--text-body2-weight);
+  --text-body2-tracking: var(--text-body2-tracking);
+  --text-body2-lh-lg: var(--text-body2-lh-lg);
+  --text-body2-strong-weight: var(--text-body2-strong-weight);
+  --text-label1-size: var(--text-label1-size);
+  --text-label1-lh: var(--text-label1-lh);
+  --text-label1-weight: var(--text-label1-weight);
+  --text-label1-tracking: var(--text-label1-tracking);
+  --text-label2-size: var(--text-label2-size);
+  --text-label2-lh: var(--text-label2-lh);
+  --text-label2-weight: var(--text-label2-weight);
+  --text-label2-tracking: var(--text-label2-tracking);
+  --text-label3-size: var(--text-label3-size);
+  --text-label3-lh: var(--text-label3-lh);
+  --text-label3-weight: var(--text-label3-weight);
+  --text-label3-tracking: var(--text-label3-tracking);
+  --text-link1-size: var(--text-link1-size);
+  --text-link1-lh: var(--text-link1-lh);
+  --text-link1-weight: var(--text-link1-weight);
+  --text-link1-tracking: var(--text-link1-tracking);
+  --text-link2-size: var(--text-link2-size);
+  --text-link2-lh: var(--text-link2-lh);
+  --text-link2-weight: var(--text-link2-weight);
+  --text-link2-tracking: var(--text-link2-tracking);
+  --text-footnote-size: var(--text-footnote-size);
+  --text-footnote-lh: var(--text-footnote-lh);
+  --text-footnote-weight: var(--text-footnote-weight);
+  --text-footnote-tracking: var(--text-footnote-tracking);
+  --text-caption-size: var(--text-caption-size);
+  --text-caption-lh: var(--text-caption-lh);
+  --text-caption-weight: var(--text-caption-weight);
+  --text-caption-tracking: var(--text-caption-tracking);
+
+  /* Typography — tracking */
+  --tracking-eyebrow: var(--tracking-eyebrow);
+
+  /* Spacing */
   --spacing-4: var(--spacing-4);
   --spacing-8: var(--spacing-8);
   --spacing-12: var(--spacing-12);
@@ -4800,20 +4820,29 @@ rather than maintaining two token sources by hand:
   --spacing-48: var(--spacing-48);
   --spacing-60: var(--spacing-60);
   --spacing-120: var(--spacing-120);
+  --card-padding: var(--card-padding);
+  --element-gap: var(--element-gap);
+  --section-gap: var(--section-gap);
+  --page-gutter: var(--page-gutter);
+  --content-max-width: var(--content-max-width);
 
-  /* Radius (rounded-sm -> --radius-sm) */
+  /* Radius */
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
   --radius-pill: var(--radius-pill);
   --radius-link: var(--radius-link);
 
-  /* Shadow (shadow-1 -> --shadow-1) */
+  /* Elevation */
+  --shadow-hairline: var(--shadow-hairline);
   --shadow-1: var(--shadow-1);
   --shadow-2: var(--shadow-2);
   --shadow-3: var(--shadow-3);
   --shadow-4: var(--shadow-4);
+  --shadow-inset: var(--shadow-inset);
   --shadow-focus: var(--shadow-focus);
+  --shadow-overlay: var(--shadow-overlay);
+  --shadow-modal: var(--shadow-modal);
 
   /* Motion */
   --duration-instant: var(--duration-instant);
@@ -4827,13 +4856,22 @@ rather than maintaining two token sources by hand:
   --ease-flare: var(--ease-flare);
   --ease-precise: var(--ease-precise);
   --ease-grow: var(--ease-grow);
+
+  /* Icon sizes */
+  --icon-micro: var(--icon-micro);
+  --icon-sm: var(--icon-sm);
+  --icon-base: var(--icon-base);
+  --icon-md: var(--icon-md);
+  --icon-lg: var(--icon-lg);
+  --icon-empty: var(--icon-empty);
+  --icon-hero: var(--icon-hero);
 }
 </script>
 
 <script type="text/plain" id="src-json">{
   "$schema": "collabrium-design-tokens",
-  "version": "0.6.0-draft",
-  "lastUpdated": "2026-07-29",
+  "version": "0.9.4-draft",
+  "lastUpdated": "2026-08-04",
   "color": {
     "brand": {
       "orange": "#FF5825",

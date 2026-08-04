@@ -47,7 +47,7 @@ changelog when you do.
 | 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | First full draft (v0.2.0) in [Components](#components)/[Component Rules](#component-rules), now also **live-rendered** in `preview.html`'s Components section (v0.5.0) with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
 | 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
-| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | Not proposed — needs eng input, not a design guess |
+| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved 2026-08-04** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
 | 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split (2026-07-31), with no cited source (deck or teammate build) | **Resolved 2026-07-31** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery (~40 icons across all 21 components) have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
 
 ---
@@ -588,10 +588,55 @@ before treating as policy.
 
 ## Technical Implementation
 
-⚠️ **Needs Input #10.** Deck has this section with blank values (loading
-strategy, font-display value, file formats served, design tokens/CSS
-variable format). This needs engineering input, not a design placeholder —
-flagged, not guessed.
+⚠️ **Needs Input #10 — partially resolved 2026-08-04.** The deck's
+original blank fields (loading strategy, `font-display` value, file
+formats served, design tokens/CSS variable format) needed engineering
+input, not a design guess — that's still true for loading strategy and
+`font-display`, left open below. File formats and the token/CSS format
+are answerable now: this system ships as plain CSS custom properties
+(no build step, no CSS-in-JS, no Sass) and literal CSS class rules — see
+below for exactly what a consuming project needs and in what order.
+
+### Using this system in an existing project
+
+Prompted by a real integration failure (2026-08-04): a teammate applied
+this system to an existing project and colors, pills, and icons didn't
+render — not because any component rule was wrong, but because nothing
+documented what a consuming project actually needs to load. Five files,
+needed together, in this order:
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+```
+
+| # | File | What it's for | If missing |
+|---|---|---|---|
+| 1 | Google Fonts — Mulish + Source Serif 4 | the two typefaces | text falls back to a system font — doesn't crash, just doesn't look right |
+| 2–3 | Phosphor Icons, **both** the Regular and Fill stylesheets, pinned to `@2.1.1` | every icon in every component (see [Iconography](#iconography)'s two-tier weight system — both weights are genuinely needed, not one-or-the-other) | icon classes (`ph-house`, `ph-fill ph-house`) render as an empty box — this was the literal "icons not pulling" report |
+| 4 | `tokens.css` | every color/spacing/radius/shadow/motion value, as CSS custom properties | components render with no color, no radius, no spacing — everything collapses to unstyled browser defaults |
+| 5 | `components.css` | the actual component CSS rules (`.c-btn`, `.c-badge`, `.c-card`, etc.) — extracted 2026-08-04 from `preview.html`'s own inline styles, where it previously had no separate, importable copy | this is the one that broke first: markup copied from `preview.html`'s "Copy markup" buttons had class names with no CSS behind them anywhere else, so nothing was styled at all |
+
+`components.css` depends on `tokens.css` — every rule in it references
+a `var(--token-name)`, none are hardcoded — so load `tokens.css` first,
+or component styling silently falls back to inherited/default values
+with no error to point at.
+
+**Class names are `c-`-prefixed** (`.c-btn`, `.c-card`, `.c-badge`, …)
+specifically to reduce collision risk with a consuming project's own
+existing classes. Don't rename them when adopting the system, and don't
+reuse the `c-` prefix for unrelated classes in the same project.
+
+**Still genuinely open, needs engineering input, not a design guess:**
+loading strategy (is `components.css` a hard dependency on every page,
+or code-split per component used?) and the exact `font-display` value
+(the deck never specified one; `swap` above is what `preview.html`
+itself uses, not a confirmed brand decision).
 
 ## Component Rules
 
@@ -642,14 +687,26 @@ paddings, and state colors as a starting point for review, not a
 signed-off spec — nothing here has been checked against a real screen or
 by the brand/design team yet.
 
-**Live gallery — `preview.html`, Components tab (v0.8.2).** Every
-component below is also rendered live in `preview.html`'s left pane,
-right next to this same spec in the DESIGN.md tab on the right — each
-with a "Copy markup" button. That page is the reference implementation;
-these tables are the reference spec. If they ever disagree, that's a
-bug — fix both together (see the doc-sync rule: nothing here ships
-without preview.html matching, and nothing in preview.html ships
-without this file updated to match).
+**Live gallery — `preview.html`, Components tab.** Every component
+below is also rendered live in `preview.html`'s left pane, right next
+to this same spec in the DESIGN.md tab on the right — each with a
+"Copy markup" button. That page is the reference implementation; these
+tables are the reference spec. If they ever disagree, that's a bug —
+fix both together (see the doc-sync rule: nothing here ships without
+preview.html matching, and nothing in preview.html ships without this
+file updated to match).
+
+⚠️ **`components.css` is the actual portable copy of this CSS (added
+2026-08-04).** Every rule you see rendered in the gallery lives there,
+not just inline in `preview.html` — `preview.html` itself now loads it
+via `<link>` rather than duplicating a private copy, specifically so
+the two can't drift the way `tokens.css` and its own embedded copy once
+did. "Copy markup" gives you HTML; `components.css` (plus `tokens.css`
+and the Phosphor/Google Fonts links) is what actually makes that HTML
+look like anything — see [Technical Implementation](#technical-implementation)
+for the full integration checklist. If you add or change a component
+here, `components.css` needs the matching edit in the same pass, same
+as `preview.html` does.
 
 **It's genuinely interactive, not just styled markup (v0.8.2).**
 SidebarNav and Tabs switch on click, Checkbox/Radio/Switch actually
@@ -743,6 +800,18 @@ internals correctly. What was missing is the composition layer that
 says how those pieces combine into an actual screen. This section is
 that layer.
 
+⚠️ **Scope rule, added 2026-08-04:** App Shell governs **structure and
+layout only** — placement, size, spacing, and which region a component
+occupies. It never defines or restates a component's own style (fill,
+border, radius, typography, state colors) — that's the owning
+component's section, always. Where App Shell needs to mention a style
+property at all (e.g. that the canvas is warm-toned), it references the
+token or the component's own section rather than restating the value,
+and if a style decision doesn't already belong to some component, that's
+a sign it belongs in that component's spec, not here. The Locked/"Soon"
+nav-item state briefly lived in this section in an earlier draft before
+being moved to [SidebarNav](#sidebarnav) for exactly this reason.
+
 **Canonical pattern: sidebar-only. No separate Top bar chrome — Page
 header is the top of every screen.** [SidebarNav](#sidebarnav) already
 has its own Header slot (logo/workspace switcher) and Footer slot
@@ -758,56 +827,66 @@ account) have nowhere defined to live yet as a result — that's an
 explicit, acknowledged gap, not a silent omission; revisit this
 decision if/when the product actually needs them.
 
-**Page canvas:** `Canvas warm` `#FCFAF5` for the entire viewport
-background, per the Color Palette's Warm canvas rule (now default
-everywhere as of 2026-08-03). Sidebar and Card keep their own documented
-`Neutral-1` white fill — that's the intended figure-ground contrast
-against the canvas, not a mismatch to correct. Note the timing: that
+**Page canvas — a structural fact, not a new color:** the whole
+viewport is one continuous background region using whatever [Color
+Palette](#color-palette)'s Warm canvas token currently resolves to
+(default everywhere as of 2026-08-03) — App Shell doesn't set or
+restate that value, it just establishes that there's a single shared
+background behind everything, not per-section fills. Sidebar and Card
+sit on top of it using whatever fill their own component sections
+document — again, not App Shell's to state. Note the timing: the
 "warm everywhere" rule is one day old at the time of writing, so a
 build made before 2026-08-03 landing on plain white or grey product UI
 isn't a spec violation — it was correct under the rule that existed
 when it was built.
 
-#### Sidebar placement (extends SidebarNav)
+#### Main nav — a direct instance of SidebarNav, not a variant
 
-[SidebarNav](#sidebarnav)'s own spec (240px, `radius-lg`, 1px border on
-all four sides) describes a **self-contained floating panel** — correct
-for an inset or off-canvas usage, but not for the primary shell rail,
-which runs the full viewport height flush against the browser edge. A
-100dvh-tall panel with rounded top and bottom corners flush against the
-viewport edge would show canvas colour bleeding through those corners,
-so the rail is a distinct placement variant, not a re-spec of the
-component itself:
+⚠️ **Revised 2026-08-04.** An earlier draft of this section defined a
+separate "flush rail" placement variant for App Shell's main nav — no
+radius, a single right-edge border, running flush against the viewport
+edge — reasoning that [SidebarNav](#sidebarnav)'s own spec (`radius-lg`,
+border on all four sides) would show canvas colour bleeding through its
+rounded corners if stretched flush against the browser edge. That
+reasoning was sound but the conclusion was wrong: the fix isn't a
+second, divergent spec for the same component, it's **inset spacing**.
+
+**The main nav follows the SidebarNav component exactly** — same 240px
+width, `radius-lg`, 1px border on all four sides, `Neutral-1` fill, same
+internal anatomy (Header, Section label, Nav item, icon, trailing count,
+Footer) — no properties overridden. It simply doesn't sit flush: it's
+inset by `spacing-16` (16px) from the top, left, and bottom edges of the
+viewport, so its rounded corners and border render cleanly against the
+`Canvas warm` background instead of clipping against the browser edge.
+Height is `calc(100dvh - 32px)` to account for the two 16px insets. The
+right edge needs no inset of its own — Content region's `page-gutter`
+already provides the visual gap to whatever sits next to it.
 
 | Property | Value |
 |---|---|
-| Height | 100dvh, fixed to the left edge |
-| Width | 240px — unchanged from SidebarNav's own spec |
-| Radius | none — flush corners top and bottom, unlike the floating-panel default |
-| Border | right edge only, `shadow-hairline` (1px Neutral-3) — the other three edges are flush against the viewport, no border needed there |
-| Fill | Neutral-1 — unchanged |
-| Internal anatomy | unchanged — Header, Section label, Nav item (active/inactive), icon, trailing count, Footer all per [SidebarNav](#sidebarnav) as written |
+| Component | [SidebarNav](#sidebarnav), unmodified — width, radius, border, fill, and internal anatomy all as documented there |
+| Placement | inset `spacing-16` (16px) from the viewport's top, left, and bottom edges; no inset on the right edge |
+| Height | `calc(100dvh - 32px)` |
 
-**New state — Locked / "Soon":** a third nav-item state, for sections
-that exist in the IA but aren't built yet (this has already shown up
-organically in a real build). Transparent fill (same as inactive),
-Neutral-4 text (one step more muted than inactive's Neutral-5), icon at
-40% opacity, `cursor: not-allowed`, no hover/focus feedback. The
-trailing slot carries a Badge (Neutral variant, "Soon" label) instead
-of the trailing-count slot — the two are mutually exclusive on one item.
+⚠️ **Moved 2026-08-04:** the Locked/"Soon" nav-item state used to be
+defined here. It's a component state (fill, text color, icon opacity,
+cursor, a Badge) — that's [SidebarNav](#sidebarnav)'s concern, not a
+layout/placement one, so it now lives in that component's own table
+instead. App Shell only says *where* SidebarNav sits, never *how it
+looks* — see the scope note in this section's opening paragraph.
 
 **Responsive** ⚠️ provisional, first pass, no source: below 1024px,
 collapse to a 72px icon-only rail (labels hidden, tooltip on hover
-instead); below 768px, the sidebar becomes an off-canvas drawer — and
-*that's* where SidebarNav's original floating-panel spec (`radius-lg`,
-border on all sides) actually applies, sliding in over the content with
-`shadow-4` beneath it.
+instead); below 768px, becomes an off-canvas drawer, sliding in over the
+content with `shadow-4` beneath it — still the same SidebarNav instance
+and the same inset placement rule, just triggered by a different
+affordance, not a third variant.
 
 #### Content region
 
 | Property | Value |
 |---|---|
-| Fill | `Canvas warm` `#FCFAF5` — same as the page canvas; this region doesn't get its own background |
+| Background | none of its own — inherits the page canvas described above |
 | Padding | `--page-gutter` (32px) horizontal, `--section-gap` (48px) top — reusing existing [Spacing & Shape](#spacing--shape) tokens, no new values introduced |
 | Max-width | full-bleed by default; 1200px centered only for reading-width content (settings, detail panels) — existing rule, unchanged |
 | Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |
@@ -832,13 +911,14 @@ the shell has, not a block nested below a separate bar.
 slots — there's no second nav surface to reach for. Keep the whole
 viewport on `Canvas warm` and let Sidebar/Card read as white surfaces
 against it — that contrast is the system now, not an inconsistency to
-fix. **Don't:** invent a new sidebar width, radius, or border treatment
-per app — 240px flush-rail is the one canonical shell; the
-floating-panel treatment (`radius-lg`, 4-sided border) is reserved for
-inset/off-canvas contexts only, never the primary rail. **Don't:** add
-a persistent global top bar back in without revisiting the 2026-08-04
-decision above — if notifications or an account menu become a real
-requirement, that's a spec change, not a quiet addition on top of this.
+fix. **Don't:** override any of SidebarNav's own properties (width,
+radius, border, fill) to make it work as the main nav — if it doesn't
+fit, adjust placement (inset/margin), not the component; a component
+used two different ways is still one component, not two specs to keep
+in sync. **Don't:** add a persistent global top bar back in without
+revisiting the 2026-08-04 decision above — if notifications or an
+account menu become a real requirement, that's a spec change, not a
+quiet addition on top of this.
 
 ### Badge & Tag
 
@@ -1280,6 +1360,14 @@ state.
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `Checkbox.jsx`.**
 Supports multi-select and an indeterminate (partial-selection) state.
 
+⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
+Primary app-level navigation, not a page-local menu. ⚠️ **This is also
+what App Shell uses as the main nav (revised 2026-08-04)** — same
+component, unmodified, just inset from the viewport edges rather than
+centered on a page; see [App Shell](#app-shell) for the placement rule.
+An earlier draft had a separate flush/no-radius variant for that
+use — cut in favor of inset spacing so there's one spec to maintain,
+not two.
 | Part | Spec |
 |---|---|
 | Box | 18×18px, 6px radius (⚠️ a one-off literal value — doesn't map to `radius-sm` or any named token; a compact control gets its own smaller radius), spacing-8 gap to the text, 2px top margin for optical alignment with the first text line |
@@ -1328,6 +1416,7 @@ Primary app-level navigation, not a page-local menu.
 | Nav item | 40px height minimum (grows to fit a wrapped 2-line label — see the wrapping rule below), full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
 | Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
 | Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Nav item — locked/soon ⚠️ added 2026-08-04 | for sections that exist in the IA but aren't built yet. Transparent fill (same as inactive), Neutral-4 text (one step more muted than inactive's Neutral-5), icon at 40% opacity, `cursor: not-allowed`, no hover/focus feedback. Trailing slot carries a Badge (Neutral variant, "Soon" label) instead of the trailing-count slot — the two are mutually exclusive on one item |
 | Nav item — hover ⚠️ added 2026-08-04 | Neutral-2 fill, text color unchanged from whatever active/inactive state it already has — reuses Table row's own hover token (`Row hover \| Neutral-2 fill`) and Button Ghost's hover, rather than a nav-specific value |
 | Nav item — focus-visible ⚠️ added 2026-08-04 | 2px Obsidian outline, 2px offset, additive on top of the current fill — reuses Button's exact focus-visible token; Nav item is a clickable row control at `radius-sm` like Button, not a Card-like surface, so this is used instead of Card's `shadow-focus`/Water-ring exception |
 | Nav item — active-pressed ⚠️ added 2026-08-04 | Neutral-3 fill — direct match to Button Ghost's `Active/pressed \| Neutral-3 fill`, same unfilled-by-default control family |
@@ -1964,6 +2053,111 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.4-draft — 2026-08-04** — Added **`components.css`**, the actual
+  portable copy of every component's CSS (Button, Input field, Card,
+  Badge & Tag, Table row, Modal, Empty state, SidebarNav, App Shell
+  layout, Tabs, Select, Checkbox/Radio/Switch, Toast, Tooltip,
+  DataTable, ElementBadge, Stat/KPI card, Filters, Pagination, Date
+  picker, Chart color mapping) — extracted from `preview.html`'s own
+  inline `<style>`, where it had lived with no separate, importable
+  copy since v0.5.0. Root cause of a real integration failure: a
+  teammate applied this system to an existing project and copying
+  markup out of "Copy markup" buttons produced class names with no CSS
+  behind them anywhere else, so colors/pills/spacing/icons didn't
+  render at all outside `preview.html` itself. `preview.html` now links
+  `components.css` (`<link rel="stylesheet">`) instead of duplicating a
+  private copy, so the gallery and the shipped file can't drift apart —
+  same fix pattern as the `tokens.css`/`src-css-vars` alignment from
+  v0.9.1. Verified byte-for-byte: every one of 22 `.c-*` component
+  selector groups present in exactly one file, zero duplicated, zero
+  dropped, and every demo-page-only rule (`.comp-block`, `.c-modal-stage`,
+  `.comp-demo.shell-demo`, etc. — gallery chrome, not real component
+  CSS) correctly stayed out of `components.css`.
+
+  Also fixed a real bug caught during the extraction, unrelated to the
+  packaging itself: the 36×36 icon-chip pattern — documented as shared
+  by Card's header **and** Stat/KPI card's icon slot — was scoped to
+  `.c-card .icon-chip` only, so every Stat card's icon in the gallery
+  (and App Shell's demo, which reuses Stat card) had rendered completely
+  unstyled since v0.8.0. Unscoped to plain `.icon-chip` so it works
+  wherever the spec says it should.
+
+  Resolved the file-formats/token-format half of long-open **Needs
+  Input #10** with a real answer instead of a placeholder: [Technical
+  Implementation](#technical-implementation) now states the 5 files an
+  existing project needs and the order to load them in (Google Fonts →
+  Phosphor Regular → Phosphor Fill → `tokens.css` → `components.css`),
+  and why each one's absence produces exactly the symptom that was
+  reported. Loading strategy and `font-display` remain open — genuinely
+  need engineering input, not a design guess.
+- **v0.9.3-draft — 2026-08-04** — Added an explicit scope rule to App
+  Shell: it governs **structure and layout only** (placement, size,
+  spacing, which region a component occupies) and never defines or
+  restates a component's own style (fill, border, radius, typography,
+  state colors) — that stays the owning component's job. Prompted by a
+  direct question about whether this was actually being held to.
+  Auditing the section against its own new rule found one real
+  violation and two smaller ones. The violation: the Locked/"Soon"
+  nav-item state (fill, text color, icon opacity, cursor, a Badge) was
+  defined inside App Shell's Main nav subsection — that's a SidebarNav
+  component state, not a layout fact, so it moved to
+  [SidebarNav](#sidebarnav)'s own table as a third `Nav item` row
+  alongside active/inactive. The smaller ones: the "Page canvas"
+  paragraph and Content region's table both restated `Canvas warm`'s
+  hex value (`#FCFAF5`) redundantly with [Color Palette](#color-palette)
+  — reworded to reference the token rather than repeat its value, and
+  to state the structural fact (one continuous background region, not
+  per-section fills) that's actually App Shell's to own. `preview.html`
+  updated to match — the `.c-sidebar-item.soon` CSS rules moved out of
+  the App Shell code comment block into the SidebarNav one, no visual
+  or behavioral change.
+- **v0.9.2-draft — 2026-08-04** — App Shell's main nav tweak: dropped the
+  separate "flush rail" placement variant (no radius, right-edge border
+  only) introduced in v0.9.0. That variant existed to solve a real
+  problem — SidebarNav's own spec (`radius-lg`, border on all four
+  sides) would show canvas colour bleeding through its rounded corners
+  if stretched flush against the browser edge — but the fix duplicated
+  the component into two specs that could drift apart. Replaced with
+  **inset spacing**: the main nav is now SidebarNav, completely
+  unmodified (same width/radius/border/fill/anatomy), placed
+  `spacing-16` (16px) in from the viewport's top, left, and bottom edges
+  instead of flush, with height `calc(100dvh - 32px)`. One component,
+  one spec, used in two placement contexts (inset-as-main-nav,
+  floating-panel-as-inset-or-drawer) rather than two components pretending
+  to be one. SidebarNav's own section now points to App Shell for the
+  placement rule instead of describing a second variant inline.
+- **v0.9.1-draft — 2026-08-04** — Cross-checked all 5 places this system's
+  content gets duplicated — `SKILL.md`, `DESIGN-SYSTEM.md`, and the three
+  embedded copies inside `preview.html` (the DESIGN.md tab's compact/
+  extended text, the CSS Variables tab, the Tailwind v4 tab, and the
+  Design Tokens JSON tab) — against their real source files, rather than
+  assuming the doc-sync rule had been holding. Found: the two markdown
+  copies and the CSS Variables copy were exactly in sync (byte-identical);
+  `tokens.css` and its embedded copy both carried a stale `v0.6.0-draft`
+  header comment despite the system being 3 minor versions ahead (values
+  were still correct — only the stamp was stale); the Design Tokens JSON
+  export's own metadata carried the same stale `0.6.0-draft` stamp
+  (values also still correct); and the Tailwind v4 theme mapping had a
+  real, substantial gap — only 59 of tokens.css's 162 actual tokens were
+  mapped into `@theme`, missing the entire typography scale (every
+  `text-*`/`weight-*`/`tracking-*` token), all 7 icon-size tokens, 4
+  shadow variants, the 5 semantic spacing aliases, and the 5
+  `-bg-strong` element tint steps. Root cause of the gap: the token count
+  used to judge coverage was itself wrong at first pass — a naive,
+  line-start-anchored extraction script undercounted tokens.css as 101
+  tokens instead of 162, because several lines pack multiple
+  `--token: value;` declarations together and a regex anchored to each
+  line's start only ever saw the first one. Rebuilt the Tailwind mapping
+  from a corrected, exhaustive token extraction; it now covers all 162
+  and was verified programmatically (162 tokens.css tokens ↔ 162 mapped,
+  zero missing, zero orphaned) rather than by eye. Fixed both stale
+  version stamps to `v0.9.1-draft` / 2026-08-04. This was prompted by a
+  teammate report that applying the system to an existing project left
+  colors, pills, and icons not rendering correctly — a separate,
+  larger problem (the component CSS itself has never been extracted
+  into anything portable, and icon/font CDN links are undocumented as a
+  requirement) that this pass does not fix, only the token-layer piece
+  of it.
 - **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
   button that opens a grouped checkbox list for selecting multiple
   options — the trigger reflects the current selection as

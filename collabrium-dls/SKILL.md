@@ -8,10 +8,18 @@ description: Design Language System reference for Collabrium (Astro Digital Grow
 Quick-reference cheat sheet for building Collabrium surfaces. Full token
 detail, rationale, and open gaps live in `DESIGN-SYSTEM.md` in this same
 folder — read it before building anything beyond a trivial mockup.
-Paste-able CSS custom properties are in `tokens.css`. `preview.html` is a
-browsable brand overview microsite (writeup, real logo, color palette,
-typography, fonts, spacing & shape, guidelines) — open it directly, it
-links `tokens.css` and embeds `logo.html`. `logo.html` is the real,
+Paste-able CSS custom properties are in `tokens.css`; the actual
+component CSS (every `.c-btn`/`.c-card`/`.c-badge`/etc. rule) is in
+`components.css` — added 2026-08-04, this is the real portable copy,
+not `preview.html`'s markup alone. **To use this system in another
+project, you need both files plus the Phosphor Icons and Google Fonts
+`<link>` tags** — see DESIGN-SYSTEM.md's Technical Implementation
+section for the exact snippet and load order; skipping any of them is
+why a real integration attempt broke (colors/pills/icons not
+rendering). `preview.html` is a browsable brand overview microsite
+(writeup, real logo, color palette, typography, fonts, spacing & shape,
+guidelines) — open it directly, it links `tokens.css`, `components.css`,
+and embeds `logo.html`. `logo.html` is the real,
 corrected animated Collabrium wordmark — the canonical *live* asset, embed
 it wherever the mark can animate rather than screenshotting it. Its "O"
 cycles through a fixed 5-frame sequence — **Gold → Water → Wood → Fire →
@@ -49,9 +57,13 @@ treat them as more provisional than everything transcribed above them —
 a first design pass, not yet reviewed.
 
 **Standing rule:** any change to this skill's files (preview.html,
-logo.html, logo-lockups/, tokens.css, SVG/, fonts/, new components) must be reflected
-back into `DESIGN-SYSTEM.md` — content, version bump, changelog entry —
-in the same pass, not as a follow-up.
+logo.html, logo-lockups/, tokens.css, components.css, SVG/, fonts/, new
+components) must be reflected back into `DESIGN-SYSTEM.md` — content,
+version bump, changelog entry — in the same pass, not as a follow-up.
+A new or changed component needs the matching edit in **both**
+`preview.html` (live demo) **and** `components.css` (the portable
+copy) — they must never diverge from each other any more than either
+may diverge from `DESIGN-SYSTEM.md`.
 
 **Reference point:** `~/Desktop/Collabrium Design System/` is a second,
 independently built Collabrium system from the same source deck, with
@@ -129,7 +141,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.0-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.4-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -198,4 +210,47 @@ introduced. Also corrected in this pass:
 the Components section's own scope note had undercounted for a full day
 (missing the four 2026-08-03 additions) — exactly the kind of drift App
 Shell exists to prevent, caught here as a reminder to keep it current
-going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
+going forward; **v0.9.1 (2026-08-04) audited all 5 places this system's
+content gets duplicated** (SKILL.md, DESIGN-SYSTEM.md, and preview.html's
+3 embedded copies — markdown, CSS Variables, Tailwind v4, Design Tokens
+JSON) against their real sources instead of assuming the doc-sync rule
+had held. The markdown and CSS Variables copies were exactly in sync;
+`tokens.css` and the JSON export both carried a stale `v0.6.0-draft`
+stamp despite correct values; the Tailwind v4 mapping had a real gap —
+only 59 of 162 actual tokens.css tokens were mapped, missing the entire
+typography scale, icon sizes, several shadow variants, and the semantic
+spacing aliases — traced to a token-counting script that silently
+undercounted tokens.css as 101 instead of 162 (it only saw the first of
+several `--token: value;` declarations packed on a single line).
+Rebuilt the mapping from a corrected extraction, verified
+programmatically at 162/162 with zero missing and zero orphaned. This
+doesn't fix the larger, separate problem a teammate hit applying the
+system to an existing project — the actual component CSS has never been
+extracted into anything portable, and the icon/font CDN links aren't
+documented as a requirement — only the token-layer piece of it;
+**v0.9.2 (2026-08-04) simplified App Shell's main nav** — the v0.9.0
+"flush rail" placement variant (no radius, right-edge border only) is
+gone. The main nav is now SidebarNav completely unmodified — same
+width/radius/border/fill/anatomy — just inset `spacing-16` (16px) from
+the viewport's top/left/bottom edges instead of flush, at height
+`calc(100dvh - 32px)`, so its rounded corners render cleanly instead of
+clipping against the browser edge. One component, one spec, in two
+placement contexts, instead of a second divergent spec to keep in sync;
+**v0.9.3 (2026-08-04) added an explicit scope rule to App Shell** — it
+governs structure and layout only, never a component's own style — and
+fixed the one real violation an audit against that rule turned up: the
+Locked/"Soon" nav-item state (fill, text color, icon opacity, cursor, a
+Badge) had been defined inside App Shell instead of SidebarNav; it's
+now a third `Nav item` row in SidebarNav's own table. Also trimmed two
+places that redundantly restated `Canvas warm`'s hex value instead of
+referencing the token; **v0.9.4 (2026-08-04) added `components.css`** —
+the real portable copy of every component's CSS, extracted from
+`preview.html`'s own inline styles after a teammate's integration
+attempt broke on missing colors/pills/icons. `preview.html` now links
+it instead of duplicating a private copy. Also fixed a real bug the
+extraction surfaced: the shared 36×36 icon-chip pattern was scoped to
+`.c-card .icon-chip` only, so it had rendered completely unstyled
+everywhere else it's documented to work (every Stat card, since
+v0.8.0) — unscoped to plain `.icon-chip`. Resolved the practical half
+of long-open Needs Input #10 with a real integration guide instead of
+a placeholder. See changelog at the bottom of DESIGN-SYSTEM.md.
