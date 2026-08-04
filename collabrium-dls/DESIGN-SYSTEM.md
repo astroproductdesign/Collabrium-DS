@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.4-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.4-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -725,7 +725,7 @@ just stays permanently visible so you can see it.
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 10 transcribed directly from the teammate's real
 component source in v0.7.0 (SidebarNav, Tabs, Select, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), and 4 more **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 4 more **designed
 from scratch in v0.8.0** — Stat/KPI card, Filters, Pagination, Date
 picker — plus a Chart color mapping guideline (not a rendered
 component). Those last 5 have **no source in either the original brand
@@ -740,13 +740,51 @@ sibling components (Textarea, Password field, Search input clear
 button) — all four dated 2026-08-03 in their own sections — plus **App
 Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
-gallery never had. This note existing-but-undercounting for a full day
-is itself the doc-sync failure App Shell was written to prevent
+gallery never had, **Stepper** (v0.9.1) — a multi-step progress
+indicator, also designed from scratch with no source in either system —
+**UserPicker** (v0.9.2), a searchable person picker, same status —
+**FileUploader** (v0.9.3), click-to-browse/drag-and-drop file
+attachment, same status — and **MultiSelect** (v0.9.4), a grouped
+checkbox dropdown with removable selection chips, also designed from
+scratch with no source in either system.
+This note existing-but-undercounting for a full day is itself the
+doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
 sizes, states, Do/Don't), the same process every component above went
 through.
+
+- [App Shell](#app-shell)
+- [Badge & Tag](#badge--tag)
+- [Button](#button)
+- [Card](#card)
+- [Chart color mapping](#chart-color-mapping)
+- [Checkbox](#checkbox)
+- [DataTable](#datatable)
+- [Date picker](#date-picker)
+- [ElementBadge](#elementbadge)
+- [Empty state](#empty-state)
+- [FileUploader](#fileuploader)
+- [Filters](#filters)
+- [Input field](#input-field)
+- [Modal / dialog](#modal--dialog)
+- [MultiSelect](#multiselect)
+- [Pagination](#pagination)
+- [Password field](#password-field)
+- [Radio](#radio)
+- [Search input clear button](#search-input-clear-button)
+- [Select](#select)
+- [SidebarNav](#sidebarnav)
+- [Stat / KPI card](#stat--kpi-card)
+- [Stepper](#stepper)
+- [Switch](#switch)
+- [Table row](#table-row)
+- [Tabs](#tabs)
+- [Textarea](#textarea)
+- [Toast](#toast)
+- [Tooltip](#tooltip)
+- [UserPicker](#userpicker)
 
 ### App Shell
 
@@ -882,6 +920,49 @@ revisiting the 2026-08-04 decision above — if notifications or an
 account menu become a real requirement, that's a spec change, not a
 quiet addition on top of this.
 
+### Badge & Tag
+
+⚠️ **Corrected v0.6.0 — these are two separate components**, previously
+merged into one here.
+
+**Badge** — conveys *status or tone*. 22px tall, `spacing-8` horizontal
+padding, caption type at weight 700, `radius-pill`, and — new in v0.6.0 —
+**a 1px border** in a stronger tint of the same hue, which is what makes
+these read as deliberate at small sizes. **`white-space: nowrap`** is
+required — added v0.8.1 after a real build wrapped a "Follow-up" label
+onto two lines, which broke the fixed 22px height and the pill shape
+along with it. A fixed-height pill and wrapping text are incompatible;
+if a label risks being that long, shorten the label rather than let the
+component reflow.
+
+| Variant | Fill | Text | Border |
+|---|---|---|---|
+| Neutral | Neutral-2 `#f0f0f0` | Neutral-5 | Neutral-3 |
+| Success | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Danger | Red at 10% | Red `#FD3343` | Red at 30% |
+| Warning | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
+| Info | Water at 10% | Water `#1473E6` | Water at 28% |
+| Selected | Neutral-1 | Neutral-9 | Obsidian `#2B2B2C` |
+
+Note the darkened Success and Warning text values — full-strength Green
+and Amber both fail AA on their own light fills at this size.
+
+**Tag** — labels *which element/department owns* something. 24px tall,
+10px horizontal padding, caption type at weight 700, `radius-pill`,
+Neutral-2 fill, with a **6px dot** in the element's full-strength color
+and matching text color. Distinct from Badge because ownership is not a
+status.
+
+Both accept an optional leading `icon-micro` (14px) in the text color —
+weight follows the icon's own [Iconography](#iconography) tier (a Tag's
+element motif icon, e.g. `flame`/`drop`, is **Tier 2, Fill**, since it's a
+department indicator, not a control).
+
+**Do:** use Badge for state (Live, Paused, Blocked), Tag for ownership
+(Fire · Marketing). **Don't:** fill either solid with a brand color and
+put white text on it — several accents fail contrast that way at this
+size.
+
 ### Button
 
 All buttons are **weight 700**. Corrected v0.6.0: radius now varies by
@@ -942,6 +1023,88 @@ no visible text for assistive tech to read.
 **Do:** keep one Primary button per screen/card region. **Don't:** use an
 element/department color as a button fill — that's a classification color,
 not an action color (Rule 2 above).
+
+### Card
+
+Base surface for grouping content — dashboard tiles, list items, panels.
+
+| Property | Value |
+|---|---|
+| Fill | Neutral-1 `#ffffff` |
+| Border | 1px Neutral-3 `#d8d8d8` |
+| Elevation | `shadow-1` at rest — cards carry both border and shadow (corrected v0.6.0) |
+| Radius | `radius-lg` (20px) |
+| Padding | spacing-16 (16px), per the deck's stated card padding |
+| Header gap | spacing-12 (12px) between icon-chip and title block — ⚠️ corrected 2026-07-29, was wrongly generalized to spacing-8 |
+| Header-to-body gap | spacing-16 (16px), only when a subtitle or body content follows the header |
+| Title | h5 (16px/700). Subtitle: caption, Neutral-5, weight 400 |
+| Transition | `box-shadow var(--duration-base) var(--ease-settle)` |
+
+**Footer (optional)** — ⚠️ added 2026-07-29, missing from earlier drafts:
+spacing-16 (16px) margin above it, spacing-12 (12px) top padding, 1px
+Neutral-3 top border, caption type, Neutral-5. Same visual pattern as
+the Modal footer's divider, scaled down.
+
+**Variants:**
+- **Static** — default surface above, no interaction.
+- **Interactive/clickable** — hover raises to `shadow-2`; cursor pointer; focus-visible gets `shadow-focus`.
+- **Element-accented** — a 3px top border in the owning element's color. The rest of the card stays neutral.
+- **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). ⚠️ **Tint corrected 2026-07-29:** the chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
+- **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
+- **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
+
+**Do:** let cards carry `shadow-1` — that's the intended resting state.
+Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
+they're not interchangeable. **Don't:** tint a card with an element that
+doesn't own its content.
+
+### Empty state
+
+| Part | Spec |
+|---|---|
+| Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color (corrected v0.6.0 — was Neutral-5); **Tier 2, Fill** (an empty-state illustration, per [Iconography](#iconography)) |
+| Heading | h4 (20px/800), Neutral-9 |
+| Body | body1 at weight 500, Neutral-5, max-width ~380px |
+| Action | optional Primary button below the body text, `spacing-8` above it |
+| Container | `spacing-40` vertical / `spacing-24` horizontal padding, `spacing-8` internal gap, centered |
+
+**Do:** always say what causes the empty state and, where possible, how to
+resolve it ("No campaigns yet — create your first one") rather than a bare
+"No data." **Don't:** use a generic spinner or blank card as a stand-in
+for a real empty state — the deck's icon-empty/icon-hero tokens exist
+specifically so this state gets real visual weight.
+
+### FileUploader
+
+⚠️ **Designed 2026-08-04, v0.9.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Badge-Neutral's box model, Table row's/
+SidebarNav's active-state recipe, and the Filters/Date picker popover
+pattern — not transcribed. Treat as a first pass needing real
+design/brand review.
+
+Click-to-browse or drag-and-drop file attachment; attached files list
+as rows below the drop zone.
+
+| Part | Spec |
+|---|---|
+| Drop zone | `radius-lg` (20px), spacing-24 padding, centered content, 1px dashed Neutral-3 border, Neutral-1 fill |
+| Drop zone — drag-over | 2px dashed Obsidian border, Neutral-2 fill — the same Obsidian-border/Neutral-2-fill pairing Table row's selected state and SidebarNav's active item already use for "currently engaged," reused here rather than inventing a new tint |
+| Upload icon | `upload-simple`, `icon-md` (20px), Neutral-5, **Tier 1, Regular** per its explicit listing in Iconography |
+| Label | body2 (14px/20px), weight 700, Neutral-5 |
+| Hint (optional) | caption (12px), Neutral-5 |
+| File row | flex row, spacing-12 gap, spacing-8/spacing-12 padding, 1px Neutral-3 border, `radius-sm`, Neutral-1 fill — the same bordered "panel" recipe Filters'/Date picker's popover uses |
+| Kind badge | reuses Badge-Neutral's exact box model — 22px tall, spacing-8 padding, `radius-pill`, Neutral-2 fill, Neutral-3 border, `--font-primary` |
+| File name | body2, Neutral-9, truncates with ellipsis |
+| File size | caption, Neutral-5 |
+| Remove (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+
+**Variants:** Default (idle, no files), Drag-over, Has files.
+
+**Do:** keep the drop zone visible even once files are attached, so more
+can be added without a separate "add more" affordance. **Don't:** style
+the kind badge as a status Badge variant (Success/Danger/Warning) — it's
+always Neutral; file type isn't a status.
 
 ### Input field
 
@@ -1034,24 +1197,57 @@ not tied to a viewport breakpoint. Don't swap an input's size at a media
 query; if a form needs to adapt on a narrow screen, change the layout
 (stack fields, go full-width) and keep the chosen size fixed.
 
-### Textarea
-
-⚠️ **New 2026-08-03 — designed, not sourced.** Extends Input field for
-multi-line content; shares its label, border, fill, and type tokens so
-the two align in a form.
+### Modal / dialog
 
 | Part | Spec |
 |---|---|
-| Label | same as Input field |
-| Box | `min-height` 96px (~4 lines at body1's 22px line-height), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding on all sides, body1 type at weight 500 |
-| Resize | `resize: vertical` only, `min-height` above as the floor, no max — never `resize: both` or `resize: horizontal` |
-| Helper text / Error text | same as Input field |
+| Overlay | `shadow-overlay` — Neutral-9 at 56% opacity, covers viewport |
+| Panel | Neutral-1 fill, 1px Neutral-3 border, `radius-lg` (20px), `shadow-4`, max-width ~480px for simple confirmations, wider for forms |
+| Header | h3 title (22px/800) + optional description in body1/Neutral-5 + Ghost icon-button close (`x`, `icon-base`, 20px, top-right) — **Tier 1, Regular** (a close affordance, per [Iconography](#iconography)) |
+| Body | body1, `spacing-24` padding on all sides |
+| Footer | Secondary button + Primary button, right-aligned, `spacing-8` gap, `spacing-24` above |
 
-**States:** same Default/Focus/Error/Disabled table as Input field above.
+**Do:** put the Primary (commit) action on the right, Secondary (cancel)
+on the left of it, matching the button order convention above. **Don't:**
+use a modal for anything that isn't a focused, single decision — long
+forms or multi-step flows need a full page or panel, not a modal (this
+mirrors the deck's own steady, uncluttered tone).
 
-**Do:** reuse Input field's border, radius, and type tokens so a form
-mixing single- and multi-line fields stays visually consistent. **Don't:**
-let the box shrink below its `min-height`, including mid-resize-drag.
+### MultiSelect
+
+⚠️ **Designed 2026-08-04, v0.9.4 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Button Secondary, Filters' trigger/popover
+patterns, Badge's box model, and this system's own Checkbox spec — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A trigger button that opens a grouped checkbox list for selecting
+multiple options — the trigger reflects the current selection as
+individually-removable chips.
+
+| Part | Spec |
+|---|---|
+| Trigger — default | matches Button Secondary exactly: Neutral-1 fill, 1px Neutral-3 border, `shadow-1`, `radius-md`, md size (40px height, spacing-16 padding, 16px type) |
+| Trigger — has selection | border swaps to 1px Obsidian, the same "holds a value" recipe Filters' own Filter trigger — active state uses |
+| Trigger — open | 2px Obsidian border, padding reduced 1px/side to compensate — the same swap-and-compensate pattern Input field's focus state uses; chevron rotates 180° via CSS `transform` |
+| Selection chips | one Badge-Neutral chip per selected option's label (22px tall, spacing-8 padding, `radius-pill`, caption/700, 1px Neutral-3 border) instead of the placeholder — stay visible whether the menu is open or closed, capped at 2 visible then a "+N" overflow chip |
+| Chip remove (×) | 14px `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography), stops click propagation so it never reopens/toggles the menu; the overflow "+N" chip has no × since it isn't one single removable option |
+| Clear-all (×) | 20×20px hit target, Neutral-5, same propagation-stopping behavior, clears every selection at once |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill — same popover convention as Filters/Date picker |
+| Group label | caption (12px), weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — same recipe as SidebarNav's own Section label |
+| Group divider | 1px Neutral-3 line between groups |
+| Checkbox row | reuses this system's own Checkbox spec exactly: 18×18px box, 6px radius, 1px Neutral-3 border unchecked, Obsidian border+fill checked, `icon-micro` check glyph in Neutral-1; Neutral-2 fill on hover, same token as Table row's own hover |
+| Footer | Ghost "Clear" + Primary "Done", space-between, `spacing-8` gap, 1px Neutral-3 top border, `spacing-12` padding — Modal footer's divider convention at a smaller scale |
+
+**Variants:** Default, Has Selection, Open — nothing selected, Open —
+has selection.
+
+**Do:** let the footer's Clear empty the selection while leaving the
+menu open (so more options can be picked), and let Done close the menu
+without touching the selection — they're deliberately different scopes.
+**Don't:** give the overflow "+N" chip its own remove control — it
+doesn't correspond to one option, only the clear-all can remove what it
+represents.
 
 ### Password field
 
@@ -1089,83 +1285,6 @@ visible. **Don't:** show both a clear button and a separate trailing
 icon at once — the clear button replaces any other trailing icon the
 moment text is entered.
 
-### Card
-
-Base surface for grouping content — dashboard tiles, list items, panels.
-
-| Property | Value |
-|---|---|
-| Fill | Neutral-1 `#ffffff` |
-| Border | 1px Neutral-3 `#d8d8d8` |
-| Elevation | `shadow-1` at rest — cards carry both border and shadow (corrected v0.6.0) |
-| Radius | `radius-lg` (20px) |
-| Padding | spacing-16 (16px), per the deck's stated card padding |
-| Header gap | spacing-12 (12px) between icon-chip and title block — ⚠️ corrected 2026-07-29, was wrongly generalized to spacing-8 |
-| Header-to-body gap | spacing-16 (16px), only when a subtitle or body content follows the header |
-| Title | h5 (16px/700). Subtitle: caption, Neutral-5, weight 400 |
-| Transition | `box-shadow var(--duration-base) var(--ease-settle)` |
-
-**Footer (optional)** — ⚠️ added 2026-07-29, missing from earlier drafts:
-spacing-16 (16px) margin above it, spacing-12 (12px) top padding, 1px
-Neutral-3 top border, caption type, Neutral-5. Same visual pattern as
-the Modal footer's divider, scaled down.
-
-**Variants:**
-- **Static** — default surface above, no interaction.
-- **Interactive/clickable** — hover raises to `shadow-2`; cursor pointer; focus-visible gets `shadow-focus`.
-- **Element-accented** — a 3px top border in the owning element's color. The rest of the card stays neutral.
-- **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). ⚠️ **Tint corrected 2026-07-29:** the chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
-- **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
-- **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
-
-**Do:** let cards carry `shadow-1` — that's the intended resting state.
-Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
-they're not interchangeable. **Don't:** tint a card with an element that
-doesn't own its content.
-
-### Badge & Tag
-
-⚠️ **Corrected v0.6.0 — these are two separate components**, previously
-merged into one here.
-
-**Badge** — conveys *status or tone*. 22px tall, `spacing-8` horizontal
-padding, caption type at weight 700, `radius-pill`, and — new in v0.6.0 —
-**a 1px border** in a stronger tint of the same hue, which is what makes
-these read as deliberate at small sizes. **`white-space: nowrap`** is
-required — added v0.8.1 after a real build wrapped a "Follow-up" label
-onto two lines, which broke the fixed 22px height and the pill shape
-along with it. A fixed-height pill and wrapping text are incompatible;
-if a label risks being that long, shorten the label rather than let the
-component reflow.
-
-| Variant | Fill | Text | Border |
-|---|---|---|---|
-| Neutral | Neutral-2 `#f0f0f0` | Neutral-5 | Neutral-3 |
-| Success | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
-| Danger | Red at 10% | Red `#FD3343` | Red at 30% |
-| Warning | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
-| Info | Water at 10% | Water `#1473E6` | Water at 28% |
-| Selected | Neutral-1 | Neutral-9 | Obsidian `#2B2B2C` |
-
-Note the darkened Success and Warning text values — full-strength Green
-and Amber both fail AA on their own light fills at this size.
-
-**Tag** — labels *which element/department owns* something. 24px tall,
-10px horizontal padding, caption type at weight 700, `radius-pill`,
-Neutral-2 fill, with a **6px dot** in the element's full-strength color
-and matching text color. Distinct from Badge because ownership is not a
-status.
-
-Both accept an optional leading `icon-micro` (14px) in the text color —
-weight follows the icon's own [Iconography](#iconography) tier (a Tag's
-element motif icon, e.g. `flame`/`drop`, is **Tier 2, Fill**, since it's a
-department indicator, not a control).
-
-**Do:** use Badge for state (Live, Paused, Blocked), Tag for ownership
-(Fire · Marketing). **Don't:** fill either solid with a brand color and
-put white text on it — several accents fail contrast that way at this
-size.
-
 ### Table row
 
 | Part | Spec |
@@ -1184,39 +1303,62 @@ visible columns before reaching for horizontal scroll or a
 column-priority/collapse pattern; a table that requires zooming out to
 read is a layout failure, not a data problem.
 
-### Modal / dialog
+### Textarea
+
+⚠️ **New 2026-08-03 — designed, not sourced.** Extends Input field for
+multi-line content; shares its label, border, fill, and type tokens so
+the two align in a form.
 
 | Part | Spec |
 |---|---|
-| Overlay | `shadow-overlay` — Neutral-9 at 56% opacity, covers viewport |
-| Panel | Neutral-1 fill, 1px Neutral-3 border, `radius-lg` (20px), `shadow-4`, max-width ~480px for simple confirmations, wider for forms |
-| Header | h3 title (22px/800) + optional description in body1/Neutral-5 + Ghost icon-button close (`x`, `icon-base`, 20px, top-right) — **Tier 1, Regular** (a close affordance, per [Iconography](#iconography)) |
-| Body | body1, `spacing-24` padding on all sides |
-| Footer | Secondary button + Primary button, right-aligned, `spacing-8` gap, `spacing-24` above |
+| Label | same as Input field |
+| Box | `min-height` 96px (~4 lines at body1's 22px line-height), `radius-sm` (12px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding on all sides, body1 type at weight 500 |
+| Resize | `resize: vertical` only, `min-height` above as the floor, no max — never `resize: both` or `resize: horizontal` |
+| Helper text / Error text | same as Input field |
 
-**Do:** put the Primary (commit) action on the right, Secondary (cancel)
-on the left of it, matching the button order convention above. **Don't:**
-use a modal for anything that isn't a focused, single decision — long
-forms or multi-step flows need a full page or panel, not a modal (this
-mirrors the deck's own steady, uncluttered tone).
+**States:** same Default/Focus/Error/Disabled table as Input field above.
 
-### Empty state
+**Do:** reuse Input field's border, radius, and type tokens so a form
+mixing single- and multi-line fields stays visually consistent. **Don't:**
+let the box shrink below its `min-height`, including mid-resize-drag.
+
+### UserPicker
+
+⚠️ **Designed 2026-08-04, v0.9.2 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Input field's box anatomy, Filters'/Date
+picker's popover convention, and Table row's hover treatment — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+Searches and selects a single person (an Account Executive, in this
+app) from a list — collapses to a compact summary once a value is set.
 
 | Part | Spec |
 |---|---|
-| Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color (corrected v0.6.0 — was Neutral-5); **Tier 2, Fill** (an empty-state illustration, per [Iconography](#iconography)) |
-| Heading | h4 (20px/800), Neutral-9 |
-| Body | body1 at weight 500, Neutral-5, max-width ~380px |
-| Action | optional Primary button below the body text, `spacing-8` above it |
-| Container | `spacing-40` vertical / `spacing-24` horizontal padding, `spacing-8` internal gap, centered |
+| Collapsed row | same box as Input field (40px height, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill, spacing-12 horizontal padding) so collapsing/expanding doesn't change footprint |
+| Avatar | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
+| Name | body2 (14px/20px), weight 700, Neutral-9, truncates with ellipsis |
+| Role | caption (12px), Neutral-5, directly below the name |
+| Clear (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+| Search input | Input field's own anatomy and states, including its 2px Obsidian focus-border swap (not the Water shadow-focus ring) |
+| Search icon | leading `magnifying-glass`, `icon-sm`, Neutral-5, **Tier 1, Regular** (search inside an input field, per Iconography) |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-8 below the trigger — same popover convention as Filters/Date picker |
+| Dropdown row | avatar + name + role, spacing-12 gap, spacing-8/spacing-12 padding, Neutral-2 fill on hover — same hover token as Table row |
+| Empty state | "No matches found", body2, Neutral-5, centered, spacing-16 padding |
 
-**Do:** always say what causes the empty state and, where possible, how to
-resolve it ("No campaigns yet — create your first one") rather than a bare
-"No data." **Don't:** use a generic spinner or blank card as a stand-in
-for a real empty state — the deck's icon-empty/icon-hero tokens exist
-specifically so this state gets real visual weight.
+**Variants:** Collapsed (value set), Open — searching, Open — no results.
 
-### SidebarNav
+**Do:** keep the collapsed row and the search input at the same 40px
+height so selecting/clearing a person doesn't reflow the surrounding
+layout. **Don't:** style the dropdown's empty state as a full [Empty
+state](#empty-state) (icon + heading + body) — it's an inline "nothing
+matched" message inside a compact popover, not a page-level empty
+state.
+
+### Checkbox
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Checkbox.jsx`.**
+Supports multi-select and an indeterminate (partial-selection) state.
 
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
 Primary app-level navigation, not a page-local menu. ⚠️ **This is also
@@ -1226,72 +1368,6 @@ centered on a page; see [App Shell](#app-shell) for the placement rule.
 An earlier draft had a separate flush/no-radius variant for that
 use — cut in favor of inset spacing so there's one spec to maintain,
 not two.
-
-| Part | Spec |
-|---|---|
-| Container | 240px width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding, spacing-4 (4px) gap between items |
-| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot |
-| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 |
-| Nav item | 40px height, full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
-| Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
-| Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
-| Nav item — locked/soon ⚠️ added 2026-08-04 | for sections that exist in the IA but aren't built yet. Transparent fill (same as inactive), Neutral-4 text (one step more muted than inactive's Neutral-5), icon at 40% opacity, `cursor: not-allowed`, no hover/focus feedback. Trailing slot carries a Badge (Neutral variant, "Soon" label) instead of the trailing-count slot — the two are mutually exclusive on one item |
-| Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
-| Trailing count | optional, caption/700/Neutral-5, right-aligned |
-| Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
-| Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
-
-Label truncates with ellipsis rather than wrapping.
-
-**Do:** use section labels to group items by department/area, one level
-deep. **Don't:** nest a second level of grouping — if the hierarchy needs
-more than one level, that's a sign the item belongs in a sub-page's Tabs
-instead.
-
-### Tabs
-
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Tabs.jsx`.**
-In-page section switching, not app-level navigation (use SidebarNav for that).
-
-| Part | Spec |
-|---|---|
-| Container | flex row, spacing-4 gap, 1px Neutral-3 border-bottom (full-width track) |
-| Tab | inline-flex, spacing-8 gap, 40px height, 0/spacing-12 padding, no fill or border, body1 weight 700 |
-| Tab — active | Neutral-9 text, 2px Obsidian underline (drawn as an **inset** `box-shadow: inset 0 -2px 0 var(--color-obsidian)`, not a real border — keeps the underline from shifting row height) |
-| Tab — inactive | Neutral-5 text, no underline |
-| Icon (optional) | `icon-sm` (16px), leading; **Tier 2, Fill** — a judgment call, not explicit in [Iconography](#iconography)'s examples; treated like SidebarNav (a persistent selection control) rather than a generic Tier 1 nav control, see [Needs Input #11](#needs-input-read-this-first) |
-| Trailing count (optional) | caption/700/Neutral-5 |
-| Transition | `color`, `box-shadow` — `var(--duration-fast) var(--ease-standard)` |
-
-**Do:** keep tabs to a single row — wrap the container or let it scroll
-horizontally rather than shrinking labels to fit. **Don't:** use Tabs for
-more than ~6 sections; beyond that, use SidebarNav or a Select instead.
-
-### Select
-
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Select.jsx`.**
-Same anatomy and sizing as Input field, so the two align in a form row.
-
-| Part | Spec |
-|---|---|
-| Label (optional) | caption, weight 700, Neutral-9, spacing-4 below it |
-| Box | height by size (sm 32 / md 40 / lg 48, same as Button/Input), `radius-sm` (12px), 1px Neutral-3 border (Red on error), Neutral-1 fill (Neutral-2 when disabled) |
-| Native `<select>` | fills the box, spacing-12 (12px) left padding, 36px right padding (room for the caret), body1 weight 500, transparent background, no native appearance |
-| Caret | `caret-down`, `icon-sm` (16px), absolute right spacing-12, Neutral-5, `pointer-events: none` — **Tier 1, Regular** (a navigation/control chevron, per [Iconography](#iconography)) |
-| Hint text | caption, Neutral-5, below the box |
-| Error text | caption, weight 700, Red, replaces hint |
-| Disabled | Neutral-2 fill, `cursor: not-allowed` |
-
-**Do:** reuse Input field's exact sizing/radius/border so Select and text
-inputs align cleanly in the same form row. **Don't:** restyle the native
-option list — leave it browser-default; this component only styles the
-closed state.
-
-### Checkbox
-
-⚠️ **New in v0.7.0 — transcribed from the teammate's `Checkbox.jsx`.**
-Supports multi-select and an indeterminate (partial-selection) state.
-
 | Part | Spec |
 |---|---|
 | Box | 18×18px, 6px radius (⚠️ a one-off literal value — doesn't map to `radius-sm` or any named token; a compact control gets its own smaller radius), spacing-8 gap to the text, 2px top margin for optical alignment with the first text line |
@@ -1305,6 +1381,92 @@ Supports multi-select and an indeterminate (partial-selection) state.
 **Do:** pair every checkbox with a real `<label>`, never an icon alone.
 **Don't:** reuse the 6px box radius anywhere else — it belongs to this
 control's compact size only, not the shared radius scale.
+
+### DataTable
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `DataTable.jsx`.**
+A composed, bordered table container — distinct from the bare Table row
+spec above, which is for inline use inside another surface. Pick one per
+data view; don't mix them in the same screen.
+
+| Part | Spec |
+|---|---|
+| Container | 1px Neutral-3 border, `radius-lg` (20px, matches Card), `overflow: hidden` (clips the header to the radius), Neutral-1 fill |
+| Header cell | spacing-12/spacing-16 padding, Neutral-2 fill, **h5 type (16px/700 — heavier than the bare Table row header's label3/uppercase)**, Neutral-9, 1px Neutral-3 border-bottom, align per-column |
+| Body cell | spacing-12/spacing-16 padding, **body2 type (14px/20px — this is the source's own "footnote" token, which maps to this doc's body2 scale, not the 12px footnote token)**, weight 500, Neutral-9, tabular figures when numeric, 1px Neutral-3 border-bottom (none on the last row) |
+| Row | `cursor: pointer` only when `onRowClick` is set; reuses Table row's Neutral-2 hover fill for consistency (DataTable has no separate hover token of its own yet) |
+
+**Do:** keep header labels short — the heavier h5 weight wraps
+awkwardly on long labels. **Don't:** add a fifth border style here; it
+inherits Table row's border and hover conventions on purpose.
+
+**Global navigation rule — added 2026-08-04.** SidebarNav is the
+canonical navigation pattern for all Collabrium builds. No alternative
+navigation orientation (top nav, bottom nav, tab bar) should be used
+unless explicitly documented as an exception for a specific context.
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
+Primary app-level navigation, not a page-local menu.
+
+| Part | Spec |
+|---|---|
+| Container | 240px width (expanded) / 72px width (collapsed) — ⚠️ **hard max-width in both states, changed 2026-08-04:** `overflow-x: hidden`, never horizontally scrollable at either width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding **on all four sides equally** (⚠️ clarified 2026-08-04 — left and right padding must match; any implementation where the right edge reads as wider than the left is a bug, not a variant), spacing-4 (4px) gap between items (⚠️ reverted 2026-08-04 — the earlier "reads as no gap at all" complaint traced to a missing gap implementation between individual nav items, not the token value itself; now that it's wired correctly, spacing-4 is the intended tight gap) |
+| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot, **horizontal padding equal on both sides**; see Header logo rule below. ⚠️ **Layout changed 2026-08-04, revised twice same day:** expanded stays a flex row, `align-items: center`, logo left-aligned, toggle right-aligned, both in normal flex flow, same row. Collapsed is no longer this same flex row — the logo is independently centered as the header's only in-flow content, and the toggle is a separate floating overlay button anchored to the rail's own right edge (see Collapsible state below for both) — visually still "the same row," just no longer achieved via shared flex layout |
+| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5. ⚠️ **Divider added 2026-08-04:** a 1px Neutral-3 hairline sits above every section label except the first one in the list (e.g. between Overview and Workspace), separating one department/area group from the next — it sits above the label's own spacing-16 top padding, not stacked as extra whitespace |
+| Nav item | 40px height minimum (grows to fit a wrapped 2-line label — see the wrapping rule below), full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
+| Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
+| Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Nav item — locked/soon ⚠️ added 2026-08-04 | for sections that exist in the IA but aren't built yet. Transparent fill (same as inactive), Neutral-4 text (one step more muted than inactive's Neutral-5), icon at 40% opacity, `cursor: not-allowed`, no hover/focus feedback. Trailing slot carries a Badge (Neutral variant, "Soon" label) instead of the trailing-count slot — the two are mutually exclusive on one item |
+| Nav item — hover ⚠️ added 2026-08-04 | Neutral-2 fill, text color unchanged from whatever active/inactive state it already has — reuses Table row's own hover token (`Row hover \| Neutral-2 fill`) and Button Ghost's hover, rather than a nav-specific value |
+| Nav item — focus-visible ⚠️ added 2026-08-04 | 2px Obsidian outline, 2px offset, additive on top of the current fill — reuses Button's exact focus-visible token; Nav item is a clickable row control at `radius-sm` like Button, not a Card-like surface, so this is used instead of Card's `shadow-focus`/Water-ring exception |
+| Nav item — active-pressed ⚠️ added 2026-08-04 | Neutral-3 fill — direct match to Button Ghost's `Active/pressed \| Neutral-3 fill`, same unfilled-by-default control family |
+| Nav item — disabled ⚠️ added 2026-08-04 | Neutral-4 text/icon, fill stays transparent, `cursor: not-allowed` — matches Button Ghost's disabled and Pagination's Ghost icon-button disabled, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not row-based nav items) |
+| Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
+| Trailing count | optional, caption/700/Neutral-5, right-aligned |
+| Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
+| Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
+
+⚠️ **Note on "active" vs. "active-pressed"** — these are different axes.
+"Active"/"inactive" (above) is the *persistent selection* state (which
+page you're on); "active-pressed" is the *momentary* mouse-down state,
+and can land on either an active or inactive item. Hover, focus-visible,
+active-pressed, and disabled all apply orthogonally on top of whichever
+active/inactive state the item already has.
+
+⚠️ **Changed 2026-08-04 — labels wrap, they no longer truncate.** 240px
+(expanded) is a hard max-width with no horizontal scroll; a label too
+long for one line wraps to a second line instead of truncating with an
+ellipsis or overflowing the container. This replaces the earlier
+"truncates with ellipsis" rule.
+
+### ElementBadge
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `ElementBadge.jsx`.**
+Distinct from Tag (above): use ElementBadge when the visual specifically
+needs the element's icon, not just a color dot.
+
+| Part | Spec |
+|---|---|
+| Chip | default 32×32px (size prop), `radius-sm` (12px), fill = owning element color at **12% tint** (the same one-off `color-mix` used by the Card icon-chip pattern — not the 8% `-bg` token) |
+| Glyph | sized at 60% of the chip box, centered — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)) |
+| Label (optional, `showLabel`) | spacing-12 gap from the chip; element name (caption, weight 700, `tracking-eyebrow`, uppercase, Neutral-9) over a sublabel (caption, Neutral-5 — defaults to the element's function, e.g. "Visibility & Energy") |
+| No label | chip renders alone with a native `title` attribute carrying the element name, for accessibility |
+
+**Elements:** Fire (Orange · Visibility & Energy) · Earth (Green ·
+Support & Stability) · Water (Navy · Depth & Flow) · Gold (Amber · Order
+& Structure) · Wood (Salmon Pink · Growth & Vision).
+
+⚠️ **Asset gap:** the source component renders a raster PNG glyph per
+element (`assets/elements/*.png`) rather than a Phosphor icon — this
+skill doesn't have those PNGs, only the `SVG/` wordmark/letter library.
+Until element glyphs are added here, substitute the closest Phosphor
+icon for each element's motif (flame, mountain, drop, etc.) rather than
+leaving the chip empty.
+
+**Do:** use ElementBadge whenever a department-owned item needs its
+icon, not just Tag's color dot. **Don't:** recolor the chip tint away
+from its owning element — this is a fixed identity marker, not a
+themeable accent.
 
 ### Radio
 
@@ -1329,6 +1491,92 @@ options; reach for Select once it's more than that. **Don't:** mix Radio
 and Checkbox visuals within the same choice group — the outline-only vs.
 filled-box distinction signals single- vs. multi-select.
 
+### Select
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Select.jsx`.**
+Same anatomy and sizing as Input field, so the two align in a form row.
+
+| Part | Spec |
+|---|---|
+| Label (optional) | caption, weight 700, Neutral-9, spacing-4 below it |
+| Box | height by size (sm 32 / md 40 / lg 48, same as Button/Input), `radius-sm` (12px), 1px Neutral-3 border (Red on error), Neutral-1 fill (Neutral-2 when disabled) |
+| Native `<select>` | fills the box, spacing-12 (12px) left padding, 36px right padding (room for the caret), body1 weight 500, transparent background, no native appearance |
+| Caret | `caret-down`, `icon-sm` (16px), absolute right spacing-12, Neutral-5, `pointer-events: none` — **Tier 1, Regular** (a navigation/control chevron, per [Iconography](#iconography)) |
+| Hint text | caption, Neutral-5, below the box |
+| Error text | caption, weight 700, Red, replaces hint |
+| Disabled | Neutral-2 fill, `cursor: not-allowed` |
+
+**Do:** reuse Input field's exact sizing/radius/border so Select and text
+inputs align cleanly in the same form row. **Don't:** restyle the native
+option list — leave it browser-default; this component only styles the
+closed state.
+
+### SidebarNav
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
+Primary app-level navigation, not a page-local menu.
+
+⚠️ **Two placement contexts, not a contradiction (added v0.9.0):** the
+spec below (`radius-lg`, border on all four sides) describes this as a
+self-contained floating panel — correct for an inset or off-canvas/drawer
+use. When it's the primary shell rail instead, see [App Shell](#app-shell)
+for the flush, full-height variant (no radius, right-edge border only).
+
+| Part | Spec |
+|---|---|
+| Container | 240px width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding, spacing-4 (4px) gap between items |
+| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot |
+| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 |
+| Nav item | 40px height, full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
+| Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
+| Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
+| Trailing count | optional, caption/700/Neutral-5, right-aligned |
+| Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
+| Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
+
+Label truncates with ellipsis rather than wrapping.
+
+**Do:** use section labels to group items by department/area, one level
+deep. **Don't:** nest a second level of grouping — if the hierarchy needs
+more than one level, that's a sign the item belongs in a sub-page's Tabs
+instead.
+
+### Stepper
+
+⚠️ **Designed 2026-08-04, v0.9.1 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Checkbox/Radio's on/off treatment, SidebarNav's
+active/inactive label weighting, and the caption token for supporting
+text — not transcribed. Treat as a first pass needing real design/brand
+review.
+
+Tracks progress through a multi-step flow — onboarding, a multi-page
+form, a checkout — as an ordered list of steps, each in one of three
+states.
+
+| Part | Spec |
+|---|---|
+| Indicator | 24×24px circle, `radius-pill` |
+| Indicator — Completed | Obsidian fill, Neutral-1 text, shows the step number (not an icon — fill vs. outline is what carries the state) |
+| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian text |
+| Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 text |
+| Label | body2 (14px/20px); weight 700 + Neutral-9 when Active, weight 400 + Neutral-5 when Completed/Upcoming — same bold-vs-muted pattern as SidebarNav's active/inactive nav items |
+| Description (optional) | caption (12px), Neutral-5 — smaller than the label, spacing-4 below it |
+| Connector | 1px fill in Neutral-3 (the hairline-border token), not a literal border |
+| Connector — horizontal | sits between each pair of indicators, sharing an equal `flex: 1` share of the row so every connector is the same length regardless of neighboring label width |
+| Connector — vertical | fixed spacing-16 length, held spacing-8 off the indicator above (the rail's own gap) and spacing-8 off the indicator below (the list's gap) — equal on both sides, never touching either circle |
+
+**Variants:** orientation (Horizontal / Vertical) and per-step description
+are independent, giving Horizontal/Vertical × With/No description as
+four presentations, not four hard-coded variants.
+
+**Do:** derive each step's state from a single `currentStep` index —
+before it is Completed, at it is Active, after it is Upcoming — rather
+than tracking state per step. **Don't:** let the connector's length or
+spacing depend on label or description length; both orientations keep
+it fixed/equal on purpose (see the Connector rows above).
+
 ### Switch
 
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `Switch.jsx`.**
@@ -1351,6 +1599,25 @@ Checkbox instead when the choice is part of a form that gets submitted.
 its state ("On/Off"). **Don't:** use Switch inside a form that requires
 an explicit Save — that implies deferred application, which contradicts
 what a Switch signals.
+
+### Tabs
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `Tabs.jsx`.**
+In-page section switching, not app-level navigation (use SidebarNav for that).
+
+| Part | Spec |
+|---|---|
+| Container | flex row, spacing-4 gap, 1px Neutral-3 border-bottom (full-width track) |
+| Tab | inline-flex, spacing-8 gap, 40px height, 0/spacing-12 padding, no fill or border, body1 weight 700 |
+| Tab — active | Neutral-9 text, 2px Obsidian underline (drawn as an **inset** `box-shadow: inset 0 -2px 0 var(--color-obsidian)`, not a real border — keeps the underline from shifting row height) |
+| Tab — inactive | Neutral-5 text, no underline |
+| Icon (optional) | `icon-sm` (16px), leading; **Tier 2, Fill** — a judgment call, not explicit in [Iconography](#iconography)'s examples; treated like SidebarNav (a persistent selection control) rather than a generic Tier 1 nav control, see [Needs Input #11](#needs-input-read-this-first) |
+| Trailing count (optional) | caption/700/Neutral-5 |
+| Transition | `color`, `box-shadow` — `var(--duration-fast) var(--ease-standard)` |
+
+**Do:** keep tabs to a single row — wrap the container or let it scroll
+horizontally rather than shrinking labels to fit. **Don't:** use Tabs for
+more than ~6 sections; beyond that, use SidebarNav or a Select instead.
 
 ### Toast
 
@@ -1401,83 +1668,34 @@ information sighted mouse users do. **Don't:** put interactive content
 (links, buttons) inside a Tooltip — `pointer-events: none` means nothing
 inside is ever clickable by design.
 
-### DataTable
-
-⚠️ **New in v0.7.0 — transcribed from the teammate's `DataTable.jsx`.**
-A composed, bordered table container — distinct from the bare Table row
-spec above, which is for inline use inside another surface. Pick one per
-data view; don't mix them in the same screen.
-
-| Part | Spec |
-|---|---|
-| Container | 1px Neutral-3 border, `radius-lg` (20px, matches Card), `overflow: hidden` (clips the header to the radius), Neutral-1 fill |
-| Header cell | spacing-12/spacing-16 padding, Neutral-2 fill, **h5 type (16px/700 — heavier than the bare Table row header's label3/uppercase)**, Neutral-9, 1px Neutral-3 border-bottom, align per-column |
-| Body cell | spacing-12/spacing-16 padding, **body2 type (14px/20px — this is the source's own "footnote" token, which maps to this doc's body2 scale, not the 12px footnote token)**, weight 500, Neutral-9, tabular figures when numeric, 1px Neutral-3 border-bottom (none on the last row) |
-| Row | `cursor: pointer` only when `onRowClick` is set; reuses Table row's Neutral-2 hover fill for consistency (DataTable has no separate hover token of its own yet) |
-
-**Do:** keep header labels short — the heavier h5 weight wraps
-awkwardly on long labels. **Don't:** add a fifth border style here; it
-inherits Table row's border and hover conventions on purpose.
-
-### ElementBadge
-
-⚠️ **New in v0.7.0 — transcribed from the teammate's `ElementBadge.jsx`.**
-Distinct from Tag (above): use ElementBadge when the visual specifically
-needs the element's icon, not just a color dot.
-
-| Part | Spec |
-|---|---|
-| Chip | default 32×32px (size prop), `radius-sm` (12px), fill = owning element color at **12% tint** (the same one-off `color-mix` used by the Card icon-chip pattern — not the 8% `-bg` token) |
-| Glyph | sized at 60% of the chip box, centered — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)) |
-| Label (optional, `showLabel`) | spacing-12 gap from the chip; element name (caption, weight 700, `tracking-eyebrow`, uppercase, Neutral-9) over a sublabel (caption, Neutral-5 — defaults to the element's function, e.g. "Visibility & Energy") |
-| No label | chip renders alone with a native `title` attribute carrying the element name, for accessibility |
-
-**Elements:** Fire (Orange · Visibility & Energy) · Earth (Green ·
-Support & Stability) · Water (Navy · Depth & Flow) · Gold (Amber · Order
-& Structure) · Wood (Salmon Pink · Growth & Vision).
-
-⚠️ **Asset gap:** the source component renders a raster PNG glyph per
-element (`assets/elements/*.png`) rather than a Phosphor icon — this
-skill doesn't have those PNGs, only the `SVG/` wordmark/letter library.
-Until element glyphs are added here, substitute the closest Phosphor
-icon for each element's motif (flame, mountain, drop, etc.) rather than
-leaving the chip empty.
-
-**Do:** use ElementBadge whenever a department-owned item needs its
-icon, not just Tag's color dot. **Don't:** recolor the chip tint away
-from its owning element — this is a fixed identity marker, not a
-themeable accent.
-
-### Stat / KPI card
+### Date picker
 
 ⚠️ **Designed 2026-07-30, v0.8.0 — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
-token system by extension from the existing Card spec, not
-transcribed. Treat as a first pass needing real design/brand review.
-
-A dashboard summary tile for a single metric — extends the base Card,
-doesn't replace it.
+token system by extension from the Select and Modal footer patterns,
+not transcribed. Treat as a first pass needing real design/brand
+review.
 
 | Part | Spec |
 |---|---|
-| Container | same as base Card: `radius-lg` (20px), Neutral-1 fill, 1px Neutral-3 border, `shadow-1` at rest, spacing-16 padding |
-| Label | caption, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — the metric name (e.g. "TOTAL SPEND") |
-| Value | h1 (32px/800) for a standard tile; the `display` size (40px/800) for a single featured/hero stat card in a row of otherwise-standard tiles — never mix the two sizes within one row |
-| Trend | inline row below the value, spacing-8 gap above it: `caret-up`/`caret-down`/`minus` (`icon-micro`, 14px) + delta value + comparison period, all caption/700; **Tier 2, Fill** — a judgment call, not explicit in [Iconography](#iconography)'s examples; treated as expressive/informational (not clickable) despite "arrow up/down" appearing in the Tier 1 example list, see [Needs Input #11](#needs-input-read-this-first) |
-| Trend color | Green = positive change, Red = negative change, Neutral-5 = flat/no comparison available — reuses the exact Badge success/danger hues, not new colors |
-| Icon chip (optional) | top-right or top-left, same 36×36 `radius-sm` chip at 12% element tint as Card's icon-chip pattern — marks which department the metric belongs to; **Tier 2, Fill** (a department indicator) |
-| Footer (optional) | same as Card's Footer sub-part — spacing-16 margin-top, spacing-12 padding-top, 1px Neutral-3 top border, caption/Neutral-5 (e.g. "As of 9:41am") |
-| Sparkline slot (optional) | reserved space below the trend row for a mini inline chart — see Chart color mapping below for how its line/fill should be colored; this spec doesn't define chart rendering itself |
+| Trigger | same box as Select (sm/md/lg heights, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill) but with a leading `calendar` icon (`icon-sm`, Neutral-5) instead of a trailing caret; **Tier 2, Fill** — kept Fill per [Iconography](#iconography)'s own "Card / section header: Calendar... Fill" example, despite sitting inside a trigger button; shows the formatted date (body1/weight 500) or placeholder text (Neutral-5) |
+| Popover panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-16 padding, 8px below the trigger — same popover convention as Filters |
+| Month header | flex row, `justify-content: space-between`; prev/next month Ghost icon-buttons (32×32, `caret-left`/`caret-right`) — **Tier 1, Regular** (navigation control) — flank a centered month/year label (h5, 16px/700) |
+| Weekday row | 7-column grid, caption/700/uppercase/Neutral-5, spacing-4 bottom gap |
+| Day cell | 36×36px, `radius-sm` (12px), numeral centered (caption or body2) |
+| Day — default | transparent fill, Neutral-9 text |
+| Day — hover | Neutral-2 fill |
+| Day — today | 1px Obsidian **border only** (never filled) — kept visually distinct from "selected" |
+| Day — selected (single) | Obsidian fill, Neutral-1 text |
+| Day — in-range (range mode) | Neutral-2 fill, Neutral-9 text, flush block between the two range boundaries (no radius on inner edges) |
+| Day — range start/end | Obsidian fill, Neutral-1 text, `radius-sm` only on the outer edge |
+| Day — disabled / outside month | Neutral-4 text, no hover, `cursor: not-allowed` |
+| Footer (range mode only) | Secondary + Primary button pair, right-aligned, spacing-8 gap, spacing-16 top padding + top border — same footer convention as Modal |
 
-**Variants:** Static (default) and Interactive/clickable (same hover →
-`shadow-2` + focus-visible → `shadow-focus` pattern as Card).
-
-**Do:** show exactly one primary value per card — that's what makes it
-scannable at a glance. **Don't:** stack more than one KPI in a single
-card; that's a table row or a multi-column summary bar, not a stat
-card. **Don't:** color the trend for decoration — only use Green/Red
-when the number is a genuine directional comparison against a stated
-period.
+**Do:** always mark "today" with an outline rather than a fill, so it's
+never confused with the actively selected date. **Don't:** use a filled
+state for hover — full Obsidian fill is reserved for selected/range-
+boundary days only.
 
 ### Filters
 
@@ -1532,34 +1750,36 @@ page and its immediate neighbors always visible. **Don't:** disable
 Prev/Next by hiding them — keep the slot present but visually inactive,
 so the control cluster doesn't shift width across pages.
 
-### Date picker
+### Stat / KPI card
 
 ⚠️ **Designed 2026-07-30, v0.8.0 — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
-token system by extension from the Select and Modal footer patterns,
-not transcribed. Treat as a first pass needing real design/brand
-review.
+token system by extension from the existing Card spec, not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A dashboard summary tile for a single metric — extends the base Card,
+doesn't replace it.
 
 | Part | Spec |
 |---|---|
-| Trigger | same box as Select (sm/md/lg heights, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill) but with a leading `calendar` icon (`icon-sm`, Neutral-5) instead of a trailing caret; **Tier 2, Fill** — kept Fill per [Iconography](#iconography)'s own "Card / section header: Calendar... Fill" example, despite sitting inside a trigger button; shows the formatted date (body1/weight 500) or placeholder text (Neutral-5) |
-| Popover panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-16 padding, 8px below the trigger — same popover convention as Filters |
-| Month header | flex row, `justify-content: space-between`; prev/next month Ghost icon-buttons (32×32, `caret-left`/`caret-right`) — **Tier 1, Regular** (navigation control) — flank a centered month/year label (h5, 16px/700) |
-| Weekday row | 7-column grid, caption/700/uppercase/Neutral-5, spacing-4 bottom gap |
-| Day cell | 36×36px, `radius-sm` (12px), numeral centered (caption or body2) |
-| Day — default | transparent fill, Neutral-9 text |
-| Day — hover | Neutral-2 fill |
-| Day — today | 1px Obsidian **border only** (never filled) — kept visually distinct from "selected" |
-| Day — selected (single) | Obsidian fill, Neutral-1 text |
-| Day — in-range (range mode) | Neutral-2 fill, Neutral-9 text, flush block between the two range boundaries (no radius on inner edges) |
-| Day — range start/end | Obsidian fill, Neutral-1 text, `radius-sm` only on the outer edge |
-| Day — disabled / outside month | Neutral-4 text, no hover, `cursor: not-allowed` |
-| Footer (range mode only) | Secondary + Primary button pair, right-aligned, spacing-8 gap, spacing-16 top padding + top border — same footer convention as Modal |
+| Container | same as base Card: `radius-lg` (20px), Neutral-1 fill, 1px Neutral-3 border, `shadow-1` at rest, spacing-16 padding |
+| Label | caption, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — the metric name (e.g. "TOTAL SPEND") |
+| Value | h1 (32px/800) for a standard tile; the `display` size (40px/800) for a single featured/hero stat card in a row of otherwise-standard tiles — never mix the two sizes within one row |
+| Trend | inline row below the value, spacing-8 gap above it: `caret-up`/`caret-down`/`minus` (`icon-micro`, 14px) + delta value + comparison period, all caption/700; **Tier 2, Fill** — a judgment call, not explicit in [Iconography](#iconography)'s examples; treated as expressive/informational (not clickable) despite "arrow up/down" appearing in the Tier 1 example list, see [Needs Input #11](#needs-input-read-this-first) |
+| Trend color | Green = positive change, Red = negative change, Neutral-5 = flat/no comparison available — reuses the exact Badge success/danger hues, not new colors |
+| Icon chip (optional) | top-right or top-left, same 36×36 `radius-sm` chip at 12% element tint as Card's icon-chip pattern — marks which department the metric belongs to; **Tier 2, Fill** (a department indicator) |
+| Footer (optional) | same as Card's Footer sub-part — spacing-16 margin-top, spacing-12 padding-top, 1px Neutral-3 top border, caption/Neutral-5 (e.g. "As of 9:41am") |
+| Sparkline slot (optional) | reserved space below the trend row for a mini inline chart — see Chart color mapping below for how its line/fill should be colored; this spec doesn't define chart rendering itself |
 
-**Do:** always mark "today" with an outline rather than a fill, so it's
-never confused with the actively selected date. **Don't:** use a filled
-state for hover — full Obsidian fill is reserved for selected/range-
-boundary days only.
+**Variants:** Static (default) and Interactive/clickable (same hover →
+`shadow-2` + focus-visible → `shadow-focus` pattern as Card).
+
+**Do:** show exactly one primary value per card — that's what makes it
+scannable at a glance. **Don't:** stack more than one KPI in a single
+card; that's a table row or a multi-column summary bar, not a stat
+card. **Don't:** color the trend for decoration — only use Green/Red
+when the number is a genuine directional comparison against a stated
+period.
 
 ### Chart color mapping
 
@@ -1584,6 +1804,31 @@ inventing chart-specific colors.
 table in order, not arbitrarily. **Don't:** use more than one hue
 family within a single sequential or diverging scale, or let a legend
 introduce a color that isn't already a token in this document.
+
+### PageHeader
+
+⚠️ **Designed 2026-08-04, v0.8.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing the existing Typescale's h1 and body1 tokens,
+not transcribed. Treat as a first pass needing real design/brand review.
+
+A page-level title block — sits flush at the top of a page or panel,
+no background or border of its own.
+
+| Part | Spec |
+|---|---|
+| Title | `h1` token (32px/38px, 40px/56px at `-lg`, weight 800), Neutral-9 — the largest heading weight in the system, matching the Typescale's "Page-level heading" use case |
+| Subtitle (optional) | `body1` token (16px/22px, weight 500), Neutral-5 — sits directly below the title |
+| Gap | `spacing-8` (8px) between title and subtitle |
+| Container | no background, no border, no padding — flush in the surrounding page layout |
+
+**Variants:** Default (title only) and With subtitle (title + sub).
+
+**Do:** reserve PageHeader for the single page-level title per view —
+it's not for card or section headers, which have their own patterns
+(see [Card](#card)). **Don't:** add a border, background fill, or
+bottom divider to PageHeader itself; if a page needs a divider under
+its header, that belongs to the page layout, not this component.
 
 ---
 
@@ -1913,6 +2158,84 @@ rather than maintaining two token sources by hand:
   into anything portable, and icon/font CDN links are undocumented as a
   requirement) that this pass does not fix, only the token-layer piece
   of it.
+- **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
+  button that opens a grouped checkbox list for selecting multiple
+  options — the trigger reflects the current selection as
+  individually-removable Badge-Neutral chips (capped at 2, then a "+N"
+  overflow chip), visible whether the menu is open or closed. Designed
+  from scratch, no source in either the brand deck or the teammate's
+  build; reuses Button Secondary for the default trigger, Filters'
+  trigger/popover conventions, Badge's real box model for the chips, and
+  this system's own Checkbox spec for the rows, rather than inventing
+  new patterns. Built per the user's own 3-step process: component first
+  (`components/forms/DropdownMenuWithSelection.tsx` — file path kept
+  from an earlier single-select draft on the same file, replaced per
+  explicit user direction; the exported component/types are
+  `MultiSelect`/`MultiSelectOption`/`MultiSelectProps`), then a live
+  preview in `preview.html`'s Components gallery for approval — through
+  several rounds of review (Badge-based selection display instead of a
+  plain count, dynamic "{count} selected" trigger copy, removing the
+  count badge from the open states, then individually-removable
+  per-item chips that stay visible while open, which superseded the
+  count-badge/text approach) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  Basics group (between Modal / dialog and Password field) rather than
+  a new category, same call as Stepper's/UserPicker's/FileUploader's own
+  placements. Updated the ToC and Scope note to match.
+- **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
+  click-to-browse/drag-and-drop attachment control — attached files list
+  as rows below the drop zone with a kind badge, name, size, and a
+  remove action. Designed from scratch, no source in either the brand
+  deck or the teammate's build; reuses Badge-Neutral's box model for the
+  kind badge, Table row's/SidebarNav's Obsidian-border + Neutral-2-fill
+  "currently engaged" recipe for the drag-over state, and the
+  Filters/Date picker popover convention for file rows, rather than
+  inventing new patterns. Built per the user's own 3-step process:
+  component first (`components/forms/FileUploader.tsx`), then a live
+  preview in `preview.html`'s Components gallery for approval —
+  including a mid-review fix (kind badge moved from a literal monospace
+  stack to `--font-primary`, same call as UserPicker's avatar-initials
+  fix) — then this spec, added only after that preview was explicitly
+  approved. Slotted alphabetically into the Basics group (between Empty
+  state and Input field) rather than a new category, same call as
+  Stepper's and UserPicker's own placements. Updated the ToC and Scope
+  note to match.
+- **v0.9.2-draft — 2026-08-04** — Added **UserPicker**, a searchable
+  input for finding and selecting a single person (an Account Executive,
+  in this app) — collapses to an avatar/name/role summary with a clear
+  action once a value is set. Designed from scratch, no source in either
+  the brand deck or the teammate's build; reuses Input field's box
+  anatomy and focus behavior, Filters'/Date picker's popover convention,
+  and Table row's hover treatment rather than inventing new patterns.
+  Built per the user's own 3-step process: component first
+  (`components/forms/UserPicker.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval — including a
+  mid-review fix (avatar initials moved from a literal monospace stack,
+  since this system has no `--font-mono` token, to `--font-primary` like
+  every other piece of text in the component) — then this spec, added
+  only after that preview was explicitly approved. Slotted alphabetically
+  into the Basics group (after Textarea) rather than a new category, same
+  call as Stepper's v0.7.0-batch placement. Updated the ToC and Scope
+  note to match.
+- **v0.9.1-draft — 2026-08-04** — Added **Stepper**, a multi-step
+  progress indicator (Horizontal/Vertical orientation × optional
+  per-step description, three states — Completed/Active/Upcoming).
+  Designed from scratch, no source in either the brand deck or the
+  teammate's build. Built per the user's own 3-step process: component
+  first (`components/navigation/Stepper.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval — including two
+  rounds of visual fixes caught in that preview (equal-length dividers
+  in both orientations, a divider touching its neighboring indicator in
+  the vertical layout, and the Completed indicator showing a checkmark
+  instead of its step number) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  existing v0.7.0 batch (between SidebarNav and Switch) rather than a
+  new Navigation category, per explicit user direction — SidebarNav and
+  Tabs stay where they are. Updated the ToC and Scope note to match, and
+  fixed `preview.html`'s Components lede, which had drifted stale at
+  "21 components" since App Shell/Textarea/Password field/Search input
+  clear button were added in v0.9.0 without updating it — folded that
+  fix into this same pass rather than leaving it for a third drift.
 - **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
   composition layer this document never had. Prompted by real downstream
   builds: separate teams built dashboards on this system and produced
