@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.8.2-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.8.3-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -663,23 +663,23 @@ toggle (which would hide the calendar with no way to reveal it in a
 static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
-**Scope note:** 21 components are specced and built now — the original
+**Scope note:** 22 components are specced and built now — the original
 7 basics (Button, Input field, Card, Badge & Tag, Table row, Modal /
 dialog, Empty state), 10 transcribed directly from the teammate's real
 component source in v0.7.0 (SidebarNav, Tabs, Select, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), and 4 more **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 4 more **designed
 from scratch in v0.8.0** — Stat/KPI card, Filters, Pagination, Date
-picker — plus a Chart color mapping guideline (not a rendered
-component). Those last 5 have **no source in either the original brand
-deck or the teammate's build**; they're built entirely from this
-document's own token system (color, type, spacing, radius, elevation,
-motion) and marked ⚠️ **designed, not transcribed** in their own
-sections — treat them as a first pass needing real design/brand review
-before shipping, more provisional than the transcribed components above
-them. See each section below for source notes. Don't skip straight to
-markup for a new component — write the spec here first (variants,
-sizes, states, Do/Don't), the same process every component above went
-through.
+picker — and PageHeader **designed from scratch in v0.8.3** — plus a
+Chart color mapping guideline (not a rendered component). Those last 6
+have **no source in either the original brand deck or the teammate's
+build**; they're built entirely from this document's own token system
+(color, type, spacing, radius, elevation, motion) and marked ⚠️
+**designed, not transcribed** in their own sections — treat them as a
+first pass needing real design/brand review before shipping, more
+provisional than the transcribed components above them. See each
+section below for source notes. Don't skip straight to markup for a
+new component — write the spec here first (variants, sizes, states,
+Do/Don't), the same process every component above went through.
 
 ### Button
 
@@ -1377,6 +1377,31 @@ table in order, not arbitrarily. **Don't:** use more than one hue
 family within a single sequential or diverging scale, or let a legend
 introduce a color that isn't already a token in this document.
 
+### PageHeader
+
+⚠️ **Designed 2026-08-04, v0.8.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing the existing Typescale's h1 and body1 tokens,
+not transcribed. Treat as a first pass needing real design/brand review.
+
+A page-level title block — sits flush at the top of a page or panel,
+no background or border of its own.
+
+| Part | Spec |
+|---|---|
+| Title | `h1` token (32px/38px, 40px/56px at `-lg`, weight 800), Neutral-9 — the largest heading weight in the system, matching the Typescale's "Page-level heading" use case |
+| Subtitle (optional) | `body1` token (16px/22px, weight 500), Neutral-5 — sits directly below the title |
+| Gap | `spacing-8` (8px) between title and subtitle |
+| Container | no background, no border, no padding — flush in the surrounding page layout |
+
+**Variants:** Default (title only) and With subtitle (title + sub).
+
+**Do:** reserve PageHeader for the single page-level title per view —
+it's not for card or section headers, which have their own patterns
+(see [Card](#card)). **Don't:** add a border, background fill, or
+bottom divider to PageHeader itself; if a page needs a divider under
+its header, that belongs to the page layout, not this component.
+
 ---
 
 ## Guidelines
@@ -1600,6 +1625,16 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.8.3-draft — 2026-08-04** — Added **PageHeader**, a new
+  component designed from scratch (no source in either the original
+  brand deck or the teammate's build) — a flush, borderless page-level
+  title block reusing the existing Typescale's `h1` (title) and
+  `body1` (optional subtitle) tokens. Built per the user's own 3-step
+  process: component first (`components/PageHeader.tsx`), then a live
+  preview in `preview.html`'s Components gallery for approval, then
+  this spec — added only after that preview was explicitly approved.
+  Updated the Components section's Scope note (21 → 22 components) and
+  `preview.html`'s matching lede count to stay in sync.
 - **v0.8.2-draft — 2026-07-30** — The Components gallery in
   `preview.html` was static markup — buttons that looked clickable but
   weren't, checkboxes with a hardcoded `.on` class, tabs that never
