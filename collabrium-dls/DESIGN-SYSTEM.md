@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.0-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.1-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -683,8 +683,10 @@ sibling components (Textarea, Password field, Search input clear
 button) — all four dated 2026-08-03 in their own sections — plus **App
 Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
-gallery never had. This note existing-but-undercounting for a full day
-is itself the doc-sync failure App Shell was written to prevent
+gallery never had, and **Stepper** (v0.9.1) — a multi-step progress
+indicator, also designed from scratch with no source in either system.
+This note existing-but-undercounting for a full day is itself the
+doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
@@ -711,6 +713,7 @@ through.
 - [Select](#select)
 - [SidebarNav](#sidebarnav)
 - [Stat / KPI card](#stat--kpi-card)
+- [Stepper](#stepper)
 - [Switch](#switch)
 - [Table row](#table-row)
 - [Tabs](#tabs)
@@ -1303,6 +1306,41 @@ deep. **Don't:** nest a second level of grouping — if the hierarchy needs
 more than one level, that's a sign the item belongs in a sub-page's Tabs
 instead.
 
+### Stepper
+
+⚠️ **Designed 2026-08-04, v0.9.1 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Checkbox/Radio's on/off treatment, SidebarNav's
+active/inactive label weighting, and the caption token for supporting
+text — not transcribed. Treat as a first pass needing real design/brand
+review.
+
+Tracks progress through a multi-step flow — onboarding, a multi-page
+form, a checkout — as an ordered list of steps, each in one of three
+states.
+
+| Part | Spec |
+|---|---|
+| Indicator | 24×24px circle, `radius-pill` |
+| Indicator — Completed | Obsidian fill, Neutral-1 text, shows the step number (not an icon — fill vs. outline is what carries the state) |
+| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian text |
+| Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 text |
+| Label | body2 (14px/20px); weight 700 + Neutral-9 when Active, weight 400 + Neutral-5 when Completed/Upcoming — same bold-vs-muted pattern as SidebarNav's active/inactive nav items |
+| Description (optional) | caption (12px), Neutral-5 — smaller than the label, spacing-4 below it |
+| Connector | 1px fill in Neutral-3 (the hairline-border token), not a literal border |
+| Connector — horizontal | sits between each pair of indicators, sharing an equal `flex: 1` share of the row so every connector is the same length regardless of neighboring label width |
+| Connector — vertical | fixed spacing-16 length, held spacing-8 off the indicator above (the rail's own gap) and spacing-8 off the indicator below (the list's gap) — equal on both sides, never touching either circle |
+
+**Variants:** orientation (Horizontal / Vertical) and per-step description
+are independent, giving Horizontal/Vertical × With/No description as
+four presentations, not four hard-coded variants.
+
+**Do:** derive each step's state from a single `currentStep` index —
+before it is Completed, at it is Active, after it is Upcoming — rather
+than tracking state per step. **Don't:** let the connector's length or
+spacing depend on label or description length; both orientations keep
+it fixed/equal on purpose (see the Connector rows above).
+
 ### Switch
 
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `Switch.jsx`.**
@@ -1754,6 +1792,25 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.1-draft — 2026-08-04** — Added **Stepper**, a multi-step
+  progress indicator (Horizontal/Vertical orientation × optional
+  per-step description, three states — Completed/Active/Upcoming).
+  Designed from scratch, no source in either the brand deck or the
+  teammate's build. Built per the user's own 3-step process: component
+  first (`components/navigation/Stepper.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval — including two
+  rounds of visual fixes caught in that preview (equal-length dividers
+  in both orientations, a divider touching its neighboring indicator in
+  the vertical layout, and the Completed indicator showing a checkmark
+  instead of its step number) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  existing v0.7.0 batch (between SidebarNav and Switch) rather than a
+  new Navigation category, per explicit user direction — SidebarNav and
+  Tabs stay where they are. Updated the ToC and Scope note to match, and
+  fixed `preview.html`'s Components lede, which had drifted stale at
+  "21 components" since App Shell/Textarea/Password field/Search input
+  clear button were added in v0.9.0 without updating it — folded that
+  fix into this same pass rather than leaving it for a third drift.
 - **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
   composition layer this document never had. Prompted by real downstream
   builds: separate teams built dashboards on this system and produced
