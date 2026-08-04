@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.2-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
+**v0.9.3-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -685,7 +685,9 @@ Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
 gallery never had, **Stepper** (v0.9.1) — a multi-step progress
 indicator, also designed from scratch with no source in either system —
-and **UserPicker** (v0.9.2), a searchable person picker, same status.
+**UserPicker** (v0.9.2), a searchable person picker, same status — and
+**FileUploader** (v0.9.3), click-to-browse/drag-and-drop file
+attachment, also designed from scratch with no source in either system.
 This note existing-but-undercounting for a full day is itself the
 doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
@@ -704,6 +706,7 @@ through.
 - [Date picker](#date-picker)
 - [ElementBadge](#elementbadge)
 - [Empty state](#empty-state)
+- [FileUploader](#fileuploader)
 - [Filters](#filters)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
@@ -987,6 +990,38 @@ resolve it ("No campaigns yet — create your first one") rather than a bare
 "No data." **Don't:** use a generic spinner or blank card as a stand-in
 for a real empty state — the deck's icon-empty/icon-hero tokens exist
 specifically so this state gets real visual weight.
+
+### FileUploader
+
+⚠️ **Designed 2026-08-04, v0.9.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Badge-Neutral's box model, Table row's/
+SidebarNav's active-state recipe, and the Filters/Date picker popover
+pattern — not transcribed. Treat as a first pass needing real
+design/brand review.
+
+Click-to-browse or drag-and-drop file attachment; attached files list
+as rows below the drop zone.
+
+| Part | Spec |
+|---|---|
+| Drop zone | `radius-lg` (20px), spacing-24 padding, centered content, 1px dashed Neutral-3 border, Neutral-1 fill |
+| Drop zone — drag-over | 2px dashed Obsidian border, Neutral-2 fill — the same Obsidian-border/Neutral-2-fill pairing Table row's selected state and SidebarNav's active item already use for "currently engaged," reused here rather than inventing a new tint |
+| Upload icon | `upload-simple`, `icon-md` (20px), Neutral-5, **Tier 1, Regular** per its explicit listing in Iconography |
+| Label | body2 (14px/20px), weight 700, Neutral-5 |
+| Hint (optional) | caption (12px), Neutral-5 |
+| File row | flex row, spacing-12 gap, spacing-8/spacing-12 padding, 1px Neutral-3 border, `radius-sm`, Neutral-1 fill — the same bordered "panel" recipe Filters'/Date picker's popover uses |
+| Kind badge | reuses Badge-Neutral's exact box model — 22px tall, spacing-8 padding, `radius-pill`, Neutral-2 fill, Neutral-3 border, `--font-primary` |
+| File name | body2, Neutral-9, truncates with ellipsis |
+| File size | caption, Neutral-5 |
+| Remove (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+
+**Variants:** Default (idle, no files), Drag-over, Has files.
+
+**Do:** keep the drop zone visible even once files are attached, so more
+can be added without a separate "add more" affordance. **Don't:** style
+the kind badge as a status Badge variant (Success/Danger/Warning) — it's
+always Neutral; file type isn't a status.
 
 ### Input field
 
@@ -1827,6 +1862,24 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
+  click-to-browse/drag-and-drop attachment control — attached files list
+  as rows below the drop zone with a kind badge, name, size, and a
+  remove action. Designed from scratch, no source in either the brand
+  deck or the teammate's build; reuses Badge-Neutral's box model for the
+  kind badge, Table row's/SidebarNav's Obsidian-border + Neutral-2-fill
+  "currently engaged" recipe for the drag-over state, and the
+  Filters/Date picker popover convention for file rows, rather than
+  inventing new patterns. Built per the user's own 3-step process:
+  component first (`components/forms/FileUploader.tsx`), then a live
+  preview in `preview.html`'s Components gallery for approval —
+  including a mid-review fix (kind badge moved from a literal monospace
+  stack to `--font-primary`, same call as UserPicker's avatar-initials
+  fix) — then this spec, added only after that preview was explicitly
+  approved. Slotted alphabetically into the Basics group (between Empty
+  state and Input field) rather than a new category, same call as
+  Stepper's and UserPicker's own placements. Updated the ToC and Scope
+  note to match.
 - **v0.9.2-draft — 2026-08-04** — Added **UserPicker**, a searchable
   input for finding and selecting a single person (an Account Executive,
   in this app) — collapses to an avatar/name/role summary with a clear

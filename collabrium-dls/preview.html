@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.2-draft</title>
+<title>Collabrium design system | v0.9.3-draft</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -449,6 +449,30 @@
   .c-chartmap-swatch{width:28px; height:20px; border-radius:4px; flex:none;}
   .c-chartmap-ramp{flex:1; min-width:160px; height:20px; border-radius:4px;}
 
+  /* FileUploader — v0.9.3, designed not transcribed
+     Drag-over reuses the Obsidian-border + Neutral-2-fill recipe this
+     system already uses for "currently engaged" states (Table row
+     selected, SidebarNav active) — there's no Obsidian tint token to
+     invent a new background from. Kind badge reuses Badge-Neutral's box
+     model (22px, radius-pill, Neutral-2/Neutral-3), --font-primary same
+     as every other piece of text in the component. File rows reuse the
+     Filters/Date picker "panel" recipe (Neutral-1 fill, 1px Neutral-3
+     border), not Neutral-2, so the remove button's hover stays visually
+     distinct against the row. */
+  .c-uploader{display:flex; flex-direction:column; gap:var(--spacing-12); max-width:360px;}
+  .c-uploader-zone{cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:var(--spacing-8); padding:var(--spacing-24); text-align:center; border-radius:var(--radius-lg); border:1px dashed var(--color-neutral-3); background:var(--color-neutral-1);}
+  .c-uploader-zone.dragover{border:2px dashed var(--color-obsidian); background:var(--color-neutral-2);}
+  .c-uploader-zone i{font-size:20px; color:var(--color-neutral-5);}
+  .c-uploader-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-5);}
+  .c-uploader-hint{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+  .c-uploader-files{display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .c-uploader-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+  .c-uploader-kind{flex:none; height:22px; display:inline-flex; align-items:center; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
+  .c-uploader-name{flex:1; min-width:0; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .c-uploader-size{flex:none; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+  .c-uploader-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+  .c-uploader-remove:hover{background:var(--color-neutral-2);}
+
   /* UserPicker — v0.9.2, designed not transcribed
      Collapsed row and the search input box share Input field's own
      anatomy (40px height, radius-sm, 1px Neutral-3 border) so the two
@@ -545,7 +569,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.2-draft</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.3-draft</span>
 </header>
 
 <div class="layout">
@@ -833,7 +857,7 @@
       <div class="shell">
         <p class="kicker">07 · Reference</p>
         <h2 class="section-title">Components</h2>
-        <p class="lede">Live reference for 27 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b>, and 6 more since &mdash; App Shell, Textarea, Password field, Search input clear button, Stepper, and UserPicker &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0/App Shell/Stepper/UserPicker additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
+        <p class="lede">Live reference for 28 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b>, and 7 more since &mdash; App Shell, Textarea, Password field, Search input clear button, Stepper, UserPicker, and FileUploader &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0/App Shell/Stepper/UserPicker/FileUploader additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
 
         <div class="comp-block" id="comp-appshell">
           <div class="comp-head"><h3>App Shell <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.0, designed not sourced</span></h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
@@ -976,6 +1000,62 @@
               <p>Create your first campaign to see performance data here.</p>
               <button class="c-btn c-btn-primary c-btn-md"><i class="ph ph-plus"></i>Create campaign</button>
             </div>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-fileuploader">
+          <div class="comp-head"><h3>FileUploader <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.3, designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-fileuploader" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default &mdash; idle, no files</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Drag-over</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone dragover">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has files</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+              <div class="c-uploader-files">
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">PDF</span>
+                  <span class="c-uploader-name">Q3-media-plan-100plus.pdf</span>
+                  <span class="c-uploader-size">2.4 MB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove Q3-media-plan-100plus.pdf"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">MP4</span>
+                  <span class="c-uploader-name">client-call-recording-19jun.mp4</span>
+                  <span class="c-uploader-size">86.1 MB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove client-call-recording-19jun.mp4"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">DOCX</span>
+                  <span class="c-uploader-name">brand-brief-v2.docx</span>
+                  <span class="c-uploader-size">340 KB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove brand-brief-v2.docx"><i class="ph ph-x"></i></button>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -1823,7 +1903,7 @@ going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.2-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
+**v0.9.3-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2508,7 +2588,9 @@ Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
 gallery never had, **Stepper** (v0.9.1) — a multi-step progress
 indicator, also designed from scratch with no source in either system —
-and **UserPicker** (v0.9.2), a searchable person picker, same status.
+**UserPicker** (v0.9.2), a searchable person picker, same status — and
+**FileUploader** (v0.9.3), click-to-browse/drag-and-drop file
+attachment, also designed from scratch with no source in either system.
 This note existing-but-undercounting for a full day is itself the
 doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
@@ -2527,6 +2609,7 @@ through.
 - [Date picker](#date-picker)
 - [ElementBadge](#elementbadge)
 - [Empty state](#empty-state)
+- [FileUploader](#fileuploader)
 - [Filters](#filters)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
@@ -2810,6 +2893,38 @@ resolve it ("No campaigns yet — create your first one") rather than a bare
 "No data." **Don't:** use a generic spinner or blank card as a stand-in
 for a real empty state — the deck's icon-empty/icon-hero tokens exist
 specifically so this state gets real visual weight.
+
+### FileUploader
+
+⚠️ **Designed 2026-08-04, v0.9.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Badge-Neutral's box model, Table row's/
+SidebarNav's active-state recipe, and the Filters/Date picker popover
+pattern — not transcribed. Treat as a first pass needing real
+design/brand review.
+
+Click-to-browse or drag-and-drop file attachment; attached files list
+as rows below the drop zone.
+
+| Part | Spec |
+|---|---|
+| Drop zone | `radius-lg` (20px), spacing-24 padding, centered content, 1px dashed Neutral-3 border, Neutral-1 fill |
+| Drop zone — drag-over | 2px dashed Obsidian border, Neutral-2 fill — the same Obsidian-border/Neutral-2-fill pairing Table row's selected state and SidebarNav's active item already use for "currently engaged," reused here rather than inventing a new tint |
+| Upload icon | `upload-simple`, `icon-md` (20px), Neutral-5, **Tier 1, Regular** per its explicit listing in Iconography |
+| Label | body2 (14px/20px), weight 700, Neutral-5 |
+| Hint (optional) | caption (12px), Neutral-5 |
+| File row | flex row, spacing-12 gap, spacing-8/spacing-12 padding, 1px Neutral-3 border, `radius-sm`, Neutral-1 fill — the same bordered "panel" recipe Filters'/Date picker's popover uses |
+| Kind badge | reuses Badge-Neutral's exact box model — 22px tall, spacing-8 padding, `radius-pill`, Neutral-2 fill, Neutral-3 border, `--font-primary` |
+| File name | body2, Neutral-9, truncates with ellipsis |
+| File size | caption, Neutral-5 |
+| Remove (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+
+**Variants:** Default (idle, no files), Drag-over, Has files.
+
+**Do:** keep the drop zone visible even once files are attached, so more
+can be added without a separate "add more" affordance. **Don't:** style
+the kind badge as a status Badge variant (Success/Danger/Warning) — it's
+always Neutral; file type isn't a status.
 
 ### Input field
 
@@ -3650,6 +3765,24 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
+  click-to-browse/drag-and-drop attachment control — attached files list
+  as rows below the drop zone with a kind badge, name, size, and a
+  remove action. Designed from scratch, no source in either the brand
+  deck or the teammate's build; reuses Badge-Neutral's box model for the
+  kind badge, Table row's/SidebarNav's Obsidian-border + Neutral-2-fill
+  "currently engaged" recipe for the drag-over state, and the
+  Filters/Date picker popover convention for file rows, rather than
+  inventing new patterns. Built per the user's own 3-step process:
+  component first (`components/forms/FileUploader.tsx`), then a live
+  preview in `preview.html`'s Components gallery for approval —
+  including a mid-review fix (kind badge moved from a literal monospace
+  stack to `--font-primary`, same call as UserPicker's avatar-initials
+  fix) — then this spec, added only after that preview was explicitly
+  approved. Slotted alphabetically into the Basics group (between Empty
+  state and Input field) rather than a new category, same call as
+  Stepper's and UserPicker's own placements. Updated the ToC and Scope
+  note to match.
 - **v0.9.2-draft — 2026-08-04** — Added **UserPicker**, a searchable
   input for finding and selecting a single person (an Account Executive,
   in this app) — collapses to an avatar/name/role summary with a clear
