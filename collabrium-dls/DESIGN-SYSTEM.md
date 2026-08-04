@@ -1312,6 +1312,44 @@ data view; don't mix them in the same screen.
 awkwardly on long labels. **Don't:** add a fifth border style here; it
 inherits Table row's border and hover conventions on purpose.
 
+**Global navigation rule — added 2026-08-04.** SidebarNav is the
+canonical navigation pattern for all Collabrium builds. No alternative
+navigation orientation (top nav, bottom nav, tab bar) should be used
+unless explicitly documented as an exception for a specific context.
+
+⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
+Primary app-level navigation, not a page-local menu.
+
+| Part | Spec |
+|---|---|
+| Container | 240px width (expanded) / 72px width (collapsed) — ⚠️ **hard max-width in both states, changed 2026-08-04:** `overflow-x: hidden`, never horizontally scrollable at either width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding **on all four sides equally** (⚠️ clarified 2026-08-04 — left and right padding must match; any implementation where the right edge reads as wider than the left is a bug, not a variant), spacing-4 (4px) gap between items (⚠️ reverted 2026-08-04 — the earlier "reads as no gap at all" complaint traced to a missing gap implementation between individual nav items, not the token value itself; now that it's wired correctly, spacing-4 is the intended tight gap) |
+| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot, **horizontal padding equal on both sides**; see Header logo rule below. ⚠️ **Layout changed 2026-08-04, revised twice same day:** expanded stays a flex row, `align-items: center`, logo left-aligned, toggle right-aligned, both in normal flex flow, same row. Collapsed is no longer this same flex row — the logo is independently centered as the header's only in-flow content, and the toggle is a separate floating overlay button anchored to the rail's own right edge (see Collapsible state below for both) — visually still "the same row," just no longer achieved via shared flex layout |
+| Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5. ⚠️ **Divider added 2026-08-04:** a 1px Neutral-3 hairline sits above every section label except the first one in the list (e.g. between Overview and Workspace), separating one department/area group from the next — it sits above the label's own spacing-16 top padding, not stacked as extra whitespace |
+| Nav item | 40px height minimum (grows to fit a wrapped 2-line label — see the wrapping rule below), full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
+| Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
+| Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Nav item — hover ⚠️ added 2026-08-04 | Neutral-2 fill, text color unchanged from whatever active/inactive state it already has — reuses Table row's own hover token (`Row hover \| Neutral-2 fill`) and Button Ghost's hover, rather than a nav-specific value |
+| Nav item — focus-visible ⚠️ added 2026-08-04 | 2px Obsidian outline, 2px offset, additive on top of the current fill — reuses Button's exact focus-visible token; Nav item is a clickable row control at `radius-sm` like Button, not a Card-like surface, so this is used instead of Card's `shadow-focus`/Water-ring exception |
+| Nav item — active-pressed ⚠️ added 2026-08-04 | Neutral-3 fill — direct match to Button Ghost's `Active/pressed \| Neutral-3 fill`, same unfilled-by-default control family |
+| Nav item — disabled ⚠️ added 2026-08-04 | Neutral-4 text/icon, fill stays transparent, `cursor: not-allowed` — matches Button Ghost's disabled and Pagination's Ghost icon-button disabled, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not row-based nav items) |
+| Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
+| Trailing count | optional, caption/700/Neutral-5, right-aligned |
+| Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
+| Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
+
+⚠️ **Note on "active" vs. "active-pressed"** — these are different axes.
+"Active"/"inactive" (above) is the *persistent selection* state (which
+page you're on); "active-pressed" is the *momentary* mouse-down state,
+and can land on either an active or inactive item. Hover, focus-visible,
+active-pressed, and disabled all apply orthogonally on top of whichever
+active/inactive state the item already has.
+
+⚠️ **Changed 2026-08-04 — labels wrap, they no longer truncate.** 240px
+(expanded) is a hard max-width with no horizontal scroll; a label too
+long for one line wraps to a second line instead of truncating with an
+ellipsis or overflowing the container. This replaces the earlier
+"truncates with ellipsis" rule.
+
 ### ElementBadge
 
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `ElementBadge.jsx`.**
