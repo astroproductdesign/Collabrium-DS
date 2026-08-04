@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.1-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.2-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -730,25 +730,33 @@ build made before 2026-08-03 landing on plain white or grey product UI
 isn't a spec violation — it was correct under the rule that existed
 when it was built.
 
-#### Sidebar placement (extends SidebarNav)
+#### Main nav — a direct instance of SidebarNav, not a variant
 
-[SidebarNav](#sidebarnav)'s own spec (240px, `radius-lg`, 1px border on
-all four sides) describes a **self-contained floating panel** — correct
-for an inset or off-canvas usage, but not for the primary shell rail,
-which runs the full viewport height flush against the browser edge. A
-100dvh-tall panel with rounded top and bottom corners flush against the
-viewport edge would show canvas colour bleeding through those corners,
-so the rail is a distinct placement variant, not a re-spec of the
-component itself:
+⚠️ **Revised 2026-08-04.** An earlier draft of this section defined a
+separate "flush rail" placement variant for App Shell's main nav — no
+radius, a single right-edge border, running flush against the viewport
+edge — reasoning that [SidebarNav](#sidebarnav)'s own spec (`radius-lg`,
+border on all four sides) would show canvas colour bleeding through its
+rounded corners if stretched flush against the browser edge. That
+reasoning was sound but the conclusion was wrong: the fix isn't a
+second, divergent spec for the same component, it's **inset spacing**.
+
+**The main nav follows the SidebarNav component exactly** — same 240px
+width, `radius-lg`, 1px border on all four sides, `Neutral-1` fill, same
+internal anatomy (Header, Section label, Nav item, icon, trailing count,
+Footer) — no properties overridden. It simply doesn't sit flush: it's
+inset by `spacing-16` (16px) from the top, left, and bottom edges of the
+viewport, so its rounded corners and border render cleanly against the
+`Canvas warm` background instead of clipping against the browser edge.
+Height is `calc(100dvh - 32px)` to account for the two 16px insets. The
+right edge needs no inset of its own — Content region's `page-gutter`
+already provides the visual gap to whatever sits next to it.
 
 | Property | Value |
 |---|---|
-| Height | 100dvh, fixed to the left edge |
-| Width | 240px — unchanged from SidebarNav's own spec |
-| Radius | none — flush corners top and bottom, unlike the floating-panel default |
-| Border | right edge only, `shadow-hairline` (1px Neutral-3) — the other three edges are flush against the viewport, no border needed there |
-| Fill | Neutral-1 — unchanged |
-| Internal anatomy | unchanged — Header, Section label, Nav item (active/inactive), icon, trailing count, Footer all per [SidebarNav](#sidebarnav) as written |
+| Component | [SidebarNav](#sidebarnav), unmodified — width, radius, border, fill, and internal anatomy all as documented there |
+| Placement | inset `spacing-16` (16px) from the viewport's top, left, and bottom edges; no inset on the right edge |
+| Height | `calc(100dvh - 32px)` |
 
 **New state — Locked / "Soon":** a third nav-item state, for sections
 that exist in the IA but aren't built yet (this has already shown up
@@ -757,13 +765,15 @@ Neutral-4 text (one step more muted than inactive's Neutral-5), icon at
 40% opacity, `cursor: not-allowed`, no hover/focus feedback. The
 trailing slot carries a Badge (Neutral variant, "Soon" label) instead
 of the trailing-count slot — the two are mutually exclusive on one item.
+This is additive (a new state), not an override of anything SidebarNav
+already specifies.
 
 **Responsive** ⚠️ provisional, first pass, no source: below 1024px,
 collapse to a 72px icon-only rail (labels hidden, tooltip on hover
-instead); below 768px, the sidebar becomes an off-canvas drawer — and
-*that's* where SidebarNav's original floating-panel spec (`radius-lg`,
-border on all sides) actually applies, sliding in over the content with
-`shadow-4` beneath it.
+instead); below 768px, becomes an off-canvas drawer, sliding in over the
+content with `shadow-4` beneath it — still the same SidebarNav instance
+and the same inset placement rule, just triggered by a different
+affordance, not a third variant.
 
 #### Content region
 
@@ -794,13 +804,14 @@ the shell has, not a block nested below a separate bar.
 slots — there's no second nav surface to reach for. Keep the whole
 viewport on `Canvas warm` and let Sidebar/Card read as white surfaces
 against it — that contrast is the system now, not an inconsistency to
-fix. **Don't:** invent a new sidebar width, radius, or border treatment
-per app — 240px flush-rail is the one canonical shell; the
-floating-panel treatment (`radius-lg`, 4-sided border) is reserved for
-inset/off-canvas contexts only, never the primary rail. **Don't:** add
-a persistent global top bar back in without revisiting the 2026-08-04
-decision above — if notifications or an account menu become a real
-requirement, that's a spec change, not a quiet addition on top of this.
+fix. **Don't:** override any of SidebarNav's own properties (width,
+radius, border, fill) to make it work as the main nav — if it doesn't
+fit, adjust placement (inset/margin), not the component; a component
+used two different ways is still one component, not two specs to keep
+in sync. **Don't:** add a persistent global top bar back in without
+revisiting the 2026-08-04 decision above — if notifications or an
+account menu become a real requirement, that's a spec change, not a
+quiet addition on top of this.
 
 ### Button
 
@@ -1139,13 +1150,13 @@ specifically so this state gets real visual weight.
 ### SidebarNav
 
 ⚠️ **New in v0.7.0 — transcribed from the teammate's `SidebarNav.jsx`.**
-Primary app-level navigation, not a page-local menu.
-
-⚠️ **Two placement contexts, not a contradiction (added v0.9.0):** the
-spec below (`radius-lg`, border on all four sides) describes this as a
-self-contained floating panel — correct for an inset or off-canvas/drawer
-use. When it's the primary shell rail instead, see [App Shell](#app-shell)
-for the flush, full-height variant (no radius, right-edge border only).
+Primary app-level navigation, not a page-local menu. ⚠️ **This is also
+what App Shell uses as the main nav (revised 2026-08-04)** — same
+component, unmodified, just inset from the viewport edges rather than
+centered on a page; see [App Shell](#app-shell) for the placement rule.
+An earlier draft had a separate flush/no-radius variant for that
+use — cut in favor of inset spacing so there's one spec to maintain,
+not two.
 
 | Part | Spec |
 |---|---|
@@ -1727,6 +1738,21 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.2-draft — 2026-08-04** — App Shell's main nav tweak: dropped the
+  separate "flush rail" placement variant (no radius, right-edge border
+  only) introduced in v0.9.0. That variant existed to solve a real
+  problem — SidebarNav's own spec (`radius-lg`, border on all four
+  sides) would show canvas colour bleeding through its rounded corners
+  if stretched flush against the browser edge — but the fix duplicated
+  the component into two specs that could drift apart. Replaced with
+  **inset spacing**: the main nav is now SidebarNav, completely
+  unmodified (same width/radius/border/fill/anatomy), placed
+  `spacing-16` (16px) in from the viewport's top, left, and bottom edges
+  instead of flush, with height `calc(100dvh - 32px)`. One component,
+  one spec, used in two placement contexts (inset-as-main-nav,
+  floating-panel-as-inset-or-drawer) rather than two components pretending
+  to be one. SidebarNav's own section now points to App Shell for the
+  placement rule instead of describing a second variant inline.
 - **v0.9.1-draft — 2026-08-04** — Cross-checked all 5 places this system's
   content gets duplicated — `SKILL.md`, `DESIGN-SYSTEM.md`, and the three
   embedded copies inside `preview.html` (the DESIGN.md tab's compact/

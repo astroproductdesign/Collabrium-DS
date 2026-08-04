@@ -129,7 +129,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.1-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.2-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -215,5 +215,13 @@ programmatically at 162/162 with zero missing and zero orphaned. This
 doesn't fix the larger, separate problem a teammate hit applying the
 system to an existing project — the actual component CSS has never been
 extracted into anything portable, and the icon/font CDN links aren't
-documented as a requirement — only the token-layer piece of it. See
-changelog at the bottom of DESIGN-SYSTEM.md.
+documented as a requirement — only the token-layer piece of it;
+**v0.9.2 (2026-08-04) simplified App Shell's main nav** — the v0.9.0
+"flush rail" placement variant (no radius, right-edge border only) is
+gone. The main nav is now SidebarNav completely unmodified — same
+width/radius/border/fill/anatomy — just inset `spacing-16` (16px) from
+the viewport's top/left/bottom edges instead of flush, at height
+`calc(100dvh - 32px)`, so its rounded corners render cleanly instead of
+clipping against the browser edge. One component, one spec, in two
+placement contexts, instead of a second divergent spec to keep in sync.
+See changelog at the bottom of DESIGN-SYSTEM.md.
