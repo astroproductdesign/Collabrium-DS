@@ -8,10 +8,18 @@ description: Design Language System reference for Collabrium (Astro Digital Grow
 Quick-reference cheat sheet for building Collabrium surfaces. Full token
 detail, rationale, and open gaps live in `DESIGN-SYSTEM.md` in this same
 folder — read it before building anything beyond a trivial mockup.
-Paste-able CSS custom properties are in `tokens.css`. `preview.html` is a
-browsable brand overview microsite (writeup, real logo, color palette,
-typography, fonts, spacing & shape, guidelines) — open it directly, it
-links `tokens.css` and embeds `logo.html`. `logo.html` is the real,
+Paste-able CSS custom properties are in `tokens.css`; the actual
+component CSS (every `.c-btn`/`.c-card`/`.c-badge`/etc. rule) is in
+`components.css` — added 2026-08-04, this is the real portable copy,
+not `preview.html`'s markup alone. **To use this system in another
+project, you need both files plus the Phosphor Icons and Google Fonts
+`<link>` tags** — see DESIGN-SYSTEM.md's Technical Implementation
+section for the exact snippet and load order; skipping any of them is
+why a real integration attempt broke (colors/pills/icons not
+rendering). `preview.html` is a browsable brand overview microsite
+(writeup, real logo, color palette, typography, fonts, spacing & shape,
+guidelines) — open it directly, it links `tokens.css`, `components.css`,
+and embeds `logo.html`. `logo.html` is the real,
 corrected animated Collabrium wordmark — the canonical *live* asset, embed
 it wherever the mark can animate rather than screenshotting it. Its "O"
 cycles through a fixed 5-frame sequence — **Gold → Water → Wood → Fire →
@@ -49,9 +57,13 @@ treat them as more provisional than everything transcribed above them —
 a first design pass, not yet reviewed.
 
 **Standing rule:** any change to this skill's files (preview.html,
-logo.html, logo-lockups/, tokens.css, SVG/, fonts/, new components) must be reflected
-back into `DESIGN-SYSTEM.md` — content, version bump, changelog entry —
-in the same pass, not as a follow-up.
+logo.html, logo-lockups/, tokens.css, components.css, SVG/, fonts/, new
+components) must be reflected back into `DESIGN-SYSTEM.md` — content,
+version bump, changelog entry — in the same pass, not as a follow-up.
+A new or changed component needs the matching edit in **both**
+`preview.html` (live demo) **and** `components.css` (the portable
+copy) — they must never diverge from each other any more than either
+may diverge from `DESIGN-SYSTEM.md`.
 
 **Reference point:** `~/Desktop/Collabrium Design System/` is a second,
 independently built Collabrium system from the same source deck, with
@@ -129,7 +141,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.3-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.4-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -231,4 +243,14 @@ Locked/"Soon" nav-item state (fill, text color, icon opacity, cursor, a
 Badge) had been defined inside App Shell instead of SidebarNav; it's
 now a third `Nav item` row in SidebarNav's own table. Also trimmed two
 places that redundantly restated `Canvas warm`'s hex value instead of
-referencing the token. See changelog at the bottom of DESIGN-SYSTEM.md.
+referencing the token; **v0.9.4 (2026-08-04) added `components.css`** —
+the real portable copy of every component's CSS, extracted from
+`preview.html`'s own inline styles after a teammate's integration
+attempt broke on missing colors/pills/icons. `preview.html` now links
+it instead of duplicating a private copy. Also fixed a real bug the
+extraction surfaced: the shared 36×36 icon-chip pattern was scoped to
+`.c-card .icon-chip` only, so it had rendered completely unstyled
+everywhere else it's documented to work (every Stat card, since
+v0.8.0) — unscoped to plain `.icon-chip`. Resolved the practical half
+of long-open Needs Input #10 with a real integration guide instead of
+a placeholder. See changelog at the bottom of DESIGN-SYSTEM.md.

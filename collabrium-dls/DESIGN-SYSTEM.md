@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.3-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.4-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -47,7 +47,7 @@ changelog when you do.
 | 7 | No component specs | No buttons, inputs, cards, tables, badges, or states (hover/active/disabled/error) defined anywhere in the deck | First full draft (v0.2.0) in [Components](#components)/[Component Rules](#component-rules), now also **live-rendered** in `preview.html`'s Components section (v0.5.0) with a per-component "Copy markup" button — still not reviewed against a real screen or by the brand team |
 | 8 | No final logo asset | **Further resolved 2026-07-31** — a real animated wordmark + mark SVG (`logo.html`, rebuilt on a new font, now trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The `#2B2B2C` vs `#2F2F2F` ink-color discrepancy between the static lockup and the animated mark is **resolved** — both now use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
-| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | Not proposed — needs eng input, not a design guess |
+| 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved 2026-08-04** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
 | 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split (2026-07-31), with no cited source (deck or teammate build) | **Resolved 2026-07-31** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery (~40 icons across all 21 components) have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
 
 ---
@@ -588,10 +588,55 @@ before treating as policy.
 
 ## Technical Implementation
 
-⚠️ **Needs Input #10.** Deck has this section with blank values (loading
-strategy, font-display value, file formats served, design tokens/CSS
-variable format). This needs engineering input, not a design placeholder —
-flagged, not guessed.
+⚠️ **Needs Input #10 — partially resolved 2026-08-04.** The deck's
+original blank fields (loading strategy, `font-display` value, file
+formats served, design tokens/CSS variable format) needed engineering
+input, not a design guess — that's still true for loading strategy and
+`font-display`, left open below. File formats and the token/CSS format
+are answerable now: this system ships as plain CSS custom properties
+(no build step, no CSS-in-JS, no Sass) and literal CSS class rules — see
+below for exactly what a consuming project needs and in what order.
+
+### Using this system in an existing project
+
+Prompted by a real integration failure (2026-08-04): a teammate applied
+this system to an existing project and colors, pills, and icons didn't
+render — not because any component rule was wrong, but because nothing
+documented what a consuming project actually needs to load. Five files,
+needed together, in this order:
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+```
+
+| # | File | What it's for | If missing |
+|---|---|---|---|
+| 1 | Google Fonts — Mulish + Source Serif 4 | the two typefaces | text falls back to a system font — doesn't crash, just doesn't look right |
+| 2–3 | Phosphor Icons, **both** the Regular and Fill stylesheets, pinned to `@2.1.1` | every icon in every component (see [Iconography](#iconography)'s two-tier weight system — both weights are genuinely needed, not one-or-the-other) | icon classes (`ph-house`, `ph-fill ph-house`) render as an empty box — this was the literal "icons not pulling" report |
+| 4 | `tokens.css` | every color/spacing/radius/shadow/motion value, as CSS custom properties | components render with no color, no radius, no spacing — everything collapses to unstyled browser defaults |
+| 5 | `components.css` | the actual component CSS rules (`.c-btn`, `.c-badge`, `.c-card`, etc.) — extracted 2026-08-04 from `preview.html`'s own inline styles, where it previously had no separate, importable copy | this is the one that broke first: markup copied from `preview.html`'s "Copy markup" buttons had class names with no CSS behind them anywhere else, so nothing was styled at all |
+
+`components.css` depends on `tokens.css` — every rule in it references
+a `var(--token-name)`, none are hardcoded — so load `tokens.css` first,
+or component styling silently falls back to inherited/default values
+with no error to point at.
+
+**Class names are `c-`-prefixed** (`.c-btn`, `.c-card`, `.c-badge`, …)
+specifically to reduce collision risk with a consuming project's own
+existing classes. Don't rename them when adopting the system, and don't
+reuse the `c-` prefix for unrelated classes in the same project.
+
+**Still genuinely open, needs engineering input, not a design guess:**
+loading strategy (is `components.css` a hard dependency on every page,
+or code-split per component used?) and the exact `font-display` value
+(the deck never specified one; `swap` above is what `preview.html`
+itself uses, not a confirmed brand decision).
 
 ## Component Rules
 
@@ -642,14 +687,26 @@ paddings, and state colors as a starting point for review, not a
 signed-off spec — nothing here has been checked against a real screen or
 by the brand/design team yet.
 
-**Live gallery — `preview.html`, Components tab (v0.8.2).** Every
-component below is also rendered live in `preview.html`'s left pane,
-right next to this same spec in the DESIGN.md tab on the right — each
-with a "Copy markup" button. That page is the reference implementation;
-these tables are the reference spec. If they ever disagree, that's a
-bug — fix both together (see the doc-sync rule: nothing here ships
-without preview.html matching, and nothing in preview.html ships
-without this file updated to match).
+**Live gallery — `preview.html`, Components tab.** Every component
+below is also rendered live in `preview.html`'s left pane, right next
+to this same spec in the DESIGN.md tab on the right — each with a
+"Copy markup" button. That page is the reference implementation; these
+tables are the reference spec. If they ever disagree, that's a bug —
+fix both together (see the doc-sync rule: nothing here ships without
+preview.html matching, and nothing in preview.html ships without this
+file updated to match).
+
+⚠️ **`components.css` is the actual portable copy of this CSS (added
+2026-08-04).** Every rule you see rendered in the gallery lives there,
+not just inline in `preview.html` — `preview.html` itself now loads it
+via `<link>` rather than duplicating a private copy, specifically so
+the two can't drift the way `tokens.css` and its own embedded copy once
+did. "Copy markup" gives you HTML; `components.css` (plus `tokens.css`
+and the Phosphor/Google Fonts links) is what actually makes that HTML
+look like anything — see [Technical Implementation](#technical-implementation)
+for the full integration checklist. If you add or change a component
+here, `components.css` needs the matching edit in the same pass, same
+as `preview.html` does.
 
 **It's genuinely interactive, not just styled markup (v0.8.2).**
 SidebarNav and Tabs switch on click, Checkbox/Radio/Switch actually
@@ -1751,6 +1808,43 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.4-draft — 2026-08-04** — Added **`components.css`**, the actual
+  portable copy of every component's CSS (Button, Input field, Card,
+  Badge & Tag, Table row, Modal, Empty state, SidebarNav, App Shell
+  layout, Tabs, Select, Checkbox/Radio/Switch, Toast, Tooltip,
+  DataTable, ElementBadge, Stat/KPI card, Filters, Pagination, Date
+  picker, Chart color mapping) — extracted from `preview.html`'s own
+  inline `<style>`, where it had lived with no separate, importable
+  copy since v0.5.0. Root cause of a real integration failure: a
+  teammate applied this system to an existing project and copying
+  markup out of "Copy markup" buttons produced class names with no CSS
+  behind them anywhere else, so colors/pills/spacing/icons didn't
+  render at all outside `preview.html` itself. `preview.html` now links
+  `components.css` (`<link rel="stylesheet">`) instead of duplicating a
+  private copy, so the gallery and the shipped file can't drift apart —
+  same fix pattern as the `tokens.css`/`src-css-vars` alignment from
+  v0.9.1. Verified byte-for-byte: every one of 22 `.c-*` component
+  selector groups present in exactly one file, zero duplicated, zero
+  dropped, and every demo-page-only rule (`.comp-block`, `.c-modal-stage`,
+  `.comp-demo.shell-demo`, etc. — gallery chrome, not real component
+  CSS) correctly stayed out of `components.css`.
+
+  Also fixed a real bug caught during the extraction, unrelated to the
+  packaging itself: the 36×36 icon-chip pattern — documented as shared
+  by Card's header **and** Stat/KPI card's icon slot — was scoped to
+  `.c-card .icon-chip` only, so every Stat card's icon in the gallery
+  (and App Shell's demo, which reuses Stat card) had rendered completely
+  unstyled since v0.8.0. Unscoped to plain `.icon-chip` so it works
+  wherever the spec says it should.
+
+  Resolved the file-formats/token-format half of long-open **Needs
+  Input #10** with a real answer instead of a placeholder: [Technical
+  Implementation](#technical-implementation) now states the 5 files an
+  existing project needs and the order to load them in (Google Fonts →
+  Phosphor Regular → Phosphor Fill → `tokens.css` → `components.css`),
+  and why each one's absence produces exactly the symptom that was
+  reported. Loading strategy and `font-display` remain open — genuinely
+  need engineering input, not a design guess.
 - **v0.9.3-draft — 2026-08-04** — Added an explicit scope rule to App
   Shell: it governs **structure and layout only** (placement, size,
   spacing, which region a component occupies) and never defines or
