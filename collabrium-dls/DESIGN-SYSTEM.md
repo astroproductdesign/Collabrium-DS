@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.0-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.4-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -683,8 +683,15 @@ sibling components (Textarea, Password field, Search input clear
 button) — all four dated 2026-08-03 in their own sections — plus **App
 Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
-gallery never had. This note existing-but-undercounting for a full day
-is itself the doc-sync failure App Shell was written to prevent
+gallery never had, **Stepper** (v0.9.1) — a multi-step progress
+indicator, also designed from scratch with no source in either system —
+**UserPicker** (v0.9.2), a searchable person picker, same status —
+**FileUploader** (v0.9.3), click-to-browse/drag-and-drop file
+attachment, same status — and **MultiSelect** (v0.9.4), a grouped
+checkbox dropdown with removable selection chips, also designed from
+scratch with no source in either system.
+This note existing-but-undercounting for a full day is itself the
+doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
@@ -701,9 +708,11 @@ through.
 - [Date picker](#date-picker)
 - [ElementBadge](#elementbadge)
 - [Empty state](#empty-state)
+- [FileUploader](#fileuploader)
 - [Filters](#filters)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
+- [MultiSelect](#multiselect)
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Radio](#radio)
@@ -711,12 +720,14 @@ through.
 - [Select](#select)
 - [SidebarNav](#sidebarnav)
 - [Stat / KPI card](#stat--kpi-card)
+- [Stepper](#stepper)
 - [Switch](#switch)
 - [Table row](#table-row)
 - [Tabs](#tabs)
 - [Textarea](#textarea)
 - [Toast](#toast)
 - [Tooltip](#tooltip)
+- [UserPicker](#userpicker)
 
 ### App Shell
 
@@ -983,6 +994,38 @@ resolve it ("No campaigns yet — create your first one") rather than a bare
 for a real empty state — the deck's icon-empty/icon-hero tokens exist
 specifically so this state gets real visual weight.
 
+### FileUploader
+
+⚠️ **Designed 2026-08-04, v0.9.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Badge-Neutral's box model, Table row's/
+SidebarNav's active-state recipe, and the Filters/Date picker popover
+pattern — not transcribed. Treat as a first pass needing real
+design/brand review.
+
+Click-to-browse or drag-and-drop file attachment; attached files list
+as rows below the drop zone.
+
+| Part | Spec |
+|---|---|
+| Drop zone | `radius-lg` (20px), spacing-24 padding, centered content, 1px dashed Neutral-3 border, Neutral-1 fill |
+| Drop zone — drag-over | 2px dashed Obsidian border, Neutral-2 fill — the same Obsidian-border/Neutral-2-fill pairing Table row's selected state and SidebarNav's active item already use for "currently engaged," reused here rather than inventing a new tint |
+| Upload icon | `upload-simple`, `icon-md` (20px), Neutral-5, **Tier 1, Regular** per its explicit listing in Iconography |
+| Label | body2 (14px/20px), weight 700, Neutral-5 |
+| Hint (optional) | caption (12px), Neutral-5 |
+| File row | flex row, spacing-12 gap, spacing-8/spacing-12 padding, 1px Neutral-3 border, `radius-sm`, Neutral-1 fill — the same bordered "panel" recipe Filters'/Date picker's popover uses |
+| Kind badge | reuses Badge-Neutral's exact box model — 22px tall, spacing-8 padding, `radius-pill`, Neutral-2 fill, Neutral-3 border, `--font-primary` |
+| File name | body2, Neutral-9, truncates with ellipsis |
+| File size | caption, Neutral-5 |
+| Remove (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+
+**Variants:** Default (idle, no files), Drag-over, Has files.
+
+**Do:** keep the drop zone visible even once files are attached, so more
+can be added without a separate "add more" affordance. **Don't:** style
+the kind badge as a status Badge variant (Success/Danger/Warning) — it's
+always Neutral; file type isn't a status.
+
 ### Input field
 
 Anatomy, top to bottom: label → input box → helper or error text.
@@ -1090,6 +1133,42 @@ use a modal for anything that isn't a focused, single decision — long
 forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone).
 
+### MultiSelect
+
+⚠️ **Designed 2026-08-04, v0.9.4 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Button Secondary, Filters' trigger/popover
+patterns, Badge's box model, and this system's own Checkbox spec — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A trigger button that opens a grouped checkbox list for selecting
+multiple options — the trigger reflects the current selection as
+individually-removable chips.
+
+| Part | Spec |
+|---|---|
+| Trigger — default | matches Button Secondary exactly: Neutral-1 fill, 1px Neutral-3 border, `shadow-1`, `radius-md`, md size (40px height, spacing-16 padding, 16px type) |
+| Trigger — has selection | border swaps to 1px Obsidian, the same "holds a value" recipe Filters' own Filter trigger — active state uses |
+| Trigger — open | 2px Obsidian border, padding reduced 1px/side to compensate — the same swap-and-compensate pattern Input field's focus state uses; chevron rotates 180° via CSS `transform` |
+| Selection chips | one Badge-Neutral chip per selected option's label (22px tall, spacing-8 padding, `radius-pill`, caption/700, 1px Neutral-3 border) instead of the placeholder — stay visible whether the menu is open or closed, capped at 2 visible then a "+N" overflow chip |
+| Chip remove (×) | 14px `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography), stops click propagation so it never reopens/toggles the menu; the overflow "+N" chip has no × since it isn't one single removable option |
+| Clear-all (×) | 20×20px hit target, Neutral-5, same propagation-stopping behavior, clears every selection at once |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill — same popover convention as Filters/Date picker |
+| Group label | caption (12px), weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — same recipe as SidebarNav's own Section label |
+| Group divider | 1px Neutral-3 line between groups |
+| Checkbox row | reuses this system's own Checkbox spec exactly: 18×18px box, 6px radius, 1px Neutral-3 border unchecked, Obsidian border+fill checked, `icon-micro` check glyph in Neutral-1; Neutral-2 fill on hover, same token as Table row's own hover |
+| Footer | Ghost "Clear" + Primary "Done", space-between, `spacing-8` gap, 1px Neutral-3 top border, `spacing-12` padding — Modal footer's divider convention at a smaller scale |
+
+**Variants:** Default, Has Selection, Open — nothing selected, Open —
+has selection.
+
+**Do:** let the footer's Clear empty the selection while leaving the
+menu open (so more options can be picked), and let Done close the menu
+without touching the selection — they're deliberately different scopes.
+**Don't:** give the overflow "+N" chip its own remove control — it
+doesn't correspond to one option, only the clear-all can remove what it
+represents.
+
 ### Password field
 
 ⚠️ **New 2026-08-03 — designed, not sourced.** Same anatomy as Input
@@ -1162,6 +1241,39 @@ the two align in a form.
 **Do:** reuse Input field's border, radius, and type tokens so a form
 mixing single- and multi-line fields stays visually consistent. **Don't:**
 let the box shrink below its `min-height`, including mid-resize-drag.
+
+### UserPicker
+
+⚠️ **Designed 2026-08-04, v0.9.2 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Input field's box anatomy, Filters'/Date
+picker's popover convention, and Table row's hover treatment — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+Searches and selects a single person (an Account Executive, in this
+app) from a list — collapses to a compact summary once a value is set.
+
+| Part | Spec |
+|---|---|
+| Collapsed row | same box as Input field (40px height, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill, spacing-12 horizontal padding) so collapsing/expanding doesn't change footprint |
+| Avatar | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
+| Name | body2 (14px/20px), weight 700, Neutral-9, truncates with ellipsis |
+| Role | caption (12px), Neutral-5, directly below the name |
+| Clear (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+| Search input | Input field's own anatomy and states, including its 2px Obsidian focus-border swap (not the Water shadow-focus ring) |
+| Search icon | leading `magnifying-glass`, `icon-sm`, Neutral-5, **Tier 1, Regular** (search inside an input field, per Iconography) |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-8 below the trigger — same popover convention as Filters/Date picker |
+| Dropdown row | avatar + name + role, spacing-12 gap, spacing-8/spacing-12 padding, Neutral-2 fill on hover — same hover token as Table row |
+| Empty state | "No matches found", body2, Neutral-5, centered, spacing-16 padding |
+
+**Variants:** Collapsed (value set), Open — searching, Open — no results.
+
+**Do:** keep the collapsed row and the search input at the same 40px
+height so selecting/clearing a person doesn't reflow the surrounding
+layout. **Don't:** style the dropdown's empty state as a full [Empty
+state](#empty-state) (icon + heading + body) — it's an inline "nothing
+matched" message inside a compact popover, not a page-level empty
+state.
 
 ### Checkbox
 
@@ -1302,6 +1414,41 @@ Label truncates with ellipsis rather than wrapping.
 deep. **Don't:** nest a second level of grouping — if the hierarchy needs
 more than one level, that's a sign the item belongs in a sub-page's Tabs
 instead.
+
+### Stepper
+
+⚠️ **Designed 2026-08-04, v0.9.1 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Checkbox/Radio's on/off treatment, SidebarNav's
+active/inactive label weighting, and the caption token for supporting
+text — not transcribed. Treat as a first pass needing real design/brand
+review.
+
+Tracks progress through a multi-step flow — onboarding, a multi-page
+form, a checkout — as an ordered list of steps, each in one of three
+states.
+
+| Part | Spec |
+|---|---|
+| Indicator | 24×24px circle, `radius-pill` |
+| Indicator — Completed | Obsidian fill, Neutral-1 text, shows the step number (not an icon — fill vs. outline is what carries the state) |
+| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian text |
+| Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 text |
+| Label | body2 (14px/20px); weight 700 + Neutral-9 when Active, weight 400 + Neutral-5 when Completed/Upcoming — same bold-vs-muted pattern as SidebarNav's active/inactive nav items |
+| Description (optional) | caption (12px), Neutral-5 — smaller than the label, spacing-4 below it |
+| Connector | 1px fill in Neutral-3 (the hairline-border token), not a literal border |
+| Connector — horizontal | sits between each pair of indicators, sharing an equal `flex: 1` share of the row so every connector is the same length regardless of neighboring label width |
+| Connector — vertical | fixed spacing-16 length, held spacing-8 off the indicator above (the rail's own gap) and spacing-8 off the indicator below (the list's gap) — equal on both sides, never touching either circle |
+
+**Variants:** orientation (Horizontal / Vertical) and per-step description
+are independent, giving Horizontal/Vertical × With/No description as
+four presentations, not four hard-coded variants.
+
+**Do:** derive each step's state from a single `currentStep` index —
+before it is Completed, at it is Active, after it is Upcoming — rather
+than tracking state per step. **Don't:** let the connector's length or
+spacing depend on label or description length; both orientations keep
+it fixed/equal on purpose (see the Connector rows above).
 
 ### Switch
 
@@ -1779,6 +1926,84 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
+  button that opens a grouped checkbox list for selecting multiple
+  options — the trigger reflects the current selection as
+  individually-removable Badge-Neutral chips (capped at 2, then a "+N"
+  overflow chip), visible whether the menu is open or closed. Designed
+  from scratch, no source in either the brand deck or the teammate's
+  build; reuses Button Secondary for the default trigger, Filters'
+  trigger/popover conventions, Badge's real box model for the chips, and
+  this system's own Checkbox spec for the rows, rather than inventing
+  new patterns. Built per the user's own 3-step process: component first
+  (`components/forms/DropdownMenuWithSelection.tsx` — file path kept
+  from an earlier single-select draft on the same file, replaced per
+  explicit user direction; the exported component/types are
+  `MultiSelect`/`MultiSelectOption`/`MultiSelectProps`), then a live
+  preview in `preview.html`'s Components gallery for approval — through
+  several rounds of review (Badge-based selection display instead of a
+  plain count, dynamic "{count} selected" trigger copy, removing the
+  count badge from the open states, then individually-removable
+  per-item chips that stay visible while open, which superseded the
+  count-badge/text approach) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  Basics group (between Modal / dialog and Password field) rather than
+  a new category, same call as Stepper's/UserPicker's/FileUploader's own
+  placements. Updated the ToC and Scope note to match.
+- **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
+  click-to-browse/drag-and-drop attachment control — attached files list
+  as rows below the drop zone with a kind badge, name, size, and a
+  remove action. Designed from scratch, no source in either the brand
+  deck or the teammate's build; reuses Badge-Neutral's box model for the
+  kind badge, Table row's/SidebarNav's Obsidian-border + Neutral-2-fill
+  "currently engaged" recipe for the drag-over state, and the
+  Filters/Date picker popover convention for file rows, rather than
+  inventing new patterns. Built per the user's own 3-step process:
+  component first (`components/forms/FileUploader.tsx`), then a live
+  preview in `preview.html`'s Components gallery for approval —
+  including a mid-review fix (kind badge moved from a literal monospace
+  stack to `--font-primary`, same call as UserPicker's avatar-initials
+  fix) — then this spec, added only after that preview was explicitly
+  approved. Slotted alphabetically into the Basics group (between Empty
+  state and Input field) rather than a new category, same call as
+  Stepper's and UserPicker's own placements. Updated the ToC and Scope
+  note to match.
+- **v0.9.2-draft — 2026-08-04** — Added **UserPicker**, a searchable
+  input for finding and selecting a single person (an Account Executive,
+  in this app) — collapses to an avatar/name/role summary with a clear
+  action once a value is set. Designed from scratch, no source in either
+  the brand deck or the teammate's build; reuses Input field's box
+  anatomy and focus behavior, Filters'/Date picker's popover convention,
+  and Table row's hover treatment rather than inventing new patterns.
+  Built per the user's own 3-step process: component first
+  (`components/forms/UserPicker.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval — including a
+  mid-review fix (avatar initials moved from a literal monospace stack,
+  since this system has no `--font-mono` token, to `--font-primary` like
+  every other piece of text in the component) — then this spec, added
+  only after that preview was explicitly approved. Slotted alphabetically
+  into the Basics group (after Textarea) rather than a new category, same
+  call as Stepper's v0.7.0-batch placement. Updated the ToC and Scope
+  note to match.
+- **v0.9.1-draft — 2026-08-04** — Added **Stepper**, a multi-step
+  progress indicator (Horizontal/Vertical orientation × optional
+  per-step description, three states — Completed/Active/Upcoming).
+  Designed from scratch, no source in either the brand deck or the
+  teammate's build. Built per the user's own 3-step process: component
+  first (`components/navigation/Stepper.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval — including two
+  rounds of visual fixes caught in that preview (equal-length dividers
+  in both orientations, a divider touching its neighboring indicator in
+  the vertical layout, and the Completed indicator showing a checkmark
+  instead of its step number) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  existing v0.7.0 batch (between SidebarNav and Switch) rather than a
+  new Navigation category, per explicit user direction — SidebarNav and
+  Tabs stay where they are. Updated the ToC and Scope note to match, and
+  fixed `preview.html`'s Components lede, which had drifted stale at
+  "21 components" since App Shell/Textarea/Password field/Search input
+  clear button were added in v0.9.0 without updating it — folded that
+  fix into this same pass rather than leaving it for a third drift.
 - **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
   composition layer this document never had. Prompted by real downstream
   builds: separate teams built dashboards on this system and produced

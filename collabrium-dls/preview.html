@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.0-draft</title>
+<title>Collabrium design system | v0.9.4-draft</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -449,6 +449,144 @@
   .c-chartmap-swatch{width:28px; height:20px; border-radius:4px; flex:none;}
   .c-chartmap-ramp{flex:1; min-width:160px; height:20px; border-radius:4px;}
 
+  /* FileUploader — v0.9.3, designed not transcribed
+     Drag-over reuses the Obsidian-border + Neutral-2-fill recipe this
+     system already uses for "currently engaged" states (Table row
+     selected, SidebarNav active) — there's no Obsidian tint token to
+     invent a new background from. Kind badge reuses Badge-Neutral's box
+     model (22px, radius-pill, Neutral-2/Neutral-3), --font-primary same
+     as every other piece of text in the component. File rows reuse the
+     Filters/Date picker "panel" recipe (Neutral-1 fill, 1px Neutral-3
+     border), not Neutral-2, so the remove button's hover stays visually
+     distinct against the row. */
+  .c-uploader{display:flex; flex-direction:column; gap:var(--spacing-12); max-width:360px;}
+  .c-uploader-zone{cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:var(--spacing-8); padding:var(--spacing-24); text-align:center; border-radius:var(--radius-lg); border:1px dashed var(--color-neutral-3); background:var(--color-neutral-1);}
+  .c-uploader-zone.dragover{border:2px dashed var(--color-obsidian); background:var(--color-neutral-2);}
+  .c-uploader-zone i{font-size:20px; color:var(--color-neutral-5);}
+  .c-uploader-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-5);}
+  .c-uploader-hint{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+  .c-uploader-files{display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .c-uploader-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+  .c-uploader-kind{flex:none; height:22px; display:inline-flex; align-items:center; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
+  .c-uploader-name{flex:1; min-width:0; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .c-uploader-size{flex:none; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+  .c-uploader-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+  .c-uploader-remove:hover{background:var(--color-neutral-2);}
+
+  /* MultiSelect — v0.9.4, designed not transcribed (supersedes an
+     earlier single-select DropdownMenuWithSelection draft on this same
+     file — replaced per explicit user direction)
+     Trigger default matches Button Secondary exactly (Neutral-1 fill,
+     1px Neutral-3 border, shadow-1, radius-md, md size). Has-Selection's
+     border swaps to 1px Obsidian, the same "holds a value" recipe
+     Filters' own Filter trigger — active state uses. Has selection shows
+     one Badge-Neutral chip per selected option's label (capped at 2,
+     then a "+N" overflow chip) instead of the placeholder, built on
+     Badge's real box model (22px, spacing-8 padding, radius-pill,
+     caption/700, nowrap, 1px border) rather than an ad-hoc chip — and
+     stays shown while open too, so the user can see what's active while
+     browsing the checklist. Each visible chip has its own 14px × to
+     remove just that option; the overflow "+N" chip has no × since it
+     doesn't represent one single, removable option. Open is 2px Obsidian
+     with padding reduced 1px/side to compensate, the same
+     swap-and-compensate pattern Input field's focus state uses. Dropdown
+     panel reuses Filters'/Date picker's popover convention (radius-md,
+     1px Neutral-3 border, shadow-3). Group labels reuse SidebarNav's own
+     Section label recipe (caption/700/tracking-eyebrow/uppercase/
+     Neutral-5), --font-primary same as every other piece of text in the
+     component. Checkbox rows reuse this system's own Checkbox component spec
+     exactly (18×18px, 6px radius, Obsidian border+fill when checked).
+     Footer reuses Button's Ghost/Primary variants at sm size with
+     Modal footer's divider convention. */
+  .c-ms{position:relative; display:inline-block;}
+  .c-ms-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); box-shadow:var(--shadow-1); cursor:pointer;}
+  .c-ms-trigger:hover{background:var(--color-neutral-2);}
+  .c-ms-trigger.has-selection{border-color:var(--color-obsidian);}
+  .c-ms-trigger.open{border:2px solid var(--color-obsidian); padding:0 15px;}
+  .c-ms-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--font-primary); font-size:16px; font-weight:700; color:var(--color-neutral-9);}
+  .c-ms-badge{flex:none; height:22px; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-5); border:1px solid var(--color-neutral-3); display:inline-flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
+  .c-ms-badge.removable{gap:4px; padding:0 4px 0 var(--spacing-8);}
+  .c-ms-badge-remove{flex:none; display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border:none; background:transparent; padding:0; color:var(--color-neutral-5); cursor:pointer;}
+  .c-ms-badge-remove i{font-size:10px;}
+  .c-ms-clear{flex:none; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+  .c-ms-chevron{flex:none; font-size:16px; color:var(--color-neutral-5); transition:transform var(--duration-fast) var(--ease-standard);}
+  .c-ms-trigger.open .c-ms-chevron{transform:rotate(180deg);}
+  .c-ms-panel{position:static; margin-top:var(--spacing-8); width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+  .c-ms-list{max-height:320px; overflow-y:auto; padding:var(--spacing-8) 0;}
+  .c-ms-divider{height:1px; background:var(--color-neutral-3); margin:var(--spacing-8) 0;}
+  .c-ms-group{padding:var(--spacing-4) var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+  .c-ms-row{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+  .c-ms-row:hover{background:var(--color-neutral-2);}
+  .c-ms-checkbox{flex:none; width:18px; height:18px; border-radius:6px; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; font-size:12px;}
+  .c-ms-checkbox.checked{border:none; background:var(--color-obsidian);}
+  .c-ms-row-label{font-family:var(--font-primary); font-size:var(--text-body1-size); font-weight:var(--text-body1-weight); color:var(--color-neutral-9);}
+  .c-ms-footer{display:flex; justify-content:space-between; gap:var(--spacing-8); padding:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+  .c-ms-footer button{height:32px; padding:0 var(--spacing-12); border:none; border-radius:var(--radius-sm); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:var(--text-label2-weight); cursor:pointer;}
+  .c-ms-footer .clear{background:transparent; color:var(--color-neutral-9);}
+  .c-ms-footer .clear:hover{background:var(--color-neutral-2);}
+  .c-ms-footer .done{background:var(--color-obsidian); color:var(--color-neutral-1);}
+  .c-ms-footer .done:hover{background:var(--color-neutral-8);}
+
+  /* UserPicker — v0.9.2, designed not transcribed
+     Collapsed row and the search input box share Input field's own
+     anatomy (40px height, radius-sm, 1px Neutral-3 border) so the two
+     states don't change footprint. Search focus is a 2px Obsidian
+     border swap, matching Input field's actual documented behavior, not
+     the Water shadow-focus ring. Dropdown reuses Filters'/Date picker's
+     popover convention (radius-md, 1px Neutral-3 border, shadow-3, 8px
+     below the trigger) and Table row's Neutral-2 hover. Avatar initials
+     use --font-primary, same as every other piece of text in the
+     component. The dropdown is shown as a normal in-flow block here (not
+     absolutely positioned/toggled), same "permanently visible for
+     reference" treatment as Date picker's panel above. */
+  .c-userpicker{max-width:320px;}
+  .c-userpicker-collapsed{display:flex; align-items:center; gap:var(--spacing-12); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); cursor:pointer;}
+  .c-userpicker-avatar{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700;}
+  .c-userpicker-text{display:flex; flex-direction:column; min-width:0; flex:1;}
+  .c-userpicker-name{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .c-userpicker-role{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+  .c-userpicker-clear{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+  .c-userpicker-clear:hover{background:var(--color-neutral-2);}
+  .c-userpicker-input-wrap{display:flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+  .c-userpicker-input-wrap.focused{border:2px solid var(--color-obsidian); padding:0 11px;}
+  .c-userpicker-input-wrap i{flex:none; font-size:16px; color:var(--color-neutral-5);}
+  .c-userpicker-input-wrap input{flex:1; min-width:0; border:none; outline:none; background:transparent; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9);}
+  .c-userpicker-dropdown{margin-top:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+  .c-userpicker-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+  .c-userpicker-row:hover{background:var(--color-neutral-2);}
+  .c-userpicker-empty{padding:var(--spacing-16); text-align:center; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+
+  /* Stepper — v0.9.1, designed not transcribed
+     Horizontal: rail (indicator) and connector are direct siblings of
+     .c-stepper, each connector sharing one equal flex:1 pool — nesting a
+     connector inside each step's own div let its length depend on that
+     step's label width, which read as uneven dividers.
+     Vertical: connector is a fixed --spacing-16 length (not flex:1). The
+     rail's own `gap` (--spacing-8) holds it off the circle above, and
+     .c-stepper.vertical's `gap` (also --spacing-8) holds equal space
+     before the circle below — same value on both sides so the divider
+     never touches either neighboring step, and every step stays evenly
+     spaced regardless of description line count. */
+  .c-stepper{display:flex; align-items:flex-start;}
+  .c-stepper.vertical{flex-direction:column; gap:var(--spacing-8);}
+  .c-step{display:flex; flex:none;}
+  .c-stepper:not(.vertical) .c-step{flex-direction:column; align-items:center; gap:var(--spacing-8);}
+  .c-stepper.vertical .c-step{gap:var(--spacing-12);}
+  .c-step-rail{display:flex; flex-direction:column; align-items:center;}
+  .c-stepper.vertical .c-step-rail{gap:var(--spacing-8);}
+  .c-step-indicator{flex:none; width:24px; height:24px; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:var(--text-label1-weight);}
+  .c-step-indicator.completed{background:var(--color-obsidian); color:var(--color-neutral-1);}
+  .c-step-indicator.active{background:var(--color-neutral-1); border:2px solid var(--color-obsidian); color:var(--color-obsidian);}
+  .c-step-indicator.upcoming{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5);}
+  .c-step-connector{background:var(--color-neutral-3); flex:none;}
+  .c-stepper:not(.vertical) .c-step-connector{flex:1; height:1px; margin-top:12px;}
+  .c-stepper.vertical .c-step-connector{width:1px; height:var(--spacing-16);}
+  .c-step-text{display:flex; flex-direction:column; gap:var(--spacing-4);}
+  .c-stepper:not(.vertical) .c-step-text{text-align:center;}
+  .c-step-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+  .c-step-label.active{font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+  .c-step-label.completed, .c-step-label.upcoming{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+  .c-step-desc{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
   /* PageHeader — v0.8.3, designed not transcribed */
   .c-pageheader{display:flex; flex-direction:column; gap:var(--spacing-8);}
   .c-pageheader h1{margin:0; font-family:var(--font-primary); font-weight:var(--text-h1-weight); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); letter-spacing:var(--text-h1-tracking); color:var(--color-neutral-9);}
@@ -489,7 +627,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.0-draft</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.4-draft</span>
 </header>
 
 <div class="layout">
@@ -777,6 +915,7 @@
       <div class="shell">
         <p class="kicker">07 · Reference</p>
         <h2 class="section-title">Components</h2>
+        <p class="lede">Live reference for 29 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b>, and 8 more since &mdash; App Shell, Textarea, Password field, Search input clear button, Stepper, UserPicker, FileUploader, and MultiSelect &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0/App Shell/Stepper/UserPicker/FileUploader/MultiSelect additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
         <p class="lede">Live reference for 22 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source in v0.7.0, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch in v0.8.0</b>, and PageHeader <b>designed from scratch in v0.8.3</b> &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the v0.8.0/v0.8.3 additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
 
         <div class="comp-block" id="comp-appshell">
@@ -923,6 +1062,62 @@
           </div>
         </div>
 
+        <div class="comp-block" id="comp-fileuploader">
+          <div class="comp-head"><h3>FileUploader <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.3, designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-fileuploader" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default &mdash; idle, no files</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Drag-over</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone dragover">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has files</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+              <div class="c-uploader-files">
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">PDF</span>
+                  <span class="c-uploader-name">Q3-media-plan-100plus.pdf</span>
+                  <span class="c-uploader-size">2.4 MB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove Q3-media-plan-100plus.pdf"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">MP4</span>
+                  <span class="c-uploader-name">client-call-recording-19jun.mp4</span>
+                  <span class="c-uploader-size">86.1 MB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove client-call-recording-19jun.mp4"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">DOCX</span>
+                  <span class="c-uploader-name">brand-brief-v2.docx</span>
+                  <span class="c-uploader-size">340 KB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove brand-brief-v2.docx"><i class="ph ph-x"></i></button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <div class="comp-block" id="comp-input">
           <div class="comp-head"><h3>Input field</h3><button class="copy-markup-btn" data-target="comp-input" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -1052,6 +1247,110 @@
           </div>
         </div>
 
+        <div class="comp-block" id="comp-multiselect">
+          <div class="comp-head"><h3>MultiSelect <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.4, designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-multiselect" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="align-items:flex-start; flex-wrap:wrap">
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger">
+                    <span class="c-ms-label">All brands</span>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has Selection</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger has-selection">
+                    <span class="c-ms-badge removable">Nescafé<button type="button" class="c-ms-badge-remove" aria-label="Remove Nescafé"><i class="ph ph-x"></i></button></span>
+                    <span class="c-ms-badge removable">Milo<button type="button" class="c-ms-badge-remove" aria-label="Remove Milo"><i class="ph ph-x"></i></button></span>
+                    <button type="button" class="c-ms-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has Selection &mdash; 3+ selected (overflow)</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger has-selection">
+                    <span class="c-ms-badge removable">Nescafé<button type="button" class="c-ms-badge-remove" aria-label="Remove Nescafé"><i class="ph ph-x"></i></button></span>
+                    <span class="c-ms-badge removable">Milo<button type="button" class="c-ms-badge-remove" aria-label="Remove Milo"><i class="ph ph-x"></i></button></span>
+                    <span class="c-ms-badge">+1</span>
+                    <button type="button" class="c-ms-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Open &mdash; nothing selected</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger open">
+                    <span class="c-ms-label">All brands</span>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                  <div class="c-ms-panel">
+                    <div class="c-ms-list">
+                      <div class="c-ms-group">FMCG</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Nescafé</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Milo</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Dutch Lady</span></label>
+                      <div class="c-ms-divider"></div>
+                      <div class="c-ms-group">Telco</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Celcom</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Maxis</span></label>
+                      <div class="c-ms-divider"></div>
+                      <div class="c-ms-group">Finance</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">CIMB</span></label>
+                    </div>
+                    <div class="c-ms-footer">
+                      <button type="button" class="clear">Clear</button>
+                      <button type="button" class="done">Done</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Open &mdash; has selection</p>
+                <div class="c-ms">
+                  <div class="c-ms-trigger open has-selection">
+                    <span class="c-ms-badge removable">Nescafé<button type="button" class="c-ms-badge-remove" aria-label="Remove Nescafé"><i class="ph ph-x"></i></button></span>
+                    <span class="c-ms-badge removable">Milo<button type="button" class="c-ms-badge-remove" aria-label="Remove Milo"><i class="ph ph-x"></i></button></span>
+                    <button type="button" class="c-ms-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+                    <i class="ph ph-caret-down c-ms-chevron"></i>
+                  </div>
+                  <div class="c-ms-panel">
+                    <div class="c-ms-list">
+                      <div class="c-ms-group">FMCG</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox checked"><i class="ph-fill ph-check"></i></span><span class="c-ms-row-label">Nescafé</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox checked"><i class="ph-fill ph-check"></i></span><span class="c-ms-row-label">Milo</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Dutch Lady</span></label>
+                      <div class="c-ms-divider"></div>
+                      <div class="c-ms-group">Telco</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Celcom</span></label>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">Maxis</span></label>
+                      <div class="c-ms-divider"></div>
+                      <div class="c-ms-group">Finance</div>
+                      <label class="c-ms-row"><span class="c-ms-checkbox"></span><span class="c-ms-row-label">CIMB</span></label>
+                    </div>
+                    <div class="c-ms-footer">
+                      <button type="button" class="clear">Clear</button>
+                      <button type="button" class="done">Done</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
         <div class="comp-block" id="comp-table">
           <div class="comp-head"><h3>Table row</h3><button class="copy-markup-btn" data-target="comp-table" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -1078,6 +1377,62 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-userpicker">
+          <div class="comp-head"><h3>UserPicker <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.2, designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-userpicker" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Collapsed &mdash; value set</p>
+            <div class="c-userpicker">
+              <div class="c-userpicker-collapsed">
+                <span class="c-userpicker-avatar">NR</span>
+                <span class="c-userpicker-text">
+                  <span class="c-userpicker-name">Nadia Rahman</span>
+                  <span class="c-userpicker-role">Account Executive</span>
+                </span>
+                <button type="button" class="c-userpicker-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Open &mdash; searching</p>
+            <div class="c-userpicker">
+              <div class="c-userpicker-input-wrap focused">
+                <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                <input type="text" value="ke" readonly aria-label="Search for a person" />
+              </div>
+              <div class="c-userpicker-dropdown">
+                <div class="c-userpicker-row">
+                  <span class="c-userpicker-avatar">KT</span>
+                  <span class="c-userpicker-text">
+                    <span class="c-userpicker-name">Keong Teo</span>
+                    <span class="c-userpicker-role">Account Executive</span>
+                  </span>
+                </div>
+                <div class="c-userpicker-row">
+                  <span class="c-userpicker-avatar">SN</span>
+                  <span class="c-userpicker-text">
+                    <span class="c-userpicker-name">Sharmila Nair</span>
+                    <span class="c-userpicker-role">Account Executive</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Open &mdash; no results</p>
+            <div class="c-userpicker">
+              <div class="c-userpicker-input-wrap focused">
+                <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                <input type="text" value="zzz" readonly aria-label="Search for a person" />
+              </div>
+              <div class="c-userpicker-dropdown">
+                <div class="c-userpicker-empty">No matches found</div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -1195,6 +1550,131 @@
                 <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span></button>
               </div>
             </nav>
+          </div>
+        </div>
+
+        <div class="comp-block" id="comp-stepper">
+          <div class="comp-head"><h3>Stepper <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.1, designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-stepper" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Horizontal &mdash; With Description</p>
+            <div class="c-stepper">
+              <div class="c-step">
+                <span class="c-step-indicator completed">1</span>
+                <div class="c-step-text">
+                  <span class="c-step-label completed">Account</span>
+                  <span class="c-step-desc">Email and password</span>
+                </div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step">
+                <span class="c-step-indicator active">2</span>
+                <div class="c-step-text">
+                  <span class="c-step-label active">Profile</span>
+                  <span class="c-step-desc">Name and photo</span>
+                </div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step">
+                <span class="c-step-indicator upcoming">3</span>
+                <div class="c-step-text">
+                  <span class="c-step-label upcoming">Preferences</span>
+                  <span class="c-step-desc">Notifications and theme</span>
+                </div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step">
+                <span class="c-step-indicator upcoming">4</span>
+                <div class="c-step-text">
+                  <span class="c-step-label upcoming">Review</span>
+                  <span class="c-step-desc">Confirm and finish</span>
+                </div>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Horizontal &mdash; No Description</p>
+            <div class="c-stepper">
+              <div class="c-step">
+                <span class="c-step-indicator completed">1</span>
+                <div class="c-step-text"><span class="c-step-label completed">Account</span></div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step">
+                <span class="c-step-indicator active">2</span>
+                <div class="c-step-text"><span class="c-step-label active">Profile</span></div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step">
+                <span class="c-step-indicator upcoming">3</span>
+                <div class="c-step-text"><span class="c-step-label upcoming">Preferences</span></div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step">
+                <span class="c-step-indicator upcoming">4</span>
+                <div class="c-step-text"><span class="c-step-label upcoming">Review</span></div>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Vertical &mdash; With Description</p>
+            <div class="c-stepper vertical" style="max-width:280px">
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator completed">1</span>
+                  <span class="c-step-connector"></span>
+                </div>
+                <div class="c-step-text">
+                  <span class="c-step-label completed">Account</span>
+                  <span class="c-step-desc">Email and password</span>
+                </div>
+              </div>
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator active">2</span>
+                  <span class="c-step-connector"></span>
+                </div>
+                <div class="c-step-text">
+                  <span class="c-step-label active">Profile</span>
+                  <span class="c-step-desc">Name and photo</span>
+                </div>
+              </div>
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator upcoming">3</span>
+                </div>
+                <div class="c-step-text">
+                  <span class="c-step-label upcoming">Preferences</span>
+                  <span class="c-step-desc">Notifications and theme</span>
+                </div>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Vertical &mdash; No Description</p>
+            <div class="c-stepper vertical" style="max-width:280px">
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator completed">1</span>
+                  <span class="c-step-connector"></span>
+                </div>
+                <div class="c-step-text"><span class="c-step-label completed">Account</span></div>
+              </div>
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator active">2</span>
+                  <span class="c-step-connector"></span>
+                </div>
+                <div class="c-step-text"><span class="c-step-label active">Profile</span></div>
+              </div>
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator upcoming">3</span>
+                </div>
+                <div class="c-step-text"><span class="c-step-label upcoming">Preferences</span></div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -1601,7 +2081,7 @@ going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.0-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.4-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2284,8 +2764,15 @@ sibling components (Textarea, Password field, Search input clear
 button) — all four dated 2026-08-03 in their own sections — plus **App
 Shell**, added here in this same pass, the page-level composition layer
 (Sidebar placement, Top bar, Content region, Page header) that the
-gallery never had. This note existing-but-undercounting for a full day
-is itself the doc-sync failure App Shell was written to prevent
+gallery never had, **Stepper** (v0.9.1) — a multi-step progress
+indicator, also designed from scratch with no source in either system —
+**UserPicker** (v0.9.2), a searchable person picker, same status —
+**FileUploader** (v0.9.3), click-to-browse/drag-and-drop file
+attachment, same status — and **MultiSelect** (v0.9.4), a grouped
+checkbox dropdown with removable selection chips, also designed from
+scratch with no source in either system.
+This note existing-but-undercounting for a full day is itself the
+doc-sync failure App Shell was written to prevent
 elsewhere — see each section below for source notes and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
@@ -2302,9 +2789,11 @@ through.
 - [Date picker](#date-picker)
 - [ElementBadge](#elementbadge)
 - [Empty state](#empty-state)
+- [FileUploader](#fileuploader)
 - [Filters](#filters)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
+- [MultiSelect](#multiselect)
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Radio](#radio)
@@ -2312,12 +2801,14 @@ through.
 - [Select](#select)
 - [SidebarNav](#sidebarnav)
 - [Stat / KPI card](#stat--kpi-card)
+- [Stepper](#stepper)
 - [Switch](#switch)
 - [Table row](#table-row)
 - [Tabs](#tabs)
 - [Textarea](#textarea)
 - [Toast](#toast)
 - [Tooltip](#tooltip)
+- [UserPicker](#userpicker)
 
 ### App Shell
 
@@ -2584,6 +3075,38 @@ resolve it ("No campaigns yet — create your first one") rather than a bare
 for a real empty state — the deck's icon-empty/icon-hero tokens exist
 specifically so this state gets real visual weight.
 
+### FileUploader
+
+⚠️ **Designed 2026-08-04, v0.9.3 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Badge-Neutral's box model, Table row's/
+SidebarNav's active-state recipe, and the Filters/Date picker popover
+pattern — not transcribed. Treat as a first pass needing real
+design/brand review.
+
+Click-to-browse or drag-and-drop file attachment; attached files list
+as rows below the drop zone.
+
+| Part | Spec |
+|---|---|
+| Drop zone | `radius-lg` (20px), spacing-24 padding, centered content, 1px dashed Neutral-3 border, Neutral-1 fill |
+| Drop zone — drag-over | 2px dashed Obsidian border, Neutral-2 fill — the same Obsidian-border/Neutral-2-fill pairing Table row's selected state and SidebarNav's active item already use for "currently engaged," reused here rather than inventing a new tint |
+| Upload icon | `upload-simple`, `icon-md` (20px), Neutral-5, **Tier 1, Regular** per its explicit listing in Iconography |
+| Label | body2 (14px/20px), weight 700, Neutral-5 |
+| Hint (optional) | caption (12px), Neutral-5 |
+| File row | flex row, spacing-12 gap, spacing-8/spacing-12 padding, 1px Neutral-3 border, `radius-sm`, Neutral-1 fill — the same bordered "panel" recipe Filters'/Date picker's popover uses |
+| Kind badge | reuses Badge-Neutral's exact box model — 22px tall, spacing-8 padding, `radius-pill`, Neutral-2 fill, Neutral-3 border, `--font-primary` |
+| File name | body2, Neutral-9, truncates with ellipsis |
+| File size | caption, Neutral-5 |
+| Remove (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+
+**Variants:** Default (idle, no files), Drag-over, Has files.
+
+**Do:** keep the drop zone visible even once files are attached, so more
+can be added without a separate "add more" affordance. **Don't:** style
+the kind badge as a status Badge variant (Success/Danger/Warning) — it's
+always Neutral; file type isn't a status.
+
 ### Input field
 
 Anatomy, top to bottom: label → input box → helper or error text.
@@ -2691,6 +3214,42 @@ use a modal for anything that isn't a focused, single decision — long
 forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone).
 
+### MultiSelect
+
+⚠️ **Designed 2026-08-04, v0.9.4 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Button Secondary, Filters' trigger/popover
+patterns, Badge's box model, and this system's own Checkbox spec — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A trigger button that opens a grouped checkbox list for selecting
+multiple options — the trigger reflects the current selection as
+individually-removable chips.
+
+| Part | Spec |
+|---|---|
+| Trigger — default | matches Button Secondary exactly: Neutral-1 fill, 1px Neutral-3 border, `shadow-1`, `radius-md`, md size (40px height, spacing-16 padding, 16px type) |
+| Trigger — has selection | border swaps to 1px Obsidian, the same "holds a value" recipe Filters' own Filter trigger — active state uses |
+| Trigger — open | 2px Obsidian border, padding reduced 1px/side to compensate — the same swap-and-compensate pattern Input field's focus state uses; chevron rotates 180° via CSS `transform` |
+| Selection chips | one Badge-Neutral chip per selected option's label (22px tall, spacing-8 padding, `radius-pill`, caption/700, 1px Neutral-3 border) instead of the placeholder — stay visible whether the menu is open or closed, capped at 2 visible then a "+N" overflow chip |
+| Chip remove (×) | 14px `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography), stops click propagation so it never reopens/toggles the menu; the overflow "+N" chip has no × since it isn't one single removable option |
+| Clear-all (×) | 20×20px hit target, Neutral-5, same propagation-stopping behavior, clears every selection at once |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill — same popover convention as Filters/Date picker |
+| Group label | caption (12px), weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — same recipe as SidebarNav's own Section label |
+| Group divider | 1px Neutral-3 line between groups |
+| Checkbox row | reuses this system's own Checkbox spec exactly: 18×18px box, 6px radius, 1px Neutral-3 border unchecked, Obsidian border+fill checked, `icon-micro` check glyph in Neutral-1; Neutral-2 fill on hover, same token as Table row's own hover |
+| Footer | Ghost "Clear" + Primary "Done", space-between, `spacing-8` gap, 1px Neutral-3 top border, `spacing-12` padding — Modal footer's divider convention at a smaller scale |
+
+**Variants:** Default, Has Selection, Open — nothing selected, Open —
+has selection.
+
+**Do:** let the footer's Clear empty the selection while leaving the
+menu open (so more options can be picked), and let Done close the menu
+without touching the selection — they're deliberately different scopes.
+**Don't:** give the overflow "+N" chip its own remove control — it
+doesn't correspond to one option, only the clear-all can remove what it
+represents.
+
 ### Password field
 
 ⚠️ **New 2026-08-03 — designed, not sourced.** Same anatomy as Input
@@ -2763,6 +3322,39 @@ the two align in a form.
 **Do:** reuse Input field's border, radius, and type tokens so a form
 mixing single- and multi-line fields stays visually consistent. **Don't:**
 let the box shrink below its `min-height`, including mid-resize-drag.
+
+### UserPicker
+
+⚠️ **Designed 2026-08-04, v0.9.2 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Input field's box anatomy, Filters'/Date
+picker's popover convention, and Table row's hover treatment — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+Searches and selects a single person (an Account Executive, in this
+app) from a list — collapses to a compact summary once a value is set.
+
+| Part | Spec |
+|---|---|
+| Collapsed row | same box as Input field (40px height, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill, spacing-12 horizontal padding) so collapsing/expanding doesn't change footprint |
+| Avatar | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
+| Name | body2 (14px/20px), weight 700, Neutral-9, truncates with ellipsis |
+| Role | caption (12px), Neutral-5, directly below the name |
+| Clear (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+| Search input | Input field's own anatomy and states, including its 2px Obsidian focus-border swap (not the Water shadow-focus ring) |
+| Search icon | leading `magnifying-glass`, `icon-sm`, Neutral-5, **Tier 1, Regular** (search inside an input field, per Iconography) |
+| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-8 below the trigger — same popover convention as Filters/Date picker |
+| Dropdown row | avatar + name + role, spacing-12 gap, spacing-8/spacing-12 padding, Neutral-2 fill on hover — same hover token as Table row |
+| Empty state | "No matches found", body2, Neutral-5, centered, spacing-16 padding |
+
+**Variants:** Collapsed (value set), Open — searching, Open — no results.
+
+**Do:** keep the collapsed row and the search input at the same 40px
+height so selecting/clearing a person doesn't reflow the surrounding
+layout. **Don't:** style the dropdown's empty state as a full [Empty
+state](#empty-state) (icon + heading + body) — it's an inline "nothing
+matched" message inside a compact popover, not a page-level empty
+state.
 
 ### Checkbox
 
@@ -2903,6 +3495,41 @@ Label truncates with ellipsis rather than wrapping.
 deep. **Don't:** nest a second level of grouping — if the hierarchy needs
 more than one level, that's a sign the item belongs in a sub-page's Tabs
 instead.
+
+### Stepper
+
+⚠️ **Designed 2026-08-04, v0.9.1 — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by reusing Checkbox/Radio's on/off treatment, SidebarNav's
+active/inactive label weighting, and the caption token for supporting
+text — not transcribed. Treat as a first pass needing real design/brand
+review.
+
+Tracks progress through a multi-step flow — onboarding, a multi-page
+form, a checkout — as an ordered list of steps, each in one of three
+states.
+
+| Part | Spec |
+|---|---|
+| Indicator | 24×24px circle, `radius-pill` |
+| Indicator — Completed | Obsidian fill, Neutral-1 text, shows the step number (not an icon — fill vs. outline is what carries the state) |
+| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian text |
+| Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 text |
+| Label | body2 (14px/20px); weight 700 + Neutral-9 when Active, weight 400 + Neutral-5 when Completed/Upcoming — same bold-vs-muted pattern as SidebarNav's active/inactive nav items |
+| Description (optional) | caption (12px), Neutral-5 — smaller than the label, spacing-4 below it |
+| Connector | 1px fill in Neutral-3 (the hairline-border token), not a literal border |
+| Connector — horizontal | sits between each pair of indicators, sharing an equal `flex: 1` share of the row so every connector is the same length regardless of neighboring label width |
+| Connector — vertical | fixed spacing-16 length, held spacing-8 off the indicator above (the rail's own gap) and spacing-8 off the indicator below (the list's gap) — equal on both sides, never touching either circle |
+
+**Variants:** orientation (Horizontal / Vertical) and per-step description
+are independent, giving Horizontal/Vertical × With/No description as
+four presentations, not four hard-coded variants.
+
+**Do:** derive each step's state from a single `currentStep` index —
+before it is Completed, at it is Active, after it is Upcoming — rather
+than tracking state per step. **Don't:** let the connector's length or
+spacing depend on label or description length; both orientations keep
+it fixed/equal on purpose (see the Connector rows above).
 
 ### Switch
 
@@ -3380,6 +4007,84 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
+  button that opens a grouped checkbox list for selecting multiple
+  options — the trigger reflects the current selection as
+  individually-removable Badge-Neutral chips (capped at 2, then a "+N"
+  overflow chip), visible whether the menu is open or closed. Designed
+  from scratch, no source in either the brand deck or the teammate's
+  build; reuses Button Secondary for the default trigger, Filters'
+  trigger/popover conventions, Badge's real box model for the chips, and
+  this system's own Checkbox spec for the rows, rather than inventing
+  new patterns. Built per the user's own 3-step process: component first
+  (`components/forms/DropdownMenuWithSelection.tsx` — file path kept
+  from an earlier single-select draft on the same file, replaced per
+  explicit user direction; the exported component/types are
+  `MultiSelect`/`MultiSelectOption`/`MultiSelectProps`), then a live
+  preview in `preview.html`'s Components gallery for approval — through
+  several rounds of review (Badge-based selection display instead of a
+  plain count, dynamic "{count} selected" trigger copy, removing the
+  count badge from the open states, then individually-removable
+  per-item chips that stay visible while open, which superseded the
+  count-badge/text approach) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  Basics group (between Modal / dialog and Password field) rather than
+  a new category, same call as Stepper's/UserPicker's/FileUploader's own
+  placements. Updated the ToC and Scope note to match.
+- **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
+  click-to-browse/drag-and-drop attachment control — attached files list
+  as rows below the drop zone with a kind badge, name, size, and a
+  remove action. Designed from scratch, no source in either the brand
+  deck or the teammate's build; reuses Badge-Neutral's box model for the
+  kind badge, Table row's/SidebarNav's Obsidian-border + Neutral-2-fill
+  "currently engaged" recipe for the drag-over state, and the
+  Filters/Date picker popover convention for file rows, rather than
+  inventing new patterns. Built per the user's own 3-step process:
+  component first (`components/forms/FileUploader.tsx`), then a live
+  preview in `preview.html`'s Components gallery for approval —
+  including a mid-review fix (kind badge moved from a literal monospace
+  stack to `--font-primary`, same call as UserPicker's avatar-initials
+  fix) — then this spec, added only after that preview was explicitly
+  approved. Slotted alphabetically into the Basics group (between Empty
+  state and Input field) rather than a new category, same call as
+  Stepper's and UserPicker's own placements. Updated the ToC and Scope
+  note to match.
+- **v0.9.2-draft — 2026-08-04** — Added **UserPicker**, a searchable
+  input for finding and selecting a single person (an Account Executive,
+  in this app) — collapses to an avatar/name/role summary with a clear
+  action once a value is set. Designed from scratch, no source in either
+  the brand deck or the teammate's build; reuses Input field's box
+  anatomy and focus behavior, Filters'/Date picker's popover convention,
+  and Table row's hover treatment rather than inventing new patterns.
+  Built per the user's own 3-step process: component first
+  (`components/forms/UserPicker.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval — including a
+  mid-review fix (avatar initials moved from a literal monospace stack,
+  since this system has no `--font-mono` token, to `--font-primary` like
+  every other piece of text in the component) — then this spec, added
+  only after that preview was explicitly approved. Slotted alphabetically
+  into the Basics group (after Textarea) rather than a new category, same
+  call as Stepper's v0.7.0-batch placement. Updated the ToC and Scope
+  note to match.
+- **v0.9.1-draft — 2026-08-04** — Added **Stepper**, a multi-step
+  progress indicator (Horizontal/Vertical orientation × optional
+  per-step description, three states — Completed/Active/Upcoming).
+  Designed from scratch, no source in either the brand deck or the
+  teammate's build. Built per the user's own 3-step process: component
+  first (`components/navigation/Stepper.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval — including two
+  rounds of visual fixes caught in that preview (equal-length dividers
+  in both orientations, a divider touching its neighboring indicator in
+  the vertical layout, and the Completed indicator showing a checkmark
+  instead of its step number) — then this spec, added only after that
+  preview was explicitly approved. Slotted alphabetically into the
+  existing v0.7.0 batch (between SidebarNav and Switch) rather than a
+  new Navigation category, per explicit user direction — SidebarNav and
+  Tabs stay where they are. Updated the ToC and Scope note to match, and
+  fixed `preview.html`'s Components lede, which had drifted stale at
+  "21 components" since App Shell/Textarea/Password field/Search input
+  clear button were added in v0.9.0 without updating it — folded that
+  fix into this same pass rather than leaving it for a third drift.
 - **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
   composition layer this document never had. Prompted by real downstream
   builds: separate teams built dashboards on this system and produced
