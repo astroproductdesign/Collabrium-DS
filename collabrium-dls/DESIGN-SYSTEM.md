@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.4-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
+**v0.9.5** — 2026-08-04 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2030,14 +2030,15 @@ rather than maintaining two token sources by hand:
 sections above.** When you change a component or token, update its spec
 section to describe the current state only (no "added on [date]" or
 "changed in vX.Y" language inline), then add a new entry here, newest
-first, in the same `- **vX.Y-draft — YYYY-MM-DD** — ` format as the
-entries below: what changed, why, and what it replaces. This is also
+first, in the same `- **vX.Y — YYYY-MM-DD** — ` format as the
+entries below: what changed, why, and what it replaces. Version numbers
+are plain `vX.Y` (or `vX.Y.Z`) — no `-draft` suffix. This is also
 what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
 
-- **v0.9.5-draft — 2026-08-04** — Added **SidebarNav's collapsible
+- **v0.9.5 — 2026-08-04** — Added **SidebarNav's collapsible
   state, second-level navigation, and overflow behavior** — the
   largest single update to an existing component in this system.
   Collapsible state: the rail toggles between 240px expanded and 72px
@@ -2070,13 +2071,13 @@ with nothing else to keep in sync.
   responsive behavior and full keyboard navigation (arrow keys, `Enter`,
   `Escape` on the accordion). `preview.html`'s gallery and
   `components.css` updated to match.
-- **v0.8.4-draft — 2026-08-04** — Added **PageHeader**, a page-level
+- **v0.8.4 — 2026-08-04** — Added **PageHeader**, a page-level
   title block (title + optional subtitle), no background/border/padding
   of its own — flush in the surrounding layout. Designed from scratch,
   no source in either the brand deck or the teammate's build, by
   reusing the existing Typescale's h1/body1 tokens. Also live-rendered
   in `preview.html`'s Components gallery.
-- **v0.6.2-draft — 2026-07-31** — Two unrelated fixes shipped this day.
+- **v0.6.2 — 2026-07-31** — Two unrelated fixes shipped this day.
   Reclassified icon weights (resolves [Needs Input #11](#needs-input-read-this-first)):
   moved from "Fill exclusively" to the two-tier Regular/Fill split
   documented in [Iconography](#iconography) — [Component Rules](#component-rules)
@@ -2113,7 +2114,7 @@ with nothing else to keep in sync.
   managed master exports) — `logo.html`'s corrected values remain
   canonical. Still open: 4 of 5 department-colored lockup variants, a
   clear-space rule, minimum size, and monochrome/reverse versions.
-- **v0.6.1.1-draft — 2026-08-03** — Filled gaps in Input field that the
+- **v0.6.1.1 — 2026-08-03** — Filled gaps in Input field that the
   deck and the teammate's build never covered (designed, not sourced):
   placeholder text styling (Neutral-5, same body2/weight 400 as entered
   text — not italic or a separate lighter weight); a required-field
@@ -2129,7 +2130,7 @@ with nothing else to keep in sync.
   Error). Also clarified that the sm/md/lg sizes are a density choice
   per context, not tied to a viewport breakpoint. Treat as a first pass
   needing real design/brand review.
-- **v0.9.4-draft — 2026-08-04** — Added **`components.css`**, the actual
+- **v0.9.4 — 2026-08-04** — Added **`components.css`**, the actual
   portable copy of every component's CSS (Button, Input field, Card,
   Badge & Tag, Table row, Modal, Empty state, SidebarNav, App Shell
   layout, Tabs, Select, Checkbox/Radio/Switch, Toast, Tooltip,
@@ -2166,7 +2167,7 @@ with nothing else to keep in sync.
   and why each one's absence produces exactly the symptom that was
   reported. Loading strategy and `font-display` remain open — genuinely
   need engineering input, not a design guess.
-- **v0.9.3-draft — 2026-08-04** — Added an explicit scope rule to App
+- **v0.9.3 — 2026-08-04** — Added an explicit scope rule to App
   Shell: it governs **structure and layout only** (placement, size,
   spacing, which region a component occupies) and never defines or
   restates a component's own style (fill, border, radius, typography,
@@ -2187,7 +2188,7 @@ with nothing else to keep in sync.
   updated to match — the `.c-sidebar-item.soon` CSS rules moved out of
   the App Shell code comment block into the SidebarNav one, no visual
   or behavioral change.
-- **v0.9.2-draft — 2026-08-04** — App Shell's main nav tweak: dropped the
+- **v0.9.2 — 2026-08-04** — App Shell's main nav tweak: dropped the
   separate "flush rail" placement variant (no radius, right-edge border
   only) introduced in v0.9.0. That variant existed to solve a real
   problem — SidebarNav's own spec (`radius-lg`, border on all four
@@ -2202,17 +2203,17 @@ with nothing else to keep in sync.
   floating-panel-as-inset-or-drawer) rather than two components pretending
   to be one. SidebarNav's own section now points to App Shell for the
   placement rule instead of describing a second variant inline.
-- **v0.9.1-draft — 2026-08-04** — Cross-checked all 5 places this system's
+- **v0.9.1 — 2026-08-04** — Cross-checked all 5 places this system's
   content gets duplicated — `SKILL.md`, `DESIGN-SYSTEM.md`, and the three
   embedded copies inside `preview.html` (the DESIGN.md tab's compact/
   extended text, the CSS Variables tab, the Tailwind v4 tab, and the
   Design Tokens JSON tab) — against their real source files, rather than
   assuming the doc-sync rule had been holding. Found: the two markdown
   copies and the CSS Variables copy were exactly in sync (byte-identical);
-  `tokens.css` and its embedded copy both carried a stale `v0.6.0-draft`
+  `tokens.css` and its embedded copy both carried a stale `v0.6.0`
   header comment despite the system being 3 minor versions ahead (values
   were still correct — only the stamp was stale); the Design Tokens JSON
-  export's own metadata carried the same stale `0.6.0-draft` stamp
+  export's own metadata carried the same stale `0.6.0` stamp
   (values also still correct); and the Tailwind v4 theme mapping had a
   real, substantial gap — only 59 of tokens.css's 162 actual tokens were
   mapped into `@theme`, missing the entire typography scale (every
@@ -2227,14 +2228,14 @@ with nothing else to keep in sync.
   from a corrected, exhaustive token extraction; it now covers all 162
   and was verified programmatically (162 tokens.css tokens ↔ 162 mapped,
   zero missing, zero orphaned) rather than by eye. Fixed both stale
-  version stamps to `v0.9.1-draft` / 2026-08-04. This was prompted by a
+  version stamps to `v0.9.1` / 2026-08-04. This was prompted by a
   teammate report that applying the system to an existing project left
   colors, pills, and icons not rendering correctly — a separate,
   larger problem (the component CSS itself has never been extracted
   into anything portable, and icon/font CDN links are undocumented as a
   requirement) that this pass does not fix, only the token-layer piece
   of it.
-- **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
+- **v0.9.4 — 2026-08-04** — Added **MultiSelect**, a trigger
   button that opens a grouped checkbox list for selecting multiple
   options — the trigger reflects the current selection as
   individually-removable Badge-Neutral chips (capped at 2, then a "+N"
@@ -2258,7 +2259,7 @@ with nothing else to keep in sync.
   Basics group (between Modal / dialog and Password field) rather than
   a new category, same call as Stepper's/UserPicker's/FileUploader's own
   placements. Updated the ToC and Scope note to match.
-- **v0.9.3-draft — 2026-08-04** — Added **FileUploader**, a
+- **v0.9.3 — 2026-08-04** — Added **FileUploader**, a
   click-to-browse/drag-and-drop attachment control — attached files list
   as rows below the drop zone with a kind badge, name, size, and a
   remove action. Designed from scratch, no source in either the brand
@@ -2276,7 +2277,7 @@ with nothing else to keep in sync.
   state and Input field) rather than a new category, same call as
   Stepper's and UserPicker's own placements. Updated the ToC and Scope
   note to match.
-- **v0.9.2-draft — 2026-08-04** — Added **UserPicker**, a searchable
+- **v0.9.2 — 2026-08-04** — Added **UserPicker**, a searchable
   input for finding and selecting a single person (an Account Executive,
   in this app) — collapses to an avatar/name/role summary with a clear
   action once a value is set. Designed from scratch, no source in either
@@ -2293,7 +2294,7 @@ with nothing else to keep in sync.
   into the Basics group (after Textarea) rather than a new category, same
   call as Stepper's v0.7.0-batch placement. Updated the ToC and Scope
   note to match.
-- **v0.9.1-draft — 2026-08-04** — Added **Stepper**, a multi-step
+- **v0.9.1 — 2026-08-04** — Added **Stepper**, a multi-step
   progress indicator (Horizontal/Vertical orientation × optional
   per-step description, three states — Completed/Active/Upcoming).
   Designed from scratch, no source in either the brand deck or the
@@ -2312,7 +2313,7 @@ with nothing else to keep in sync.
   "21 components" since App Shell/Textarea/Password field/Search input
   clear button were added in v0.9.0 without updating it — folded that
   fix into this same pass rather than leaving it for a third drift.
-- **v0.9.0-draft — 2026-08-04** — Added **App Shell**, the page-level
+- **v0.9.0 — 2026-08-04** — Added **App Shell**, the page-level
   composition layer this document never had. Prompted by real downstream
   builds: separate teams built dashboards on this system and produced
   three different navigation shells (pure sidebar, top-bar-only, sidebar
@@ -2340,7 +2341,7 @@ with nothing else to keep in sync.
   (see the v0.8.3 entry below) — exactly the kind of drift App Shell
   exists to prevent elsewhere, caught here in the same file that names
   the problem.
-- **v0.8.3-draft — 2026-08-03** — Four changes shipped this day without a
+- **v0.8.3 — 2026-08-03** — Four changes shipped this day without a
   version bump at the time; reconstructed and folded in here
   retroactively so the changelog matches what the file actually says.
   Warm canvas (`#FCFAF5`) became the default page background **everywhere**,
@@ -2357,7 +2358,7 @@ with nothing else to keep in sync.
   field, Search input clear button. None of these four were reflected in
   the Components section's scope note or this changelog until the
   v0.9.0 pass above caught it.
-- **v0.8.2-draft — 2026-07-30** — The Components gallery in
+- **v0.8.2 — 2026-07-30** — The Components gallery in
   `preview.html` was static markup — buttons that looked clickable but
   weren't, checkboxes with a hardcoded `.on` class, tabs that never
   switched. Wired real interactivity into every component with genuine
@@ -2376,7 +2377,7 @@ with nothing else to keep in sync.
   tabs, jumpnav, copy-markup buttons) elsewhere on the page. Two things
   stayed deliberately inert — see the new interactivity note above the
   Components spec for why.
-- **v0.8.1-draft — 2026-07-30** — A separate team built a Sales Dashboard
+- **v0.8.1 — 2026-07-30** — A separate team built a Sales Dashboard
   mockup on top of this system (their own reimplementation, not sourced
   from `preview.html` directly) and it surfaced three real bugs in
   their build: a Switch thumb pinned off-center by a conflicting CSS
@@ -2389,7 +2390,7 @@ with nothing else to keep in sync.
   `white-space: nowrap` here too — added it, since nothing was actually
   stopping the same wrap from happening in this system's own Badge if a
   label ran long. See the Badge & Tag component section above.
-- **v0.8.0-draft — 2026-07-30** — Designed the last 5 dashboard
+- **v0.8.0 — 2026-07-30** — Designed the last 5 dashboard
   components flagged as a gap in v0.7.0 — Stat/KPI card, Filters,
   Pagination, Date picker, and a Chart color mapping guideline. Unlike
   every component before these, **none of the five has source material
@@ -2408,7 +2409,7 @@ with nothing else to keep in sync.
   doc-sync standing rule. This closes out the full 15-component request
   from v0.7.0 — Components scope note now covers all 21 (17 built +
   built-but-provisional 4, plus the 1 guideline).
-- **v0.7.0-draft — 2026-07-30** — Wrote specs for 10 more components —
+- **v0.7.0 — 2026-07-30** — Wrote specs for 10 more components —
   SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip,
   DataTable, ElementBadge — transcribed directly from the teammate's
   real `.jsx` source, same methodology as every prior component. Scoped
@@ -2424,7 +2425,7 @@ with nothing else to keep in sync.
   markup and "Copy markup" buttons, per the doc-sync standing rule — the
   Components lede, scope note, and Reconciliation section were all
   updated in the same pass, and the top-bar version flag bumped.
-- **v0.6.1-draft — 2026-07-29** — User asked for explicit confirmation
+- **v0.6.1 — 2026-07-29** — User asked for explicit confirmation
   that components matched the teammate's build and were actually
   projected into `preview.html`. Re-verification against the real
   `.jsx` source (not just the earlier read-through) found two things
@@ -2454,7 +2455,7 @@ with nothing else to keep in sync.
   drift the doc-sync standing rule exists to catch — a reminder to check
   static prose blocks, not just data-driven tables, when a token value
   changes.
-- **v0.6.0-draft — 2026-07-29** — Reconciled against a teammate's
+- **v0.6.0 — 2026-07-29** — Reconciled against a teammate's
   independent, more thorough design system built from the same source
   deck (`~/Desktop/Collabrium Design System/`) — see
   [Reconciliation](#reconciliation--teammates-design-system) for the
@@ -2470,7 +2471,7 @@ with nothing else to keep in sync.
   pattern, and split Badge/Tag into two distinct components. All
   changes applied to `tokens.css` and `preview.html`'s live Components
   gallery in the same pass, per the v0.5.0 standing rule.
-- **v0.5.0-draft — 2026-07-29** — Added a live Components section to
+- **v0.5.0 — 2026-07-29** — Added a live Components section to
   `preview.html` (7th nav item, after Guidelines): Button, Input field,
   Card, Badge/Tag, Table row, Modal/dialog, and Empty state, each
   rendered per the existing spec with a "Copy markup" button. Further
@@ -2478,11 +2479,11 @@ with nothing else to keep in sync.
   implementation alongside it, not just tables. Established a standing
   rule (user request): every future build/update to this skill must be
   reflected back into this file in the same pass, not as a follow-up.
-- **v0.4.5-draft — 2026-07-29** — `preview.html`: compacted the Fonts
+- **v0.4.5 — 2026-07-29** — `preview.html`: compacted the Fonts
   tab's install callout — replaced the boxed description + button with
   a single button inline on the section header row, right-aligned next
   to the "Fonts" title.
-- **v0.4.4-draft — 2026-07-29** — Added `fonts/collabrium-fonts.zip`,
+- **v0.4.4 — 2026-07-29** — Added `fonts/collabrium-fonts.zip`,
   a real desktop font pack (variable-font `.ttf` for Mulish and Source
   Serif 4, both weights/styles, plus OFL licenses), sourced from
   Google's official font repository rather than the web-embed CSS
@@ -2491,14 +2492,14 @@ with nothing else to keep in sync.
   browser (no website can write into a system Fonts folder — verified
   and explained inline rather than assumed); this delivers the closest
   feasible thing, a one-click *download* of the real files.
-- **v0.4.3-draft — 2026-07-29** — `logo.html`: removed the visible
+- **v0.4.3 — 2026-07-29** — `logo.html`: removed the visible
   element-name label and play/pause button (dev/debug UI from the
   source asset), so it embeds as a clean, always-animating mark. All 9
   animation frames, including moon, are unchanged. Also dropped
   `logo.html`'s now-unused Google Fonts/Phosphor/`tokens.css`
   dependencies since no text renders in it anymore. `preview.html`'s
   embedded-logo iframe height reduced (240px → 160px) to match.
-- **v0.4.2-draft — 2026-07-29** — Documented `SVG/`, the confirmed true
+- **v0.4.2 — 2026-07-29** — Documented `SVG/`, the confirmed true
   vector source library for the logo (8 letter files, 10 element icons
   including an unintegrated `coin.svg`, 5 motive variants — 2 of which
   are duplicates). Further resolves Needs Input #8. Flagged, not fixed:
@@ -2506,14 +2507,14 @@ with nothing else to keep in sync.
   `mountain.svg` still carry the pre-correction off-palette colors in
   their raw form (left untouched, since they may be externally-managed
   master exports).
-- **v0.4.1-draft — 2026-07-29** — Rebuilt `preview.html` into a two-pane
+- **v0.4.1 — 2026-07-29** — Rebuilt `preview.html` into a two-pane
   layout matching the reference the user pointed to
   (styles.refero.design): left pane is the live visual system, right
   pane is a tabbed source viewer (DESIGN.md with Compact/Extended,
   Tailwind v4, CSS Variables, Design Tokens JSON) with Copy/Download.
   All four tabs are embedded inline (not fetched) so the page keeps
   working when opened directly via `file://`.
-- **v0.4.0-draft — 2026-07-29** — Added the real animated logo asset
+- **v0.4.0 — 2026-07-29** — Added the real animated logo asset
   (`logo.html`), corrected to this document's canonical colors; resolved
   Needs Input #1 and #2 (Salmon Pink `#FF7A90` and Green `#00C26E` are
   now final, per explicit user decision that this document is the
@@ -2522,17 +2523,17 @@ with nothing else to keep in sync.
   Color Palette, Typography, Fonts, Spacing & Shape, Guidelines) per the
   user's request — the component-state demos that used to live there now
   only exist as the tables in this document.
-- **v0.3.0-draft — 2026-07-29** — Added an Overview summary paragraph,
+- **v0.3.0 — 2026-07-29** — Added an Overview summary paragraph,
   letter-spacing values on the type scale, content max-width and an
   explicit elevation policy in Spacing & Shape, a consolidated top-level
   Guidelines (Do/Don't) section, and `tokens.css` (paste-able CSS custom
   properties, now the single source of values for `preview.html`).
   Brought the doc's comprehensiveness in line with a reference style
   guide the user pointed to. Still unreviewed by brand/design team.
-- **v0.2.0-draft — 2026-07-29** — Added Component Rules and full specs for
+- **v0.2.0 — 2026-07-29** — Added Component Rules and full specs for
   Button, Input field, Card, Badge/Tag, Table row, Modal/Dialog, and Empty
   state (resolves Needs Input #7 with a first draft). Still unreviewed by
   brand/design team.
-- **v0.1.0-draft — 2026-07-29** — Initial DLS drafted from the Collabrium
+- **v0.1.0 — 2026-07-29** — Initial DLS drafted from the Collabrium
   brand deck (Google Slides). 10 gaps flagged under Needs Input; see table
   at top. Not yet reviewed by brand team.
