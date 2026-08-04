@@ -129,7 +129,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.2-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.3-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -223,5 +223,12 @@ width/radius/border/fill/anatomy — just inset `spacing-16` (16px) from
 the viewport's top/left/bottom edges instead of flush, at height
 `calc(100dvh - 32px)`, so its rounded corners render cleanly instead of
 clipping against the browser edge. One component, one spec, in two
-placement contexts, instead of a second divergent spec to keep in sync.
-See changelog at the bottom of DESIGN-SYSTEM.md.
+placement contexts, instead of a second divergent spec to keep in sync;
+**v0.9.3 (2026-08-04) added an explicit scope rule to App Shell** — it
+governs structure and layout only, never a component's own style — and
+fixed the one real violation an audit against that rule turned up: the
+Locked/"Soon" nav-item state (fill, text color, icon opacity, cursor, a
+Badge) had been defined inside App Shell instead of SidebarNav; it's
+now a third `Nav item` row in SidebarNav's own table. Also trimmed two
+places that redundantly restated `Canvas warm`'s hex value instead of
+referencing the token. See changelog at the bottom of DESIGN-SYSTEM.md.

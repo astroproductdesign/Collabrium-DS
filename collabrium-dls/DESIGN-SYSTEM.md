@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.2-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
+**v0.9.3-draft** — 2026-07-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -705,6 +705,18 @@ internals correctly. What was missing is the composition layer that
 says how those pieces combine into an actual screen. This section is
 that layer.
 
+⚠️ **Scope rule, added 2026-08-04:** App Shell governs **structure and
+layout only** — placement, size, spacing, and which region a component
+occupies. It never defines or restates a component's own style (fill,
+border, radius, typography, state colors) — that's the owning
+component's section, always. Where App Shell needs to mention a style
+property at all (e.g. that the canvas is warm-toned), it references the
+token or the component's own section rather than restating the value,
+and if a style decision doesn't already belong to some component, that's
+a sign it belongs in that component's spec, not here. The Locked/"Soon"
+nav-item state briefly lived in this section in an earlier draft before
+being moved to [SidebarNav](#sidebarnav) for exactly this reason.
+
 **Canonical pattern: sidebar-only. No separate Top bar chrome — Page
 header is the top of every screen.** [SidebarNav](#sidebarnav) already
 has its own Header slot (logo/workspace switcher) and Footer slot
@@ -720,11 +732,14 @@ account) have nowhere defined to live yet as a result — that's an
 explicit, acknowledged gap, not a silent omission; revisit this
 decision if/when the product actually needs them.
 
-**Page canvas:** `Canvas warm` `#FCFAF5` for the entire viewport
-background, per the Color Palette's Warm canvas rule (now default
-everywhere as of 2026-08-03). Sidebar and Card keep their own documented
-`Neutral-1` white fill — that's the intended figure-ground contrast
-against the canvas, not a mismatch to correct. Note the timing: that
+**Page canvas — a structural fact, not a new color:** the whole
+viewport is one continuous background region using whatever [Color
+Palette](#color-palette)'s Warm canvas token currently resolves to
+(default everywhere as of 2026-08-03) — App Shell doesn't set or
+restate that value, it just establishes that there's a single shared
+background behind everything, not per-section fills. Sidebar and Card
+sit on top of it using whatever fill their own component sections
+document — again, not App Shell's to state. Note the timing: the
 "warm everywhere" rule is one day old at the time of writing, so a
 build made before 2026-08-03 landing on plain white or grey product UI
 isn't a spec violation — it was correct under the rule that existed
@@ -758,15 +773,12 @@ already provides the visual gap to whatever sits next to it.
 | Placement | inset `spacing-16` (16px) from the viewport's top, left, and bottom edges; no inset on the right edge |
 | Height | `calc(100dvh - 32px)` |
 
-**New state — Locked / "Soon":** a third nav-item state, for sections
-that exist in the IA but aren't built yet (this has already shown up
-organically in a real build). Transparent fill (same as inactive),
-Neutral-4 text (one step more muted than inactive's Neutral-5), icon at
-40% opacity, `cursor: not-allowed`, no hover/focus feedback. The
-trailing slot carries a Badge (Neutral variant, "Soon" label) instead
-of the trailing-count slot — the two are mutually exclusive on one item.
-This is additive (a new state), not an override of anything SidebarNav
-already specifies.
+⚠️ **Moved 2026-08-04:** the Locked/"Soon" nav-item state used to be
+defined here. It's a component state (fill, text color, icon opacity,
+cursor, a Badge) — that's [SidebarNav](#sidebarnav)'s concern, not a
+layout/placement one, so it now lives in that component's own table
+instead. App Shell only says *where* SidebarNav sits, never *how it
+looks* — see the scope note in this section's opening paragraph.
 
 **Responsive** ⚠️ provisional, first pass, no source: below 1024px,
 collapse to a 72px icon-only rail (labels hidden, tooltip on hover
@@ -779,7 +791,7 @@ affordance, not a third variant.
 
 | Property | Value |
 |---|---|
-| Fill | `Canvas warm` `#FCFAF5` — same as the page canvas; this region doesn't get its own background |
+| Background | none of its own — inherits the page canvas described above |
 | Padding | `--page-gutter` (32px) horizontal, `--section-gap` (48px) top — reusing existing [Spacing & Shape](#spacing--shape) tokens, no new values introduced |
 | Max-width | full-bleed by default; 1200px centered only for reading-width content (settings, detail panels) — existing rule, unchanged |
 | Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |
@@ -1166,6 +1178,7 @@ not two.
 | Nav item | 40px height, full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
 | Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
 | Nav item — inactive | transparent fill, Neutral-5 text, weight 500 |
+| Nav item — locked/soon ⚠️ added 2026-08-04 | for sections that exist in the IA but aren't built yet. Transparent fill (same as inactive), Neutral-4 text (one step more muted than inactive's Neutral-5), icon at 40% opacity, `cursor: not-allowed`, no hover/focus feedback. Trailing slot carries a Badge (Neutral variant, "Soon" label) instead of the trailing-count slot — the two are mutually exclusive on one item |
 | Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
 | Trailing count | optional, caption/700/Neutral-5, right-aligned |
 | Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
@@ -1738,6 +1751,27 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.3-draft — 2026-08-04** — Added an explicit scope rule to App
+  Shell: it governs **structure and layout only** (placement, size,
+  spacing, which region a component occupies) and never defines or
+  restates a component's own style (fill, border, radius, typography,
+  state colors) — that stays the owning component's job. Prompted by a
+  direct question about whether this was actually being held to.
+  Auditing the section against its own new rule found one real
+  violation and two smaller ones. The violation: the Locked/"Soon"
+  nav-item state (fill, text color, icon opacity, cursor, a Badge) was
+  defined inside App Shell's Main nav subsection — that's a SidebarNav
+  component state, not a layout fact, so it moved to
+  [SidebarNav](#sidebarnav)'s own table as a third `Nav item` row
+  alongside active/inactive. The smaller ones: the "Page canvas"
+  paragraph and Content region's table both restated `Canvas warm`'s
+  hex value (`#FCFAF5`) redundantly with [Color Palette](#color-palette)
+  — reworded to reference the token rather than repeat its value, and
+  to state the structural fact (one continuous background region, not
+  per-section fills) that's actually App Shell's to own. `preview.html`
+  updated to match — the `.c-sidebar-item.soon` CSS rules moved out of
+  the App Shell code comment block into the SidebarNav one, no visual
+  or behavioral change.
 - **v0.9.2-draft — 2026-08-04** — App Shell's main nav tweak: dropped the
   separate "flush rail" placement variant (no radius, right-edge border
   only) introduced in v0.9.0. That variant existed to solve a real
