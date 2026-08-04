@@ -163,18 +163,98 @@
 .c-empty p{margin:0; max-width:380px; font-size:var(--text-body1-size); font-weight:var(--text-body1-weight);}
 
 /* SidebarNav */
-.c-sidebar{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg);}
-.c-sidebar-header{padding:var(--spacing-8) var(--spacing-8) var(--spacing-16); font-weight:800; font-size:var(--text-h5-size);}
+.c-sidebar-shell{position:relative; display:inline-block;} /* wraps nav + toggle so the toggle can live outside .c-sidebar's own clip, see .c-sidebar-toggle below */
+.c-sidebar{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow-x:clip; transition:width var(--duration-slow) var(--ease-standard);}
+.c-sidebar.is-collapsed{width:72px;} /* one-off literal, not a spacing token — see DESIGN-SYSTEM.md's Collapsible state row */
+.c-sidebar-header{padding:var(--spacing-8) var(--spacing-8) var(--spacing-16); display:flex; align-items:center;}
+.c-sidebar.is-collapsed .c-sidebar-header{justify-content:center;} /* logo independently centered, no longer paired with the toggle */
+.c-sidebar-logo{display:flex; align-items:center;}
+.c-sidebar-logo img{height:22px; width:auto; display:block;}
+.c-sidebar.is-collapsed .c-sidebar-logo img{height:24px; width:24px;}
 .c-sidebar-section{padding:var(--spacing-16) var(--spacing-8) var(--spacing-4); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
-.c-sidebar-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:40px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; cursor:pointer; text-align:left; transition:background-color var(--duration-fast) var(--ease-standard),color var(--duration-fast) var(--ease-standard);}
-.c-sidebar-item span.label{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-sidebar-divider{border:none; border-top:1px solid var(--color-neutral-3); margin:var(--spacing-8) 0 0;}
+.c-sidebar.is-collapsed .c-sidebar-section,
+.c-sidebar.is-collapsed .c-sidebar-divider,
+.c-sidebar.is-collapsed .c-sidebar-item span.label,
+.c-sidebar.is-collapsed .c-sidebar-item span.count{display:none;}
+.c-sidebar-item{position:relative; display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:40px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; cursor:pointer; text-align:left; transition:background-color var(--duration-fast) var(--ease-standard),color var(--duration-fast) var(--ease-standard);}
+.c-sidebar-item:hover{background:var(--color-neutral-2);} /* reuses Table row hover / Button Ghost hover */
+.c-sidebar-item:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-sidebar-item:active{background:var(--color-neutral-3);}
+.c-sidebar-item:disabled{color:var(--color-neutral-4); background:transparent; cursor:not-allowed;}
+.c-sidebar-item:disabled:hover{background:transparent;}
+.c-sidebar-item span.label{flex:1; white-space:normal; overflow-wrap:break-word;} /* wraps, doesn't truncate — 240px is a hard max-width with no horizontal scroll */
 .c-sidebar-item span.count{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
 .c-sidebar-item.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
 .c-sidebar-item.soon{cursor:not-allowed;}
 .c-sidebar-item.soon i{opacity:.4;}
 .c-sidebar-item.soon span.label{color:var(--color-neutral-4);}
 .c-sidebar-item.soon .c-badge{margin-left:auto;}
+.c-sidebar.is-collapsed .c-sidebar-item{justify-content:center; padding:0;} /* every item icon independently centered within the 72px rail */
 .c-sidebar-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+
+/* Toggle — a sibling of .c-sidebar inside .c-sidebar-shell, not a
+   descendant of it: .c-sidebar has overflow-x:clip (never
+   horizontally scrollable), and a clipped ancestor clips absolutely-
+   positioned descendants too, no matter their offsets — the
+   collapsed toggle deliberately straddles the rail's own border
+   (half in / half out), so it can't live inside .c-sidebar without
+   being cut off. */
+.c-sidebar-toggle{position:absolute; display:flex; align-items:center; justify-content:center; background:none; border:none; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+.c-sidebar-toggle:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-sidebar:not(.is-collapsed) ~ .c-sidebar-toggle{top:32px; right:8px; transform:translateY(-50%); width:28px; height:28px;} /* same row as the logo, right-aligned, vertically centered */
+.c-sidebar:not(.is-collapsed) ~ .c-sidebar-toggle:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.c-sidebar.is-collapsed ~ .c-sidebar-toggle{top:33px; right:-10px; transform:translateY(-50%); width:24px; height:24px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); box-shadow:var(--shadow-1);} /* floating overlay, straddles the rail's own border, sized down so it doesn't crowd the independently-centered logo */
+.c-sidebar.is-collapsed ~ .c-sidebar-toggle:hover{background:var(--color-neutral-2);}
+.c-sidebar-toggle svg{width:18px; height:18px;}
+.c-sidebar.is-collapsed ~ .c-sidebar-toggle svg{width:16px; height:16px;}
+
+/* Collapsed — hover label. SidebarNav's own sub-pattern (not a
+   reused Tooltip instance) — see DESIGN-SYSTEM.md's "Collapsed —
+   hover label" row for why. A single shared element, `position:
+   fixed`, repositioned via JS to the hovered/focused icon. */
+.c-sidebar-hover-label{position:fixed; padding:6px 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard); z-index:20;}
+.c-sidebar-hover-label.is-visible{opacity:1;}
+.c-sidebar-item .c-sidebar-hover-text{display:none;} /* text source only — read by JS, never shown itself */
+
+/* Second-level navigation — a parent item expanding to show its own
+   child items, one level deep. Chevron is Tier 1, Regular (per
+   Iconography's own Tier 1 examples — "chevron up/down", "expand,
+   collapse"). Clicking anywhere on the parent toggles it, not just
+   the chevron. Each parent's open/closed state is independent — no
+   single-open-at-a-time grouping. */
+.c-sidebar-item .c-nav-parent-toggle{margin-left:auto; width:var(--icon-base); height:var(--icon-base); flex:0 0 var(--icon-base); display:flex; align-items:center; justify-content:center; transition:transform var(--duration-fast) var(--ease-standard);}
+/* "Active parent with active child — parent shows weight 700 text,
+   but no active fill" — the fill signal stays exclusively on the
+   active child. */
+.c-sidebar-item.parent-active-child{font-weight:700; background:transparent; color:var(--color-neutral-9);}
+/* Collapsed — the "no fill, text stays the only signal" rule above
+   relies on the label, which is hidden entirely at 72px (see
+   .c-sidebar.is-collapsed .c-sidebar-item span.label above), so a
+   parent with an active child would look identical to a plain
+   inactive icon with nothing else to look at. The child's own fill
+   isn't around to compete with here either — it's hidden too — so
+   the collapsed parent icon safely takes the normal Active fill
+   instead, same as any other active item gets. */
+.c-sidebar.is-collapsed .c-sidebar-item.parent-active-child{background:var(--color-neutral-2);}
+/* Grid 0fr->1fr technique: animating max-height directly squeezes
+   fixed-height child buttons via flex-shrink instead of properly
+   sizing them (see DESIGN-SYSTEM.md's "Expand/collapse transition"
+   row) — a single-row grid track animates to the content's real
+   height with no guessed cap. */
+.c-nav-children{display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--duration-slow) var(--ease-standard);}
+.c-nav-children.is-open{grid-template-rows:1fr;}
+.c-nav-children-inner{overflow:hidden; min-height:0; display:flex; flex-direction:column; gap:var(--spacing-4);}
+.c-sidebar.is-collapsed .c-nav-children,
+.c-sidebar.is-collapsed .c-sidebar-item .c-nav-parent-toggle{display:none;} /* accordion closes, children aren't accessible while collapsed */
+/* Child item — 36px (one-off literal, not a token — same precedent
+   as Tooltip's 6px/10px padding and Checkbox's 6px radius), full
+   width with spacing-16 left padding doing the indent instead of an
+   outer margin. */
+.c-nav-child{height:36px; width:100%; padding:0 var(--spacing-12) 0 var(--spacing-16); border-radius:var(--radius-sm); display:flex; align-items:center; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); background:transparent; border:0; cursor:pointer; font-family:inherit; text-align:left; color:var(--color-neutral-5); transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-nav-child:hover{background:var(--color-neutral-2);}
+.c-nav-child:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+.c-nav-child.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
 
 /* App Shell — v0.9.2, designed not sourced. Structure/layout only —
    placement, size, spacing. Never restates a component's own style;
@@ -319,4 +399,148 @@
 .c-chartmap-label{width:180px; flex:none; font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
 .c-chartmap-swatch{width:28px; height:20px; border-radius:4px; flex:none;}
 .c-chartmap-ramp{flex:1; min-width:160px; height:20px; border-radius:4px;}
+
+/* FileUploader — v0.9.3, designed not transcribed
+   Drag-over reuses the Obsidian-border + Neutral-2-fill recipe this
+   system already uses for "currently engaged" states (Table row
+   selected, SidebarNav active) — there's no Obsidian tint token to
+   invent a new background from. Kind badge reuses Badge-Neutral's box
+   model (22px, radius-pill, Neutral-2/Neutral-3), --font-primary same
+   as every other piece of text in the component. File rows reuse the
+   Filters/Date picker "panel" recipe (Neutral-1 fill, 1px Neutral-3
+   border), not Neutral-2, so the remove button's hover stays visually
+   distinct against the row. */
+.c-uploader{display:flex; flex-direction:column; gap:var(--spacing-12); max-width:360px;}
+.c-uploader-zone{cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:var(--spacing-8); padding:var(--spacing-24); text-align:center; border-radius:var(--radius-lg); border:1px dashed var(--color-neutral-3); background:var(--color-neutral-1);}
+.c-uploader-zone.dragover{border:2px dashed var(--color-obsidian); background:var(--color-neutral-2);}
+.c-uploader-zone i{font-size:20px; color:var(--color-neutral-5);}
+.c-uploader-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-5);}
+.c-uploader-hint{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-uploader-files{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-uploader-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+.c-uploader-kind{flex:none; height:22px; display:inline-flex; align-items:center; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
+.c-uploader-name{flex:1; min-width:0; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-uploader-size{flex:none; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-uploader-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+.c-uploader-remove:hover{background:var(--color-neutral-2);}
+
+/* MultiSelect — v0.9.4, designed not transcribed (supersedes an
+   earlier single-select DropdownMenuWithSelection draft on this same
+   file — replaced per explicit user direction)
+   Trigger default matches Button Secondary exactly (Neutral-1 fill,
+   1px Neutral-3 border, shadow-1, radius-md, md size). Has-Selection's
+   border swaps to 1px Obsidian, the same "holds a value" recipe
+   Filters' own Filter trigger — active state uses. Has selection shows
+   one Badge-Neutral chip per selected option's label (capped at 2,
+   then a "+N" overflow chip) instead of the placeholder, built on
+   Badge's real box model (22px, spacing-8 padding, radius-pill,
+   caption/700, nowrap, 1px border) rather than an ad-hoc chip — and
+   stays shown while open too, so the user can see what's active while
+   browsing the checklist. Each visible chip has its own 14px × to
+   remove just that option; the overflow "+N" chip has no × since it
+   doesn't represent one single, removable option. Open is 2px Obsidian
+   with padding reduced 1px/side to compensate, the same
+   swap-and-compensate pattern Input field's focus state uses. Dropdown
+   panel reuses Filters'/Date picker's popover convention (radius-md,
+   1px Neutral-3 border, shadow-3). Group labels reuse SidebarNav's own
+   Section label recipe (caption/700/tracking-eyebrow/uppercase/
+   Neutral-5), --font-primary same as every other piece of text in the
+   component. Checkbox rows reuse this system's own Checkbox component spec
+   exactly (18×18px, 6px radius, Obsidian border+fill when checked).
+   Footer reuses Button's Ghost/Primary variants at sm size with
+   Modal footer's divider convention. */
+.c-ms{position:relative; display:inline-block;}
+.c-ms-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); box-shadow:var(--shadow-1); cursor:pointer;}
+.c-ms-trigger:hover{background:var(--color-neutral-2);}
+.c-ms-trigger.has-selection{border-color:var(--color-obsidian);}
+.c-ms-trigger.open{border:2px solid var(--color-obsidian); padding:0 15px;}
+.c-ms-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--font-primary); font-size:16px; font-weight:700; color:var(--color-neutral-9);}
+.c-ms-badge{flex:none; height:22px; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-5); border:1px solid var(--color-neutral-3); display:inline-flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
+.c-ms-badge.removable{gap:4px; padding:0 4px 0 var(--spacing-8);}
+.c-ms-badge-remove{flex:none; display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border:none; background:transparent; padding:0; color:var(--color-neutral-5); cursor:pointer;}
+.c-ms-badge-remove i{font-size:10px;}
+.c-ms-clear{flex:none; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+.c-ms-chevron{flex:none; font-size:16px; color:var(--color-neutral-5); transition:transform var(--duration-fast) var(--ease-standard);}
+.c-ms-trigger.open .c-ms-chevron{transform:rotate(180deg);}
+.c-ms-panel{position:static; margin-top:var(--spacing-8); width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+.c-ms-list{max-height:320px; overflow-y:auto; padding:var(--spacing-8) 0;}
+.c-ms-divider{height:1px; background:var(--color-neutral-3); margin:var(--spacing-8) 0;}
+.c-ms-group{padding:var(--spacing-4) var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-ms-row{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+.c-ms-row:hover{background:var(--color-neutral-2);}
+.c-ms-checkbox{flex:none; width:18px; height:18px; border-radius:6px; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; font-size:12px;}
+.c-ms-checkbox.checked{border:none; background:var(--color-obsidian);}
+.c-ms-row-label{font-family:var(--font-primary); font-size:var(--text-body1-size); font-weight:var(--text-body1-weight); color:var(--color-neutral-9);}
+.c-ms-footer{display:flex; justify-content:space-between; gap:var(--spacing-8); padding:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+.c-ms-footer button{height:32px; padding:0 var(--spacing-12); border:none; border-radius:var(--radius-sm); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:var(--text-label2-weight); cursor:pointer;}
+.c-ms-footer .clear{background:transparent; color:var(--color-neutral-9);}
+.c-ms-footer .clear:hover{background:var(--color-neutral-2);}
+.c-ms-footer .done{background:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-ms-footer .done:hover{background:var(--color-neutral-8);}
+
+/* UserPicker — v0.9.2, designed not transcribed
+   Collapsed row and the search input box share Input field's own
+   anatomy (40px height, radius-sm, 1px Neutral-3 border) so the two
+   states don't change footprint. Search focus is a 2px Obsidian
+   border swap, matching Input field's actual documented behavior, not
+   the Water shadow-focus ring. Dropdown reuses Filters'/Date picker's
+   popover convention (radius-md, 1px Neutral-3 border, shadow-3, 8px
+   below the trigger) and Table row's Neutral-2 hover. Avatar initials
+   use --font-primary, same as every other piece of text in the
+   component. The dropdown is shown as a normal in-flow block here (not
+   absolutely positioned/toggled), same "permanently visible for
+   reference" treatment as Date picker's panel above. */
+.c-userpicker{max-width:320px;}
+.c-userpicker-collapsed{display:flex; align-items:center; gap:var(--spacing-12); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); cursor:pointer;}
+.c-userpicker-avatar{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700;}
+.c-userpicker-text{display:flex; flex-direction:column; min-width:0; flex:1;}
+.c-userpicker-name{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-userpicker-role{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-userpicker-clear{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+.c-userpicker-clear:hover{background:var(--color-neutral-2);}
+.c-userpicker-input-wrap{display:flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+.c-userpicker-input-wrap.focused{border:2px solid var(--color-obsidian); padding:0 11px;}
+.c-userpicker-input-wrap i{flex:none; font-size:16px; color:var(--color-neutral-5);}
+.c-userpicker-input-wrap input{flex:1; min-width:0; border:none; outline:none; background:transparent; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9);}
+.c-userpicker-dropdown{margin-top:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+.c-userpicker-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+.c-userpicker-row:hover{background:var(--color-neutral-2);}
+.c-userpicker-empty{padding:var(--spacing-16); text-align:center; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+
+/* Stepper — v0.9.1, designed not transcribed
+   Horizontal: rail (indicator) and connector are direct siblings of
+   .c-stepper, each connector sharing one equal flex:1 pool — nesting a
+   connector inside each step's own div let its length depend on that
+   step's label width, which read as uneven dividers.
+   Vertical: connector is a fixed --spacing-16 length (not flex:1). The
+   rail's own `gap` (--spacing-8) holds it off the circle above, and
+   .c-stepper.vertical's `gap` (also --spacing-8) holds equal space
+   before the circle below — same value on both sides so the divider
+   never touches either neighboring step, and every step stays evenly
+   spaced regardless of description line count. */
+.c-stepper{display:flex; align-items:flex-start;}
+.c-stepper.vertical{flex-direction:column; gap:var(--spacing-8);}
+.c-step{display:flex; flex:none;}
+.c-stepper:not(.vertical) .c-step{flex-direction:column; align-items:center; gap:var(--spacing-8);}
+.c-stepper.vertical .c-step{gap:var(--spacing-12);}
+.c-step-rail{display:flex; flex-direction:column; align-items:center;}
+.c-stepper.vertical .c-step-rail{gap:var(--spacing-8);}
+.c-step-indicator{flex:none; width:24px; height:24px; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:var(--text-label1-weight);}
+.c-step-indicator.completed{background:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-step-indicator.active{background:var(--color-neutral-1); border:2px solid var(--color-obsidian); color:var(--color-obsidian);}
+.c-step-indicator.upcoming{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5);}
+.c-step-connector{background:var(--color-neutral-3); flex:none;}
+.c-stepper:not(.vertical) .c-step-connector{flex:1; height:1px; margin-top:12px;}
+.c-stepper.vertical .c-step-connector{width:1px; height:var(--spacing-16);}
+.c-step-text{display:flex; flex-direction:column; gap:var(--spacing-4);}
+.c-stepper:not(.vertical) .c-step-text{text-align:center;}
+.c-step-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+.c-step-label.active{font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+.c-step-label.completed, .c-step-label.upcoming{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+.c-step-desc{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+
+/* PageHeader — v0.8.3, designed not transcribed */
+.c-pageheader{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-pageheader h1{margin:0; font-family:var(--font-primary); font-weight:var(--text-h1-weight); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); letter-spacing:var(--text-h1-tracking); color:var(--color-neutral-9);}
+.c-pageheader .sub{margin:0; font-family:var(--font-primary); font-weight:var(--text-body1-weight); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); color:var(--color-neutral-5);}
 
