@@ -141,7 +141,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.7-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.8-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -289,4 +289,12 @@ columns once boxes contain text — needed `repeat(4, minmax(0, 1fr))` to
 stop one box's content from inflating its own column past its fair
 share. `.c-stats`'s own `auto-fit` grid predates this rule and wasn't
 migrated onto it — flagged as an open inconsistency, not silently
-fixed. See changelog at the bottom of DESIGN-SYSTEM.md.
+fixed. **v0.9.8 (2026-08-05) reserved "Level 2" as a named placeholder**
+for a future drill-down/detail-screen layout (Back control + breadcrumb)
+in App Shell's Page header subsection — deliberately not specced yet,
+deferred until a real detail-view build exists to design against.
+Documents the trigger for writing it (before the first real drill-down
+screen ships, not after) and its intended relationship to App Shell
+(extends it, same pattern as Main nav to SidebarNav). Docs-only —
+`components.css`/`preview.html` unaffected, their stamps unchanged this
+round. See changelog at the bottom of DESIGN-SYSTEM.md.

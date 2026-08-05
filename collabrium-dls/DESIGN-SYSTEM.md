@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.7-draft** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.8-draft** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -935,6 +935,23 @@ the shell has, not a block nested below a separate bar.
 | Subtitle | body2, Neutral-5, directly below the title |
 | Actions / CTAs | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — a period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control. Zero, one, or several CTAs are all valid; the row simply collapses when empty |
 | Gap to content below | `--section-gap` (48px) |
+
+⚠️ **Reserved, added 2026-08-05, not yet specced:** everything above is
+Level 1 — the shared outer frame (Sidebar, Content region, Page header)
+every screen gets. A **Level 2** exists conceptually for
+drill-down/detail screens — a Back control and breadcrumb replacing or
+augmenting Page header's plain title/subtitle once a user navigates
+into a specific record — but has no rules yet. Deliberately deferred:
+guessing Back/breadcrumb behavior with no real detail-view build to
+react against risks the same fate as App Shell's own first-draft flush-
+rail nav variant (plausible, wrong, undone later). **Trigger to actually
+write it: the moment a team is about to build the first real drill-down
+screen, before they build it** — not after divergent builds show up, or
+this section will have recreated the exact "N teams, N answers" problem
+App Shell itself exists to close, just one level deeper. When written,
+Level 2 extends this section (same relationship Main nav has to
+SidebarNav — a use of the existing frame, not a second one) rather than
+replacing it.
 
 **Do:** let Sidebar own primary navigation and its own Header/Footer
 slots — there's no second nav surface to reach for. Keep the whole
@@ -2087,6 +2104,22 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.8-draft — 2026-08-05** — Reserved "Level 2" as a named,
+  documented placeholder for a future drill-down/detail-screen layout
+  (Back control + breadcrumb), added to Page header's subsection.
+  Explicitly NOT specced yet — deliberately deferred until a real
+  detail-view build exists to design against, rather than guessed at
+  cold (App Shell's own first-draft flush-rail nav variant is the
+  cautionary example for guessing composition rules with nothing real
+  to react against). Documents the trigger for actually writing it —
+  before the first real drill-down screen ships, not after divergent
+  builds show up — and the intended relationship to this section
+  (extends App Shell, doesn't replace it, same pattern as Main nav's
+  relationship to SidebarNav). No CSS/markup changes — `components.css`
+  and `preview.html`'s embedded copies are unaffected, so their own
+  version stamps aren't bumped this round (same precedent as
+  `tokens.css` lagging behind when its actual content hasn't changed).
 
 - **v0.9.7-draft — 2026-08-05** — New App Shell / Content region layout
   rule: a formal box grid, requested directly rather than reverse-
