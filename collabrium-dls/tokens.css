@@ -1,23 +1,12 @@
 /*
-  Collabrium Design Tokens — v0.9.1-draft
+  Collabrium Design Tokens
   Generated from DESIGN-SYSTEM.md in this folder. That file is the source
   of truth — this file is a mechanical, paste-able rendering of its
   tables as CSS custom properties. Re-generate by hand whenever
-  DESIGN-SYSTEM.md's token tables change, and bump the version comment.
+  DESIGN-SYSTEM.md's token tables change — diff against its token tables
+  directly if in doubt, don't trust this file to self-report staleness.
 
-  Re-confirmed current as of v0.9.1-draft (2026-08-04) — this header had
-  been silently stuck at v0.6.0 since then. No token *values* had
-  actually drifted (spacing/radius/elevation/motion/color tables haven't
-  changed since v0.6.0), but nothing forced this stamp to be checked, so
-  don't trust it to self-report staleness next time either — diff
-  against DESIGN-SYSTEM.md's token tables directly if in doubt.
-
-  Spacing, radius, typography, elevation, and motion values below were
-  corrected in v0.6.0 against a teammate's independent, more thorough
-  extraction of the same source deck (uploads/[KULT][EXT] Collabrium
-  DLS.pptx) — see DESIGN-SYSTEM.md's Needs Input table and Changelog for
-  what changed and why. Color values were already correct (cross-checked
-  and confirmed, not changed).
+  See DESIGN-SYSTEM.md's Changelog for what changed and why.
 */
 
 :root {
@@ -47,9 +36,9 @@
   --color-neutral-2: #f0f0f0;
   --color-neutral-1: #ffffff;
 
-  /* Warm canvas — brand/editorial surfaces (decks, landing pages, specimens).
-     Product UI stays on white (--color-neutral-1); this is a deliberate
-     second surface, not a dark-mode-style global swap. Added v0.6.0. */
+  /* Warm canvas — the default page canvas everywhere, product and
+     brand/editorial alike. Component fills (cards, inputs, etc.) keep
+     their own documented values, mostly --color-neutral-1 white. */
   --color-canvas-warm: #FCFAF5;
   --color-canvas-warm-card: #FAF7F2;
 
@@ -57,7 +46,7 @@
      A surface may take a background colour, but only the lightest shade
      of the element that already owns that content (8% element on white,
      16% for a nested/hovered layer). Never a mid or full-strength
-     element colour as a fill. Added v0.6.0. */
+     element colour as a fill. */
   --color-fire-bg: #FFEEE9;        --color-fire-bg-strong: #FFDED3;
   --color-earth-bg: #E6F9F1;       --color-earth-bg-strong: #CDF3E2;
   --color-water-bg: #E8F1FD;       --color-water-bg-strong: #D0E3FB;
@@ -74,8 +63,7 @@
   --weight-extrabold: 800;  --weight-black: 900;
 
   /* Type scale: size / line-height / weight / letter-spacing.
-     Corrected v0.6.0 — headings are 800 ExtraBold at letter-spacing 0
-     (not 600 with negative tracking, as originally guessed). "sm" size
+     Headings are 800 ExtraBold at letter-spacing 0. "sm" size
      is the default; a "-lg" variant is provided for >=1280px viewports,
      per the source deck's responsive scale. */
   --text-display-size: 40px;   --text-display-lh: 56px; --text-display-weight: 800; --text-display-tracking: 0;
@@ -103,7 +91,7 @@
 
   --tracking-eyebrow: 0.12em; /* uppercase kickers/eyebrows only */
 
-  /* Spacing — corrected v0.6.0. Value-named to match the source scale
+  /* Spacing — value-named to match the source scale
      exactly (base unit 4px: 4·8·12·16·20·24·32·40·48·60·120). */
   --spacing-4: 4px;
   --spacing-8: 8px;
@@ -124,9 +112,9 @@
   --page-gutter: var(--spacing-32);
   --content-max-width: 1200px; /* reading-width content only (forms/settings), not full-bleed dashboard layouts */
 
-  /* Radius — corrected v0.6.0. Was a flat 4/8/12px guess; the source
+  /* Radius — the source
      deck specifies radius per surface, not a single scale. Kept as a
-     3-tier + pill system for simplicity, with values now matching real
+     3-tier + pill system for simplicity, with values matching real
      per-surface targets: sm = inputs/small buttons/icon buttons (12px,
      exactly matches source radius-input and radius-button-sm), md =
      standard buttons (16px, matches source radius-button), lg =
@@ -138,8 +126,7 @@
   --radius-pill: 999px;
   --radius-link: 32px; /* link-styled pill CTAs — distinct from radius-pill's badge/avatar use */
 
-  /* Elevation — corrected v0.6.0. Was "flat by default, one black-tinted
-     modal shadow"; the source deck specifies a real shadow ladder, all
+  /* Elevation — the source deck specifies a real shadow ladder, all
      built on Neutral-4 (soft grey), never black. Cards/dialogs use
      these regularly, not as an exception. */
   --shadow-hairline: 0 0 0 1px var(--color-neutral-3);
@@ -152,7 +139,7 @@
   --shadow-overlay: rgba(8, 8, 8, .56); /* modal scrim */
   --shadow-modal: var(--shadow-4); /* alias kept for backward compatibility */
 
-  /* Motion — new in v0.6.0, previously undocumented. "Movement settles;
+  /* Motion — "Movement settles;
      it never bounces." One easing curve per element, used for motion
      that's thematically tied to that element (e.g. a Water-owned panel
      transitions with --ease-flow); --ease-standard is the default for

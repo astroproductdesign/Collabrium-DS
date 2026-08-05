@@ -10,7 +10,7 @@ detail, rationale, and open gaps live in `DESIGN-SYSTEM.md` in this same
 folder — read it before building anything beyond a trivial mockup.
 Paste-able CSS custom properties are in `tokens.css`; the actual
 component CSS (every `.c-btn`/`.c-card`/`.c-badge`/etc. rule) is in
-`components.css` — added 2026-08-04, this is the real portable copy,
+`components.css` — this is the real portable copy,
 not `preview.html`'s markup alone. **To use this system in another
 project, you need both files plus the Phosphor Icons and Google Fonts
 `<link>` tags** — see DESIGN-SYSTEM.md's Technical Implementation
@@ -38,29 +38,34 @@ installable variable-font files for both typefaces (sourced from
 Google's official repo, not the web-embed subsets) — point people there
 instead of them hunting Google Fonts themselves. `preview.html` also has
 a live **Components** section — the 7 basics (Button, Input, Card,
-Badge & Tag, Table row, Modal, Empty state), 10 more added in v0.7.0 and
+Badge & Tag, Table row, Modal, Empty state), 10 more
 transcribed from the teammate's real component source (SidebarNav,
 Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable,
-ElementBadge), 4 more **designed from scratch in v0.8.0** (Stat/KPI
+ElementBadge), 4 more **designed from scratch** (Stat/KPI
 card, Filters, Pagination, Date picker, flagged red in the gallery)
 plus a Chart color mapping guideline, 4 more folded into Button/Input
-field on 2026-08-03 (Button's Icon-only variant, plus Input field's
-Textarea/Password field/Search input clear button siblings), and —
-**this pass, v0.9.0** — **App Shell**, the page-level composition layer
+field (Button's Icon-only variant, plus Input field's
+Textarea/Password field/Search input clear button siblings), and
+**App Shell**, the page-level composition layer
 (Sidebar placement, Content region, Page header — no separate Top bar,
 Page header is the shell's only top-of-screen chrome) covering how
 everything else actually gets framed into a real screen. Each has
 copy-able markup. Use it as the reference implementation when building
-real screens, not just the spec tables. The v0.8.0 batch and App Shell
+real screens, not just the spec tables. The Stat/KPI card batch and App Shell
 have no source in either the brand deck or the teammate's build, so
 treat them as more provisional than everything transcribed above them —
 a first design pass, not yet reviewed.
 
 **Standing rule:** any change to this skill's files (preview.html,
 logo.html, logo-lockups/, tokens.css, components.css, SVG/, fonts/, new
-components) must be reflected back into `DESIGN-SYSTEM.md` — content,
-version bump, changelog entry — in the same pass, not as a follow-up.
-A new or changed component needs the matching edit in **both**
+components) must be reflected back into `DESIGN-SYSTEM.md` in the same
+pass, not as a follow-up: update the relevant spec section to describe
+the **current state only**, and add a dated entry to `DESIGN-SYSTEM.md`'s
+Changelog section describing what changed and why. Don't inline version
+numbers, dates, or "added/changed/corrected on [date]" language into a
+spec section itself — that information belongs in the Changelog, not
+scattered through the spec (see the Changelog's own note on this). A new
+or changed component needs the matching edit in **both**
 `preview.html` (live demo) **and** `components.css` (the portable
 copy) — they must never diverge from each other any more than either
 may diverge from `DESIGN-SYSTEM.md`.
@@ -68,7 +73,7 @@ may diverge from `DESIGN-SYSTEM.md`.
 **Reference point:** `~/Desktop/Collabrium Design System/` is a second,
 independently built Collabrium system from the same source deck, with
 production React components, an app UI kit, and deck templates this
-skill doesn't have. As of v0.6.0 the token values here were reconciled
+skill doesn't have. The token values here were reconciled
 against it — see DESIGN-SYSTEM.md's Reconciliation section for exactly
 what changed and why before treating either system as more current.
 
@@ -95,7 +100,7 @@ over mechanical ones (sync, deploy, restore).
 - **Primary action color:** Obsidian `#2B2B2C` — all main CTA buttons.
 - **Neutrals:** `#080808` (primary text) → `#ffffff` (canvas), full 9-step
   ramp in DESIGN-SYSTEM.md. Plus **warm canvas** (`#FCFAF5`/`#FAF7F2`) —
-  ⚠️ **now the default page background everywhere as of 2026-08-03**,
+  **the default page background everywhere**,
   product UI included, not just brand/editorial. Component fills (cards,
   inputs, sidebar) keep their own documented values, mostly `Neutral-1`
   white, which now reads as a deliberate figure-ground contrast against
@@ -141,160 +146,8 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.8-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
-Slides). Component specs and rules added in v0.2.0; letter-spacing,
-elevation policy, a consolidated Guidelines list, and tokens.css added in
-v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
-`preview.html` added in v0.4.0; `preview.html` rebuilt again in v0.4.1 into
-a two-pane layout; the `SVG/` vector source library documented in v0.4.2;
-`logo.html`'s label/play-pause UI stripped in v0.4.3; a real installable
-`fonts/` pack in v0.4.4; the Fonts tab compacted in v0.4.5; a live
-Components section added in v0.5.0; radius, elevation, typography, and
-spacing corrected — and warm canvas, elemental tints, and motion added —
-in v0.6.0, reconciled against a teammate's independent build of the same
-deck; two errors from that reconciliation (Button type size, Card
-icon-chip tint) caught on re-verification and fixed in v0.6.1; 10 more
-component specs (SidebarNav, Tabs, Select, Checkbox, Radio, Switch,
-Toast, Tooltip, DataTable, ElementBadge) transcribed from the teammate's
-real source and live-rendered in `preview.html` in v0.7.0, bringing the
-total to 17 built components; **the last 5 dashboard components (Stat/KPI
-card, Filters, Pagination, Date picker, Chart color mapping) specced and
-mostly live-rendered in v0.8.0 (2026-07-30)** — unlike everything before
-them, these have no source in either the brand deck or the teammate's
-build, so they're designed from this system's own tokens and flagged
-provisional until a real design/brand review, bringing the total to 21
-components plus 1 guideline; **Badge's missing `white-space: nowrap`
-caught in v0.8.1 (2026-07-30)** after it broke in a separate team's
-Sales Dashboard build — Switch and Select's equivalent bugs in that
-build turned out to be unique to their own reimplementation, not this
-system's, so only Badge needed a fix here; **the whole gallery went
-from static markup to genuinely interactive in v0.8.2 (2026-07-30)** —
-nav items, tabs, checkboxes/radios/switches, table row selection,
-toast/modal dismiss, filters, pagination, and date-picker day selection
-all actually respond to input now; **a combined static logo lockup
-(`logo-lockups/collabrium-default-logo.svg`) added 2026-07-31**, the new default mark for
-any context that can't run `logo.html`'s animation — further resolving
-Needs Input #8; **`logo.html` rebuilt on a new font and its animation
-trimmed from 9 frames to a fixed 5-frame Gold→Water→Wood→Fire→Earth
-sequence, also 2026-07-31** — the new font resolved the `#2B2B2C` vs
-`#2F2F2F` ink-color discrepancy against the static lockup (both now
-`#2B2B2C`), and `coin.svg` is now confirmed as the Gold frame's artwork,
-replacing `gold.svg` there (`gold.svg` itself is unchanged and still
-used elsewhere in this system). Still open: the other 4
-department-colored lockup variants (Fire, Wood, Water, Earth) don't
-exist yet; **four more changes landed 2026-08-03 without a version bump
-at the time — folded into v0.8.3-draft retroactively**: Warm canvas
-became the default page background everywhere (previously
-brand/editorial only), Button gained an Icon-only variant, Input field
-gained a Focus-state correction (plain Obsidian border, not the
-Water-ring the v0.6.0 policy implied — the shipped component never
-actually used it), and three Input field siblings (Textarea, Password
-field, Search input clear button) were specced and live-rendered; **App
-Shell added in v0.9.0 (2026-08-04)** — real downstream builds on this
-system had produced three different navigation shells (pure sidebar,
-top-bar-only, sidebar-and-top-bar) plus a Card chrome deviation and a
-Badge semantics miss, not because the existing component tables were
-wrong but because nothing defined how they compose into an actual page.
-App Shell is that composition layer: a flush full-height placement
-variant of SidebarNav (240px, no radius, right-edge border only — the
-existing `radius-lg`/4-sided-border SidebarNav spec is now documented as
-the floating-panel/off-canvas variant, not the primary rail), Content
-region, and Page header — promoted, in a same-day revision within this
-same draft, to be the shell's *only* top-of-screen chrome (full width,
-right-aligned CTA capability) after an initially-drafted separate Top
-bar was cut before shipping. Global-scope controls (notifications,
-account) have nowhere defined to live as a result — an acknowledged
-open gap, revisit if the product actually needs them. All built from
-already-existing tokens, no new spacing/radius/elevation/motion values
-introduced. Also corrected in this pass:
-the Components section's own scope note had undercounted for a full day
-(missing the four 2026-08-03 additions) — exactly the kind of drift App
-Shell exists to prevent, caught here as a reminder to keep it current
-going forward; **v0.9.1 (2026-08-04) audited all 5 places this system's
-content gets duplicated** (SKILL.md, DESIGN-SYSTEM.md, and preview.html's
-3 embedded copies — markdown, CSS Variables, Tailwind v4, Design Tokens
-JSON) against their real sources instead of assuming the doc-sync rule
-had held. The markdown and CSS Variables copies were exactly in sync;
-`tokens.css` and the JSON export both carried a stale `v0.6.0-draft`
-stamp despite correct values; the Tailwind v4 mapping had a real gap —
-only 59 of 162 actual tokens.css tokens were mapped, missing the entire
-typography scale, icon sizes, several shadow variants, and the semantic
-spacing aliases — traced to a token-counting script that silently
-undercounted tokens.css as 101 instead of 162 (it only saw the first of
-several `--token: value;` declarations packed on a single line).
-Rebuilt the mapping from a corrected extraction, verified
-programmatically at 162/162 with zero missing and zero orphaned. This
-doesn't fix the larger, separate problem a teammate hit applying the
-system to an existing project — the actual component CSS has never been
-extracted into anything portable, and the icon/font CDN links aren't
-documented as a requirement — only the token-layer piece of it;
-**v0.9.2 (2026-08-04) simplified App Shell's main nav** — the v0.9.0
-"flush rail" placement variant (no radius, right-edge border only) is
-gone. The main nav is now SidebarNav completely unmodified — same
-width/radius/border/fill/anatomy — just inset `spacing-16` (16px) from
-the viewport's top/left/bottom edges instead of flush, at height
-`calc(100dvh - 32px)`, so its rounded corners render cleanly instead of
-clipping against the browser edge. One component, one spec, in two
-placement contexts, instead of a second divergent spec to keep in sync;
-**v0.9.3 (2026-08-04) added an explicit scope rule to App Shell** — it
-governs structure and layout only, never a component's own style — and
-fixed the one real violation an audit against that rule turned up: the
-Locked/"Soon" nav-item state (fill, text color, icon opacity, cursor, a
-Badge) had been defined inside App Shell instead of SidebarNav; it's
-now a third `Nav item` row in SidebarNav's own table. Also trimmed two
-places that redundantly restated `Canvas warm`'s hex value instead of
-referencing the token; **v0.9.4 (2026-08-04) added `components.css`** —
-the real portable copy of every component's CSS, extracted from
-`preview.html`'s own inline styles after a teammate's integration
-attempt broke on missing colors/pills/icons. `preview.html` now links
-it instead of duplicating a private copy. Also fixed a real bug the
-extraction surfaced: the shared 36×36 icon-chip pattern was scoped to
-`.c-card .icon-chip` only, so it had rendered completely unstyled
-everywhere else it's documented to work (every Stat card, since
-v0.8.0) — unscoped to plain `.icon-chip`. Resolved the practical half
-of long-open Needs Input #10 with a real integration guide instead of
-a placeholder. **v0.9.5 (2026-08-05) re-synced App Shell's Main nav to
-SidebarNav** after an external merge (a teammate's `component-sidenav`
-PR) gave SidebarNav a collapsible rail, logo swap, and second-level
-accordion, but only inside `preview.html`'s inline styles —
-`components.css` never got them, reopening the exact portability gap
-v0.9.4 closed. Ported the missing CSS, rebuilt App Shell's own nav demo
-(which had gone stale, still showing the pre-collapsible markup — a
-real violation of the "no properties overridden" rule from v0.9.2), and
-fixed a placement-CSS conflict where App Shell's hardcoded `flex: 0 0
-240px` fought the collapsed 72px width; targets the `.c-sidebar-shell`
-wrapper with `flex: 0 0 auto` instead, verified live in-browser.
-Also cleaned up a stale duplicate `comp-sidebarnav` gallery block and a
-leftover code comment describing the long-dropped "flush rail" variant
-— both merge artifacts. Not done in this pass: a duplicate `comp-tabs`
-block from the same merge, and the larger re-sync `DESIGN-SYSTEM.md`
-now needs against `preview.html`'s embedded markdown copies, which
-drifted during the same external merge. **v0.9.6 (2026-08-05) baked
-"Canvas warm everywhere" into App Shell's actual CSS** — the rule had
-been documented since v0.6.0 but never enforced, so a screen only got
-it if someone remembered to set it by hand. Added `background:
-var(--color-canvas-warm)` directly to `.c-shell` in `components.css`,
-still referencing the token rather than the hex, verified live to
-resolve to `#FCFAF5` with zero page-level CSS from the consuming
-project. **v0.9.7 (2026-08-05) added a formal box grid to App Shell's
-Content region** — a 4-column spannable grid (`.c-shell-grid` +
-`.c-shell-span-1`–`-4` in `components.css`): a box's width is always a
-whole 1/2/3/4-column span, boxes of different spans can share a row,
-every box in a row stretches to the tallest box's height (free from CSS
-Grid's `align-items: stretch`), and rows get a new fixed spacing-24
-gap between them (horizontal Column gap stays the existing
-spacing-16–20 range, untouched). Caught a real bug during live
-verification: a bare `repeat(4, 1fr)` doesn't actually produce 4 equal
-columns once boxes contain text — needed `repeat(4, minmax(0, 1fr))` to
-stop one box's content from inflating its own column past its fair
-share. `.c-stats`'s own `auto-fit` grid predates this rule and wasn't
-migrated onto it — flagged as an open inconsistency, not silently
-fixed. **v0.9.8 (2026-08-05) reserved "Level 2" as a named placeholder**
-for a future drill-down/detail-screen layout (Back control + breadcrumb)
-in App Shell's Page header subsection — deliberately not specced yet,
-deferred until a real detail-view build exists to design against.
-Documents the trigger for writing it (before the first real drill-down
-screen ships, not after) and its intended relationship to App Shell
-(extends it, same pattern as Main nav to SidebarNav). Docs-only —
-`components.css`/`preview.html` unaffected, their stamps unchanged this
-round. See changelog at the bottom of DESIGN-SYSTEM.md.
+Drafted from the Collabrium brand deck (Google Slides); token values
+reconciled against a teammate's independent build of the same deck.
+Full version history lives in `DESIGN-SYSTEM.md`'s Changelog section —
+also browsable as its own page in `preview.html` via the Changelog
+button next to the version flag in the top bar.

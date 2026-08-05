@@ -1,17 +1,17 @@
 /*
-  Collabrium Component CSS — v0.9.7-draft
+  Collabrium Component CSS
 
   Every real component's CSS rules (Button, Input field, Card, Badge &
   Tag, Table row, Modal, Empty state, SidebarNav, App Shell layout,
   Tabs, Select, Checkbox/Radio/Switch, Toast, Tooltip, DataTable,
   ElementBadge, Stat/KPI card, Filters, Pagination, Date picker, Chart
-  color mapping) — extracted from preview.html's own inline <style> on
-  2026-08-04, where it had lived since v0.5.0 with no separate,
-  importable copy. That was the root cause of a real integration bug:
-  copying markup out of preview.html's "Copy markup" buttons produced
-  class names with no CSS behind them anywhere in a consuming project,
-  so colors/pills/spacing/state styling didn't render at all outside
-  this file.
+  color mapping, FileUploader, MultiSelect, UserPicker, Stepper,
+  PageHeader). This is the portable copy — preview.html's own inline
+  <style> never duplicates it. See DESIGN-SYSTEM.md's Changelog for why
+  that separation matters: copying markup out of preview.html's "Copy
+  markup" buttons used to produce class names with no CSS behind them
+  anywhere in a consuming project, so colors/pills/spacing/state
+  styling didn't render at all outside this file.
 
   This file is the actual reference implementation now — preview.html
   links to it (`<link rel="stylesheet" href="components.css">`) instead
@@ -117,11 +117,9 @@
 .c-card-header{display:flex; align-items:flex-start; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
 /* Shared 36×36 icon-chip pattern — DESIGN-SYSTEM.md documents this as
    one pattern reused by Card's header AND Stat/KPI card's icon slot
-   (and App Shell's demo, which reuses Stat card). Was wrongly scoped
-   to ".c-card .icon-chip" until 2026-08-04, so it rendered completely
-   unstyled anywhere used outside a Card — e.g. every Stat card icon
-   in this gallery. Unscoped so it works everywhere the spec says it
-   should. */
+   (and App Shell's demo, which reuses Stat card). Scoped to plain
+   ".icon-chip" (not ".c-card .icon-chip") so it works everywhere the
+   spec says it should, not just inside a Card. */
 .icon-chip{display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:var(--radius-sm); background:color-mix(in srgb, var(--color-navy) 12%, transparent); color:var(--color-navy); flex:none;}
 .c-card-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
 .c-card h4{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
@@ -162,16 +160,7 @@
 .c-empty h4{margin:0; color:var(--color-neutral-9); font-size:var(--text-h4-size); font-weight:var(--text-h4-weight);}
 .c-empty p{margin:0; max-width:380px; font-size:var(--text-body1-size); font-weight:var(--text-body1-weight);}
 
-/* SidebarNav — v0.7.0, collapsible state + second-level nav added
-   2026-08-04. This block was previously narrower than preview.html's
-   own inline copy (missing the collapsible rail, logo swap, toggle,
-   dividers, hover-label, and second-level accordion entirely) — a
-   teammate's PR added all of that straight to preview.html's <style>
-   without ever porting it here, the same portability gap v0.9.4-draft
-   existed to close. Ported to match exactly; see "Using this system
-   in an existing project" in DESIGN-SYSTEM.md for why this file has
-   to carry every real rule, not just the ones from this repo's own
-   history. */
+/* SidebarNav */
 .c-sidebar-shell{position:relative; display:inline-block;} /* wraps nav + toggle so the toggle can live outside .c-sidebar's own clip, see .c-sidebar-toggle below */
 .c-sidebar{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow-x:clip; transition:width var(--duration-slow) var(--ease-standard);}
 .c-sidebar.is-collapsed{width:72px;} /* one-off literal, not a spacing token — see DESIGN-SYSTEM.md's Collapsible state row */
@@ -265,7 +254,7 @@
 .c-nav-child:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
 .c-nav-child.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
 
-/* App Shell — v0.9.2, designed not sourced. Structure/layout only —
+/* App Shell — designed not sourced. Structure/layout only —
    placement, size, spacing. Never restates a component's own style;
    main nav below is SidebarNav's .c-sidebar completely unmodified,
    just inset from the shell's edges via margin instead of centered on
@@ -386,7 +375,7 @@
 .c-elbadge .text .name{display:block; font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-9);}
 .c-elbadge .text .fn{display:block; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
 
-/* Stat / KPI card — v0.8.0, designed not transcribed */
+/* Stat / KPI card — designed not transcribed */
 .c-stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--spacing-16);}
 .c-stat{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8);}
 .c-stat-top{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-12);}
@@ -400,7 +389,7 @@
 .c-stat-trend .period{color:var(--color-neutral-5); font-weight:400;}
 .c-stat-footer{margin-top:var(--spacing-8); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
 
-/* Filters — v0.8.0, designed not transcribed */
+/* Filters — designed not transcribed */
 .c-filterbar{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8);}
 .c-filter-search{display:flex; align-items:center; gap:6px; height:32px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); color:var(--color-neutral-5); font-size:var(--text-body2-size);}
 .c-filter-search input{border:0; outline:none; background:transparent; font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); width:120px;}
@@ -411,7 +400,7 @@
 .c-filter-pill i{cursor:pointer; color:var(--color-neutral-5); font-size:12px;}
 .c-filter-clear{background:none; border:0; color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
 
-/* Pagination — v0.8.0, designed not transcribed */
+/* Pagination — designed not transcribed */
 .c-pagination{display:flex; align-items:center; justify-content:space-between; padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
 .c-pagination .count{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
 .c-page-controls{display:flex; align-items:center; gap:4px;}
@@ -421,7 +410,7 @@
 .c-page-btn:disabled{color:var(--color-neutral-4); cursor:not-allowed; background:transparent;}
 .c-page-ellipsis{width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:var(--color-neutral-5); font-size:var(--text-caption-size);}
 
-/* Date picker — v0.8.0, designed not transcribed */
+/* Date picker — designed not transcribed */
 .c-dp-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body1-size); font-weight:500;}
 .c-dp-trigger i{color:var(--color-neutral-5);}
 .c-dp-panel{width:280px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); background:var(--color-neutral-1); padding:var(--spacing-16);}
@@ -439,10 +428,154 @@
 .c-dp-day.disabled{color:var(--color-neutral-4); cursor:not-allowed;}
 .c-dp-day.disabled:hover{background:transparent;}
 
-/* Chart color mapping — v0.8.0, guideline reference, not a rendered component */
+/* Chart color mapping — guideline reference, not a rendered component */
 .c-chartmap-row{display:flex; align-items:center; gap:var(--spacing-8); flex-wrap:wrap; margin-bottom:var(--spacing-16);}
 .c-chartmap-row:last-child{margin-bottom:0;}
 .c-chartmap-label{width:180px; flex:none; font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
 .c-chartmap-swatch{width:28px; height:20px; border-radius:4px; flex:none;}
 .c-chartmap-ramp{flex:1; min-width:160px; height:20px; border-radius:4px;}
+
+/* FileUploader — designed not transcribed
+   Drag-over reuses the Obsidian-border + Neutral-2-fill recipe this
+   system already uses for "currently engaged" states (Table row
+   selected, SidebarNav active) — there's no Obsidian tint token to
+   invent a new background from. Kind badge reuses Badge-Neutral's box
+   model (22px, radius-pill, Neutral-2/Neutral-3), --font-primary same
+   as every other piece of text in the component. File rows reuse the
+   Filters/Date picker "panel" recipe (Neutral-1 fill, 1px Neutral-3
+   border), not Neutral-2, so the remove button's hover stays visually
+   distinct against the row. */
+.c-uploader{display:flex; flex-direction:column; gap:var(--spacing-12); max-width:360px;}
+.c-uploader-zone{cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:var(--spacing-8); padding:var(--spacing-24); text-align:center; border-radius:var(--radius-lg); border:1px dashed var(--color-neutral-3); background:var(--color-neutral-1);}
+.c-uploader-zone.dragover{border:2px dashed var(--color-obsidian); background:var(--color-neutral-2);}
+.c-uploader-zone i{font-size:20px; color:var(--color-neutral-5);}
+.c-uploader-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-5);}
+.c-uploader-hint{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-uploader-files{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-uploader-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+.c-uploader-kind{flex:none; height:22px; display:inline-flex; align-items:center; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
+.c-uploader-name{flex:1; min-width:0; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-uploader-size{flex:none; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-uploader-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+.c-uploader-remove:hover{background:var(--color-neutral-2);}
+
+/* MultiSelect — designed not transcribed (supersedes an
+   earlier single-select DropdownMenuWithSelection draft on this same
+   file — replaced per explicit user direction)
+   Trigger default matches Button Secondary exactly (Neutral-1 fill,
+   1px Neutral-3 border, shadow-1, radius-md, md size). Has-Selection's
+   border swaps to 1px Obsidian, the same "holds a value" recipe
+   Filters' own Filter trigger — active state uses. Has selection shows
+   one Badge-Neutral chip per selected option's label (capped at 2,
+   then a "+N" overflow chip) instead of the placeholder, built on
+   Badge's real box model (22px, spacing-8 padding, radius-pill,
+   caption/700, nowrap, 1px border) rather than an ad-hoc chip — and
+   stays shown while open too, so the user can see what's active while
+   browsing the checklist. Each visible chip has its own 14px × to
+   remove just that option; the overflow "+N" chip has no × since it
+   doesn't represent one single, removable option. Open is 2px Obsidian
+   with padding reduced 1px/side to compensate, the same
+   swap-and-compensate pattern Input field's focus state uses. Dropdown
+   panel reuses Filters'/Date picker's popover convention (radius-md,
+   1px Neutral-3 border, shadow-3). Group labels reuse SidebarNav's own
+   Section label recipe (caption/700/tracking-eyebrow/uppercase/
+   Neutral-5), --font-primary same as every other piece of text in the
+   component. Checkbox rows reuse this system's own Checkbox component spec
+   exactly (18×18px, 6px radius, Obsidian border+fill when checked).
+   Footer reuses Button's Ghost/Primary variants at sm size with
+   Modal footer's divider convention. */
+.c-ms{position:relative; display:inline-block;}
+.c-ms-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); box-shadow:var(--shadow-1); cursor:pointer;}
+.c-ms-trigger:hover{background:var(--color-neutral-2);}
+.c-ms-trigger.has-selection{border-color:var(--color-obsidian);}
+.c-ms-trigger.open{border:2px solid var(--color-obsidian); padding:0 15px;}
+.c-ms-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--font-primary); font-size:16px; font-weight:700; color:var(--color-neutral-9);}
+.c-ms-badge{flex:none; height:22px; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-5); border:1px solid var(--color-neutral-3); display:inline-flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
+.c-ms-badge.removable{gap:4px; padding:0 4px 0 var(--spacing-8);}
+.c-ms-badge-remove{flex:none; display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border:none; background:transparent; padding:0; color:var(--color-neutral-5); cursor:pointer;}
+.c-ms-badge-remove i{font-size:10px;}
+.c-ms-clear{flex:none; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+.c-ms-chevron{flex:none; font-size:16px; color:var(--color-neutral-5); transition:transform var(--duration-fast) var(--ease-standard);}
+.c-ms-trigger.open .c-ms-chevron{transform:rotate(180deg);}
+.c-ms-panel{position:static; margin-top:var(--spacing-8); width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+.c-ms-list{max-height:320px; overflow-y:auto; padding:var(--spacing-8) 0;}
+.c-ms-divider{height:1px; background:var(--color-neutral-3); margin:var(--spacing-8) 0;}
+.c-ms-group{padding:var(--spacing-4) var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-ms-row{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+.c-ms-row:hover{background:var(--color-neutral-2);}
+.c-ms-checkbox{flex:none; width:18px; height:18px; border-radius:6px; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; font-size:12px;}
+.c-ms-checkbox.checked{border:none; background:var(--color-obsidian);}
+.c-ms-row-label{font-family:var(--font-primary); font-size:var(--text-body1-size); font-weight:var(--text-body1-weight); color:var(--color-neutral-9);}
+.c-ms-footer{display:flex; justify-content:space-between; gap:var(--spacing-8); padding:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+.c-ms-footer button{height:32px; padding:0 var(--spacing-12); border:none; border-radius:var(--radius-sm); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:var(--text-label2-weight); cursor:pointer;}
+.c-ms-footer .clear{background:transparent; color:var(--color-neutral-9);}
+.c-ms-footer .clear:hover{background:var(--color-neutral-2);}
+.c-ms-footer .done{background:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-ms-footer .done:hover{background:var(--color-neutral-8);}
+
+/* UserPicker — designed not transcribed
+   Collapsed row and the search input box share Input field's own
+   anatomy (40px height, radius-sm, 1px Neutral-3 border) so the two
+   states don't change footprint. Search focus is a 2px Obsidian
+   border swap, matching Input field's actual documented behavior, not
+   the Water shadow-focus ring. Dropdown reuses Filters'/Date picker's
+   popover convention (radius-md, 1px Neutral-3 border, shadow-3, 8px
+   below the trigger) and Table row's Neutral-2 hover. Avatar initials
+   use --font-primary, same as every other piece of text in the
+   component. The dropdown is shown as a normal in-flow block here (not
+   absolutely positioned/toggled), same "permanently visible for
+   reference" treatment as Date picker's panel above. */
+.c-userpicker{max-width:320px;}
+.c-userpicker-collapsed{display:flex; align-items:center; gap:var(--spacing-12); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); cursor:pointer;}
+.c-userpicker-avatar{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700;}
+.c-userpicker-text{display:flex; flex-direction:column; min-width:0; flex:1;}
+.c-userpicker-name{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-userpicker-role{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-userpicker-clear{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+.c-userpicker-clear:hover{background:var(--color-neutral-2);}
+.c-userpicker-input-wrap{display:flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+.c-userpicker-input-wrap.focused{border:2px solid var(--color-obsidian); padding:0 11px;}
+.c-userpicker-input-wrap i{flex:none; font-size:16px; color:var(--color-neutral-5);}
+.c-userpicker-input-wrap input{flex:1; min-width:0; border:none; outline:none; background:transparent; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9);}
+.c-userpicker-dropdown{margin-top:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+.c-userpicker-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+.c-userpicker-row:hover{background:var(--color-neutral-2);}
+.c-userpicker-empty{padding:var(--spacing-16); text-align:center; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+
+/* Stepper — designed not transcribed
+   Horizontal: rail (indicator) and connector are direct siblings of
+   .c-stepper, each connector sharing one equal flex:1 pool — nesting a
+   connector inside each step's own div let its length depend on that
+   step's label width, which read as uneven dividers.
+   Vertical: connector is a fixed --spacing-16 length (not flex:1). The
+   rail's own `gap` (--spacing-8) holds it off the circle above, and
+   .c-stepper.vertical's `gap` (also --spacing-8) holds equal space
+   before the circle below — same value on both sides so the divider
+   never touches either neighboring step, and every step stays evenly
+   spaced regardless of description line count. */
+.c-stepper{display:flex; align-items:flex-start;}
+.c-stepper.vertical{flex-direction:column; gap:var(--spacing-8);}
+.c-step{display:flex; flex:none;}
+.c-stepper:not(.vertical) .c-step{flex-direction:column; align-items:center; gap:var(--spacing-8);}
+.c-stepper.vertical .c-step{gap:var(--spacing-12);}
+.c-step-rail{display:flex; flex-direction:column; align-items:center;}
+.c-stepper.vertical .c-step-rail{gap:var(--spacing-8);}
+.c-step-indicator{flex:none; width:24px; height:24px; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:var(--text-label1-weight);}
+.c-step-indicator.completed{background:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-step-indicator.active{background:var(--color-neutral-1); border:2px solid var(--color-obsidian); color:var(--color-obsidian);}
+.c-step-indicator.upcoming{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5);}
+.c-step-connector{background:var(--color-neutral-3); flex:none;}
+.c-stepper:not(.vertical) .c-step-connector{flex:1; height:1px; margin-top:12px;}
+.c-stepper.vertical .c-step-connector{width:1px; height:var(--spacing-16);}
+.c-step-text{display:flex; flex-direction:column; gap:var(--spacing-4);}
+.c-stepper:not(.vertical) .c-step-text{text-align:center;}
+.c-step-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+.c-step-label.active{font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+.c-step-label.completed, .c-step-label.upcoming{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+.c-step-desc{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+
+/* PageHeader — designed not transcribed */
+.c-pageheader{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-pageheader h1{margin:0; font-family:var(--font-primary); font-weight:var(--text-h1-weight); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); letter-spacing:var(--text-h1-tracking); color:var(--color-neutral-9);}
+.c-pageheader .sub{margin:0; font-family:var(--font-primary); font-weight:var(--text-body1-weight); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); color:var(--color-neutral-5);}
 
