@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.4-draft</title>
+<title>Collabrium design system | v0.9.5-draft</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -268,8 +268,13 @@
   .c-nav-child:hover{background:var(--color-neutral-2);}
   .c-nav-child:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
   .c-nav-child.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
-  /* App Shell — v0.9.0, designed not sourced. Rail is a placement variant of
-     SidebarNav (flush, no radius, right-edge border only), not a new component. */
+  /* App Shell — v0.9.0, designed not sourced. Demo-only gallery chrome —
+     the real .c-shell/.c-sidebar-shell placement rules live in
+     components.css, not here (see "Using this system in an existing
+     project" in DESIGN-SYSTEM.md). ⚠️ Stale note removed 2026-08-05: this
+     comment used to describe a "flush rail" placement variant that was
+     dropped back in v0.9.2-draft — the main nav has followed SidebarNav
+     unmodified since then, this comment just never got updated to match. */
   .comp-demo.shell-demo{padding:0; overflow:hidden; background:var(--color-canvas-warm);}
   .c-tooltip-demo{display:flex; gap:var(--spacing-32); padding:var(--spacing-40) 0;}
 
@@ -451,7 +456,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.4-draft</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.5-draft</span>
 </header>
 
 <div class="layout">
@@ -746,18 +751,36 @@
           <div class="comp-head"><h3>App Shell <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.0, designed not sourced</span></h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo shell-demo">
             <div class="c-shell">
-              <nav class="c-sidebar">
-                <div class="c-sidebar-header">Astro Growth</div>
-                <div class="c-sidebar-section">Overview</div>
-                <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span></button>
-                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar"></i><span class="label">Reports</span></button>
-                <div class="c-sidebar-section">Departments</div>
-                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-fire" style="color:var(--color-orange)"></i><span class="label">Marketing</span><span class="count">12</span></button>
-                <button class="c-sidebar-item soon" type="button" disabled aria-disabled="true"><i class="ph-fill ph-drop"></i><span class="label">Data</span><span class="c-badge c-badge-neutral">Soon</span></button>
-                <div class="c-sidebar-footer">
-                  <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span></button>
-                </div>
-              </nav>
+              <div class="c-sidebar-shell">
+                <nav class="c-sidebar" id="appShellSidebarNav">
+                  <div class="c-sidebar-header">
+                    <div class="c-sidebar-logo">
+                      <img class="js-sidebar-logo-img"
+                           src="logo-lockups/collabrium-default-logo.svg"
+                           data-expanded-src="logo-lockups/collabrium-default-logo.svg"
+                           data-collapsed-src="SVG/coin.svg"
+                           alt="Astro Growth" />
+                    </div>
+                  </div>
+                  <div class="c-sidebar-section">Overview</div>
+                  <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span><span class="c-sidebar-hover-text">Dashboard</span></button>
+                  <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar"></i><span class="label">Reports</span><span class="c-sidebar-hover-text">Reports</span></button>
+                  <hr class="c-sidebar-divider" />
+                  <div class="c-sidebar-section">Departments</div>
+                  <button class="c-sidebar-item" type="button"><i class="ph-fill ph-fire" style="color:var(--color-orange)"></i><span class="label">Marketing</span><span class="count">12</span><span class="c-sidebar-hover-text">Marketing (12)</span></button>
+                  <button class="c-sidebar-item soon" type="button" disabled aria-disabled="true"><i class="ph-fill ph-drop"></i><span class="label">Data</span><span class="c-badge c-badge-neutral">Soon</span><span class="c-sidebar-hover-text">Data — Soon</span></button>
+                  <div class="c-sidebar-footer">
+                    <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span><span class="c-sidebar-hover-text">Settings</span></button>
+                  </div>
+                </nav>
+                <button class="c-sidebar-toggle js-sidebar-toggle" type="button" aria-label="Collapse sidebar" data-sidebar-toggle="appShellSidebarNav">
+                  <svg class="js-sidebar-toggle-icon" viewBox="0 0 20 20" fill="none">
+                    <rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+                    <line x1="9" y1="3.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.4"/>
+                    <path class="js-sidebar-toggle-arrow" d="M13.5 7 11 10l2.5 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
               <div class="c-shell-main">
                 <div class="c-shell-content">
                   <div class="c-shell-page-header">
@@ -1417,24 +1440,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-sidebarnav">
-          <div class="comp-head"><h3>SidebarNav <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; v0.7.0</span></h3><button class="copy-markup-btn" data-target="comp-sidebarnav" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <nav class="c-sidebar">
-              <div class="c-sidebar-header">Astro Growth</div>
-              <div class="c-sidebar-section">Overview</div>
-              <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span></button>
-              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar"></i><span class="label">Reports</span></button>
-              <div class="c-sidebar-section">Departments</div>
-              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-fire" style="color:var(--color-orange)"></i><span class="label">Marketing</span><span class="count">12</span></button>
-              <button class="c-sidebar-item" type="button"><i class="ph-fill ph-drop" style="color:var(--color-navy)"></i><span class="label">Data</span></button>
-              <div class="c-sidebar-footer">
-                <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span></button>
-              </div>
-            </nav>
           </div>
         </div>
 

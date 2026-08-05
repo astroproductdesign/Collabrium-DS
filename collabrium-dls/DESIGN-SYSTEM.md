@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.4-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
+**v0.9.5-draft** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2052,6 +2052,54 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.5-draft — 2026-08-05** — App Shell's Main nav re-synced to
+  SidebarNav after SidebarNav gained a collapsible rail, logo swap, and
+  second-level accordion (a teammate's `component-sidenav` PR, merged
+  outside this working session). Two problems, same root cause:
+
+  1. **The portability gap from v0.9.4-draft regressed.** The new
+     SidebarNav CSS (`.c-sidebar-shell`, `.c-sidebar-toggle`,
+     `.c-sidebar-logo`, `.c-sidebar-divider`, the second-level
+     `.c-nav-parent-toggle`/`.c-nav-children` accordion, the collapsed
+     hover-label) had been added only to `preview.html`'s inline
+     `<style>`, never ported to `components.css` — the exact class of
+     gap v0.9.4-draft existed to close, reopened by a change that
+     didn't go through this file. Ported in full; `components.css` now
+     carries every rule `preview.html` does for this component again.
+  2. **App Shell's own nav demo had drifted stale**, still showing
+     SidebarNav's pre-collapsible markup (plain text header, no
+     toggle) — a direct violation of [Main nav](#main-nav--a-direct-instance-of-sidebarnav-not-a-variant)'s
+     own "no properties overridden, follows SidebarNav exactly" rule
+     from v0.9.2-draft, just via staleness rather than a deliberate
+     override. Rebuilt to the current SidebarNav markup (logo header,
+     divider, hover-text spans, collapse toggle) with App Shell's own
+     content (Astro Growth branding, the Locked/"Soon" Data example).
+     Placement CSS also needed a small adjustment: `.c-shell
+     .c-sidebar` used to hardcode `flex: 0 0 240px`, which silently
+     fought the component's own `.is-collapsed{width:72px}` rule when
+     collapsed inside the shell. Changed to target the `.c-sidebar-shell`
+     wrapper with `flex: 0 0 auto`, so the nav's own width rules — 240px
+     expanded, 72px collapsed — resolve the same way inside App Shell
+     as they do in SidebarNav's standalone demo. Verified live: toggling
+     collapse inside the App Shell gallery block now matches the
+     standalone SidebarNav block pixel-for-pixel, full height
+     (`calc(100dvh − 32px)`, still achieved via stretch + margin, no
+     literal `calc()`) maintained in both states.
+
+  Also removed, as directly-related cleanup found while fixing the
+  above: a duplicate, stale `comp-sidebarnav` gallery block (a merge
+  leftover, same invalid duplicate-`id` pattern as a `comp-tabs`
+  duplicate that's flagged but *not* fixed here — out of scope for this
+  pass) and a code comment in `preview.html` still describing the
+  "flush rail" nav variant dropped back in v0.9.2-draft.
+
+  ⚠️ **Not done in this pass:** `DESIGN-SYSTEM.md` and `preview.html`'s
+  embedded `src-md-extended`/`src-md-compact` blocks drifted out of
+  sync during the same external merge (847/2001 lines changed
+  respectively, five new components added, none of it going through
+  this file's own doc-sync discipline) — that's a separate, larger
+  re-sync this changelog entry doesn't attempt.
 
 - **v0.9.4-draft — 2026-08-04** — Added **`components.css`**, the actual
   portable copy of every component's CSS (Button, Input field, Card,

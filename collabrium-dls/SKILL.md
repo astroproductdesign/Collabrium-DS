@@ -141,7 +141,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.4-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.5-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -253,4 +253,21 @@ extraction surfaced: the shared 36×36 icon-chip pattern was scoped to
 everywhere else it's documented to work (every Stat card, since
 v0.8.0) — unscoped to plain `.icon-chip`. Resolved the practical half
 of long-open Needs Input #10 with a real integration guide instead of
-a placeholder. See changelog at the bottom of DESIGN-SYSTEM.md.
+a placeholder. **v0.9.5 (2026-08-05) re-synced App Shell's Main nav to
+SidebarNav** after an external merge (a teammate's `component-sidenav`
+PR) gave SidebarNav a collapsible rail, logo swap, and second-level
+accordion, but only inside `preview.html`'s inline styles —
+`components.css` never got them, reopening the exact portability gap
+v0.9.4 closed. Ported the missing CSS, rebuilt App Shell's own nav demo
+(which had gone stale, still showing the pre-collapsible markup — a
+real violation of the "no properties overridden" rule from v0.9.2), and
+fixed a placement-CSS conflict where App Shell's hardcoded `flex: 0 0
+240px` fought the collapsed 72px width; targets the `.c-sidebar-shell`
+wrapper with `flex: 0 0 auto` instead, verified live in-browser.
+Also cleaned up a stale duplicate `comp-sidebarnav` gallery block and a
+leftover code comment describing the long-dropped "flush rail" variant
+— both merge artifacts. Not done in this pass: a duplicate `comp-tabs`
+block from the same merge, and the larger re-sync `DESIGN-SYSTEM.md`
+now needs against `preview.html`'s embedded markdown copies, which
+drifted during the same external merge. See changelog at the bottom of
+DESIGN-SYSTEM.md.
