@@ -43,9 +43,9 @@ transcribed from the teammate's real component source (SidebarNav,
 Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable,
 ElementBadge), 4 more **designed from scratch** (Stat/KPI
 card, Filters, Pagination, Date picker, flagged red in the gallery)
-plus a Chart color mapping guideline, 4 more folded into Button/Input
+plus a Chart color mapping guideline, 3 more folded into Button/Input
 field (Button's Icon-only variant, plus Input field's
-Textarea/Password field/Search input clear button siblings), and
+Textarea/Password field siblings), and
 **App Shell**, the page-level composition layer
 (Sidebar placement, Content region, Page header — no separate Top bar,
 Page header is the shell's only top-of-screen chrome) covering how
