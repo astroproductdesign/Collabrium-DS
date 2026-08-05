@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.10** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.12** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -727,6 +727,7 @@ through.
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
 - [MultiSelect](#multiselect)
+- [PageHeader](#pageheader)
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Radio](#radio)
@@ -862,15 +863,28 @@ real build.
 
 The title/subtitle/actions block every downstream build has been
 inventing from scratch — this gives it one shape, and it's also the *only* top-of-screen chrome
-the shell has, not a block nested below a separate bar.
+the shell has, not a block nested below a separate bar. The title/
+subtitle is the [PageHeader](#pageheader) component — App Shell
+composes it directly rather than keeping a second copy of that
+anatomy here. PageHeader itself only ships Default/With-subtitle
+variants, not an Actions one — the row below is specific to this
+placement, added directly to `.c-pageheader` here (`.c-pageheader-row`/
+`.c-pageheader-actions` in `components.css`) rather than folded into
+PageHeader's own documented variants.
 
 | Property | Value |
 |---|---|
 | Width | 100% of the main column (everything to the right of Sidebar) — full-bleed, matching Content region's own full-bleed rule, not a padded/inset block among the cards below it |
-| Title | h1 (32px/800) |
-| Subtitle | body2, Neutral-5, directly below the title |
-| Actions / CTAs | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — a period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control. Zero, one, or several CTAs are all valid; the row simply collapses when empty |
+| Actions / CTAs | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — zero, one, or several are all valid; the row simply collapses when empty. A period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control |
 | Gap to content below | `--section-gap` (48px) |
+
+⚠️ **Known gap:** the "Select trigger styled as a pill" period-selector
+call above has no built variant yet — `.c-select-box` is `radius-sm`,
+not `radius-pill`, and no pill modifier exists on it. The live demo
+currently substitutes Filters' own `.c-filter-trigger` instead, which
+is neither Select-based nor pill-shaped. Flagged rather than silently
+left inconsistent; needs a follow-up pass to either build the pill
+trigger or revise this row to match what's actually reusable today.
 
 ⚠️ **Reserved, added 2026-08-05, not yet specced:** everything above is
 Level 1 — the shared outer frame (Sidebar, Content region, Page header)
@@ -1855,8 +1869,12 @@ introduce a color that isn't already a token in this document.
 
 ⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
-token system by reusing the existing Typescale's h1 and body1 tokens,
+token system by reusing the existing Typescale's h1 and body2 tokens,
 not transcribed. Treat as a first pass needing real design/brand review.
+This is also App Shell's own [Page header](#app-shell) — App Shell
+composes this component directly for the title/subtitle block, then
+adds its own actions row on top (documented in App Shell's own
+subsection, not here — see the note there on why).
 
 A page-level title block — sits flush at the top of a page or panel,
 no background or border of its own.
@@ -1864,7 +1882,7 @@ no background or border of its own.
 | Part | Spec |
 |---|---|
 | Title | `h1` token (32px/38px, 40px/56px at `-lg`, weight 800), Neutral-9 — the largest heading weight in the system, matching the Typescale's "Page-level heading" use case |
-| Subtitle (optional) | `body1` token (16px/22px, weight 500), Neutral-5 — sits directly below the title |
+| Subtitle (optional) | `body2` token (14px/20px, weight 400), Neutral-5 — sits directly below the title |
 | Gap | `spacing-8` (8px) between title and subtitle |
 | Container | no background, no border, no padding — flush in the surrounding page layout |
 
@@ -2105,6 +2123,54 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.12 — 2026-08-05** — Reverted PageHeader's **With actions**
+  variant, added in the previous pass — explicit user direction: the
+  standalone component ships only Default and With subtitle, per its
+  original two-variant scope. The actions row itself wasn't removed,
+  since App Shell's demo still needs it (period selector + Export
+  button) — `.c-pageheader-row`/`.c-pageheader-actions` stay in
+  `components.css` and App Shell still renders them, but that row is
+  now documented as specific to App Shell's own subsection rather than
+  as a PageHeader variant; the "Select trigger styled as a pill"
+  known-gap note moved there with it. Removed the "With actions" demo
+  from `preview.html`'s PageHeader gallery block (App Shell's own demo
+  is unchanged).
+
+- **v0.9.11 — 2026-08-05** — Fixed **PageHeader**: App Shell had
+  been keeping its own parallel copy (`.c-shell-page-header`/
+  `.c-shell-actions` in `components.css`) instead of composing the
+  actual `PageHeader` component, so the two had drifted apart —
+  App Shell's copy was missing `font-family`/`line-height`/
+  `letter-spacing` tokens on both the title and subtitle (invisible
+  only because this page happens to set `font-family` globally on
+  `body`; would silently break in a project that doesn't), used a
+  title→subtitle gap of `spacing-4` (4px) instead of PageHeader's own
+  documented `spacing-8` (8px), and the two sections' spec text
+  disagreed on the subtitle token (App Shell said body2, the
+  standalone PageHeader spec said body1) with neither implementation
+  aware of the other. Standardized on **body2** (explicit user
+  decision) and removed the duplicate: App Shell now renders
+  `.c-pageheader`/`.c-pageheader-row`/`.c-pageheader-text`/
+  `.c-pageheader-actions` directly, and `.c-shell-page-header`/
+  `.c-shell-actions` are gone from `components.css`. Also added the
+  Actions row PageHeader's own spec never documented, even though
+  App Shell's subsection always described one — new **With actions**
+  variant, demoed as a third state in `preview.html`'s PageHeader
+  gallery block. App Shell's own subsection now points at
+  [PageHeader](#pageheader) for the shared anatomy instead of
+  restating it, keeping only what's specific to that placement
+  (full-bleed width, gap to content below) — the drift happened
+  in the first place because the same spec was written out twice.
+  Added the missing [PageHeader](#pageheader) ToC entry (it had its
+  own section and gallery block but was never linked from the ToC).
+  ⚠️ **Not fixed, flagged instead:** the period-selector requirement
+  ("This month ▾" as a Select trigger styled as a pill) still has no
+  built variant — `.c-select-box` is `radius-sm`, not pill — so the
+  one live example still substitutes Filters' `.c-filter-trigger`.
+  Noted as a known gap directly in PageHeader's spec rather than
+  silently left inconsistent; needs a follow-up decision (build the
+  pill trigger, or revise the spec to match what's actually reusable).
 
 - **v0.9.10 — 2026-08-05** — Consolidated **UserPicker** and
   **Search input clear button** into a single new **Search input**
