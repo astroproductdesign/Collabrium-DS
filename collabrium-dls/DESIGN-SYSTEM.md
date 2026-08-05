@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.9** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.10** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1680,6 +1680,68 @@ necessary, newest on top. **Don't:** put a destructive action in a
 Toast's action slot; a surface that disappears on its own is the wrong
 place for an irreversible decision.
 
+**Positioning:**
+
+| Property | Spec |
+|---|---|
+| Default position | bottom-right corner of the viewport |
+| Offset | spacing-24 from the bottom edge, spacing-24 from the right edge |
+| Mobile | full width, anchored to the bottom of the screen, spacing-12 left/right/bottom margin |
+| Stacking layer | above all page content; below the Modal's `shadow-overlay` scrim (see [Modal](#modal)) — this document has no numeric z-index token scale, so the relationship is stated structurally rather than as a value |
+| Scroll behavior | fixed position — does not scroll with the page |
+
+**Auto-dismiss timing:**
+
+| Property | Spec |
+|---|---|
+| Default duration | 5000ms |
+| Neutral / Success / Warning | auto-dismiss after 5000ms |
+| Danger | does not auto-dismiss — requires explicit dismissal via the Close button |
+| Hover behavior | the dismiss timer pauses on mouse enter, resumes on mouse leave |
+| Minimum display time | 2000ms, regardless of user interaction |
+
+**Animation:**
+
+| Property | Spec |
+|---|---|
+| Entrance | slide up from the bottom edge + fade in |
+| Exit | fade out + slight slide down |
+| Duration | `duration-base` (220ms) — closest of the [Motion](#motion) duration tokens to a toast-appropriate 200ms, and its stated purpose ("default UI transitions") fits |
+| Easing | `ease-standard` — the non-elemental default, since Toast isn't owned by a specific brand element (same reasoning as the Sidebar collapse and accordion transitions); also matches Toast's existing opacity `Transition` row above |
+| Stacking reposition | when a Toast is added or removed, the remaining stack animates to its new position rather than jumping |
+| Reduced motion | when `prefers-reduced-motion` is set, all of the above is disabled — Toasts appear and disappear instantly |
+
+**Stacking behaviour:**
+
+| Property | Spec |
+|---|---|
+| Maximum visible | 3 Toasts on screen at once |
+| Stack order | newest on top |
+| Gap between stacked Toasts | spacing-8 |
+| Queue | a 4th trigger while 3 are visible queues rather than displaying immediately |
+| Queue order | FIFO — first triggered, first to appear when space opens |
+| Dismiss timers | each Toast in the stack keeps its own independent timer, unaffected by the others |
+
+**Layout variants:**
+
+| Variant | Spec |
+|---|---|
+| Title + Message (full) | the documented default above — icon aligns to the title, message sits below |
+| Title only | icon aligns vertically to the title; no Message slot renders |
+| Message only | icon aligns to the message text; the message renders at body1 weight 500 (not caption, since it's now the primary content rather than a secondary line under a title) |
+| Title + Message + Action | Action slot renders below the message, spacing-8 above it (existing rule, unchanged) |
+| Icon + Close only | not permitted — a message is required at minimum |
+
+**Content length:**
+
+| Property | Spec |
+|---|---|
+| Title | 50 characters maximum |
+| Message | 100 characters maximum |
+| Enforcement | at content-authoring level — the component itself does not truncate or clip |
+| Over limit | the copy must be rewritten, not shortened by the component |
+| Rationale | Toast content is system-generated, so character limits are an authoring rule, not a display rule |
+
 ### Tooltip
 
 **Transcribed from the teammate's `Tooltip.jsx`.**
@@ -2089,6 +2151,34 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.10 — 2026-08-05** — Toast gained six new subsections:
+  Positioning, Auto-dismiss timing, Animation, Stacking behaviour,
+  Layout variants, and Content length. Rationale: the prior spec
+  covered anatomy and tone but left placement, timing, and interaction
+  behavior unspecced, which meant every implementation would have
+  guessed independently. All new values reuse existing tokens only —
+  spacing-8/12/24 for gaps and offsets, `duration-base` +
+  `ease-standard` for motion (see the Animation subsection for why
+  those two specifically), Neutral-9/Green/Red/Amber for tone, already
+  established in the tone table above. One gap surfaced in the
+  process: this document has no numeric z-index token scale, so
+  Positioning's stacking-layer rule is stated structurally (relative
+  to the Modal's `shadow-overlay`) rather than as a value — flagged
+  here rather than inventing one. Verified first in a standalone test
+  preview outside `preview.html`, then implemented for real:
+  `components.css` gained `.c-toast-host` (the fixed bottom-right
+  stacking container, with its own mobile breakpoint), the
+  entrance/exit transition (`duration-base`/`ease-standard`, disabled
+  under `prefers-reduced-motion`), and the message-only layout
+  variant's type override. `preview.html`'s Toast gallery entry gained
+  a live interaction demo — trigger buttons that fire real toasts into
+  `.c-toast-host`, exercising auto-dismiss timing (including Danger's
+  no-auto-dismiss and the 2000ms minimum display time), hover-to-pause,
+  and the 3-visible stacking cap with FIFO queueing — inside a bounded
+  `.c-toast-stage` demo container (gallery-only CSS, same containment
+  pattern as `.c-modal-stage`) so it doesn't cover the whole gallery
+  page the way the real fixed positioning would.
 
 - **v0.9.9 — 2026-08-05** — Reserved "Level 2" as a named,
   documented placeholder for a future drill-down/detail-screen layout
