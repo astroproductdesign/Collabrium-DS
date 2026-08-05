@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.9** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.10** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -684,27 +684,28 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-29 components: the original 7 basics
+28 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 10 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Select, Checkbox, Radio,
 Switch, Toast, Tooltip, DataTable, ElementBadge), 4 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
 picker — plus a Chart color mapping guideline (not a rendered
-component), and 8 more: **App Shell** (the page-level composition
+component), and 7 more: **App Shell** (the page-level composition
 layer — Sidebar placement, Content region, Page header), Textarea,
-Password field, Search input clear button, **Stepper** (a multi-step
-progress indicator), **UserPicker** (a searchable person picker),
-**FileUploader** (click-to-browse/drag-and-drop file attachment), and
-**MultiSelect** (a grouped checkbox dropdown with removable selection
-chips). The Stat/KPI card batch, App Shell, Stepper, UserPicker,
-FileUploader, and MultiSelect have **no source in either the original
-brand deck or the teammate's build**; they're built entirely from this
-document's own token system (color, type, spacing, radius, elevation,
-motion) and marked ⚠️ **designed, not transcribed** in their own
-sections — treat them as a first pass needing real design/brand review
-before shipping, more provisional than the transcribed components above
-them.
+Password field, **Search input** (a text search field with a clear
+button, in Default/User Search/Item Search variants — the last two
+searching and selecting a person or item from a dropdown), **Stepper**
+(a multi-step progress indicator), **FileUploader** (click-to-browse/
+drag-and-drop file attachment), and **MultiSelect** (a grouped
+checkbox dropdown with removable selection chips). The Stat/KPI card
+batch, App Shell, Stepper, FileUploader, MultiSelect, and Search input
+have **no source in either the original brand deck or the teammate's
+build**; they're built entirely from this document's own token system
+(color, type, spacing, radius, elevation, motion) and marked ⚠️
+**designed, not transcribed** in their own sections — treat them as a
+first pass needing real design/brand review before shipping, more
+provisional than the transcribed components above them.
 See each section below for source notes, and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
@@ -729,7 +730,7 @@ through.
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Radio](#radio)
-- [Search input clear button](#search-input-clear-button)
+- [Search input](#search-input)
 - [Select](#select)
 - [SidebarNav](#sidebarnav)
 - [Stat / KPI card](#stat--kpi-card)
@@ -740,7 +741,6 @@ through.
 - [Textarea](#textarea)
 - [Toast](#toast)
 - [Tooltip](#tooltip)
-- [UserPicker](#userpicker)
 
 ### App Shell
 
@@ -1249,24 +1249,73 @@ that updates between "Show password" and "Hide password" as state
 changes. **Don't:** rely on the icon swap alone to communicate state to
 assistive tech.
 
-### Search input clear button
+### Search input
 
-⚠️ **Designed, not sourced.** Adds a clear affordance to
-the existing search-input pattern (leading `magnifying-glass`, per
-[Component Rules](#component-rules) and the Filters bar's own search
-field).
+⚠️ **Designed, not sourced** (Default variant absorbs the
+former "Search input clear button"; User Search absorbs the former
+UserPicker, designed from scratch with no source in either the
+original brand deck or the teammate's build). Reuses Input field's box
+anatomy and focus behavior, Filters'/Date picker's popover convention,
+and Table row's hover treatment — not invented patterns. Treat as a
+first pass needing real design/brand review.
+
+A single input with a leading `magnifying-glass` and a clear (×)
+button that appears once there's a value, in three variants:
+
+- **Default** — plain text search, no dropdown (the former "Search
+  input clear button").
+- **User Search** — searches and selects a single person from a list,
+  collapsing to an avatar/name/role summary once a value is set
+  (the former UserPicker).
+- **Item Search** — the same dropdown/collapse mechanics as User
+  Search, without the avatar, for searching non-person records.
 
 | Part | Spec |
 |---|---|
-| Leading icon | `magnifying-glass`, `icon-sm` (16px), Neutral-5, **Tier 1, Regular** (existing rule, unchanged) |
-| Clear ("x") button | appears only once the field has a non-empty value; trailing, `icon-sm` (16px), Neutral-5 default / Neutral-9 hover, spacing-12 from the right edge |
-| Trigger | click, or `Enter`/`Space` while focused, clears the value and returns focus to the input (not away from it) |
-| Visibility | hidden — not just visually suppressed but removed from tab order — when the field is empty, so an empty search input shows only the leading icon |
+| Box | same anatomy as Input field: 40px height, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill; border/radius/fill live on the `<input>` itself (icon and clear button sit on top of it), so Active is a genuine `:focus`, not a JS-toggled class |
+| Leading icon | `magnifying-glass`, `icon-sm` (16px), Neutral-5, **Tier 1, Regular** (search inside an input field, per Iconography) |
+| Clear (×) | appears only once the field has a non-empty value; `icon-sm` (16px), **Tier 1, Regular**, Neutral-5 default / Neutral-9 hover, 24×24px hit target, spacing-12 from the right edge; hidden — removed from tab order, not just visually suppressed — when the field is empty |
+| Active | 2px Obsidian border swap, padding reduced 1px/side to compensate — real `:focus` (not `:focus-visible`), same rule as Input field, not the Water shadow-focus ring |
+| Error | 1px Red border, error text below in caption/700 Red, replacing helper text — matches Input field's own documented Error row |
+| Disabled | Neutral-4 text, Neutral-2 fill, Neutral-3 border, `cursor: not-allowed`, clear button not rendered |
+| Dropdown panel (User/Item Search) | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-8 below the trigger — same popover convention as Filters/Date picker |
+| Dropdown row — User Search | avatar + name + role, spacing-12 gap, spacing-8/spacing-12 padding, Neutral-2 fill on hover — same hover token as Table row |
+| Dropdown row — Item Search | item name + optional subtitle, same gap/padding/hover as User Search's row, no avatar |
+| Loading (User/Item Search) | centered spinner, Neutral-5, spacing-16 padding — see the note below |
+| Empty state (User/Item Search) | "No matches found", body2, Neutral-5, centered, spacing-16 padding |
+| Avatar (User Search only) | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
+| Selected/collapsed (User/Item Search) | same 40px-height box as the Default state so selecting doesn't reflow the surrounding layout; shows the selected item plus a clear (×) |
+| Selected — hover | clear (×) swaps to Neutral-9 — Input field's own icon-button hover convention, a color change only, never a background fill |
+| Selected — disabled | no clear (×) rendered, Neutral-4 text, `cursor: not-allowed` |
 
-**Do:** keep the clear button keyboard-reachable via `Tab` once it's
+**Variants:** Default, User Search, Item Search — each with Default,
+Active, Has value, Disabled, and Error; User Search/Item Search add
+Searching, No results, Loading, Selected, Selected — hover, and
+Selected — disabled.
+
+⚠️ **Loading has no source anywhere in this system** — Button's own
+"Loading" row is spec-text-only, with no CSS/markup backing it
+anywhere. Treated as the same family as Iconography's explicit Tier 1/
+Regular `refresh` (an ongoing-process icon, not a status/decorative
+one) — `spinner-gap`, rotated via a plain `linear infinite` animation
+at `--duration-ambient` (900ms), the one duration token named for a
+continuous loop rather than this system's usual one-shot "movement
+settles" transitions.
+
+**Standing note:** if you're looking for **UserPicker**, it's now the
+**User Search** variant of this component — folded in here rather than
+kept as a separate spec, alongside the old "Search input clear button"
+section (now the **Default** variant).
+
+**Do:** keep every variant's collapsed/default state at the same 40px
+height so selecting or clearing a value never reflows the surrounding
+layout; keep the clear button keyboard-reachable via `Tab` once it's
 visible. **Don't:** show both a clear button and a separate trailing
-icon at once — the clear button replaces any other trailing icon the
-moment text is entered.
+icon at once; style the dropdown's empty state as a full [Empty
+state](#empty-state) (icon + heading + body) — it's an inline "nothing
+matched" message inside a compact popover, not a page-level empty
+state; use a Tier 2/Fill icon for the loading spinner — it's a process
+indicator, not a status mark.
 
 ### Table row
 
@@ -1304,39 +1353,6 @@ the two align in a form.
 **Do:** reuse Input field's border, radius, and type tokens so a form
 mixing single- and multi-line fields stays visually consistent. **Don't:**
 let the box shrink below its `min-height`, including mid-resize-drag.
-
-### UserPicker
-
-⚠️ **Designed from scratch — no source in either the original
-brand deck or the teammate's build.** Built from this document's own
-token system by reusing Input field's box anatomy, Filters'/Date
-picker's popover convention, and Table row's hover treatment — not
-transcribed. Treat as a first pass needing real design/brand review.
-
-Searches and selects a single person (an Account Executive, in this
-app) from a list — collapses to a compact summary once a value is set.
-
-| Part | Spec |
-|---|---|
-| Collapsed row | same box as Input field (40px height, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill, spacing-12 horizontal padding) so collapsing/expanding doesn't change footprint |
-| Avatar | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
-| Name | body2 (14px/20px), weight 700, Neutral-9, truncates with ellipsis |
-| Role | caption (12px), Neutral-5, directly below the name |
-| Clear (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
-| Search input | Input field's own anatomy and states, including its 2px Obsidian focus-border swap (not the Water shadow-focus ring) |
-| Search icon | leading `magnifying-glass`, `icon-sm`, Neutral-5, **Tier 1, Regular** (search inside an input field, per Iconography) |
-| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, spacing-8 below the trigger — same popover convention as Filters/Date picker |
-| Dropdown row | avatar + name + role, spacing-12 gap, spacing-8/spacing-12 padding, Neutral-2 fill on hover — same hover token as Table row |
-| Empty state | "No matches found", body2, Neutral-5, centered, spacing-16 padding |
-
-**Variants:** Collapsed (value set), Open — searching, Open — no results.
-
-**Do:** keep the collapsed row and the search input at the same 40px
-height so selecting/clearing a person doesn't reflow the surrounding
-layout. **Don't:** style the dropdown's empty state as a full [Empty
-state](#empty-state) (icon + heading + body) — it's an inline "nothing
-matched" message inside a compact popover, not a page-level empty
-state.
 
 ### Checkbox
 
@@ -2089,6 +2105,34 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.10 — 2026-08-05** — Consolidated **UserPicker** and
+  **Search input clear button** into a single new **Search input**
+  component (three variants: Default — the old clear-button pattern;
+  User Search — UserPicker, unchanged in substance; Item Search — new,
+  same dropdown mechanics without an avatar), plus two real fixes found
+  in the process: the old UserPicker's Active state toggled a JS-driven
+  `.focused` class on a wrapper `<div>` that owned the border, instead
+  of Input field's own genuine `:focus` on the `<input>` itself — Search
+  input's box now puts the border/radius/fill on the real `<input>`
+  (icon and clear button absolutely positioned over it, the same
+  technique as `.c-field .input-wrap.has-leading-icon.has-icon-btn`),
+  so Active needs no JS at all; and UserPicker's Selected-state clear
+  button used a Neutral-2 fill-hover it invented for itself instead of
+  Input field's own `.icon-btn:hover` color-swap convention, which
+  Search input's Selected — hover state now uses instead. Also adds a
+  new Loading state (no spinner existed anywhere in this system before
+  this — Button's own "Loading" row was spec-text-only) and a new
+  Selected — disabled state, neither of which UserPicker or Search
+  input clear button had. Built per the user's own 3-step process:
+  component first (`components/forms/SearchInput.tsx`, superseding
+  `components/forms/UserPicker.tsx`), then a live preview in
+  `preview.html`'s Components gallery for approval, then this spec,
+  added only after that preview was explicitly approved. Removed the
+  standalone UserPicker and Search input clear button sections (and
+  their ToC entries) rather than leaving redirects — a standing note
+  under Search input points here instead. Net component count: 29 → 28
+  (two removed, one added). Updated the ToC and Scope note to match.
 
 - **v0.9.9 — 2026-08-05** — Reserved "Level 2" as a named,
   documented placeholder for a future drill-down/detail-screen layout

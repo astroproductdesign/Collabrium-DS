@@ -5,7 +5,7 @@
   Tag, Table row, Modal, Empty state, SidebarNav, App Shell layout,
   Tabs, Select, Checkbox/Radio/Switch, Toast, Tooltip, DataTable,
   ElementBadge, Stat/KPI card, Filters, Pagination, Date picker, Chart
-  color mapping, FileUploader, MultiSelect, UserPicker, Stepper,
+  color mapping, FileUploader, MultiSelect, Search input, Stepper,
   PageHeader). This is the portable copy — preview.html's own inline
   <style> never duplicates it. See DESIGN-SYSTEM.md's Changelog for why
   that separation matters: copying markup out of preview.html's "Copy
@@ -84,7 +84,6 @@
 .c-field .icon-btn{position:absolute; right:var(--spacing-12); display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; color:var(--color-neutral-5); font-size:var(--icon-sm); cursor:pointer; pointer-events:auto;}
 .c-field .icon-btn:hover{color:var(--color-neutral-9);}
 .c-field .icon-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
-.c-field .clear-btn[hidden]{display:none;}
 
 /* Prefix/suffix adornments — DESIGN-SYSTEM.md Input field, "Prefix/
    suffix text adornments" rule: fixed non-editable text, caption
@@ -110,6 +109,72 @@
    96px, spacing-12 padding all sides, resize: vertical only. */
 .c-field textarea{width:100%; min-height:96px; padding:var(--spacing-12); border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); resize:vertical;}
 .c-field textarea:focus{outline:none; border:2px solid var(--color-obsidian); padding:11px;}
+
+/* Search input — designed not transcribed. Consolidates the former
+   "Search input clear button" (now the Default variant) and UserPicker
+   (now the User Search variant), plus a new Item Search variant.
+   The box's border/radius/fill live on the real <input> (icon and clear
+   button absolutely positioned over it) — the same technique Input
+   field's own .input-wrap.has-leading-icon.has-icon-btn anatomy uses —
+   so Active is genuine :focus, not a JS-toggled class the way the old
+   UserPicker's wrapper-owns-the-border approach required. */
+.c-search-input{display:flex; flex-direction:column; gap:var(--spacing-4); max-width:320px;}
+.c-search-input label{display:block; margin-bottom:var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-label1-size); font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+.c-search-input-box{position:relative; display:flex; align-items:center;}
+.c-search-input-box input{width:100%; min-width:0; height:40px; border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); padding:0 36px; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9); outline:none;}
+.c-search-input-box input::placeholder{color:var(--color-neutral-5);}
+.c-search-input-box input:focus,
+.c-search-input-box.is-active input{border:2px solid var(--color-obsidian); padding:0 35px;}
+.c-search-input-box input:disabled,
+.c-search-input-box.is-disabled input{background:var(--color-neutral-2); color:var(--color-neutral-4); cursor:not-allowed;}
+.c-search-input-box.is-error input{border:1px solid var(--color-red);}
+.c-search-input-icon{position:absolute; left:var(--spacing-12); font-size:var(--icon-sm); color:var(--color-neutral-5); pointer-events:none;}
+.c-search-input-error{margin:0; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; color:var(--color-red);}
+
+.c-search-input-clear{width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
+.c-search-input-clear i{font-size:var(--icon-sm);}
+.c-search-input-clear:hover,
+.c-search-input-clear.demo-hover{color:var(--color-neutral-9);}
+.c-search-input-clear[hidden]{display:none;}
+.c-search-input-box .c-search-input-clear{position:absolute; right:var(--spacing-12); flex:none;}
+.c-search-input-collapsed .c-search-input-clear{flex:none;}
+
+/* Dropdown — same popover convention as Filters/Date picker (radius-md,
+   1px Neutral-3, shadow-3, 8px below); row hover reuses Table row's own
+   Neutral-2 token, not a custom value. */
+.c-search-input-dropdown{margin-top:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+.c-search-input-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+.c-search-input-row:hover{background:var(--color-neutral-2);}
+.c-search-input-empty{padding:var(--spacing-16); text-align:center; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+
+/* Loading — no spinner exists anywhere else in this system (Button's
+   own "Loading" row is spec-text-only). Treated as the same family as
+   Iconography's Tier 1/Regular "refresh" (an ongoing-process icon, not a
+   status/decorative one) — spinner-gap, rotated via a plain linear-
+   infinite animation at --duration-ambient, the one duration token named
+   for a continuous loop rather than a one-shot "movement settles"
+   transition. */
+.c-search-input-loading{display:flex; justify-content:center; padding:var(--spacing-16);}
+.c-search-input-spinner{font-size:var(--icon-md); color:var(--color-neutral-5); animation:c-search-input-spin var(--duration-ambient) linear infinite;}
+@keyframes c-search-input-spin{to{transform:rotate(360deg);}}
+
+/* Shared row/collapsed text — User Search adds an avatar in front of
+   this; Item Search doesn't (no standalone Avatar component exists in
+   this system to reuse either way). */
+.c-search-input-avatar{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700;}
+.c-search-input-text{display:flex; flex-direction:column; min-width:0; flex:1;}
+.c-search-input-title{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-search-input-subtitle{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+
+/* Selected/collapsed — same 40px height and footprint as the default
+   state so selecting doesn't reflow the surrounding layout. Selected
+   hover is a color swap on the clear icon to Neutral-9 (Input field's
+   own .icon-btn:hover convention), not the Neutral-2 fill-hover the old
+   UserPicker invented for the same button. */
+.c-search-input-collapsed{display:flex; align-items:center; gap:var(--spacing-12); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); cursor:pointer;}
+.c-search-input-collapsed.is-disabled{background:var(--color-neutral-2); cursor:not-allowed;}
+.c-search-input-collapsed.is-disabled .c-search-input-title,
+.c-search-input-collapsed.is-disabled .c-search-input-subtitle{color:var(--color-neutral-4);}
 
 .c-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--spacing-16);}
 .c-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8); transition:box-shadow var(--duration-base) var(--ease-settle);}
@@ -513,35 +578,6 @@
 .c-ms-footer .done{background:var(--color-obsidian); color:var(--color-neutral-1);}
 .c-ms-footer .done:hover{background:var(--color-neutral-8);}
 
-/* UserPicker — designed not transcribed
-   Collapsed row and the search input box share Input field's own
-   anatomy (40px height, radius-sm, 1px Neutral-3 border) so the two
-   states don't change footprint. Search focus is a 2px Obsidian
-   border swap, matching Input field's actual documented behavior, not
-   the Water shadow-focus ring. Dropdown reuses Filters'/Date picker's
-   popover convention (radius-md, 1px Neutral-3 border, shadow-3, 8px
-   below the trigger) and Table row's Neutral-2 hover. Avatar initials
-   use --font-primary, same as every other piece of text in the
-   component. The dropdown is shown as a normal in-flow block here (not
-   absolutely positioned/toggled), same "permanently visible for
-   reference" treatment as Date picker's panel above. */
-.c-userpicker{max-width:320px;}
-.c-userpicker-collapsed{display:flex; align-items:center; gap:var(--spacing-12); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); cursor:pointer;}
-.c-userpicker-avatar{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700;}
-.c-userpicker-text{display:flex; flex-direction:column; min-width:0; flex:1;}
-.c-userpicker-name{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.c-userpicker-role{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
-.c-userpicker-clear{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
-.c-userpicker-clear:hover{background:var(--color-neutral-2);}
-.c-userpicker-input-wrap{display:flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
-.c-userpicker-input-wrap.focused{border:2px solid var(--color-obsidian); padding:0 11px;}
-.c-userpicker-input-wrap i{flex:none; font-size:16px; color:var(--color-neutral-5);}
-.c-userpicker-input-wrap input{flex:1; min-width:0; border:none; outline:none; background:transparent; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9);}
-.c-userpicker-dropdown{margin-top:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
-.c-userpicker-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
-.c-userpicker-row:hover{background:var(--color-neutral-2);}
-.c-userpicker-empty{padding:var(--spacing-16); text-align:center; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
-
 /* Stepper — designed not transcribed
    Horizontal: rail (indicator) and connector are direct siblings of
    .c-stepper, each connector sharing one equal flex:1 pool — nesting a
@@ -578,4 +614,3 @@
 .c-pageheader{display:flex; flex-direction:column; gap:var(--spacing-8);}
 .c-pageheader h1{margin:0; font-family:var(--font-primary); font-weight:var(--text-h1-weight); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); letter-spacing:var(--text-h1-tracking); color:var(--color-neutral-9);}
 .c-pageheader .sub{margin:0; font-family:var(--font-primary); font-weight:var(--text-body1-weight); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); color:var(--color-neutral-5);}
-
