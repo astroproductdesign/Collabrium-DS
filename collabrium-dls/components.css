@@ -1,5 +1,5 @@
 /*
-  Collabrium Component CSS — v0.9.5-draft
+  Collabrium Component CSS — v0.9.6-draft
 
   Every real component's CSS rules (Button, Input field, Card, Badge &
   Tag, Table row, Modal, Empty state, SidebarNav, App Shell layout,
@@ -270,7 +270,13 @@
    main nav below is SidebarNav's .c-sidebar completely unmodified,
    just inset from the shell's edges via margin instead of centered on
    a page. One component, one spec, in two placement contexts. */
-.c-shell{display:flex; height:480px;}
+/* Canvas warm is DESIGN-SYSTEM.md's documented default page background
+   "everywhere" (Color Palette's Warm canvas note), but until now that
+   was prose only — nothing actually set it, so a page only got it if
+   someone remembered to add it by hand. .c-shell is App Shell's own
+   full-viewport container, so this is where "every screen" becomes a
+   real, automatic default instead of a convention to remember. */
+.c-shell{display:flex; height:480px; background:var(--color-canvas-warm);}
 /* Wraps .c-sidebar-shell, not .c-sidebar directly, now that SidebarNav
    has its own collapse toggle sitting outside .c-sidebar's clip (see
    SidebarNav's own comment above) — the shell wrapper is what actually

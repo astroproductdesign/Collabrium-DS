@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.5-draft** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.6-draft** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -830,7 +830,7 @@ decision if/when the product actually needs them.
 **Page canvas — a structural fact, not a new color:** the whole
 viewport is one continuous background region using whatever [Color
 Palette](#color-palette)'s Warm canvas token currently resolves to
-(default everywhere as of 2026-08-03) — App Shell doesn't set or
+(default everywhere as of 2026-08-03) — App Shell doesn't invent or
 restate that value, it just establishes that there's a single shared
 background behind everything, not per-section fills. Sidebar and Card
 sit on top of it using whatever fill their own component sections
@@ -839,6 +839,21 @@ document — again, not App Shell's to state. Note the timing: the
 build made before 2026-08-03 landing on plain white or grey product UI
 isn't a spec violation — it was correct under the rule that existed
 when it was built.
+
+| Property | Value |
+|---|---|
+| Background | `background: var(--color-canvas-warm)`, applied to `.c-shell` itself in `components.css` |
+| Scope | the whole shell — Sidebar and Card read as `Neutral-1` surfaces against it, per their own sections; App Shell references the token, never the hex |
+
+⚠️ **Enforced in code as of 2026-08-05**, not just documented: until this
+revision, "default everywhere" was prose only — nothing in
+`components.css` actually applied it, so a screen only got Canvas warm
+if whoever built it remembered to set it by hand (the same class of gap
+[Using this system in an existing project](#using-this-system-in-an-existing-project)
+exists to close for colors/pills/icons generally). `.c-shell` is App
+Shell's own full-viewport container, so setting the background there —
+once, on the token, in the one file every consuming project already
+loads — is what actually makes "every screen" true instead of aspirational.
 
 #### Main nav — a direct instance of SidebarNav, not a variant
 
@@ -2052,6 +2067,23 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.6-draft — 2026-08-05** — "Canvas warm as the default page
+  background everywhere" — documented since v0.6.0/the 2026-08-03 rule
+  change — was prose only: nothing in `components.css` actually applied
+  it, so a screen only got it if whoever built it remembered to set
+  `background: var(--color-canvas-warm)` by hand. Same class of gap as
+  the icon/pill integration failure v0.9.4-draft fixed, just for a
+  background color instead of a whole stylesheet. Fixed by adding
+  `background: var(--color-canvas-warm)` directly to `.c-shell` in
+  `components.css` — App Shell's own full-viewport container — so every
+  screen built on this pattern gets the canvas automatically, nothing
+  to remember. Still references the token, never the hex, so no scope
+  violation of App Shell's "structure and layout only" rule. Verified
+  live: `.c-shell`'s computed background resolves to `#FCFAF5` with no
+  page-level CSS added by the consuming page. Added a property table
+  and an explicit "enforced in code, not just documented" note to the
+  Page canvas paragraph so this stays checkable going forward.
 
 - **v0.9.5-draft — 2026-08-05** — App Shell's Main nav re-synced to
   SidebarNav after SidebarNav gained a collapsible rail, logo swap, and

@@ -141,7 +141,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.5-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.6-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -269,5 +269,11 @@ leftover code comment describing the long-dropped "flush rail" variant
 — both merge artifacts. Not done in this pass: a duplicate `comp-tabs`
 block from the same merge, and the larger re-sync `DESIGN-SYSTEM.md`
 now needs against `preview.html`'s embedded markdown copies, which
-drifted during the same external merge. See changelog at the bottom of
-DESIGN-SYSTEM.md.
+drifted during the same external merge. **v0.9.6 (2026-08-05) baked
+"Canvas warm everywhere" into App Shell's actual CSS** — the rule had
+been documented since v0.6.0 but never enforced, so a screen only got
+it if someone remembered to set it by hand. Added `background:
+var(--color-canvas-warm)` directly to `.c-shell` in `components.css`,
+still referencing the token rather than the hex, verified live to
+resolve to `#FCFAF5` with zero page-level CSS from the consuming
+project. See changelog at the bottom of DESIGN-SYSTEM.md.
