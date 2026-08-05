@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.10** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.11** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -933,15 +933,27 @@ Note the darkened Success and Warning text values — full-strength Green
 and Amber both fail AA on their own light fills at this size.
 
 **Tag** — labels *which element/department owns* something. 24px tall,
-10px horizontal padding, caption type at weight 700, `radius-pill`,
-Neutral-2 fill, with a **6px dot** in the element's full-strength color
-and matching text color. Distinct from Badge because ownership is not a
-status.
+10px horizontal padding, caption type at weight 700, `radius-pill`, with
+a **6px dot** in the element's full-strength color and matching text
+color. Fill is the owning element's `-bg` tint (8% — the same [Elemental
+background tint](#color-palette) used everywhere else a surface is
+colored by the element that owns its content), not a generic neutral
+fill — Fire's tag uses `--color-fire-bg` behind orange text/dot,
+Water's uses `--color-water-bg` behind navy, and so on for all five
+elements. Distinct from Badge because ownership is not a status.
 
 Both accept an optional leading `icon-micro` (14px) in the text color —
 weight follows the icon's own [Iconography](#iconography) tier (a Tag's
 element motif icon, e.g. `flame`/`drop`, is **Tier 2, Fill**, since it's a
 department indicator, not a control).
+
+**Max label length:** Badge labels take 20 characters maximum, Tag
+labels 24. Limits are enforced at content level — the component itself
+never truncates; a label that exceeds the limit must be rewritten, not
+clipped. Both are system-generated labels, so this is an authoring
+rule, not a display rule.
+
+**Grouping:** spacing-4 between adjacent Badges or Tags.
 
 **Do:** use Badge for state (Live, Paused, Blocked), Tag for ownership
 (Fire · Marketing). **Don't:** fill either solid with a brand color and
@@ -2090,6 +2102,22 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.11 — 2026-08-05** — Tag's fill switched from a generic
+  Neutral-2 background to the owning element's `-bg` tint (8%) —
+  Fire's tag is now `--color-fire-bg` behind orange text/dot, Water's
+  is `--color-water-bg` behind navy, and so on for Wood/Earth/Gold.
+  Rationale: Tag exists to signal element/department ownership, and
+  every other ownership surface in this system (Card's element-tinted
+  variant, Chart's sequential ramps, ElementBadge) already colors its
+  background with the owning element's tint rather than a neutral one
+  — Tag's generic gray fill was the one inconsistent case, undermining
+  its own "labels which element owns this" purpose at a glance. Text
+  and dot stay full-strength element color, unchanged. `components.css`
+  gained `.c-tag-earth` and `.c-tag-gold` variants that didn't exist
+  before this pass (previously only Fire/Wood/Water had dedicated
+  classes — Gold's Table row demo in `preview.html` was rendering as a
+  plain undyed tag as a result); all five elements are now covered.
 
 - **v0.9.10 — 2026-08-05** — SidebarNav's expanded default header logo
   switched from the static `logo-lockups/collabrium-default-logo.svg`
