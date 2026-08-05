@@ -141,7 +141,7 @@ over mechanical ones (sync, deploy, restore).
 
 ## Version
 
-v0.9.6-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
+v0.9.7-draft — drafted 2026-07-29 from the Collabrium brand deck (Google
 Slides). Component specs and rules added in v0.2.0; letter-spacing,
 elevation policy, a consolidated Guidelines list, and tokens.css added in
 v0.3.0; the real logo asset (`logo.html`) and a rebuilt brand-overview
@@ -276,4 +276,17 @@ it if someone remembered to set it by hand. Added `background:
 var(--color-canvas-warm)` directly to `.c-shell` in `components.css`,
 still referencing the token rather than the hex, verified live to
 resolve to `#FCFAF5` with zero page-level CSS from the consuming
-project. See changelog at the bottom of DESIGN-SYSTEM.md.
+project. **v0.9.7 (2026-08-05) added a formal box grid to App Shell's
+Content region** — a 4-column spannable grid (`.c-shell-grid` +
+`.c-shell-span-1`–`-4` in `components.css`): a box's width is always a
+whole 1/2/3/4-column span, boxes of different spans can share a row,
+every box in a row stretches to the tallest box's height (free from CSS
+Grid's `align-items: stretch`), and rows get a new fixed spacing-24
+gap between them (horizontal Column gap stays the existing
+spacing-16–20 range, untouched). Caught a real bug during live
+verification: a bare `repeat(4, 1fr)` doesn't actually produce 4 equal
+columns once boxes contain text — needed `repeat(4, minmax(0, 1fr))` to
+stop one box's content from inflating its own column past its fair
+share. `.c-stats`'s own `auto-fit` grid predates this rule and wasn't
+migrated onto it — flagged as an open inconsistency, not silently
+fixed. See changelog at the bottom of DESIGN-SYSTEM.md.

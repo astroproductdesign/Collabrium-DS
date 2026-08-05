@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.6-draft** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.7-draft** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -905,7 +905,21 @@ affordance, not a third variant.
 | Padding | `--page-gutter` (32px) horizontal, `--section-gap` (48px) top — reusing existing [Spacing & Shape](#spacing--shape) tokens, no new values introduced |
 | Max-width | full-bleed by default; 1200px centered only for reading-width content (settings, detail panels) — existing rule, unchanged |
 | Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |
-| Grid gutter | spacing-16–20 between tiles in a stat-card row — pick one value per product and hold it, don't vary row to row |
+| Column grid | 4 columns. A box's width is always a whole span of 1, 2, 3, or 4 of them — never an arbitrary fraction — so boxes of different widths can still share a row cleanly (a 1-col box next to a 3-col box, two 2-col boxes, etc). `.c-shell-grid` + `.c-shell-span-1`/`-2`/`-3`/`-4` in `components.css` |
+| Row height | within a row, every box stretches to match whichever box is naturally tallest — no hardcoded height, no per-box scroll unless a box's own component spec says otherwise. Free from CSS Grid's own `align-items: stretch` default, which is also why `.c-shell-grid` is a grid, not a wrapping flex row |
+| Column gap | spacing-16–20 between boxes *within* a row — pick one value per product and hold it, don't vary row to row. Defaults to spacing-16 in `.c-shell-grid` |
+| Row gap | spacing-24, fixed default *between* stacked rows of boxes — distinct from Section gap above (48px, between whole distinct regions like a stat row vs. a table) and from Column gap (16–20, horizontal, product's choice) |
+
+⚠️ **Added 2026-08-05, not yet reconciled with Stat/KPI card's own
+`.c-stats`:** `.c-stats` predates this grid and uses its own `auto-fit`
+column count (`repeat(auto-fit, minmax(180px, 1fr))`, `gap: 16px` on both
+axes) rather than a fixed 4-column span — that's Stat/KPI card's own
+component spec, not overridden here, same "don't touch another
+component's internals" rule that applies to [SidebarNav](#sidebarnav).
+The two systems can currently disagree on how many boxes fit per row at
+a given width. Left as an open question rather than a silent migration
+of `.c-stats`; revisit if that inconsistency turns out to matter in a
+real build.
 
 #### Page header — the top of every screen
 
@@ -933,7 +947,13 @@ used two different ways is still one component, not two specs to keep
 in sync. **Don't:** add a persistent global top bar back in without
 revisiting the 2026-08-04 decision above — if notifications or an
 account menu become a real requirement, that's a spec change, not a
-quiet addition on top of this.
+quiet addition on top of this. **Do:** size every box in Content region
+to a whole 1/2/3/4-column span, never an arbitrary width — a box that
+doesn't fit one of those four should be reconsidered, not special-cased
+with a one-off fraction. **Don't:** give a box its own fixed height to
+solve a row-height mismatch — that's what Row height's `align-items:
+stretch` is already for; a hardcoded height fights it instead of using
+it.
 
 ### Badge & Tag
 
@@ -2067,6 +2087,41 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.7-draft — 2026-08-05** — New App Shell / Content region layout
+  rule: a formal box grid, requested directly rather than reverse-
+  engineered from a build. Three decisions confirmed before writing
+  anything (all three went with the recommended option):
+
+  1. **Column model** — 4-column spannable grid, not fixed N-up rows.
+     A box's width is always a whole span of 1, 2, 3, or 4 columns, and
+     boxes of different spans can share a row (a 1-col box next to a
+     3-col box), rather than every box in a row being forced equal
+     width.
+  2. **Row height** — equal-height stretch (every box in a row grows to
+     match the row's tallest box), not a hardcoded max-height cap. Free
+     from CSS Grid's own `align-items: stretch` default.
+  3. **New 24px spacing** — vertical-only, between stacked rows of
+     boxes. The existing horizontal Column gap rule (spacing-16–20,
+     product's choice) is unchanged and untouched.
+
+  Implemented as `.c-shell-grid` + `.c-shell-span-1`/`-2`/`-3`/`-4` in
+  `components.css`. One real bug caught during live verification, not
+  just assumed correct: `grid-template-columns: repeat(4, 1fr)` doesn't
+  actually produce 4 equal columns when the boxes inside contain text —
+  a plain `1fr` track's implicit `min-width: auto` lets a box's own
+  text content inflate its column past its fair 1/4 share (measured
+  columns of 37/37/37/124px instead of four equal ~59px tracks before
+  the fix). Corrected to `repeat(4, minmax(0, 1fr))`, re-verified via
+  computed styles: four genuinely equal columns, a 3-col box measuring
+  exactly 3× a 1-col box's width plus its internal gaps, both boxes in
+  the row the same height despite very different amounts of text.
+
+  Flagged, not silently fixed: Stat/KPI card's own `.c-stats` predates
+  this rule and uses its own `auto-fit` column count rather than a
+  fixed 4-column span — that's Stat/KPI card's own component spec, not
+  something App Shell overrides, same principle as not touching
+  SidebarNav's internals. Left as an open, documented inconsistency.
 
 - **v0.9.6-draft — 2026-08-05** — "Canvas warm as the default page
   background everywhere" — documented since v0.6.0/the 2026-08-03 rule

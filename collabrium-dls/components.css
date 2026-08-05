@@ -1,5 +1,5 @@
 /*
-  Collabrium Component CSS — v0.9.6-draft
+  Collabrium Component CSS — v0.9.7-draft
 
   Every real component's CSS rules (Button, Input field, Card, Badge &
   Tag, Table row, Modal, Empty state, SidebarNav, App Shell layout,
@@ -295,6 +295,26 @@
 .c-shell-page-header h1{margin:0 0 var(--spacing-4); font-size:var(--text-h1-size); font-weight:var(--text-h1-weight); color:var(--color-neutral-9);}
 .c-shell-page-header p{margin:0; color:var(--color-neutral-5); font-size:var(--text-body2-size);}
 .c-shell-actions{display:flex; gap:var(--element-gap); flex:0 0 auto;}
+
+/* Content region — box grid, added 2026-08-05. General-purpose grid for
+   arranging cards/panels/boxes inside Content region — distinct from
+   Stat/KPI card's own .c-stats auto-fit grid below, which predates this
+   rule and isn't migrated onto it (see DESIGN-SYSTEM.md's Content
+   region note on that gap). 4 columns; a box's width is always a whole
+   span of 1-4 of them, never an arbitrary fraction. Row-gap is a fixed
+   spacing-24 default; column-gap stays the existing spacing-16-20
+   "pick one value, hold it" range, defaulting to spacing-16 here.
+   "All boxes in a row follow the tallest box's height" comes free from
+   CSS Grid's own align-items:stretch default — no explicit height math
+   needed, which is also why this is a grid and not a wrapping flex
+   row (a flex row's stretch only applies within one flex line, and
+   wrapping flex lines don't reliably map to a fixed column count the
+   way grid rows do). */
+.c-shell-grid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); column-gap:var(--spacing-16); row-gap:var(--spacing-24);} /* minmax(0, 1fr), not plain 1fr — a bare 1fr's implicit min-width:auto lets one box's text content inflate its own column past its fair 1/4 share; minmax(0, ...) removes that floor so all 4 columns stay genuinely equal regardless of what's inside them */
+.c-shell-grid > .c-shell-span-1{grid-column:span 1;}
+.c-shell-grid > .c-shell-span-2{grid-column:span 2;}
+.c-shell-grid > .c-shell-span-3{grid-column:span 3;}
+.c-shell-grid > .c-shell-span-4{grid-column:span 4;}
 
 /* Tabs */
 .c-tabs{display:flex; gap:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3);}

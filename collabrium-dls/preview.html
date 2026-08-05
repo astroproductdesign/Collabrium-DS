@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.6-draft</title>
+<title>Collabrium design system | v0.9.7-draft</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -456,7 +456,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.6-draft</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.7-draft</span>
 </header>
 
 <div class="layout">
@@ -805,9 +805,15 @@
                       <span class="c-stat-trend flat"><i class="ph-fill ph-minus"></i>No change</span>
                     </div>
                   </div>
-                  <div class="c-card" style="margin-top:var(--spacing-20)">
-                    <h4>Usage by project</h4>
-                    <p>Content region fill is Canvas warm, same as the page &mdash; the Card is what carries the white figure-ground contrast, not a second background here.</p>
+                  <div class="c-shell-grid" style="margin-top:var(--spacing-24)">
+                    <div class="c-card c-shell-span-3">
+                      <h4>Usage by project</h4>
+                      <p>Content region fill is Canvas warm, same as the page &mdash; the Card is what carries the white figure-ground contrast, not a second background here. This box spans 3 of the 4 columns.</p>
+                    </div>
+                    <div class="c-card c-shell-span-1">
+                      <h4>Quick note</h4>
+                      <p>1-col box, far less content &mdash; stretches to match the 3-col box's height automatically. Neither box has a fixed height.</p>
+                    </div>
                   </div>
                 </div>
               </div>
