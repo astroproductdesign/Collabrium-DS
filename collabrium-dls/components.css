@@ -200,9 +200,13 @@
 .c-badge-selected{background:var(--color-neutral-1); color:var(--color-neutral-9); border-color:var(--color-obsidian);}
 .c-tag{display:inline-flex; align-items:center; gap:4px; font-size:var(--text-caption-size); font-weight:700; height:24px; padding:0 10px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-5);}
 .c-tag .dot{width:6px; height:6px; border-radius:var(--radius-pill); flex:none;}
-.c-tag-fire{color:var(--color-orange);} .c-tag-fire .dot{background:var(--color-orange);}
-.c-tag-wood{color:var(--color-salmon-pink);} .c-tag-wood .dot{background:var(--color-salmon-pink);}
-.c-tag-water{color:var(--color-navy);} .c-tag-water .dot{background:var(--color-navy);}
+/* Elemental fill — the owning element's -bg tint (8%), not the generic
+   Neutral-2 above. Text/dot stay full-strength element color. */
+.c-tag-fire{background:var(--color-fire-bg); color:var(--color-orange);} .c-tag-fire .dot{background:var(--color-orange);}
+.c-tag-wood{background:var(--color-wood-bg); color:var(--color-salmon-pink);} .c-tag-wood .dot{background:var(--color-salmon-pink);}
+.c-tag-earth{background:var(--color-earth-bg); color:var(--color-green);} .c-tag-earth .dot{background:var(--color-green);}
+.c-tag-water{background:var(--color-water-bg); color:var(--color-navy);} .c-tag-water .dot{background:var(--color-navy);}
+.c-tag-gold{background:var(--color-gold-bg); color:var(--color-amber);} .c-tag-gold .dot{background:var(--color-amber);}
 
 .c-table{width:100%; border-collapse:collapse;}
 .c-table th{text-align:left; font-size:var(--text-label3-size); text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-5); border-bottom:1px solid var(--color-neutral-3); padding:var(--spacing-12) var(--spacing-8); font-weight:600;}
@@ -232,8 +236,20 @@
 .c-sidebar-header{padding:var(--spacing-8) var(--spacing-8) var(--spacing-16); display:flex; align-items:center;}
 .c-sidebar.is-collapsed .c-sidebar-header{justify-content:center;} /* logo independently centered, no longer paired with the toggle */
 .c-sidebar-logo{display:flex; align-items:center;}
-.c-sidebar-logo img{height:22px; width:auto; display:block;}
-.c-sidebar.is-collapsed .c-sidebar-logo img{height:24px; width:24px;}
+/* Default (no department context), expanded — the live animated mark,
+   embedded via iframe per the Header logo rule's 2026-08-05 change.
+   logo.html renders its SVG inside its own 16px top/bottom padding, so
+   a wrapper crops that padding out via overflow:hidden + an absolutely
+   -positioned iframe offset up by that same 16px, rather than growing
+   the header to fit the padded embed at full size. */
+.c-sidebar-logo-live-wrap{width:118px; height:22px; overflow:hidden; position:relative;}
+.c-sidebar-logo-live-wrap iframe{position:absolute; top:-16px; left:0; width:118px; height:53px; border:0; pointer-events:none;}
+/* Collapsed (any context), and expanded department-specific — still a
+   static asset (element icon / coin.svg collapsed, a department
+   lockup expanded) — unchanged by the animated-default switch above. */
+.c-sidebar-logo-collapsed{display:none; height:24px; width:24px;}
+.c-sidebar.is-collapsed .c-sidebar-logo-live-wrap{display:none;}
+.c-sidebar.is-collapsed .c-sidebar-logo-collapsed{display:block;}
 .c-sidebar-section{padding:var(--spacing-16) var(--spacing-8) var(--spacing-4); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
 .c-sidebar-divider{border:none; border-top:1px solid var(--color-neutral-3); margin:var(--spacing-8) 0 0;}
 .c-sidebar.is-collapsed .c-sidebar-section,
@@ -410,6 +426,33 @@
 .c-toast .body{flex:1; min-width:0;}
 .c-toast .title{font-size:var(--text-body1-size); font-weight:700;}
 .c-toast .message{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+/* Message-only layout variant — message becomes the primary content, so it
+   renders at body1 weight 500 rather than the secondary-caption treatment
+   it gets under a title. Per Toast, Layout variants. */
+.c-toast.is-message-only .message{font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight); color:var(--color-neutral-9);}
+.c-toast .action{margin-top:var(--spacing-8);}
+
+/* Entrance/exit animation — duration-base + ease-standard (the non-elemental
+   default; Toast isn't owned by a specific brand element). Per Toast,
+   Animation. */
+.c-toast{transition:transform var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);}
+.c-toast.is-entering{opacity:0; transform:translateY(16px);}
+.c-toast.is-exiting{opacity:0; transform:translateY(8px);}
+@media (prefers-reduced-motion:reduce){
+  .c-toast{transition:none;}
+}
+
+/* Toast host — fixed bottom-right, spacing-24 offset, stacked newest-on-top
+   with a spacing-8 gap; collapses to a full-width bottom band with
+   spacing-12 margins under 640px. Per Toast, Positioning / Stacking
+   behaviour. z-index sits above page content — this system has no numeric
+   z-index scale, so "below modal overlays" is a structural note for
+   whoever wires a Modal in front of it, not a value here. */
+.c-toast-host{position:fixed; right:var(--spacing-24); bottom:var(--spacing-24); z-index:1000; display:flex; flex-direction:column-reverse; gap:var(--spacing-8); width:380px; max-width:calc(100vw - var(--spacing-24) * 2); pointer-events:none;}
+.c-toast-host .c-toast{pointer-events:auto; position:relative;}
+@media (max-width:640px){
+  .c-toast-host{left:var(--spacing-12); right:var(--spacing-12); bottom:var(--spacing-12); width:auto; max-width:none;}
+}
 
 /* Tooltip */
 .c-tooltip-wrap{position:relative; display:inline-flex;}

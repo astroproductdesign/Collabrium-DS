@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.12** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.15** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -947,15 +947,27 @@ Note the darkened Success and Warning text values — full-strength Green
 and Amber both fail AA on their own light fills at this size.
 
 **Tag** — labels *which element/department owns* something. 24px tall,
-10px horizontal padding, caption type at weight 700, `radius-pill`,
-Neutral-2 fill, with a **6px dot** in the element's full-strength color
-and matching text color. Distinct from Badge because ownership is not a
-status.
+10px horizontal padding, caption type at weight 700, `radius-pill`, with
+a **6px dot** in the element's full-strength color and matching text
+color. Fill is the owning element's `-bg` tint (8% — the same [Elemental
+background tint](#color-palette) used everywhere else a surface is
+colored by the element that owns its content), not a generic neutral
+fill — Fire's tag uses `--color-fire-bg` behind orange text/dot,
+Water's uses `--color-water-bg` behind navy, and so on for all five
+elements. Distinct from Badge because ownership is not a status.
 
 Both accept an optional leading `icon-micro` (14px) in the text color —
 weight follows the icon's own [Iconography](#iconography) tier (a Tag's
 element motif icon, e.g. `flame`/`drop`, is **Tier 2, Fill**, since it's a
 department indicator, not a control).
+
+**Max label length:** Badge labels take 20 characters maximum, Tag
+labels 24. Limits are enforced at content level — the component itself
+never truncates; a label that exceeds the limit must be rewritten, not
+clipped. Both are system-generated labels, so this is an authoring
+rule, not a display rule.
+
+**Grouping:** spacing-4 between adjacent Badges or Tags.
 
 **Do:** use Badge for state (Live, Paused, Blocked), Tag for ownership
 (Fire · Marketing). **Don't:** fill either solid with a brand color and
@@ -1537,8 +1549,8 @@ instead.
 | Collapsed — visible elements | icon only; labels, section labels, and trailing count text are all hidden |
 | Collapsed — alignment | every nav item's icon is center-aligned horizontally within the 72px rail. The header logo/element icon is **independently** centered the same way (not paired with the toggle icon — the toggle is a floating overlay anchored to the rail's own right edge instead, see Toggle trigger — collapsed, above, and doesn't participate in this centered alignment at all). Expanded stays left-aligned throughout |
 | Collapsed — trailing count | converts to an 8px dot badge (matches `spacing-8`) in the item's owning element accent color (same override logic as the Icon row above), overlaid top-right on the icon |
-| Collapsed — logo | collapses to the individual department element icon, `SVG/{element}.svg` (`fire.svg`/`wood.svg`/`earth.svg`/`water.svg`); the default (no department context) collapses to `SVG/coin.svg` specifically — not `logo-lockups/collabrium-default-logo.svg`, which stays the expanded-state default per the Logo section above |
-| Toggle behavior — logo asset | the logo's underlying image **asset swaps** on toggle, not just resizes or repositions. Expanding swaps back to the full wordmark/lockup (`logo-lockups/`); collapsing swaps to the element icon/`coin.svg` (`SVG/`) |
+| Collapsed — logo | collapses to the individual department element icon, `SVG/{element}.svg` (`fire.svg`/`wood.svg`/`earth.svg`/`water.svg`); the default (no department context) collapses to `SVG/coin.svg` specifically — not the expanded-state default (`logo.html` live, or a department lockup — see the Header logo rule above) |
+| Toggle behavior — logo asset | the logo swaps entirely on toggle, not just resizes or repositions. Expanding restores the live `logo.html` embed (default context) or the static lockup (department context); collapsing (either context) swaps to the static element icon/`coin.svg` (`SVG/`). The implementation needs a conditional for "restore the iframe" vs. "restore an img" rather than a single `img.src` swap, since the default expanded state is no longer an `<img>` |
 | Collapsed — hover label | SidebarNav's own sub-pattern, not a reused [Tooltip](#tooltip) instance. Appears on icon hover **or keyboard focus**, shows the full nav item label, positioned to the right of the icon: same bubble visuals as Tooltip (6px/10px padding, `radius-sm`, Neutral-7 fill, Neutral-1 text, caption/500, opacity-only transition, `pointer-events: none`) but built and owned independently, because Tooltip's own spec assumes a plain relatively-positioned trigger wrapper — that model doesn't survive being placed inside SidebarNav's own scrolling item list (a vertically-scrolling container's `overflow-x` is forced to clip too, per the CSS overflow spec, which silently cuts off anything trying to render past its edge). SidebarNav's hover label is implemented as a single element that positions itself against the hovered icon directly, escaping that scroll container rather than living inside it |
 | Transition | `width` — `var(--duration-slow) var(--ease-standard)` (`duration-slow`'s stated purpose is "panel / section reveals," an exact match; `ease-standard` since a sidebar collapse isn't owned by a specific brand element — per Motion's own rule, "reach for an elemental curve deliberately, not by default") |
 | Persistence | collapsed/expanded state saved to `localStorage`, restored on load |
@@ -1547,14 +1559,15 @@ instead.
 
 | Context | Logo |
 |---|---|
-| Default (expanded, no department context) | full Collabrium wordmark — `logo-lockups/collabrium-default-logo.svg` |
-| Department-specific (expanded, passed via prop) | the matching department's element-colored lockup from `logo-lockups/` (see the Logo section's table above — only the Gold/default variant currently exists; the other 4 are flagged not-yet-provided) |
-| Collapsed (any context) | individual department element icon, `SVG/{element}.svg`; default collapses to `SVG/coin.svg` specifically (same as the Collapsible state row above) |
+| Default (expanded, no department context) | the live animated mark, `logo.html`, embedded via `<iframe>` — SidebarNav's header has plenty of room to run the animation at 240px, per [SKILL.md](SKILL.md)'s own rule ("use `logo.html` wherever the mark can animate") |
+| Department-specific (expanded, passed via prop) | still the matching department's element-colored **static** lockup from `logo-lockups/` (see the Logo section's table above — only the Gold/default variant currently exists; the other 4 are flagged not-yet-provided) — `logo.html`'s animation always cycles through all 5 elements in sequence, so it can't freeze on one department's color; a department-specific header needs the static, single-color lockup instead |
+| Collapsed (any context) | individual department element icon, `SVG/{element}.svg`; default collapses to `SVG/coin.svg` specifically — 72px has no room to run the full wordmark animation, matching [SKILL.md](SKILL.md)'s "where it can't [animate], use a static lockup" half of the same rule |
 | Alignment | Expanded: always left-aligned. Collapsed: **independently** center-aligned within the 72px rail (see the Collapsible state's "Collapsed — alignment" row above) — the toggle trigger sits on the same row but doesn't share this centered alignment, since it's a floating overlay anchored to the rail's own right edge instead (see "Toggle trigger — collapsed," above) |
 
-**Do:** always reference the logo library (`logo-lockups/` expanded,
-`SVG/` collapsed) — never build or embed a custom one-off logo asset for
-a header.
+**Do:** always reference the logo library (`logo.html` embedded live for
+the expanded default, a department lockup from `logo-lockups/` for an
+expanded department-specific header, `SVG/` for collapsed) — never build
+or embed a custom one-off logo asset for a header.
 
 **Second-level navigation.**
 
@@ -1709,6 +1722,68 @@ All four are **Tier 2, Fill** status indicators, per [Iconography](#iconography)
 necessary, newest on top. **Don't:** put a destructive action in a
 Toast's action slot; a surface that disappears on its own is the wrong
 place for an irreversible decision.
+
+**Positioning:**
+
+| Property | Spec |
+|---|---|
+| Default position | bottom-right corner of the viewport |
+| Offset | spacing-24 from the bottom edge, spacing-24 from the right edge |
+| Mobile | full width, anchored to the bottom of the screen, spacing-12 left/right/bottom margin |
+| Stacking layer | above all page content; below the Modal's `shadow-overlay` scrim (see [Modal](#modal)) — this document has no numeric z-index token scale, so the relationship is stated structurally rather than as a value |
+| Scroll behavior | fixed position — does not scroll with the page |
+
+**Auto-dismiss timing:**
+
+| Property | Spec |
+|---|---|
+| Default duration | 5000ms |
+| Neutral / Success / Warning | auto-dismiss after 5000ms |
+| Danger | does not auto-dismiss — requires explicit dismissal via the Close button |
+| Hover behavior | the dismiss timer pauses on mouse enter, resumes on mouse leave |
+| Minimum display time | 2000ms, regardless of user interaction |
+
+**Animation:**
+
+| Property | Spec |
+|---|---|
+| Entrance | slide up from the bottom edge + fade in |
+| Exit | fade out + slight slide down |
+| Duration | `duration-base` (220ms) — closest of the [Motion](#motion) duration tokens to a toast-appropriate 200ms, and its stated purpose ("default UI transitions") fits |
+| Easing | `ease-standard` — the non-elemental default, since Toast isn't owned by a specific brand element (same reasoning as the Sidebar collapse and accordion transitions); also matches Toast's existing opacity `Transition` row above |
+| Stacking reposition | when a Toast is added or removed, the remaining stack animates to its new position rather than jumping |
+| Reduced motion | when `prefers-reduced-motion` is set, all of the above is disabled — Toasts appear and disappear instantly |
+
+**Stacking behaviour:**
+
+| Property | Spec |
+|---|---|
+| Maximum visible | 3 Toasts on screen at once |
+| Stack order | newest on top |
+| Gap between stacked Toasts | spacing-8 |
+| Queue | a 4th trigger while 3 are visible queues rather than displaying immediately |
+| Queue order | FIFO — first triggered, first to appear when space opens |
+| Dismiss timers | each Toast in the stack keeps its own independent timer, unaffected by the others |
+
+**Layout variants:**
+
+| Variant | Spec |
+|---|---|
+| Title + Message (full) | the documented default above — icon aligns to the title, message sits below |
+| Title only | icon aligns vertically to the title; no Message slot renders |
+| Message only | icon aligns to the message text; the message renders at body1 weight 500 (not caption, since it's now the primary content rather than a secondary line under a title) |
+| Title + Message + Action | Action slot renders below the message, spacing-8 above it (existing rule, unchanged) |
+| Icon + Close only | not permitted — a message is required at minimum |
+
+**Content length:**
+
+| Property | Spec |
+|---|---|
+| Title | 50 characters maximum |
+| Message | 100 characters maximum |
+| Enforcement | at content-authoring level — the component itself does not truncate or clip |
+| Over limit | the copy must be rewritten, not shortened by the component |
+| Rationale | Toast content is system-generated, so character limits are an authoring rule, not a display rule |
 
 ### Tooltip
 
@@ -2124,7 +2199,7 @@ version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
 
-- **v0.9.12 — 2026-08-05** — Reverted PageHeader's **With actions**
+- **v0.9.15 — 2026-08-05** — Reverted PageHeader's **With actions**
   variant, added in the previous pass — explicit user direction: the
   standalone component ships only Default and With subtitle, per its
   original two-variant scope. The actions row itself wasn't removed,
@@ -2137,7 +2212,7 @@ with nothing else to keep in sync.
   from `preview.html`'s PageHeader gallery block (App Shell's own demo
   is unchanged).
 
-- **v0.9.11 — 2026-08-05** — Fixed **PageHeader**: App Shell had
+- **v0.9.14 — 2026-08-05** — Fixed **PageHeader**: App Shell had
   been keeping its own parallel copy (`.c-shell-page-header`/
   `.c-shell-actions` in `components.css`) instead of composing the
   actual `PageHeader` component, so the two had drifted apart —
@@ -2172,7 +2247,7 @@ with nothing else to keep in sync.
   silently left inconsistent; needs a follow-up decision (build the
   pill trigger, or revise the spec to match what's actually reusable).
 
-- **v0.9.10 — 2026-08-05** — Consolidated **UserPicker** and
+- **v0.9.13 — 2026-08-05** — Consolidated **UserPicker** and
   **Search input clear button** into a single new **Search input**
   component (three variants: Default — the old clear-button pattern;
   User Search — UserPicker, unchanged in substance; Item Search — new,
@@ -2199,6 +2274,75 @@ with nothing else to keep in sync.
   their ToC entries) rather than leaving redirects — a standing note
   under Search input points here instead. Net component count: 29 → 28
   (two removed, one added). Updated the ToC and Scope note to match.
+
+- **v0.9.12 — 2026-08-05** — Toast gained six new subsections:
+  Positioning, Auto-dismiss timing, Animation, Stacking behaviour,
+  Layout variants, and Content length. Rationale: the prior spec
+  covered anatomy and tone but left placement, timing, and interaction
+  behavior unspecced, which meant every implementation would have
+  guessed independently. All new values reuse existing tokens only —
+  spacing-8/12/24 for gaps and offsets, `duration-base` +
+  `ease-standard` for motion (see the Animation subsection for why
+  those two specifically), Neutral-9/Green/Red/Amber for tone, already
+  established in the tone table above. One gap surfaced in the
+  process: this document has no numeric z-index token scale, so
+  Positioning's stacking-layer rule is stated structurally (relative
+  to the Modal's `shadow-overlay`) rather than as a value — flagged
+  here rather than inventing one. Verified first in a standalone test
+  preview outside `preview.html`, then implemented for real:
+  `components.css` gained `.c-toast-host` (the fixed bottom-right
+  stacking container, with its own mobile breakpoint), the
+  entrance/exit transition (`duration-base`/`ease-standard`, disabled
+  under `prefers-reduced-motion`), and the message-only layout
+  variant's type override. `preview.html`'s Toast gallery entry gained
+  a live interaction demo — trigger buttons that fire real toasts into
+  `.c-toast-host`, exercising auto-dismiss timing (including Danger's
+  no-auto-dismiss and the 2000ms minimum display time), hover-to-pause,
+  and the 3-visible stacking cap with FIFO queueing — inside a bounded
+  `.c-toast-stage` demo container (gallery-only CSS, same containment
+  pattern as `.c-modal-stage`) so it doesn't cover the whole gallery
+  page the way the real fixed positioning would.
+
+- **v0.9.11 — 2026-08-05** — Tag's fill switched from a generic
+  Neutral-2 background to the owning element's `-bg` tint (8%) —
+  Fire's tag is now `--color-fire-bg` behind orange text/dot, Water's
+  is `--color-water-bg` behind navy, and so on for Wood/Earth/Gold.
+  Rationale: Tag exists to signal element/department ownership, and
+  every other ownership surface in this system (Card's element-tinted
+  variant, Chart's sequential ramps, ElementBadge) already colors its
+  background with the owning element's tint rather than a neutral one
+  — Tag's generic gray fill was the one inconsistent case, undermining
+  its own "labels which element owns this" purpose at a glance. Text
+  and dot stay full-strength element color, unchanged. `components.css`
+  gained `.c-tag-earth` and `.c-tag-gold` variants that didn't exist
+  before this pass (previously only Fire/Wood/Water had dedicated
+  classes — Gold's Table row demo in `preview.html` was rendering as a
+  plain undyed tag as a result); all five elements are now covered.
+
+- **v0.9.10 — 2026-08-05** — SidebarNav's expanded default header logo
+  switched from the static `logo-lockups/collabrium-default-logo.svg`
+  lockup to the live animated mark, embedded via `<iframe src="logo.html">`.
+  Rationale: [SKILL.md](SKILL.md) already says to use `logo.html`
+  "wherever the mark can animate," and a 240px-wide header has plenty
+  of room — the static lockup was the un-argued exception, not a
+  deliberate choice. Scope is deliberately narrow: an expanded
+  department-specific header still uses its static element-colored
+  lockup (`logo.html`'s animation cycles through all 5 elements, so it
+  can't freeze on one department's color), and the collapsed 72px rail
+  still uses the static element icon/`coin.svg` (no room to run the
+  animation there either). Implementation: the iframe renders inside
+  its own 16px top/bottom padding, so `.c-sidebar-logo-live-wrap` crops
+  that out via `overflow: hidden` plus an absolutely-positioned iframe
+  offset up by the same 16px, rather than growing the header to fit
+  the padded embed at full size. The old single-`<img>` src-swap
+  technique (`data-expanded-src`/`data-collapsed-src`) no longer covers
+  the default case now that expanding restores an iframe rather than
+  an image, so the toggle's JS was simplified instead: the live embed
+  and the static collapsed icon are both always present in the markup,
+  and CSS alone shows/hides each off `.c-sidebar.is-collapsed`.
+  `components.css` and both `preview.html` demos (the standalone
+  SidebarNav gallery block and App Shell's own nav instance) updated
+  together.
 
 - **v0.9.9 — 2026-08-05** — Reserved "Level 2" as a named,
   documented placeholder for a future drill-down/detail-screen layout
