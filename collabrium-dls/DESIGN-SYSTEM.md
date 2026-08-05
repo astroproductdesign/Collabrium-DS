@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.5** — 2026-08-04 — Sourced from the Collabrium brand deck
+**v0.9.9** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -786,6 +786,21 @@ background behind everything, not per-section fills. Sidebar and Card
 sit on top of it using whatever fill their own component sections
 document — again, not App Shell's to state.
 
+| Property | Value |
+|---|---|
+| Background | `background: var(--color-canvas-warm)`, applied to `.c-shell` itself in `components.css` |
+| Scope | the whole shell — Sidebar and Card read as `Neutral-1` surfaces against it, per their own sections; App Shell references the token, never the hex |
+
+⚠️ **Enforced in code as of 2026-08-05**, not just documented: until this
+revision, "default everywhere" was prose only — nothing in
+`components.css` actually applied it, so a screen only got Canvas warm
+if whoever built it remembered to set it by hand (the same class of gap
+[Using this system in an existing project](#using-this-system-in-an-existing-project)
+exists to close for colors/pills/icons generally). `.c-shell` is App
+Shell's own full-viewport container, so setting the background there —
+once, on the token, in the one file every consuming project already
+loads — is what actually makes "every screen" true instead of aspirational.
+
 #### Main nav — a direct instance of SidebarNav, not a variant
 
 **The main nav follows the SidebarNav component exactly** — same 240px
@@ -827,7 +842,21 @@ affordance, not a third variant.
 | Padding | `--page-gutter` (32px) horizontal, `--section-gap` (48px) top — reusing existing [Spacing & Shape](#spacing--shape) tokens, no new values introduced |
 | Max-width | full-bleed by default; 1200px centered only for reading-width content (settings, detail panels) — existing rule, unchanged |
 | Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |
-| Grid gutter | spacing-16–20 between tiles in a stat-card row — pick one value per product and hold it, don't vary row to row |
+| Column grid | 4 columns. A box's width is always a whole span of 1, 2, 3, or 4 of them — never an arbitrary fraction — so boxes of different widths can still share a row cleanly (a 1-col box next to a 3-col box, two 2-col boxes, etc). `.c-shell-grid` + `.c-shell-span-1`/`-2`/`-3`/`-4` in `components.css` |
+| Row height | within a row, every box stretches to match whichever box is naturally tallest — no hardcoded height, no per-box scroll unless a box's own component spec says otherwise. Free from CSS Grid's own `align-items: stretch` default, which is also why `.c-shell-grid` is a grid, not a wrapping flex row |
+| Column gap | spacing-16–20 between boxes *within* a row — pick one value per product and hold it, don't vary row to row. Defaults to spacing-16 in `.c-shell-grid` |
+| Row gap | spacing-24, fixed default *between* stacked rows of boxes — distinct from Section gap above (48px, between whole distinct regions like a stat row vs. a table) and from Column gap (16–20, horizontal, product's choice) |
+
+⚠️ **Added 2026-08-05, not yet reconciled with Stat/KPI card's own
+`.c-stats`:** `.c-stats` predates this grid and uses its own `auto-fit`
+column count (`repeat(auto-fit, minmax(180px, 1fr))`, `gap: 16px` on both
+axes) rather than a fixed 4-column span — that's Stat/KPI card's own
+component spec, not overridden here, same "don't touch another
+component's internals" rule that applies to [SidebarNav](#sidebarnav).
+The two systems can currently disagree on how many boxes fit per row at
+a given width. Left as an open question rather than a silent migration
+of `.c-stats`; revisit if that inconsistency turns out to matter in a
+real build.
 
 #### Page header — the top of every screen
 
@@ -843,6 +872,23 @@ the shell has, not a block nested below a separate bar.
 | Actions / CTAs | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — a period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control. Zero, one, or several CTAs are all valid; the row simply collapses when empty |
 | Gap to content below | `--section-gap` (48px) |
 
+⚠️ **Reserved, added 2026-08-05, not yet specced:** everything above is
+Level 1 — the shared outer frame (Sidebar, Content region, Page header)
+every screen gets. A **Level 2** exists conceptually for
+drill-down/detail screens — a Back control and breadcrumb replacing or
+augmenting Page header's plain title/subtitle once a user navigates
+into a specific record — but has no rules yet. Deliberately deferred:
+guessing Back/breadcrumb behavior with no real detail-view build to
+react against risks the same fate as App Shell's own first-draft flush-
+rail nav variant (plausible, wrong, undone later). **Trigger to actually
+write it: the moment a team is about to build the first real drill-down
+screen, before they build it** — not after divergent builds show up, or
+this section will have recreated the exact "N teams, N answers" problem
+App Shell itself exists to close, just one level deeper. When written,
+Level 2 extends this section (same relationship Main nav has to
+SidebarNav — a use of the existing frame, not a second one) rather than
+replacing it.
+
 **Do:** let Sidebar own primary navigation and its own Header/Footer
 slots — there's no second nav surface to reach for. Keep the whole
 viewport on `Canvas warm` and let Sidebar/Card read as white surfaces
@@ -854,7 +900,13 @@ used two different ways is still one component, not two specs to keep
 in sync. **Don't:** add a persistent global top bar back in without a
 deliberate spec change — if notifications or an
 account menu become a real requirement, that's a spec change, not a
-quiet addition on top of this.
+quiet addition on top of this. **Do:** size every box in Content region
+to a whole 1/2/3/4-column span, never an arbitrary width — a box that
+doesn't fit one of those four should be reconsidered, not special-cased
+with a one-off fraction. **Don't:** give a box its own fixed height to
+solve a row-height mismatch — that's what Row height's `align-items:
+stretch` is already for; a hardcoded height fights it instead of using
+it.
 
 ### Badge & Tag
 
@@ -2037,6 +2089,122 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.9 — 2026-08-05** — Reserved "Level 2" as a named,
+  documented placeholder for a future drill-down/detail-screen layout
+  (Back control + breadcrumb), added to Page header's subsection.
+  Explicitly NOT specced yet — deliberately deferred until a real
+  detail-view build exists to design against, rather than guessed at
+  cold (App Shell's own first-draft flush-rail nav variant is the
+  cautionary example for guessing composition rules with nothing real
+  to react against). Documents the trigger for actually writing it —
+  before the first real drill-down screen ships, not after divergent
+  builds show up — and the intended relationship to this section
+  (extends App Shell, doesn't replace it, same pattern as Main nav's
+  relationship to SidebarNav). No CSS/markup changes — `components.css`
+  and `preview.html`'s embedded copies are unaffected, so their own
+  version stamps aren't bumped this round (same precedent as
+  `tokens.css` lagging behind when its actual content hasn't changed).
+
+- **v0.9.8 — 2026-08-05** — New App Shell / Content region layout
+  rule: a formal box grid, requested directly rather than reverse-
+  engineered from a build. Three decisions confirmed before writing
+  anything (all three went with the recommended option):
+
+  1. **Column model** — 4-column spannable grid, not fixed N-up rows.
+     A box's width is always a whole span of 1, 2, 3, or 4 columns, and
+     boxes of different spans can share a row (a 1-col box next to a
+     3-col box), rather than every box in a row being forced equal
+     width.
+  2. **Row height** — equal-height stretch (every box in a row grows to
+     match the row's tallest box), not a hardcoded max-height cap. Free
+     from CSS Grid's own `align-items: stretch` default.
+  3. **New 24px spacing** — vertical-only, between stacked rows of
+     boxes. The existing horizontal Column gap rule (spacing-16–20,
+     product's choice) is unchanged and untouched.
+
+  Implemented as `.c-shell-grid` + `.c-shell-span-1`/`-2`/`-3`/`-4` in
+  `components.css`. One real bug caught during live verification, not
+  just assumed correct: `grid-template-columns: repeat(4, 1fr)` doesn't
+  actually produce 4 equal columns when the boxes inside contain text —
+  a plain `1fr` track's implicit `min-width: auto` lets a box's own
+  text content inflate its column past its fair 1/4 share (measured
+  columns of 37/37/37/124px instead of four equal ~59px tracks before
+  the fix). Corrected to `repeat(4, minmax(0, 1fr))`, re-verified via
+  computed styles: four genuinely equal columns, a 3-col box measuring
+  exactly 3× a 1-col box's width plus its internal gaps, both boxes in
+  the row the same height despite very different amounts of text.
+
+  Flagged, not silently fixed: Stat/KPI card's own `.c-stats` predates
+  this rule and uses its own `auto-fit` column count rather than a
+  fixed 4-column span — that's Stat/KPI card's own component spec, not
+  something App Shell overrides, same principle as not touching
+  SidebarNav's internals. Left as an open, documented inconsistency.
+
+- **v0.9.7 — 2026-08-05** — "Canvas warm as the default page
+  background everywhere" — documented since v0.6.0/the 2026-08-03 rule
+  change — was prose only: nothing in `components.css` actually applied
+  it, so a screen only got it if whoever built it remembered to set
+  `background: var(--color-canvas-warm)` by hand. Same class of gap as
+  the icon/pill integration failure v0.9.4 fixed, just for a
+  background color instead of a whole stylesheet. Fixed by adding
+  `background: var(--color-canvas-warm)` directly to `.c-shell` in
+  `components.css` — App Shell's own full-viewport container — so every
+  screen built on this pattern gets the canvas automatically, nothing
+  to remember. Still references the token, never the hex, so no scope
+  violation of App Shell's "structure and layout only" rule. Verified
+  live: `.c-shell`'s computed background resolves to `#FCFAF5` with no
+  page-level CSS added by the consuming page. Added a property table
+  and an explicit "enforced in code, not just documented" note to the
+  Page canvas paragraph so this stays checkable going forward.
+
+- **v0.9.6 — 2026-08-05** — App Shell's Main nav re-synced to
+  SidebarNav after SidebarNav gained a collapsible rail, logo swap, and
+  second-level accordion (a teammate's `component-sidenav` PR, merged
+  outside this working session). Two problems, same root cause:
+
+  1. **The portability gap from v0.9.4 regressed.** The new
+     SidebarNav CSS (`.c-sidebar-shell`, `.c-sidebar-toggle`,
+     `.c-sidebar-logo`, `.c-sidebar-divider`, the second-level
+     `.c-nav-parent-toggle`/`.c-nav-children` accordion, the collapsed
+     hover-label) had been added only to `preview.html`'s inline
+     `<style>`, never ported to `components.css` — the exact class of
+     gap v0.9.4 existed to close, reopened by a change that
+     didn't go through this file. Ported in full; `components.css` now
+     carries every rule `preview.html` does for this component again.
+  2. **App Shell's own nav demo had drifted stale**, still showing
+     SidebarNav's pre-collapsible markup (plain text header, no
+     toggle) — a direct violation of [Main nav](#main-nav--a-direct-instance-of-sidebarnav-not-a-variant)'s
+     own "no properties overridden, follows SidebarNav exactly" rule
+     from v0.9.2, just via staleness rather than a deliberate
+     override. Rebuilt to the current SidebarNav markup (logo header,
+     divider, hover-text spans, collapse toggle) with App Shell's own
+     content (Astro Growth branding, the Locked/"Soon" Data example).
+     Placement CSS also needed a small adjustment: `.c-shell
+     .c-sidebar` used to hardcode `flex: 0 0 240px`, which silently
+     fought the component's own `.is-collapsed{width:72px}` rule when
+     collapsed inside the shell. Changed to target the `.c-sidebar-shell`
+     wrapper with `flex: 0 0 auto`, so the nav's own width rules — 240px
+     expanded, 72px collapsed — resolve the same way inside App Shell
+     as they do in SidebarNav's standalone demo. Verified live: toggling
+     collapse inside the App Shell gallery block now matches the
+     standalone SidebarNav block pixel-for-pixel, full height
+     (`calc(100dvh − 32px)`, still achieved via stretch + margin, no
+     literal `calc()`) maintained in both states.
+
+  Also removed, as directly-related cleanup found while fixing the
+  above: a duplicate, stale `comp-sidebarnav` gallery block (a merge
+  leftover, same invalid duplicate-`id` pattern as a `comp-tabs`
+  duplicate that's flagged but *not* fixed here — out of scope for this
+  pass) and a code comment in `preview.html` still describing the
+  "flush rail" nav variant dropped back in v0.9.2.
+
+  ⚠️ **Not done in this pass:** `DESIGN-SYSTEM.md` and `preview.html`'s
+  embedded `src-md-extended`/`src-md-compact` blocks drifted out of
+  sync during the same external merge (847/2001 lines changed
+  respectively, five new components added, none of it going through
+  this file's own doc-sync discipline) — that's a separate, larger
+  re-sync this changelog entry doesn't attempt.
 
 - **v0.9.5 — 2026-08-04** — Added **SidebarNav's collapsible
   state, second-level navigation, and overflow behavior** — the
