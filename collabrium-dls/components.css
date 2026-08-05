@@ -364,6 +364,33 @@
 .c-toast .body{flex:1; min-width:0;}
 .c-toast .title{font-size:var(--text-body1-size); font-weight:700;}
 .c-toast .message{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+/* Message-only layout variant — message becomes the primary content, so it
+   renders at body1 weight 500 rather than the secondary-caption treatment
+   it gets under a title. Per Toast, Layout variants. */
+.c-toast.is-message-only .message{font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight); color:var(--color-neutral-9);}
+.c-toast .action{margin-top:var(--spacing-8);}
+
+/* Entrance/exit animation — duration-base + ease-standard (the non-elemental
+   default; Toast isn't owned by a specific brand element). Per Toast,
+   Animation. */
+.c-toast{transition:transform var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);}
+.c-toast.is-entering{opacity:0; transform:translateY(16px);}
+.c-toast.is-exiting{opacity:0; transform:translateY(8px);}
+@media (prefers-reduced-motion:reduce){
+  .c-toast{transition:none;}
+}
+
+/* Toast host — fixed bottom-right, spacing-24 offset, stacked newest-on-top
+   with a spacing-8 gap; collapses to a full-width bottom band with
+   spacing-12 margins under 640px. Per Toast, Positioning / Stacking
+   behaviour. z-index sits above page content — this system has no numeric
+   z-index scale, so "below modal overlays" is a structural note for
+   whoever wires a Modal in front of it, not a value here. */
+.c-toast-host{position:fixed; right:var(--spacing-24); bottom:var(--spacing-24); z-index:1000; display:flex; flex-direction:column-reverse; gap:var(--spacing-8); width:380px; max-width:calc(100vw - var(--spacing-24) * 2); pointer-events:none;}
+.c-toast-host .c-toast{pointer-events:auto; position:relative;}
+@media (max-width:640px){
+  .c-toast-host{left:var(--spacing-12); right:var(--spacing-12); bottom:var(--spacing-12); width:auto; max-width:none;}
+}
 
 /* Tooltip */
 .c-tooltip-wrap{position:relative; display:inline-flex;}
