@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<<<<<<< Updated upstream
 <title>Collabrium design system | v0.9.4-draft</title>
+=======
+<title>Collabrium design system | v0.9.10</title>
+>>>>>>> Stashed changes
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -706,9 +710,28 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
+<<<<<<< Updated upstream
   <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.4-draft</span>
 </header>
 
+=======
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.10</span>
+  <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
+</header>
+
+<div class="changelog-page" id="changelogPage" hidden>
+  <header class="changelog-page-header">
+    <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
+    <h1>Changelog</h1>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.10</span>
+  </header>
+  <div class="changelog-shell">
+    <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
+    <div class="changelog-list" id="changelogList"><p class="changelog-empty">Loading&hellip;</p></div>
+  </div>
+</div>
+
+>>>>>>> Stashed changes
 <div class="layout">
 
   <div class="pane pane-left">
@@ -1001,6 +1024,7 @@
           <div class="comp-head"><h3>App Shell <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; v0.9.0, designed not sourced</span></h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo shell-demo">
             <div class="c-shell">
+<<<<<<< Updated upstream
               <nav class="c-shell-rail c-sidebar">
                 <div class="c-sidebar-header">Astro Growth</div>
                 <div class="c-sidebar-section">Overview</div>
@@ -1013,6 +1037,35 @@
                   <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span></button>
                 </div>
               </nav>
+=======
+              <div class="c-sidebar-shell">
+                <nav class="c-sidebar" id="appShellSidebarNav">
+                  <div class="c-sidebar-header">
+                    <div class="c-sidebar-logo">
+                      <div class="c-sidebar-logo-live-wrap"><iframe src="logo.html" title="Collabrium" scrolling="no"></iframe></div>
+                      <img class="c-sidebar-logo-collapsed" src="SVG/coin.svg" alt="Collabrium" />
+                    </div>
+                  </div>
+                  <div class="c-sidebar-section">Overview</div>
+                  <button class="c-sidebar-item active" type="button"><i class="ph-fill ph-house"></i><span class="label">Dashboard</span><span class="c-sidebar-hover-text">Dashboard</span></button>
+                  <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar"></i><span class="label">Reports</span><span class="c-sidebar-hover-text">Reports</span></button>
+                  <hr class="c-sidebar-divider" />
+                  <div class="c-sidebar-section">Departments</div>
+                  <button class="c-sidebar-item" type="button"><i class="ph-fill ph-fire" style="color:var(--color-orange)"></i><span class="label">Marketing</span><span class="count">12</span><span class="c-sidebar-hover-text">Marketing (12)</span></button>
+                  <button class="c-sidebar-item soon" type="button" disabled aria-disabled="true"><i class="ph-fill ph-drop"></i><span class="label">Data</span><span class="c-badge c-badge-neutral">Soon</span><span class="c-sidebar-hover-text">Data — Soon</span></button>
+                  <div class="c-sidebar-footer">
+                    <button class="c-sidebar-item" type="button"><i class="ph-fill ph-gear"></i><span class="label">Settings</span><span class="c-sidebar-hover-text">Settings</span></button>
+                  </div>
+                </nav>
+                <button class="c-sidebar-toggle js-sidebar-toggle" type="button" aria-label="Collapse sidebar" data-sidebar-toggle="appShellSidebarNav">
+                  <svg class="js-sidebar-toggle-icon" viewBox="0 0 20 20" fill="none">
+                    <rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+                    <line x1="9" y1="3.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.4"/>
+                    <path class="js-sidebar-toggle-arrow" d="M13.5 7 11 10l2.5 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+>>>>>>> Stashed changes
               <div class="c-shell-main">
                 <div class="c-shell-content">
                   <div class="c-shell-page-header">
@@ -1482,11 +1535,8 @@
               <nav class="c-sidebar" id="compSidebarNav">
                 <div class="c-sidebar-header">
                   <div class="c-sidebar-logo">
-                    <img class="js-sidebar-logo-img"
-                         src="logo-lockups/collabrium-default-logo.svg"
-                         data-expanded-src="logo-lockups/collabrium-default-logo.svg"
-                         data-collapsed-src="SVG/coin.svg"
-                         alt="Collabrium" />
+                    <div class="c-sidebar-logo-live-wrap"><iframe src="logo.html" title="Collabrium" scrolling="no"></iframe></div>
+                    <img class="c-sidebar-logo-collapsed" src="SVG/coin.svg" alt="Collabrium" />
                   </div>
                 </div>
                 <div class="c-sidebar-section">Overview</div>
@@ -2221,7 +2271,11 @@ going forward. See changelog at the bottom of DESIGN-SYSTEM.md.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
+<<<<<<< Updated upstream
 **v0.9.4-draft** — 2026-08-04 — Sourced from the Collabrium brand deck
+=======
+**v0.9.10** — 2026-08-05 — Sourced from the Collabrium brand deck
+>>>>>>> Stashed changes
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3754,6 +3808,87 @@ deep. **Don't:** nest a second level of grouping — if the hierarchy needs
 more than one level, that's a sign the item belongs in a sub-page's Tabs
 instead.
 
+<<<<<<< Updated upstream
+=======
+**Collapsible state.**
+
+| Part | Spec |
+|---|---|
+| Collapsed width | 72px — a one-off literal, not a named spacing token (same precedent as Second-level navigation's 36px child-item height and Tooltip's 6px/10px padding): the collapsed rail needs to fit the logo/element icon and the toggle icon side by side on one row |
+| Expanded width | 240px |
+| Toggle trigger — expanded | same row as the header logo, right-aligned, vertically centered |
+| Toggle trigger — collapsed | a separate floating overlay button, `position: absolute`, anchored to the rail's own right edge and vertically centered to the same row as the logo, straddling the rail's own border (half in / half out) rather than sitting fully inside the padding. Sized down from the expanded toggle's 28px button / 18px icon to a **24px button / 16px icon**, since the full expanded size would crowd the independently-centered logo in the 72px rail |
+| Toggle trigger — icon | Remix Icon's `ri-sidebar-fold-line` (collapse) / `ri-sidebar-unfold-line` (expand), replacing `chevron-left`/`chevron-right`. Phosphor has no equivalent glyph for this specific affordance, so this correctly invokes the documented Remix **fallback** rule in [Iconography](#iconography) ("only when Phosphor lacks the glyph"), not a by-taste library swap. **Tier 1, Regular** (hence the `-line` suffix) — collapsing/expanding a panel is literally one of Iconography's own listed Tier 1 examples ("expand, collapse") |
+| Collapsed — visible elements | icon only; labels, section labels, and trailing count text are all hidden |
+| Collapsed — alignment | every nav item's icon is center-aligned horizontally within the 72px rail. The header logo/element icon is **independently** centered the same way (not paired with the toggle icon — the toggle is a floating overlay anchored to the rail's own right edge instead, see Toggle trigger — collapsed, above, and doesn't participate in this centered alignment at all). Expanded stays left-aligned throughout |
+| Collapsed — trailing count | converts to an 8px dot badge (matches `spacing-8`) in the item's owning element accent color (same override logic as the Icon row above), overlaid top-right on the icon |
+| Collapsed — logo | collapses to the individual department element icon, `SVG/{element}.svg` (`fire.svg`/`wood.svg`/`earth.svg`/`water.svg`); the default (no department context) collapses to `SVG/coin.svg` specifically — not the expanded-state default (`logo.html` live, or a department lockup — see the Header logo rule above) |
+| Toggle behavior — logo asset | the logo swaps entirely on toggle, not just resizes or repositions. Expanding restores the live `logo.html` embed (default context) or the static lockup (department context); collapsing (either context) swaps to the static element icon/`coin.svg` (`SVG/`). The implementation needs a conditional for "restore the iframe" vs. "restore an img" rather than a single `img.src` swap, since the default expanded state is no longer an `<img>` |
+| Collapsed — hover label | SidebarNav's own sub-pattern, not a reused [Tooltip](#tooltip) instance. Appears on icon hover **or keyboard focus**, shows the full nav item label, positioned to the right of the icon: same bubble visuals as Tooltip (6px/10px padding, `radius-sm`, Neutral-7 fill, Neutral-1 text, caption/500, opacity-only transition, `pointer-events: none`) but built and owned independently, because Tooltip's own spec assumes a plain relatively-positioned trigger wrapper — that model doesn't survive being placed inside SidebarNav's own scrolling item list (a vertically-scrolling container's `overflow-x` is forced to clip too, per the CSS overflow spec, which silently cuts off anything trying to render past its edge). SidebarNav's hover label is implemented as a single element that positions itself against the hovered icon directly, escaping that scroll container rather than living inside it |
+| Transition | `width` — `var(--duration-slow) var(--ease-standard)` (`duration-slow`'s stated purpose is "panel / section reveals," an exact match; `ease-standard` since a sidebar collapse isn't owned by a specific brand element — per Motion's own rule, "reach for an elemental curve deliberately, not by default") |
+| Persistence | collapsed/expanded state saved to `localStorage`, restored on load |
+
+**Header logo rule.**
+
+| Context | Logo |
+|---|---|
+| Default (expanded, no department context) | the live animated mark, `logo.html`, embedded via `<iframe>` — SidebarNav's header has plenty of room to run the animation at 240px, per [SKILL.md](SKILL.md)'s own rule ("use `logo.html` wherever the mark can animate") |
+| Department-specific (expanded, passed via prop) | still the matching department's element-colored **static** lockup from `logo-lockups/` (see the Logo section's table above — only the Gold/default variant currently exists; the other 4 are flagged not-yet-provided) — unchanged by the animated-default switch above, because `logo.html`'s animation always cycles through all 5 elements in sequence; it can't freeze on one department's color, so a department-specific header still needs the static, single-color lockup |
+| Collapsed (any context) | individual department element icon, `SVG/{element}.svg`; default collapses to `SVG/coin.svg` specifically (same as the Collapsible state row above) — unchanged, still static: 72px has no room to run the full wordmark animation, matching [SKILL.md](SKILL.md)'s "where it can't [animate], use a static lockup" half of the same rule |
+| Alignment | Expanded: always left-aligned. Collapsed: **independently** center-aligned within the 72px rail (see the Collapsible state's "Collapsed — alignment" row above) — the toggle trigger sits on the same row but doesn't share this centered alignment, since it's a floating overlay anchored to the rail's own right edge instead (see "Toggle trigger — collapsed," above) |
+
+**Do:** always reference the logo library (`logo.html` embedded live for
+the expanded default, a department lockup from `logo-lockups/` for an
+expanded department-specific header, `SVG/` for collapsed) — never build
+or embed a custom one-off logo asset for a header.
+
+**Second-level navigation.**
+
+Distinct from the section-label Do/Don't above, which governs
+*section labels* grouping items (still capped at zero extra nesting).
+This is a separate structural concept — an individual **nav item**
+expanding to show its own **child items** — and is supported up to one
+level deep.
+
+| Part | Spec |
+|---|---|
+| Depth supported | 2 levels maximum (parent + children); a third level isn't supported — content needing 3 levels belongs in page-level Tabs or a sub-page instead |
+| Parent item | shows a trailing chevron, `chevron-down`/`chevron-up` — **Tier 1, Regular** ("chevron up/down" and "expand, collapse" are both Iconography's own Tier 1 examples) |
+| Expand trigger | clicking anywhere on the parent item toggles it — not just the trailing chevron. The chevron swaps `chevron-down` ↔ `chevron-up` to reflect the parent's own open/closed state |
+| Expand behavior | accordion — children render inline below the parent, no separate panel/overlay. Independent, not mutually exclusive: each parent's open/closed state is its own; opening one parent does **not** close any other open parent. There's no single-open-at-a-time grouping in this spec |
+| Expand/collapse transition | children reveal/hide via a height transition, `var(--duration-slow) var(--ease-standard)` — reuses the same "panel/section reveals" duration as the Collapsible state's own width transition above, and the same default (non-elemental) easing, since an accordion isn't owned by a specific brand element either |
+| Closing preserves state | collapsing a parent doesn't reset which child was active — reopening it shows the same active child again, exactly as it was left |
+| Children width/indent | full width, not inset. Children are not a narrower block indented from the icon column; each child item spans the same full width as any other Nav item, with spacing-16 (16px) left padding on the item itself doing the indent instead of an outer margin |
+| Child item height | 36px (a one-off literal value, not a named token — same precedent as Tooltip's 6px/10px padding and Checkbox's 6px radius: a smaller nested control gets its own compact size, smaller than the parent Nav item's 40px) |
+| Child item type | body2 (14px), weight 500 inactive, weight 700 active |
+| Active child | shows Nav item's own active state (Neutral-2 fill, Neutral-9 text, weight 700) |
+| Active parent with active child | parent shows weight 700 text, but **no** active fill — the fill signal stays exclusively on the active child, so the two don't both read as "selected" at once. The parent's weight-700 state is only ever a side effect of one of its own children being selected, never of clicking/expanding the parent header itself — expanding or collapsing a parent never changes anyone's active state on its own, it's a pure open/closed toggle. Collapsed exception: this "text-only, no fill" treatment relies on the label, which is hidden entirely at 72px — with nothing else left to signal selection, the collapsed parent icon takes the normal Active fill instead (Neutral-2 background), same as any other active item gets. This doesn't reintroduce the "two things read as selected" problem the fill-less rule exists to avoid, because the active child isn't visible either while collapsed |
+| Sidebar-wide exclusivity | exactly one destination is ever the active selection across the whole nav at a time — whether that's a top-level Nav item or a second-level child. Selecting any item (top-level or child) clears every other item's active state **and** any active child in any other (or the same) accordion panel first, so a plain Nav item and a leftover active child, or two different parents' active children, can never both read as "selected" simultaneously |
+| Collapsed sidebar | accordion closes, and the parent's own children are never shown while collapsed — the icon-hover label (Collapsible state, above) shows the parent's own label only, not its children. The parent icon stays clickable, it just does something different than expanded: with no room to reveal children at 72px, clicking the parent icon routes straight to the parent's **first child** instead, selecting it as the sidebar's one active destination (same "click a group icon, land on its default sub-page" pattern collapsed rails commonly use) — the parent picks up its own active styling as the usual side effect of that child being selected, per the Active parent with active child row above |
+
+**Overflow behavior.**
+
+- The nav item list scrolls (`overflow-y: auto`) once items exceed the
+  container's available height.
+- Horizontal scroll is never permitted, in either state — the
+  container's `overflow-x: hidden` (see Container row above) applies at
+  both the 240px expanded and 72px collapsed widths. Content that would
+  overflow horizontally (a long label, an unswapped logo asset) must wrap
+  or be resized to fit, never scroll sideways.
+- Scrollbar is hidden by default, visible on hover of the container as
+  a thin overlay scrollbar (e.g. `scrollbar-gutter` left unreserved, or an
+  absolutely-positioned custom thumb) that never reserves layout space.
+  Showing it on hover must not shift or shrink the nav items' own width.
+- Footer (existing optional sub-part above) is pinned outside the
+  scrolling region via its own `margin-top: auto` and never scrolls with
+  the item list.
+
+⚠️ **Needs Input — SidebarNav.**
+- Mobile/responsive behavior — not yet defined.
+- Keyboard navigation (arrow keys, `Enter`, `Escape` on the accordion) —
+  to be defined in a future accessibility pass.
+
+>>>>>>> Stashed changes
 ### Stepper
 
 ⚠️ **Designed 2026-08-04, v0.9.1 — no source in either the original
@@ -4265,7 +4400,361 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+<<<<<<< Updated upstream
 - **v0.9.4-draft — 2026-08-04** — Added **MultiSelect**, a trigger
+=======
+**This is where version and date information lives — not in the spec
+sections above.** When you change a component or token, update its spec
+section to describe the current state only (no "added on [date]" or
+"changed in vX.Y" language inline), then add a new entry here, newest
+first, in the same `- **vX.Y — YYYY-MM-DD** — ` format as the
+entries below: what changed, why, and what it replaces. Version numbers
+are plain `vX.Y` (or `vX.Y.Z`) — no `-draft` suffix. This is also
+what powers `preview.html`'s Changelog page (the button next to the
+version flag in the top bar) — that page renders this section directly,
+so an entry added here is the same pass that makes it show up there,
+with nothing else to keep in sync.
+
+- **v0.9.10 — 2026-08-05** — SidebarNav's expanded default header logo
+  switched from the static `logo-lockups/collabrium-default-logo.svg`
+  lockup to the live animated mark, embedded via `<iframe src="logo.html">`.
+  Rationale: [SKILL.md](SKILL.md) already says to use `logo.html`
+  "wherever the mark can animate," and a 240px-wide header has plenty
+  of room — the static lockup was the un-argued exception, not a
+  deliberate choice. Scope is deliberately narrow: an expanded
+  department-specific header still uses its static element-colored
+  lockup (`logo.html`'s animation cycles through all 5 elements, so it
+  can't freeze on one department's color), and the collapsed 72px rail
+  still uses the static element icon/`coin.svg` (no room to run the
+  animation there either). Implementation: the iframe renders inside
+  its own 16px top/bottom padding, so `.c-sidebar-logo-live-wrap` crops
+  that out via `overflow: hidden` plus an absolutely-positioned iframe
+  offset up by the same 16px, rather than growing the header to fit
+  the padded embed at full size. The old single-`<img>` src-swap
+  technique (`data-expanded-src`/`data-collapsed-src`) no longer covers
+  the default case now that expanding restores an iframe rather than
+  an image, so the toggle's JS was simplified instead: the live embed
+  and the static collapsed icon are both always present in the markup,
+  and CSS alone shows/hides each off `.c-sidebar.is-collapsed`.
+  `components.css` and both `preview.html` demos (the standalone
+  SidebarNav gallery block and App Shell's own nav instance) updated
+  together.
+
+- **v0.9.9 — 2026-08-05** — Reserved "Level 2" as a named,
+  documented placeholder for a future drill-down/detail-screen layout
+  (Back control + breadcrumb), added to Page header's subsection.
+  Explicitly NOT specced yet — deliberately deferred until a real
+  detail-view build exists to design against, rather than guessed at
+  cold (App Shell's own first-draft flush-rail nav variant is the
+  cautionary example for guessing composition rules with nothing real
+  to react against). Documents the trigger for actually writing it —
+  before the first real drill-down screen ships, not after divergent
+  builds show up — and the intended relationship to this section
+  (extends App Shell, doesn't replace it, same pattern as Main nav's
+  relationship to SidebarNav). No CSS/markup changes — `components.css`
+  and `preview.html`'s embedded copies are unaffected, so their own
+  version stamps aren't bumped this round (same precedent as
+  `tokens.css` lagging behind when its actual content hasn't changed).
+
+- **v0.9.8 — 2026-08-05** — New App Shell / Content region layout
+  rule: a formal box grid, requested directly rather than reverse-
+  engineered from a build. Three decisions confirmed before writing
+  anything (all three went with the recommended option):
+
+  1. **Column model** — 4-column spannable grid, not fixed N-up rows.
+     A box's width is always a whole span of 1, 2, 3, or 4 columns, and
+     boxes of different spans can share a row (a 1-col box next to a
+     3-col box), rather than every box in a row being forced equal
+     width.
+  2. **Row height** — equal-height stretch (every box in a row grows to
+     match the row's tallest box), not a hardcoded max-height cap. Free
+     from CSS Grid's own `align-items: stretch` default.
+  3. **New 24px spacing** — vertical-only, between stacked rows of
+     boxes. The existing horizontal Column gap rule (spacing-16–20,
+     product's choice) is unchanged and untouched.
+
+  Implemented as `.c-shell-grid` + `.c-shell-span-1`/`-2`/`-3`/`-4` in
+  `components.css`. One real bug caught during live verification, not
+  just assumed correct: `grid-template-columns: repeat(4, 1fr)` doesn't
+  actually produce 4 equal columns when the boxes inside contain text —
+  a plain `1fr` track's implicit `min-width: auto` lets a box's own
+  text content inflate its column past its fair 1/4 share (measured
+  columns of 37/37/37/124px instead of four equal ~59px tracks before
+  the fix). Corrected to `repeat(4, minmax(0, 1fr))`, re-verified via
+  computed styles: four genuinely equal columns, a 3-col box measuring
+  exactly 3× a 1-col box's width plus its internal gaps, both boxes in
+  the row the same height despite very different amounts of text.
+
+  Flagged, not silently fixed: Stat/KPI card's own `.c-stats` predates
+  this rule and uses its own `auto-fit` column count rather than a
+  fixed 4-column span — that's Stat/KPI card's own component spec, not
+  something App Shell overrides, same principle as not touching
+  SidebarNav's internals. Left as an open, documented inconsistency.
+
+- **v0.9.7 — 2026-08-05** — "Canvas warm as the default page
+  background everywhere" — documented since v0.6.0/the 2026-08-03 rule
+  change — was prose only: nothing in `components.css` actually applied
+  it, so a screen only got it if whoever built it remembered to set
+  `background: var(--color-canvas-warm)` by hand. Same class of gap as
+  the icon/pill integration failure v0.9.4 fixed, just for a
+  background color instead of a whole stylesheet. Fixed by adding
+  `background: var(--color-canvas-warm)` directly to `.c-shell` in
+  `components.css` — App Shell's own full-viewport container — so every
+  screen built on this pattern gets the canvas automatically, nothing
+  to remember. Still references the token, never the hex, so no scope
+  violation of App Shell's "structure and layout only" rule. Verified
+  live: `.c-shell`'s computed background resolves to `#FCFAF5` with no
+  page-level CSS added by the consuming page. Added a property table
+  and an explicit "enforced in code, not just documented" note to the
+  Page canvas paragraph so this stays checkable going forward.
+
+- **v0.9.6 — 2026-08-05** — App Shell's Main nav re-synced to
+  SidebarNav after SidebarNav gained a collapsible rail, logo swap, and
+  second-level accordion (a teammate's `component-sidenav` PR, merged
+  outside this working session). Two problems, same root cause:
+
+  1. **The portability gap from v0.9.4 regressed.** The new
+     SidebarNav CSS (`.c-sidebar-shell`, `.c-sidebar-toggle`,
+     `.c-sidebar-logo`, `.c-sidebar-divider`, the second-level
+     `.c-nav-parent-toggle`/`.c-nav-children` accordion, the collapsed
+     hover-label) had been added only to `preview.html`'s inline
+     `<style>`, never ported to `components.css` — the exact class of
+     gap v0.9.4 existed to close, reopened by a change that
+     didn't go through this file. Ported in full; `components.css` now
+     carries every rule `preview.html` does for this component again.
+  2. **App Shell's own nav demo had drifted stale**, still showing
+     SidebarNav's pre-collapsible markup (plain text header, no
+     toggle) — a direct violation of [Main nav](#main-nav--a-direct-instance-of-sidebarnav-not-a-variant)'s
+     own "no properties overridden, follows SidebarNav exactly" rule
+     from v0.9.2, just via staleness rather than a deliberate
+     override. Rebuilt to the current SidebarNav markup (logo header,
+     divider, hover-text spans, collapse toggle) with App Shell's own
+     content (Astro Growth branding, the Locked/"Soon" Data example).
+     Placement CSS also needed a small adjustment: `.c-shell
+     .c-sidebar` used to hardcode `flex: 0 0 240px`, which silently
+     fought the component's own `.is-collapsed{width:72px}` rule when
+     collapsed inside the shell. Changed to target the `.c-sidebar-shell`
+     wrapper with `flex: 0 0 auto`, so the nav's own width rules — 240px
+     expanded, 72px collapsed — resolve the same way inside App Shell
+     as they do in SidebarNav's standalone demo. Verified live: toggling
+     collapse inside the App Shell gallery block now matches the
+     standalone SidebarNav block pixel-for-pixel, full height
+     (`calc(100dvh − 32px)`, still achieved via stretch + margin, no
+     literal `calc()`) maintained in both states.
+
+  Also removed, as directly-related cleanup found while fixing the
+  above: a duplicate, stale `comp-sidebarnav` gallery block (a merge
+  leftover, same invalid duplicate-`id` pattern as a `comp-tabs`
+  duplicate that's flagged but *not* fixed here — out of scope for this
+  pass) and a code comment in `preview.html` still describing the
+  "flush rail" nav variant dropped back in v0.9.2.
+
+  ⚠️ **Not done in this pass:** `DESIGN-SYSTEM.md` and `preview.html`'s
+  embedded `src-md-extended`/`src-md-compact` blocks drifted out of
+  sync during the same external merge (847/2001 lines changed
+  respectively, five new components added, none of it going through
+  this file's own doc-sync discipline) — that's a separate, larger
+  re-sync this changelog entry doesn't attempt.
+
+- **v0.9.5 — 2026-08-04** — Added **SidebarNav's collapsible
+  state, second-level navigation, and overflow behavior** — the
+  largest single update to an existing component in this system.
+  Collapsible state: the rail toggles between 240px expanded and 72px
+  collapsed (icon-only), with a floating overlay toggle button, an
+  independently-centered header logo/element icon, an 8px dot badge
+  standing in for the trailing count, a logo asset swap (wordmark ↔
+  element icon, not just a resize) on toggle, a SidebarNav-owned hover
+  label for collapsed icons (not a reused Tooltip instance, since
+  Tooltip's plain-wrapper model doesn't survive SidebarNav's scrolling
+  item list), and collapsed/expanded persistence to `localStorage`.
+  Container gained a hard max-width in both states (`overflow-x:
+  hidden`, no horizontal scroll ever), equal padding on all four sides,
+  and labels now wrap instead of truncating with an ellipsis. New Nav
+  item states: locked/soon (a Badge "Soon" label for un-built IA
+  sections), hover, focus-visible, active-pressed, and disabled — all
+  reusing existing Table row/Button Ghost tokens rather than inventing
+  nav-specific ones. Second-level navigation: a nav item can now expand
+  to show child items, one level deep — independent per-parent
+  open/closed state, a height-based expand transition, full-width
+  (not inset) children, and sidebar-wide exclusivity so only one
+  destination is ever the active selection; a collapsed parent routes
+  straight to its first child on click, since there's no room to reveal
+  children at 72px. Overflow behavior: vertical scroll once items
+  exceed the container's height, a thin overlay scrollbar that never
+  reserves layout space, and the footer stays pinned outside the
+  scrolling region. The collapse-icon and second-level chevron were
+  both reclassified **Tier 1, Regular** — "expand, collapse" and
+  "chevron up/down" are both listed Tier 1 examples in
+  [Iconography](#iconography), not judgment calls. Still open: mobile/
+  responsive behavior and full keyboard navigation (arrow keys, `Enter`,
+  `Escape` on the accordion). `preview.html`'s gallery and
+  `components.css` updated to match.
+- **v0.8.4 — 2026-08-04** — Added **PageHeader**, a page-level
+  title block (title + optional subtitle), no background/border/padding
+  of its own — flush in the surrounding layout. Designed from scratch,
+  no source in either the brand deck or the teammate's build, by
+  reusing the existing Typescale's h1/body1 tokens. Also live-rendered
+  in `preview.html`'s Components gallery.
+- **v0.6.2 — 2026-07-31** — Two unrelated fixes shipped this day.
+  Reclassified icon weights (resolves [Needs Input #11](#needs-input-read-this-first)):
+  moved from "Fill exclusively" to the two-tier Regular/Fill split
+  documented in [Iconography](#iconography) — [Component Rules](#component-rules)
+  #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now
+  loading both Regular and Fill), and every icon instance in
+  `preview.html`'s live gallery were reclassified per-tier. Four
+  judgment calls, none brand-team-confirmed: the Tabs "Settings" tab
+  icon treated Tier 2 like SidebarNav rather than Tier 1 like a generic
+  nav control; the Stat/KPI card's trend indicators (caret-up/down,
+  flat minus) treated Tier 2 since they're not clickable, despite
+  "arrow up/down" appearing in the Tier 1 example list; Date picker's
+  trigger-button calendar icon kept Tier 2 per the explicit "Card /
+  section header: Calendar... Fill" example despite sitting inside a
+  button; and the "Copied" confirmation checkmark treated as a Tier 2
+  status confirmation rather than inheriting the Copy button's own Tier
+  1 weight. Also finalized the logo assets (further resolves [Needs
+  Input #8](#needs-input-read-this-first)): added the default static
+  lockup (`logo-lockups/collabrium-default-logo.svg`, a Gold ring "O",
+  for contexts that can't run the animation); trimmed `logo.html` from
+  9 frames to the 5 documented elements (Gold → Water → Wood → Fire →
+  Earth), dropping the decorative-only sun/moon/cloud/mountain frames;
+  rebuilt the wordmark on a new font (new path data per letter, ink
+  color `#2F2F2F` → `#2B2B2C` to match the default lockup, resolving a
+  prior mismatch between the two assets); corrected the two off-palette
+  element frame colors (Wood `#FFA6A8` → `#FF7A90`, Earth `#00D97B` →
+  `#00C26E`) before the trim; and moved the Gold frame's artwork to
+  `coin.svg`, leaving `gold.svg` as the Gold element icon used
+  elsewhere in the system (Color Palette, ElementBadge, sidebar dots,
+  Chart color mapping) — deliberately two different assets now.
+  Confirmed the `SVG/` vector source library (letters + 5 core-element
+  icons) is byte-identical to `logo.html`'s embedded path data. Known
+  gap: `wood.svg`/`earth.svg`/`mountain.svg`'s raw exports still carry
+  the off-palette colors (left untouched, since they may be externally
+  managed master exports) — `logo.html`'s corrected values remain
+  canonical. Still open: 4 of 5 department-colored lockup variants, a
+  clear-space rule, minimum size, and monochrome/reverse versions.
+- **v0.6.1.1 — 2026-08-03** — Filled gaps in Input field that the
+  deck and the teammate's build never covered (designed, not sourced):
+  placeholder text styling (Neutral-5, same body2/weight 400 as entered
+  text — not italic or a separate lighter weight); a required-field
+  marker (a single Red asterisk after the label, with no "(optional)"
+  text on non-required fields); a Success/valid state (1px Green
+  border, trailing check-circle icon, fires after validation on blur or
+  submit, not every keystroke); autofill styling so a browser's
+  autofill doesn't override the field's fill color; plain `:focus` (not
+  `:focus-visible`) so mouse and keyboard users see the same treatment;
+  prefix/suffix text adornments; a character/word counter that turns
+  Red at/over the limit; and ARIA wiring (`aria-describedby` to helper
+  text, swapping to `aria-invalid` plus the error text's `id` on
+  Error). Also clarified that the sm/md/lg sizes are a density choice
+  per context, not tied to a viewport breakpoint. Treat as a first pass
+  needing real design/brand review.
+- **v0.9.4 — 2026-08-04** — Added **`components.css`**, the actual
+  portable copy of every component's CSS (Button, Input field, Card,
+  Badge & Tag, Table row, Modal, Empty state, SidebarNav, App Shell
+  layout, Tabs, Select, Checkbox/Radio/Switch, Toast, Tooltip,
+  DataTable, ElementBadge, Stat/KPI card, Filters, Pagination, Date
+  picker, Chart color mapping) — extracted from `preview.html`'s own
+  inline `<style>`, where it had lived with no separate, importable
+  copy since v0.5.0. Root cause of a real integration failure: a
+  teammate applied this system to an existing project and copying
+  markup out of "Copy markup" buttons produced class names with no CSS
+  behind them anywhere else, so colors/pills/spacing/icons didn't
+  render at all outside `preview.html` itself. `preview.html` now links
+  `components.css` (`<link rel="stylesheet">`) instead of duplicating a
+  private copy, so the gallery and the shipped file can't drift apart —
+  same fix pattern as the `tokens.css`/`src-css-vars` alignment from
+  v0.9.1. Verified byte-for-byte: every one of 22 `.c-*` component
+  selector groups present in exactly one file, zero duplicated, zero
+  dropped, and every demo-page-only rule (`.comp-block`, `.c-modal-stage`,
+  `.comp-demo.shell-demo`, etc. — gallery chrome, not real component
+  CSS) correctly stayed out of `components.css`.
+
+  Also fixed a real bug caught during the extraction, unrelated to the
+  packaging itself: the 36×36 icon-chip pattern — documented as shared
+  by Card's header **and** Stat/KPI card's icon slot — was scoped to
+  `.c-card .icon-chip` only, so every Stat card's icon in the gallery
+  (and App Shell's demo, which reuses Stat card) had rendered completely
+  unstyled since v0.8.0. Unscoped to plain `.icon-chip` so it works
+  wherever the spec says it should.
+
+  Resolved the file-formats/token-format half of long-open **Needs
+  Input #10** with a real answer instead of a placeholder: [Technical
+  Implementation](#technical-implementation) now states the 5 files an
+  existing project needs and the order to load them in (Google Fonts →
+  Phosphor Regular → Phosphor Fill → `tokens.css` → `components.css`),
+  and why each one's absence produces exactly the symptom that was
+  reported. Loading strategy and `font-display` remain open — genuinely
+  need engineering input, not a design guess.
+- **v0.9.3 — 2026-08-04** — Added an explicit scope rule to App
+  Shell: it governs **structure and layout only** (placement, size,
+  spacing, which region a component occupies) and never defines or
+  restates a component's own style (fill, border, radius, typography,
+  state colors) — that stays the owning component's job. Prompted by a
+  direct question about whether this was actually being held to.
+  Auditing the section against its own new rule found one real
+  violation and two smaller ones. The violation: the Locked/"Soon"
+  nav-item state (fill, text color, icon opacity, cursor, a Badge) was
+  defined inside App Shell's Main nav subsection — that's a SidebarNav
+  component state, not a layout fact, so it moved to
+  [SidebarNav](#sidebarnav)'s own table as a third `Nav item` row
+  alongside active/inactive. The smaller ones: the "Page canvas"
+  paragraph and Content region's table both restated `Canvas warm`'s
+  hex value (`#FCFAF5`) redundantly with [Color Palette](#color-palette)
+  — reworded to reference the token rather than repeat its value, and
+  to state the structural fact (one continuous background region, not
+  per-section fills) that's actually App Shell's to own. `preview.html`
+  updated to match — the `.c-sidebar-item.soon` CSS rules moved out of
+  the App Shell code comment block into the SidebarNav one, no visual
+  or behavioral change.
+- **v0.9.2 — 2026-08-04** — App Shell's main nav tweak: dropped the
+  separate "flush rail" placement variant (no radius, right-edge border
+  only) introduced in v0.9.0. That variant existed to solve a real
+  problem — SidebarNav's own spec (`radius-lg`, border on all four
+  sides) would show canvas colour bleeding through its rounded corners
+  if stretched flush against the browser edge — but the fix duplicated
+  the component into two specs that could drift apart. Replaced with
+  **inset spacing**: the main nav is now SidebarNav, completely
+  unmodified (same width/radius/border/fill/anatomy), placed
+  `spacing-16` (16px) in from the viewport's top, left, and bottom edges
+  instead of flush, with height `calc(100dvh - 32px)`. One component,
+  one spec, used in two placement contexts (inset-as-main-nav,
+  floating-panel-as-inset-or-drawer) rather than two components pretending
+  to be one. SidebarNav's own section now points to App Shell for the
+  placement rule instead of describing a second variant inline.
+- **v0.9.1 — 2026-08-04** — Cross-checked all 5 places this system's
+  content gets duplicated — `SKILL.md`, `DESIGN-SYSTEM.md`, and the three
+  embedded copies inside `preview.html` (the DESIGN.md tab's compact/
+  extended text, the CSS Variables tab, the Tailwind v4 tab, and the
+  Design Tokens JSON tab) — against their real source files, rather than
+  assuming the doc-sync rule had been holding. Found: the two markdown
+  copies and the CSS Variables copy were exactly in sync (byte-identical);
+  `tokens.css` and its embedded copy both carried a stale `v0.6.0`
+  header comment despite the system being 3 minor versions ahead (values
+  were still correct — only the stamp was stale); the Design Tokens JSON
+  export's own metadata carried the same stale `0.6.0` stamp
+  (values also still correct); and the Tailwind v4 theme mapping had a
+  real, substantial gap — only 59 of tokens.css's 162 actual tokens were
+  mapped into `@theme`, missing the entire typography scale (every
+  `text-*`/`weight-*`/`tracking-*` token), all 7 icon-size tokens, 4
+  shadow variants, the 5 semantic spacing aliases, and the 5
+  `-bg-strong` element tint steps. Root cause of the gap: the token count
+  used to judge coverage was itself wrong at first pass — a naive,
+  line-start-anchored extraction script undercounted tokens.css as 101
+  tokens instead of 162, because several lines pack multiple
+  `--token: value;` declarations together and a regex anchored to each
+  line's start only ever saw the first one. Rebuilt the Tailwind mapping
+  from a corrected, exhaustive token extraction; it now covers all 162
+  and was verified programmatically (162 tokens.css tokens ↔ 162 mapped,
+  zero missing, zero orphaned) rather than by eye. Fixed both stale
+  version stamps to `v0.9.1` / 2026-08-04. This was prompted by a
+  teammate report that applying the system to an existing project left
+  colors, pills, and icons not rendering correctly — a separate,
+  larger problem (the component CSS itself has never been extracted
+  into anything portable, and icon/font CDN links are undocumented as a
+  requirement) that this pass does not fix, only the token-layer piece
+  of it.
+- **v0.9.4 — 2026-08-04** — Added **MultiSelect**, a trigger
+>>>>>>> Stashed changes
   button that opens a grouped checkbox list for selecting multiple
   options — the trigger reflects the current selection as
   individually-removable Badge-Neutral chips (capped at 2, then a "+N"
@@ -5140,18 +5629,21 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
   if (!root) return;
 
   root.addEventListener('click', (e) => {
-    // SidebarNav — collapse/expand toggle. Swaps the logo asset itself
-    // (not just resizing it — see "Toggle behavior — logo asset" in
-    // DESIGN-SYSTEM.md) and the toggle icon's arrow direction.
+    // SidebarNav — collapse/expand toggle, and the toggle icon's arrow
+    // direction. The logo swap itself (see "Toggle behavior — logo
+    // asset" in DESIGN-SYSTEM.md) no longer needs any JS: the live
+    // `logo.html` embed and the static collapsed element icon are both
+    // always present in the markup, and `.c-sidebar-logo-live-wrap` /
+    // `.c-sidebar-logo-collapsed`'s CSS shows/hides each purely off
+    // `.c-sidebar.is-collapsed` — swapping one shared element's `src`
+    // stopped being possible once the expanded default became an
+    // iframe rather than an `<img>`.
     const sidebarToggle = e.target.closest('.js-sidebar-toggle');
     if (sidebarToggle) {
       const nav = document.getElementById(sidebarToggle.dataset.sidebarToggle);
       const collapsing = !nav.classList.contains('is-collapsed');
       nav.classList.toggle('is-collapsed');
       sidebarToggle.setAttribute('aria-label', collapsing ? 'Expand sidebar' : 'Collapse sidebar');
-
-      const img = nav.querySelector('.js-sidebar-logo-img');
-      img.src = collapsing ? img.dataset.collapsedSrc : img.dataset.expandedSrc;
 
       const arrow = sidebarToggle.querySelector('.js-sidebar-toggle-arrow');
       arrow.setAttribute('d', collapsing ? 'M11.5 7 14 10l-2.5 3' : 'M13.5 7 11 10l2.5 3');
