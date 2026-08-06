@@ -389,14 +389,86 @@
 .c-tab.active{color:var(--color-neutral-9); box-shadow:inset 0 -2px 0 var(--color-obsidian);}
 .c-tab .count{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-weight:700;}
 
-/* Select */
-.c-select{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
-.c-select label{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-9);}
-.c-select-box{position:relative; display:flex; align-items:center; height:40px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);}
-.c-select-box select{appearance:none; flex:1; height:100%; width:100%; border:0; outline:none; background:transparent; padding:0 36px 0 var(--spacing-12); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; color:var(--color-neutral-9); cursor:pointer;}
-.c-select-box i{position:absolute; right:var(--spacing-12); pointer-events:none; color:var(--color-neutral-5); font-size:var(--icon-sm);}
-.c-select-box.error{border-color:var(--color-red);}
-.c-select-box.disabled{background:var(--color-neutral-2);}
+/* Dropdown — Single select trigger. The box itself is Input Field's own
+   container — .c-field/.input-wrap/.icon-trailing/.c-field-error/
+   :disabled below are all reused verbatim, unmodified, the same way
+   Multiple select's own trigger reuses them; nothing here duplicates
+   that recipe. .c-dropdown-field only adds a Style axis Input Field
+   doesn't have (scoped to this class so bare .c-field — Input field,
+   Textarea, Password field, Search input — is untouched), plus the
+   dropdown-specific chevron/panel/open/has-value mechanics. Supersedes
+   an earlier draft that gave Single select its own Button-Secondary-
+   styled, radius-md trigger instead of reusing Input Field — that
+   recipe is gone; both Dropdown variants are Input-Field-based now. */
+.c-dropdown-field .input-wrap{cursor:pointer;}
+.c-dropdown-input{cursor:pointer; caret-color:transparent;}
+.c-dropdown-input::placeholder{color:var(--color-neutral-5);}
+.c-dropdown-chevron{transition:transform var(--duration-fast) var(--ease-standard);}
+
+/* Style — Outlined is Input Field's own default recipe above (no
+   modifier class). Border stays 1px at rest, colour only, in every
+   Style — the same compensation-free trick Multiple select's own
+   Style axis uses, so Open's 1px→2px Obsidian swap below needs no
+   per-style exception. Hover/Active are real :hover/:active so a
+   wired-up trigger genuinely responds to the mouse; the .hover/.active
+   classes exist only so a static gallery card can depict the same look
+   without real mouse state. */
+.c-dropdown-field:hover input, .c-dropdown-field.hover input{background:var(--color-neutral-2);}
+.c-dropdown-field:active input, .c-dropdown-field.active input{background:var(--color-neutral-3);}
+
+/* Style — Filled: solid Neutral-2 fill, no visible border. Hover/
+   Active both escalate to Neutral-3 — this system has no darker fill
+   tier documented for a third step, so the two look identical here;
+   flagged rather than inventing an undocumented token. */
+.c-dropdown-field.style-filled input{background:var(--color-neutral-2); border-color:transparent;}
+.c-dropdown-field.style-filled:hover input, .c-dropdown-field.style-filled.hover input,
+.c-dropdown-field.style-filled:active input, .c-dropdown-field.style-filled.active input{background:var(--color-neutral-3);}
+
+/* Style — Borderless: transparent fill, no border — for inline
+   placements (toolbars, table headers) that shouldn't read as a boxed
+   field. */
+.c-dropdown-field.style-borderless input{background:transparent; border-color:transparent;}
+.c-dropdown-field.style-borderless:hover input, .c-dropdown-field.style-borderless.hover input{background:var(--color-neutral-2);}
+.c-dropdown-field.style-borderless:active input, .c-dropdown-field.style-borderless.active input{background:var(--color-neutral-3);}
+
+/* Explicit :focus/:disabled/.c-field-error overrides for Filled/
+   Borderless — without these, a real focus/disabled/error event and
+   the plain .style-filled/.style-borderless rules above have equal
+   specificity, and source order alone would decide which wins; this
+   makes the win deliberate rather than incidental. Error reusing
+   .c-field-error is the same recipe Input Field's own Error state
+   uses — not a bespoke error-text element. */
+.c-dropdown-field.style-filled input:focus, .c-dropdown-field.style-borderless input:focus{border-color:var(--color-obsidian);}
+.c-dropdown-field.style-filled input:disabled, .c-dropdown-field.style-borderless input:disabled{background:var(--color-neutral-2); border-color:transparent;}
+.c-dropdown-field.style-filled.c-field-error input, .c-dropdown-field.style-borderless.c-field-error input{border-color:var(--color-red);}
+
+/* States — layer on top of whichever Style is active above. Focus and
+   Disabled/Error come free from Input Field's own :focus/:disabled/
+   .c-field-error (inherited, not redeclared); .open/.has-value/
+   .read-only below are what Input Field doesn't have. */
+.c-dropdown-field.open input{border:2px solid var(--color-obsidian); padding:0 11px;}
+.c-dropdown-field.open .c-dropdown-chevron{transform:rotate(180deg);}
+.c-dropdown-field.has-value input{border-color:var(--color-obsidian);}
+.c-dropdown-field.read-only .input-wrap{pointer-events:none;}
+.c-dropdown-field.read-only .icon-trailing{display:none;}
+
+/* Panel — width:100% of the same .c-dropdown parent the trigger fills,
+   so the panel always matches the trigger's rendered width exactly in
+   every Style variant; min-width is a floor for narrow fields only,
+   never a reason for the panel to run narrower than the trigger. */
+.c-dropdown-panel{position:static; margin-top:var(--spacing-8); width:100%; min-width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+.c-dropdown-list{max-height:320px; overflow-y:auto; padding:var(--spacing-8) 0;}
+
+/* Dropdown Option — the row sub-component inside Single select's panel */
+.c-dropdown-row{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+.c-dropdown-row:hover, .c-dropdown-row.hover{background:var(--color-neutral-2);}
+.c-dropdown-row:active, .c-dropdown-row.active{background:var(--color-neutral-3);}
+.c-dropdown-row.selected{background:var(--color-neutral-2);}
+.c-dropdown-row.disabled{color:var(--color-neutral-4); cursor:not-allowed; pointer-events:none;}
+.c-dropdown-row-label{font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:var(--text-body2-weight); color:var(--color-neutral-9);}
+.c-dropdown-row.disabled .c-dropdown-row-label{color:var(--color-neutral-4);}
+.c-dropdown-row-check{flex:none; font-size:var(--icon-sm); color:var(--color-obsidian); visibility:hidden;}
+.c-dropdown-row.selected .c-dropdown-row-check{visibility:visible;}
 
 /* Checkbox / Radio / Switch */
 .c-choice{display:flex; align-items:flex-start; gap:var(--spacing-8); cursor:pointer;}
@@ -564,9 +636,12 @@
 .c-uploader-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
 .c-uploader-remove:hover{background:var(--color-neutral-2);}
 
-/* MultiSelect — designed not transcribed (supersedes an
-   earlier single-select DropdownMenuWithSelection draft on this same
-   file — replaced per explicit user direction)
+/* Dropdown — Multiple select (designed not transcribed — renamed from
+   the standalone MultiSelect component; every property value below is
+   unchanged from that component, only the .c-ms* class prefix moved to
+   .c-dropdown-multi* so it reads as this component's other variant.
+   Supersedes an earlier single-select DropdownMenuWithSelection draft
+   on this same file — replaced per explicit user direction.
    Trigger default matches Button Secondary exactly (Neutral-1 fill,
    1px Neutral-3 border, shadow-1, radius-md, md size). Has-Selection's
    border swaps to 1px Obsidian, the same "holds a value" recipe
@@ -589,34 +664,91 @@
    exactly (18×18px, 6px radius, Obsidian border+fill when checked).
    Footer reuses Button's Ghost/Primary variants at sm size with
    Modal footer's divider convention. */
-.c-ms{position:relative; display:inline-block;}
-.c-ms-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); box-shadow:var(--shadow-1); cursor:pointer;}
-.c-ms-trigger:hover{background:var(--color-neutral-2);}
-.c-ms-trigger.has-selection{border-color:var(--color-obsidian);}
-.c-ms-trigger.open{border:2px solid var(--color-obsidian); padding:0 15px;}
-.c-ms-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--font-primary); font-size:16px; font-weight:700; color:var(--color-neutral-9);}
-.c-ms-badge{flex:none; height:22px; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-5); border:1px solid var(--color-neutral-3); display:inline-flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
-.c-ms-badge.removable{gap:4px; padding:0 4px 0 var(--spacing-8);}
-.c-ms-badge-remove{flex:none; display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border:none; background:transparent; padding:0; color:var(--color-neutral-5); cursor:pointer;}
-.c-ms-badge-remove i{font-size:10px;}
-.c-ms-clear{flex:none; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
-.c-ms-chevron{flex:none; font-size:16px; color:var(--color-neutral-5); transition:transform var(--duration-fast) var(--ease-standard);}
-.c-ms-trigger.open .c-ms-chevron{transform:rotate(180deg);}
-.c-ms-panel{position:static; margin-top:var(--spacing-8); width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
-.c-ms-list{max-height:320px; overflow-y:auto; padding:var(--spacing-8) 0;}
-.c-ms-divider{height:1px; background:var(--color-neutral-3); margin:var(--spacing-8) 0;}
-.c-ms-group{padding:var(--spacing-4) var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
-.c-ms-row{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
-.c-ms-row:hover{background:var(--color-neutral-2);}
-.c-ms-checkbox{flex:none; width:18px; height:18px; border-radius:6px; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; font-size:12px;}
-.c-ms-checkbox.checked{border:none; background:var(--color-obsidian);}
-.c-ms-row-label{font-family:var(--font-primary); font-size:var(--text-body1-size); font-weight:var(--text-body1-weight); color:var(--color-neutral-9);}
-.c-ms-footer{display:flex; justify-content:space-between; gap:var(--spacing-8); padding:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
-.c-ms-footer button{height:32px; padding:0 var(--spacing-12); border:none; border-radius:var(--radius-sm); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:var(--text-label2-weight); cursor:pointer;}
-.c-ms-footer .clear{background:transparent; color:var(--color-neutral-9);}
-.c-ms-footer .clear:hover{background:var(--color-neutral-2);}
-.c-ms-footer .done{background:var(--color-obsidian); color:var(--color-neutral-1);}
-.c-ms-footer .done:hover{background:var(--color-neutral-8);}
+/* Dropdown — Multiple select trigger (count-based, replaces the former
+   chip-based one). The box itself is Input Field's own container —
+   .c-field/.input-wrap/.icon-trailing/.c-field-error/:disabled below
+   are all reused verbatim, unmodified; nothing here duplicates that
+   recipe. .c-dropdown-multi-field only adds a Style axis Input Field
+   doesn't have (scoped to this class so bare .c-field — Input field,
+   Textarea, Password field, Search input — is untouched), plus the
+   dropdown-specific chevron/panel/open/filled mechanics. The value now
+   reads "N selected" as the input's own value/placeholder text, not a
+   row of removable chips. */
+.c-dropdown-multi-field .input-wrap{cursor:pointer;}
+.c-dropdown-multi-input{cursor:pointer; caret-color:transparent;}
+.c-dropdown-multi-input::placeholder{color:var(--color-neutral-5);}
+.c-dropdown-multi-chevron{transition:transform var(--duration-fast) var(--ease-standard);}
+
+/* Style — Outlined is Input Field's own default recipe above (no
+   modifier class). Border stays 1px at rest, colour only, in every
+   Style — the same compensation-free trick Single select's own Style
+   axis uses, so Open/Focus's 1px→2px Obsidian swap below needs no
+   per-style exception. */
+.c-dropdown-multi-field:hover input, .c-dropdown-multi-field.hover input{background:var(--color-neutral-2);}
+.c-dropdown-multi-field.style-filled input{background:var(--color-neutral-2); border-color:transparent;}
+.c-dropdown-multi-field.style-filled:hover input, .c-dropdown-multi-field.style-filled.hover input{background:var(--color-neutral-3);}
+.c-dropdown-multi-field.style-borderless input{background:transparent; border-color:transparent;}
+.c-dropdown-multi-field.style-borderless:hover input, .c-dropdown-multi-field.style-borderless.hover input{background:var(--color-neutral-2);}
+/* Explicit :focus override for Filled/Borderless — without it, a real
+   focus event and the plain .style-filled/.style-borderless rules
+   above have equal specificity, and source order alone would decide
+   which wins; this makes the win deliberate rather than incidental. */
+.c-dropdown-multi-field.style-filled input:focus, .c-dropdown-multi-field.style-borderless input:focus{border-color:var(--color-obsidian);}
+/* Disabled flattens all three Styles to Input Field's own muted look
+   (Neutral-2 fill, Neutral-5 text, from .c-field input:disabled) —
+   same explicit override precedent Single select's Style axis uses,
+   needed since .style-borderless's background:transparent would
+   otherwise tie in specificity and win by source order alone. */
+.c-dropdown-multi-field.style-filled input:disabled, .c-dropdown-multi-field.style-borderless input:disabled{background:var(--color-neutral-2); border-color:transparent;}
+/* Error must win over Style too — .style-filled/.style-borderless's
+   border-color:transparent above outranks the existing, lower-
+   specificity .c-field-error rule on specificity alone, regardless of
+   which is declared later, so it needs an equally explicit override. */
+.c-dropdown-multi-field.style-filled.c-field-error input, .c-dropdown-multi-field.style-borderless.c-field-error input{border-color:var(--color-red);}
+
+/* States — layer on top of whichever Style is active above. Focus is
+   real :focus (Input Field's own swap, inherited free); .open/.focus
+   are demo-only mirrors of that same recipe for a static gallery card
+   — Focus alone (tabbed to, panel not yet triggered) and Open (panel
+   visible) share one visual, which is why both exist as distinct
+   states rather than one. */
+.c-dropdown-multi-field.open input, .c-dropdown-multi-field.focus input{border:2px solid var(--color-obsidian); padding:0 11px;}
+.c-dropdown-multi-field.open .c-dropdown-multi-chevron{transform:rotate(180deg);}
+.c-dropdown-multi-field.filled input{border-color:var(--color-obsidian);}
+.c-dropdown-multi-field.read-only .input-wrap{pointer-events:none;}
+.c-dropdown-multi-field.read-only .icon-trailing{display:none;}
+
+/* Panel — width:100% of the same .c-field parent the trigger fills, so
+   it always matches the trigger's rendered width, same guarantee as
+   Single select's own panel. */
+.c-dropdown-multi-panel{position:static; margin-top:var(--spacing-8); width:100%; min-width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+.c-dropdown-multi-list{max-height:320px; overflow-y:auto; padding:var(--spacing-8) 0;}
+.c-dropdown-multi-divider{height:1px; background:var(--color-neutral-3); margin:var(--spacing-8) 0;}
+.c-dropdown-multi-group{padding:var(--spacing-4) var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+
+/* Dropdown Option — the checkbox row sub-component inside Multiple
+   select's panel, including the pinned Select All row (With Select
+   All behaviour only). Reuses this system's own Checkbox glyph
+   (.c-checkbox-box/.on + ph-check/ph-minus, from the Checkbox
+   component) verbatim rather than a second, ad-hoc checkbox recipe —
+   only the row's own padding/hover/focus chrome is new, since Checkbox
+   itself (a compact form control, not a list row) never needed it. */
+.c-dropdown-option{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+.c-dropdown-option input{position:absolute; opacity:0; width:0; height:0;}
+.c-dropdown-option:hover, .c-dropdown-option.hover{background:var(--color-neutral-2);}
+.c-dropdown-option input:focus-visible ~ .c-checkbox-box, .c-dropdown-option.focused .c-checkbox-box{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-dropdown-option.disabled{color:var(--color-neutral-4); cursor:not-allowed; pointer-events:none;}
+.c-dropdown-option.disabled .c-checkbox-box{border-color:var(--color-neutral-3); background:var(--color-neutral-2);}
+.c-dropdown-option-label{font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:var(--text-body2-weight); color:var(--color-neutral-9);}
+.c-dropdown-option.disabled .c-dropdown-option-label{color:var(--color-neutral-4);}
+.c-dropdown-option.select-all .c-dropdown-option-label{font-weight:700;}
+
+.c-dropdown-multi-footer{display:flex; justify-content:space-between; gap:var(--spacing-8); padding:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+.c-dropdown-multi-footer button{height:32px; padding:0 var(--spacing-12); border:none; border-radius:var(--radius-sm); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:var(--text-label2-weight); cursor:pointer;}
+.c-dropdown-multi-footer .clear{background:transparent; color:var(--color-neutral-9);}
+.c-dropdown-multi-footer .clear:hover{background:var(--color-neutral-2);}
+.c-dropdown-multi-footer .done{background:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-dropdown-multi-footer .done:hover{background:var(--color-neutral-8);}
 
 /* Stepper — designed not transcribed
    Horizontal: rail (indicator) and connector are direct siblings of
