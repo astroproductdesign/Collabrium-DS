@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.20** — 2026-08-06 — Sourced from the Collabrium brand deck
+**v0.9.23** — 2026-08-06 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1462,7 +1462,7 @@ are `radius-sm`, matching Input Field itself:
 | Part | Spec |
 |---|---|
 | Field label (optional) | caption, weight 700, Neutral-9, spacing-4 below it — literally Input Field's own `<label>` for both variants |
-| Panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill, spacing-8 below the trigger, **always exactly the trigger's own rendered width** (not just visually close — both sit in the same parent and share one `width: 100%` rule, so a wider/narrower trigger drags the panel with it automatically), `min-width` 240px as a floor for narrow fields only, never a reason to run narrower than the trigger — true for both variants, in every Style. The panel keeps its own `radius-md`/popover recipe regardless of the trigger's `radius-sm` — the two aren't tied together |
+| Panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill, spacing-8 below the trigger, **always exactly the trigger's own rendered width, with no floor** (both sit in the same parent and share one `width: 100%` rule with no `min-width`, so a wider/narrower trigger drags the panel with it automatically — an earlier `min-width: 240px` floor was removed after it made the panel run wider than a trigger narrower than 240px, breaking the exact-match guarantee it was meant to be documenting) — true for both variants, in every Style. The panel keeps its own `radius-md`/popover recipe regardless of the trigger's `radius-sm` — the two aren't tied together |
 
 **Single select — Container.** The trigger box is [Input
 Field](#input-field)'s own container, reused as-is, not recreated:
@@ -1477,21 +1477,22 @@ and Search input stay untouched. Supersedes an earlier draft that gave
 Single select its own Button-Secondary-styled, `radius-md` trigger
 instead — that recipe is gone.
 
-**Single select — Style.** Three trigger treatments, same box
+**Single select — Style.** Two trigger treatments, same box
 dimensions (Input Field's own `radius-sm`, 40px height) and panel in
 every case — only the resting chrome changes:
 
-| Style | Rest | Hover / Active |
+| Style | Rest | Hover |
 |---|---|---|
-| Outlined (default) | Neutral-1 fill, 1px Neutral-3 border — Input Field's own recipe | Neutral-2 fill / Neutral-3 fill |
-| Filled | Neutral-2 fill, no visible border | Neutral-3 fill for both — this system has no darker fill tier documented for a third step, so Hover and Active look identical in this style; flagged rather than inventing an undocumented token |
-| Borderless | transparent fill, no border — for inline placements (toolbars, table headers) that shouldn't read as a boxed field | Neutral-2 fill / Neutral-3 fill |
+| Outlined (default) | Neutral-1 fill, 1px Neutral-3 border — Input Field's own recipe | Neutral-2 fill |
+| Borderless | transparent fill, no border — for inline placements (toolbars, table headers) that shouldn't read as a boxed field; stays borderless through every State too, including Open and Filled — the only Style where those don't swap to a solid Obsidian border | Neutral-2 fill |
 
 Every Style keeps the same 1px border **width** at rest, just varying
-its color (transparent for Filled/Borderless) — so Open's 1px→2px
-Obsidian swap compensates by the same 1px/side in every Style, with no
-per-style exception to remember; same trick Multiple select's own Style
-axis uses.
+its color (transparent for Borderless) — so Open's 1px→2px width swap
+compensates by the same 1px/side in every Style, with no per-style
+exception to remember for the padding math; Borderless just keeps that
+swapped border fully transparent rather than colouring it Obsidian the
+way Outlined does, so nothing ever becomes visible there — same trick
+Multiple select's own Style axis uses.
 
 **Single select — States.**
 
@@ -1499,10 +1500,9 @@ axis uses.
 |---|---|
 | Default | placeholder value text, Neutral-5 — Input Field's own documented placeholder treatment (lighter than a real value, so Default and Filled are distinguishable without a caption) |
 | Hover | real `:hover` (plus a `.hover` class for static demos) — background escalates one step per the Style table above; new for this trigger, since Input Field itself has no Hover state documented |
-| Active | real `:active` (plus a `.active` class for static demos) — background escalates a second step per the Style table above |
-| Open | real `:focus` — Input Field's own 2px Obsidian border swap, spacing-12→11px padding compensate, inherited unmodified — plus the panel visible below; a `.open` class stands in for real focus/click in a static demo |
-| Filled | holds a value — the input's real `value` (not `placeholder` — so it renders Neutral-9 automatically, no extra class needed for that part), border swaps to Obsidian regardless of Style, the same "holds a value" recipe Filters' own Filter trigger — active state uses |
-| Disabled | Input Field's own `:disabled` recipe (Neutral-2 fill, Neutral-5 text) — flattens Filled/Borderless's own resting chrome to this one muted look, same rationale as Multiple select's Disabled |
+| Open | real `:focus` — Input Field's own 2px Obsidian border swap, spacing-12→11px padding compensate, inherited unmodified (Borderless keeps that swapped border transparent, so no visible border shows in that Style) — plus the panel visible below; a `.open` class stands in for real focus/click in a static demo |
+| Filled | holds a value — the input's real `value` (not `placeholder` — so it renders Neutral-9 automatically, no extra class needed for that part), border swaps to Obsidian in Outlined — Borderless stays borderless, no visible border here either — the same "holds a value" recipe Filters' own Filter trigger — active state uses |
+| Disabled | Input Field's own `:disabled` recipe (Neutral-2 fill, Neutral-5 text) — flattens Borderless's own resting chrome to this one muted look, same rationale as Multiple select's Disabled |
 | Read-only | the trigger stops opening the panel (its click target is inert, chevron hidden) while still showing its current value — `pointer-events: none` alone doesn't block a focused element's keyboard activation, a real implementation needs its own guard |
 | Error | Input Field's own `.c-field-error` recipe (2px Red border, padding compensated to 11px, its `.c-helper` turns Red) — reused verbatim, the same recipe Multiple select's Error uses, not a bespoke error-text element |
 
@@ -1515,7 +1515,6 @@ doesn't):
 |---|---|
 | Default | option label only, body2/400/Neutral-9 — the same font token as the trigger's own input text, not body1, so the row and the value it fills in read as one typographic family; no fill |
 | Hover | real `:hover` (plus a `.hover` class for static demos) — Neutral-2 fill, same token as Table row's own hover |
-| Active | real `:active` (plus a `.active` class for static demos) — Neutral-3 fill, one step past Hover |
 | Selected | Neutral-2 fill (same token as Hover — Table row's own "selected reuses hover's fill" precedent) plus a trailing check glyph (`icon-sm`, Obsidian, **Tier 1, Regular**) as the actual distinguishing mark, not the fill |
 | Disabled | Neutral-4 text, no fill on hover/click, `cursor: not-allowed` |
 
@@ -1529,19 +1528,20 @@ established) and a Style axis Input Field itself doesn't have are new
 — both scoped to this component's own class so bare Input Field,
 Textarea, Password field, and Search input stay untouched.
 
-**Multiple select — Style.** Three trigger treatments, same box
+**Multiple select — Style.** Two trigger treatments, same box
 dimensions (Input Field's own `radius-sm`, 40px height) and panel in
 every case:
 
 | Style | Rest | Hover |
 |---|---|---|
 | Outlined (default) | Neutral-1 fill, 1px Neutral-3 border — Input Field's own recipe | Neutral-2 fill |
-| Filled | Neutral-2 fill, no visible border | Neutral-3 fill |
-| Borderless | transparent fill, no border | Neutral-2 fill |
+| Borderless | transparent fill, no border; stays borderless through Open and Filled too, the only Style where those don't swap to a solid Obsidian border | Neutral-2 fill |
 
 Same 1px-border-**width**-at-rest trick as Single select's own Style
-axis — only the colour changes, so Open/Focus's 1px→2px Obsidian swap
-never needs a per-style exception here either.
+axis — only the colour changes, so Open's 1px→2px width swap never
+needs a per-style exception for its padding math either; Borderless
+just keeps that swapped border fully transparent instead of colouring
+it Obsidian, same as Single select's own Borderless.
 
 **Multiple select — States.**
 
@@ -1549,10 +1549,9 @@ never needs a per-style exception here either.
 |---|---|
 | Default | placeholder "Select brands" (or similar), Neutral-5 — Input Field's own documented placeholder treatment |
 | Hover | real `:hover` (plus a `.hover` class for static demos) — background escalates one step per the Style table above; new for this trigger, since Input Field itself has no Hover state documented |
-| Focus | real `:focus` — Input Field's own 2px Obsidian border swap, spacing-12→11px padding compensate, inherited unmodified; the panel isn't necessarily open yet at this point (e.g. tabbed to but not yet triggered) |
-| Open | the same visual as Focus, plus the panel visible below — a `.open` class stands in for real focus/click in a static demo |
-| Filled | shows "N selected" as the input's real `value` (not `placeholder` — so it renders Neutral-9, not the lighter placeholder colour, automatically, no extra class needed for that part), border swaps to Obsidian regardless of Style |
-| Disabled | Input Field's own `:disabled` recipe (Neutral-2 fill, Neutral-5 text) — flattens Filled/Borderless's own resting chrome to this one muted look, same rationale as Single select's Disabled |
+| Open | real `:focus` — Input Field's own 2px Obsidian border swap, spacing-12→11px padding compensate, inherited unmodified (Borderless keeps that swapped border transparent, so no visible border shows in that Style), plus the panel visible below; a `.open` class stands in for real focus/click in a static demo. The trigger being tabbed to before the panel is actually triggered shares this same real `:focus` swap — it isn't documented as its own separate State, since it's visually identical to Open minus the panel |
+| Filled | shows "N selected" as the input's real `value` (not `placeholder` — so it renders Neutral-9, not the lighter placeholder colour, automatically, no extra class needed for that part), border swaps to Obsidian in Outlined — Borderless stays borderless, no visible border here either |
+| Disabled | Input Field's own `:disabled` recipe (Neutral-2 fill, Neutral-5 text) — flattens Borderless's own resting chrome to this one muted look, same rationale as Single select's Disabled |
 | Read-only | the trigger stops opening the panel (its click target is inert, chevron hidden) while still showing its current "N selected" value — same caveat as Single select's Read-only: `pointer-events: none` alone doesn't block a focused element's keyboard activation, a real implementation needs its own guard |
 | Error | Input Field's own `.c-field-error` recipe (2px Red border, its `.c-helper` turns Red) — reused verbatim, not a bespoke error-text element the way Single select needed one |
 
@@ -1581,7 +1580,6 @@ recipe:
 |---|---|
 | Default | unchecked box, option label, body2/400/Neutral-9 — the same font token as the trigger's own input text, not body1, so the row and the "N selected" value share one typographic family; no fill |
 | Hover | real `:hover` (plus a `.hover` class for static demos) — Neutral-2 fill, same token as Table row's own hover |
-| Focused | real `:focus-visible` on the row's own (visually hidden) checkbox input — 2px Obsidian outline, 2px offset around the checkbox glyph, the same focus-visible recipe Button's and SidebarNav's own nav item already use |
 | Selected | checked box (Obsidian fill, `ph-check` glyph) — no extra row fill; a checkbox list signals "checked" through the box itself, unlike Single select's Dropdown Option, which has no checkbox to rely on and needs fill+check together |
 | Indeterminate | Obsidian fill like Selected, but a `ph-minus` glyph instead of `ph-check` — **for the Select All row only**, when some but not all options in the list are checked |
 | Disabled | Neutral-4 label text, checkbox kept at its own unchecked Neutral-3/Neutral-1 recipe, `cursor: not-allowed` |
@@ -1594,14 +1592,14 @@ clears every option, and it shows Indeterminate whenever the list is
 partially checked. It's a checkbox row, not a plain button — that's
 the only way it can show Indeterminate at all.
 
-**Variants:** Single select — Outlined/Filled/Borderless Style ×
-Default/Hover/Active/Open/Filled/Disabled/Read-only/Error State, plus
-its own Dropdown Option row sub-component (Default/Hover/Active/
-Selected/Disabled). Multiple select — Outlined/Filled/Borderless Style
-× Default/Hover/Focus/Open/Filled/Disabled/Read-only/Error State ×
+**Variants:** Single select — Outlined/Borderless Style ×
+Default/Hover/Open/Filled/Disabled/Read-only/Error State, plus
+its own Dropdown Option row sub-component (Default/Hover/
+Selected/Disabled). Multiple select — Outlined/Borderless Style
+× Default/Hover/Open/Filled/Disabled/Read-only/Error State ×
 Standard/With Select All/Searchable Behaviour (Behaviour only visibly
 differs when Open), plus its own Dropdown Option row sub-component
-(Default/Hover/Focused/Selected/Indeterminate/Disabled) and the pinned
+(Default/Hover/Selected/Indeterminate/Disabled) and the pinned
 Select All row.
 
 **Standing note:** if you're looking for **Select**, it's now the
@@ -2343,6 +2341,65 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.23 — 2026-08-06** — Two more trims to **Dropdown**. (1)
+  Borderless Style, both variants: Open and Filled no longer swap to a
+  solid Obsidian border — that swap is Outlined's own signal, and
+  Borderless is now guaranteed border-free in every State, not just at
+  rest. `components.css` gained one override rule per variant
+  (`.style-borderless.open input, .style-borderless.has-value input`
+  for Single; the same with `.filled` instead of `.has-value` for
+  Multiple) that forces `border-color: transparent`, beating the
+  existing State rules on specificity alone rather than relying on
+  source order. (2) Removed Multiple select's **Focus** State (main
+  trigger) and its Dropdown Option row's **Focused** State — both were
+  visually redundant with Open (Focus and Open already shared one
+  visual, the panel being the only difference) or not worth a dedicated
+  demo card on their own. Real keyboard focus still swaps the trigger's
+  border via Input Field's own inherited `:focus` rule, same as always
+  — only the separately-documented "Focus" state card, the
+  `.c-dropdown-multi-field.focus` demo hook, the Borderless-specific
+  `:focus` override that existed only to make that demo card visible,
+  and the checkbox row's `:focus-visible`/`.focused` outline rule are
+  gone. Style tables, State tables, the Dropdown Option table, and the
+  Variants summary line are all updated to match.
+
+- **v0.9.22 — 2026-08-06** — Removed the **Filled** Style variant and
+  the **Active** State from **Dropdown**'s Single select and Multiple
+  select galleries. Single select loses both its Filled-Style card row
+  (Outlined/Borderless are now the only two Style treatments) and its
+  Active-State card/row everywhere it appeared (the main trigger's
+  Outlined and Borderless rows, and the Dropdown Option row
+  sub-component's demo). Multiple select loses only its Filled-Style
+  card row — it never had an Active State to begin with (Focus and
+  Open already covered its equivalent ground). Style tables, State
+  tables, the Dropdown Option table, and the Variants summary line are
+  all updated to match; `.style-filled` and the `.active`/`:active`
+  rules tied to it are removed from `components.css` for both
+  `.c-dropdown-field` and `.c-dropdown-multi-field`, along with
+  `.c-dropdown-row`'s own `.active`/`:active` rule.
+
+- **v0.9.21 — 2026-08-06** — Four fixes to **Dropdown**'s Single select
+  and Multiple select galleries. (1) Fixed the Error state's `.c-helper`
+  text ("Please select a department" / "Select at least one brand")
+  rendering in its default Neutral-5 color instead of Red: the markup
+  had it as a sibling *after* the closing `.c-field-error` div rather
+  than a child *inside* it, so `.c-field-error .c-helper{color:red}`
+  never matched — moved it inside, matching Input Field's own correct
+  pattern. (2) Removed the `min-width: 240px` panel floor (see the
+  Panel row above) that was silently breaking the "panel always
+  matches the trigger's width" guarantee for any field narrower than
+  240px, including every 220px demo card in this gallery. (3)
+  Re-added per-state caption labels above every Style × State card in
+  both variants' matrices, and per-row labels in both variants' own
+  Dropdown Option demos — reversing an earlier "no per-state labels"
+  instruction now that captions are wanted back. (4) Multiple select's
+  Behaviour row (Standard / With Select All / Searchable) got a wider
+  gap (`--spacing-32` column gap, `--spacing-48` row gap on wrap) so
+  its three open panels have visible breathing room — mostly already
+  fixed by (2), since the overlap's root cause was the same min-width
+  floor pushing 240px-wide panels into 220px-wide, 12px-gapped columns.
+  Net component count unchanged (still 27).
 
 - **v0.9.20 — 2026-08-06** — Fixed a font-token mismatch in
   **Dropdown**'s Dropdown Option row sub-component, both variants:
