@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.23** — 2026-08-06 — Sourced from the Collabrium brand deck
+**v0.9.24** — 2026-08-06 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1278,7 +1278,7 @@ button that appears once there's a value, in three variants:
 | Avatar (User Search only) | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
 | Selected/collapsed (User/Item Search) | same 40px-height box as the Default state so selecting doesn't reflow the surrounding layout; shows the selected item plus a clear (×) |
 | Selected — hover | clear (×) swaps to Neutral-9 — Input field's own icon-button hover convention, a color change only, never a background fill |
-| Selected — disabled | no clear (×) rendered, Neutral-4 text, `cursor: not-allowed` |
+| Selected — disabled | clear (×) visually hidden, Neutral-4 text, `cursor: not-allowed` — the button stays in the markup as a real `disabled` element (already out of the tab order on its own) rather than being omitted, so its 24px + spacing-12 footprint still counts toward the row's own sizing; this keeps Selected — disabled at the exact same rendered width as Selected and Selected — hover in both User Search and Item Search, instead of the row shrinking once the button disappears |
 
 **Variants:** Default, User Search, Item Search — each with Default,
 Active, Has value, Disabled, and Error; User Search/Item Search add
@@ -1301,8 +1301,12 @@ section (now the **Default** variant).
 
 **Do:** keep every variant's collapsed/default state at the same 40px
 height so selecting or clearing a value never reflows the surrounding
-layout; keep the clear button keyboard-reachable via `Tab` once it's
-visible. **Don't:** show both a clear button and a separate trailing
+layout; keep Selected — disabled at the same rendered *width* as
+Selected and Selected — hover too, by keeping the clear button in the
+markup and only hiding it visually rather than omitting it, so its
+layout space still counts toward the row's own sizing; keep the clear
+button keyboard-reachable via `Tab` once it's visible. **Don't:** show
+both a clear button and a separate trailing
 icon at once; style the dropdown's empty state as a full [Empty
 state](#empty-state) (icon + heading + body) — it's an inline "nothing
 matched" message inside a compact popover, not a page-level empty
@@ -2341,6 +2345,19 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.24 — 2026-08-06** — Fixed **Search input**'s Selected —
+  disabled state (User Search and Item Search variants): it rendered
+  narrower than Selected and Selected — hover, because the clear (×)
+  button was omitted from the markup entirely rather than just hidden.
+  `.c-search-input-collapsed` sizes itself to its own content (it isn't
+  stretched to a fixed width anywhere), so dropping the button's 24px +
+  `spacing-12` footprint shrank the whole row. Fix: the button now
+  stays in the markup as a real `disabled` element (already out of the
+  tab order on its own) with `visibility:hidden` in `components.css` —
+  hidden visually, but its layout space still counts, so all three
+  states render at the identical width. Updated the Selected — disabled
+  spec row and the Do section to match.
 
 - **v0.9.23 — 2026-08-06** — Two more trims to **Dropdown**. (1)
   Borderless Style, both variants: Open and Filled no longer swap to a

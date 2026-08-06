@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Search input — Selected — disabled width fix</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:var(--font-primary); padding:var(--spacing-32);}
+  h1{font-size:var(--text-h4-size); margin:0 0 var(--spacing-8);}
+  .note{font-size:var(--text-body2-size); color:var(--color-neutral-5); margin:0 0 var(--spacing-32); max-width:640px;}
+  .comp-block{margin-bottom:var(--spacing-60);}
+  .comp-block:last-child{margin-bottom:0;}
+  .comp-head{margin-bottom:var(--spacing-16);}
+  .comp-head h3{font-size:var(--text-h4-size); font-weight:var(--text-h4-weight); margin:0;}
+  .comp-demo{border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); padding:var(--spacing-24); background:var(--color-neutral-1);}
+  .comp-row{display:flex; flex-wrap:wrap; gap:var(--spacing-12); align-items:flex-start;}
+  .comp-row + .comp-row{margin-top:var(--spacing-16);}
+  /* The caption sits above the box via position:absolute, out of normal
+     flow, specifically so its text length can never influence the box's
+     own shrink-to-fit width below it — Item Search's box content
+     ("Nescafé"/"FMCG") is short enough that a plain in-flow caption of
+     varying length (e.g. the "(fixed)" suffix on one card only) would
+     otherwise become the actual width driver instead of the box, which
+     is exactly what produced a false mismatch in the first pass of this
+     review file. Not a components.css concern — review-harness only. */
+  .card{position:relative; padding-top:24px;}
+  .card > .comp-caption{position:absolute; top:0; left:0; margin:0; font-size:12px; color:var(--color-neutral-5); white-space:nowrap;}
+  .width-frame{outline:1px dashed var(--color-red); outline-offset:2px;}
+  .width-frame .c-search-input{outline:none;}
+</style>
+</head>
+<body>
+
+<h1>Search input — Selected — disabled width fix</h1>
+<p class="note">Fix: <code>.c-search-input-collapsed.is-disabled .c-search-input-clear{visibility:hidden;}</code> — the clear (×) button stays in the markup as a real <code>disabled</code> button (already out of the tab order on its own) so its 24px + spacing-12 footprint still counts toward the row's flex sizing. Only its visibility is removed, not its layout space, so Selected — disabled now renders at the same width as Selected and Selected — hover instead of shrinking once the button disappears. The dashed red outline below is a measurement aid for this review only — not part of the component.</p>
+
+<div class="comp-block">
+  <div class="comp-head"><h3>User Search variant — Selected (collapsed), Selected — hover, Selected — disabled</h3></div>
+  <div class="comp-demo">
+    <div class="comp-row">
+      <div class="card">
+        <p class="comp-caption">Selected (collapsed)</p>
+        <div class="width-frame">
+        <div class="c-search-input">
+          <div class="c-search-input-collapsed">
+            <span class="c-search-input-avatar">NR</span>
+            <span class="c-search-input-text">
+              <span class="c-search-input-title">Nadia Rahman</span>
+              <span class="c-search-input-subtitle">Account Executive</span>
+            </span>
+            <button type="button" class="c-search-input-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="comp-caption">Selected — hover</p>
+        <div class="width-frame">
+        <div class="c-search-input">
+          <div class="c-search-input-collapsed">
+            <span class="c-search-input-avatar">NR</span>
+            <span class="c-search-input-text">
+              <span class="c-search-input-title">Nadia Rahman</span>
+              <span class="c-search-input-subtitle">Account Executive</span>
+            </span>
+            <button type="button" class="c-search-input-clear demo-hover" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="comp-caption">Selected — disabled (fixed)</p>
+        <div class="width-frame">
+        <div class="c-search-input">
+          <div class="c-search-input-collapsed is-disabled">
+            <span class="c-search-input-avatar">NR</span>
+            <span class="c-search-input-text">
+              <span class="c-search-input-title">Nadia Rahman</span>
+              <span class="c-search-input-subtitle">Account Executive</span>
+            </span>
+            <button type="button" class="c-search-input-clear" aria-label="Clear selection" disabled><i class="ph ph-x"></i></button>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="comp-block">
+  <div class="comp-head"><h3>Item Search variant — Selected (collapsed), Selected — hover, Selected — disabled</h3></div>
+  <div class="comp-demo">
+    <div class="comp-row">
+      <div class="card">
+        <p class="comp-caption">Selected (collapsed)</p>
+        <div class="width-frame">
+        <div class="c-search-input">
+          <div class="c-search-input-collapsed">
+            <span class="c-search-input-text">
+              <span class="c-search-input-title">Nescafé</span>
+              <span class="c-search-input-subtitle">FMCG</span>
+            </span>
+            <button type="button" class="c-search-input-clear" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="comp-caption">Selected — hover</p>
+        <div class="width-frame">
+        <div class="c-search-input">
+          <div class="c-search-input-collapsed">
+            <span class="c-search-input-text">
+              <span class="c-search-input-title">Nescafé</span>
+              <span class="c-search-input-subtitle">FMCG</span>
+            </span>
+            <button type="button" class="c-search-input-clear demo-hover" aria-label="Clear selection"><i class="ph ph-x"></i></button>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="comp-caption">Selected — disabled (fixed)</p>
+        <div class="width-frame">
+        <div class="c-search-input">
+          <div class="c-search-input-collapsed is-disabled">
+            <span class="c-search-input-text">
+              <span class="c-search-input-title">Nescafé</span>
+              <span class="c-search-input-subtitle">FMCG</span>
+            </span>
+            <button type="button" class="c-search-input-clear" aria-label="Clear selection" disabled><i class="ph ph-x"></i></button>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

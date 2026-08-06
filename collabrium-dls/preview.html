@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.23</title>
+<title>Collabrium design system | v0.9.24</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -275,7 +275,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.23</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.24</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -283,7 +283,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.23</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.24</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -1234,7 +1234,7 @@
           <div class="comp-head"><h3>Search input <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-search-input" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
 
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default variant &mdash; Default, Active, Has value, Disabled, Error</p>
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default variant &mdash; Default, Active, Has value, Disabled, Error, No results, Loading</p>
             <div class="comp-row">
               <div class="c-search-input">
                 <label for="si-default-1">Search</label>
@@ -1275,21 +1275,32 @@
                 </div>
                 <p class="c-search-input-error" id="si-default-5-error">Search couldn&rsquo;t run &mdash; try again</p>
               </div>
-            </div>
-
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">User Search variant &mdash; Default</p>
-            <div class="comp-row">
               <div class="c-search-input">
-                <label for="si-us-1">Search for a person</label>
-                <div class="c-search-input-box">
+                <label for="si-default-6">Search</label>
+                <div class="c-search-input-box is-active">
                   <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
-                  <input type="text" id="si-us-1" placeholder="Search for a person&hellip;" />
+                  <input type="text" id="si-default-6" value="zzz" readonly />
+                  <button type="button" class="c-search-input-clear" aria-label="Clear search"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="c-search-input-dropdown">
+                  <div class="c-search-input-empty">No matches found</div>
+                </div>
+              </div>
+              <div class="c-search-input">
+                <label for="si-default-7">Search</label>
+                <div class="c-search-input-box is-active">
+                  <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
+                  <input type="text" id="si-default-7" value="ke" readonly />
+                  <button type="button" class="c-search-input-clear" aria-label="Clear search"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="c-search-input-dropdown">
+                  <div class="c-search-input-loading"><i class="ph ph-spinner-gap c-search-input-spinner" aria-hidden="true"></i></div>
                 </div>
               </div>
             </div>
 
-            <p style="margin:var(--spacing-16) 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">User Search variant &mdash; Searching, No results, Loading</p>
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">User Search variant &mdash; Searching</p>
             <div class="comp-row">
               <div class="c-search-input">
                 <label for="si-us-2">Search for a person</label>
@@ -1320,28 +1331,6 @@
                       <span class="c-search-input-subtitle">Account Executive</span>
                     </span>
                   </div>
-                </div>
-              </div>
-              <div class="c-search-input">
-                <label for="si-us-3">Search for a person</label>
-                <div class="c-search-input-box is-active">
-                  <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
-                  <input type="text" id="si-us-3" value="zzz" readonly />
-                  <button type="button" class="c-search-input-clear" aria-label="Clear search"><i class="ph ph-x"></i></button>
-                </div>
-                <div class="c-search-input-dropdown">
-                  <div class="c-search-input-empty">No matches found</div>
-                </div>
-              </div>
-              <div class="c-search-input">
-                <label for="si-us-4">Search for a person</label>
-                <div class="c-search-input-box is-active">
-                  <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
-                  <input type="text" id="si-us-4" value="ke" readonly />
-                  <button type="button" class="c-search-input-clear" aria-label="Clear search"><i class="ph ph-x"></i></button>
-                </div>
-                <div class="c-search-input-dropdown">
-                  <div class="c-search-input-loading"><i class="ph ph-spinner-gap c-search-input-spinner" aria-hidden="true"></i></div>
                 </div>
               </div>
             </div>
@@ -1375,23 +1364,13 @@
                     <span class="c-search-input-title">Nadia Rahman</span>
                     <span class="c-search-input-subtitle">Account Executive</span>
                   </span>
+                  <button type="button" class="c-search-input-clear" aria-label="Clear selection" disabled><i class="ph ph-x"></i></button>
                 </div>
               </div>
             </div>
 
             <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Item Search variant &mdash; Default</p>
-            <div class="comp-row">
-              <div class="c-search-input">
-                <label for="si-is-1">Search for a campaign</label>
-                <div class="c-search-input-box">
-                  <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
-                  <input type="text" id="si-is-1" placeholder="Search for a campaign&hellip;" />
-                </div>
-              </div>
-            </div>
-
-            <p style="margin:var(--spacing-16) 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Item Search variant &mdash; Searching, No results, Loading</p>
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Item Search variant &mdash; Searching</p>
             <div class="comp-row">
               <div class="c-search-input">
                 <label for="si-is-2">Search for a campaign</label>
@@ -1419,28 +1398,6 @@
                       <span class="c-search-input-subtitle">Data</span>
                     </span>
                   </div>
-                </div>
-              </div>
-              <div class="c-search-input">
-                <label for="si-is-3">Search for a campaign</label>
-                <div class="c-search-input-box is-active">
-                  <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
-                  <input type="text" id="si-is-3" value="zzz" readonly />
-                  <button type="button" class="c-search-input-clear" aria-label="Clear search"><i class="ph ph-x"></i></button>
-                </div>
-                <div class="c-search-input-dropdown">
-                  <div class="c-search-input-empty">No matches found</div>
-                </div>
-              </div>
-              <div class="c-search-input">
-                <label for="si-is-4">Search for a campaign</label>
-                <div class="c-search-input-box is-active">
-                  <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
-                  <input type="text" id="si-is-4" value="growth" readonly />
-                  <button type="button" class="c-search-input-clear" aria-label="Clear search"><i class="ph ph-x"></i></button>
-                </div>
-                <div class="c-search-input-dropdown">
-                  <div class="c-search-input-loading"><i class="ph ph-spinner-gap c-search-input-spinner" aria-hidden="true"></i></div>
                 </div>
               </div>
             </div>
@@ -1471,6 +1428,7 @@
                     <span class="c-search-input-title">Q3 Growth Sprint</span>
                     <span class="c-search-input-subtitle">Marketing</span>
                   </span>
+                  <button type="button" class="c-search-input-clear" aria-label="Clear selection" disabled><i class="ph ph-x"></i></button>
                 </div>
               </div>
             </div>
@@ -2123,7 +2081,7 @@ also browsable as its own page in `preview.html` via the Changelog
 button next to the version flag in the top bar.
 </script>
 
-<script type="text/plain" id="src-md-extended">**v0.9.23** — 2026-08-06 — Sourced from the Collabrium brand deck
+<script type="text/plain" id="src-md-extended">**v0.9.24** — 2026-08-06 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3401,7 +3359,7 @@ button that appears once there's a value, in three variants:
 | Avatar (User Search only) | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
 | Selected/collapsed (User/Item Search) | same 40px-height box as the Default state so selecting doesn't reflow the surrounding layout; shows the selected item plus a clear (×) |
 | Selected — hover | clear (×) swaps to Neutral-9 — Input field's own icon-button hover convention, a color change only, never a background fill |
-| Selected — disabled | no clear (×) rendered, Neutral-4 text, `cursor: not-allowed` |
+| Selected — disabled | clear (×) visually hidden, Neutral-4 text, `cursor: not-allowed` — the button stays in the markup as a real `disabled` element (already out of the tab order on its own) rather than being omitted, so its 24px + spacing-12 footprint still counts toward the row's own sizing; this keeps Selected — disabled at the exact same rendered width as Selected and Selected — hover in both User Search and Item Search, instead of the row shrinking once the button disappears |
 
 **Variants:** Default, User Search, Item Search — each with Default,
 Active, Has value, Disabled, and Error; User Search/Item Search add
@@ -3424,8 +3382,12 @@ section (now the **Default** variant).
 
 **Do:** keep every variant's collapsed/default state at the same 40px
 height so selecting or clearing a value never reflows the surrounding
-layout; keep the clear button keyboard-reachable via `Tab` once it's
-visible. **Don't:** show both a clear button and a separate trailing
+layout; keep Selected — disabled at the same rendered *width* as
+Selected and Selected — hover too, by keeping the clear button in the
+markup and only hiding it visually rather than omitting it, so its
+layout space still counts toward the row's own sizing; keep the clear
+button keyboard-reachable via `Tab` once it's visible. **Don't:** show
+both a clear button and a separate trailing
 icon at once; style the dropdown's empty state as a full [Empty
 state](#empty-state) (icon + heading + body) — it's an inline "nothing
 matched" message inside a compact popover, not a page-level empty
@@ -4464,6 +4426,19 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.24 — 2026-08-06** — Fixed **Search input**'s Selected —
+  disabled state (User Search and Item Search variants): it rendered
+  narrower than Selected and Selected — hover, because the clear (×)
+  button was omitted from the markup entirely rather than just hidden.
+  `.c-search-input-collapsed` sizes itself to its own content (it isn't
+  stretched to a fixed width anywhere), so dropping the button's 24px +
+  `spacing-12` footprint shrank the whole row. Fix: the button now
+  stays in the markup as a real `disabled` element (already out of the
+  tab order on its own) with `visibility:hidden` in `components.css` —
+  hidden visually, but its layout space still counts, so all three
+  states render at the identical width. Updated the Selected — disabled
+  spec row and the Do section to match.
 
 - **v0.9.23 — 2026-08-06** — Two more trims to **Dropdown**. (1)
   Borderless Style, both variants: Open and Filled no longer swap to a
