@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.17** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.22** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1573,6 +1573,79 @@ the expanded default, a department lockup from `logo-lockups/` for an
 expanded department-specific header, `SVG/` for collapsed) — never build
 or embed a custom one-off logo asset for a header.
 
+**Department switcher.**
+
+When a SidebarNav instance receives 2 or more departments via the
+`departments[]` prop, the header logo becomes an interactive trigger:
+selecting it opens a dropdown listing each department's logo variant,
+and selecting one switches the entire nav and page context to that
+department. This is what the Header row's "workspace switcher slot"
+(see the main Part/Spec table's Header row, above) was reserved for —
+Department switcher is that slot, not a separate header element. Only
+active in expanded mode — see Collapsed mode, below.
+
+**Detection:**
+
+- Trigger renders when `departments[]` contains 2 or more items.
+- When `departments[]` has 0 or 1 item, no chevron renders and the logo
+  stays static — existing default behavior (see Header logo rule,
+  above), unchanged.
+
+| Part | Spec |
+|---|---|
+| Department switcher trigger | expanded mode only, not accessible collapsed (see Collapsed mode, below); logo + chevron treated as one paired trigger button, sized to its own content rather than the full header width; chevron `chevron-down`/`chevron-up`, **Tier 1, Regular** (same pair and tier as Second-level navigation's own parent chevron, above), `icon-micro` (14px), Neutral-5 at rest; spacing-8 between logo and chevron; hover: Neutral-2 fill on the trigger itself only (logo + chevron), not the full header zone — a hover target that size would falsely suggest the whole header row is clickable, when only the logo/chevron pairing is; active/open: chevron swaps to `chevron-up`, Neutral-2 fill persists; `aria-haspopup="listbox"`, `aria-expanded` toggles true/false |
+
+**Dropdown.**
+
+| Part | Spec |
+|---|---|
+| Container | 240px width (matches SidebarNav's own Expanded width, above), positioned below the header area flush left with the sidebar container; Neutral-1 fill, 1px Neutral-3 border, `radius-md`, `shadow-3` — same popover convention as Filters/Date picker/Select; max 5 items visible before an internal scroll, same overflow rule as the sidebar itself (scrollbar hidden by default, visible on hover) |
+| Department item | 40px height, 0/spacing-12 padding — matches Nav item exactly; logo-only — department logo lockup (from `logo-lockups/`), left-aligned (matches Nav item's own left-aligned content), no department-name text renders in the list (each option still carries an accessible name via `aria-label` for screen readers, since the visual label is gone); every lockup renders at a **uniform rendered size for its shared "collab" text**, not just a uniform bounding-box height — lockup SVGs aren't all proportioned the same way internally (e.g. the default lockup's own canvas is a different aspect ratio from the 4 department ones), so scaling every asset to the same box height alone can still render the shared wordmark portion at visibly different sizes; correct with a per-asset scale adjustment (tuned by eye against the shared "collab" text, not derived from a formula) rather than a single uniform height rule; hover: Neutral-2 fill; active/selected: Neutral-2 fill, trailing `check` icon (**Tier 1, Regular**); `role="option"`, `aria-selected` on the active department |
+| Default option | always first in the list; its dropdown thumbnail is the **static** default lockup (`logo-lockups/collabrium-default-logo.svg`), not the live `logo.html` mark — a list of thumbnails isn't the place for a live animated embed; the header trigger itself still shows the live `logo.html` mark when Default is the active context, per the Header logo rule, above. Represents no specific department context |
+| Missing asset fallback | if a department's lockup doesn't yet exist in `logo-lockups/` (see the Logo section's table — only the Gold/default variant currently exists), render `SVG/{element}.svg` as a placeholder in place of the missing lockup |
+| List | `role="listbox"`; keyboard: arrow keys navigate options, Enter selects, Escape closes; closes on outside click, Escape, or item selection |
+
+**Animation:**
+
+| Property | Spec |
+|---|---|
+| Entrance | fade in + slight slide down from the header's bottom edge |
+| Exit | fade out + slight slide up |
+| Duration/easing | `duration-fast` / `ease-standard` — `duration-fast`'s stated purpose ("hover, focus transitions") is the closest fit for a quick dropdown reveal, and `ease-standard` since, like SidebarNav's own collapse and accordion transitions, a department switcher isn't owned by a specific brand element |
+| Reduced motion | instant appear/disappear when `prefers-reduced-motion` is set |
+
+**On switch:**
+
+- The selected department's logo replaces the header logo immediately —
+  the static lockup from `logo-lockups/` for the expanded state,
+  `SVG/{element}.svg` for the collapsed state (per the Header logo rule
+  and Collapsible state's own "Collapsed — logo" row, above).
+- The entire nav item list replaces with the selected department's own
+  navigation structure.
+- The active nav item resets — routing navigates to the selected
+  department's home item.
+- Every accordion's open/closed state resets to all-closed on switch.
+- The selected department is saved to `localStorage` and restored on
+  load — same mechanism as Collapsible state's own Persistence row,
+  above.
+- Outgoing nav items fade out and incoming items fade in, using
+  `duration-fast` (same token as the dropdown's own animation, above).
+
+**Collapsed mode:**
+
+- The department switcher is not accessible collapsed.
+- The collapsed element icon (`SVG/{element}.svg`) passively reflects
+  the active department but isn't a trigger.
+- Expanding the sidebar is required to reach the department switcher.
+
+**Accessibility:**
+
+- Trigger: `aria-haspopup="listbox"`, `aria-expanded` reflects open/closed.
+- Dropdown: `role="listbox"`.
+- Each option: `role="option"`, `aria-selected` on the active item.
+- Keyboard: arrow keys navigate, Enter selects, Escape closes and
+  returns focus to the trigger.
+
 **Second-level navigation.**
 
 Distinct from the section-label Do/Don't above, which governs
@@ -2302,6 +2375,95 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.22 — 2026-08-05** — Second-level navigation's parent chevron
+  switched from a hand-drawn inline SVG (custom stroke path, `icon-base`
+  sized) to the same icon tier as the Department switcher's own
+  chevron: Phosphor `ph-caret-down`/`ph-caret-up`, `icon-micro` (14px),
+  Neutral-5, class-swapped rather than a rotated/path-swapped SVG — the
+  two expand affordances now read as visually consistent within the
+  same sidebar. This also fixed a real mismatch the old implementation
+  had with this document's own spec: the Parent item row (above) has
+  always said the chevron swaps `chevron-down` ↔ `chevron-up`, but the
+  inline SVG actually swapped to a right-pointing path when closed, not
+  up — the class-swap approach now matches the documented behavior
+  exactly. `components.css`/`preview.html` only; no spec-table change.
+
+- **v0.9.21 — 2026-08-05** — Dropdown items switched from centered to
+  **left-aligned** logos, matching Nav item's own left-aligned content
+  elsewhere in SidebarNav — centering read as inconsistent next to
+  every other left-aligned row in the sidebar. `preview.html`'s
+  Department switcher demo also simplified: the side-by-side
+  no-departments/5-departments comparison is now a single sample (the
+  5-department one), and its description text was replaced with one
+  line covering the single-department case specifically — "for default
+  (single department), the dropdown is hidden," since that's the one
+  behavior the removed second sample used to demonstrate and was worth
+  keeping documented even without a second live example.
+
+- **v0.9.20 — 2026-08-05** — Fixed the dropdown's logo sizing: scaling
+  every lockup to the same bounding-box height wasn't actually enough —
+  the default lockup's own SVG canvas (`viewBox` 1062×162) is a
+  different aspect ratio from the 4 department lockups (all 1000s×269),
+  so at an equal box height, the default's shared "collab" text
+  rendered visibly larger than the department ones' — a uniform box
+  height isn't the same thing as a uniform rendered text size when the
+  source assets aren't proportioned the same way internally. Fixed with
+  a per-image `--logo-scale` CSS custom property (`components.css`,
+  `.c-dept-option-logo img`), tuned by eye against the shared "collab"
+  text rather than derived from a formula — the default lockup's image
+  gets `--logo-scale: 0.6` inline in `preview.html`, the 4 department
+  ones default to `1` since they already share consistent internal
+  proportions with each other. Also brought the Department switcher
+  demo's nav content up to parity with the default SidebarNav demo
+  (disabled Billing item, Team accordion with Members/Roles & access)
+  so it demonstrates the department-dropdown mechanism specifically,
+  without omitting the disabled-state and parent/child patterns the
+  first demo already covers — a demo-composition change in
+  `preview.html` only, not a spec change.
+
+- **v0.9.19 — 2026-08-05** — Refined Department switcher after
+  building it out in `components.css`/`preview.html`: (1) trigger hover
+  now targets only the logo + chevron pairing, not the full header
+  zone — the wider hover target falsely implied the entire header row
+  was clickable; (2) dropdown items dropped the department-name text
+  entirely — logo-only, each option still carries an `aria-label` for
+  screen readers since the visual label is gone — and every lockup now
+  renders at a uniform height regardless of its own aspect ratio; (3)
+  the Default option's dropdown thumbnail is now the **static** default
+  lockup rather than a live `logo.html` embed — a list of thumbnails
+  isn't the right place for a live animation; the header trigger itself
+  is unaffected and still shows the live mark for the Default context.
+  Implemented for real: `components.css` gained `.c-dept-trigger`
+  (sized to content, not `width: 100%`), `.c-dept-option`/
+  `.c-dept-option-logo` (logo-only, uniform height), and collapsed-mode
+  handling (`.c-sidebar.is-collapsed .c-dept-trigger{display:none}`,
+  reusing `.c-sidebar-logo-collapsed`'s existing show/hide rule for the
+  passive collapsed element icon). `preview.html`'s Department switcher
+  demo now also exercises the collapsed rail correctly — its 4
+  non-default sample departments (Content/Influencers/Sales/Studio) are
+  demo-only mapped to Wood/Earth/Gold/Fire respectively so the collapsed
+  icon has something real to show.
+
+- **v0.9.18 — 2026-08-05** — Added **Department switcher** to
+  SidebarNav, inserted right after the Header logo rule. Documents that
+  this feature is what the Header row's "workspace switcher slot" (in
+  the main Part/Spec table) was reserved for all along — a
+  2-or-more-`departments[]` prop turns the header logo into a trigger
+  that opens a dropdown of department logo variants, switching the
+  entire nav and page context on selection. Expanded-mode only; the
+  collapsed rail's element icon reflects the active department
+  passively but isn't a trigger. No new tokens: the dropdown reuses the
+  exact popover convention already established by Search input/
+  Filters/Date picker/Select (`radius-md`, Neutral-1/Neutral-3,
+  `shadow-3`), item sizing matches Nav item's own 40px/spacing-12,
+  animation reuses `duration-fast`/`ease-standard`, and persistence
+  reuses the same `localStorage` mechanism as Collapsible state's own
+  Persistence row. One resolved conflict: the brief's "body2, weight
+  500" isn't an existing token combo (body2 is only 400 or "strong"
+  700 — 500 exists solely as body1's own weight) — used the real
+  existing weight, 400, instead, same resolution already applied to
+  Info Banner's Message text.
 
 - **v0.9.17 — 2026-08-05** — Fixed Info Banner's cross-axis alignment:
   Icon, Message, and the Close button now vertically center against
