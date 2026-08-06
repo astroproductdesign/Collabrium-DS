@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.15** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.17** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -684,28 +684,31 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-28 components: the original 7 basics
+29 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 10 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Select, Checkbox, Radio,
 Switch, Toast, Tooltip, DataTable, ElementBadge), 4 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
 picker — plus a Chart color mapping guideline (not a rendered
-component), and 7 more: **App Shell** (the page-level composition
+component), and 8 more: **App Shell** (the page-level composition
 layer — Sidebar placement, Content region, Page header), Textarea,
 Password field, **Search input** (a text search field with a clear
 button, in Default/User Search/Item Search variants — the last two
 searching and selecting a person or item from a dropdown), **Stepper**
 (a multi-step progress indicator), **FileUploader** (click-to-browse/
-drag-and-drop file attachment), and **MultiSelect** (a grouped
-checkbox dropdown with removable selection chips). The Stat/KPI card
-batch, App Shell, Stepper, FileUploader, MultiSelect, and Search input
-have **no source in either the original brand deck or the teammate's
-build**; they're built entirely from this document's own token system
-(color, type, spacing, radius, elevation, motion) and marked ⚠️
-**designed, not transcribed** in their own sections — treat them as a
-first pass needing real design/brand review before shipping, more
-provisional than the transcribed components above them.
+drag-and-drop file attachment), **MultiSelect** (a grouped
+checkbox dropdown with removable selection chips), and **Info Banner**
+(an inline, persistent, container-anchored notification — distinct
+from Toast's floating/viewport-level/auto-dismissing behavior). The
+Stat/KPI card batch, App Shell, Stepper, FileUploader, MultiSelect,
+Search input, and Info Banner have **no source in either the original
+brand deck or the teammate's build**; they're built entirely from this
+document's own token system (color, type, spacing, radius, elevation,
+motion) and marked ⚠️ **designed, not transcribed** in their own
+sections — treat them as a first pass needing real design/brand review
+before shipping, more provisional than the transcribed components
+above them.
 See each section below for source notes, and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
@@ -724,6 +727,7 @@ through.
 - [Empty state](#empty-state)
 - [FileUploader](#fileuploader)
 - [Filters](#filters)
+- [Info Banner](#info-banner)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
 - [MultiSelect](#multiselect)
@@ -1785,6 +1789,106 @@ place for an irreversible decision.
 | Over limit | the copy must be rewritten, not shortened by the component |
 | Rationale | Toast content is system-generated, so character limits are an authoring rule, not a display rule |
 
+### Info Banner
+
+⚠️ **Designed from scratch, no source in the brand deck or the
+teammate's build.** Built entirely from this document's own token
+system — treat it as a first pass needing real design/brand review
+before shipping.
+
+Inline, persistent notification embedded within a section or card.
+Distinct from Toast: anchored to its parent container rather than
+floating; persistent or manually dismissible rather than
+auto-dismissing; full container width rather than a fixed pixel width;
+content-level rather than viewport-level.
+
+| Part | Spec |
+|---|---|
+| Container | full width of the parent, spacing-12 vertical / spacing-16 horizontal padding, `radius-md`, 1px border matching the tone, tone fill (see the tone table below), no shadow |
+| Icon | `icon-base` (20px), vertically centered with Message and the Close button (not top-aligned — with no Title above it, Message is a single short line as often as not, and top-aligning against a taller Close button read as misaligned); **Tier 2, Fill** — same rationale as Toast, a status indicator rather than a control |
+| Message | body2, weight 400, tone text color at 80% opacity — the banner's only text content |
+| Action slot (optional) | the last element in the banner's content, after Message — spacing-8 above it, maximum 2 actions. Both actions share one style: body2, weight 400, tone text color at 80% opacity (identical to Message), underlined — there's no separate Ghost-button/Link distinction |
+| Close (optional) | Ghost IconButton, sm, right-aligned and vertically centered with Icon and Message, `x`, **Tier 1, Regular** (a close affordance), `aria-label="Dismiss"` — present only on the dismissible variant |
+
+**Variants:**
+
+| Variant | Spec |
+|---|---|
+| Dismissible | close button rendered top-right; the user closes it manually via the `x`; use when the information is helpful but not critical |
+| Persistent | no close button rendered; remains until the underlying condition resolves; use when the banner describes an ongoing system state the user can't resolve by dismissing it |
+
+**Tone → icon/color:**
+
+Icon color follows Toast's pattern — full-strength tone color, since a Tier 2 Fill status icon isn't held to the same small-text AA contrast math as body copy. Fill, border, and Message text reuse Badge's existing tone values directly (including its AA-darkened Success/Warning text), except Neutral's text, which uses Neutral-9 rather than Badge's Neutral-5 — Banner's Message is body copy that needs to read as primary content, not a small caption label, so it follows Toast's own Neutral-9 choice instead.
+
+| Tone | Icon | Icon color | Fill | Text | Border |
+|---|---|---|---|---|---|
+| Neutral | `info` | Neutral-9 | Neutral-2 | Neutral-9 | Neutral-3 |
+| Info | `info` | Water `#1473E6` | Water at 10% | Water `#1473E6` | Water at 28% |
+| Success | `check-circle` | Green | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Danger | `x-circle` | Red | Red at 10% | Red `#FD3343` | Red at 30% |
+| Warning | `warning` | Amber | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
+
+All five icons are **Tier 2, Fill**.
+
+**Tone usage — when to use each:**
+
+| Tone | Use when |
+|---|---|
+| Neutral | a general FYI with no positive/negative charge — a fact worth surfacing, not a status |
+| Info | the default tone when in doubt — a feature note, tip, or informational context that isn't itself a status change |
+| Success | confirming a condition completed positively — a sync finished, a state is healthy |
+| Warning | a caution or approaching limit the user should notice but that isn't blocking yet |
+| Danger | a failing or blocking condition — typically paired with the Persistent variant, since a failure state doesn't resolve just because the user closed the banner |
+
+**Placement:**
+
+| Property | Spec |
+|---|---|
+| Position | always at the top of its parent section or card, above all other content |
+| Width | full width of the parent container |
+| Multiple banners | stack with spacing-8 gap |
+| Maximum | 2 banners per section |
+
+**Content length:**
+
+| Property | Spec |
+|---|---|
+| Message | 120 characters maximum |
+| Action labels | 3 words maximum |
+| Enforcement | at content-authoring level — the component itself does not truncate |
+| Rationale | limits are authoring rules, not display rules |
+
+**Action slot rules:** maximum 2 actions, never destructive, always the
+last element in the banner (after Message, nothing renders below it).
+Both actions are styled identically to Message — body2, weight 400,
+tone text color at 80% opacity — underlined, with no other visual
+distinction between a "primary" and "secondary" action beyond order.
+Clicking an action does not auto-dismiss the banner — dismissal is
+always explicit, via the close button.
+
+**Animation:**
+
+| Property | Spec |
+|---|---|
+| Entrance | slide down + fade in |
+| Exit | slide up + fade out |
+| Duration/easing | `duration-base` / `ease-standard` — the same pair Toast uses, for the same reason: Banner isn't owned by a specific brand element |
+| Stacked reposition | when one banner is dismissed, the banners below it shift up |
+| Reduced motion | instant appear/disappear when `prefers-reduced-motion` is set |
+
+**Accessibility:** `role="note"` on the persistent variant,
+`role="status"` on the dismissible variant, `aria-live="polite"`,
+`aria-label="Dismiss"` on the close button. Never rely on color alone.
+Focus does not move to the banner on appear. Escape dismisses the
+active dismissible banner. Respects `prefers-reduced-motion`.
+
+**Do:** use Persistent when the banner describes a system state outside
+the user's control; use Info as the default tone when in doubt.
+**Don't:** put a destructive action in the action slot; use Banner for
+transient feedback (that's Toast's job); place a Banner outside a
+section or card.
+
 ### Tooltip
 
 **Transcribed from the teammate's `Tooltip.jsx`.**
@@ -2198,6 +2302,47 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.17 — 2026-08-05** — Fixed Info Banner's cross-axis alignment:
+  Icon, Message, and the Close button now vertically center against
+  each other instead of top-aligning. Root cause: the anatomy was
+  carried over from Toast's top-aligned layout, tuned for a Title line
+  sitting above Message — but Info Banner has no Title at all (removed
+  in the previous pass), so on a single-line banner, top-aligning
+  Message against a much taller 32px Close button left Message reading
+  as pinned near the top rather than centered on the same line as the
+  icon and close affordance. `components.css`'s `.c-banner` switched
+  from `align-items: flex-start` to `align-items: center`, and the
+  icon's leftover 2px top margin (a Title-era optical-alignment tweak)
+  was removed as dead weight now that centering handles it structurally.
+
+- **v0.9.16 — 2026-08-05** — Added **Info Banner**, a new component:
+  an inline, persistent notification anchored to its parent section or
+  card, distinct from Toast (floating/viewport-level/auto-dismissing)
+  on every one of those axes. Spec covers Anatomy (Container/Icon/
+  Message/Action slot/Close), Dismissible vs. Persistent variants, a
+  5-tone table (Neutral/Info/Success/Danger/Warning) reusing Badge's
+  existing fill/border percentages and AA-darkened text plus Toast's
+  full-strength icon-color pattern, a Tone-usage guide (when to reach
+  for each), Placement (top of section, full width, spacing-8 stack
+  gap, max 2 per section), Content length, Action slot rules, Animation
+  (`duration-base`/`ease-standard`, the same pair Toast uses), and
+  Accessibility. No new tokens were introduced — every value traces to
+  an existing color/spacing/typography/radius/motion token. Two rounds
+  of refinement after the initial draft: (1) Message is the component's
+  only text content — there is no Title part at all, since a single
+  required line of body copy covers the "helpful note" use case Banner
+  exists for without a second, optional heading competing for the same
+  job; (2) actions are always the last element (after Message) and both
+  share one style — body2/400/tone-text-at-80%-opacity, underlined —
+  rather than a Ghost-button-primary/Link-secondary split, since two
+  differently-weighted actions read as a false hierarchy when both are
+  equally reachable text links. Implemented for real in `components.css`
+  (`.c-banner` + 5 tone modifiers) and demoed with a static, non-interactive
+  sample of every tone/variant combination in `preview.html`'s Components
+  gallery — this is genuinely new, not sourced from the brand deck or the
+  teammate's build (see this component's own ⚠️ flag and the Scope note
+  above).
 
 - **v0.9.15 — 2026-08-05** — Reverted PageHeader's **With actions**
   variant, added in the previous pass — explicit user direction: the
