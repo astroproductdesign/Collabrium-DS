@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.15** — 2026-08-05 — Sourced from the Collabrium brand deck
+**v0.9.22** — 2026-08-05 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -684,28 +684,31 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-28 components: the original 7 basics
+29 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 10 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Select, Checkbox, Radio,
 Switch, Toast, Tooltip, DataTable, ElementBadge), 4 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
 picker — plus a Chart color mapping guideline (not a rendered
-component), and 7 more: **App Shell** (the page-level composition
+component), and 8 more: **App Shell** (the page-level composition
 layer — Sidebar placement, Content region, Page header), Textarea,
 Password field, **Search input** (a text search field with a clear
 button, in Default/User Search/Item Search variants — the last two
 searching and selecting a person or item from a dropdown), **Stepper**
 (a multi-step progress indicator), **FileUploader** (click-to-browse/
-drag-and-drop file attachment), and **MultiSelect** (a grouped
-checkbox dropdown with removable selection chips). The Stat/KPI card
-batch, App Shell, Stepper, FileUploader, MultiSelect, and Search input
-have **no source in either the original brand deck or the teammate's
-build**; they're built entirely from this document's own token system
-(color, type, spacing, radius, elevation, motion) and marked ⚠️
-**designed, not transcribed** in their own sections — treat them as a
-first pass needing real design/brand review before shipping, more
-provisional than the transcribed components above them.
+drag-and-drop file attachment), **MultiSelect** (a grouped
+checkbox dropdown with removable selection chips), and **Info Banner**
+(an inline, persistent, container-anchored notification — distinct
+from Toast's floating/viewport-level/auto-dismissing behavior). The
+Stat/KPI card batch, App Shell, Stepper, FileUploader, MultiSelect,
+Search input, and Info Banner have **no source in either the original
+brand deck or the teammate's build**; they're built entirely from this
+document's own token system (color, type, spacing, radius, elevation,
+motion) and marked ⚠️ **designed, not transcribed** in their own
+sections — treat them as a first pass needing real design/brand review
+before shipping, more provisional than the transcribed components
+above them.
 See each section below for source notes, and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
@@ -724,6 +727,7 @@ through.
 - [Empty state](#empty-state)
 - [FileUploader](#fileuploader)
 - [Filters](#filters)
+- [Info Banner](#info-banner)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
 - [MultiSelect](#multiselect)
@@ -1569,6 +1573,79 @@ the expanded default, a department lockup from `logo-lockups/` for an
 expanded department-specific header, `SVG/` for collapsed) — never build
 or embed a custom one-off logo asset for a header.
 
+**Department switcher.**
+
+When a SidebarNav instance receives 2 or more departments via the
+`departments[]` prop, the header logo becomes an interactive trigger:
+selecting it opens a dropdown listing each department's logo variant,
+and selecting one switches the entire nav and page context to that
+department. This is what the Header row's "workspace switcher slot"
+(see the main Part/Spec table's Header row, above) was reserved for —
+Department switcher is that slot, not a separate header element. Only
+active in expanded mode — see Collapsed mode, below.
+
+**Detection:**
+
+- Trigger renders when `departments[]` contains 2 or more items.
+- When `departments[]` has 0 or 1 item, no chevron renders and the logo
+  stays static — existing default behavior (see Header logo rule,
+  above), unchanged.
+
+| Part | Spec |
+|---|---|
+| Department switcher trigger | expanded mode only, not accessible collapsed (see Collapsed mode, below); logo + chevron treated as one paired trigger button, sized to its own content rather than the full header width; chevron `chevron-down`/`chevron-up`, **Tier 1, Regular** (same pair and tier as Second-level navigation's own parent chevron, above), `icon-micro` (14px), Neutral-5 at rest; spacing-8 between logo and chevron; hover: Neutral-2 fill on the trigger itself only (logo + chevron), not the full header zone — a hover target that size would falsely suggest the whole header row is clickable, when only the logo/chevron pairing is; active/open: chevron swaps to `chevron-up`, Neutral-2 fill persists; `aria-haspopup="listbox"`, `aria-expanded` toggles true/false |
+
+**Dropdown.**
+
+| Part | Spec |
+|---|---|
+| Container | 240px width (matches SidebarNav's own Expanded width, above), positioned below the header area flush left with the sidebar container; Neutral-1 fill, 1px Neutral-3 border, `radius-md`, `shadow-3` — same popover convention as Filters/Date picker/Select; max 5 items visible before an internal scroll, same overflow rule as the sidebar itself (scrollbar hidden by default, visible on hover) |
+| Department item | 40px height, 0/spacing-12 padding — matches Nav item exactly; logo-only — department logo lockup (from `logo-lockups/`), left-aligned (matches Nav item's own left-aligned content), no department-name text renders in the list (each option still carries an accessible name via `aria-label` for screen readers, since the visual label is gone); every lockup renders at a **uniform rendered size for its shared "collab" text**, not just a uniform bounding-box height — lockup SVGs aren't all proportioned the same way internally (e.g. the default lockup's own canvas is a different aspect ratio from the 4 department ones), so scaling every asset to the same box height alone can still render the shared wordmark portion at visibly different sizes; correct with a per-asset scale adjustment (tuned by eye against the shared "collab" text, not derived from a formula) rather than a single uniform height rule; hover: Neutral-2 fill; active/selected: Neutral-2 fill, trailing `check` icon (**Tier 1, Regular**); `role="option"`, `aria-selected` on the active department |
+| Default option | always first in the list; its dropdown thumbnail is the **static** default lockup (`logo-lockups/collabrium-default-logo.svg`), not the live `logo.html` mark — a list of thumbnails isn't the place for a live animated embed; the header trigger itself still shows the live `logo.html` mark when Default is the active context, per the Header logo rule, above. Represents no specific department context |
+| Missing asset fallback | if a department's lockup doesn't yet exist in `logo-lockups/` (see the Logo section's table — only the Gold/default variant currently exists), render `SVG/{element}.svg` as a placeholder in place of the missing lockup |
+| List | `role="listbox"`; keyboard: arrow keys navigate options, Enter selects, Escape closes; closes on outside click, Escape, or item selection |
+
+**Animation:**
+
+| Property | Spec |
+|---|---|
+| Entrance | fade in + slight slide down from the header's bottom edge |
+| Exit | fade out + slight slide up |
+| Duration/easing | `duration-fast` / `ease-standard` — `duration-fast`'s stated purpose ("hover, focus transitions") is the closest fit for a quick dropdown reveal, and `ease-standard` since, like SidebarNav's own collapse and accordion transitions, a department switcher isn't owned by a specific brand element |
+| Reduced motion | instant appear/disappear when `prefers-reduced-motion` is set |
+
+**On switch:**
+
+- The selected department's logo replaces the header logo immediately —
+  the static lockup from `logo-lockups/` for the expanded state,
+  `SVG/{element}.svg` for the collapsed state (per the Header logo rule
+  and Collapsible state's own "Collapsed — logo" row, above).
+- The entire nav item list replaces with the selected department's own
+  navigation structure.
+- The active nav item resets — routing navigates to the selected
+  department's home item.
+- Every accordion's open/closed state resets to all-closed on switch.
+- The selected department is saved to `localStorage` and restored on
+  load — same mechanism as Collapsible state's own Persistence row,
+  above.
+- Outgoing nav items fade out and incoming items fade in, using
+  `duration-fast` (same token as the dropdown's own animation, above).
+
+**Collapsed mode:**
+
+- The department switcher is not accessible collapsed.
+- The collapsed element icon (`SVG/{element}.svg`) passively reflects
+  the active department but isn't a trigger.
+- Expanding the sidebar is required to reach the department switcher.
+
+**Accessibility:**
+
+- Trigger: `aria-haspopup="listbox"`, `aria-expanded` reflects open/closed.
+- Dropdown: `role="listbox"`.
+- Each option: `role="option"`, `aria-selected` on the active item.
+- Keyboard: arrow keys navigate, Enter selects, Escape closes and
+  returns focus to the trigger.
+
 **Second-level navigation.**
 
 Distinct from the section-label Do/Don't above, which governs
@@ -1784,6 +1861,106 @@ place for an irreversible decision.
 | Enforcement | at content-authoring level — the component itself does not truncate or clip |
 | Over limit | the copy must be rewritten, not shortened by the component |
 | Rationale | Toast content is system-generated, so character limits are an authoring rule, not a display rule |
+
+### Info Banner
+
+⚠️ **Designed from scratch, no source in the brand deck or the
+teammate's build.** Built entirely from this document's own token
+system — treat it as a first pass needing real design/brand review
+before shipping.
+
+Inline, persistent notification embedded within a section or card.
+Distinct from Toast: anchored to its parent container rather than
+floating; persistent or manually dismissible rather than
+auto-dismissing; full container width rather than a fixed pixel width;
+content-level rather than viewport-level.
+
+| Part | Spec |
+|---|---|
+| Container | full width of the parent, spacing-12 vertical / spacing-16 horizontal padding, `radius-md`, 1px border matching the tone, tone fill (see the tone table below), no shadow |
+| Icon | `icon-base` (20px), vertically centered with Message and the Close button (not top-aligned — with no Title above it, Message is a single short line as often as not, and top-aligning against a taller Close button read as misaligned); **Tier 2, Fill** — same rationale as Toast, a status indicator rather than a control |
+| Message | body2, weight 400, tone text color at 80% opacity — the banner's only text content |
+| Action slot (optional) | the last element in the banner's content, after Message — spacing-8 above it, maximum 2 actions. Both actions share one style: body2, weight 400, tone text color at 80% opacity (identical to Message), underlined — there's no separate Ghost-button/Link distinction |
+| Close (optional) | Ghost IconButton, sm, right-aligned and vertically centered with Icon and Message, `x`, **Tier 1, Regular** (a close affordance), `aria-label="Dismiss"` — present only on the dismissible variant |
+
+**Variants:**
+
+| Variant | Spec |
+|---|---|
+| Dismissible | close button rendered top-right; the user closes it manually via the `x`; use when the information is helpful but not critical |
+| Persistent | no close button rendered; remains until the underlying condition resolves; use when the banner describes an ongoing system state the user can't resolve by dismissing it |
+
+**Tone → icon/color:**
+
+Icon color follows Toast's pattern — full-strength tone color, since a Tier 2 Fill status icon isn't held to the same small-text AA contrast math as body copy. Fill, border, and Message text reuse Badge's existing tone values directly (including its AA-darkened Success/Warning text), except Neutral's text, which uses Neutral-9 rather than Badge's Neutral-5 — Banner's Message is body copy that needs to read as primary content, not a small caption label, so it follows Toast's own Neutral-9 choice instead.
+
+| Tone | Icon | Icon color | Fill | Text | Border |
+|---|---|---|---|---|---|
+| Neutral | `info` | Neutral-9 | Neutral-2 | Neutral-9 | Neutral-3 |
+| Info | `info` | Water `#1473E6` | Water at 10% | Water `#1473E6` | Water at 28% |
+| Success | `check-circle` | Green | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Danger | `x-circle` | Red | Red at 10% | Red `#FD3343` | Red at 30% |
+| Warning | `warning` | Amber | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
+
+All five icons are **Tier 2, Fill**.
+
+**Tone usage — when to use each:**
+
+| Tone | Use when |
+|---|---|
+| Neutral | a general FYI with no positive/negative charge — a fact worth surfacing, not a status |
+| Info | the default tone when in doubt — a feature note, tip, or informational context that isn't itself a status change |
+| Success | confirming a condition completed positively — a sync finished, a state is healthy |
+| Warning | a caution or approaching limit the user should notice but that isn't blocking yet |
+| Danger | a failing or blocking condition — typically paired with the Persistent variant, since a failure state doesn't resolve just because the user closed the banner |
+
+**Placement:**
+
+| Property | Spec |
+|---|---|
+| Position | always at the top of its parent section or card, above all other content |
+| Width | full width of the parent container |
+| Multiple banners | stack with spacing-8 gap |
+| Maximum | 2 banners per section |
+
+**Content length:**
+
+| Property | Spec |
+|---|---|
+| Message | 120 characters maximum |
+| Action labels | 3 words maximum |
+| Enforcement | at content-authoring level — the component itself does not truncate |
+| Rationale | limits are authoring rules, not display rules |
+
+**Action slot rules:** maximum 2 actions, never destructive, always the
+last element in the banner (after Message, nothing renders below it).
+Both actions are styled identically to Message — body2, weight 400,
+tone text color at 80% opacity — underlined, with no other visual
+distinction between a "primary" and "secondary" action beyond order.
+Clicking an action does not auto-dismiss the banner — dismissal is
+always explicit, via the close button.
+
+**Animation:**
+
+| Property | Spec |
+|---|---|
+| Entrance | slide down + fade in |
+| Exit | slide up + fade out |
+| Duration/easing | `duration-base` / `ease-standard` — the same pair Toast uses, for the same reason: Banner isn't owned by a specific brand element |
+| Stacked reposition | when one banner is dismissed, the banners below it shift up |
+| Reduced motion | instant appear/disappear when `prefers-reduced-motion` is set |
+
+**Accessibility:** `role="note"` on the persistent variant,
+`role="status"` on the dismissible variant, `aria-live="polite"`,
+`aria-label="Dismiss"` on the close button. Never rely on color alone.
+Focus does not move to the banner on appear. Escape dismisses the
+active dismissible banner. Respects `prefers-reduced-motion`.
+
+**Do:** use Persistent when the banner describes a system state outside
+the user's control; use Info as the default tone when in doubt.
+**Don't:** put a destructive action in the action slot; use Banner for
+transient feedback (that's Toast's job); place a Banner outside a
+section or card.
 
 ### Tooltip
 
@@ -2198,6 +2375,136 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.22 — 2026-08-05** — Second-level navigation's parent chevron
+  switched from a hand-drawn inline SVG (custom stroke path, `icon-base`
+  sized) to the same icon tier as the Department switcher's own
+  chevron: Phosphor `ph-caret-down`/`ph-caret-up`, `icon-micro` (14px),
+  Neutral-5, class-swapped rather than a rotated/path-swapped SVG — the
+  two expand affordances now read as visually consistent within the
+  same sidebar. This also fixed a real mismatch the old implementation
+  had with this document's own spec: the Parent item row (above) has
+  always said the chevron swaps `chevron-down` ↔ `chevron-up`, but the
+  inline SVG actually swapped to a right-pointing path when closed, not
+  up — the class-swap approach now matches the documented behavior
+  exactly. `components.css`/`preview.html` only; no spec-table change.
+
+- **v0.9.21 — 2026-08-05** — Dropdown items switched from centered to
+  **left-aligned** logos, matching Nav item's own left-aligned content
+  elsewhere in SidebarNav — centering read as inconsistent next to
+  every other left-aligned row in the sidebar. `preview.html`'s
+  Department switcher demo also simplified: the side-by-side
+  no-departments/5-departments comparison is now a single sample (the
+  5-department one), and its description text was replaced with one
+  line covering the single-department case specifically — "for default
+  (single department), the dropdown is hidden," since that's the one
+  behavior the removed second sample used to demonstrate and was worth
+  keeping documented even without a second live example.
+
+- **v0.9.20 — 2026-08-05** — Fixed the dropdown's logo sizing: scaling
+  every lockup to the same bounding-box height wasn't actually enough —
+  the default lockup's own SVG canvas (`viewBox` 1062×162) is a
+  different aspect ratio from the 4 department lockups (all 1000s×269),
+  so at an equal box height, the default's shared "collab" text
+  rendered visibly larger than the department ones' — a uniform box
+  height isn't the same thing as a uniform rendered text size when the
+  source assets aren't proportioned the same way internally. Fixed with
+  a per-image `--logo-scale` CSS custom property (`components.css`,
+  `.c-dept-option-logo img`), tuned by eye against the shared "collab"
+  text rather than derived from a formula — the default lockup's image
+  gets `--logo-scale: 0.6` inline in `preview.html`, the 4 department
+  ones default to `1` since they already share consistent internal
+  proportions with each other. Also brought the Department switcher
+  demo's nav content up to parity with the default SidebarNav demo
+  (disabled Billing item, Team accordion with Members/Roles & access)
+  so it demonstrates the department-dropdown mechanism specifically,
+  without omitting the disabled-state and parent/child patterns the
+  first demo already covers — a demo-composition change in
+  `preview.html` only, not a spec change.
+
+- **v0.9.19 — 2026-08-05** — Refined Department switcher after
+  building it out in `components.css`/`preview.html`: (1) trigger hover
+  now targets only the logo + chevron pairing, not the full header
+  zone — the wider hover target falsely implied the entire header row
+  was clickable; (2) dropdown items dropped the department-name text
+  entirely — logo-only, each option still carries an `aria-label` for
+  screen readers since the visual label is gone — and every lockup now
+  renders at a uniform height regardless of its own aspect ratio; (3)
+  the Default option's dropdown thumbnail is now the **static** default
+  lockup rather than a live `logo.html` embed — a list of thumbnails
+  isn't the right place for a live animation; the header trigger itself
+  is unaffected and still shows the live mark for the Default context.
+  Implemented for real: `components.css` gained `.c-dept-trigger`
+  (sized to content, not `width: 100%`), `.c-dept-option`/
+  `.c-dept-option-logo` (logo-only, uniform height), and collapsed-mode
+  handling (`.c-sidebar.is-collapsed .c-dept-trigger{display:none}`,
+  reusing `.c-sidebar-logo-collapsed`'s existing show/hide rule for the
+  passive collapsed element icon). `preview.html`'s Department switcher
+  demo now also exercises the collapsed rail correctly — its 4
+  non-default sample departments (Content/Influencers/Sales/Studio) are
+  demo-only mapped to Wood/Earth/Gold/Fire respectively so the collapsed
+  icon has something real to show.
+
+- **v0.9.18 — 2026-08-05** — Added **Department switcher** to
+  SidebarNav, inserted right after the Header logo rule. Documents that
+  this feature is what the Header row's "workspace switcher slot" (in
+  the main Part/Spec table) was reserved for all along — a
+  2-or-more-`departments[]` prop turns the header logo into a trigger
+  that opens a dropdown of department logo variants, switching the
+  entire nav and page context on selection. Expanded-mode only; the
+  collapsed rail's element icon reflects the active department
+  passively but isn't a trigger. No new tokens: the dropdown reuses the
+  exact popover convention already established by Search input/
+  Filters/Date picker/Select (`radius-md`, Neutral-1/Neutral-3,
+  `shadow-3`), item sizing matches Nav item's own 40px/spacing-12,
+  animation reuses `duration-fast`/`ease-standard`, and persistence
+  reuses the same `localStorage` mechanism as Collapsible state's own
+  Persistence row. One resolved conflict: the brief's "body2, weight
+  500" isn't an existing token combo (body2 is only 400 or "strong"
+  700 — 500 exists solely as body1's own weight) — used the real
+  existing weight, 400, instead, same resolution already applied to
+  Info Banner's Message text.
+
+- **v0.9.17 — 2026-08-05** — Fixed Info Banner's cross-axis alignment:
+  Icon, Message, and the Close button now vertically center against
+  each other instead of top-aligning. Root cause: the anatomy was
+  carried over from Toast's top-aligned layout, tuned for a Title line
+  sitting above Message — but Info Banner has no Title at all (removed
+  in the previous pass), so on a single-line banner, top-aligning
+  Message against a much taller 32px Close button left Message reading
+  as pinned near the top rather than centered on the same line as the
+  icon and close affordance. `components.css`'s `.c-banner` switched
+  from `align-items: flex-start` to `align-items: center`, and the
+  icon's leftover 2px top margin (a Title-era optical-alignment tweak)
+  was removed as dead weight now that centering handles it structurally.
+
+- **v0.9.16 — 2026-08-05** — Added **Info Banner**, a new component:
+  an inline, persistent notification anchored to its parent section or
+  card, distinct from Toast (floating/viewport-level/auto-dismissing)
+  on every one of those axes. Spec covers Anatomy (Container/Icon/
+  Message/Action slot/Close), Dismissible vs. Persistent variants, a
+  5-tone table (Neutral/Info/Success/Danger/Warning) reusing Badge's
+  existing fill/border percentages and AA-darkened text plus Toast's
+  full-strength icon-color pattern, a Tone-usage guide (when to reach
+  for each), Placement (top of section, full width, spacing-8 stack
+  gap, max 2 per section), Content length, Action slot rules, Animation
+  (`duration-base`/`ease-standard`, the same pair Toast uses), and
+  Accessibility. No new tokens were introduced — every value traces to
+  an existing color/spacing/typography/radius/motion token. Two rounds
+  of refinement after the initial draft: (1) Message is the component's
+  only text content — there is no Title part at all, since a single
+  required line of body copy covers the "helpful note" use case Banner
+  exists for without a second, optional heading competing for the same
+  job; (2) actions are always the last element (after Message) and both
+  share one style — body2/400/tone-text-at-80%-opacity, underlined —
+  rather than a Ghost-button-primary/Link-secondary split, since two
+  differently-weighted actions read as a false hierarchy when both are
+  equally reachable text links. Implemented for real in `components.css`
+  (`.c-banner` + 5 tone modifiers) and demoed with a static, non-interactive
+  sample of every tone/variant combination in `preview.html`'s Components
+  gallery — this is genuinely new, not sourced from the brand deck or the
+  teammate's build (see this component's own ⚠️ flag and the Scope note
+  above).
 
 - **v0.9.15 — 2026-08-05** — Reverted PageHeader's **With actions**
   variant, added in the previous pass — explicit user direction: the
