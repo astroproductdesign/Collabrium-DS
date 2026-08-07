@@ -126,6 +126,14 @@
   --radius-pill: 999px;
   --radius-link: 32px; /* link-styled pill CTAs — distinct from radius-pill's badge/avatar use */
 
+  /* Border width — every other component still hardcodes 1px/2px
+     literally (Input field, Dropdown, Search input, etc.); this is the
+     first pair of tokens for it, introduced for Stepper's indicator
+     borders and connector stroke weight. Existing components are left
+     as-is for now rather than retrofitted as part of this change. */
+  --border-width-sm: 1px;
+  --border-width-md: 2px;
+
   /* Elevation — the source deck specifies a real shadow ladder, all
      built on Neutral-4 (soft grey), never black. Cards/dialogs use
      these regularly, not as an exception. */
