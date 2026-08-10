@@ -1,3 +1,10 @@
 .DS_Store
 **/.DS_Store
 .worktrees
+
+# Claude Code's local workspace config. launch.json hardcodes an absolute
+# path under one developer's home directory and points at a git worktree that
+# only exists on that machine, so it is per-machine state, not project config:
+# tracking it shares a username and a dev-server command that cannot work for
+# anyone else. Untracked here; the file itself stays on disk.
+.claude/
