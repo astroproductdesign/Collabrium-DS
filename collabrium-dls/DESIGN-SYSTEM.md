@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.32** — 2026-08-10 — Sourced from the Collabrium brand deck
+**v0.9.33** — 2026-08-10 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -684,27 +684,28 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-29 components: the original 7 basics
+30 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 9 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 5 **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 6 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
-picker, **Segmented Control** — plus a Chart color mapping guideline
-(not a rendered component), and 8 more: **App Shell** (the page-level
-composition layer — Sidebar placement, Content region, Page header),
-Textarea, Password field, **Search input** (a text search field with a
-clear button, in Default/User Search/Item Search variants — the last
-two searching and selecting a person or item from a dropdown),
-**Stepper** (a multi-step progress indicator), **FileUploader**
-(click-to-browse/drag-and-drop file attachment), **Dropdown** (a
-trigger+panel in Single select/Multiple select variants — the former,
-separately transcribed **Select** and designed-from-scratch
-**MultiSelect**, consolidated into one component), and **Info Banner**
-(an inline, persistent, container-anchored notification — distinct
-from Toast's floating/viewport-level/auto-dismissing behavior). The
-Stat/KPI card batch, App Shell, Stepper, FileUploader, Dropdown, Search
-input, Info Banner, and **Segmented Control** have **no source in
+picker, **Segmented Control**, **Slider** — plus a Chart color mapping
+guideline (not a rendered component), and 8 more: **App Shell** (the
+page-level composition layer — Sidebar placement, Content region, Page
+header), Textarea, Password field, **Search input** (a text search
+field with a clear button, in Default/User Search/Item Search
+variants — the last two searching and selecting a person or item from
+a dropdown), **Stepper** (a multi-step progress indicator),
+**FileUploader** (click-to-browse/drag-and-drop file attachment),
+**Dropdown** (a trigger+panel in Single select/Multiple select
+variants — the former, separately transcribed **Select** and
+designed-from-scratch **MultiSelect**, consolidated into one
+component), and **Info Banner** (an inline, persistent,
+container-anchored notification — distinct from Toast's
+floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
+batch, App Shell, Stepper, FileUploader, Dropdown, Search input, Info
+Banner, **Segmented Control**, and **Slider** have **no source in
 either the original brand deck or the teammate's build**; they're
 built entirely from this document's own token system (color, type,
 spacing, radius, elevation, motion) and marked ⚠️ **designed, not
@@ -740,6 +741,7 @@ through.
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
 - [SidebarNav](#sidebarnav)
+- [Slider](#slider)
 - [Stat / KPI card](#stat--kpi-card)
 - [Stepper](#stepper)
 - [Switch](#switch)
@@ -2414,6 +2416,121 @@ active segment's fill — Neutral-1 is correct; accent colors classify
 ownership, they never signal selection (Rule 2 in [Component
 Rules](#component-rules)).
 
+### Slider
+
+⚠️ **Designed from scratch — no source in either the original brand
+deck or the teammate's build.** Built from this document's own token
+system by reusing Button Ghost's hover/pressed recipe, Switch's thumb
+anatomy, Tooltip's bubble visuals, and Button's focus-visible token —
+not transcribed. Treat as a first pass needing real design/brand
+review.
+
+A drag control for selecting a single value or a range along a
+continuous axis. Distinct from **Input field** (use Input when the
+user needs to type an exact value) and **Select** (use Select for
+discrete named options). Two variants — Single and Range — share all
+anatomy and token values; the only structural difference is the number
+of thumbs and where the filled track renders.
+
+| Part | Spec |
+|---|---|
+| Track | 4px height (one-off literal — same precedent as SidebarNav's 36px child-item height: a track rail has no named height token), full width of parent, `radius-pill`, Neutral-3 `#d8d8d8` fill for the unfilled portion. Runs flush with the component's own left/right edges — don't inset it to keep the thumb from overhanging; see the Thumb row below |
+| Track fill | Obsidian `#2B2B2C` for the filled portion — minimum end to the thumb (Single), or between the two thumbs (Range). Obsidian signals "value committed here," the same meaning Input field's focused border carries — not "click me" |
+| Thumb | 20×20px, `radius-pill`, Neutral-1 `#ffffff` fill, 2px Obsidian border, `shadow-2` — the same circular Neutral-1 concept as Switch's own thumb, at a slightly larger precision-drag size, one shadow rung higher (Switch's own thumb rests at `shadow-1`) and with an added 2px Obsidian border Switch's thumb doesn't have, for a clearer edge against the light Neutral-3 track. Hit target: 44×44px via padding or a `::before` pseudo-element — visual size stays 20×20px. At rest, the thumb is centered on the track's own 4px line, not on the top of its own (taller) hit-target box — the two need a shared vertical center, or the thumb reads as floating off-center against the track. At 0%/100% the thumb is allowed to visually overhang the track's own ends by half its own width — normal for a point value, matching native OS sliders and most component libraries; don't inset the track to prevent it |
+| Value tooltip | appears above the active thumb on hover and during drag; same bubble visuals as [Tooltip](#tooltip): caption/500, Neutral-7 `#222222` fill, Neutral-1 text, `radius-sm`, 6px vertical / spacing-8 (8px) horizontal padding, `pointer-events: none`. Centered above the thumb, follows thumb position during drag, disappears after drag-end via an opacity transition |
+| Min/max labels (optional) | caption (12px/400), Neutral-5, below the track at each end, always visible when present; spacing-4 (4px) between track bottom and label top |
+| Static value label (optional) | caption (12px/400), Neutral-9, right-aligned above the track's end; use only when the current value must stay visible at rest. Mutually exclusive with the value tooltip — when a static label is present, the tooltip is suppressed |
+
+**Variants:**
+
+| Variant | Spec |
+|---|---|
+| Single | one thumb; track fill runs from the minimum end to the thumb |
+| Range | two thumbs; track fill renders only between them. Each thumb shows its own value tooltip. The most recently moved thumb sits on top at the same position (`z-index` managed dynamically). Thumbs may touch but never cross |
+
+⚠️ **Implementation note — how crossing is actually prevented.** Clamp
+the dragged handle's *value* against its partner's current value, not
+either handle's live `min`/`max` attribute. A native range thumb's
+on-screen position is rendered by the browser from that same input's own
+current `min`/`max`/`value` — shrinking one handle's live bound to
+enforce the constraint doesn't just stop future dragging, it also makes
+the browser reinterpret what "100%"/"0%" means for that handle's own
+(now-narrower) range, snapping its visible thumb to the wrong end of the
+track instead of to the touch point. Only clamp the handle that actually
+just moved (compare against the specific input that fired, not both
+unconditionally) — otherwise correcting one handle can incorrectly drag
+the *other* one along with it.
+
+**Sizes:**
+
+| Size | Track | Thumb | Use |
+|---|---|---|---|
+| Default | 4px | 20×20px | Standard dashboard use |
+| Compact | 2px | 16×16px (matches `icon-sm` — the smallest interactive control size in this system) | Dense layouts, table-embedded |
+
+Both sizes keep the same 44×44px hit target regardless of visual size.
+
+⚠️ **Reference-implementation caveat, not a spec change.** A true 44×44px
+hit target on a *native* `<input type="range">` gets impractical past a
+certain size — the browser hit-tests the element's own rendered box, and
+stretching that arbitrarily large starts overlapping neighboring rows
+without extra JS-based hit-testing. The tested reference build
+approximates this with a shorter (~24px) interactive box rather than the
+full 44×44 — noticeably better than the bare 20×20/16×16 visual thumb,
+but short of the documented target. Flagged here rather than silently
+shipped smaller; revisit if a real build needs the full 44×44.
+
+**States:**
+
+| State | Fill | Thumb | Notes |
+|---|---|---|---|
+| Default | Obsidian track fill | Neutral-1 fill, 2px Obsidian border, `shadow-2` | `cursor: pointer` on the thumb |
+| Hover — thumb | unchanged | `shadow-3` | Matches interactive Card's hover-raise convention (one shadow rung up from rest) — not a literal reuse of Card's own `shadow-1`→`shadow-2` values, since the thumb's own resting state already sits at `shadow-2`; `cursor: grab`; value tooltip fades in |
+| Dragging | unchanged | `shadow-3` | `cursor: grabbing`; value tooltip visible, tracks the thumb |
+| Focus-visible | unchanged | current fill + 2px Obsidian outline, 2px offset | Reuses **Button's** exact focus-visible token verbatim; `radius-pill` to match the thumb's own shape |
+| Disabled | Neutral-3 for both filled and unfilled track | Neutral-4 border, 40% opacity throughout | `cursor: not-allowed`, no hover or drag response — matches **Button Ghost's** disabled, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not drag controls) |
+
+**Transition:**
+
+| Property | Value |
+|---|---|
+| Thumb position during drag | immediate — no transition; lag between pointer and thumb would break the physical drag feel |
+| Track fill width during drag | immediate — same reason |
+| Thumb shadow (hover/drag) | `box-shadow` — `duration-fast` (140ms), `ease-standard` |
+| Value tooltip entrance | opacity 0→1 — `duration-fast`, `ease-standard` |
+| Value tooltip exit | opacity 1→0, starting after a `duration-base` (220ms) delay once drag ends — the delay gives a moment to read the final value before the tooltip clears; the fade itself is still `duration-fast`/`ease-standard` |
+| Reduced motion | tooltip appears/disappears instantly; shadow changes are instant |
+
+**Accessibility:**
+
+- Single: a native `<input type="range">` — the browser handles `role="slider"`, `aria-valuemin`, `aria-valuemax`, `aria-valuenow` natively; add an `aria-label` or a visible `<label>`.
+- Range: two stacked `<input type="range">` elements — each needs its own `aria-label` ("Minimum value" / "Maximum value") and `aria-valuemin`/`aria-valuemax` updated dynamically to reflect the other thumb's current position.
+- Clicking anywhere on the track jumps the value to that point — not reserved for dragging only. Single gets this for free from the native element's own default behavior. Range's two overlapping inputs can't resolve a click natively (it can only ever land on whichever one is stacked on top), so it's resolved explicitly: the click moves whichever thumb is *nearer* that point. When the two thumbs are touching (tied), the click's own direction breaks the tie — a click to the right of the pair moves the upper thumb, a click to the left moves the lower one, since picking by distance alone can otherwise choose the handle that immediately gets clamped back by the crossing-prevention rule above, silently undoing the click.
+- `aria-valuetext` is required whenever the raw number needs a unit (e.g. `aria-valuetext="RM 25,000"`).
+- Keyboard — Single: Arrow Left/Right decrements/increments; Home/End jumps to minimum/maximum.
+- Keyboard — Range: same per thumb; Tab moves focus between the two thumbs.
+- Color: the active fill never relies on Obsidian alone — the thumb's white fill and Obsidian border also signal position.
+
+**Content rules:**
+
+- Min/max labels must include a unit when it isn't obvious from context.
+- Malaysian ringgit follows the system content rule: `RM 100,000` — space after RM, comma thousands.
+- Value tooltip format matches the min/max labels — never show a raw number where the labels show a formatted one.
+- Don't use Slider when fewer than ~10 distinct values are valid — use Select or Radio instead.
+
+**Placement:**
+
+- Always full width of its parent container or defined column — never an intrinsic inline width.
+- Always paired with a visible label above it, using the same label convention as Input field (caption/700/Neutral-9, spacing-4 below).
+
+**Do:** give every slider a label; use `aria-valuetext` when the unit
+matters; keep the thumb's hit target at 44×44px regardless of its
+visual size. **Don't:** use Slider for fewer than ~10 distinct
+values — use Select or Radio instead; use an elemental/accent color for
+the track fill — Obsidian is correct (Rule 2, [Component
+Rules](#component-rules)); suppress the tooltip on Range — knowing the
+exact values during drag is critical.
+
 ---
 
 ## Guidelines
@@ -2643,6 +2760,31 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.33 — 2026-08-10** — **Slider** spec updated from a tested
+  reference build. (1) Track and min/max labels run the component's
+  full width flush with its edges — an earlier pass inset them to stop
+  the thumb overhanging at 0%/100%, but that's not the norm; the thumb
+  is now documented as allowed to overhang the ends by half its own
+  width, same as native OS sliders. (2) Documented that the thumb must
+  be centered on the track's own line, not the top of its taller
+  hit-target box — an implementation bug found in testing, now called
+  out directly in the Thumb row so it isn't repeated. (3) Added a
+  reference-implementation caveat under Sizes: the tested build's real
+  hit target is closer to 24px than the documented 44×44, since a true
+  44×44 target on a native `<input type="range">` gets impractical
+  without extra JS hit-testing — flagged rather than silently shipped
+  smaller. (4) Added an implementation note under Variants explaining
+  *how* Range's "thumbs may touch but never cross" rule (already
+  documented, unchanged) should actually be enforced: clamp the moved
+  handle's value directly, never either handle's live `min`/`max`
+  attribute — mutating live bounds also corrupts the native thumb's own
+  on-screen position, since the browser renders it from that same
+  attribute. (5) Documented click-to-jump: Single gets it free from the
+  native element; Range resolves which handle a click means by nearest-
+  distance, with a direction-based tie-break when the handles are
+  touching (picking by distance alone could select the handle that
+  immediately gets clamped back, silently undoing the click).
 
 - **v0.9.32 — 2026-08-10** — **Segmented Control**'s Transition rule
   revised: the active fill/`shadow-1`/`radius-sm` now render on a single

@@ -928,3 +928,52 @@
 .c-seg-tt-wrap{position:relative; display:inline-flex; flex:1;}
 .c-seg-tt-bubble{position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:2; padding:var(--spacing-4) var(--spacing-8); border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; text-transform:none; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard);}
 .c-seg-tt-wrap:hover .c-seg-tt-bubble, .c-seg-tt-wrap:focus-within .c-seg-tt-bubble{opacity:1;}
+
+/* Slider — designed from scratch, not transcribed. Reuses Button Ghost's
+   hover/pressed recipe (via shadow-2/shadow-3 rung), Switch's thumb
+   anatomy, Tooltip's bubble visuals, and Button's focus-visible token.
+   Built and tested as a standalone reference file first — several rows
+   below exist specifically because that testing surfaced real bugs:
+   - The thumb must be vertically centered on the track's own line, not
+     the top of its own taller hit-target box (margin-top math on the
+     thumb, keyed to the rail's height).
+   - Track and min/max labels run the rail's full width, flush with its
+     edges, with the thumb allowed to overhang the ends by half its own
+     width at 0%/100% — normal for a point value, same as native OS
+     sliders; don't inset the rail to prevent it.
+   - Range's "thumbs may touch but never cross" rule is enforced by
+     clamping the moved handle's VALUE against its partner (see the JS),
+     never either handle's live min/max attribute — a native thumb's
+     on-screen position is rendered from that same attribute, so
+     mutating it to enforce the constraint also corrupts native
+     rendering, snapping the thumb to the wrong end of the track. */
+.c-slider-label{display:block; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9); margin-bottom:var(--spacing-4);}
+.c-slider-group{width:100%;}
+.c-slider-rail{position:relative; height:24px;}
+.c-slider-track{position:absolute; top:50%; left:0; right:0; height:4px; transform:translateY(-50%); border-radius:var(--radius-pill); background:var(--color-neutral-3);}
+.c-slider-compact .c-slider-track{height:2px;}
+.c-slider-fill{position:absolute; top:0; height:100%; background:var(--color-obsidian); border-radius:var(--radius-pill);}
+.c-slider-input{position:absolute; top:0; left:0; right:0; height:100%; margin:0; background:transparent; appearance:none; -webkit-appearance:none;}
+.c-slider-range .c-slider-input{pointer-events:none;}
+.c-slider-input::-webkit-slider-runnable-track{background:transparent; height:100%;}
+.c-slider-input::-moz-range-track{background:transparent; height:100%; border:none;}
+.c-slider-input::-webkit-slider-thumb{appearance:none; -webkit-appearance:none; pointer-events:auto; width:20px; height:20px; border-radius:var(--radius-pill); background:var(--color-neutral-1); border:2px solid var(--color-obsidian); box-shadow:var(--shadow-2); cursor:pointer; margin-top:2px; transition:box-shadow var(--duration-fast) var(--ease-standard); position:relative;}
+.c-slider-input::-moz-range-thumb{pointer-events:auto; width:20px; height:20px; border-radius:var(--radius-pill); background:var(--color-neutral-1); border:2px solid var(--color-obsidian); box-shadow:var(--shadow-2); cursor:pointer; transition:box-shadow var(--duration-fast) var(--ease-standard);}
+.c-slider-compact .c-slider-input::-webkit-slider-thumb, .c-slider-compact .c-slider-input::-moz-range-thumb{width:16px; height:16px;}
+.c-slider-compact .c-slider-input::-webkit-slider-thumb{margin-top:4px;}
+.c-slider-input:hover::-webkit-slider-thumb, .c-slider-input:active::-webkit-slider-thumb, .c-slider-input:hover::-moz-range-thumb, .c-slider-input:active::-moz-range-thumb{box-shadow:var(--shadow-3);}
+.c-slider-input:hover, .c-slider-input:active{cursor:grab;}
+.c-slider-input:active{cursor:grabbing;}
+.c-slider-input:focus{outline:none;}
+.c-slider-input:focus-visible::-webkit-slider-thumb{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-slider-input:focus-visible::-moz-range-thumb{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-slider-disabled{opacity:.4;}
+.c-slider-disabled .c-slider-fill{background:var(--color-neutral-3);}
+.c-slider-disabled .c-slider-input, .c-slider-disabled .c-slider-input::-webkit-slider-thumb, .c-slider-disabled .c-slider-input::-moz-range-thumb{cursor:not-allowed; pointer-events:none;}
+.c-slider-disabled .c-slider-input::-webkit-slider-thumb, .c-slider-disabled .c-slider-input::-moz-range-thumb{border-color:var(--color-neutral-4); box-shadow:none;}
+.c-slider-tooltip{position:absolute; bottom:calc(100% + 8px); left:0; transform:translateX(-50%); padding:6px var(--spacing-8); border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);}
+.c-slider-tooltip.is-visible{opacity:1; transition-delay:0s;}
+.c-slider-tooltip.is-hiding{opacity:0; transition-delay:var(--duration-base);}
+@media (prefers-reduced-motion: reduce){ .c-slider-input::-webkit-slider-thumb, .c-slider-input::-moz-range-thumb, .c-slider-tooltip{transition:none !important;} }
+.c-slider-minmax{display:flex; justify-content:space-between; margin-top:var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-slider-static-value{display:flex; justify-content:flex-end; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-9); margin-bottom:var(--spacing-4);}
