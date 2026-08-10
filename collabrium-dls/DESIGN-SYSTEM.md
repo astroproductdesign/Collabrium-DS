@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.33** — 2026-08-10 — Sourced from the Collabrium brand deck
+**v0.9.35** — 2026-08-10 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -684,13 +684,13 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-30 components: the original 7 basics
+31 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 9 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 6 **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 7 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
-picker, **Segmented Control**, **Slider** — plus a Chart color mapping
+picker, **Segmented Control**, **Slider**, **Chip** — plus a Chart color mapping
 guideline (not a rendered component), and 8 more: **App Shell** (the
 page-level composition layer — Sidebar placement, Content region, Page
 header), Textarea, Password field, **Search input** (a text search
@@ -705,7 +705,7 @@ component), and **Info Banner** (an inline, persistent,
 container-anchored notification — distinct from Toast's
 floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
 batch, App Shell, Stepper, FileUploader, Dropdown, Search input, Info
-Banner, **Segmented Control**, and **Slider** have **no source in
+Banner, **Segmented Control**, **Slider**, and **Chip** have **no source in
 either the original brand deck or the teammate's build**; they're
 built entirely from this document's own token system (color, type,
 spacing, radius, elevation, motion) and marked ⚠️ **designed, not
@@ -724,6 +724,7 @@ through.
 - [Card](#card)
 - [Chart color mapping](#chart-color-mapping)
 - [Checkbox](#checkbox)
+- [Chip](#chip)
 - [DataTable](#datatable)
 - [Date picker](#date-picker)
 - [Dropdown](#dropdown)
@@ -982,6 +983,145 @@ rule, not a display rule.
 (Fire · Marketing). **Don't:** fill either solid with a brand color and
 put white text on it — several accents fail contrast that way at this
 size.
+
+### Chip
+
+⚠️ **Designed from scratch — no source in either the original brand
+deck or the teammate's build.** Built from this document's own token
+system by reusing Badge's pill anatomy, Button's hover/pressed/
+focus-visible recipe, Tag's remove-affordance convention, and
+Checkbox's own check glyph — not transcribed. Treat as a first pass
+needing real design/brand review; revised once from a tested reference
+build, see [Changelog](#changelog).
+
+Interactive pill representing either a user-entered value (**Input
+Chip**) or a selectable filter option (**Filter Chip**). Distinct from
+Badge and Tag, which both look similar but are read-only: **Badge**
+labels *status*, system-generated; **Tag** labels *ownership*,
+system-generated; **Chip** always represents a selection or an input
+value, and is always interactive.
+
+- **Input Chip** — represents a value the user entered or confirmed.
+  Lives inside or directly below an input area. Always has a × remove
+  button. Not toggleable — it exists, or it's removed.
+- **Filter Chip** — represents a predefined selectable option, toggled
+  on or off. Lives in a toolbar or filter row. Comes in two selection
+  modes (see Selection modes below) and is optionally removable.
+
+| Part | Spec |
+|---|---|
+| Container — Input Chip | 24px height (one-off literal, matching **Tag**'s own compact scale, per [Badge & Tag](#badge--tag) — this is an embedded/inline context, not a standalone control), spacing-8 (8px) horizontal padding, `radius-pill`, Neutral-2 `#f0f0f0` fill, 1px Neutral-3 `#d8d8d8` border — Badge's Neutral-variant recipe, not Tag's (Tag itself carries no border). No leading icon — there's no confirmed use case for one on a user-entered value, so the slot doesn't exist for this variant at all |
+| Container — Filter Chip | 32px height (matches **Button sm**), spacing-12 (12px) horizontal padding — also Button sm's own horizontal padding — `radius-pill`, Neutral-1 `#ffffff` fill, 1px Neutral-3 border, **no shadow**. Default content is text-only; a leading category icon is an optional secondary variant (see Leading icon row below) |
+| Label | `label2` (13px/18px, weight 700), Neutral-9 `#080808` — the typescale table's own use case for `label2` is "Buttons, tags, chips" |
+| Leading icon (optional, Filter Chip only) | Two distinct uses, never both on the same chip at once: **(1) category icon** — `icon-sm` (16px), a secondary variant for when every option in the group has a clear glyph (e.g. a department icon); **Tier 1, Regular** — a judgment call, not an explicit example in [Iconography](#iconography), since it identifies/classifies rather than expressing status (see [Needs Input #11](#needs-input-read-this-first) for the doc's existing precedent of flagging tier calls this way). **(2) selection tick** — Multi-select's own active-state indicator (see States below), reusing Checkbox's exact `ph-check` glyph, which [Iconography](#iconography) already lists as **Tier 1, Regular** ("check and minus, the Checkbox marks"). If a chip carries a category icon and becomes active in a multi-select group, the tick replaces it rather than rendering both — one leading-icon slot, one purpose at a time. Either icon inherits the label's color; spacing-4 (4px) gap to the label |
+| Remove button (×) | `icon-micro` (14px) `x` glyph, **Tier 1, Regular** — a remove affordance, the same reasoning as **Tag**'s own remove button; Neutral-5 `#5a5a5a` at rest, Neutral-9 on hover; 24×24px hit target via padding — the same hit-target precedent as FileUploader's row × and Input Field's Clear ×; spacing-4 (4px) gap from the label; stops click propagation so removing the chip never triggers whatever the chip sits inside |
+| Internal gap | spacing-4 (4px) between every part — icon → label → × |
+
+**States — Input Chip.** Not toggleable; only the × remove button is
+interactive.
+
+| State | Container | Label | Remove (×) |
+|---|---|---|---|
+| Default | Neutral-2 fill, 1px Neutral-3 border | Neutral-9 | Neutral-5 |
+| Remove — hover | unchanged | unchanged | Neutral-9 — only the × responds, the container never does |
+| Focus-visible | Neutral-2 fill + 2px Obsidian outline, 2px offset — reuses **Button**'s exact focus-visible token | unchanged | unchanged |
+| Disabled | 40% opacity throughout, `cursor: not-allowed`, no hover response | — | — |
+
+**Selection modes — Filter Chip.** A Filter Chip group is either
+Single-select or Multi-select — pick one per group; never mix modes
+within a single group.
+
+| Mode | Behaviour | Wrapper / chip roles |
+|---|---|---|
+| Single-select | Mutually exclusive — selecting one deselects any other in the group. Exactly one chip is always active; clicking the already-active chip is a no-op, the same contract [Segmented Control](#segmented-control) uses. There is no "none selected" state, since this mode represents a required, always-applicable choice (e.g. a status a record always has exactly one of), not an optional add-on filter | `role="radiogroup"` on the wrapper, `role="radio"` + `aria-checked` per chip |
+| Multi-select (default) | Independent — each chip toggles on its own, any number (including zero) can be active at once, semantically identical to a checkbox group. The active state adds the leading selection tick described in the Anatomy table above, reinforcing the checkbox-like independence (Single-select's active state relies on fill/text color alone, since mutual exclusivity already makes the one active choice unambiguous without needing a tick) | `role="group"` on the wrapper, `role="checkbox"` + `aria-checked` per chip |
+
+**States — Filter Chip.** The entire chip surface is the toggle
+target, in both selection modes.
+
+| State | Fill | Border/shadow | Text | Leading icon |
+|---|---|---|---|---|
+| Inactive — default | Neutral-1 `#ffffff` | 1px Neutral-3 | Neutral-9 — mirrors **Button Secondary**'s own default | category icon, if that variant is in use |
+| Inactive — hover | Neutral-2 `#f0f0f0` | 1px Neutral-3 | Neutral-9 — matches **Button Secondary**'s own hover token (`Hover \| Neutral-2 fill`) | unchanged |
+| Inactive — pressed | Neutral-3 `#d8d8d8` | 1px Neutral-3 | Neutral-9 — matches **Button Secondary**'s own `Active/pressed \| Neutral-3 fill` | unchanged |
+| Active — default | Obsidian `#2B2B2C` | none | Neutral-1 `#ffffff` — matches **Button Primary**'s own default; Obsidian signals the filter is engaged, the same reasoning as Input Field's focus border and Slider's track fill | Multi-select only: `ph-check` tick, Neutral-1 (replaces a category icon if one was showing); Single-select: none, per Selection modes above |
+| Active — hover | Neutral-8 `#171717` | none | Neutral-1 — matches **Button Primary**'s own hover | unchanged |
+| Active — pressed | Neutral-7 `#222222` | none | Neutral-1 — matches **Button Primary**'s own `Active/pressed` | unchanged |
+| Focus-visible | current fill + 2px Obsidian outline, 2px offset, `radius-pill` — reuses **Button**'s exact focus-visible token | | | |
+| Disabled | 40% opacity throughout, `cursor: not-allowed`, no hover response — matches **Button Ghost**'s disabled and Segmented Control's own disabled convention, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not pill-shaped ones) | | | |
+
+**Transition:** `background-color`, `color`, `border-color` —
+`duration-fast` (140ms), same hover/focus duration as Button —
+`ease-standard`, the non-elemental default, since Chip isn't owned by a
+specific brand element (same reasoning as Segmented Control, Toast,
+and SidebarNav's collapse transition). No `box-shadow` in the
+transition property list, since Filter Chip no longer carries one at
+any state.
+
+**Content rules:**
+- Filter Chip labels: 24 characters maximum, enforced at
+  content-authoring level — the component itself never truncates; a
+  label that exceeds the limit must be rewritten (the same authoring
+  rule Badge and Tag use for their own label limits).
+- Input Chip labels: user-generated content can't be pre-constrained at
+  authoring time, so it truncates with an ellipsis instead, once the
+  chip exceeds its container's available width; max-width is set by
+  the usage context, not inside the component itself.
+- Filter Chip's category-icon variant is optional — a chip without one
+  is valid. Never use an icon as a substitute for a missing label.
+  Input Chip never has a leading icon at all (see Anatomy above).
+- No trailing icon other than × is permitted on either variant. A
+  second trailing icon belongs to Badge or a Select trigger, not Chip.
+
+**Grouping and overflow:**
+
+| Rule | Spec |
+|---|---|
+| Gap between chips | spacing-4 (4px) — the same grouping rule Badge and Tag use |
+| Wrap behaviour | chips wrap to a new line at a spacing-4 row gap; never horizontal scroll |
+| Overflow — Input Chip groups | beyond 3 visible chips, collapse the rest into a `+N` chip (Neutral-2 fill, 1px Neutral-3 border, Neutral-5 label, no ×). Clicking it expands the hidden chips in place; once expanded, the control itself switches from the `+N` chip to a **Link button** reading "Show less" (transparent, Neutral-9, underlined 3px offset, no fixed height/padding — Button's own Link recipe, verbatim) to re-collapse. It isn't chip-shaped once expanded, since collapsing isn't a value or an option the way the chips around it are. Neither state is individually removable — it doesn't represent a value of its own |
+| Overflow — Filter Chip groups | no hard limit; wrap naturally. If a row wraps past 2 lines, use [Dropdown](#dropdown)'s Multiple select instead |
+
+**Placement:**
+- Input Chips: inside or directly below the input field they
+  represent, only. Never in a standalone row away from that field.
+- Filter Chips: in a toolbar, filter row, or control bar. Not inside a
+  form as a Checkbox substitute — use Checkbox when the choice is
+  submitted as part of a form.
+- Never mix Input and Filter Chips in the same group — their
+  behavioural contracts differ (removable-only vs. toggleable).
+
+**Accessibility:**
+- Input Chip: `role="listitem"` per chip, inside a `role="list"`
+  wrapper. The × requires `aria-label="Remove [label text]"` (e.g.
+  `aria-label="Remove Marketing"`).
+- Filter Chip: see Selection modes above for the role/`aria-checked`
+  pairing per mode.
+- Keyboard — Input Chip: Backspace in an empty adjacent input removes
+  the last chip in the group; Delete or Backspace while a chip itself
+  is focused removes it.
+- Keyboard — Filter Chip, Multi-select: Space or Enter toggles the
+  focused chip; Tab moves between chips.
+- Keyboard — Filter Chip, Single-select: arrow keys move focus between
+  chips (the standard radio-group pattern); Space or Enter selects the
+  focused chip; Tab moves focus out of the group entirely.
+- Color: an active Filter Chip never relies on Obsidian fill alone —
+  the Neutral-1 text color change signals active state too, in both
+  selection modes. Multi-select's tick is a reinforcement on top of
+  that, not a replacement for it — decorative to assistive tech, since
+  `aria-checked` already carries the state.
+
+**Do:** use Input Chip for user-entered or confirmed values. Use Filter
+Chip for predefined toggleable options — Single-select when exactly
+one choice always applies, Multi-select when any number (including
+zero) can. Give every × an `aria-label` naming what it removes. Keep
+the `+N` overflow control non-removable in either of its states.
+**Don't:** mix Input and Filter Chips in the same group. Don't use
+Filter Chip inside a form that requires explicit submit — use Checkbox
+instead. Don't use an accent/elemental color as an active Filter Chip's
+fill — Obsidian is correct (Rule 2, [Component Rules](#component-rules)).
+Don't truncate a Filter Chip label — rewrite it instead. Don't mix
+Single-select and Multi-select behaviour within one group.
 
 ### Button
 
@@ -2748,6 +2888,48 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.35 — 2026-08-10** — **Chip** spec updated from a tested
+  reference build (`chip-preview.html`), five changes. (1) Filter
+  Chip's container drops `shadow-1` entirely — no shadow at any state.
+  (2) Filter Chip's default content is now text-only; a leading
+  category icon is documented as an optional secondary variant rather
+  than the default. (3) Input Chip's leading icon removed entirely —
+  no confirmed use case for one on a user-entered value, so the slot
+  doesn't exist for this variant anymore. (4) Added a **Selection
+  modes** rule that was missing before: Filter Chip groups are either
+  Single-select (`role="radiogroup"`, mutually exclusive, exactly one
+  always active, clicking the active chip is a no-op — same contract
+  as Segmented Control) or Multi-select (`role="group"`/`checkbox`,
+  independent per-chip toggles, any number active including zero, and
+  the active state now gets a leading `ph-check` tick reusing
+  Checkbox's own glyph, reinforcing the independent-toggle read since
+  Single-select's mutual exclusivity already makes its own active chip
+  unambiguous without one). (5) Documented the Input Chip overflow
+  `+N` control's actual interaction: clicking it expands the hidden
+  chips in place, then the control itself becomes a Link-styled "Show
+  less" button (Button's Link recipe, verbatim) to re-collapse, rather
+  than staying chip-shaped once expanded.
+
+- **v0.9.34 — 2026-08-10** — Added **Chip**, inserted directly after
+  Badge & Tag: a new interactive pill component, distinct from Badge
+  (status, read-only) and Tag (ownership, read-only) — Chip always
+  represents a selection or an input value. Two variants: Input Chip
+  (a user-entered/confirmed value, always removable via ×, not
+  toggleable) and Filter Chip (a predefined option toggled on/off,
+  optionally removable). Built entirely from existing tokens: Badge's
+  Neutral-pill recipe for Input Chip's container, Button sm's own
+  height/padding for Filter Chip's container, Button Secondary's
+  default/hover/pressed states for Filter Chip inactive, Button
+  Primary's for Filter Chip active, Button's focus-visible token
+  verbatim, and Tag's remove-affordance convention for the ×. Note:
+  the brief for this component referenced MultiSelect's older
+  chip-based remove pattern as a source — that pattern was already
+  superseded by Dropdown's "N selected" trigger (see the v0.8-era
+  entries below) and no longer exists in the live spec, so Chip's ×
+  traces to Tag's remove button instead, which is still live. Scope
+  note's component count updated 30 → 31, designed-from-scratch count
+  6 → 7.
 
 **This is where version and date information lives — not in the spec
 sections above.** When you change a component or token, update its spec

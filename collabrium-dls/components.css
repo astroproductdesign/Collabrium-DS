@@ -977,3 +977,34 @@
 @media (prefers-reduced-motion: reduce){ .c-slider-input::-webkit-slider-thumb, .c-slider-input::-moz-range-thumb, .c-slider-tooltip{transition:none !important;} }
 .c-slider-minmax{display:flex; justify-content:space-between; margin-top:var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
 .c-slider-static-value{display:flex; justify-content:flex-end; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-9); margin-bottom:var(--spacing-4);}
+
+/* Chip — Input Chip (removable value, no toggle, no leading icon) and
+   Filter Chip (toggleable option, Single-select radiogroup or
+   Multi-select checkbox group — never both in one group). Filter Chip
+   carries no shadow at any state; Multi-select's active state gets a
+   leading tick (Checkbox's own ph-check glyph) that replaces a
+   category icon if one was showing, since Single-select's mutual
+   exclusivity already makes its own active chip unambiguous without
+   one. */
+.c-chip-group{display:flex; flex-wrap:wrap; gap:var(--spacing-4); align-items:center;}
+.c-chip{display:inline-flex; align-items:center; gap:var(--spacing-4); border-radius:var(--radius-pill); font-family:var(--font-primary); font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight); color:var(--color-neutral-9); white-space:nowrap; user-select:none; transition:background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);}
+.c-chip[hidden]{display:none;}
+.c-chip .icon{font-size:var(--icon-sm); line-height:1; color:inherit;}
+.c-chip-input{height:24px; padding:0 var(--spacing-8); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3);}
+.c-chip-input.is-disabled{opacity:.4; cursor:not-allowed;}
+.c-chip-remove{display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; margin-right:-6px; color:var(--color-neutral-5); background:transparent; border:none; cursor:pointer; border-radius:var(--radius-pill); font-size:var(--icon-micro); padding:0;}
+.c-chip-remove i{pointer-events:none;}
+.c-chip-remove:hover{color:var(--color-neutral-9);}
+.c-chip-remove:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-chip-overflow{height:24px; padding:0 var(--spacing-8); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5); cursor:pointer; font-family:inherit;}
+.c-chip-overflow:hover{color:var(--color-neutral-9); border-color:var(--color-neutral-4);}
+.c-chip-overflow:focus-visible, .c-chip-showless:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-chip-showless{display:inline-flex; align-items:center; height:24px; background:transparent; border:none; padding:0; margin:0; color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:var(--text-label2-weight); line-height:var(--text-label2-lh); text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
+.c-chip-filter{height:32px; padding:0 var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); cursor:pointer; font-family:inherit;}
+.c-chip-filter:hover:not(.is-active):not(.is-disabled){background:var(--color-neutral-2);}
+.c-chip-filter:active:not(.is-disabled){background:var(--color-neutral-3);}
+.c-chip-filter.is-active{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-chip-filter.is-active:hover:not(.is-disabled){background:var(--color-neutral-8); border-color:var(--color-neutral-8);}
+.c-chip-filter.is-active:active:not(.is-disabled){background:var(--color-neutral-7); border-color:var(--color-neutral-7);}
+.c-chip-filter:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-chip-filter.is-disabled{opacity:.4; cursor:not-allowed; pointer-events:none;}
