@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Data Team — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="../collabrium-dls/tokens.css" />
+<link rel="stylesheet" href="../collabrium-dls/components.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<style>
+  /* ---------------------------------------------------------------
+     Theme: Water element (Data Analytics · Logistics · Supply Chain ·
+     Exec Strategy, per DESIGN-SYSTEM.md's Elemental background tints
+     table). Same rule as the Finance dashboard: every value below is
+     either a direct tokens.css variable or a color-mix() of existing
+     tokens.css variables — no new hex, tokens.css/components.css
+     untouched. "Cool teal" is Navy mixed toward the Turquoise
+     secondary accent (both already-documented tokens); "deep navy /
+     slate" is Navy mixed toward Neutral-9. */
+  :root{
+    --theme-tint:        var(--color-water-bg);        /* soft white — lightest, 8% */
+    --theme-tint-strong: var(--color-water-bg-strong);  /* pale slate — 16% */
+    --theme-teal:        color-mix(in oklab, var(--color-navy), var(--color-turquoise) 35%); /* cool teal */
+    --theme-mid:         var(--color-navy);             /* navy — full strength */
+    --theme-deep:        color-mix(in oklab, var(--color-navy), var(--color-neutral-9) 35%); /* deep navy / slate */
+    --theme-fill:        color-mix(in srgb, var(--color-navy), transparent 88%); /* muted ~12% wash, area fill only */
+    --theme-hover:       color-mix(in oklab, var(--color-navy), var(--color-neutral-9) 15%);
+    /* Translucent bubble fills — defined here as their own color-mix()
+       rather than hand-appending an alpha suffix to a JS string.
+       getComputedStyle() doesn't reliably serialize colors as
+       #rrggbb (browsers commonly return rgb()/rgba()), so
+       string-concatenating "hex + alpha hex" in JS would silently
+       build an invalid color. Mixing toward transparent in CSS and
+       reading the finished computed value sidesteps that entirely. */
+    --theme-mid-wash:  color-mix(in srgb, var(--theme-mid), transparent 30%);
+    --theme-teal-wash: color-mix(in srgb, var(--theme-teal), transparent 30%);
+    --theme-deep-wash: color-mix(in srgb, var(--theme-deep), transparent 30%);
+    /* Same treatment for the polar area ramp, so its wedges let the
+       grid rings/angle lines show through instead of hiding whatever
+       sits underneath their slice. tint/tint-strong are already pale
+       8%/16% element tints — the same 30% cut would nearly erase them
+       against the white card, so they get a lighter 15% cut instead;
+       the three more saturated rungs use the same 30% as the bubble
+       washes above, for one consistent "see-through" feel. */
+    --theme-tint-wash:        color-mix(in srgb, var(--theme-tint), transparent 15%);
+    --theme-tint-strong-wash: color-mix(in srgb, var(--theme-tint-strong), transparent 15%);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--color-canvas-warm);
+    color:var(--color-neutral-9);
+    font-family:var(--font-primary);
+    padding:var(--spacing-32);
+  }
+  .dash-shell{max-width:1280px; margin:0 auto;}
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--spacing-16); margin:var(--spacing-24) 0 var(--spacing-32);}
+  .kpi-label{margin:0; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .kpi-value{margin:var(--spacing-4) 0 var(--spacing-8); font-size:var(--text-h3-size); font-weight:800; color:var(--color-neutral-9);}
+
+  .dash-charts{display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--spacing-16);}
+  @media (max-width: 1100px){ .dash-charts{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width: 640px){ .dash-charts{grid-template-columns:1fr;} }
+
+  .chart-card{gap:0;}
+  .chart-card-head{margin-bottom:var(--spacing-16);}
+  .chart-card-head h4{margin:0 0 2px;}
+  .chart-card-head p{margin:0;}
+  .chart-canvas-wrap{position:relative; height:260px;}
+  .chart-canvas-wrap.tall{height:300px;}
+
+  .chart-table-toggle{
+    align-self:flex-start; margin-top:var(--spacing-12);
+    font:inherit; font-size:var(--text-caption-size); color:var(--color-neutral-5);
+    background:transparent; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);
+    padding:4px 10px; cursor:pointer;
+  }
+  .chart-table-toggle:hover{color:var(--color-neutral-9); background:var(--color-neutral-2);}
+  .chart-data-table{width:100%; border-collapse:collapse; font-size:var(--text-caption-size); margin-top:var(--spacing-12);}
+  .chart-data-table caption{display:none;}
+  .chart-data-table th,.chart-data-table td{text-align:right; padding:6px 4px; border-bottom:1px solid var(--color-neutral-3); font-variant-numeric:tabular-nums;}
+  .chart-data-table th:first-child,.chart-data-table td:first-child{text-align:left; font-variant-numeric:normal;}
+  .chart-data-table thead th{color:var(--color-neutral-5); border-bottom:1px solid var(--color-neutral-4);}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<div class="dash-shell">
+
+  <div class="c-pageheader">
+    <div class="c-pageheader-row">
+      <div class="c-pageheader-text">
+        <h1>Data Team</h1>
+        <p class="sub" id="dashDate"></p>
+      </div>
+      <div class="c-pageheader-actions">
+        <button type="button" class="c-btn c-btn-secondary c-btn-sm"><i class="ph ph-download-simple"></i> Export</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Pipeline runs (30d)</p>
+      <p class="kpi-value">1,284</p>
+      <span class="c-badge c-badge-success"><i class="ph ph-arrow-up"></i> 6.8% vs prior 30d</span>
+    </div>
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Model accuracy</p>
+      <p class="kpi-value">94.2%</p>
+      <span class="c-badge c-badge-success"><i class="ph ph-arrow-up"></i> 0.6 pts vs prior 30d</span>
+    </div>
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Avg. processing time (lower is better)</p>
+      <p class="kpi-value">3.4 min</p>
+      <span class="c-badge c-badge-success"><i class="ph ph-arrow-down"></i> 12.0% vs prior 30d</span>
+    </div>
+  </div>
+
+  <div class="dash-charts">
+
+    <!-- 1. Bar — pipeline runs by week -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Pipeline runs</h4><p>By week, last 8 weeks</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartRuns"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableRuns">View as table</button>
+      <table class="chart-data-table" id="tableRuns" hidden><caption>Pipeline runs</caption><thead><tr><th>Week</th><th>Runs</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- 2. Line — model accuracy over time, plain -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Model accuracy</h4><p>Monthly, last 12 months</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartAccuracy"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableAccuracy">View as table</button>
+      <table class="chart-data-table" id="tableAccuracy" hidden><caption>Model accuracy</caption><thead><tr><th>Month</th><th>Accuracy</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- 3. Radar — skill coverage across team, single series -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Skill coverage</h4><p>Team self-rated, 0–10</p></div>
+      <div class="chart-canvas-wrap tall"><canvas id="chartSkills"></canvas></div>
+    </div>
+
+    <!-- 4. Bubble — dataset size vs. processing time, size = job count -->
+    <div class="c-card chart-card" style="grid-column:1 / -1;">
+      <div class="chart-card-head"><h4>Dataset size vs. processing time</h4><p>By source type — bubble size = job count</p></div>
+      <div class="chart-canvas-wrap tall"><canvas id="chartBubble"></canvas></div>
+    </div>
+
+    <!-- 5. Doughnut — data source breakdown -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Data source breakdown</h4><p>By ingestion volume</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartSources"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableSources">View as table</button>
+      <table class="chart-data-table" id="tableSources" hidden><caption>Data source breakdown</caption><thead><tr><th>Source</th><th>Share</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- 6. Polar area — query volume by type -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Query volume</h4><p>By query type, last 30 days</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartQueryTypes"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableQueryTypes">View as table</button>
+      <table class="chart-data-table" id="tableQueryTypes" hidden><caption>Query volume</caption><thead><tr><th>Query type</th><th>Volume</th></tr></thead><tbody></tbody></table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  var tint = cssVar('--theme-tint');
+  var tintStrong = cssVar('--theme-tint-strong');
+  var teal = cssVar('--theme-teal');
+  var mid = cssVar('--theme-mid');
+  var deep = cssVar('--theme-deep');
+  var midWash = cssVar('--theme-mid-wash');
+  var tealWash = cssVar('--theme-teal-wash');
+  var deepWash = cssVar('--theme-deep-wash');
+  var tintWash = cssVar('--theme-tint-wash');
+  var tintStrongWash = cssVar('--theme-tint-strong-wash');
+  var fillWash = cssVar('--theme-fill');
+  var hoverColor = cssVar('--theme-hover');
+  var neutral9 = cssVar('--color-neutral-9');
+  var neutral5 = cssVar('--color-neutral-5');
+  var neutral3 = cssVar('--color-neutral-3');
+  var neutral1 = cssVar('--color-neutral-1');
+  var radiusPx = parseFloat(cssVar('--spacing-4'));
+  var maxThicknessPx = parseFloat(cssVar('--spacing-24'));
+
+  var FONT = "'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+  function axisTicks() { return { color: neutral5, font: { size: 12, family: FONT } }; }
+  function tooltipBase() {
+    return {
+      backgroundColor: neutral1, titleColor: neutral9, bodyColor: neutral5,
+      borderColor: neutral3, borderWidth: 1, padding: 10, cornerRadius: 8,
+      titleFont: { size: 13, weight: '700', family: FONT }, bodyFont: { size: 12, family: FONT }
+    };
+  }
+  function legendBase() {
+    return { position: 'bottom', labels: { color: neutral5, font: { size: 12, family: FONT }, boxWidth: 10, boxHeight: 10, usePointStyle: true, padding: 16 } };
+  }
+  function cartesianScales(extra) {
+    var s = {
+      x: { grid: { display: false }, border: { display: false }, ticks: axisTicks() },
+      y: { beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() }
+    };
+    return Object.assign(s, extra || {});
+  }
+
+  function fillTable(id, rows) {
+    var tbody = document.querySelector('#' + id + ' tbody');
+    if (!tbody) return;
+    rows.forEach(function (row) {
+      var tr = document.createElement('tr');
+      row.forEach(function (cell, i) {
+        var el = document.createElement(i === 0 ? 'th' : 'td');
+        if (i === 0) el.scope = 'row';
+        el.textContent = cell;
+        tr.appendChild(el);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+  document.querySelectorAll('.chart-table-toggle').forEach(function (btn) {
+    var chartModeLabel = btn.textContent;
+    var tableModeLabel = chartModeLabel.replace('table', 'chart');
+    btn.addEventListener('click', function () {
+      var wrap = btn.parentElement.querySelector('.chart-canvas-wrap');
+      var table = document.getElementById(btn.dataset.target);
+      var goingToTable = table.hidden;
+      table.hidden = !goingToTable;
+      if (wrap) wrap.hidden = goingToTable;
+      btn.textContent = goingToTable ? tableModeLabel : chartModeLabel;
+    });
+  });
+
+  /* 1. Bar — pipeline runs by week */
+  var weeks = ['W1','W2','W3','W4','W5','W6','W7','W8'];
+  var runs = [128, 142, 137, 156, 149, 168, 172, 181];
+  new Chart(document.getElementById('chartRuns'), {
+    type: 'bar',
+    data: { labels: weeks, datasets: [{ label: 'Runs', data: runs, backgroundColor: mid, hoverBackgroundColor: hoverColor, borderRadius: radiusPx, maxBarThickness: maxThicknessPx }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return i[0].formattedValue + ' runs'; }, label: function (i) { return i.label; } }
+      }) },
+      scales: cartesianScales()
+    }
+  });
+  fillTable('tableRuns', weeks.map(function (w, i) { return [w, runs[i]]; }));
+
+  /* 2. Line — model accuracy, plain (no fill) */
+  var months12 = ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
+  var accuracy = [89.1,89.8,90.4,90.2,91.0,91.6,92.1,92.4,93.0,93.4,93.8,94.2];
+  new Chart(document.getElementById('chartAccuracy'), {
+    type: 'line',
+    data: { labels: months12, datasets: [{ label: 'Accuracy', data: accuracy, borderColor: mid, backgroundColor: mid, fill: false, tension: 0.3, borderWidth: 2, pointRadius: 3, pointBackgroundColor: mid, pointBorderColor: neutral1, pointBorderWidth: 2, pointHoverRadius: 5 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return i[0].formattedValue + '%'; }, label: function (i) { return i.label; } }
+      }) },
+      scales: cartesianScales({ y: { grid: { color: neutral3 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return v + '%'; } }) } })
+    }
+  });
+  fillTable('tableAccuracy', months12.map(function (m, i) { return [m, accuracy[i] + '%']; }));
+
+  /* 3. Radar — skill coverage, single series ("across team" is the
+     metric's scope, not multiple named series — the brief describes
+     one aggregate profile, not a team-vs-team comparison). */
+  var skills = ['Python', 'SQL', 'Machine learning', 'Data visualization', 'Infrastructure', 'Communication'];
+  var skillScores = [8, 9, 7, 6, 7, 8];
+  new Chart(document.getElementById('chartSkills'), {
+    type: 'radar',
+    data: { labels: skills, datasets: [{ label: 'Team', data: skillScores, borderColor: mid, backgroundColor: fillWash, pointBackgroundColor: mid, pointBorderColor: neutral1, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: tooltipBase() },
+      scales: { r: {
+        suggestedMin: 0, suggestedMax: 10,
+        grid: { color: neutral3 }, angleLines: { color: neutral3 },
+        pointLabels: { color: neutral5, font: { size: 12, family: FONT } },
+        // A real backdrop (not transparent) keeps the tick number
+        // legible over the dataset's own fill, which draws on top of
+        // the scale — same white as the card surface, so it reads as
+        // part of the card rather than a foreign box.
+        ticks: { color: neutral5, backdropColor: neutral1, backdropPadding: radiusPx, font: { size: 11, family: FONT } }
+      } }
+    }
+  });
+
+  /* 4. Bubble — dataset size (x) vs. processing time (y), bubble
+     radius = job count. 3 source-type series, using the ramp's three
+     mid-to-dark rungs (lightest rung reserved for tints/fills, not a
+     mark color on white). */
+  function bubbleSet(seed, n, xBase, xSpread, yBase, ySpread, rBase, rSpread) {
+    var pts = [];
+    for (var i = 0; i < n; i++) {
+      var x = xBase + (Math.sin(seed + i * 1.3) * 0.5 + 0.5) * xSpread;
+      var y = yBase + (Math.cos(seed + i * 1.9) * 0.5 + 0.5) * ySpread;
+      var r = rBase + (Math.sin(seed + i * 0.9) * 0.5 + 0.5) * rSpread;
+      pts.push({ x: Math.round(x), y: Math.round(y * 10) / 10, r: Math.round(r) });
+    }
+    return pts;
+  }
+  new Chart(document.getElementById('chartBubble'), {
+    type: 'bubble',
+    data: { datasets: [
+      { label: 'Structured (SQL)', data: bubbleSet(1, 8, 20, 180, 1.5, 4, 6, 8), backgroundColor: midWash, borderColor: mid },
+      { label: 'Unstructured (files)', data: bubbleSet(2, 8, 60, 220, 3, 6, 6, 8), backgroundColor: tealWash, borderColor: teal },
+      { label: 'Streaming', data: bubbleSet(3, 8, 10, 100, 0.5, 3, 6, 8), backgroundColor: deepWash, borderColor: deep }
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: legendBase(), tooltip: Object.assign(tooltipBase(), {
+        callbacks: {
+          title: function (i) { return i.dataset.label; },
+          label: function (i) { return 'Size ' + i.raw.x + ' GB · Time ' + i.raw.y + ' min · ' + (i.raw.r * 4) + ' jobs'; }
+        }
+      }) },
+      scales: cartesianScales({
+        x: { title: { display: true, text: 'Dataset size (GB)', color: neutral5, font: { size: 12, family: FONT } }, grid: { display: false }, border: { display: false }, ticks: axisTicks() },
+        y: { title: { display: true, text: 'Processing time (min)', color: neutral5, font: { size: 12, family: FONT } }, beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() }
+      })
+    }
+  });
+  /* 5. Doughnut — data source breakdown, same-hue ramp + legend */
+  var sources = ['PostgreSQL', 'S3 / data lake', 'Kafka streams', 'API ingestion', 'Third-party feeds'];
+  var sourceShare = [36, 28, 18, 12, 6];
+  var sourceColors = [tintStrong, teal, mid, deep, tint];
+  new Chart(document.getElementById('chartSources'), {
+    type: 'doughnut',
+    data: { labels: sources, datasets: [{ data: sourceShare, backgroundColor: sourceColors, borderColor: neutral1, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: legendBase(), tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return i[0].formattedValue + '%'; }, label: function (i) { return i.label; } }
+      }) }
+    }
+  });
+  fillTable('tableSources', sources.map(function (s, i) { return [s, sourceShare[i] + '%']; }));
+
+  /* 6. Polar area — query volume by type, same-hue ramp + legend */
+  var queryTypes = ['Simple SELECT', 'Joins', 'Aggregation', 'Window functions', 'Full scan'];
+  var queryVolume = [42000, 28500, 19800, 9600, 4200];
+  new Chart(document.getElementById('chartQueryTypes'), {
+    type: 'polarArea',
+    // Translucent wedges — a solid fill hides the grid rings/angle
+    // lines wherever a slice reaches past them, not just at the tick
+    // number's own spoke. Seeing through the wedge keeps that
+    // structure (and the ticks) visible across the whole chart.
+    data: { labels: queryTypes, datasets: [{ data: queryVolume, backgroundColor: [tintStrongWash, tealWash, midWash, deepWash, tintWash], borderColor: neutral1, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: legendBase(), tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return i[0].raw.toLocaleString() + ' queries'; }, label: function (i) { return i.label; } }
+      }) },
+      // Same fix as Radar above: a real backdrop stops the wedges —
+      // solid fills here, unlike Radar's light wash — from swallowing
+      // the tick number they're drawn on top of.
+      scales: { r: { grid: { color: neutral3 }, angleLines: { color: neutral3 }, ticks: { color: neutral5, backdropColor: neutral1, backdropPadding: radiusPx, font: { size: 11, family: FONT } }, pointLabels: { color: neutral5, font: { size: 11, family: FONT } } } }
+    }
+  });
+  fillTable('tableQueryTypes', queryTypes.map(function (q, i) { return [q, queryVolume[i].toLocaleString()]; }));
+})();
+</script>
+</body>
+</html>
