@@ -295,6 +295,34 @@
 .c-sidebar-toggle svg{width:18px; height:18px;}
 .c-sidebar.is-collapsed ~ .c-sidebar-toggle svg{width:16px; height:16px;}
 
+/* Department switcher — expanded mode only, per DESIGN-SYSTEM.md
+   SidebarNav, Department switcher. The trigger pairs the header logo
+   with a chevron as one button; the dropdown is a sibling of .c-sidebar
+   inside .c-sidebar-shell (same positioning precedent as .c-sidebar-toggle
+   above), positioned via JS against the header's own rect. */
+.c-dept-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); width:auto; background:none; border:none; padding:2px 4px; margin:-2px -4px; cursor:pointer; font-family:inherit; border-radius:var(--radius-sm);}
+.c-dept-trigger:hover{background:var(--color-neutral-2);}
+.c-dept-chevron{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none;}
+.c-dept-logo-static{height:22px; display:block;}
+.c-sidebar.is-collapsed .c-dept-trigger{display:none;} /* no dropdown access collapsed, per Department switcher's Collapsed mode rule; .js-dept-logo-collapsed reuses .c-sidebar-logo-collapsed's own show/hide rule already */
+.c-dept-dropdown{position:absolute; width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4); max-height:220px; overflow-y:auto; z-index:20;}
+.c-dept-dropdown[hidden]{display:none;}
+.c-dept-option{display:flex; align-items:center; gap:var(--spacing-12); height:40px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); cursor:pointer;}
+.c-dept-option:hover{background:var(--color-neutral-2);}
+.c-dept-option.is-active{background:var(--color-neutral-2);}
+.c-dept-option-logo{height:22px; display:flex; align-items:center; justify-content:flex-start; flex:1;}
+/* Each lockup's own SVG canvas isn't uniformly proportioned to its
+   "collab" text — e.g. the default lockup's viewBox is 162 tall vs.
+   269 for the 4 department ones, so scaling every image to the same
+   box height (via height:100%) renders "collab" at visibly different
+   sizes across logos. --logo-scale is a per-image, tuned-by-eye
+   correction (set inline per <img>, defaults to 1 when the lockup's
+   own proportions already match) so every logo's "collab" reads at
+   the same size regardless of its own canvas height. */
+.c-dept-option-logo img{height:calc(100% * var(--logo-scale, 1)); width:auto; object-fit:contain;}
+.c-dept-check{font-size:var(--icon-sm); color:var(--color-neutral-9); visibility:hidden; flex:none;}
+.c-dept-option.is-active .c-dept-check{visibility:visible;}
+
 /* Collapsed — hover label. SidebarNav's own sub-pattern (not a
    reused Tooltip instance) — see DESIGN-SYSTEM.md's "Collapsed —
    hover label" row for why. A single shared element, `position:
@@ -309,7 +337,12 @@
    collapse"). Clicking anywhere on the parent toggles it, not just
    the chevron. Each parent's open/closed state is independent — no
    single-open-at-a-time grouping. */
-.c-sidebar-item .c-nav-parent-toggle{margin-left:auto; width:var(--icon-base); height:var(--icon-base); flex:0 0 var(--icon-base); display:flex; align-items:center; justify-content:center; transition:transform var(--duration-fast) var(--ease-standard);}
+/* Same icon tier/style as the Department switcher's own chevron —
+   Phosphor caret, icon-micro, Neutral-5 — swapped via class rather
+   than rotated/path-swapped, for visual consistency between the two
+   expand/collapse affordances in the same sidebar. */
+.c-sidebar-item .c-nav-parent-toggle{margin-left:auto; display:flex; align-items:center; justify-content:center; flex:none;}
+.c-sidebar-item .c-nav-parent-toggle i{font-size:var(--icon-micro); color:var(--color-neutral-5);}
 /* "Active parent with active child — parent shows weight 700 text,
    but no active fill" — the fill signal stays exclusively on the
    active child. */
@@ -529,6 +562,38 @@
 @media (max-width:640px){
   .c-toast-host{left:var(--spacing-12); right:var(--spacing-12); bottom:var(--spacing-12); width:auto; max-width:none;}
 }
+
+/* Info Banner — inline, persistent, container-anchored (vs. Toast's
+   floating/viewport-level). No Title part — Message is the only text
+   content. Actions are always the last element, styled identically to
+   Message (underlined), no Ghost-button/Link split. */
+.c-banner{display:flex; align-items:center; gap:var(--spacing-12); width:100%; box-sizing:border-box; padding:var(--spacing-12) var(--spacing-16); border-radius:var(--radius-md); border:1px solid transparent; box-shadow:none;}
+.c-banner .icon{font-size:var(--icon-base); flex:none;}
+.c-banner .body{flex:1; min-width:0;}
+.c-banner .message{font-size:var(--text-body2-size); font-weight:var(--text-body2-weight); line-height:var(--text-body2-lh);}
+.c-banner .actions{display:flex; gap:var(--spacing-12); margin-top:var(--spacing-8);}
+.c-banner .actions .action{background:none; border:none; padding:0; font-family:inherit; font-size:var(--text-body2-size); font-weight:var(--text-body2-weight); text-decoration:underline; cursor:pointer;}
+.c-banner .close{margin-left:auto;}
+
+.c-banner-neutral{background:var(--color-neutral-2); border-color:var(--color-neutral-3);}
+.c-banner-neutral .icon{color:var(--color-neutral-9);}
+.c-banner-neutral .message,.c-banner-neutral .actions .action{color:rgba(8,8,8,.8);}
+
+.c-banner-info{background:rgba(20,115,230,.10); border-color:rgba(20,115,230,.28);}
+.c-banner-info .icon{color:var(--color-navy);}
+.c-banner-info .message,.c-banner-info .actions .action{color:rgba(20,115,230,.8);}
+
+.c-banner-success{background:rgba(0,194,110,.12); border-color:rgba(0,194,110,.32);}
+.c-banner-success .icon{color:var(--color-green);}
+.c-banner-success .message,.c-banner-success .actions .action{color:rgba(0,133,76,.8);}
+
+.c-banner-danger{background:rgba(253,51,67,.10); border-color:rgba(253,51,67,.30);}
+.c-banner-danger .icon{color:var(--color-red);}
+.c-banner-danger .message,.c-banner-danger .actions .action{color:rgba(253,51,67,.8);}
+
+.c-banner-warning{background:rgba(255,164,37,.14); border-color:rgba(255,164,37,.38);}
+.c-banner-warning .icon{color:var(--color-amber);}
+.c-banner-warning .message,.c-banner-warning .actions .action{color:rgba(154,92,0,.8);}
 
 /* Tooltip */
 .c-tooltip-wrap{position:relative; display:inline-flex;}
