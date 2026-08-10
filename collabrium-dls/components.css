@@ -889,3 +889,42 @@
 .c-pageheader h1{margin:0; font-family:var(--font-primary); font-weight:var(--text-h1-weight); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); letter-spacing:var(--text-h1-tracking); color:var(--color-neutral-9);}
 .c-pageheader .sub{margin:0; font-family:var(--font-primary); font-weight:var(--text-body2-weight); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
 .c-pageheader-actions{display:flex; gap:var(--element-gap); flex:none;}
+
+/* Segmented Control — designed from scratch, not transcribed. Track/
+   segment box model, sizes, and states per DESIGN-SYSTEM.md. Hover/
+   active-pressed/disabled reuse Button Ghost's own tokens; focus-visible
+   reuses Button's exact token; nested radius-sm-inside-radius-md follows
+   SidebarNav's own nested-interactive-element convention.
+   The active fill/shadow/radius render on .c-seg-pill, a single shared
+   element per instance that slides/resizes between segments on
+   selection (see DESIGN-SYSTEM.md's "Transition — sliding Pill" — this
+   supersedes that section's original fill-swap-in-place design).
+   .c-seg-pill's translate() is computed in JS from the track's border
+   width subtracted out, since an absolutely-positioned child's
+   containing block is the track's own padding box (already inset by
+   that border) — see the Changelog entry for why that fix was needed. */
+.c-segctl{position:relative; display:inline-flex; background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); padding:var(--spacing-4); gap:var(--spacing-4);}
+.c-seg-pill{position:absolute; left:0; top:0; background:var(--color-neutral-1); box-shadow:var(--shadow-1); border-radius:var(--radius-sm); z-index:0; pointer-events:none; transition:transform var(--duration-fast) var(--ease-standard), width var(--duration-fast) var(--ease-standard), height var(--duration-fast) var(--ease-standard);}
+.c-seg{position:relative; z-index:1; appearance:none; border:none; background:transparent; color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:500; text-transform:uppercase; border-radius:var(--radius-sm); display:inline-flex; align-items:center; justify-content:center; gap:var(--spacing-4); cursor:pointer; flex:1; transition:color var(--duration-fast) var(--ease-standard);}
+.c-seg i{font-size:var(--icon-base); line-height:1;}
+.c-segctl-compact .c-seg i{font-size:var(--icon-micro);}
+.c-segctl-default .c-seg{padding:var(--spacing-8) var(--spacing-12); min-width:32px;}
+.c-segctl-compact .c-seg{padding:5px var(--spacing-12); min-width:32px;}
+.c-seg[aria-checked="true"]{color:var(--color-neutral-9); font-weight:700;}
+.c-segctl:not(.has-pill) .c-seg[aria-checked="true"]{background:var(--color-neutral-1); box-shadow:var(--shadow-1);}
+.c-seg:not([aria-checked="true"]):not(:disabled):hover{background:var(--color-neutral-2);}
+.c-seg:not([aria-checked="true"]):not(:disabled):active{background:var(--color-neutral-3);}
+.c-seg:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-seg:disabled{color:var(--color-neutral-4); opacity:.4; cursor:not-allowed;}
+.c-seg:disabled:hover{background:transparent;}
+.c-segctl-disabled{opacity:.4;}
+.c-segctl-disabled .c-seg{cursor:not-allowed;}
+@media (prefers-reduced-motion: reduce){ .c-seg-pill{transition:none;} }
+/* Icon-only tooltip — same bubble visuals as Tooltip, built as its own
+   small recipe rather than reused verbatim (Tooltip's own trigger-wrapper
+   model assumes no sibling absolutely-positioned Pill underneath it;
+   same rationale SidebarNav's own collapsed hover label already gives
+   for not reusing .c-tooltip-wrap/.c-tooltip-bubble as-is). */
+.c-seg-tt-wrap{position:relative; display:inline-flex; flex:1;}
+.c-seg-tt-bubble{position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:2; padding:var(--spacing-4) var(--spacing-8); border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; text-transform:none; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard);}
+.c-seg-tt-wrap:hover .c-seg-tt-bubble, .c-seg-tt-wrap:focus-within .c-seg-tt-bubble{opacity:1;}

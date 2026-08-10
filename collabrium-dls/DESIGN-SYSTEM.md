@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.31** — 2026-08-06 — Sourced from the Collabrium brand deck
+**v0.9.32** — 2026-08-10 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -684,32 +684,33 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-28 components: the original 7 basics
+29 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 9 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 4 **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 5 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
-picker — plus a Chart color mapping guideline (not a rendered
-component), and 8 more: **App Shell** (the page-level composition
-layer — Sidebar placement, Content region, Page header), Textarea,
-Password field, **Search input** (a text search field with a clear
-button, in Default/User Search/Item Search variants — the last two
-searching and selecting a person or item from a dropdown), **Stepper**
-(a multi-step progress indicator), **FileUploader** (click-to-browse/
-drag-and-drop file attachment), **Dropdown** (a trigger+panel in
-Single select/Multiple select variants — the former, separately
-transcribed **Select** and designed-from-scratch **MultiSelect**,
-consolidated into one component), and **Info Banner** (an inline,
-persistent, container-anchored notification — distinct from Toast's
-floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
-batch, App Shell, Stepper, FileUploader, Dropdown, Search input, and
-Info Banner have **no source in either the original brand deck or the
-teammate's build**; they're built entirely from this document's own
-token system (color, type, spacing, radius, elevation, motion) and
-marked ⚠️ **designed, not transcribed** in their own sections — treat
-them as a first pass needing real design/brand review before shipping,
-more provisional than the transcribed components above them.
+picker, **Segmented Control** — plus a Chart color mapping guideline
+(not a rendered component), and 8 more: **App Shell** (the page-level
+composition layer — Sidebar placement, Content region, Page header),
+Textarea, Password field, **Search input** (a text search field with a
+clear button, in Default/User Search/Item Search variants — the last
+two searching and selecting a person or item from a dropdown),
+**Stepper** (a multi-step progress indicator), **FileUploader**
+(click-to-browse/drag-and-drop file attachment), **Dropdown** (a
+trigger+panel in Single select/Multiple select variants — the former,
+separately transcribed **Select** and designed-from-scratch
+**MultiSelect**, consolidated into one component), and **Info Banner**
+(an inline, persistent, container-anchored notification — distinct
+from Toast's floating/viewport-level/auto-dismissing behavior). The
+Stat/KPI card batch, App Shell, Stepper, FileUploader, Dropdown, Search
+input, Info Banner, and **Segmented Control** have **no source in
+either the original brand deck or the teammate's build**; they're
+built entirely from this document's own token system (color, type,
+spacing, radius, elevation, motion) and marked ⚠️ **designed, not
+transcribed** in their own sections — treat them as a first pass
+needing real design/brand review before shipping, more provisional
+than the transcribed components above them.
 See each section below for source notes, and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
@@ -737,6 +738,7 @@ through.
 - [Password field](#password-field)
 - [Radio](#radio)
 - [Search input](#search-input)
+- [Segmented Control](#segmented-control)
 - [SidebarNav](#sidebarnav)
 - [Stat / KPI card](#stat--kpi-card)
 - [Stepper](#stepper)
@@ -2292,6 +2294,126 @@ it's not for card or section headers, which have their own patterns
 bottom divider to PageHeader itself; if a page needs a divider under
 its header, that belongs to the page layout, not this component.
 
+### Segmented Control
+
+⚠️ **Designed from scratch — no source in either the original brand
+deck or the teammate's build.** Built from this document's own token
+system by reusing Button Ghost's hover/pressed recipe, SidebarNav's
+nested-radius convention, and a deliberate distinction from Tabs — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+Single-row control for switching between 2–5 mutually exclusive view
+states of the same content. Distinct from **Tabs** (in-page section
+switching with a full-width Neutral-3 border-bottom track, body1
+labels, and no fill on the active tab — use Tabs when sections can grow
+past 5 or need their own full content regions) and from **Radio** (a
+form input requiring explicit submit — use Radio when the choice is
+deferred, not immediate). Where Tabs navigates *between sections*,
+Segmented Control switches *between views of a single section* — a
+tightly bounded set where 2–5 is a hard limit, not a soft guideline.
+
+| Part | Spec |
+|---|---|
+| Track (container) | Neutral-2 `#f0f0f0` fill, 1px Neutral-3 `#d8d8d8` border, spacing-4 (4px) padding all sides, spacing-4 (4px) gap between segments, `radius-md` (16px) |
+| Segment — inactive | transparent fill, spacing-8 vertical / spacing-12 horizontal padding, `radius-sm` (12px — same nested-interactive-element radius SidebarNav uses: a control inside a container takes one radius tier smaller than the container's own), Neutral-5 icon/text |
+| Segment — active | Neutral-1 `#ffffff` fill, `shadow-1`, `radius-sm` (12px), Neutral-9 `#080808` icon/text. The fill/shadow render on a single shared **Pill** element (see Transition below) that moves and resizes to sit behind whichever segment is currently active, rather than being painted on each segment independently |
+| Icon | `icon-base` (20px) default size, `icon-micro` (14px) compact size; **Tier 1, Regular** throughout — consistent across active and inactive states. Active state is communicated by fill, shadow, and text weight, not by icon weight. Segments are button-like controls, not expressive status indicators — Tier 1 Regular is correct per [Iconography](#iconography) |
+| Label (text fallback) | `caption` (12px/16px), weight 500 inactive / weight 700 active, uppercase (`text-transform: uppercase`) — the casing convention used by section kickers and SidebarNav section labels for compact categorical labels; 6 characters maximum per segment |
+
+**Sizes:**
+
+| Size | Height | Icon | Text |
+|---|---|---|---|
+| Default | 36px | `icon-base` (20px) | `caption` |
+| Compact | 28px | `icon-micro` (14px) | `caption` |
+
+**States:**
+
+| State | Fill | Text/icon | Notes |
+|---|---|---|---|
+| Inactive | transparent | Neutral-5 | — |
+| Active | Neutral-1 `#ffffff` + `shadow-1` | Neutral-9 `#080808` | — |
+| Hover — inactive only | Neutral-2 `#f0f0f0` | unchanged | Reuses **Button Ghost's** hover token (`Hover \| Neutral-2 fill`) — the same token SidebarNav's own Nav item hover reuses rather than inventing a nav-specific value; the active segment does not visually respond to hover — it is already elevated |
+| Active/pressed | Neutral-3 `#d8d8d8` | unchanged | Direct match to **Button Ghost's** `Active/pressed \| Neutral-3 fill`, the same unfilled-by-default control family SidebarNav's own Nav item — active-pressed row cites. This is the momentary mouse-down state, a different axis from the persistent "Active" (selected) row above — see SidebarNav's own note on "active" vs. "active-pressed" being different axes |
+| Focus-visible | current fill + 2px Obsidian outline, 2px offset | unchanged | Reuses **Button's** exact focus-visible token verbatim; `radius-sm` — same as Button and SidebarNav's Nav item |
+| Disabled — single segment | transparent | Neutral-4, 40% opacity | `cursor: not-allowed`, no hover response — matches **Button Ghost's** disabled and SidebarNav's Nav item disabled, not Checkbox/Radio's 50%-opacity convention (that belongs to compact toggle controls, not row-based interactive elements) |
+| Disabled — whole control | track + all segments at 40% opacity | — | `cursor: not-allowed` throughout |
+
+**Variants:**
+
+| Variant | Spec |
+|---|---|
+| Icon only (default) | Use when every option has a universally understood Phosphor icon. Requires a tooltip on hover showing the full option label — same bubble visuals as [Tooltip](#tooltip): `caption`/500, Neutral-7 `#222222` fill, Neutral-1 text, `radius-sm`, spacing-4 / spacing-8 padding, positioned above the segment. Each segment also requires `aria-label` since there is no visible text |
+| Text only (fallback) | Use when no adequate Phosphor icon exists for one or more options (e.g. MTD/QTD/YTD, Day/Week/Month). Phosphor icons only — no custom SVGs |
+| Mixed (not permitted) | All segments within one instance must use the same content type. A mix of icon and text segments is not permitted — if one option can't be represented by an icon, switch the whole instance to text |
+
+**Segment width:** all segments share equal width (`flex: 1`). Minimum
+segment width: 32px icon-only, 48px text. Track width is determined by
+context. If a default-size instance would force segments below minimum
+width, use compact size rather than adjusting widths.
+
+**Transition — sliding Pill.** ⚠️ **Revised 2026-08-10, superseding this
+component's original fill-swap-in-place design.** The active fill,
+`shadow-1`, and `radius-sm` render on a single absolutely-positioned
+**Pill** element, one per Segmented Control instance, sitting behind
+the segments (`z-index` below them) inside a `position: relative`
+track. On selection, the Pill's `width`/`height`/`transform:
+translate()` animate from the previously-active segment's box to the
+newly-active one's, so it visibly slides and resizes between segments
+of different widths (e.g. an icon-only segment to a longer text
+segment) rather than the fill simply appearing in the new spot. The
+segment's own text/icon color and weight still swap instantly (not
+animated) — only the Pill's position, size, fill, and shadow move.
+
+| Property | Value |
+|---|---|
+| Duration | `duration-fast` (140ms) — same hover/focus duration as Button |
+| Easing | `ease-standard` — the non-elemental default, since Segmented Control isn't owned by a specific brand element (same reasoning as Toast, SidebarNav collapse, and accordion transitions) |
+| Reduced motion | `prefers-reduced-motion` disables the Pill's transition entirely — it jumps to the newly-active segment's position/size with no animation |
+| Initial position | set with no transition on first render/page load, so the Pill never visibly slides in from an arbitrary starting point the first time a Segmented Control mounts |
+
+⚠️ **Implementation note — containing-block offset.** The Pill's
+containing block (an absolutely-positioned element inside the track's
+`position: relative`) is the track's own **padding box**, which is
+already inset by the track's 1px border. A naive `translate()`
+computed from the track's full border-box `getBoundingClientRect()`
+double-counts that 1px, landing the Pill 1px off both the top and left
+edge of the segment it's supposed to match — subtract the track's own
+border width from the translate calculation, or the Pill and the
+active segment visibly disagree on their top/bottom/left/right
+spacing.
+
+**Placement:** always inline within a section, card, or toolbar — never
+full page width. Typically right-aligned within the parent toolbar or
+section header row. Never inside a form as a substitute for Radio — a
+Segmented Control's selection takes effect immediately with no separate
+save step; if the choice is deferred, that's Radio.
+
+**Content rules:** 2 segments minimum, 5 segments maximum. Beyond 5 use
+Tabs or a Select dropdown instead. Text label: 6 characters maximum —
+enforced at content-authoring level, not truncated by the component; a
+label that exceeds the limit must be rewritten.
+
+**Accessibility:** `role="group"` on the track with `aria-label`
+describing the control's purpose (e.g. `aria-label="View mode"`). Each
+segment: `role="radio"`, `aria-checked="true"` / `aria-checked="false"`.
+Keyboard: arrow keys navigate between segments, Space or Enter selects
+the focused segment, Escape returns focus to the previously-focused
+element outside the control. Icon-only segments each require
+`aria-label` describing the option (e.g. `aria-label="List view"`).
+Active state never relies on color alone — fill, shadow, and text
+weight all change together.
+
+**Do:** use for switching between views of the same content (List/Grid/
+Board). Switch the whole instance to text when one option has no clear
+icon — never mix within one instance. Show a tooltip on hover for
+icon-only instances. **Don't:** exceed 5 segments — use Tabs instead.
+**Don't:** use for page-level navigation (that's SidebarNav) or form
+inputs (that's Radio). **Don't:** use an elemental/accent color as the
+active segment's fill — Neutral-1 is correct; accent colors classify
+ownership, they never signal selection (Rule 2 in [Component
+Rules](#component-rules)).
+
 ---
 
 ## Guidelines
@@ -2521,6 +2643,25 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.32 — 2026-08-10** — **Segmented Control**'s Transition rule
+  revised: the active fill/`shadow-1`/`radius-sm` now render on a single
+  sliding **Pill** element that animates its position and size between
+  segments, replacing the original fill-swap-in-place design (which
+  explicitly ruled out any sliding indicator). Reason: validated against
+  a working preview build first — the fill-swap version read as static
+  and the sliding motion communicates the "one selection, moving
+  between options" idea more clearly, especially between segments of
+  different widths (icon-only vs. text). Also fixed a real
+  implementation bug found in that same preview: an absolutely-positioned
+  Pill's containing block is its track's padding box, already inset by
+  the track's own border, so computing the Pill's `translate()` against
+  the track's full border-box rect double-counted that border and
+  misaligned the Pill by that many pixels on every axis — now corrected
+  by subtracting the track's border width from the calculation. First
+  real implementation added to `components.css`/`preview.html`'s
+  Components gallery (Icon only and Text only variants) — previously
+  spec-text only, not yet built anywhere.
 
 - **v0.9.31 — 2026-08-06** — Fixed **Search input**'s Selected —
   disabled state (User Search and Item Search variants): it rendered
