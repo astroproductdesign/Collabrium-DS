@@ -52,7 +52,13 @@
   *{box-sizing:border-box;}
   html,body{margin:0;}
   body{
-    background:var(--color-canvas-warm);
+    /* Water's 8% element tint as the page canvas — DESIGN-SYSTEM.md's
+       elemental-tint rule permits this for a surface the element already
+       owns wholesale (this whole dashboard), vs. the warm canvas default
+       used for mixed/generic pages. Reuses the theme's own --theme-tint
+       alias (= --color-water-bg) rather than a second reference to the
+       same token. */
+    background:var(--theme-tint);
     color:var(--color-neutral-9);
     font-family:var(--font-primary);
     padding:var(--spacing-32);
@@ -60,27 +66,48 @@
   .dash-shell{max-width:1280px; margin:0 auto;}
 
   .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--spacing-16); margin:var(--spacing-24) 0 var(--spacing-32);}
-  .kpi-label{margin:0; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-  .kpi-value{margin:var(--spacing-4) 0 var(--spacing-8); font-size:var(--text-h3-size); font-weight:800; color:var(--color-neutral-9);}
+  /* .c-card p (components.css) is (0,1,1) specificity — one class, one
+     element — which beats a plain .kpi-label/.kpi-value class selector
+     (0,1,0) regardless of source order, silently overriding font-size
+     and color here. Scoping under .kpi-tile raises this to (0,2,0) so
+     it reliably wins. */
+  .kpi-tile .kpi-label{margin:0; font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-5);}
+  .kpi-tile .kpi-value{margin:var(--spacing-4) 0 var(--spacing-8); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9);}
+  /* .c-card is a column flex container with no align-items, so its flex
+     children stretch to the card's full width by default — including
+     the badge, even though the badge's own display:inline-flex would
+     otherwise hug its content. Scoped here rather than in components.css
+     since it's this layout's concern, not the badge component's. */
+  .kpi-tile .c-badge{align-self:flex-start;}
 
   .dash-charts{display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--spacing-16);}
   @media (max-width: 1100px){ .dash-charts{grid-template-columns:repeat(2, 1fr);} }
   @media (max-width: 640px){ .dash-charts{grid-template-columns:1fr;} }
 
+  /* Chart cards keep .c-card's default 16px padding — the canvas
+     itself has no fixed height/padding of its own; it fills whatever
+     space remains inside the card via responsive:true +
+     maintainAspectRatio:false. */
   .chart-card{gap:0;}
   .chart-card-head{margin-bottom:var(--spacing-16);}
   .chart-card-head h4{margin:0 0 2px;}
   .chart-card-head p{margin:0;}
-  .chart-canvas-wrap{position:relative; height:260px;}
-  .chart-canvas-wrap.tall{height:300px;}
+  /* flex:1 (not a fixed height) so the canvas area fills whatever
+     vertical space CSS Grid's row-stretch gives the card — cards in the
+     same grid row are stretched to match the row's tallest sibling, so
+     without this the extra space would sit as blank gap above the
+     button instead of being absorbed by the chart. The toggle button
+     then always lands flush under the canvas at the same position,
+     regardless of how tall that row's charts end up. min-height keeps
+     each chart's baseline size (radar/bubble need more room to start). */
+  .chart-canvas-wrap{position:relative; flex:1 1 auto; min-height:260px;}
+  .chart-canvas-wrap.tall{min-height:300px;}
 
-  .chart-table-toggle{
-    align-self:flex-start; margin-top:var(--spacing-12);
-    font:inherit; font-size:var(--text-caption-size); color:var(--color-neutral-5);
-    background:transparent; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);
-    padding:4px 10px; cursor:pointer;
-  }
-  .chart-table-toggle:hover{color:var(--color-neutral-9); background:var(--color-neutral-2);}
+  /* Appearance now comes entirely from the reused .c-btn/.c-btn-secondary/
+     .c-btn-sm classes on the element (components.css) — this rule only
+     places the button within the card, a layout concern the component
+     itself doesn't own. */
+  .chart-table-toggle{align-self:flex-start; margin-top:var(--spacing-12);}
   .chart-data-table{width:100%; border-collapse:collapse; font-size:var(--text-caption-size); margin-top:var(--spacing-12);}
   .chart-data-table caption{display:none;}
   .chart-data-table th,.chart-data-table td{text-align:right; padding:6px 4px; border-bottom:1px solid var(--color-neutral-3); font-variant-numeric:tabular-nums;}
@@ -128,7 +155,7 @@
     <div class="c-card chart-card">
       <div class="chart-card-head"><h4>Pipeline runs</h4><p>By week, last 8 weeks</p></div>
       <div class="chart-canvas-wrap"><canvas id="chartRuns"></canvas></div>
-      <button type="button" class="chart-table-toggle" data-target="tableRuns">View as table</button>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableRuns">View as table</button>
       <table class="chart-data-table" id="tableRuns" hidden><caption>Pipeline runs</caption><thead><tr><th>Week</th><th>Runs</th></tr></thead><tbody></tbody></table>
     </div>
 
@@ -136,7 +163,7 @@
     <div class="c-card chart-card">
       <div class="chart-card-head"><h4>Model accuracy</h4><p>Monthly, last 12 months</p></div>
       <div class="chart-canvas-wrap"><canvas id="chartAccuracy"></canvas></div>
-      <button type="button" class="chart-table-toggle" data-target="tableAccuracy">View as table</button>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableAccuracy">View as table</button>
       <table class="chart-data-table" id="tableAccuracy" hidden><caption>Model accuracy</caption><thead><tr><th>Month</th><th>Accuracy</th></tr></thead><tbody></tbody></table>
     </div>
 
@@ -144,6 +171,8 @@
     <div class="c-card chart-card">
       <div class="chart-card-head"><h4>Skill coverage</h4><p>Team self-rated, 0–10</p></div>
       <div class="chart-canvas-wrap tall"><canvas id="chartSkills"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableSkills">View as table</button>
+      <table class="chart-data-table" id="tableSkills" hidden><caption>Skill coverage</caption><thead><tr><th>Skill</th><th>Score</th></tr></thead><tbody></tbody></table>
     </div>
 
     <!-- 4. Bubble — dataset size vs. processing time, size = job count -->
@@ -156,7 +185,7 @@
     <div class="c-card chart-card">
       <div class="chart-card-head"><h4>Data source breakdown</h4><p>By ingestion volume</p></div>
       <div class="chart-canvas-wrap"><canvas id="chartSources"></canvas></div>
-      <button type="button" class="chart-table-toggle" data-target="tableSources">View as table</button>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableSources">View as table</button>
       <table class="chart-data-table" id="tableSources" hidden><caption>Data source breakdown</caption><thead><tr><th>Source</th><th>Share</th></tr></thead><tbody></tbody></table>
     </div>
 
@@ -164,7 +193,7 @@
     <div class="c-card chart-card">
       <div class="chart-card-head"><h4>Query volume</h4><p>By query type, last 30 days</p></div>
       <div class="chart-canvas-wrap"><canvas id="chartQueryTypes"></canvas></div>
-      <button type="button" class="chart-table-toggle" data-target="tableQueryTypes">View as table</button>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableQueryTypes">View as table</button>
       <table class="chart-data-table" id="tableQueryTypes" hidden><caption>Query volume</caption><thead><tr><th>Query type</th><th>Volume</th></tr></thead><tbody></tbody></table>
     </div>
 
@@ -193,27 +222,47 @@
   var neutral9 = cssVar('--color-neutral-9');
   var neutral5 = cssVar('--color-neutral-5');
   var neutral3 = cssVar('--color-neutral-3');
+  var neutral2 = cssVar('--color-neutral-2');
   var neutral1 = cssVar('--color-neutral-1');
   var radiusPx = parseFloat(cssVar('--spacing-4'));
   var maxThicknessPx = parseFloat(cssVar('--spacing-24'));
+  var legendItemGap = parseFloat(cssVar('--spacing-16'));
 
   var FONT = "'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
-  function axisTicks() { return { color: neutral5, font: { size: 12, family: FONT } }; }
+  // Type-scale tokens read at runtime, same pattern as the color vars
+  // above — size/line-height/weight come from tokens.css, never hardcoded.
+  function textToken(name) {
+    return {
+      size: parseFloat(cssVar('--text-' + name + '-size')),
+      lh: cssVar('--text-' + name + '-lh'),
+      weight: cssVar('--text-' + name + '-weight')
+    };
+  }
+  var tFootnote = textToken('footnote'); // axis tick labels, radial point labels/ticks
+  var tCaption = textToken('caption');   // legend labels
+  var tLabel2 = textToken('label2');     // tooltip title (value), axis titles
+  var tLabel3 = textToken('label3');     // tooltip body (label)
+
+  function axisTicks() { return { color: neutral5, font: { size: tFootnote.size, weight: tFootnote.weight, lineHeight: tFootnote.lh, family: FONT } }; }
   function tooltipBase() {
     return {
       backgroundColor: neutral1, titleColor: neutral9, bodyColor: neutral5,
       borderColor: neutral3, borderWidth: 1, padding: 10, cornerRadius: 8,
-      titleFont: { size: 13, weight: '700', family: FONT }, bodyFont: { size: 12, family: FONT }
+      titleFont: { size: tLabel2.size, weight: tLabel2.weight, lineHeight: tLabel2.lh, family: FONT },
+      bodyFont: { size: tLabel3.size, weight: tLabel3.weight, lineHeight: tLabel3.lh, family: FONT }
     };
   }
   function legendBase() {
-    return { position: 'bottom', labels: { color: neutral5, font: { size: 12, family: FONT }, boxWidth: 10, boxHeight: 10, usePointStyle: true, padding: 16 } };
+    return {
+      position: 'bottom', align: 'start',
+      labels: { color: neutral5, font: { size: tCaption.size, weight: tCaption.weight, lineHeight: tCaption.lh, family: FONT }, boxWidth: 10, boxHeight: 10, usePointStyle: true, padding: legendItemGap }
+    };
   }
   function cartesianScales(extra) {
     var s = {
       x: { grid: { display: false }, border: { display: false }, ticks: axisTicks() },
-      y: { beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() }
+      y: { beginAtZero: true, grid: { color: neutral2 }, border: { display: false }, ticks: axisTicks() }
     };
     return Object.assign(s, extra || {});
   }
@@ -272,7 +321,7 @@
       plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), {
         callbacks: { title: function (i) { return i[0].formattedValue + '%'; }, label: function (i) { return i.label; } }
       }) },
-      scales: cartesianScales({ y: { grid: { color: neutral3 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return v + '%'; } }) } })
+      scales: cartesianScales({ y: { grid: { color: neutral2 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return v + '%'; } }) } })
     }
   });
   fillTable('tableAccuracy', months12.map(function (m, i) { return [m, accuracy[i] + '%']; }));
@@ -282,6 +331,13 @@
      one aggregate profile, not a team-vs-team comparison). */
   var skills = ['Python', 'SQL', 'Machine learning', 'Data visualization', 'Infrastructure', 'Communication'];
   var skillScores = [8, 9, 7, 6, 7, 8];
+  // Long point labels ('Machine learning', 'Data visualization', …) clip
+  // against the card edge at this radius — truncate on canvas and let the
+  // existing "View as table" toggle (added below) carry the full text,
+  // rather than hand-rolling label hit-testing against Chart.js internals.
+  function truncateLabel(label, max) {
+    return label.length > max ? label.slice(0, max - 1).trim() + '…' : label;
+  }
   new Chart(document.getElementById('chartSkills'), {
     type: 'radar',
     data: { labels: skills, datasets: [{ label: 'Team', data: skillScores, borderColor: mid, backgroundColor: fillWash, pointBackgroundColor: mid, pointBorderColor: neutral1, borderWidth: 2 }] },
@@ -290,16 +346,20 @@
       plugins: { legend: { display: false }, tooltip: tooltipBase() },
       scales: { r: {
         suggestedMin: 0, suggestedMax: 10,
-        grid: { color: neutral3 }, angleLines: { color: neutral3 },
-        pointLabels: { color: neutral5, font: { size: 12, family: FONT } },
+        grid: { color: neutral2 }, angleLines: { color: neutral2 },
+        pointLabels: {
+          color: neutral5, font: { size: tFootnote.size, weight: tFootnote.weight, lineHeight: tFootnote.lh, family: FONT },
+          callback: function (label) { return truncateLabel(label, 10); }
+        },
         // A real backdrop (not transparent) keeps the tick number
         // legible over the dataset's own fill, which draws on top of
         // the scale — same white as the card surface, so it reads as
         // part of the card rather than a foreign box.
-        ticks: { color: neutral5, backdropColor: neutral1, backdropPadding: radiusPx, font: { size: 11, family: FONT } }
+        ticks: { color: neutral5, backdropColor: neutral1, backdropPadding: radiusPx, font: { size: tFootnote.size, weight: tFootnote.weight, lineHeight: tFootnote.lh, family: FONT } }
       } }
     }
   });
+  fillTable('tableSkills', skills.map(function (s, i) { return [s, skillScores[i]]; }));
 
   /* 4. Bubble — dataset size (x) vs. processing time (y), bubble
      radius = job count. 3 source-type series, using the ramp's three
@@ -331,15 +391,20 @@
         }
       }) },
       scales: cartesianScales({
-        x: { title: { display: true, text: 'Dataset size (GB)', color: neutral5, font: { size: 12, family: FONT } }, grid: { display: false }, border: { display: false }, ticks: axisTicks() },
-        y: { title: { display: true, text: 'Processing time (min)', color: neutral5, font: { size: 12, family: FONT } }, beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() }
+        x: { title: { display: true, text: 'Dataset size (GB)', color: neutral5, font: { size: tLabel2.size, weight: tLabel2.weight, lineHeight: tLabel2.lh, family: FONT } }, grid: { display: false }, border: { display: false }, ticks: axisTicks() },
+        y: { title: { display: true, text: 'Processing time (min)', color: neutral5, font: { size: tLabel2.size, weight: tLabel2.weight, lineHeight: tLabel2.lh, family: FONT } }, beginAtZero: true, grid: { color: neutral2 }, border: { display: false }, ticks: axisTicks() }
       })
     }
   });
-  /* 5. Doughnut — data source breakdown, same-hue ramp + legend */
+  /* 5. Doughnut — data source breakdown, same-hue ramp + legend.
+     sources/sourceShare are already sorted by value descending, so a
+     ramp ordered darkest-→lightest here also makes the legend read
+     top-to-bottom as a visible gradient: largest share = strongest ink,
+     smallest = faintest (the sequential-magnitude convention: light=low,
+     dark=high). */
   var sources = ['PostgreSQL', 'S3 / data lake', 'Kafka streams', 'API ingestion', 'Third-party feeds'];
   var sourceShare = [36, 28, 18, 12, 6];
-  var sourceColors = [tintStrong, teal, mid, deep, tint];
+  var sourceColors = [deep, mid, teal, tintStrong, tint];
   new Chart(document.getElementById('chartSources'), {
     type: 'doughnut',
     data: { labels: sources, datasets: [{ data: sourceShare, backgroundColor: sourceColors, borderColor: neutral1, borderWidth: 2 }] },
@@ -361,7 +426,10 @@
     // lines wherever a slice reaches past them, not just at the tick
     // number's own spoke. Seeing through the wedge keeps that
     // structure (and the ticks) visible across the whole chart.
-    data: { labels: queryTypes, datasets: [{ data: queryVolume, backgroundColor: [tintStrongWash, tealWash, midWash, deepWash, tintWash], borderColor: neutral1, borderWidth: 2 }] },
+    // queryTypes/queryVolume are already sorted descending — same
+    // darkest-→lightest rule as the Doughnut above, applied to the
+    // translucent wash tokens.
+    data: { labels: queryTypes, datasets: [{ data: queryVolume, backgroundColor: [deepWash, midWash, tealWash, tintStrongWash, tintWash], borderColor: neutral1, borderWidth: 2 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: legendBase(), tooltip: Object.assign(tooltipBase(), {
@@ -370,7 +438,7 @@
       // Same fix as Radar above: a real backdrop stops the wedges —
       // solid fills here, unlike Radar's light wash — from swallowing
       // the tick number they're drawn on top of.
-      scales: { r: { grid: { color: neutral3 }, angleLines: { color: neutral3 }, ticks: { color: neutral5, backdropColor: neutral1, backdropPadding: radiusPx, font: { size: 11, family: FONT } }, pointLabels: { color: neutral5, font: { size: 11, family: FONT } } } }
+      scales: { r: { grid: { color: neutral2 }, angleLines: { color: neutral2 }, ticks: { color: neutral5, backdropColor: neutral1, backdropPadding: radiusPx, font: { size: tFootnote.size, weight: tFootnote.weight, lineHeight: tFootnote.lh, family: FONT } }, pointLabels: { color: neutral5, font: { size: tFootnote.size, weight: tFootnote.weight, lineHeight: tFootnote.lh, family: FONT } } } }
     }
   });
   fillTable('tableQueryTypes', queryTypes.map(function (q, i) { return [q, queryVolume[i].toLocaleString()]; }));
