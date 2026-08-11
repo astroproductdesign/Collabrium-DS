@@ -2997,6 +2997,28 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.36 — 2026-08-10** — Added a new **Chart chrome & marks**
+  section, appended after the existing [Chart color
+  mapping](#chart-color-mapping) guideline rather than editing it: axis/
+  gridline/tooltip/legend chrome, general bar/line/area/radial mark
+  rules, a per-chart-type mark table (Bar, Horizontal bar, Line, Area,
+  Scatter, Doughnut, Radar, Bubble, Polar area), a Card/KPI/container
+  table for chart-card chrome, and a chart-type-selection guide (data
+  story → chart type). Reflects Chart.js v4 as this system's adopted
+  charting library, stated generically rather than pointing at any
+  specific implementation file, since none is guaranteed to still exist
+  in this repo. Gridline color follows [Chart color
+  mapping](#chart-color-mapping)'s existing "Neutral-3" line exactly —
+  an initial draft of this section used Neutral-2 instead, caught and
+  corrected before finalizing so the two sections agree; that older
+  text itself was left as-is per explicit instruction to append, not
+  replace. Also flagged: KPI label/value should use [Stat / KPI
+  card](#stat--kpi-card)'s own `caption`/`h1` tokens, not `label1`/`h3`
+  — noted as a risk to guard against, not a second valid pattern. This
+  is a guideline, not a rendered component, so it doesn't change the
+  31-component Scope note count; ToC and Scope note updated to list it
+  alongside Chart color mapping.
+
 - **v0.9.35 — 2026-08-10** — **Chip** spec updated from a tested
   reference build (`chip-preview.html`), five changes. (1) Filter
   Chip's container drops `shadow-1` entirely — no shadow at any state.
@@ -3050,28 +3072,6 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
-
-- **v0.9.36 — 2026-08-10** — Added a new **Chart chrome & marks**
-  section, appended after the existing [Chart color
-  mapping](#chart-color-mapping) guideline rather than editing it: axis/
-  gridline/tooltip/legend chrome, general bar/line/area/radial mark
-  rules, a per-chart-type mark table (Bar, Horizontal bar, Line, Area,
-  Scatter, Doughnut, Radar, Bubble, Polar area), a Card/KPI/container
-  table for chart-card chrome, and a chart-type-selection guide (data
-  story → chart type). Reflects Chart.js v4 as this system's adopted
-  charting library, stated generically rather than pointing at any
-  specific implementation file, since none is guaranteed to still exist
-  in this repo. Gridline color follows [Chart color
-  mapping](#chart-color-mapping)'s existing "Neutral-3" line exactly —
-  an initial draft of this section used Neutral-2 instead, caught and
-  corrected before finalizing so the two sections agree; that older
-  text itself was left as-is per explicit instruction to append, not
-  replace. Also flagged: KPI label/value should use [Stat / KPI
-  card](#stat--kpi-card)'s own `caption`/`h1` tokens, not `label1`/`h3`
-  — noted as a risk to guard against, not a second valid pattern. This
-  is a guideline, not a rendered component, so it doesn't change the
-  31-component Scope note count; ToC and Scope note updated to list it
-  alongside Chart color mapping.
 
 - **v0.9.33 — 2026-08-10** — **Slider** spec updated from a tested
   reference build. (1) Track and min/max labels run the component's
