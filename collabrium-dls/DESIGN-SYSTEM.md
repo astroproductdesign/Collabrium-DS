@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.38** — 2026-08-11 — Sourced from the Collabrium brand deck
+**v0.9.39** — 2026-08-11 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -713,13 +713,14 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-31 components: the original 7 basics
+32 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 9 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 7 **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 8 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
-picker, **Segmented Control**, **Slider**, **Chip** — plus two chart
+picker, **Segmented Control**, **Slider**, **Chip**, **Progress
+Bar** — plus two chart
 guidelines, [Chart color mapping](#chart-color-mapping) and [Chart
 chrome & marks](#chart-chrome--marks) (neither a rendered component),
 and 8 more: **App Shell** (the page-level composition layer — Sidebar
@@ -735,7 +736,8 @@ consolidated into one component), and **Info Banner** (an inline,
 persistent, container-anchored notification — distinct from Toast's
 floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
 batch, App Shell, Stepper, FileUploader, Dropdown, Search input, Info
-Banner, **Segmented Control**, **Slider**, and **Chip** have **no source in
+Banner, **Segmented Control**, **Slider**, **Chip**, and **Progress
+Bar** have **no source in
 either the original brand deck or the teammate's build**; they're
 built entirely from this document's own token system (color, type,
 spacing, radius, elevation, motion) and marked ⚠️ **designed, not
@@ -769,6 +771,7 @@ through.
 - [PageHeader](#pageheader)
 - [Pagination](#pagination)
 - [Password field](#password-field)
+- [Progress Bar](#progress-bar)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -2023,6 +2026,184 @@ that updates between "Show password" and "Hide password" as state
 changes. **Don't:** rely on the icon swap alone to communicate state to
 assistive tech.
 
+### Progress Bar
+
+⚠️ **Designed from scratch — no source in either the original brand
+deck or the teammate's build.** Built from this document's own token
+system by reusing Slider's track anatomy, the system's department
+elemental colors for stacked department contexts, and the data viz
+chromatic palette for non-department stacked contexts — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A horizontal, read-only bar communicating progress toward a known goal
+(**Determinate**) or an active, unmeasured process (**Indeterminate**).
+Distinct from [Slider](#slider): Slider is an input control the user
+drags to set a value; Progress Bar is a read-only display of a value
+the system provides. The two deliberately share track anatomy and
+sizing — they often sit near each other in dashboard layouts — but
+Progress Bar has no thumb, no drag interaction, and no focus-visible
+state of its own.
+
+| Part | Spec |
+|---|---|
+| Track | Full width of parent, `radius-pill`, Neutral-3 `#d8d8d8` fill for the unfilled portion — the same unfilled-track token as [Slider](#slider), keeping the read-only track language consistent across both components |
+| Fill — single | `radius-pill`, fills left to right proportionally. Default fill: Obsidian `#2B2B2C` — the same value-committed color as Slider's own track fill and Input field's focus border; communicates "here is the current value" without implying success or department ownership. Success override: Green `#00C26E`, only when explicitly signaling completion, passed via prop. Department override: the owning department's elemental color, passed via prop — same override logic as [SidebarNav](#sidebarnav)'s icon and Tag's dot |
+| Fill — stacked segments | Contiguous blocks, no gap between segments; `radius-pill` on the outermost edges only (the first segment's left edge, the last segment's right edge) — interior edges are flush/square. See Stacked color rules, below |
+| Fill — indeterminate | A moving gradient overlay — Neutral-5 `#5a5a5a` at 40% opacity, animated left to right — over the Neutral-3 track. Not a percentage fill; communicates activity, not progress |
+| Label — trailing | caption (12px/400), Neutral-5, right-aligned, same baseline as the track's own vertical center; spacing-8 (8px) between the track's right edge and the label |
+| Label — header row | Two labels above the track: title (caption/700/Neutral-9), left-aligned; value (caption/400/Neutral-5), right-aligned; spacing-4 (4px) between the header row's bottom and the track's top |
+| Label — inside fill | Large size only (16px track); caption/700/Neutral-1, centered vertically and horizontally within the fill. Only renders when the fill's width exceeds 40px — narrower fills suppress the label |
+
+**Variants:**
+
+| Variant | Spec |
+|---|---|
+| Determinate — Single | One fill advancing 0% to 100%. Default fill: Obsidian. Use for task completion, upload progress, goal attainment |
+| Determinate — Stacked | Multiple contiguous colored segments. Use for breakdowns (budget by department, capacity by team). Department elemental colors map department segments; the data viz chromatic palette (Purple, then Turquoise) covers non-department data — see Stacked color rules, below |
+| Indeterminate | Animated shimmer, no fill percentage. Use for background tasks, API calls, loading states of unknown duration. Always single — stacked indeterminate is not permitted |
+
+**Sizes:**
+
+| Size | Track | Label | Use |
+|---|---|---|---|
+| Compact | 4px (matches Slider's own compact track, for visual consistency between the two) | caption (12px) | Dense tables, card metadata, inline with compact controls |
+| Default | 8px | caption (12px) | Standard dashboard use, section summaries, sidebar metrics |
+| Large | 16px | caption (12px), inside fill only | Prominent single metrics, hero stat sections, department breakdown charts |
+
+⚠️ All three track heights are one-off literals — same precedent as
+Slider's own 4px track height and SidebarNav's 36px child-item height:
+no named height token exists for a horizontal track rail.
+
+**Stacked color rules.**
+
+*Department breakdown* — use when segments map to Collabrium
+departments. Pull the department table's own colors, in the order
+departments are presented:
+
+| Order | Element | Color |
+|---|---|---|
+| 1 | Fire | Orange `#FF5825` |
+| 2 | Wood | Salmon Pink `#FF7A90` |
+| 3 | Earth | Green `#00C26E` |
+| 4 | Water | Navy Blue `#1473E6` |
+| 5 | Gold | Amber `#FFA425` |
+
+*General data breakdown* — use when segments represent non-department
+data. Pull from the same Purple/Turquoise reserve [Chart color
+mapping](#chart-color-mapping) uses to extend categorical charts past
+5 department-aligned series — not a department color, since these
+segments don't belong to one:
+
+| Order | Color |
+|---|---|
+| 1 | Purple `#9F56FF` |
+| 2 | Turquoise `#00D9D9` |
+
+Only two colors exist in this reserve, so a general breakdown's own
+overflow threshold is 2 segments, not 5 — segment 3 onward already
+falls to the Overflow segment rule, below.
+
+*Overflow segment rule:* beyond the mapped colors above (5 for a
+department breakdown, 2 for a general one), additional segments use
+Neutral-4 `#bdbdbd` — signals unmapped or uncategorized data, the same
+"don't add more brand colors" logic [Chart color mapping](#chart-color-mapping)
+applies past 7 categorical series.
+
+*Remainder rule:* the Neutral-3 unfilled portion sits at the right end,
+representing the unallocated remainder. If segments sum to 100%, no
+remainder shows, and the last segment takes the outer `radius-pill`
+instead.
+
+**States:**
+
+| State | Notes |
+|---|---|
+| Read-only | No interactive states of its own. Exception: when embedded in an interactive parent (e.g. a table row, a card), the bar inherits the parent's hover treatment only — it never adds its own |
+| Indeterminate — active | Shimmer animates continuously |
+| Indeterminate — `prefers-reduced-motion` | Shimmer stops; a static Neutral-4 `#bdbdbd` fill at 60% track width shows instead |
+| Error | Fill switches to Red `#FD3343` — the same value as Badge's Danger text and Toast's Danger icon. Single determinate only; stacked has no single error state |
+| Complete | Fill at 100%. Success/Green `#00C26E` is passed via prop to signal completion explicitly — the bar never auto-changes color on reaching 100%; the caller decides |
+
+**Transition:**
+
+| Property | Value |
+|---|---|
+| Fill width on initial mount (entrance) | Determinate only (single or each stacked segment). Fill starts at 0% and animates up to its real value the same way a value change does — `width`, `duration-base` (220ms), `ease-standard`; not a separate token or a longer "reveal" duration. Fires once, whenever the bar first mounts with a real value (page load, a newly-rendered row, data arriving async) — not tied to scroll position or viewport visibility; that's a presentation choice for a specific gallery/demo, not a rule of the component itself |
+| Fill width on value change | `width` — `duration-base` (220ms), `ease-standard` |
+| Indeterminate shimmer | keyframe animation; gradient travels from -100% to 200% on the X axis, infinite repeat; animation-duration of `duration-ambient` (900ms) — this document's own precedent for continuous/looping motion (see Search input's Loading spinner: "the one duration token named for a continuous loop rather than this system's usual one-shot 'movement settles' transitions"), a stronger match than an earlier draft's computed `duration-slow` × 2 (720ms), which also read as too fast to perceive as loading once actually built |
+| Color change (e.g. to Error) | `background-color` — `duration-fast` (140ms), `ease-standard` — same pairing as Checkbox, SidebarNav, and Slider's own thumb-shadow transition |
+| Reduced motion — determinate | width transition disabled, on both the initial-mount entrance and later value changes; value (and the entrance) jumps instantly |
+| Reduced motion — indeterminate | animation disabled entirely; static Neutral-4 fill at 60% track width (same as the State row, above) |
+
+**Label placement rules.**
+
+| Placement | Use |
+|---|---|
+| No label | Bar only — value is obvious from surrounding context |
+| Trailing | A single compact value, space-limited |
+| Header row | The metric needs a name — the most common pattern for a named progress row |
+| Inside fill | Large size only, single variant only, fill width > 40px only. Never on stacked |
+
+Stacked label rule: always header row above, never trailing or inside
+— segment-level values are communicated via a legend at the usage
+level, not inline on the bar itself.
+
+**Content rules:**
+
+- Include a unit whenever the number is ambiguous (`47%` not `47`;
+  `RM 25,000` not `25000`).
+- Malaysian ringgit follows the system content rule: `RM 100,000` —
+  space after RM, comma thousands.
+- Header row title: caption/700, 40 characters maximum, enforced at
+  authoring level.
+- Indeterminate: suppress the label slot entirely — no percentage
+  exists to show.
+- Stacked at 0%: the segment isn't rendered — a zero-width segment
+  with a visible edge isn't permitted.
+
+**Accessibility:**
+
+- Determinate: `role="progressbar"`; `aria-valuenow`,
+  `aria-valuemin="0"`, `aria-valuemax="100"`; an `aria-label` or
+  associated `<label>` naming the metric.
+- Indeterminate: `role="progressbar"`; omit `aria-valuenow` entirely —
+  its absence signals indeterminate.
+- `aria-valuetext` is required whenever the value carries a unit (e.g.
+  `aria-valuetext="RM 25,000 of RM 100,000"`).
+- Stacked: `role="group"` on the wrapper; each segment is its own
+  `role="progressbar"` with an `aria-label` naming the segment (e.g.
+  "Marketing — 32%") and its own `aria-valuenow`.
+- Color: never rely on fill color alone — a label or `aria-valuetext`
+  always accompanies the bar. Error state additionally surfaces its
+  status message via `aria-live="polite"` on the parent.
+- Motion: the indeterminate animation respects
+  `prefers-reduced-motion` per the Transition rules, above.
+
+**Placement:**
+
+- Always full width of its parent container or defined column — never
+  an intrinsic inline width, same rule as [Slider](#slider).
+- Compact: table cells, card metadata, tight label rows.
+- Default: section summaries, sidebar metric panels, standalone
+  progress rows.
+- Large: hero stat sections, prominent KPIs — one per visible section,
+  maximum.
+
+**Do:** use Obsidian as the default fill — it communicates a committed
+value without implying success or department ownership; only apply
+the Success/Green fill when explicitly signaling completion via prop;
+use department elemental colors for department stacked breakdowns and
+the Purple/Turquoise data viz reserve for non-department ones; include
+`aria-valuetext` whenever a unit matters; suppress the label slot
+entirely on indeterminate bars. **Don't:** assume 100% fill means
+complete — completion color must be passed explicitly via prop;
+animate a determinate bar backward — progress bars never decrease; use
+more than 5 segments in a department stacked bar, or more than 2 in a
+general one — anything past that uses the Neutral-4 overflow color;
+put a label inside a Compact (4px) track or a stacked fill; use a
+department elemental color as a single-fill bar's default — department
+colors classify ownership, not progress.
+
 ### Radio
 
 **Transcribed from the teammate's `Radio.jsx`.**
@@ -3025,6 +3206,49 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.39 — 2026-08-11** — Added **Progress Bar**, a new component:
+  a horizontal, read-only bar for Determinate (single or stacked
+  segments) and Indeterminate progress. Designed from scratch by
+  reusing Slider's track anatomy (Neutral-3 unfilled track,
+  `radius-pill`), Obsidian as the default value-committed fill (the
+  same color as Slider's own track fill and Input field's focus
+  border — not Neutral-9, an earlier draft's mistaken citation caught
+  before writing), department elemental colors for department stacked
+  breakdowns, and the Purple/Turquoise data viz reserve (the same one
+  [Chart color mapping](#chart-color-mapping) uses past 5 categorical
+  series) for non-department stacked breakdowns. Three sizes (Compact
+  4px / Default 8px / Large 16px track, one-off literals per Slider's
+  own precedent), Success/Error color overrides passed via prop rather
+  than automatic, and an indeterminate shimmer that respects
+  `prefers-reduced-motion`. Slotted alphabetically between Password
+  field and Radio; component count 31 → 32.
+
+  Follow-up work on the same component, same day: (1) fixed the
+  indeterminate shimmer's duration after building a reference preview
+  (`progress-bar-preview.html`) and finding the original `duration-slow`
+  × 2 (720ms) — a computed guess with no real precedent in this
+  document — too fast to actually read as "loading"; switched to
+  `duration-ambient` (900ms), which already has a documented precedent
+  for exactly this use (Search input's Loading spinner names it "the
+  one duration token named for a continuous loop rather than this
+  system's usual one-shot 'movement settles' transitions"). (2) Built
+  Progress Bar into the live gallery: `components.css` gets the real
+  `.c-progress-*` ruleset (track/fill, size variants, stacked segments,
+  indeterminate shimmer with its `prefers-reduced-motion` fallback),
+  and `preview.html`'s Components tab gets a live demo — Determinate
+  Default/Complete/Error, a department-colored Stacked example, an
+  animating Indeterminate example, and a summarized three-size
+  (Compact/Default/Large) reference strip. (3) Added a **Fill width on
+  initial mount (entrance)** row to the Transition table: Determinate
+  fills (single or stacked) animate from 0% up to their real value on
+  first mount, reusing the exact same `width`/`duration-base`/
+  `ease-standard` transition already documented for a value change —
+  not a new token or a separate "reveal" duration. This is a
+  component-level rule (fires whenever a bar first mounts with a
+  value); the live gallery additionally defers this animation until
+  the Progress Bar section actually scrolls into view, which is a demo
+  presentation choice, not part of the component's own spec.
 
 - **v0.9.38 — 2026-08-11** — Added a **Department logos** section to
   [Logo](#logo), documenting the four existing named
