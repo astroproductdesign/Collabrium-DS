@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.37** — 2026-08-11 — Sourced from the Collabrium brand deck
+**v0.9.38** — 2026-08-11 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -522,6 +522,35 @@ single-element icon on its own, print work).
   confirm with whoever owns that source before touching fill colors
   there. `logo.html`'s corrected values remain the canonical reference
   for Wood and Earth either way.
+
+### Department logos
+
+Distinct from the generic single-element lockups in the table above,
+these four are **named product/department lockups** — each one is its
+own sub-brand wordmark ("Collab" + the department name), tinted to
+that department's element color, not just the base Collabrium mark
+recolored. Live in `preview.html`'s Logo area (Department logos grid,
+after the Element/Usage/Department table), each with a "Download .svg"
+button pulling directly from its file below.
+
+⚠️ **First pass — definitions synthesized from a one-line brief per
+department, not sourced from a deck or product spec.** Confirm scope
+and wording with the product/brand team before treating these as
+final.
+
+| File | Department | Element | Definition |
+|---|---|---|---|
+| `logo-lockups/collabContent.svg` | CollabContent | Wood · Salmon Pink `#FF7A90` | The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved. |
+| `logo-lockups/collabInfluencers.svg` | CollabInfluencers | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
+| `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
+| `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
+
+These four don't cover all five elements (no Water/Data-Logistics
+department product exists yet) and aren't a 1:1 substitute for the
+generic per-element lockups in the Default-logo rule table above —
+that table is about recoloring the base Collabrium mark for a
+department-owned surface; this one is about distinct named products
+that happen to live inside Collabrium.
 
 ⚠️ **Needs Input #8 — further resolved, not closed.** Individual static
 vector assets now exist for every letter and element (see `SVG/` above),
@@ -2996,6 +3025,26 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.38 — 2026-08-11** — Added a **Department logos** section to
+  [Logo](#logo), documenting the four existing named
+  department-product lockups (`collabContent.svg`,
+  `collabInfluencers.svg`, `collabSales.svg`, `collabStudio.svg`) —
+  each mapped to its element/color and given a first-pass definition.
+  Mirrored live in `preview.html` as a card grid (logo, element tag,
+  name, definition, "Download" button) placed right after the existing
+  Element/Usage/Department table in the Logo area. Flagged as a first
+  pass — the four definitions are synthesized from a one-line brief per
+  department, not sourced from a deck or product spec, and don't cover
+  a Water/Data-Logistics department product (none exists yet). Polish
+  pass same day: removed a redundant "use these on department-specific
+  surfaces instead of the default Gold mark" line from the section
+  intro (already covered by the Default-logo rule table above it),
+  reworded all four department definitions to drop the em dash in
+  favor of plain prose, simplified each card's download button label
+  from "Download .svg" to "Download", and added a matching "Download"
+  button to the default Collabrium lockup card (previously image +
+  caption only, no way to grab the file directly from the gallery).
 
 - **v0.9.37 — 2026-08-11** — Reorganized the Components section's
   `###` subsections into strict alphabetical order by component name

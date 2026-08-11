@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.37</title>
+<title>Collabrium design system | v0.9.38</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -130,7 +130,17 @@
   .hero-logo{padding:var(--spacing-32) 0 var(--spacing-16);}
   .hero-logo iframe{width:100%; height:160px; border:none; display:block;}
   .logo-lockup-card{border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-24); display:inline-flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-12); background:var(--color-neutral-1);}
+  .logo-lockup-card .logo-lockup-img{position:relative; width:100%;}
   .logo-lockup-card img{width:100%; max-width:420px; height:auto; display:block;}
+  .dept-logo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:var(--spacing-16);}
+  .dept-logo-card{border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-20); background:var(--color-neutral-1); display:flex; flex-direction:column; gap:var(--spacing-12);}
+  .dept-logo-card .dept-logo-img{position:relative; border:1px solid var(--color-neutral-2); border-radius:var(--radius-md); background:var(--color-neutral-1); padding:var(--spacing-16); display:flex; align-items:center; justify-content:center;}
+  .dept-logo-card .dept-logo-img img{width:100%; height:auto; display:block;}
+  .dept-logo-tag{display:inline-flex; align-items:center; gap:6px; font-size:var(--text-label3-size); font-weight:700; text-transform:uppercase; letter-spacing:var(--text-label3-tracking); padding:4px var(--spacing-12); border-radius:var(--radius-pill); width:fit-content;}
+  .dept-logo-name{font-family:var(--font-primary); font-weight:800; font-size:var(--text-h5-size); margin:0;}
+  .dept-logo-desc{font-size:var(--text-body2-size); color:var(--color-neutral-6); line-height:1.5; margin:0;}
+  .dept-logo-download{position:absolute; top:var(--spacing-8); right:var(--spacing-8); text-decoration:none; opacity:0; transition:opacity .15s;}
+  .dept-logo-img:hover .dept-logo-download, .logo-lockup-img:hover .dept-logo-download{opacity:1;}
   .element-icon{width:18px; height:18px; vertical-align:middle; margin-right:6px;}
   td.element-cell{white-space:nowrap;}
   .hero-tagline{color:var(--color-neutral-5); font-size:var(--text-body1-size); margin:0 0 var(--spacing-32);}
@@ -305,7 +315,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.37</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.38</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -313,7 +323,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.37</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.38</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -446,7 +456,10 @@
 
         <div class="swatch-group-label">Logo</div>
         <div class="logo-lockup-card">
-          <img src="logo-lockups/collabrium-default-logo.svg" alt="Collabrium default logo lockup, Gold" />
+          <div class="logo-lockup-img">
+            <img src="logo-lockups/collabrium-default-logo.svg" alt="Collabrium default logo lockup, Gold" />
+            <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabrium-default-logo.svg" download="Collabrium-default-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+          </div>
           <p class="kicker" style="margin:0">Default &middot; Gold</p>
         </div>
         <p class="lede" style="margin:var(--spacing-16) 0">Whenever the mark is used without a specific department context, this Gold lockup is the default &mdash; not a still frame from the animation, not another element's color. Department-specific surfaces (e.g. a Marketing deck cover, a Finance report header) switch to that element's own lockup instead.</p>
@@ -458,6 +471,47 @@
           <tr><td class="element-cell"><img class="element-icon" src="SVG/fire.svg" alt="" />Fire</td><td>Visibility &amp; energy</td><td>Marketing &middot; PR &middot; Sales</td></tr>
           <tr><td class="element-cell"><img class="element-icon" src="SVG/earth.svg" alt="" />Earth</td><td>Support &amp; stability</td><td>HR &middot; CS &middot; Admin</td></tr>
         </table>
+
+        <div class="swatch-group-label">Department logos</div>
+        <p class="lede" style="margin:0 0 var(--spacing-16)">Each Astro digital function inside Collabrium carries its own lockup, tinted to its element.</p>
+        <div class="dept-logo-grid">
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabContent.svg" alt="CollabContent logo, Wood" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabContent.svg" download="CollabContent-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-wood-bg); color:var(--color-salmon-pink)"><img class="element-icon" src="SVG/wood.svg" alt="" style="margin-right:0" />Wood</span>
+            <h3 class="dept-logo-name">CollabContent</h3>
+            <p class="dept-logo-desc">The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved.</p>
+          </div>
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabInfluencers.svg" alt="CollabInfluencers logo, Earth" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabInfluencers.svg" download="CollabInfluencers-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-earth-bg); color:var(--color-green)"><img class="element-icon" src="SVG/earth.svg" alt="" style="margin-right:0" />Earth</span>
+            <h3 class="dept-logo-name">CollabInfluencers</h3>
+            <p class="dept-logo-desc">Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout.</p>
+          </div>
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabSales.svg" alt="CollabSales logo, Gold" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabSales.svg" download="CollabSales-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-gold-bg); color:var(--color-amber)"><img class="element-icon" src="SVG/gold.svg" alt="" style="margin-right:0" />Gold</span>
+            <h3 class="dept-logo-name">CollabSales</h3>
+            <p class="dept-logo-desc">Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff.</p>
+          </div>
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabStudio.svg" alt="CollabStudio logo, Fire" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabStudio.svg" download="CollabStudio-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-fire-bg); color:var(--color-orange)"><img class="element-icon" src="SVG/fire.svg" alt="" style="margin-right:0" />Fire</span>
+            <h3 class="dept-logo-name">CollabStudio</h3>
+            <p class="dept-logo-desc">Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2358,7 +2412,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.37** — 2026-08-11 — Sourced from the Collabrium brand deck
+**v0.9.38** — 2026-08-11 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2880,6 +2934,35 @@ single-element icon on its own, print work).
   confirm with whoever owns that source before touching fill colors
   there. `logo.html`'s corrected values remain the canonical reference
   for Wood and Earth either way.
+
+### Department logos
+
+Distinct from the generic single-element lockups in the table above,
+these four are **named product/department lockups** — each one is its
+own sub-brand wordmark ("Collab" + the department name), tinted to
+that department's element color, not just the base Collabrium mark
+recolored. Live in `preview.html`'s Logo area (Department logos grid,
+after the Element/Usage/Department table), each with a "Download .svg"
+button pulling directly from its file below.
+
+⚠️ **First pass — definitions synthesized from a one-line brief per
+department, not sourced from a deck or product spec.** Confirm scope
+and wording with the product/brand team before treating these as
+final.
+
+| File | Department | Element | Definition |
+|---|---|---|---|
+| `logo-lockups/collabContent.svg` | CollabContent | Wood · Salmon Pink `#FF7A90` | The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved. |
+| `logo-lockups/collabInfluencers.svg` | CollabInfluencers | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
+| `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
+| `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
+
+These four don't cover all five elements (no Water/Data-Logistics
+department product exists yet) and aren't a 1:1 substitute for the
+generic per-element lockups in the Default-logo rule table above —
+that table is about recoloring the base Collabrium mark for a
+department-owned surface; this one is about distinct named products
+that happen to live inside Collabrium.
 
 ⚠️ **Needs Input #8 — further resolved, not closed.** Individual static
 vector assets now exist for every letter and element (see `SVG/` above),
@@ -5354,6 +5437,26 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.38 — 2026-08-11** — Added a **Department logos** section to
+  [Logo](#logo), documenting the four existing named
+  department-product lockups (`collabContent.svg`,
+  `collabInfluencers.svg`, `collabSales.svg`, `collabStudio.svg`) —
+  each mapped to its element/color and given a first-pass definition.
+  Mirrored live in `preview.html` as a card grid (logo, element tag,
+  name, definition, "Download" button) placed right after the existing
+  Element/Usage/Department table in the Logo area. Flagged as a first
+  pass — the four definitions are synthesized from a one-line brief per
+  department, not sourced from a deck or product spec, and don't cover
+  a Water/Data-Logistics department product (none exists yet). Polish
+  pass same day: removed a redundant "use these on department-specific
+  surfaces instead of the default Gold mark" line from the section
+  intro (already covered by the Default-logo rule table above it),
+  reworded all four department definitions to drop the em dash in
+  favor of plain prose, simplified each card's download button label
+  from "Download .svg" to "Download", and added a matching "Download"
+  button to the default Collabrium lockup card (previously image +
+  caption only, no way to grab the file directly from the gallery).
 
 - **v0.9.37 — 2026-08-11** — Reorganized the Components section's
   `###` subsections into strict alphabetical order by component name
