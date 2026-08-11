@@ -240,7 +240,7 @@
 .c-sidebar-shell{position:relative; display:inline-block;} /* wraps nav + toggle so the toggle can live outside .c-sidebar's own clip, see .c-sidebar-toggle below */
 .c-sidebar{display:flex; flex-direction:column; gap:var(--spacing-4); width:240px; padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow-x:clip; transition:width var(--duration-slow) var(--ease-standard);}
 .c-sidebar.is-collapsed{width:72px;} /* one-off literal, not a spacing token — see DESIGN-SYSTEM.md's Collapsible state row */
-.c-sidebar-header{padding:var(--spacing-8) var(--spacing-8) var(--spacing-16); display:flex; align-items:center;}
+.c-sidebar-header{padding:var(--spacing-8) var(--spacing-8) var(--spacing-16); display:flex; align-items:center; flex-shrink:0;}
 .c-sidebar.is-collapsed .c-sidebar-header{justify-content:center;} /* logo independently centered, no longer paired with the toggle */
 .c-sidebar-logo{display:flex; align-items:center;}
 /* Default (no department context), expanded — the live animated mark,
@@ -257,13 +257,13 @@
 .c-sidebar-logo-collapsed{display:none; height:24px; width:24px;}
 .c-sidebar.is-collapsed .c-sidebar-logo-live-wrap{display:none;}
 .c-sidebar.is-collapsed .c-sidebar-logo-collapsed{display:block;}
-.c-sidebar-section{padding:var(--spacing-16) var(--spacing-8) var(--spacing-4); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
-.c-sidebar-divider{border:none; border-top:1px solid var(--color-neutral-3); margin:var(--spacing-8) 0 0;}
+.c-sidebar-section{padding:var(--spacing-16) var(--spacing-8) var(--spacing-4); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); flex-shrink:0;}
+.c-sidebar-divider{border:none; border-top:1px solid var(--color-neutral-3); margin:var(--spacing-8) 0 0; flex-shrink:0;}
 .c-sidebar.is-collapsed .c-sidebar-section,
 .c-sidebar.is-collapsed .c-sidebar-divider,
 .c-sidebar.is-collapsed .c-sidebar-item span.label,
 .c-sidebar.is-collapsed .c-sidebar-item span.count{display:none;}
-.c-sidebar-item{position:relative; display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:40px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; cursor:pointer; text-align:left; transition:background-color var(--duration-fast) var(--ease-standard),color var(--duration-fast) var(--ease-standard);}
+.c-sidebar-item{position:relative; display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:40px; flex-shrink:0; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-body1-size); font-weight:500; cursor:pointer; text-align:left; transition:background-color var(--duration-fast) var(--ease-standard),color var(--duration-fast) var(--ease-standard);}
 .c-sidebar-item:hover{background:var(--color-neutral-2);} /* reuses Table row hover / Button Ghost hover */
 .c-sidebar-item:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
 .c-sidebar-item:active{background:var(--color-neutral-3);}
@@ -277,7 +277,7 @@
 .c-sidebar-item.soon span.label{color:var(--color-neutral-4);}
 .c-sidebar-item.soon .c-badge{margin-left:auto;}
 .c-sidebar.is-collapsed .c-sidebar-item{justify-content:center; padding:0;} /* every item icon independently centered within the 72px rail */
-.c-sidebar-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+.c-sidebar-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3); flex-shrink:0;}
 
 /* Toggle — a sibling of .c-sidebar inside .c-sidebar-shell, not a
    descendant of it: .c-sidebar has overflow-x:clip (never
@@ -361,7 +361,7 @@
    sizing them (see DESIGN-SYSTEM.md's "Expand/collapse transition"
    row) — a single-row grid track animates to the content's real
    height with no guessed cap. */
-.c-nav-children{display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--duration-slow) var(--ease-standard);}
+.c-nav-children{display:grid; grid-template-rows:0fr; flex-shrink:0; transition:grid-template-rows var(--duration-slow) var(--ease-standard);}
 .c-nav-children.is-open{grid-template-rows:1fr;}
 .c-nav-children-inner{overflow:hidden; min-height:0; display:flex; flex-direction:column; gap:var(--spacing-4);}
 .c-sidebar.is-collapsed .c-nav-children,
@@ -370,7 +370,7 @@
    as Tooltip's 6px/10px padding and Checkbox's 6px radius), full
    width with spacing-16 left padding doing the indent instead of an
    outer margin. */
-.c-nav-child{height:36px; width:100%; padding:0 var(--spacing-12) 0 var(--spacing-16); border-radius:var(--radius-sm); display:flex; align-items:center; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); background:transparent; border:0; cursor:pointer; font-family:inherit; text-align:left; color:var(--color-neutral-5); transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-nav-child{height:36px; width:100%; flex-shrink:0; padding:0 var(--spacing-12) 0 var(--spacing-16); border-radius:var(--radius-sm); display:flex; align-items:center; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); background:transparent; border:0; cursor:pointer; font-family:inherit; text-align:left; color:var(--color-neutral-5); transition:background-color var(--duration-fast) var(--ease-standard);}
 .c-nav-child:hover{background:var(--color-neutral-2);}
 .c-nav-child:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
 .c-nav-child.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}

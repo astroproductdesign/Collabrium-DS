@@ -94,17 +94,29 @@
   .changelog-entry code{font-family:monospace; background:var(--color-neutral-2); padding:1px 5px; border-radius:3px; font-size:12px;}
   .changelog-empty{color:var(--color-neutral-5); font-size:var(--text-body1-size);}
 
+  /* App shell — SidebarNav rail beside the existing two-pane layout,
+     replacing the old horizontal jumpnav. Follows App Shell's own Main
+     nav placement rule (inset spacing-16 top/left/bottom, no inset on
+     the right — the content region's own gutter provides that gap
+     instead), adapted to sit below .topbar rather than the viewport's
+     own top edge, since .topbar is the page's pre-existing chrome. */
+  .app-shell{display:flex; flex:1; min-height:0;}
+  .nav-rail{flex:none; padding:var(--spacing-16) 0 var(--spacing-16) var(--spacing-16);}
+  .nav-rail .c-sidebar-shell{height:100%;}
+  .nav-rail .c-sidebar{height:100%; overflow-y:auto; scrollbar-width:thin;}
+
   /* Two-pane layout */
   .layout{display:grid; grid-template-columns:7fr 3fr; flex:1; min-height:0;}
   .pane{overflow-y:auto; min-width:0;}
   .pane-left{border-right:1px solid var(--color-neutral-3);}
   .pane-right{display:flex; flex-direction:column; background:var(--color-neutral-1);}
 
-  /* Left pane: jump nav */
-  nav.jumpnav{
-    position:sticky; top:0; z-index:10; background:rgba(255,255,255,.92);
-    backdrop-filter:blur(8px); border-bottom:1px solid var(--color-neutral-3);
-  }
+  /* Mobile-only horizontal jump nav — SidebarNav's own mobile/responsive
+     behavior is undocumented (see DESIGN-SYSTEM.md's "Needs Input —
+     SidebarNav" note), so below 900px this flat link row replaces the
+     rail instead of trying to force it into a small-viewport pattern.
+     Hidden by default; shown only inside the max-width:900px query below. */
+  nav.jumpnav{display:none;}
   nav.jumpnav .shell{display:flex; align-items:center; gap:var(--spacing-24); height:52px; overflow-x:auto;}
   nav.jumpnav a{color:var(--color-neutral-5); text-decoration:none; font-size:var(--text-label2-size); font-weight:600; white-space:nowrap;}
   nav.jumpnav a:hover{color:var(--color-neutral-9);}
@@ -264,6 +276,13 @@
   .iconbtn-primary:hover{background:var(--color-neutral-8); border-color:var(--color-neutral-8);}
 
   @media (max-width:900px){
+    /* SidebarNav's mobile/responsive behavior is explicitly undocumented
+       (see DESIGN-SYSTEM.md's own "Needs Input — SidebarNav" note) — below
+       900px, the rail is hidden entirely and the old flat jumpnav takes
+       over instead, rather than trying to force the rail into a small
+       viewport. */
+    .nav-rail{display:none;}
+    nav.jumpnav{display:block; position:sticky; top:0; z-index:10; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--color-neutral-3);}
     .layout{grid-template-columns:1fr; height:auto;}
     .pane{overflow-y:visible;}
     .pane-left{border-right:none; border-bottom:1px solid var(--color-neutral-3);}
@@ -302,12 +321,92 @@
   </div>
 </div>
 
+<div class="app-shell">
+
+  <div class="nav-rail">
+    <div class="c-sidebar-shell">
+      <nav class="c-sidebar" id="siteSidebar">
+        <div class="c-sidebar-header">
+          <span class="c-sidebar-logo-live-wrap"><iframe src="logo.html" title="Collabrium" scrolling="no"></iframe></span>
+          <img class="c-sidebar-logo-collapsed" src="SVG/coin.svg" alt="Collabrium" />
+        </div>
+
+        <button class="c-sidebar-item active" type="button" data-nav-target="collabrium"><i class="ph-fill ph-house"></i><span class="label">General</span><span class="c-sidebar-hover-text">General</span></button>
+
+        <hr class="c-sidebar-divider" />
+
+        <button class="c-sidebar-item js-nav-parent-toggle" type="button" aria-expanded="true" data-nav-parent="foundation"><i class="ph-fill ph-cube"></i><span class="label">Foundation</span><span class="c-sidebar-hover-text">Foundation</span><span class="c-nav-parent-toggle"><i class="ph ph-caret-up js-nav-parent-chevron"></i></span></button>
+        <div class="c-nav-children is-open" data-nav-panel="foundation">
+          <div class="c-nav-children-inner">
+            <button class="c-nav-child" type="button" data-nav-target="color">Color Palette</button>
+            <button class="c-nav-child" type="button" data-nav-target="typography">Typography</button>
+            <button class="c-nav-child" type="button" data-nav-target="fonts">Fonts</button>
+            <button class="c-nav-child" type="button" data-nav-target="iconography">Iconography</button>
+            <button class="c-nav-child" type="button" data-nav-target="spacing">Spacing &amp; Shape</button>
+            <button class="c-nav-child" type="button" data-nav-target="guidelines">Guidelines</button>
+          </div>
+        </div>
+
+        <hr class="c-sidebar-divider" />
+
+        <button class="c-sidebar-item js-nav-parent-toggle" type="button" aria-expanded="true" data-nav-parent="components"><i class="ph-fill ph-squares-four"></i><span class="label">Components</span><span class="c-sidebar-hover-text">Components</span><span class="c-nav-parent-toggle"><i class="ph ph-caret-up js-nav-parent-chevron"></i></span></button>
+        <div class="c-nav-children is-open" data-nav-panel="components">
+          <div class="c-nav-children-inner">
+            <!-- RULE: keep this list alphabetical by label, and keep the .comp-block order
+                 in #components below in the exact same alphabetical sequence. When adding a
+                 new component, insert both its nav button here and its comp-block below at
+                 the alphabetically correct position — never append to the end. -->
+            <button class="c-nav-child" type="button" data-nav-target="comp-appshell">App Shell</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-badge">Badge &amp; Tag</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-button">Button</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-card">Card</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-chartmap">Chart color mapping</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-checkbox">Checkbox</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-chip">Chip</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-datatable">DataTable</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-datepicker">Date picker</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-dropdown">Dropdown</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-elementbadge">ElementBadge</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-empty">Empty state</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-fileuploader">FileUploader</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-filters">Filters</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-info-banner">Info Banner</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-input">Input field</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-modal">Modal / dialog</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-pageheader">PageHeader</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-pagination">Pagination</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-radio">Radio</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-search-input">Search input</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-segctl">Segmented Control</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-sidebarnav">SidebarNav</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-slider">Slider</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-stat">Stat / KPI card</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-stepper">Stepper</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-switch">Switch</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-table">Table row</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-tabs">Tabs</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-toast">Toast</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-tooltip">Tooltip</button>
+          </div>
+        </div>
+      </nav>
+      <button class="c-sidebar-toggle js-sidebar-toggle" type="button" aria-label="Collapse sidebar" data-sidebar-toggle="siteSidebar">
+        <svg class="js-sidebar-toggle-icon" viewBox="0 0 20 20" fill="none">
+          <rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <line x1="9" y1="3.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.4"/>
+          <path class="js-sidebar-toggle-arrow" d="M13.5 7 11 10l2.5 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="c-sidebar-hover-label" id="siteSidebarHoverLabel" role="tooltip"></div>
+
 <div class="layout">
 
   <div class="pane pane-left">
     <nav class="jumpnav">
       <div class="shell">
-        <a href="#collabrium">Collabrium</a>
+        <a href="#collabrium">General</a>
         <a href="#color">Color Palette</a>
         <a href="#typography">Typography</a>
         <a href="#fonts">Fonts</a>
@@ -587,10 +686,15 @@
       <div class="shell">
         <p class="kicker">07 · Reference</p>
         <h2 class="section-title">Components</h2>
-        <p class="lede">Live reference for 29 components &mdash; the original 7 basics, 10 more (SidebarNav, Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable, ElementBadge) transcribed directly from the teammate's real component source, 4 more (Stat/KPI card, Filters, Pagination, Date picker) <b>designed from scratch</b>, and 8 more since &mdash; App Shell, Textarea, Password field, Search input, Stepper, FileUploader, MultiSelect, and Info Banner &mdash; plus a Chart color mapping guideline. Full variant/state tables and Do/Don't rationale for each live in the DESIGN.md tab &mdash; this is the same spec, rendered rather than described. ⚠️ None of this has been reviewed against a real screen or by the brand team yet, and the Stat/KPI card batch, App Shell, Stepper, FileUploader, MultiSelect, Search input, and Info Banner additions are flagged red below &mdash; they have no source in either system, so treat them as more provisional than everything transcribed above them.</p>
+        <p class="lede">A live, interactive reference for every Collabrium component &mdash; buttons, inputs, navigation, data display, and feedback patterns &mdash; each with real markup you can copy directly into a build. Full variant/state tables and Do/Don't rationale live in the DESIGN.md tab; this gallery is the same spec, rendered rather than described.</p>
 
+        <!-- RULE: .comp-block order below must stay alphabetical by component name, matching
+             the sidebar nav's Components list order exactly. When adding a new component,
+             insert its comp-block here at the alphabetically correct position (and add its
+             nav button in the same position in the sidebar list above) — never append to
+             the end of either list. -->
         <div class="comp-block" id="comp-appshell">
-          <div class="comp-head"><h3>App Shell <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not sourced</span></h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-head"><h3>App Shell</h3><button class="copy-markup-btn" data-target="comp-appshell" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo shell-demo">
             <div class="c-shell">
               <div class="c-sidebar-shell">
@@ -661,7 +765,6 @@
             </div>
           </div>
         </div>
-
         <div class="comp-block" id="comp-badge">
           <div class="comp-head"><h3>Badge &amp; Tag</h3><button class="copy-markup-btn" data-target="comp-badge" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -683,41 +786,6 @@
             </div>
           </div>
         </div>
-
-        <div class="comp-block" id="comp-chip">
-          <div class="comp-head"><h3>Chip <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-chip" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Filter Chip &mdash; Single-select. One is always active; clicking the active chip is a no-op.</p>
-              <div class="c-chip-group" id="chip-filter-single" role="radiogroup" aria-label="Status filter">
-                <button class="c-chip c-chip-filter is-active" type="button" role="radio" aria-checked="true" data-filter="all"><span class="label">All</span></button>
-                <button class="c-chip c-chip-filter" type="button" role="radio" aria-checked="false" data-filter="active"><span class="label">Active</span></button>
-                <button class="c-chip c-chip-filter" type="button" role="radio" aria-checked="false" data-filter="paused"><span class="label">Paused</span></button>
-                <button class="c-chip c-chip-filter" type="button" role="radio" aria-checked="false" data-filter="archived"><span class="label">Archived</span></button>
-              </div>
-
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Filter Chip &mdash; Multi-select. Any number active; the active state adds a leading tick.</p>
-              <div class="c-chip-group" id="chip-filter-multi" role="group" aria-label="Department filter">
-                <button class="c-chip c-chip-filter" type="button" role="checkbox" aria-checked="false" data-filter="marketing"><span class="label">Marketing</span></button>
-                <button class="c-chip c-chip-filter is-active" type="button" role="checkbox" aria-checked="true" data-filter="product"><i class="ph ph-check icon"></i><span class="label">Product</span></button>
-                <button class="c-chip c-chip-filter" type="button" role="checkbox" aria-checked="false" data-filter="sales"><span class="label">Sales</span></button>
-                <button class="c-chip c-chip-filter" type="button" role="checkbox" aria-checked="false" data-filter="finance"><span class="label">Finance</span></button>
-              </div>
-
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Input Chip &mdash; overflow beyond 3 visible chips. Click +N to expand.</p>
-              <div class="c-chip-group" id="chip-input-overflow">
-                <span class="c-chip c-chip-input"><span class="label">Nescafé</span><button class="c-chip-remove" type="button" aria-label="Remove Nescafé"><i class="ph ph-x"></i></button></span>
-                <span class="c-chip c-chip-input"><span class="label">Milo</span><button class="c-chip-remove" type="button" aria-label="Remove Milo"><i class="ph ph-x"></i></button></span>
-                <span class="c-chip c-chip-input"><span class="label">Horlicks</span><button class="c-chip-remove" type="button" aria-label="Remove Horlicks"><i class="ph ph-x"></i></button></span>
-                <span class="c-chip c-chip-input" data-overflow-chip hidden><span class="label">Ovaltine</span><button class="c-chip-remove" type="button" aria-label="Remove Ovaltine"><i class="ph ph-x"></i></button></span>
-                <span class="c-chip c-chip-input" data-overflow-chip hidden><span class="label">Teh Tarik</span><button class="c-chip-remove" type="button" aria-label="Remove Teh Tarik"><i class="ph ph-x"></i></button></span>
-                <span class="c-chip c-chip-input" data-overflow-chip hidden><span class="label">Kopi-O</span><button class="c-chip-remove" type="button" aria-label="Remove Kopi-O"><i class="ph ph-x"></i></button></span>
-                <button class="c-chip c-chip-overflow" type="button" id="chip-overflow-toggle" aria-expanded="false">+3</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="comp-block" id="comp-button">
           <div class="comp-head"><h3>Button</h3><button class="copy-markup-btn" data-target="comp-button" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -743,7 +811,6 @@
             </div>
           </div>
         </div>
-
         <div class="comp-block" id="comp-card">
           <div class="comp-head"><h3>Card</h3><button class="copy-markup-btn" data-target="comp-card" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -779,191 +846,119 @@
             </div>
           </div>
         </div>
-
-        <div class="comp-block" id="comp-empty">
-          <div class="comp-head"><h3>Empty state</h3><button class="copy-markup-btn" data-target="comp-empty" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+        <div class="comp-block" id="comp-chartmap">
+          <div class="comp-head"><h3>Chart color mapping <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; guideline, not a component</span></h3></div>
           <div class="comp-demo">
-            <div class="c-empty">
-              <i class="ph-fill ph-tray"></i>
-              <h4>No campaigns yet</h4>
-              <p>Create your first campaign to see performance data here.</p>
-              <button class="c-btn c-btn-primary c-btn-md"><i class="ph ph-plus"></i>Create campaign</button>
+            <div class="c-chartmap-row">
+              <span class="c-chartmap-label">Categorical (dept.)</span>
+              <span class="c-chartmap-swatch" style="background:var(--color-orange)"></span>
+              <span class="c-chartmap-swatch" style="background:var(--color-salmon-pink)"></span>
+              <span class="c-chartmap-swatch" style="background:var(--color-green)"></span>
+              <span class="c-chartmap-swatch" style="background:var(--color-navy)"></span>
+              <span class="c-chartmap-swatch" style="background:var(--color-amber)"></span>
+              <span class="c-chartmap-swatch" style="background:var(--color-purple)"></span>
+              <span class="c-chartmap-swatch" style="background:var(--color-turquoise)"></span>
+            </div>
+            <div class="c-chartmap-row">
+              <span class="c-chartmap-label">Sequential (Water)</span>
+              <span class="c-chartmap-ramp" style="background:linear-gradient(90deg, var(--color-water-bg), var(--color-navy))"></span>
+            </div>
+            <div class="c-chartmap-row">
+              <span class="c-chartmap-label">Diverging (variance)</span>
+              <span class="c-chartmap-ramp" style="background:linear-gradient(90deg, var(--color-green), var(--color-neutral-3), var(--color-red))"></span>
             </div>
           </div>
         </div>
-
-        <div class="comp-block" id="comp-fileuploader">
-          <div class="comp-head"><h3>FileUploader <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-fileuploader" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+        <div class="comp-block" id="comp-checkbox">
+          <div class="comp-head"><h3>Checkbox</h3><button class="copy-markup-btn" data-target="comp-checkbox" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
-
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default &mdash; idle, no files</p>
-            <div class="c-uploader">
-              <div class="c-uploader-zone">
-                <i class="ph ph-upload-simple" aria-hidden="true"></i>
-                <span class="c-uploader-label">Drag files here, or click to browse</span>
-                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
-              </div>
-            </div>
-
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Drag-over</p>
-            <div class="c-uploader">
-              <div class="c-uploader-zone dragover">
-                <i class="ph ph-upload-simple" aria-hidden="true"></i>
-                <span class="c-uploader-label">Drag files here, or click to browse</span>
-                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
-              </div>
-            </div>
-
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has files</p>
-            <div class="c-uploader">
-              <div class="c-uploader-zone">
-                <i class="ph ph-upload-simple" aria-hidden="true"></i>
-                <span class="c-uploader-label">Drag files here, or click to browse</span>
-                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
-              </div>
-              <div class="c-uploader-files">
-                <div class="c-uploader-row">
-                  <span class="c-uploader-kind">PDF</span>
-                  <span class="c-uploader-name">Q3-media-plan-100plus.pdf</span>
-                  <span class="c-uploader-size">2.4 MB</span>
-                  <button type="button" class="c-uploader-remove" aria-label="Remove Q3-media-plan-100plus.pdf"><i class="ph ph-x"></i></button>
-                </div>
-                <div class="c-uploader-row">
-                  <span class="c-uploader-kind">MP4</span>
-                  <span class="c-uploader-name">client-call-recording-19jun.mp4</span>
-                  <span class="c-uploader-size">86.1 MB</span>
-                  <button type="button" class="c-uploader-remove" aria-label="Remove client-call-recording-19jun.mp4"><i class="ph ph-x"></i></button>
-                </div>
-                <div class="c-uploader-row">
-                  <span class="c-uploader-kind">DOCX</span>
-                  <span class="c-uploader-name">brand-brief-v2.docx</span>
-                  <span class="c-uploader-size">340 KB</span>
-                  <button type="button" class="c-uploader-remove" aria-label="Remove brand-brief-v2.docx"><i class="ph ph-x"></i></button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-input">
-          <div class="comp-head"><h3>Input field</h3><button class="copy-markup-btn" data-target="comp-input" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-
-            <!-- States — DESIGN-SYSTEM.md Input field, States table (+ Success / valid state table) -->
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">States</p>
             <div class="comp-row">
-              <div class="c-field">
-                <label>Workspace name</label>
-                <input placeholder="e.g. Astro Growth" />
-                <span class="c-helper">Visible to your whole team</span>
-              </div>
-              <div class="c-field c-field-error">
-                <label>Workspace name</label>
-                <input />
-                <span class="c-helper">This field is required</span>
-              </div>
-              <div class="c-field">
-                <label>Workspace name</label>
-                <input value="Astro Growth" disabled />
-                <span class="c-helper">Locked by admin</span>
-              </div>
-              <div class="c-field c-field-success">
-                <label for="input-success-demo">Workspace name</label>
-                <div class="input-wrap has-trailing-icon">
-                  <input id="input-success-demo" value="Astro Growth" aria-describedby="helper-success-demo" />
-                  <span class="icon-trailing" aria-hidden="true"><i class="ph-fill ph-check-circle"></i></span>
-                </div>
-                <span class="c-helper" id="helper-success-demo">Name is available</span>
-              </div>
-            </div>
-
-            <!-- Prefix / suffix — DESIGN-SYSTEM.md Input field, "Prefix/suffix text adornments" rule -->
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Prefix / Suffix</p>
-            <div class="comp-row">
-              <div class="c-field">
-                <label for="input-prefix-demo">Monthly budget</label>
-                <div class="input-wrap has-prefix">
-                  <span class="adornment adornment-prefix" aria-hidden="true">$</span>
-                  <input type="text" id="input-prefix-demo" placeholder="0.00" aria-describedby="helper-prefix-demo" />
-                </div>
-                <span class="c-helper" id="helper-prefix-demo">In USD</span>
-              </div>
-              <div class="c-field">
-                <label for="input-suffix-demo">Package weight</label>
-                <div class="input-wrap has-suffix">
-                  <input type="text" id="input-suffix-demo" placeholder="0" aria-describedby="helper-suffix-demo" />
-                  <span class="adornment adornment-suffix" aria-hidden="true">kg</span>
-                </div>
-                <span class="c-helper" id="helper-suffix-demo">Rounded to the nearest 0.1kg</span>
-              </div>
-            </div>
-
-            <!-- Password field — DESIGN-SYSTEM.md "Password field" section -->
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Password Field</p>
-            <div class="comp-row">
-              <div class="c-field password-field">
-                <label for="password-demo">Password</label>
-                <div class="input-wrap">
-                  <input type="password" id="password-demo" class="js-password-input" value="hunter22collabrium" aria-describedby="helper-password-demo" />
-                  <button type="button" class="icon-btn js-password-toggle" aria-label="Show password"><i class="ph ph-eye"></i></button>
-                </div>
-                <span class="c-helper" id="helper-password-demo">Minimum 8 characters</span>
-              </div>
-            </div>
-
-            <!-- Character counter — DESIGN-SYSTEM.md Input field, "Character/word counter" rule -->
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Character Counter</p>
-            <div class="comp-row">
-              <div class="c-field">
-                <label for="counter-demo">Status update</label>
-                <div class="input-wrap">
-                  <input type="text" id="counter-demo" class="js-counter-input" maxlength="60" placeholder="What's happening in your team?" aria-describedby="counter-demo-count" />
-                </div>
-                <div class="counter-row">
-                  <span class="char-counter" id="counter-demo-count">0/60</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Textarea — DESIGN-SYSTEM.md "Textarea" section -->
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Textarea</p>
-            <div class="comp-row">
-              <div class="c-field">
-                <label for="textarea-demo">Project description</label>
-                <textarea id="textarea-demo" placeholder="Describe what this project is for&hellip;" aria-describedby="helper-textarea-demo"></textarea>
-                <span class="c-helper" id="helper-textarea-demo">Visible to everyone with access to this workspace</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-modal">
-          <div class="comp-head"><h3>Modal / dialog</h3><button class="copy-markup-btn" data-target="comp-modal" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="c-modal-stage">
-              <div class="c-modal">
-                <div class="c-modal-head"><h4>Archive this workspace?</h4><button class="c-icon-btn" type="button"><i class="ph ph-x"></i></button></div>
-                <div class="c-modal-body">Team members will lose access immediately. You can restore it from Settings within 30 days.</div>
-                <div class="c-modal-foot">
-                  <button class="c-btn c-btn-secondary c-btn-md" type="button">Cancel</button>
-                  <button class="c-btn c-btn-primary c-btn-md" type="button">Archive</button>
-                </div>
-              </div>
-              <button class="c-btn c-btn-secondary c-btn-md c-modal-reopen" type="button">Reopen modal</button>
+              <label class="c-choice">
+                <input type="checkbox" checked />
+                <span class="c-checkbox-box on"><i class="ph ph-check"></i></span>
+                <span class="text"><span class="label">Email notifications</span><span class="desc">Weekly digest every Monday</span></span>
+              </label>
+              <label class="c-choice">
+                <input type="checkbox" />
+                <span class="c-checkbox-box"><i class="ph ph-minus" style="visibility:hidden"></i></span>
+                <span class="text"><span class="label">SMS alerts</span></span>
+              </label>
             </div>
           </div>
         </div>
+        <div class="comp-block" id="comp-chip">
+          <div class="comp-head"><h3>Chip</h3><button class="copy-markup-btn" data-target="comp-chip" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Filter Chip &mdash; Single-select. One is always active; clicking the active chip is a no-op.</p>
+              <div class="c-chip-group" id="chip-filter-single" role="radiogroup" aria-label="Status filter">
+                <button class="c-chip c-chip-filter is-active" type="button" role="radio" aria-checked="true" data-filter="all"><span class="label">All</span></button>
+                <button class="c-chip c-chip-filter" type="button" role="radio" aria-checked="false" data-filter="active"><span class="label">Active</span></button>
+                <button class="c-chip c-chip-filter" type="button" role="radio" aria-checked="false" data-filter="paused"><span class="label">Paused</span></button>
+                <button class="c-chip c-chip-filter" type="button" role="radio" aria-checked="false" data-filter="archived"><span class="label">Archived</span></button>
+              </div>
 
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Filter Chip &mdash; Multi-select. Any number active; the active state adds a leading tick.</p>
+              <div class="c-chip-group" id="chip-filter-multi" role="group" aria-label="Department filter">
+                <button class="c-chip c-chip-filter" type="button" role="checkbox" aria-checked="false" data-filter="marketing"><span class="label">Marketing</span></button>
+                <button class="c-chip c-chip-filter is-active" type="button" role="checkbox" aria-checked="true" data-filter="product"><i class="ph ph-check icon"></i><span class="label">Product</span></button>
+                <button class="c-chip c-chip-filter" type="button" role="checkbox" aria-checked="false" data-filter="sales"><span class="label">Sales</span></button>
+                <button class="c-chip c-chip-filter" type="button" role="checkbox" aria-checked="false" data-filter="finance"><span class="label">Finance</span></button>
+              </div>
+
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Input Chip &mdash; overflow beyond 3 visible chips. Click +N to expand.</p>
+              <div class="c-chip-group" id="chip-input-overflow">
+                <span class="c-chip c-chip-input"><span class="label">Nescafé</span><button class="c-chip-remove" type="button" aria-label="Remove Nescafé"><i class="ph ph-x"></i></button></span>
+                <span class="c-chip c-chip-input"><span class="label">Milo</span><button class="c-chip-remove" type="button" aria-label="Remove Milo"><i class="ph ph-x"></i></button></span>
+                <span class="c-chip c-chip-input"><span class="label">Horlicks</span><button class="c-chip-remove" type="button" aria-label="Remove Horlicks"><i class="ph ph-x"></i></button></span>
+                <span class="c-chip c-chip-input" data-overflow-chip hidden><span class="label">Ovaltine</span><button class="c-chip-remove" type="button" aria-label="Remove Ovaltine"><i class="ph ph-x"></i></button></span>
+                <span class="c-chip c-chip-input" data-overflow-chip hidden><span class="label">Teh Tarik</span><button class="c-chip-remove" type="button" aria-label="Remove Teh Tarik"><i class="ph ph-x"></i></button></span>
+                <span class="c-chip c-chip-input" data-overflow-chip hidden><span class="label">Kopi-O</span><button class="c-chip-remove" type="button" aria-label="Remove Kopi-O"><i class="ph ph-x"></i></button></span>
+                <button class="c-chip c-chip-overflow" type="button" id="chip-overflow-toggle" aria-expanded="false">+3</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-datatable">
+          <div class="comp-head"><h3>DataTable</h3><button class="copy-markup-btn" data-target="comp-datatable" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-datatable">
+              <table>
+                <thead><tr><th>Campaign</th><th>Department</th><th class="num">Spend</th></tr></thead>
+                <tbody>
+                  <tr><td>Q3 Retail Push</td><td>Marketing</td><td class="num">$12,480.50</td></tr>
+                  <tr><td>Partner Onboarding</td><td>Data</td><td class="num">$3,102.00</td></tr>
+                  <tr><td>Vendor Compliance Audit</td><td>Finance</td><td class="num">$0.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-datepicker">
+          <div class="comp-head"><h3>Date picker</h3><button class="copy-markup-btn" data-target="comp-datepicker" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="align-items:flex-start">
+              <button class="c-dp-trigger" type="button"><i class="ph-fill ph-calendar"></i>Jul 12 &ndash; Jul 24, 2026</button>
+              <div class="c-dp-panel">
+                <div class="c-dp-header">
+                  <button class="c-icon-btn" type="button"><i class="ph ph-caret-left"></i></button>
+                  <h5>July 2026</h5>
+                  <button class="c-icon-btn" type="button"><i class="ph ph-caret-right"></i></button>
+                </div>
+                <div class="c-dp-grid">
+                  <span class="c-dp-weekday">S</span><span class="c-dp-weekday">M</span><span class="c-dp-weekday">T</span><span class="c-dp-weekday">W</span><span class="c-dp-weekday">T</span><span class="c-dp-weekday">F</span><span class="c-dp-weekday">S</span>
+                  <button class="c-dp-day disabled" type="button">28</button><button class="c-dp-day disabled" type="button">29</button><button class="c-dp-day disabled" type="button">30</button>
+                  <button class="c-dp-day" type="button">1</button><button class="c-dp-day" type="button">2</button><button class="c-dp-day" type="button">3</button><button class="c-dp-day" type="button">4</button>
+                  <button class="c-dp-day" type="button">5</button><button class="c-dp-day" type="button">6</button><button class="c-dp-day" type="button">7</button><button class="c-dp-day" type="button">8</button><button class="c-dp-day" type="button">9</button><button class="c-dp-day" type="button">10</button><button class="c-dp-day today" type="button">11</button>
+                  <button class="c-dp-day range-start" type="button">12</button><button class="c-dp-day range" type="button">13</button><button class="c-dp-day range" type="button">14</button><button class="c-dp-day range" type="button">15</button><button class="c-dp-day range" type="button">16</button><button class="c-dp-day range" type="button">17</button><button class="c-dp-day range" type="button">18</button>
+                  <button class="c-dp-day range" type="button">19</button><button class="c-dp-day range" type="button">20</button><button class="c-dp-day range" type="button">21</button><button class="c-dp-day range" type="button">22</button><button class="c-dp-day range" type="button">23</button><button class="c-dp-day range-end" type="button">24</button><button class="c-dp-day" type="button">25</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="comp-block" id="comp-dropdown">
-          <div class="comp-head"><h3>Dropdown <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-dropdown" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-head"><h3>Dropdown</h3><button class="copy-markup-btn" data-target="comp-dropdown" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
 
             <p style="margin:0 0 var(--spacing-8);font-size:12px;font-weight:700;color:var(--color-neutral-9)">Single select</p>
@@ -1274,9 +1269,310 @@
             </div>
           </div>
         </div>
+        <div class="comp-block" id="comp-elementbadge">
+          <div class="comp-head"><h3>ElementBadge</h3><button class="copy-markup-btn" data-target="comp-elementbadge" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row">
+              <span class="c-elbadge-chip c-elbadge-fire" title="Fire"><i class="ph-fill ph-fire"></i></span>
+              <span class="c-elbadge-chip c-elbadge-earth" title="Earth"><i class="ph-fill ph-mountains"></i></span>
+              <span class="c-elbadge-chip c-elbadge-water" title="Water"><i class="ph-fill ph-drop"></i></span>
+              <span class="c-elbadge-chip c-elbadge-gold" title="Gold"><i class="ph-fill ph-scales"></i></span>
+              <span class="c-elbadge-chip c-elbadge-wood" title="Wood"><i class="ph-fill ph-plant"></i></span>
+            </div>
+            <div class="comp-row" style="margin-top:var(--spacing-16)">
+              <span class="c-elbadge">
+                <span class="c-elbadge-chip c-elbadge-fire"><i class="ph-fill ph-fire"></i></span>
+                <span class="text"><span class="name">Fire</span><span class="fn">Visibility &amp; Energy</span></span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-empty">
+          <div class="comp-head"><h3>Empty state</h3><button class="copy-markup-btn" data-target="comp-empty" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-empty">
+              <i class="ph-fill ph-tray"></i>
+              <h4>No campaigns yet</h4>
+              <p>Create your first campaign to see performance data here.</p>
+              <button class="c-btn c-btn-primary c-btn-md"><i class="ph ph-plus"></i>Create campaign</button>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-fileuploader">
+          <div class="comp-head"><h3>FileUploader</h3><button class="copy-markup-btn" data-target="comp-fileuploader" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
 
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default &mdash; idle, no files</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Drag-over</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone dragover">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has files</p>
+            <div class="c-uploader">
+              <div class="c-uploader-zone">
+                <i class="ph ph-upload-simple" aria-hidden="true"></i>
+                <span class="c-uploader-label">Drag files here, or click to browse</span>
+                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
+              </div>
+              <div class="c-uploader-files">
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">PDF</span>
+                  <span class="c-uploader-name">Q3-media-plan-100plus.pdf</span>
+                  <span class="c-uploader-size">2.4 MB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove Q3-media-plan-100plus.pdf"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">MP4</span>
+                  <span class="c-uploader-name">client-call-recording-19jun.mp4</span>
+                  <span class="c-uploader-size">86.1 MB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove client-call-recording-19jun.mp4"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="c-uploader-row">
+                  <span class="c-uploader-kind">DOCX</span>
+                  <span class="c-uploader-name">brand-brief-v2.docx</span>
+                  <span class="c-uploader-size">340 KB</span>
+                  <button type="button" class="c-uploader-remove" aria-label="Remove brand-brief-v2.docx"><i class="ph ph-x"></i></button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="comp-block" id="comp-filters">
+          <div class="comp-head"><h3>Filters</h3><button class="copy-markup-btn" data-target="comp-filters" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-filterbar">
+              <span class="c-filter-search"><i class="ph ph-magnifying-glass"></i><input placeholder="Search campaigns" /></span>
+              <button class="c-filter-trigger active" type="button"><i class="ph ph-funnel"></i>Department<span class="count">2</span></button>
+              <button class="c-filter-trigger" type="button"><i class="ph ph-funnel"></i>Status</button>
+              <span class="c-filter-pill">Fire <i class="ph ph-x"></i></span>
+              <span class="c-filter-pill">Water <i class="ph ph-x"></i></span>
+              <button class="c-filter-clear" type="button">Clear all</button>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-info-banner">
+          <div class="comp-head"><h3>Info Banner</h3><button class="copy-markup-btn" data-target="comp-info-banner" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-8);">
+              <div class="c-banner c-banner-neutral" role="note">
+                <i class="ph-fill ph-info icon"></i>
+                <div class="body"><div class="message">Message-only is the default shape. A general FYI with no positive or negative charge.</div></div>
+              </div>
+              <div class="c-banner c-banner-info" role="status">
+                <i class="ph-fill ph-info icon"></i>
+                <div class="body"><div class="message">Dismissible, no action slot. Just a close button.</div></div>
+                <button class="c-icon-btn close" type="button" aria-label="Dismiss"><i class="ph ph-x"></i></button>
+              </div>
+              <div class="c-banner c-banner-success" role="note">
+                <i class="ph-fill ph-check-circle icon"></i>
+                <div class="body"><div class="message">Sync complete. All records are up to date.</div></div>
+              </div>
+              <div class="c-banner c-banner-warning" role="status">
+                <i class="ph-fill ph-warning icon"></i>
+                <div class="body">
+                  <div class="message">Your card on file expires this month.</div>
+                  <div class="actions">
+                    <button class="action" type="button">Update billing</button>
+                    <button class="action" type="button">Remind me later</button>
+                  </div>
+                </div>
+                <button class="c-icon-btn close" type="button" aria-label="Dismiss"><i class="ph ph-x"></i></button>
+              </div>
+              <div class="c-banner c-banner-danger" role="note">
+                <i class="ph-fill ph-x-circle icon"></i>
+                <div class="body"><div class="message">We can&rsquo;t reach the server right now. Retrying automatically.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-input">
+          <div class="comp-head"><h3>Input field</h3><button class="copy-markup-btn" data-target="comp-input" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+
+            <!-- States — DESIGN-SYSTEM.md Input field, States table (+ Success / valid state table) -->
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">States</p>
+            <div class="comp-row">
+              <div class="c-field">
+                <label>Workspace name</label>
+                <input placeholder="e.g. Astro Growth" />
+                <span class="c-helper">Visible to your whole team</span>
+              </div>
+              <div class="c-field c-field-error">
+                <label>Workspace name</label>
+                <input />
+                <span class="c-helper">This field is required</span>
+              </div>
+              <div class="c-field">
+                <label>Workspace name</label>
+                <input value="Astro Growth" disabled />
+                <span class="c-helper">Locked by admin</span>
+              </div>
+              <div class="c-field c-field-success">
+                <label for="input-success-demo">Workspace name</label>
+                <div class="input-wrap has-trailing-icon">
+                  <input id="input-success-demo" value="Astro Growth" aria-describedby="helper-success-demo" />
+                  <span class="icon-trailing" aria-hidden="true"><i class="ph-fill ph-check-circle"></i></span>
+                </div>
+                <span class="c-helper" id="helper-success-demo">Name is available</span>
+              </div>
+            </div>
+
+            <!-- Prefix / suffix — DESIGN-SYSTEM.md Input field, "Prefix/suffix text adornments" rule -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Prefix / Suffix</p>
+            <div class="comp-row">
+              <div class="c-field">
+                <label for="input-prefix-demo">Monthly budget</label>
+                <div class="input-wrap has-prefix">
+                  <span class="adornment adornment-prefix" aria-hidden="true">$</span>
+                  <input type="text" id="input-prefix-demo" placeholder="0.00" aria-describedby="helper-prefix-demo" />
+                </div>
+                <span class="c-helper" id="helper-prefix-demo">In USD</span>
+              </div>
+              <div class="c-field">
+                <label for="input-suffix-demo">Package weight</label>
+                <div class="input-wrap has-suffix">
+                  <input type="text" id="input-suffix-demo" placeholder="0" aria-describedby="helper-suffix-demo" />
+                  <span class="adornment adornment-suffix" aria-hidden="true">kg</span>
+                </div>
+                <span class="c-helper" id="helper-suffix-demo">Rounded to the nearest 0.1kg</span>
+              </div>
+            </div>
+
+            <!-- Password field — DESIGN-SYSTEM.md "Password field" section -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Password Field</p>
+            <div class="comp-row">
+              <div class="c-field password-field">
+                <label for="password-demo">Password</label>
+                <div class="input-wrap">
+                  <input type="password" id="password-demo" class="js-password-input" value="hunter22collabrium" aria-describedby="helper-password-demo" />
+                  <button type="button" class="icon-btn js-password-toggle" aria-label="Show password"><i class="ph ph-eye"></i></button>
+                </div>
+                <span class="c-helper" id="helper-password-demo">Minimum 8 characters</span>
+              </div>
+            </div>
+
+            <!-- Character counter — DESIGN-SYSTEM.md Input field, "Character/word counter" rule -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Character Counter</p>
+            <div class="comp-row">
+              <div class="c-field">
+                <label for="counter-demo">Status update</label>
+                <div class="input-wrap">
+                  <input type="text" id="counter-demo" class="js-counter-input" maxlength="60" placeholder="What's happening in your team?" aria-describedby="counter-demo-count" />
+                </div>
+                <div class="counter-row">
+                  <span class="char-counter" id="counter-demo-count">0/60</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Textarea — DESIGN-SYSTEM.md "Textarea" section -->
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Textarea</p>
+            <div class="comp-row">
+              <div class="c-field">
+                <label for="textarea-demo">Project description</label>
+                <textarea id="textarea-demo" placeholder="Describe what this project is for&hellip;" aria-describedby="helper-textarea-demo"></textarea>
+                <span class="c-helper" id="helper-textarea-demo">Visible to everyone with access to this workspace</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="comp-block" id="comp-modal">
+          <div class="comp-head"><h3>Modal / dialog</h3><button class="copy-markup-btn" data-target="comp-modal" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-modal-stage">
+              <div class="c-modal">
+                <div class="c-modal-head"><h4>Archive this workspace?</h4><button class="c-icon-btn" type="button"><i class="ph ph-x"></i></button></div>
+                <div class="c-modal-body">Team members will lose access immediately. You can restore it from Settings within 30 days.</div>
+                <div class="c-modal-foot">
+                  <button class="c-btn c-btn-secondary c-btn-md" type="button">Cancel</button>
+                  <button class="c-btn c-btn-primary c-btn-md" type="button">Archive</button>
+                </div>
+              </div>
+              <button class="c-btn c-btn-secondary c-btn-md c-modal-reopen" type="button">Reopen modal</button>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-pageheader">
+          <div class="comp-head"><h3>PageHeader</h3><button class="copy-markup-btn" data-target="comp-pageheader" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Default</p>
+              <div class="c-pageheader">
+                <div class="c-pageheader-row">
+                  <div class="c-pageheader-text">
+                    <h1>Campaign Dashboard</h1>
+                  </div>
+                </div>
+              </div>
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">With subtitle</p>
+              <div class="c-pageheader">
+                <div class="c-pageheader-row">
+                  <div class="c-pageheader-text">
+                    <h1>Campaign Dashboard</h1>
+                    <p class="sub">Track performance across every active campaign in one place.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-pagination">
+          <div class="comp-head"><h3>Pagination</h3><button class="copy-markup-btn" data-target="comp-pagination" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="c-pagination">
+              <span class="count">Showing 1&ndash;20 of 248</span>
+              <div class="c-page-controls">
+                <button class="c-page-btn" disabled type="button"><i class="ph ph-caret-left"></i></button>
+                <button class="c-page-btn" type="button">1</button>
+                <button class="c-page-btn current" type="button">2</button>
+                <button class="c-page-btn" type="button">3</button>
+                <span class="c-page-ellipsis">&hellip;</span>
+                <button class="c-page-btn" type="button">12</button>
+                <button class="c-page-btn" type="button"><i class="ph ph-caret-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-radio">
+          <div class="comp-head"><h3>Radio</h3><button class="copy-markup-btn" data-target="comp-radio" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row">
+              <label class="c-choice">
+                <input type="radio" name="c-radio-demo" checked />
+                <span class="c-radio-circle on"><span class="dot"></span></span>
+                <span class="text"><span class="label">Weekly digest</span></span>
+              </label>
+              <label class="c-choice">
+                <input type="radio" name="c-radio-demo" />
+                <span class="c-radio-circle"></span>
+                <span class="text"><span class="label">Daily digest</span></span>
+              </label>
+            </div>
+          </div>
+        </div>
         <div class="comp-block" id="comp-search-input">
-          <div class="comp-head"><h3>Search input <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-search-input" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-head"><h3>Search input</h3><button class="copy-markup-btn" data-target="comp-search-input" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
 
             <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default variant &mdash; Default, Active, Has value, Disabled, Error, No results, Loading</p>
@@ -1480,36 +1776,40 @@
 
           </div>
         </div>
-
-        <div class="comp-block" id="comp-table">
-          <div class="comp-head"><h3>Table row</h3><button class="copy-markup-btn" data-target="comp-table" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+        <div class="comp-block" id="comp-segctl">
+          <div class="comp-head"><h3>Segmented Control</h3><button class="copy-markup-btn" data-target="comp-segctl" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
-            <table class="c-table">
-              <thead><tr><th>Campaign</th><th>Department</th><th>Status</th><th class="num">Spend</th></tr></thead>
-              <tbody>
-                <tr>
-                  <td>Q3 Retail Push</td>
-                  <td><span class="c-tag c-tag-fire"><span class="dot"></span>Fire</span></td>
-                  <td><span class="c-badge c-badge-success">Live</span></td>
-                  <td class="num">$12,480.50</td>
-                </tr>
-                <tr class="selected">
-                  <td>Partner Onboarding</td>
-                  <td><span class="c-tag c-tag-water"><span class="dot"></span>Water</span></td>
-                  <td><span class="c-badge c-badge-warning">Paused</span></td>
-                  <td class="num">$3,102.00</td>
-                </tr>
-                <tr>
-                  <td>Vendor Compliance Audit</td>
-                  <td><span class="c-tag c-tag-gold"><span class="dot"></span>Gold</span></td>
-                  <td><span class="c-badge c-badge-error">Blocked</span></td>
-                  <td class="num">$0.00</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Icon only &mdash; right-aligned in a toolbar. Track width hugs its own content here (the component's real default per "Track width is determined by context") rather than stretching full-width &mdash; that only happened in an earlier demo layout that isn't used here.</p>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-16); padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-2); border-radius:var(--radius-md);">
+                <span style="font-family:var(--font-primary); font-size:var(--text-h5-size); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);">Campaign performance</span>
+                <div class="c-segctl c-segctl-compact" role="group" aria-label="View mode">
+                  <span class="c-seg-tt-wrap">
+                    <button class="c-seg" role="radio" aria-checked="true" aria-label="List view" type="button"><i class="ph ph-list"></i></button>
+                    <span class="c-seg-tt-bubble">List view</span>
+                  </span>
+                  <span class="c-seg-tt-wrap">
+                    <button class="c-seg" role="radio" aria-checked="false" aria-label="Grid view" type="button"><i class="ph ph-squares-four"></i></button>
+                    <span class="c-seg-tt-bubble">Grid view</span>
+                  </span>
+                  <span class="c-seg-tt-wrap">
+                    <button class="c-seg" role="radio" aria-checked="false" aria-label="Board view" type="button"><i class="ph ph-kanban"></i></button>
+                    <span class="c-seg-tt-bubble">Board view</span>
+                  </span>
+                </div>
+              </div>
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Text only &mdash; right-aligned in a toolbar</p>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-16); padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-2); border-radius:var(--radius-md);">
+                <span style="font-family:var(--font-primary); font-size:var(--text-h5-size); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);">Revenue trend</span>
+                <div class="c-segctl c-segctl-compact" role="group" aria-label="Date range">
+                  <button class="c-seg" role="radio" aria-checked="false" type="button">MTD</button>
+                  <button class="c-seg" role="radio" aria-checked="true" type="button">QTD</button>
+                  <button class="c-seg" role="radio" aria-checked="false" type="button">YTD</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
         <div class="comp-block" id="comp-sidebarnav">
           <div class="comp-head"><h3>SidebarNav</h3><button class="copy-markup-btn" data-target="comp-sidebarnav" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -1580,88 +1880,64 @@
                 </div>
             </div>
           </div>
-
         <div class="c-sidebar-hover-label" id="compSidebarHoverLabel" role="tooltip"></div>
-
-        <div class="comp-block" id="comp-checkbox-radio-switch">
-          <div class="comp-head"><h3>Checkbox, Radio &amp; Switch</h3><button class="copy-markup-btn" data-target="comp-checkbox-radio-switch" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+        <div class="comp-block" id="comp-slider">
+          <div class="comp-head"><h3>Slider</h3><button class="copy-markup-btn" data-target="comp-slider" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
-            <div class="comp-row">
-              <label class="c-choice">
-                <input type="checkbox" checked />
-                <span class="c-checkbox-box on"><i class="ph ph-check"></i></span>
-                <span class="text"><span class="label">Email notifications</span><span class="desc">Weekly digest every Monday</span></span>
-              </label>
-              <label class="c-choice">
-                <input type="checkbox" />
-                <span class="c-checkbox-box"><i class="ph ph-minus" style="visibility:hidden"></i></span>
-                <span class="text"><span class="label">SMS alerts</span></span>
-              </label>
-            </div>
-            <div class="comp-row">
-              <label class="c-choice">
-                <input type="radio" name="c-radio-demo" checked />
-                <span class="c-radio-circle on"><span class="dot"></span></span>
-                <span class="text"><span class="label">Weekly digest</span></span>
-              </label>
-              <label class="c-choice">
-                <input type="radio" name="c-radio-demo" />
-                <span class="c-radio-circle"></span>
-                <span class="text"><span class="label">Daily digest</span></span>
-              </label>
-            </div>
-            <div class="comp-row">
-              <label class="c-choice switch">
-                <span class="c-switch-track on"><span class="c-switch-thumb"></span></span>
-                <input type="checkbox" role="switch" checked />
-                <span class="text"><span class="label">Auto-publish reports</span></span>
-              </label>
-              <label class="c-choice switch">
-                <span class="c-switch-track"><span class="c-switch-thumb"></span></span>
-                <input type="checkbox" role="switch" />
-                <span class="text"><span class="label">Beta features</span></span>
-              </label>
+            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Single &mdash; Default size. Drag the thumb, or click the track.</p>
+              <div class="c-slider-group">
+                <label class="c-slider-label" for="single-default">Campaign budget</label>
+                <div class="c-slider-rail">
+                  <span class="c-slider-tooltip" data-tooltip-for="single-default"></span>
+                  <div class="c-slider-track"><div class="c-slider-fill" data-fill-for="single-default"></div></div>
+                  <input class="c-slider-input" type="range" id="single-default" min="0" max="100000" step="1000" value="40000" aria-label="Campaign budget" data-format="rm" />
+                </div>
+                <div class="c-slider-minmax"><span>RM 0</span><span>RM 100,000</span></div>
+              </div>
+              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Range &mdash; Default size. Fill renders only between the two thumbs; they may touch but never cross.</p>
+              <div class="c-slider-group">
+                <label class="c-slider-label" for="range-min">Price range</label>
+                <div class="c-slider-rail c-slider-range" data-range-group="price">
+                  <span class="c-slider-tooltip" data-tooltip-for="range-min"></span>
+                  <span class="c-slider-tooltip" data-tooltip-for="range-max"></span>
+                  <div class="c-slider-track"><div class="c-slider-fill" data-fill-for="range-min" data-fill-to="range-max"></div></div>
+                  <input class="c-slider-input" type="range" id="range-min" min="0" max="1000" step="10" value="200" aria-label="Minimum value" data-format="rm" data-range-partner="range-max" />
+                  <input class="c-slider-input" type="range" id="range-max" min="0" max="1000" step="10" value="700" aria-label="Maximum value" data-format="rm" data-range-partner="range-min" />
+                </div>
+                <div class="c-slider-minmax"><span>RM 0</span><span>RM 1,000</span></div>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="comp-block" id="comp-datatable">
-          <div class="comp-head"><h3>DataTable</h3><button class="copy-markup-btn" data-target="comp-datatable" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+        <div class="comp-block" id="comp-stat">
+          <div class="comp-head"><h3>Stat / KPI card</h3><button class="copy-markup-btn" data-target="comp-stat" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
-            <div class="c-datatable">
-              <table>
-                <thead><tr><th>Campaign</th><th>Department</th><th class="num">Spend</th></tr></thead>
-                <tbody>
-                  <tr><td>Q3 Retail Push</td><td>Marketing</td><td class="num">$12,480.50</td></tr>
-                  <tr><td>Partner Onboarding</td><td>Data</td><td class="num">$3,102.00</td></tr>
-                  <tr><td>Vendor Compliance Audit</td><td>Finance</td><td class="num">$0.00</td></tr>
-                </tbody>
-              </table>
+            <div class="c-stats">
+              <div class="c-stat">
+                <div class="c-stat-top">
+                  <span class="c-stat-label">Total spend</span>
+                  <span class="icon-chip"><i class="ph-fill ph-fire"></i></span>
+                </div>
+                <span class="c-stat-value">$48.2k</span>
+                <span class="c-stat-trend up"><i class="ph-fill ph-caret-up"></i>12.4% <span class="period">vs last month</span></span>
+              </div>
+              <div class="c-stat">
+                <div class="c-stat-top"><span class="c-stat-label">Open tickets</span></div>
+                <span class="c-stat-value">86</span>
+                <span class="c-stat-trend down"><i class="ph-fill ph-caret-down"></i>3.1% <span class="period">vs last week</span></span>
+                <div class="c-stat-footer">As of 9:41am</div>
+              </div>
+              <div class="c-stat">
+                <div class="c-stat-top"><span class="c-stat-label">Active campaigns</span></div>
+                <span class="c-stat-value">14</span>
+                <span class="c-stat-trend flat"><i class="ph-fill ph-minus"></i>No change</span>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="comp-block" id="comp-elementbadge">
-          <div class="comp-head"><h3>ElementBadge</h3><button class="copy-markup-btn" data-target="comp-elementbadge" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="comp-row">
-              <span class="c-elbadge-chip c-elbadge-fire" title="Fire"><i class="ph-fill ph-fire"></i></span>
-              <span class="c-elbadge-chip c-elbadge-earth" title="Earth"><i class="ph-fill ph-mountains"></i></span>
-              <span class="c-elbadge-chip c-elbadge-water" title="Water"><i class="ph-fill ph-drop"></i></span>
-              <span class="c-elbadge-chip c-elbadge-gold" title="Gold"><i class="ph-fill ph-scales"></i></span>
-              <span class="c-elbadge-chip c-elbadge-wood" title="Wood"><i class="ph-fill ph-plant"></i></span>
-            </div>
-            <div class="comp-row" style="margin-top:var(--spacing-16)">
-              <span class="c-elbadge">
-                <span class="c-elbadge-chip c-elbadge-fire"><i class="ph-fill ph-fire"></i></span>
-                <span class="text"><span class="name">Fire</span><span class="fn">Visibility &amp; Energy</span></span>
-              </span>
-            </div>
-          </div>
-        </div>
-
         <div class="comp-block" id="comp-stepper">
-          <div class="comp-head"><h3>Stepper <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-stepper" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-head"><h3>Stepper</h3><button class="copy-markup-btn" data-target="comp-stepper" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
 
             <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Horizontal &mdash; With Description</p>
@@ -1784,7 +2060,51 @@
 
           </div>
         </div>
-
+        <div class="comp-block" id="comp-switch">
+          <div class="comp-head"><h3>Switch</h3><button class="copy-markup-btn" data-target="comp-switch" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row">
+              <label class="c-choice switch">
+                <span class="c-switch-track on"><span class="c-switch-thumb"></span></span>
+                <input type="checkbox" role="switch" checked />
+                <span class="text"><span class="label">Auto-publish reports</span></span>
+              </label>
+              <label class="c-choice switch">
+                <span class="c-switch-track"><span class="c-switch-thumb"></span></span>
+                <input type="checkbox" role="switch" />
+                <span class="text"><span class="label">Beta features</span></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="comp-block" id="comp-table">
+          <div class="comp-head"><h3>Table row</h3><button class="copy-markup-btn" data-target="comp-table" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <table class="c-table">
+              <thead><tr><th>Campaign</th><th>Department</th><th>Status</th><th class="num">Spend</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Q3 Retail Push</td>
+                  <td><span class="c-tag c-tag-fire"><span class="dot"></span>Fire</span></td>
+                  <td><span class="c-badge c-badge-success">Live</span></td>
+                  <td class="num">$12,480.50</td>
+                </tr>
+                <tr class="selected">
+                  <td>Partner Onboarding</td>
+                  <td><span class="c-tag c-tag-water"><span class="dot"></span>Water</span></td>
+                  <td><span class="c-badge c-badge-warning">Paused</span></td>
+                  <td class="num">$3,102.00</td>
+                </tr>
+                <tr>
+                  <td>Vendor Compliance Audit</td>
+                  <td><span class="c-tag c-tag-gold"><span class="dot"></span>Gold</span></td>
+                  <td><span class="c-badge c-badge-error">Blocked</span></td>
+                  <td class="num">$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         <div class="comp-block" id="comp-tabs">
           <div class="comp-head"><h3>Tabs</h3><button class="copy-markup-btn" data-target="comp-tabs" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -1795,7 +2115,6 @@
             </div>
           </div>
         </div>
-
         <div class="comp-block" id="comp-toast">
           <div class="comp-head"><h3>Toast</h3><button class="copy-markup-btn" data-target="comp-toast" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -1812,43 +2131,6 @@
             </div>
           </div>
         </div>
-
-        <div class="comp-block" id="comp-info-banner">
-          <div class="comp-head"><h3>Info Banner <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-info-banner" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-8);">
-              <div class="c-banner c-banner-neutral" role="note">
-                <i class="ph-fill ph-info icon"></i>
-                <div class="body"><div class="message">Message-only is the default shape. A general FYI with no positive or negative charge.</div></div>
-              </div>
-              <div class="c-banner c-banner-info" role="status">
-                <i class="ph-fill ph-info icon"></i>
-                <div class="body"><div class="message">Dismissible, no action slot. Just a close button.</div></div>
-                <button class="c-icon-btn close" type="button" aria-label="Dismiss"><i class="ph ph-x"></i></button>
-              </div>
-              <div class="c-banner c-banner-success" role="note">
-                <i class="ph-fill ph-check-circle icon"></i>
-                <div class="body"><div class="message">Sync complete. All records are up to date.</div></div>
-              </div>
-              <div class="c-banner c-banner-warning" role="status">
-                <i class="ph-fill ph-warning icon"></i>
-                <div class="body">
-                  <div class="message">Your card on file expires this month.</div>
-                  <div class="actions">
-                    <button class="action" type="button">Update billing</button>
-                    <button class="action" type="button">Remind me later</button>
-                  </div>
-                </div>
-                <button class="c-icon-btn close" type="button" aria-label="Dismiss"><i class="ph ph-x"></i></button>
-              </div>
-              <div class="c-banner c-banner-danger" role="note">
-                <i class="ph-fill ph-x-circle icon"></i>
-                <div class="body"><div class="message">We can&rsquo;t reach the server right now. Retrying automatically.</div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="comp-block" id="comp-tooltip">
           <div class="comp-head"><h3>Tooltip</h3><button class="copy-markup-btn" data-target="comp-tooltip" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -1860,203 +2142,6 @@
               <span class="c-tooltip-wrap">
                 <button class="c-btn c-btn-secondary c-btn-sm">Hover me</button>
               </span>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-datepicker">
-          <div class="comp-head"><h3>Date picker <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-datepicker" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="comp-row" style="align-items:flex-start">
-              <button class="c-dp-trigger" type="button"><i class="ph-fill ph-calendar"></i>Jul 12 &ndash; Jul 24, 2026</button>
-              <div class="c-dp-panel">
-                <div class="c-dp-header">
-                  <button class="c-icon-btn" type="button"><i class="ph ph-caret-left"></i></button>
-                  <h5>July 2026</h5>
-                  <button class="c-icon-btn" type="button"><i class="ph ph-caret-right"></i></button>
-                </div>
-                <div class="c-dp-grid">
-                  <span class="c-dp-weekday">S</span><span class="c-dp-weekday">M</span><span class="c-dp-weekday">T</span><span class="c-dp-weekday">W</span><span class="c-dp-weekday">T</span><span class="c-dp-weekday">F</span><span class="c-dp-weekday">S</span>
-                  <button class="c-dp-day disabled" type="button">28</button><button class="c-dp-day disabled" type="button">29</button><button class="c-dp-day disabled" type="button">30</button>
-                  <button class="c-dp-day" type="button">1</button><button class="c-dp-day" type="button">2</button><button class="c-dp-day" type="button">3</button><button class="c-dp-day" type="button">4</button>
-                  <button class="c-dp-day" type="button">5</button><button class="c-dp-day" type="button">6</button><button class="c-dp-day" type="button">7</button><button class="c-dp-day" type="button">8</button><button class="c-dp-day" type="button">9</button><button class="c-dp-day" type="button">10</button><button class="c-dp-day today" type="button">11</button>
-                  <button class="c-dp-day range-start" type="button">12</button><button class="c-dp-day range" type="button">13</button><button class="c-dp-day range" type="button">14</button><button class="c-dp-day range" type="button">15</button><button class="c-dp-day range" type="button">16</button><button class="c-dp-day range" type="button">17</button><button class="c-dp-day range" type="button">18</button>
-                  <button class="c-dp-day range" type="button">19</button><button class="c-dp-day range" type="button">20</button><button class="c-dp-day range" type="button">21</button><button class="c-dp-day range" type="button">22</button><button class="c-dp-day range" type="button">23</button><button class="c-dp-day range-end" type="button">24</button><button class="c-dp-day" type="button">25</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-filters">
-          <div class="comp-head"><h3>Filters <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-filters" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="c-filterbar">
-              <span class="c-filter-search"><i class="ph ph-magnifying-glass"></i><input placeholder="Search campaigns" /></span>
-              <button class="c-filter-trigger active" type="button"><i class="ph ph-funnel"></i>Department<span class="count">2</span></button>
-              <button class="c-filter-trigger" type="button"><i class="ph ph-funnel"></i>Status</button>
-              <span class="c-filter-pill">Fire <i class="ph ph-x"></i></span>
-              <span class="c-filter-pill">Water <i class="ph ph-x"></i></span>
-              <button class="c-filter-clear" type="button">Clear all</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-pagination">
-          <div class="comp-head"><h3>Pagination <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-pagination" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="c-pagination">
-              <span class="count">Showing 1&ndash;20 of 248</span>
-              <div class="c-page-controls">
-                <button class="c-page-btn" disabled type="button"><i class="ph ph-caret-left"></i></button>
-                <button class="c-page-btn" type="button">1</button>
-                <button class="c-page-btn current" type="button">2</button>
-                <button class="c-page-btn" type="button">3</button>
-                <span class="c-page-ellipsis">&hellip;</span>
-                <button class="c-page-btn" type="button">12</button>
-                <button class="c-page-btn" type="button"><i class="ph ph-caret-right"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-stat">
-          <div class="comp-head"><h3>Stat / KPI card <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-stat" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="c-stats">
-              <div class="c-stat">
-                <div class="c-stat-top">
-                  <span class="c-stat-label">Total spend</span>
-                  <span class="icon-chip"><i class="ph-fill ph-fire"></i></span>
-                </div>
-                <span class="c-stat-value">$48.2k</span>
-                <span class="c-stat-trend up"><i class="ph-fill ph-caret-up"></i>12.4% <span class="period">vs last month</span></span>
-              </div>
-              <div class="c-stat">
-                <div class="c-stat-top"><span class="c-stat-label">Open tickets</span></div>
-                <span class="c-stat-value">86</span>
-                <span class="c-stat-trend down"><i class="ph-fill ph-caret-down"></i>3.1% <span class="period">vs last week</span></span>
-                <div class="c-stat-footer">As of 9:41am</div>
-              </div>
-              <div class="c-stat">
-                <div class="c-stat-top"><span class="c-stat-label">Active campaigns</span></div>
-                <span class="c-stat-value">14</span>
-                <span class="c-stat-trend flat"><i class="ph-fill ph-minus"></i>No change</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-chartmap">
-          <div class="comp-head"><h3>Chart color mapping <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; guideline, not a component</span></h3></div>
-          <div class="comp-demo">
-            <div class="c-chartmap-row">
-              <span class="c-chartmap-label">Categorical (dept.)</span>
-              <span class="c-chartmap-swatch" style="background:var(--color-orange)"></span>
-              <span class="c-chartmap-swatch" style="background:var(--color-salmon-pink)"></span>
-              <span class="c-chartmap-swatch" style="background:var(--color-green)"></span>
-              <span class="c-chartmap-swatch" style="background:var(--color-navy)"></span>
-              <span class="c-chartmap-swatch" style="background:var(--color-amber)"></span>
-              <span class="c-chartmap-swatch" style="background:var(--color-purple)"></span>
-              <span class="c-chartmap-swatch" style="background:var(--color-turquoise)"></span>
-            </div>
-            <div class="c-chartmap-row">
-              <span class="c-chartmap-label">Sequential (Water)</span>
-              <span class="c-chartmap-ramp" style="background:linear-gradient(90deg, var(--color-water-bg), var(--color-navy))"></span>
-            </div>
-            <div class="c-chartmap-row">
-              <span class="c-chartmap-label">Diverging (variance)</span>
-              <span class="c-chartmap-ramp" style="background:linear-gradient(90deg, var(--color-green), var(--color-neutral-3), var(--color-red))"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-pageheader">
-          <div class="comp-head"><h3>PageHeader <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-pageheader" type="button"><i class="ph-fill ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Default</p>
-              <div class="c-pageheader">
-                <div class="c-pageheader-row">
-                  <div class="c-pageheader-text">
-                    <h1>Campaign Dashboard</h1>
-                  </div>
-                </div>
-              </div>
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">With subtitle</p>
-              <div class="c-pageheader">
-                <div class="c-pageheader-row">
-                  <div class="c-pageheader-text">
-                    <h1>Campaign Dashboard</h1>
-                    <p class="sub">Track performance across every active campaign in one place.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-segctl">
-          <div class="comp-head"><h3>Segmented Control <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-segctl" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Icon only &mdash; right-aligned in a toolbar. Track width hugs its own content here (the component's real default per "Track width is determined by context") rather than stretching full-width &mdash; that only happened in an earlier demo layout that isn't used here.</p>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-16); padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-2); border-radius:var(--radius-md);">
-                <span style="font-family:var(--font-primary); font-size:var(--text-h5-size); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);">Campaign performance</span>
-                <div class="c-segctl c-segctl-compact" role="group" aria-label="View mode">
-                  <span class="c-seg-tt-wrap">
-                    <button class="c-seg" role="radio" aria-checked="true" aria-label="List view" type="button"><i class="ph ph-list"></i></button>
-                    <span class="c-seg-tt-bubble">List view</span>
-                  </span>
-                  <span class="c-seg-tt-wrap">
-                    <button class="c-seg" role="radio" aria-checked="false" aria-label="Grid view" type="button"><i class="ph ph-squares-four"></i></button>
-                    <span class="c-seg-tt-bubble">Grid view</span>
-                  </span>
-                  <span class="c-seg-tt-wrap">
-                    <button class="c-seg" role="radio" aria-checked="false" aria-label="Board view" type="button"><i class="ph ph-kanban"></i></button>
-                    <span class="c-seg-tt-bubble">Board view</span>
-                  </span>
-                </div>
-              </div>
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Text only &mdash; right-aligned in a toolbar</p>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-16); padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-2); border-radius:var(--radius-md);">
-                <span style="font-family:var(--font-primary); font-size:var(--text-h5-size); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);">Revenue trend</span>
-                <div class="c-segctl c-segctl-compact" role="group" aria-label="Date range">
-                  <button class="c-seg" role="radio" aria-checked="false" type="button">MTD</button>
-                  <button class="c-seg" role="radio" aria-checked="true" type="button">QTD</button>
-                  <button class="c-seg" role="radio" aria-checked="false" type="button">YTD</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="comp-block" id="comp-slider">
-          <div class="comp-head"><h3>Slider <span style="font-size:11px;font-weight:600;color:var(--color-red)">&mdash; designed not transcribed</span></h3><button class="copy-markup-btn" data-target="comp-slider" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:var(--spacing-24)">
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Single &mdash; Default size. Drag the thumb, or click the track.</p>
-              <div class="c-slider-group">
-                <label class="c-slider-label" for="single-default">Campaign budget</label>
-                <div class="c-slider-rail">
-                  <span class="c-slider-tooltip" data-tooltip-for="single-default"></span>
-                  <div class="c-slider-track"><div class="c-slider-fill" data-fill-for="single-default"></div></div>
-                  <input class="c-slider-input" type="range" id="single-default" min="0" max="100000" step="1000" value="40000" aria-label="Campaign budget" data-format="rm" />
-                </div>
-                <div class="c-slider-minmax"><span>RM 0</span><span>RM 100,000</span></div>
-              </div>
-              <p style="margin:0;font-size:12px;color:var(--color-neutral-5)">Range &mdash; Default size. Fill renders only between the two thumbs; they may touch but never cross.</p>
-              <div class="c-slider-group">
-                <label class="c-slider-label" for="range-min">Price range</label>
-                <div class="c-slider-rail c-slider-range" data-range-group="price">
-                  <span class="c-slider-tooltip" data-tooltip-for="range-min"></span>
-                  <span class="c-slider-tooltip" data-tooltip-for="range-max"></span>
-                  <div class="c-slider-track"><div class="c-slider-fill" data-fill-for="range-min" data-fill-to="range-max"></div></div>
-                  <input class="c-slider-input" type="range" id="range-min" min="0" max="1000" step="10" value="200" aria-label="Minimum value" data-format="rm" data-range-partner="range-max" />
-                  <input class="c-slider-input" type="range" id="range-max" min="0" max="1000" step="10" value="700" aria-label="Maximum value" data-format="rm" data-range-partner="range-min" />
-                </div>
-                <div class="c-slider-minmax"><span>RM 0</span><span>RM 1,000</span></div>
-              </div>
             </div>
           </div>
         </div>
@@ -2091,6 +2176,8 @@
       <a class="iconbtn iconbtn-primary" href="https://github.com/astroproductdesign/Collabrium-DS/archive/refs/heads/main.zip" title="Downloads the whole collabrium-dls folder (this file, DESIGN-SYSTEM.md, tokens.css, logo.html, logo-lockups/, SVG/, fonts/) as a zip from GitHub, not just this tab's text"><i class="ph ph-download-simple"></i> Download dls (.zip)</a>
     </div>
   </div>
+
+</div>
 
 </div>
 
@@ -8065,6 +8152,144 @@ document.getElementById('changelogOpenBtn').addEventListener('click', () => {
 document.getElementById('changelogBackBtn').addEventListener('click', () => {
   document.getElementById('changelogPage').hidden = true;
 });
+
+/* ---------- Site SidebarNav — replaces the old horizontal jumpnav ---------- */
+(function(){
+  const sidebar = document.getElementById('siteSidebar');
+  const scrollHost = document.querySelector('.pane-left');
+
+  function clearActive(){
+    sidebar.querySelectorAll('.c-sidebar-item').forEach(el => el.classList.remove('active', 'parent-active-child'));
+    sidebar.querySelectorAll('.c-nav-child').forEach(el => el.classList.remove('active'));
+  }
+
+  function selectTopItem(item){
+    clearActive();
+    item.classList.add('active');
+  }
+
+  function selectChild(child){
+    clearActive();
+    child.classList.add('active');
+    const parentToggle = child.closest('.c-nav-children').previousElementSibling;
+    parentToggle.classList.add('parent-active-child');
+  }
+
+  function scrollToTarget(id){
+    const target = document.getElementById(id);
+    if(!target) return;
+    // Below 900px, .pane-left stops scrolling itself (window scrolls
+    // instead — see the mobile media query), so detect which is actually
+    // the scrolling container rather than assuming .pane-left always is.
+    if(scrollHost.scrollHeight <= scrollHost.clientHeight){
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    // offsetTop only works when offsetParent lines up with the scroll
+    // container itself — .comp-block sections are nested several levels
+    // deep, so measure the actual on-screen gap instead.
+    const offset = target.getBoundingClientRect().top - scrollHost.getBoundingClientRect().top + scrollHost.scrollTop;
+    scrollHost.scrollTo({ top: offset, behavior: 'smooth' });
+  }
+
+  function openPanel(navParentToggle, opening){
+    const key = navParentToggle.dataset.navParent;
+    const panel = navParentToggle.parentElement.querySelector(`[data-nav-panel="${key}"]`);
+    panel.classList.toggle('is-open', opening);
+    navParentToggle.setAttribute('aria-expanded', String(opening));
+    const chevron = navParentToggle.querySelector('.js-nav-parent-chevron');
+    chevron.classList.toggle('ph-caret-down', !opening);
+    chevron.classList.toggle('ph-caret-up', opening);
+  }
+
+  sidebar.addEventListener('click', (e) => {
+    // Parent item (Foundation / Components) — accordion toggle when
+    // expanded; collapsed rail routes straight to the first child instead,
+    // per SidebarNav's own collapsed-parent-icon rule.
+    const parentToggle = e.target.closest('.js-nav-parent-toggle');
+    if(parentToggle){
+      if(sidebar.classList.contains('is-collapsed')){
+        const key = parentToggle.dataset.navParent;
+        const panel = parentToggle.parentElement.querySelector(`[data-nav-panel="${key}"]`);
+        const firstChild = panel.querySelector('.c-nav-child');
+        if(firstChild){
+          selectChild(firstChild);
+          scrollToTarget(firstChild.dataset.navTarget);
+        }
+        return;
+      }
+      const key = parentToggle.dataset.navParent;
+      const panel = parentToggle.parentElement.querySelector(`[data-nav-panel="${key}"]`);
+      openPanel(parentToggle, !panel.classList.contains('is-open'));
+      return;
+    }
+
+    // Second-level child
+    const child = e.target.closest('.c-nav-child');
+    if(child){
+      selectChild(child);
+      scrollToTarget(child.dataset.navTarget);
+      return;
+    }
+
+    // Top-level item (General)
+    const item = e.target.closest('.c-sidebar-item');
+    if(item){
+      selectTopItem(item);
+      scrollToTarget(item.dataset.navTarget);
+    }
+  });
+
+  // Collapse/expand toggle — width transition per DESIGN-SYSTEM.md's
+  // Collapsible state, persisted to localStorage per its own Persistence row.
+  const toggleBtn = document.querySelector('[data-sidebar-toggle="siteSidebar"]');
+  const arrow = toggleBtn.querySelector('.js-sidebar-toggle-arrow');
+  function applyCollapsed(collapsed){
+    sidebar.classList.toggle('is-collapsed', collapsed);
+    toggleBtn.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    arrow.setAttribute('d', collapsed ? 'M9.5 7l2.5 3-2.5 3' : 'M13.5 7 11 10l2.5 3');
+  }
+  toggleBtn.addEventListener('click', () => {
+    const collapsed = !sidebar.classList.contains('is-collapsed');
+    applyCollapsed(collapsed);
+    localStorage.setItem('collabrium-sidebar-collapsed', collapsed ? '1' : '0');
+  });
+  if(localStorage.getItem('collabrium-sidebar-collapsed') === '1') applyCollapsed(true);
+
+  // Collapsed — hover label. Same shared, fixed-position pattern as the
+  // gallery's own SidebarNav demo (DESIGN-SYSTEM.md's "Collapsed — hover
+  // label" row), just scoped to this sidebar instance instead of #components.
+  const hoverLabel = document.getElementById('siteSidebarHoverLabel');
+  function showHoverLabel(item){
+    const source = item.querySelector('.c-sidebar-hover-text');
+    if(!sidebar.classList.contains('is-collapsed') || !source) return;
+    const iconRect = item.querySelector('i').getBoundingClientRect();
+    hoverLabel.textContent = source.textContent;
+    hoverLabel.style.left = (iconRect.right + 8) + 'px';
+    hoverLabel.style.top = (iconRect.top + iconRect.height / 2) + 'px';
+    hoverLabel.style.transform = 'translateY(-50%)';
+    hoverLabel.classList.add('is-visible');
+  }
+  function hideHoverLabel(){
+    hoverLabel.classList.remove('is-visible');
+  }
+  sidebar.addEventListener('mouseover', (e) => {
+    const item = e.target.closest('.c-sidebar-item');
+    if(item && !item.contains(e.relatedTarget)) showHoverLabel(item);
+  });
+  sidebar.addEventListener('mouseout', (e) => {
+    const item = e.target.closest('.c-sidebar-item');
+    if(item && !item.contains(e.relatedTarget)) hideHoverLabel();
+  });
+  sidebar.addEventListener('focusin', (e) => {
+    const item = e.target.closest('.c-sidebar-item');
+    if(item) showHoverLabel(item);
+  });
+  sidebar.addEventListener('focusout', (e) => {
+    const item = e.target.closest('.c-sidebar-item');
+    if(item) hideHoverLabel();
+  });
+})();
 </script>
 </body>
 </html>
