@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.35** — 2026-08-10 — Sourced from the Collabrium brand deck
+**v0.9.36** — 2026-08-10 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -690,19 +690,20 @@ Empty state), 9 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
 Switch, Toast, Tooltip, DataTable, ElementBadge), 7 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
-picker, **Segmented Control**, **Slider**, **Chip** — plus a Chart color mapping
-guideline (not a rendered component), and 8 more: **App Shell** (the
-page-level composition layer — Sidebar placement, Content region, Page
-header), Textarea, Password field, **Search input** (a text search
-field with a clear button, in Default/User Search/Item Search
-variants — the last two searching and selecting a person or item from
-a dropdown), **Stepper** (a multi-step progress indicator),
-**FileUploader** (click-to-browse/drag-and-drop file attachment),
-**Dropdown** (a trigger+panel in Single select/Multiple select
-variants — the former, separately transcribed **Select** and
-designed-from-scratch **MultiSelect**, consolidated into one
-component), and **Info Banner** (an inline, persistent,
-container-anchored notification — distinct from Toast's
+picker, **Segmented Control**, **Slider**, **Chip** — plus two chart
+guidelines, [Chart color mapping](#chart-color-mapping) and [Chart
+chrome & marks](#chart-chrome--marks) (neither a rendered component),
+and 8 more: **App Shell** (the page-level composition layer — Sidebar
+placement, Content region, Page header), Textarea, Password field,
+**Search input** (a text search field with a clear button, in
+Default/User Search/Item Search variants — the last two searching and
+selecting a person or item from a dropdown), **Stepper** (a
+multi-step progress indicator), **FileUploader** (click-to-browse/
+drag-and-drop file attachment), **Dropdown** (a trigger+panel in
+Single select/Multiple select variants — the former, separately
+transcribed **Select** and designed-from-scratch **MultiSelect**,
+consolidated into one component), and **Info Banner** (an inline,
+persistent, container-anchored notification — distinct from Toast's
 floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
 batch, App Shell, Stepper, FileUploader, Dropdown, Search input, Info
 Banner, **Segmented Control**, **Slider**, and **Chip** have **no source in
@@ -722,6 +723,7 @@ through.
 - [Badge & Tag](#badge--tag)
 - [Button](#button)
 - [Card](#card)
+- [Chart chrome & marks](#chart-chrome--marks)
 - [Chart color mapping](#chart-color-mapping)
 - [Checkbox](#checkbox)
 - [Chip](#chip)
@@ -2407,6 +2409,112 @@ table in order, not arbitrarily. **Don't:** use more than one hue
 family within a single sequential or diverging scale, or let a legend
 introduce a color that isn't already a token in this document.
 
+### Chart chrome & marks
+
+⚠️ **Designed from scratch — no source in either the original brand
+deck or the teammate's build.** Chart.js v4 has been adopted as this
+system's charting library. This section is a companion to [Chart color
+mapping](#chart-color-mapping) above (which covers categorical/
+sequential/diverging color-role assignment): it specs the chrome
+(axes, tooltip, legend), the marks (bar/line/area/radial), and the
+card/KPI container every chart sits in. Still first-pass, not reviewed
+by the brand team, and — like the rest of this document — a spec to
+build against rather than a transcription of any one existing build.
+
+Gridline color follows [Chart color mapping](#chart-color-mapping)'s
+existing "Neutral-3 for gridlines" rule above — carried forward as-is,
+not a new value.
+
+#### Chart chrome (every chart)
+
+| Element | Rule |
+|---|---|
+| X-axis | No border, no gridlines |
+| Y-axis | No border; only gridline on the chart, color Neutral-3, hairline |
+| Axis tick labels (X & Y) | `footnote` token (`--text-footnote-*`: 12px / 16px lh / 400 weight), Neutral-5 |
+| Axis titles (when present, e.g. Bubble/Scatter) | `label2` token (`--text-label2-*`: 13px / 18px lh / 700), Neutral-5 |
+| Tooltip surface | Neutral-1 bg, 1px Neutral-3 border, `cornerRadius: 8` (literal — no matching radius token exists), `padding: 10` (literal) |
+| Tooltip title (the value) | `label2` token, Neutral-9 |
+| Tooltip body (the label) | `label3` token, Neutral-5 |
+| Legend | `position: 'bottom'`, `align: 'start'` (left-aligned row), `caption` token labels, Neutral-5, circular `usePointStyle` swatches (`boxWidth`/`boxHeight: 10`), item padding tied to `--spacing-16` (not a literal) |
+
+#### Marks
+
+| Mark | Rule |
+|---|---|
+| Bar corner radius | `--spacing-4` (4px), top-only |
+| Bar max thickness (vertical) | `--spacing-24` (24px cap, dataviz spec) |
+| Bar max thickness (horizontal) | `--spacing-20` (20px) — its own token, distinct from vertical |
+| Bar hover | `color-mix()` 15% toward Neutral-9 from the base color |
+| Line stroke | 2px, `tension: 0.3` |
+| Line points | 3px radius, 2px Neutral-1 ring border, 5px on hover |
+| Area/line fill wash | `color-mix(…, transparent 88%)` off the line's own color — never full-strength |
+| Radial grid rings + angle lines | Neutral-3 |
+| Radial tick numbers + point labels | `footnote` token; ticks get an opaque Neutral-1 `backdropColor` + `backdropPadding: --spacing-4` so the dataset fill never swallows the number |
+
+#### Per-chart-type marks
+
+| Chart type | Stroke / line width | Fill | Points | Notes |
+|---|---|---|---|---|
+| Bar (single-series) | — | mid (full-strength theme color); hover → hover (color-mixed 15% darker) | — | rounded 4px top, 24px cap |
+| Horizontal bar | — | mid | — | same radius rule; thickness should come from `--spacing-20` above — if an implementation hardcodes `maxBarThickness: 20` as a literal instead, treat that as a bug to fix, not a second deliberate literal-value exception (the tooltip's `cornerRadius`/`padding` above remain the only genuine one, since no matching token exists for those) |
+| Line (plain) | 2px | none (`fill: false`) | 3px radius, 2px white ring border, 5px on hover | `tension: 0.3` for a gentle curve, not sharp joints |
+| Area (filled line) | 2px | fill wash — `color-mix(…, transparent 88%)`, a ~12% wash, never the full-strength color | same as Line | the only chart where the line's own color also becomes a fill, at reduced opacity |
+| Scatter | 1px point border | mid | 6px radius, 8px on hover | no line connecting points |
+| Doughnut / Pie | 2px slice border, white | Same-hue ramp (light→dark, one rung per slice) | — | border color is Neutral-1 (the gap-between-slices trick) |
+| Radar | 2px | fill wash (~12% wash) | 3px, white border | `suggestedMin`/`suggestedMax` fixed to the 0–10 rating scale, not auto-scaled |
+| Bubble | series color as point border | `-wash` variant of each series color (30% or 15% transparent — see [Chart color mapping](#chart-color-mapping)'s ramp) | radius = third data dimension | 3 series max, all-pairs-validated slots only |
+| Polar area | 2px slice border, white | Same-hue ramp, translucent (30% for saturated rungs, 15% for the two pale tint rungs) | — | translucency is deliberate: lets grid rings show through the whole wedge, not just at the tick spoke |
+
+#### Card / KPI / container
+
+| Element | Rule |
+|---|---|
+| Chart card padding | [Card](#card)'s own default (`--spacing-16`) — no override |
+| Chart canvas | `flex: 1 1 auto` + a min-height floor (260px, 300px for `.tall`) — not a fixed height, so it fills whatever a CSS-Grid-stretched card gives it |
+| KPI label | [Stat / KPI card](#stat--kpi-card)'s own `caption` token, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — not a new token set |
+| KPI value | [Stat / KPI card](#stat--kpi-card)'s own `h1` token, Neutral-9 |
+| KPI badge | Reused [Badge & Tag](#badge--tag)'s `.c-badge`/`.c-badge-success`/`.c-badge-error` verbatim, with a local `.kpi-tile .c-badge { align-self: flex-start }` fix — [Stat / KPI card](#stat--kpi-card)'s container is a column flexbox with no `align-items`, which was silently stretching the badge to full card width |
+| "View as table" button | Reuses `.c-btn c-btn-secondary c-btn-sm` verbatim — no bespoke button CSS. Every chart gets one except Bubble (structurally has no accompanying `<table>` at all) |
+| Chart grid | `repeat(3, 1fr)` → 2 cols @1100px → 1 col @640px, `--spacing-16` gap |
+
+⚠️ **Known implementation risk, not a doc decision:** an
+implementation may be tempted to style the KPI label/value with
+`label1`/`h3` instead of the `caption`/`h1` documented above. Treat
+that as a bug to fix against this spec, not a second valid token set —
+[Stat / KPI card](#stat--kpi-card) stays the single source of truth for
+KPI typography.
+
+#### Chart type selection
+
+Choose chart type based on what the data communicates, not aesthetics.
+
+| Data story | Use this chart |
+|---|---|
+| Compare values across categories | Horizontal bar chart |
+| Change over time | Line chart |
+| Cumulative volume over time | Area chart (fill ≤ 12% opacity) |
+| Part of a whole | Doughnut chart (max 5 segments) |
+| Correlation / distribution | Scatter chart |
+| 3 variables (x, y, size) | Bubble chart |
+| Performance across dimensions | Radar chart (max 6 axes) |
+| Volume by category (non-linear) | Polar area chart |
+| Single headline number | Stat tile — not a chart |
+| Forecast vs actual over time | Multi-series area + line chart with projection zone annotation |
+| Cumulative concentration | Concentration curve (area chart with annotated callouts) |
+| Positive / negative contributions | Diverging horizontal bar chart (bridge/waterfall) |
+| Deal stage pipeline | Weighted pipeline bar component (custom — built in HTML/CSS, not chart library) |
+| 2×2 performance matrix | Scatter chart with quadrant zone backgrounds |
+| Budget / gap breakdown | Segmented bar + detail table (custom component from `components.css`) |
+
+**Do:** pick a chart type from the table above by what the data needs
+to say, not by preference; give every chart the same chrome (no axis
+borders, Neutral-3 gridlines, one tooltip/legend spec) so a user can
+move between charts without relearning the furniture. **Don't:** fill
+an area/line mark above ~12% opacity, or exceed 5 Doughnut segments / 6
+Radar axes / 3 Bubble series — past those caps, pick a different chart
+type instead of cramming more into the same one.
+
 ### PageHeader
 
 ⚠️ **Designed from scratch — no source in either the original
@@ -2942,6 +3050,28 @@ what powers `preview.html`'s Changelog page (the button next to the
 version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
+
+- **v0.9.36 — 2026-08-10** — Added a new **Chart chrome & marks**
+  section, appended after the existing [Chart color
+  mapping](#chart-color-mapping) guideline rather than editing it: axis/
+  gridline/tooltip/legend chrome, general bar/line/area/radial mark
+  rules, a per-chart-type mark table (Bar, Horizontal bar, Line, Area,
+  Scatter, Doughnut, Radar, Bubble, Polar area), a Card/KPI/container
+  table for chart-card chrome, and a chart-type-selection guide (data
+  story → chart type). Reflects Chart.js v4 as this system's adopted
+  charting library, stated generically rather than pointing at any
+  specific implementation file, since none is guaranteed to still exist
+  in this repo. Gridline color follows [Chart color
+  mapping](#chart-color-mapping)'s existing "Neutral-3" line exactly —
+  an initial draft of this section used Neutral-2 instead, caught and
+  corrected before finalizing so the two sections agree; that older
+  text itself was left as-is per explicit instruction to append, not
+  replace. Also flagged: KPI label/value should use [Stat / KPI
+  card](#stat--kpi-card)'s own `caption`/`h1` tokens, not `label1`/`h3`
+  — noted as a risk to guard against, not a second valid pattern. This
+  is a guideline, not a rendered component, so it doesn't change the
+  31-component Scope note count; ToC and Scope note updated to list it
+  alongside Chart color mapping.
 
 - **v0.9.33 — 2026-08-10** — **Slider** spec updated from a tested
   reference build. (1) Track and min/max labels run the component's
