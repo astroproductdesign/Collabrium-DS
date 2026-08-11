@@ -95,7 +95,7 @@
   .changelog-empty{color:var(--color-neutral-5); font-size:var(--text-body1-size);}
 
   /* Two-pane layout */
-  .layout{display:grid; grid-template-columns:1.1fr 1fr; flex:1; min-height:0;}
+  .layout{display:grid; grid-template-columns:7fr 3fr; flex:1; min-height:0;}
   .pane{overflow-y:auto; min-width:0;}
   .pane-left{border-right:1px solid var(--color-neutral-3);}
   .pane-right{display:flex; flex-direction:column; background:var(--color-neutral-1);}
@@ -247,15 +247,21 @@
   .tabbar{display:flex; align-items:center; gap:22px; padding:0 24px; height:48px; border-bottom:1px solid var(--color-neutral-3); flex:none; overflow-x:auto;}
   .tabbar button{background:none; border:none; font-family:inherit; font-size:13px; font-weight:600; color:var(--color-neutral-5); cursor:pointer; padding:0; height:48px; border-bottom:2px solid transparent; white-space:nowrap;}
   .tabbar button.active{color:var(--color-neutral-9); border-bottom-color:var(--color-obsidian);}
-  .subbar{display:flex; align-items:center; gap:8px; padding:10px 24px; border-bottom:1px solid var(--color-neutral-2); flex:none;}
-  .subbar .segmented{display:flex; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); overflow:hidden;}
-  .subbar .segmented button{padding:5px 14px; font-size:12px; font-weight:600; border:none; background:var(--color-neutral-1); cursor:pointer; font-family:inherit; color:var(--color-neutral-9);}
+  .subbar{display:flex; align-items:center; gap:8px; padding:10px 24px; border-bottom:1px solid var(--color-neutral-2); flex:none; overflow-x:auto; overflow-y:hidden;}
+  .subbar .segmented{display:flex; flex:none; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); overflow:hidden;}
+  .subbar .segmented button{padding:5px 14px; font-size:12px; font-weight:600; border:none; background:var(--color-neutral-1); cursor:pointer; font-family:inherit; color:var(--color-neutral-9); white-space:nowrap;}
   .subbar .segmented button.active{background:var(--color-neutral-9); color:var(--color-neutral-1);}
-  .subbar .spacer{flex:1;}
-  .subbar .iconbtn{display:flex; align-items:center; gap:6px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); padding:5px 10px; font-size:12px; font-weight:600; background:var(--color-neutral-1); cursor:pointer; font-family:inherit; color:var(--color-neutral-9);}
-  .subbar .iconbtn:hover{background:var(--color-neutral-2);}
+  .subbar .spacer{flex:1; min-width:var(--spacing-16);}
+  .iconbtn{display:flex; align-items:center; gap:6px; flex:none; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); padding:5px 10px; font-size:12px; font-weight:600; background:var(--color-neutral-1); cursor:pointer; font-family:inherit; color:var(--color-neutral-9); white-space:nowrap; text-decoration:none;}
+  .iconbtn:hover{background:var(--color-neutral-2);}
   .codearea{flex:1; overflow:auto; padding:24px; font-family:'SF Mono', Menlo, Consolas, monospace; font-size:12.5px; line-height:1.7; white-space:pre-wrap; word-break:break-word; color:var(--color-neutral-9);}
   .codearea .h{color:var(--color-navy); font-weight:700;}
+  /* Fixed footer — .pane-right is a flex column with .codearea as the only
+     flex:1 child, so this sits pinned below it without position:fixed. */
+  .pane-right-footer{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-12) 24px; border-top:1px solid var(--color-neutral-3); flex:none; background:var(--color-neutral-1); overflow-x:auto; overflow-y:hidden;}
+  .pane-right-footer .iconbtn{flex:1; justify-content:center; height:32px; padding:0 var(--spacing-12); font-size:14px; font-weight:700; border-radius:var(--radius-sm);}
+  .iconbtn-primary{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+  .iconbtn-primary:hover{background:var(--color-neutral-8); border-color:var(--color-neutral-8);}
 
   @media (max-width:900px){
     .layout{grid-template-columns:1fr; height:auto;}
@@ -263,6 +269,11 @@
     .pane-left{border-right:none; border-bottom:1px solid var(--color-neutral-3);}
     body{height:auto;}
     .codearea{max-height:70vh;}
+    /* Pane scrolling gives way to normal page scroll on mobile (above), so
+       the footer needs its own position:fixed here instead of relying on
+       the flex-column pin the desktop layout uses. */
+    .pane-right{padding-bottom:72px;}
+    .pane-right-footer{position:fixed; left:0; right:0; bottom:0; z-index:10; box-shadow:var(--shadow-3);}
   }
   @media (max-width:600px){
     .type-row{flex-direction:column; align-items:flex-start; gap:var(--spacing-4);}
@@ -2073,10 +2084,12 @@
       </div>
       <div class="spacer"></div>
       <button type="button" class="iconbtn" id="copyBtn"><i class="ph ph-copy"></i> Copy</button>
-      <button type="button" class="iconbtn" id="downloadBtn"><i class="ph ph-download-simple"></i> Download (.md)</button>
-      <a class="iconbtn" style="text-decoration:none" href="https://github.com/astroproductdesign/Collabrium-DS/archive/refs/heads/main.zip" title="Downloads the whole collabrium-dls folder (this file, DESIGN-SYSTEM.md, tokens.css, logo.html, logo-lockups/, SVG/, fonts/) as a zip from GitHub, not just this tab's text"><i class="ph ph-download-simple"></i> Download dls (.zip)</a>
     </div>
     <div class="codearea" id="codearea"></div>
+    <div class="pane-right-footer">
+      <button type="button" class="iconbtn" id="downloadBtn"><i class="ph ph-download-simple"></i> Download (.md)</button>
+      <a class="iconbtn iconbtn-primary" href="https://github.com/astroproductdesign/Collabrium-DS/archive/refs/heads/main.zip" title="Downloads the whole collabrium-dls folder (this file, DESIGN-SYSTEM.md, tokens.css, logo.html, logo-lockups/, SVG/, fonts/) as a zip from GitHub, not just this tab's text"><i class="ph ph-download-simple"></i> Download dls (.zip)</a>
+    </div>
   </div>
 
 </div>
