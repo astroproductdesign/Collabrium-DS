@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.16** — 2026-08-10 — Sourced from the Collabrium brand deck
+**v0.9.32** — 2026-08-10 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -686,27 +686,31 @@ just stays permanently visible so you can see it.
 **Scope note.**
 29 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
-Empty state), 10 transcribed directly from the teammate's real
-component source (SidebarNav, Tabs, Select, Checkbox, Radio,
+Empty state), 9 transcribed directly from the teammate's real
+component source (SidebarNav, Tabs, Checkbox, Radio,
 Switch, Toast, Tooltip, DataTable, ElementBadge), 4 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
 picker — plus two chart guidelines, [Chart color
 mapping](#chart-color-mapping) and [Chart chrome &
-marks](#chart-chrome--marks) (neither a rendered component), and 7 more: **App Shell** (the page-level composition
+marks](#chart-chrome--marks) (neither a rendered component), and 8 more: **App Shell** (the page-level composition
 layer — Sidebar placement, Content region, Page header), Textarea,
 Password field, **Search input** (a text search field with a clear
 button, in Default/User Search/Item Search variants — the last two
 searching and selecting a person or item from a dropdown), **Stepper**
 (a multi-step progress indicator), **FileUploader** (click-to-browse/
-drag-and-drop file attachment), and **MultiSelect** (a grouped
-checkbox dropdown with removable selection chips). The Stat/KPI card
-batch, App Shell, Stepper, FileUploader, MultiSelect, and Search input
-have **no source in either the original brand deck or the teammate's
-build**; they're built entirely from this document's own token system
-(color, type, spacing, radius, elevation, motion) and marked ⚠️
-**designed, not transcribed** in their own sections — treat them as a
-first pass needing real design/brand review before shipping, more
-provisional than the transcribed components above them.
+drag-and-drop file attachment), **Dropdown** (a trigger+panel in
+Single select/Multiple select variants — the former, separately
+transcribed **Select** and designed-from-scratch **MultiSelect**,
+consolidated into one component), and **Info Banner** (an inline,
+persistent, container-anchored notification — distinct from Toast's
+floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
+batch, App Shell, Stepper, FileUploader, Dropdown, Search input, and
+Info Banner have **no source in either the original brand deck or the
+teammate's build**; they're built entirely from this document's own
+token system (color, type, spacing, radius, elevation, motion) and
+marked ⚠️ **designed, not transcribed** in their own sections — treat
+them as a first pass needing real design/brand review before shipping,
+more provisional than the transcribed components above them.
 See each section below for source notes, and don't let a
 new component ship without updating this count too. Don't skip straight
 to markup for a new component — write the spec here first (variants,
@@ -722,19 +726,19 @@ through.
 - [Checkbox](#checkbox)
 - [DataTable](#datatable)
 - [Date picker](#date-picker)
+- [Dropdown](#dropdown)
 - [ElementBadge](#elementbadge)
 - [Empty state](#empty-state)
 - [FileUploader](#fileuploader)
 - [Filters](#filters)
+- [Info Banner](#info-banner)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
-- [MultiSelect](#multiselect)
 - [PageHeader](#pageheader)
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Radio](#radio)
 - [Search input](#search-input)
-- [Select](#select)
 - [SidebarNav](#sidebarnav)
 - [Stat / KPI card](#stat--kpi-card)
 - [Stepper](#stepper)
@@ -877,14 +881,15 @@ PageHeader's own documented variants.
 | Property | Value |
 |---|---|
 | Width | 100% of the main column (everything to the right of Sidebar) — full-bleed, matching Content region's own full-bleed rule, not a padded/inset block among the cards below it |
-| Actions / CTAs | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — zero, one, or several are all valid; the row simply collapses when empty. A period selector ("This month ▾") is a [Select](#select) trigger styled as a pill, not a new control |
+| Actions / CTAs | right-aligned row, `--element-gap` (8px) between items, built from existing [Button](#button) variants — zero, one, or several are all valid; the row simply collapses when empty. A period selector ("This month ▾") is a [Dropdown](#dropdown) (Single select) trigger styled as a pill, not a new control |
 | Gap to content below | `--section-gap` (48px) |
 
-⚠️ **Known gap:** the "Select trigger styled as a pill" period-selector
-call above has no built variant yet — `.c-select-box` is `radius-sm`,
-not `radius-pill`, and no pill modifier exists on it. The live demo
+⚠️ **Known gap:** the "Dropdown trigger styled as a pill" period-selector
+call above has no built variant yet — Single select's trigger is now
+[Input Field](#input-field)'s own container, so it's `radius-sm`, not
+`radius-pill`, and no pill modifier exists on it. The live demo
 currently substitutes Filters' own `.c-filter-trigger` instead, which
-is neither Select-based nor pill-shaped. Flagged rather than silently
+is neither Dropdown-based nor pill-shaped. Flagged rather than silently
 left inconsistent; needs a follow-up pass to either build the pill
 trigger or revise this row to match what's actually reusable today.
 
@@ -1224,42 +1229,6 @@ use a modal for anything that isn't a focused, single decision — long
 forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone).
 
-### MultiSelect
-
-⚠️ **Designed from scratch — no source in either the original
-brand deck or the teammate's build.** Built from this document's own
-token system by reusing Button Secondary, Filters' trigger/popover
-patterns, Badge's box model, and this system's own Checkbox spec — not
-transcribed. Treat as a first pass needing real design/brand review.
-
-A trigger button that opens a grouped checkbox list for selecting
-multiple options — the trigger reflects the current selection as
-individually-removable chips.
-
-| Part | Spec |
-|---|---|
-| Trigger — default | matches Button Secondary exactly: Neutral-1 fill, 1px Neutral-3 border, `shadow-1`, `radius-md`, md size (40px height, spacing-16 padding, 16px type) |
-| Trigger — has selection | border swaps to 1px Obsidian, the same "holds a value" recipe Filters' own Filter trigger — active state uses |
-| Trigger — open | 2px Obsidian border, padding reduced 1px/side to compensate — the same swap-and-compensate pattern Input field's focus state uses; chevron rotates 180° via CSS `transform` |
-| Selection chips | one Badge-Neutral chip per selected option's label (22px tall, spacing-8 padding, `radius-pill`, caption/700, 1px Neutral-3 border) instead of the placeholder — stay visible whether the menu is open or closed, capped at 2 visible then a "+N" overflow chip |
-| Chip remove (×) | 14px `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography), stops click propagation so it never reopens/toggles the menu; the overflow "+N" chip has no × since it isn't one single removable option |
-| Clear-all (×) | 20×20px hit target, Neutral-5, same propagation-stopping behavior, clears every selection at once |
-| Dropdown panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill — same popover convention as Filters/Date picker |
-| Group label | caption (12px), weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — same recipe as SidebarNav's own Section label |
-| Group divider | 1px Neutral-3 line between groups |
-| Checkbox row | reuses this system's own Checkbox spec exactly: 18×18px box, 6px radius, 1px Neutral-3 border unchecked, Obsidian border+fill checked, `icon-micro` check glyph in Neutral-1; Neutral-2 fill on hover, same token as Table row's own hover |
-| Footer | Ghost "Clear" + Primary "Done", space-between, `spacing-8` gap, 1px Neutral-3 top border, `spacing-12` padding — Modal footer's divider convention at a smaller scale |
-
-**Variants:** Default, Has Selection, Open — nothing selected, Open —
-has selection.
-
-**Do:** let the footer's Clear empty the selection while leaving the
-menu open (so more options can be picked), and let Done close the menu
-without touching the selection — they're deliberately different scopes.
-**Don't:** give the overflow "+N" chip its own remove control — it
-doesn't correspond to one option, only the clear-all can remove what it
-represents.
-
 ### Password field
 
 ⚠️ **Designed, not sourced.** Same anatomy as Input
@@ -1314,7 +1283,7 @@ button that appears once there's a value, in three variants:
 | Avatar (User Search only) | 32×32px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary`, weight 700, caption size — shows initials |
 | Selected/collapsed (User/Item Search) | same 40px-height box as the Default state so selecting doesn't reflow the surrounding layout; shows the selected item plus a clear (×) |
 | Selected — hover | clear (×) swaps to Neutral-9 — Input field's own icon-button hover convention, a color change only, never a background fill |
-| Selected — disabled | no clear (×) rendered, Neutral-4 text, `cursor: not-allowed` |
+| Selected — disabled | clear (×) visually hidden, Neutral-4 text, `cursor: not-allowed` — the button stays in the markup as a real `disabled` element (already out of the tab order on its own) rather than being omitted, so its 24px + spacing-12 footprint still counts toward the row's own sizing; this keeps Selected — disabled at the exact same rendered width as Selected and Selected — hover in both User Search and Item Search, instead of the row shrinking once the button disappears |
 
 **Variants:** Default, User Search, Item Search — each with Default,
 Active, Has value, Disabled, and Error; User Search/Item Search add
@@ -1337,8 +1306,12 @@ section (now the **Default** variant).
 
 **Do:** keep every variant's collapsed/default state at the same 40px
 height so selecting or clearing a value never reflows the surrounding
-layout; keep the clear button keyboard-reachable via `Tab` once it's
-visible. **Don't:** show both a clear button and a separate trailing
+layout; keep Selected — disabled at the same rendered *width* as
+Selected and Selected — hover too, by keeping the clear button in the
+markup and only hiding it visually rather than omitting it, so its
+layout space still counts toward the row's own sizing; keep the clear
+button keyboard-reachable via `Tab` once it's visible. **Don't:** show
+both a clear button and a separate trailing
 icon at once; style the dropdown's empty state as a full [Empty
 state](#empty-state) (icon + heading + body) — it's an inline "nothing
 matched" message inside a compact popover, not a page-level empty
@@ -1471,25 +1444,202 @@ options; reach for Select once it's more than that. **Don't:** mix Radio
 and Checkbox visuals within the same choice group — the outline-only vs.
 filled-box distinction signals single- vs. multi-select.
 
-### Select
+### Dropdown
 
-**Transcribed from the teammate's `Select.jsx`.**
-Same anatomy and sizing as Input field, so the two align in a form row.
+⚠️ **Designed, not sourced** (Single select rebuilds the former
+transcribed **Select** as a custom panel on top of [Input
+Field](#input-field)'s own container, instead of a native `<select>`;
+Multiple select absorbs the former **MultiSelect**, itself since
+rebuilt from a chip-based trigger into a count-based one, on the same
+container). Reuses Filters'/Date picker's popover convention for both
+panels, Input Field's own container for both triggers, and this
+system's own Checkbox glyph for Multiple select's rows — not invented
+patterns. Treat as a first pass needing real design/brand review.
+
+A trigger that opens a panel of options, in two variants — both built
+directly on Input Field's own container (`.c-field`/`.input-wrap`/
+`.icon-trailing`, its real `:focus` swap, `.c-field-error`, `:disabled`,
+all reused unmodified, not a second, bespoke trigger recipe), so both
+are `radius-sm`, matching Input Field itself:
+
+- **Single select** — pick exactly one option; the trigger shows the
+  current value and closes the panel on pick (the former Select).
+- **Multiple select** — pick any number of options; the trigger
+  summarizes the count ("3 selected") rather than listing chips, and
+  stays open across picks (the former MultiSelect).
 
 | Part | Spec |
 |---|---|
-| Label (optional) | caption, weight 700, Neutral-9, spacing-4 below it |
-| Box | height by size (sm 32 / md 40 / lg 48, same as Button/Input), `radius-sm` (12px), 1px Neutral-3 border (Red on error), Neutral-1 fill (Neutral-2 when disabled) |
-| Native `<select>` | fills the box, spacing-12 (12px) left padding, 36px right padding (room for the caret), body1 weight 500, transparent background, no native appearance |
-| Caret | `caret-down`, `icon-sm` (16px), absolute right spacing-12, Neutral-5, `pointer-events: none` — **Tier 1, Regular** (a navigation/control chevron, per [Iconography](#iconography)) |
-| Hint text | caption, Neutral-5, below the box |
-| Error text | caption, weight 700, Red, replaces hint |
-| Disabled | Neutral-2 fill, `cursor: not-allowed` |
+| Field label (optional) | caption, weight 700, Neutral-9, spacing-4 below it — literally Input Field's own `<label>` for both variants |
+| Panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill, spacing-8 below the trigger, **always exactly the trigger's own rendered width, with no floor** (both sit in the same parent and share one `width: 100%` rule with no `min-width`, so a wider/narrower trigger drags the panel with it automatically — an earlier `min-width: 240px` floor was removed after it made the panel run wider than a trigger narrower than 240px, breaking the exact-match guarantee it was meant to be documenting) — true for both variants, in every Style. The panel keeps its own `radius-md`/popover recipe regardless of the trigger's `radius-sm` — the two aren't tied together |
 
-**Do:** reuse Input field's exact sizing/radius/border so Select and text
-inputs align cleanly in the same form row. **Don't:** restyle the native
-option list — leave it browser-default; this component only styles the
-closed state.
+**Single select — Container.** The trigger box is [Input
+Field](#input-field)'s own container, reused as-is, not recreated:
+`.c-field`/`.input-wrap`/`.icon-trailing` (border, `radius-sm`, real
+`:focus` swap, `.c-field-error`, `:disabled`) are all inherited
+unmodified from there — the same reuse Multiple select's own trigger
+makes. Only a trailing caret icon (reusing the same `.icon-trailing`
+slot Input Field's own Success state already established) and a Style
+axis Input Field itself doesn't have are new, both scoped to this
+component's own class so bare Input Field, Textarea, Password field,
+and Search input stay untouched. Supersedes an earlier draft that gave
+Single select its own Button-Secondary-styled, `radius-md` trigger
+instead — that recipe is gone.
+
+**Single select — Style.** Two trigger treatments, same box
+dimensions (Input Field's own `radius-sm`, 40px height) and panel in
+every case — only the resting chrome changes:
+
+| Style | Rest | Hover |
+|---|---|---|
+| Outlined (default) | Neutral-1 fill, 1px Neutral-3 border — Input Field's own recipe | Neutral-2 fill |
+| Borderless | transparent fill, no border — for inline placements (toolbars, table headers) that shouldn't read as a boxed field; stays borderless through every State too, including Open and Filled — the only Style where those don't swap to a solid Obsidian border | Neutral-2 fill |
+
+Every Style keeps the same 1px border **width** at rest, just varying
+its color (transparent for Borderless) — so Open's 1px→2px width swap
+compensates by the same 1px/side in every Style, with no per-style
+exception to remember for the padding math; Borderless just keeps that
+swapped border fully transparent rather than colouring it Obsidian the
+way Outlined does, so nothing ever becomes visible there — same trick
+Multiple select's own Style axis uses.
+
+**Single select — States.**
+
+| State | Spec |
+|---|---|
+| Default | placeholder value text, Neutral-5 — Input Field's own documented placeholder treatment (lighter than a real value, so Default and Filled are distinguishable without a caption) |
+| Hover | real `:hover` (plus a `.hover` class for static demos) — background escalates one step per the Style table above; new for this trigger, since Input Field itself has no Hover state documented |
+| Open | real `:focus` — Input Field's own 2px Obsidian border swap, spacing-12→11px padding compensate, inherited unmodified (Borderless keeps that swapped border transparent, so no visible border shows in that Style) — plus the panel visible below; a `.open` class stands in for real focus/click in a static demo |
+| Filled | holds a value — the input's real `value` (not `placeholder` — so it renders Neutral-9 automatically, no extra class needed for that part), border swaps to Obsidian in Outlined — Borderless stays borderless, no visible border here either — the same "holds a value" recipe Filters' own Filter trigger — active state uses |
+| Disabled | Input Field's own `:disabled` recipe (Neutral-2 fill, Neutral-5 text) — flattens Borderless's own resting chrome to this one muted look, same rationale as Multiple select's Disabled |
+| Read-only | the trigger stops opening the panel (its click target is inert, chevron hidden) while still showing its current value — `pointer-events: none` alone doesn't block a focused element's keyboard activation, a real implementation needs its own guard |
+| Error | Input Field's own `.c-field-error` recipe (2px Red border, padding compensated to 11px, its `.c-helper` turns Red) — reused verbatim, the same recipe Multiple select's Error uses, not a bespoke error-text element |
+
+**Single select — Dropdown Option** — the row sub-component inside
+Single select's panel (Multiple select has its own, documented below —
+the two aren't interchangeable, since one has a checkbox and the other
+doesn't):
+
+| State | Spec |
+|---|---|
+| Default | option label only, body2/400/Neutral-9 — the same font token as the trigger's own input text, not body1, so the row and the value it fills in read as one typographic family; no fill |
+| Hover | real `:hover` (plus a `.hover` class for static demos) — Neutral-2 fill, same token as Table row's own hover |
+| Selected | Neutral-2 fill (same token as Hover — Table row's own "selected reuses hover's fill" precedent) plus a trailing check glyph (`icon-sm`, Obsidian, **Tier 1, Regular**) as the actual distinguishing mark, not the fill |
+| Disabled | Neutral-4 text, no fill on hover/click, `cursor: not-allowed` |
+
+**Multiple select — Container.** The trigger box is [Input
+Field](#input-field)'s own container, reused as-is, not recreated:
+`.c-field`/`.input-wrap`/`.icon-trailing` (border, `radius-sm`, real
+`:focus` swap, `.c-field-error`, `:disabled`) are all inherited
+unmodified from there. Only a trailing caret icon (reusing the same
+`.icon-trailing` slot Input Field's own Success state already
+established) and a Style axis Input Field itself doesn't have are new
+— both scoped to this component's own class so bare Input Field,
+Textarea, Password field, and Search input stay untouched.
+
+**Multiple select — Style.** Two trigger treatments, same box
+dimensions (Input Field's own `radius-sm`, 40px height) and panel in
+every case:
+
+| Style | Rest | Hover |
+|---|---|---|
+| Outlined (default) | Neutral-1 fill, 1px Neutral-3 border — Input Field's own recipe | Neutral-2 fill |
+| Borderless | transparent fill, no border; stays borderless through Open and Filled too, the only Style where those don't swap to a solid Obsidian border | Neutral-2 fill |
+
+Same 1px-border-**width**-at-rest trick as Single select's own Style
+axis — only the colour changes, so Open's 1px→2px width swap never
+needs a per-style exception for its padding math either; Borderless
+just keeps that swapped border fully transparent instead of colouring
+it Obsidian, same as Single select's own Borderless.
+
+**Multiple select — States.**
+
+| State | Spec |
+|---|---|
+| Default | placeholder "Select brands" (or similar), Neutral-5 — Input Field's own documented placeholder treatment |
+| Hover | real `:hover` (plus a `.hover` class for static demos) — background escalates one step per the Style table above; new for this trigger, since Input Field itself has no Hover state documented |
+| Open | real `:focus` — Input Field's own 2px Obsidian border swap, spacing-12→11px padding compensate, inherited unmodified (Borderless keeps that swapped border transparent, so no visible border shows in that Style), plus the panel visible below; a `.open` class stands in for real focus/click in a static demo. The trigger being tabbed to before the panel is actually triggered shares this same real `:focus` swap — it isn't documented as its own separate State, since it's visually identical to Open minus the panel |
+| Filled | shows "N selected" as the input's real `value` (not `placeholder` — so it renders Neutral-9, not the lighter placeholder colour, automatically, no extra class needed for that part), border swaps to Obsidian in Outlined — Borderless stays borderless, no visible border here either |
+| Disabled | Input Field's own `:disabled` recipe (Neutral-2 fill, Neutral-5 text) — flattens Borderless's own resting chrome to this one muted look, same rationale as Single select's Disabled |
+| Read-only | the trigger stops opening the panel (its click target is inert, chevron hidden) while still showing its current "N selected" value — same caveat as Single select's Read-only: `pointer-events: none` alone doesn't block a focused element's keyboard activation, a real implementation needs its own guard |
+| Error | Input Field's own `.c-field-error` recipe (2px Red border, its `.c-helper` turns Red) — reused verbatim, not a bespoke error-text element the way Single select needed one |
+
+**Multiple select — Behaviour.** Three interaction modes; the closed
+trigger looks identical across all three (still "N selected" or the
+placeholder) — the difference only shows once the panel is Open:
+
+| Behaviour | Spec |
+|---|---|
+| Standard | plain checkbox list, grouped, Clear/Done footer below |
+| With Select All | adds a pinned **Select All** row (see Dropdown Option below) above the list, separated by a divider |
+| Searchable | the trigger's own input becomes editable (its `readonly` attribute is dropped) instead of just a display surface — typing filters the list live; this is the one Behaviour where Input Field's container is genuinely, not just visually, an input |
+
+**Footer** (Multiple select only) — Ghost "Clear" + Primary "Done",
+space-between, `spacing-8` gap, 1px Neutral-3 top border, `spacing-12`
+padding — Modal footer's divider convention at a smaller scale;
+unchanged from the chip-based version.
+
+**Multiple select — Dropdown Option** — the checkbox row sub-component
+inside Multiple select's panel, reusing this system's own
+[Checkbox](#checkbox) glyph (`.c-checkbox-box`/`.on` +
+`ph-check`/`ph-minus`) verbatim rather than a second, ad-hoc checkbox
+recipe:
+
+| State | Spec |
+|---|---|
+| Default | unchecked box, option label, body2/400/Neutral-9 — the same font token as the trigger's own input text, not body1, so the row and the "N selected" value share one typographic family; no fill |
+| Hover | real `:hover` (plus a `.hover` class for static demos) — Neutral-2 fill, same token as Table row's own hover |
+| Selected | checked box (Obsidian fill, `ph-check` glyph) — no extra row fill; a checkbox list signals "checked" through the box itself, unlike Single select's Dropdown Option, which has no checkbox to rely on and needs fill+check together |
+| Indeterminate | Obsidian fill like Selected, but a `ph-minus` glyph instead of `ph-check` — **for the Select All row only**, when some but not all options in the list are checked |
+| Disabled | Neutral-4 label text, checkbox kept at its own unchecked Neutral-3/Neutral-1 recipe, `cursor: not-allowed` |
+
+**Select All row** — pinned as the first row in the list (With Select
+All Behaviour only), separated from the option rows by a 1px Neutral-3
+divider, label set to weight 700 so it reads as a header-like action
+rather than one more option. Ticking it checks every option, unticking
+clears every option, and it shows Indeterminate whenever the list is
+partially checked. It's a checkbox row, not a plain button — that's
+the only way it can show Indeterminate at all.
+
+**Variants:** Single select — Outlined/Borderless Style ×
+Default/Hover/Open/Filled/Disabled/Read-only/Error State, plus
+its own Dropdown Option row sub-component (Default/Hover/
+Selected/Disabled). Multiple select — Outlined/Borderless Style
+× Default/Hover/Open/Filled/Disabled/Read-only/Error State ×
+Standard/With Select All/Searchable Behaviour (Behaviour only visibly
+differs when Open), plus its own Dropdown Option row sub-component
+(Default/Hover/Selected/Indeterminate/Disabled) and the pinned
+Select All row.
+
+**Standing note:** if you're looking for **Select**, it's now the
+**Single select** variant of this component (see above) — its trigger
+has also changed containers since: it was briefly its own Button-
+Secondary-styled, `radius-md` box (to match Multiple select's then-chip
+-based trigger), and is now Input Field's own container instead, same
+as Multiple select's. If you're looking for that Button-Secondary
+recipe, or Multiple select's older chip-based "Nescafé ×, Milo ×"
+trigger and its Badge-chip/clear-all recipe, none of that exists
+anymore: both variants now share one `radius-sm` box built on [Input
+Field](#input-field)'s own container, and Multiple select's trigger
+reads "N selected" rather than listing chips.
+
+**Do:** keep both variants' trigger at the same box dimensions (Input
+Field's own `radius-sm`, 40px height) so they read as one component
+family across each variant's own Style axis; keep every trigger and panel each at
+`width: 100%` of the same parent so the panel can never drift narrower
+or wider than the trigger, in any Style, either variant; reuse Input
+Field's and Checkbox's own recipes verbatim wherever this component's
+anatomy overlaps with theirs, scoped to this component's own classes,
+rather than a duplicate recipe that can drift out of sync; let
+Multiple select's footer Clear empty the selection while leaving the
+menu open (so more options can be picked), and let Done close the menu
+without touching the selection — they're deliberately different
+scopes; give Select All a real checkbox, never a plain button, since
+Indeterminate is a checkbox-only concept. **Don't:** rely on
+`pointer-events: none` alone to make either variant's Read-only
+non-interactive — it doesn't stop keyboard activation, only the mouse;
+give the Select All row its own remove or clear control — that's the
+footer Clear's job, Select All only toggles the list's own checkboxes.
 
 ### SidebarNav
 
@@ -1570,6 +1720,79 @@ instead.
 the expanded default, a department lockup from `logo-lockups/` for an
 expanded department-specific header, `SVG/` for collapsed) — never build
 or embed a custom one-off logo asset for a header.
+
+**Department switcher.**
+
+When a SidebarNav instance receives 2 or more departments via the
+`departments[]` prop, the header logo becomes an interactive trigger:
+selecting it opens a dropdown listing each department's logo variant,
+and selecting one switches the entire nav and page context to that
+department. This is what the Header row's "workspace switcher slot"
+(see the main Part/Spec table's Header row, above) was reserved for —
+Department switcher is that slot, not a separate header element. Only
+active in expanded mode — see Collapsed mode, below.
+
+**Detection:**
+
+- Trigger renders when `departments[]` contains 2 or more items.
+- When `departments[]` has 0 or 1 item, no chevron renders and the logo
+  stays static — existing default behavior (see Header logo rule,
+  above), unchanged.
+
+| Part | Spec |
+|---|---|
+| Department switcher trigger | expanded mode only, not accessible collapsed (see Collapsed mode, below); logo + chevron treated as one paired trigger button, sized to its own content rather than the full header width; chevron `chevron-down`/`chevron-up`, **Tier 1, Regular** (same pair and tier as Second-level navigation's own parent chevron, above), `icon-micro` (14px), Neutral-5 at rest; spacing-8 between logo and chevron; hover: Neutral-2 fill on the trigger itself only (logo + chevron), not the full header zone — a hover target that size would falsely suggest the whole header row is clickable, when only the logo/chevron pairing is; active/open: chevron swaps to `chevron-up`, Neutral-2 fill persists; `aria-haspopup="listbox"`, `aria-expanded` toggles true/false |
+
+**Dropdown.**
+
+| Part | Spec |
+|---|---|
+| Container | 240px width (matches SidebarNav's own Expanded width, above), positioned below the header area flush left with the sidebar container; Neutral-1 fill, 1px Neutral-3 border, `radius-md`, `shadow-3` — same popover convention as Filters/Date picker/Select; max 5 items visible before an internal scroll, same overflow rule as the sidebar itself (scrollbar hidden by default, visible on hover) |
+| Department item | 40px height, 0/spacing-12 padding — matches Nav item exactly; logo-only — department logo lockup (from `logo-lockups/`), left-aligned (matches Nav item's own left-aligned content), no department-name text renders in the list (each option still carries an accessible name via `aria-label` for screen readers, since the visual label is gone); every lockup renders at a **uniform rendered size for its shared "collab" text**, not just a uniform bounding-box height — lockup SVGs aren't all proportioned the same way internally (e.g. the default lockup's own canvas is a different aspect ratio from the 4 department ones), so scaling every asset to the same box height alone can still render the shared wordmark portion at visibly different sizes; correct with a per-asset scale adjustment (tuned by eye against the shared "collab" text, not derived from a formula) rather than a single uniform height rule; hover: Neutral-2 fill; active/selected: Neutral-2 fill, trailing `check` icon (**Tier 1, Regular**); `role="option"`, `aria-selected` on the active department |
+| Default option | always first in the list; its dropdown thumbnail is the **static** default lockup (`logo-lockups/collabrium-default-logo.svg`), not the live `logo.html` mark — a list of thumbnails isn't the place for a live animated embed; the header trigger itself still shows the live `logo.html` mark when Default is the active context, per the Header logo rule, above. Represents no specific department context |
+| Missing asset fallback | if a department's lockup doesn't yet exist in `logo-lockups/` (see the Logo section's table — only the Gold/default variant currently exists), render `SVG/{element}.svg` as a placeholder in place of the missing lockup |
+| List | `role="listbox"`; keyboard: arrow keys navigate options, Enter selects, Escape closes; closes on outside click, Escape, or item selection |
+
+**Animation:**
+
+| Property | Spec |
+|---|---|
+| Entrance | fade in + slight slide down from the header's bottom edge |
+| Exit | fade out + slight slide up |
+| Duration/easing | `duration-fast` / `ease-standard` — `duration-fast`'s stated purpose ("hover, focus transitions") is the closest fit for a quick dropdown reveal, and `ease-standard` since, like SidebarNav's own collapse and accordion transitions, a department switcher isn't owned by a specific brand element |
+| Reduced motion | instant appear/disappear when `prefers-reduced-motion` is set |
+
+**On switch:**
+
+- The selected department's logo replaces the header logo immediately —
+  the static lockup from `logo-lockups/` for the expanded state,
+  `SVG/{element}.svg` for the collapsed state (per the Header logo rule
+  and Collapsible state's own "Collapsed — logo" row, above).
+- The entire nav item list replaces with the selected department's own
+  navigation structure.
+- The active nav item resets — routing navigates to the selected
+  department's home item.
+- Every accordion's open/closed state resets to all-closed on switch.
+- The selected department is saved to `localStorage` and restored on
+  load — same mechanism as Collapsible state's own Persistence row,
+  above.
+- Outgoing nav items fade out and incoming items fade in, using
+  `duration-fast` (same token as the dropdown's own animation, above).
+
+**Collapsed mode:**
+
+- The department switcher is not accessible collapsed.
+- The collapsed element icon (`SVG/{element}.svg`) passively reflects
+  the active department but isn't a trigger.
+- Expanding the sidebar is required to reach the department switcher.
+
+**Accessibility:**
+
+- Trigger: `aria-haspopup="listbox"`, `aria-expanded` reflects open/closed.
+- Dropdown: `role="listbox"`.
+- Each option: `role="option"`, `aria-selected` on the active item.
+- Keyboard: arrow keys navigate, Enter selects, Escape closes and
+  returns focus to the trigger.
 
 **Second-level navigation.**
 
@@ -1786,6 +2009,106 @@ place for an irreversible decision.
 | Enforcement | at content-authoring level — the component itself does not truncate or clip |
 | Over limit | the copy must be rewritten, not shortened by the component |
 | Rationale | Toast content is system-generated, so character limits are an authoring rule, not a display rule |
+
+### Info Banner
+
+⚠️ **Designed from scratch, no source in the brand deck or the
+teammate's build.** Built entirely from this document's own token
+system — treat it as a first pass needing real design/brand review
+before shipping.
+
+Inline, persistent notification embedded within a section or card.
+Distinct from Toast: anchored to its parent container rather than
+floating; persistent or manually dismissible rather than
+auto-dismissing; full container width rather than a fixed pixel width;
+content-level rather than viewport-level.
+
+| Part | Spec |
+|---|---|
+| Container | full width of the parent, spacing-12 vertical / spacing-16 horizontal padding, `radius-md`, 1px border matching the tone, tone fill (see the tone table below), no shadow |
+| Icon | `icon-base` (20px), vertically centered with Message and the Close button (not top-aligned — with no Title above it, Message is a single short line as often as not, and top-aligning against a taller Close button read as misaligned); **Tier 2, Fill** — same rationale as Toast, a status indicator rather than a control |
+| Message | body2, weight 400, tone text color at 80% opacity — the banner's only text content |
+| Action slot (optional) | the last element in the banner's content, after Message — spacing-8 above it, maximum 2 actions. Both actions share one style: body2, weight 400, tone text color at 80% opacity (identical to Message), underlined — there's no separate Ghost-button/Link distinction |
+| Close (optional) | Ghost IconButton, sm, right-aligned and vertically centered with Icon and Message, `x`, **Tier 1, Regular** (a close affordance), `aria-label="Dismiss"` — present only on the dismissible variant |
+
+**Variants:**
+
+| Variant | Spec |
+|---|---|
+| Dismissible | close button rendered top-right; the user closes it manually via the `x`; use when the information is helpful but not critical |
+| Persistent | no close button rendered; remains until the underlying condition resolves; use when the banner describes an ongoing system state the user can't resolve by dismissing it |
+
+**Tone → icon/color:**
+
+Icon color follows Toast's pattern — full-strength tone color, since a Tier 2 Fill status icon isn't held to the same small-text AA contrast math as body copy. Fill, border, and Message text reuse Badge's existing tone values directly (including its AA-darkened Success/Warning text), except Neutral's text, which uses Neutral-9 rather than Badge's Neutral-5 — Banner's Message is body copy that needs to read as primary content, not a small caption label, so it follows Toast's own Neutral-9 choice instead.
+
+| Tone | Icon | Icon color | Fill | Text | Border |
+|---|---|---|---|---|---|
+| Neutral | `info` | Neutral-9 | Neutral-2 | Neutral-9 | Neutral-3 |
+| Info | `info` | Water `#1473E6` | Water at 10% | Water `#1473E6` | Water at 28% |
+| Success | `check-circle` | Green | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Danger | `x-circle` | Red | Red at 10% | Red `#FD3343` | Red at 30% |
+| Warning | `warning` | Amber | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
+
+All five icons are **Tier 2, Fill**.
+
+**Tone usage — when to use each:**
+
+| Tone | Use when |
+|---|---|
+| Neutral | a general FYI with no positive/negative charge — a fact worth surfacing, not a status |
+| Info | the default tone when in doubt — a feature note, tip, or informational context that isn't itself a status change |
+| Success | confirming a condition completed positively — a sync finished, a state is healthy |
+| Warning | a caution or approaching limit the user should notice but that isn't blocking yet |
+| Danger | a failing or blocking condition — typically paired with the Persistent variant, since a failure state doesn't resolve just because the user closed the banner |
+
+**Placement:**
+
+| Property | Spec |
+|---|---|
+| Position | always at the top of its parent section or card, above all other content |
+| Width | full width of the parent container |
+| Multiple banners | stack with spacing-8 gap |
+| Maximum | 2 banners per section |
+
+**Content length:**
+
+| Property | Spec |
+|---|---|
+| Message | 120 characters maximum |
+| Action labels | 3 words maximum |
+| Enforcement | at content-authoring level — the component itself does not truncate |
+| Rationale | limits are authoring rules, not display rules |
+
+**Action slot rules:** maximum 2 actions, never destructive, always the
+last element in the banner (after Message, nothing renders below it).
+Both actions are styled identically to Message — body2, weight 400,
+tone text color at 80% opacity — underlined, with no other visual
+distinction between a "primary" and "secondary" action beyond order.
+Clicking an action does not auto-dismiss the banner — dismissal is
+always explicit, via the close button.
+
+**Animation:**
+
+| Property | Spec |
+|---|---|
+| Entrance | slide down + fade in |
+| Exit | slide up + fade out |
+| Duration/easing | `duration-base` / `ease-standard` — the same pair Toast uses, for the same reason: Banner isn't owned by a specific brand element |
+| Stacked reposition | when one banner is dismissed, the banners below it shift up |
+| Reduced motion | instant appear/disappear when `prefers-reduced-motion` is set |
+
+**Accessibility:** `role="note"` on the persistent variant,
+`role="status"` on the dismissible variant, `aria-live="polite"`,
+`aria-label="Dismiss"` on the close button. Never rely on color alone.
+Focus does not move to the banner on appear. Escape dismisses the
+active dismissible banner. Respects `prefers-reduced-motion`.
+
+**Do:** use Persistent when the banner describes a system state outside
+the user's control; use Info as the default tone when in doubt.
+**Don't:** put a destructive action in the action slot; use Banner for
+transient feedback (that's Toast's job); place a Banner outside a
+section or card.
 
 ### Tooltip
 
@@ -2307,7 +2630,7 @@ version flag in the top bar) — that page renders this section directly,
 so an entry added here is the same pass that makes it show up there,
 with nothing else to keep in sync.
 
-- **v0.9.16 — 2026-08-10** — Added a new **Chart chrome & marks**
+- **v0.9.32 — 2026-08-10** — Added a new **Chart chrome & marks**
   section, appended after the existing [Chart color
   mapping](#chart-color-mapping) guideline rather than editing it: axis/
   gridline/tooltip/legend chrome, general bar/line/area/radial mark
@@ -2327,6 +2650,331 @@ with nothing else to keep in sync.
   — noted as a risk to guard against, not a second valid pattern.
   Component/guideline count: 28 → 29; ToC and Scope note updated to
   match.
+
+- **v0.9.31 — 2026-08-06** — Fixed **Search input**'s Selected —
+  disabled state (User Search and Item Search variants): it rendered
+  narrower than Selected and Selected — hover, because the clear (×)
+  button was omitted from the markup entirely rather than just hidden.
+  `.c-search-input-collapsed` sizes itself to its own content (it isn't
+  stretched to a fixed width anywhere), so dropping the button's 24px +
+  `spacing-12` footprint shrank the whole row. Fix: the button now
+  stays in the markup as a real `disabled` element (already out of the
+  tab order on its own) with `visibility:hidden` in `components.css` —
+  hidden visually, but its layout space still counts, so all three
+  states render at the identical width. Updated the Selected — disabled
+  spec row and the Do section to match.
+
+- **v0.9.30 — 2026-08-06** — Two more trims to **Dropdown**. (1)
+  Borderless Style, both variants: Open and Filled no longer swap to a
+  solid Obsidian border — that swap is Outlined's own signal, and
+  Borderless is now guaranteed border-free in every State, not just at
+  rest. `components.css` gained one override rule per variant
+  (`.style-borderless.open input, .style-borderless.has-value input`
+  for Single; the same with `.filled` instead of `.has-value` for
+  Multiple) that forces `border-color: transparent`, beating the
+  existing State rules on specificity alone rather than relying on
+  source order. (2) Removed Multiple select's **Focus** State (main
+  trigger) and its Dropdown Option row's **Focused** State — both were
+  visually redundant with Open (Focus and Open already shared one
+  visual, the panel being the only difference) or not worth a dedicated
+  demo card on their own. Real keyboard focus still swaps the trigger's
+  border via Input Field's own inherited `:focus` rule, same as always
+  — only the separately-documented "Focus" state card, the
+  `.c-dropdown-multi-field.focus` demo hook, the Borderless-specific
+  `:focus` override that existed only to make that demo card visible,
+  and the checkbox row's `:focus-visible`/`.focused` outline rule are
+  gone. Style tables, State tables, the Dropdown Option table, and the
+  Variants summary line are all updated to match.
+
+- **v0.9.29 — 2026-08-06** — Removed the **Filled** Style variant and
+  the **Active** State from **Dropdown**'s Single select and Multiple
+  select galleries. Single select loses both its Filled-Style card row
+  (Outlined/Borderless are now the only two Style treatments) and its
+  Active-State card/row everywhere it appeared (the main trigger's
+  Outlined and Borderless rows, and the Dropdown Option row
+  sub-component's demo). Multiple select loses only its Filled-Style
+  card row — it never had an Active State to begin with (Focus and
+  Open already covered its equivalent ground). Style tables, State
+  tables, the Dropdown Option table, and the Variants summary line are
+  all updated to match; `.style-filled` and the `.active`/`:active`
+  rules tied to it are removed from `components.css` for both
+  `.c-dropdown-field` and `.c-dropdown-multi-field`, along with
+  `.c-dropdown-row`'s own `.active`/`:active` rule.
+
+- **v0.9.28 — 2026-08-06** — Four fixes to **Dropdown**'s Single select
+  and Multiple select galleries. (1) Fixed the Error state's `.c-helper`
+  text ("Please select a department" / "Select at least one brand")
+  rendering in its default Neutral-5 color instead of Red: the markup
+  had it as a sibling *after* the closing `.c-field-error` div rather
+  than a child *inside* it, so `.c-field-error .c-helper{color:red}`
+  never matched — moved it inside, matching Input Field's own correct
+  pattern. (2) Removed the `min-width: 240px` panel floor (see the
+  Panel row above) that was silently breaking the "panel always
+  matches the trigger's width" guarantee for any field narrower than
+  240px, including every 220px demo card in this gallery. (3)
+  Re-added per-state caption labels above every Style × State card in
+  both variants' matrices, and per-row labels in both variants' own
+  Dropdown Option demos — reversing an earlier "no per-state labels"
+  instruction now that captions are wanted back. (4) Multiple select's
+  Behaviour row (Standard / With Select All / Searchable) got a wider
+  gap (`--spacing-32` column gap, `--spacing-48` row gap on wrap) so
+  its three open panels have visible breathing room — mostly already
+  fixed by (2), since the overlap's root cause was the same min-width
+  floor pushing 240px-wide panels into 220px-wide, 12px-gapped columns.
+  Net component count unchanged (still 28).
+
+- **v0.9.27 — 2026-08-06** — Fixed a font-token mismatch in
+  **Dropdown**'s Dropdown Option row sub-component, both variants:
+  `.c-dropdown-row-label` (Single select) and `.c-dropdown-option-label`
+  (Multiple select) were set to `body1` (16px/500), while the trigger's
+  own input text — since both variants' triggers were rebuilt on Input
+  Field's container — renders at `body2` (14px/400). Switched both to
+  `body2/400` so a panel's option rows and the value the trigger
+  displays share one typographic family, per explicit direction to
+  match the row label's font token to the input's. Multiple select's
+  Select All row keeps its own explicit `font-weight: 700` override on
+  top of this token — that's a deliberate emphasis choice, not part of
+  the mismatch being fixed. Net component count unchanged (still 28).
+
+- **v0.9.26 — 2026-08-06** — Rebuilt **Dropdown**'s Single select
+  trigger the same way Multiple select's was rebuilt one pass earlier:
+  replaced its own Button-Secondary-styled, `radius-md` box with [Input
+  Field](#input-field)'s own container (`.c-field`/`.input-wrap`/
+  `.icon-trailing`, its real `:focus` swap, `.c-field-error`,
+  `:disabled`) reused verbatim, per explicit direction not to recreate
+  what Input Field already has. Both Dropdown variants are now built on
+  the same `radius-sm` container instead of Single select's `radius-md`
+  one — a deliberate step back from the "shared anatomy" reasoning
+  behind that Button-Secondary recipe in the first place, now that
+  Multiple select's own trigger no longer matches it either. Error now
+  reuses Input Field's own `.c-field-error` recipe verbatim (2px Red
+  border, padding compensated to 11px) rather than the bespoke
+  `.c-dropdown-error-text` element from before — the same recipe
+  Multiple select's Error already uses. States/Style axes
+  (Default/Hover/Active/Open/Filled/Disabled/Read-only/Error ×
+  Outlined/Filled/Borderless) are unchanged in shape, only retargeted
+  from the old `<button>`-based trigger to the new `.c-field input`;
+  Single select's own Dropdown Option row sub-component is untouched.
+  Updated the App Shell period-selector "known gap" note's own
+  `radius-md` reference to `radius-sm` to match. Net component count
+  unchanged (still 28) — this reshapes Single select's own container,
+  it doesn't add or remove a component.
+
+- **v0.9.25 — 2026-08-06** — Rebuilt **Dropdown**'s Multiple select
+  variant end to end. Replaced the chip-based trigger (Badge chips,
+  chip-remove ×, inline clear-all ×, Button-Secondary-styled box) with
+  a count-based one ("N selected") built directly on [Input
+  Field](#input-field)'s own container (`.c-field`/`.input-wrap`/
+  `.icon-trailing`, its real `:focus` swap, `.c-field-error`,
+  `:disabled`) rather than a second, bespoke trigger recipe — per
+  explicit direction not to recreate what Input Field already has.
+  Added a Style axis (Outlined/Filled/Borderless, scoped to this
+  component's own class so bare Input Field/Textarea/Password
+  field/Search input are unaffected) and grew States from Default/Has
+  Selection/Open to Default/Hover/Focus/Open/Filled/Disabled/Read-only/
+  Error — Focus is real `:focus` inherited from Input Field, not a new
+  recipe. Added a Behaviour axis (Standard/With Select All/Searchable),
+  visible only once the panel is Open, since the closed trigger is
+  identical across all three; Searchable is the one case where the
+  trigger's `readonly` attribute is actually dropped and the box
+  becomes a genuine live-filter input. Rebuilt the panel's row as its
+  own **Dropdown Option** sub-component reusing this system's own
+  Checkbox glyph (`.c-checkbox-box`/`.on` + `ph-check`/`ph-minus`)
+  verbatim instead of the old ad-hoc `.c-dropdown-multi-checkbox`, and
+  added a pinned **Select All** row (a real checkbox, not a button, so
+  it can show Indeterminate) for the With Select All Behaviour. Kept
+  the existing Clear/Done footer unchanged — Select All sits above the
+  list, not in the footer, after confirming that placement explicitly
+  rather than guessing given the ambiguity between the two. Renamed
+  Single select's own row sub-component heading to "Single select —
+  Dropdown Option" for parity with the new "Multiple select — Dropdown
+  Option," now that there are two. Also applied Single select's
+  trigger-panel `width: 100%` guarantee to Multiple select's own panel
+  (previously a fixed 240px), for the same reason. Net component count
+  unchanged (still 28) — this reshapes Multiple select's own surface,
+  it doesn't add or remove a component.
+
+- **v0.9.24 — 2026-08-06** — Expanded **Dropdown**'s Single select
+  variant: added a Style axis (Outlined/Filled/Borderless — Outlined is
+  the existing recipe, Filled/Borderless are new) and grew its States
+  from Default/Open/Error/Disabled to Default/Hover/Active/Open/Filled/
+  Disabled/Read-only/Error (Hover and Active are real `:hover`/`:active`
+  now, not just static demo classes; Read-only is new; the former
+  "has-selection" state is renamed **Filled** and its class renamed
+  `.has-selection` → `.has-value`, Single select only — Multiple select's
+  own `.has-selection` is untouched). Also documented the row inside
+  Single select's panel as its own **Dropdown Option** sub-component
+  with Default/Hover/Active/Selected/Disabled states (Multiple select
+  keeps its separate checkbox row, unchanged). Guaranteed the panel is
+  always exactly the trigger's rendered width by keeping both at one
+  shared `width: 100%` rule off the same `.c-dropdown` parent, in every
+  Style — not just visually close, structurally identical. Added
+  `.c-dropdown-value.placeholder` (lighter/lighter-weight text) so
+  Default and Filled read as different states without a caption, since
+  `components.css`/`preview.html` — including this component's own
+  states matrix — deliberately don't caption individual states, only
+  the Style row each sits in. Flagged rather than resolved: Filled
+  style's Hover and Active render identically, since this system has no
+  third, darker fill tier documented; Read-only's `pointer-events: none`
+  blocks mouse interaction but not a focused button's keyboard
+  activation, so a real implementation still needs its own click-guard.
+  Net component count unchanged (still 28) — this reshapes Single
+  select's own state/style surface, it doesn't add or remove a
+  component.
+
+- **v0.9.23 — 2026-08-06** — Consolidated **Select** and **MultiSelect**
+  into a single new **Dropdown** component (Single select / Multiple
+  select variants), per explicit user direction to rearrange them as
+  variants of one category rather than two separate components. Single
+  select is rebuilt as a custom trigger+panel (`.c-dropdown*`,
+  `radius-md`, matching Multiple select's own trigger recipe) replacing
+  the former native `<select>`, so the two variants now share one
+  anatomy family; adds an Open state and keeps the former Select's
+  Error/Disabled/Hint rows. Multiple select is a pure rename
+  (`.c-ms*` → `.c-dropdown-multi*`) with every property value unchanged.
+  Net component count: 29 → 28 (two merged into one, same accounting
+  as the earlier Search input consolidation). Updated: `components.css`
+  (removed `.c-select*`/`.c-ms*`, added `.c-dropdown*`/
+  `.c-dropdown-multi*`), `preview.html` (merged `#comp-select` and
+  `#comp-multiselect` into one `#comp-dropdown` block with Single
+  select/Multiple select sub-sections, fixed a pre-existing stray `*/`
+  in an unrelated CSS comment noticed while editing the same line),
+  ToC, Scope note, `SKILL.md`'s component-bucket sentence, and the App
+  Shell period-selector "known gap" note's class/anchor references
+  (`.c-select-box`/`[Select](#select)` → `.c-dropdown-trigger`/
+  `[Dropdown](#dropdown)`) — the gap itself (no pill trigger built yet)
+  stays unresolved, per explicit user direction to leave it for now.
+
+- **v0.9.22 — 2026-08-05** — Second-level navigation's parent chevron
+  switched from a hand-drawn inline SVG (custom stroke path, `icon-base`
+  sized) to the same icon tier as the Department switcher's own
+  chevron: Phosphor `ph-caret-down`/`ph-caret-up`, `icon-micro` (14px),
+  Neutral-5, class-swapped rather than a rotated/path-swapped SVG — the
+  two expand affordances now read as visually consistent within the
+  same sidebar. This also fixed a real mismatch the old implementation
+  had with this document's own spec: the Parent item row (above) has
+  always said the chevron swaps `chevron-down` ↔ `chevron-up`, but the
+  inline SVG actually swapped to a right-pointing path when closed, not
+  up — the class-swap approach now matches the documented behavior
+  exactly. `components.css`/`preview.html` only; no spec-table change.
+
+- **v0.9.21 — 2026-08-05** — Dropdown items switched from centered to
+  **left-aligned** logos, matching Nav item's own left-aligned content
+  elsewhere in SidebarNav — centering read as inconsistent next to
+  every other left-aligned row in the sidebar. `preview.html`'s
+  Department switcher demo also simplified: the side-by-side
+  no-departments/5-departments comparison is now a single sample (the
+  5-department one), and its description text was replaced with one
+  line covering the single-department case specifically — "for default
+  (single department), the dropdown is hidden," since that's the one
+  behavior the removed second sample used to demonstrate and was worth
+  keeping documented even without a second live example.
+
+- **v0.9.20 — 2026-08-05** — Fixed the dropdown's logo sizing: scaling
+  every lockup to the same bounding-box height wasn't actually enough —
+  the default lockup's own SVG canvas (`viewBox` 1062×162) is a
+  different aspect ratio from the 4 department lockups (all 1000s×269),
+  so at an equal box height, the default's shared "collab" text
+  rendered visibly larger than the department ones' — a uniform box
+  height isn't the same thing as a uniform rendered text size when the
+  source assets aren't proportioned the same way internally. Fixed with
+  a per-image `--logo-scale` CSS custom property (`components.css`,
+  `.c-dept-option-logo img`), tuned by eye against the shared "collab"
+  text rather than derived from a formula — the default lockup's image
+  gets `--logo-scale: 0.6` inline in `preview.html`, the 4 department
+  ones default to `1` since they already share consistent internal
+  proportions with each other. Also brought the Department switcher
+  demo's nav content up to parity with the default SidebarNav demo
+  (disabled Billing item, Team accordion with Members/Roles & access)
+  so it demonstrates the department-dropdown mechanism specifically,
+  without omitting the disabled-state and parent/child patterns the
+  first demo already covers — a demo-composition change in
+  `preview.html` only, not a spec change.
+
+- **v0.9.19 — 2026-08-05** — Refined Department switcher after
+  building it out in `components.css`/`preview.html`: (1) trigger hover
+  now targets only the logo + chevron pairing, not the full header
+  zone — the wider hover target falsely implied the entire header row
+  was clickable; (2) dropdown items dropped the department-name text
+  entirely — logo-only, each option still carries an `aria-label` for
+  screen readers since the visual label is gone — and every lockup now
+  renders at a uniform height regardless of its own aspect ratio; (3)
+  the Default option's dropdown thumbnail is now the **static** default
+  lockup rather than a live `logo.html` embed — a list of thumbnails
+  isn't the right place for a live animation; the header trigger itself
+  is unaffected and still shows the live mark for the Default context.
+  Implemented for real: `components.css` gained `.c-dept-trigger`
+  (sized to content, not `width: 100%`), `.c-dept-option`/
+  `.c-dept-option-logo` (logo-only, uniform height), and collapsed-mode
+  handling (`.c-sidebar.is-collapsed .c-dept-trigger{display:none}`,
+  reusing `.c-sidebar-logo-collapsed`'s existing show/hide rule for the
+  passive collapsed element icon). `preview.html`'s Department switcher
+  demo now also exercises the collapsed rail correctly — its 4
+  non-default sample departments (Content/Influencers/Sales/Studio) are
+  demo-only mapped to Wood/Earth/Gold/Fire respectively so the collapsed
+  icon has something real to show.
+
+- **v0.9.18 — 2026-08-05** — Added **Department switcher** to
+  SidebarNav, inserted right after the Header logo rule. Documents that
+  this feature is what the Header row's "workspace switcher slot" (in
+  the main Part/Spec table) was reserved for all along — a
+  2-or-more-`departments[]` prop turns the header logo into a trigger
+  that opens a dropdown of department logo variants, switching the
+  entire nav and page context on selection. Expanded-mode only; the
+  collapsed rail's element icon reflects the active department
+  passively but isn't a trigger. No new tokens: the dropdown reuses the
+  exact popover convention already established by Search input/
+  Filters/Date picker/Select (`radius-md`, Neutral-1/Neutral-3,
+  `shadow-3`), item sizing matches Nav item's own 40px/spacing-12,
+  animation reuses `duration-fast`/`ease-standard`, and persistence
+  reuses the same `localStorage` mechanism as Collapsible state's own
+  Persistence row. One resolved conflict: the brief's "body2, weight
+  500" isn't an existing token combo (body2 is only 400 or "strong"
+  700 — 500 exists solely as body1's own weight) — used the real
+  existing weight, 400, instead, same resolution already applied to
+  Info Banner's Message text.
+
+- **v0.9.17 — 2026-08-05** — Fixed Info Banner's cross-axis alignment:
+  Icon, Message, and the Close button now vertically center against
+  each other instead of top-aligning. Root cause: the anatomy was
+  carried over from Toast's top-aligned layout, tuned for a Title line
+  sitting above Message — but Info Banner has no Title at all (removed
+  in the previous pass), so on a single-line banner, top-aligning
+  Message against a much taller 32px Close button left Message reading
+  as pinned near the top rather than centered on the same line as the
+  icon and close affordance. `components.css`'s `.c-banner` switched
+  from `align-items: flex-start` to `align-items: center`, and the
+  icon's leftover 2px top margin (a Title-era optical-alignment tweak)
+  was removed as dead weight now that centering handles it structurally.
+
+- **v0.9.16 — 2026-08-05** — Added **Info Banner**, a new component:
+  an inline, persistent notification anchored to its parent section or
+  card, distinct from Toast (floating/viewport-level/auto-dismissing)
+  on every one of those axes. Spec covers Anatomy (Container/Icon/
+  Message/Action slot/Close), Dismissible vs. Persistent variants, a
+  5-tone table (Neutral/Info/Success/Danger/Warning) reusing Badge's
+  existing fill/border percentages and AA-darkened text plus Toast's
+  full-strength icon-color pattern, a Tone-usage guide (when to reach
+  for each), Placement (top of section, full width, spacing-8 stack
+  gap, max 2 per section), Content length, Action slot rules, Animation
+  (`duration-base`/`ease-standard`, the same pair Toast uses), and
+  Accessibility. No new tokens were introduced — every value traces to
+  an existing color/spacing/typography/radius/motion token. Two rounds
+  of refinement after the initial draft: (1) Message is the component's
+  only text content — there is no Title part at all, since a single
+  required line of body copy covers the "helpful note" use case Banner
+  exists for without a second, optional heading competing for the same
+  job; (2) actions are always the last element (after Message) and both
+  share one style — body2/400/tone-text-at-80%-opacity, underlined —
+  rather than a Ghost-button-primary/Link-secondary split, since two
+  differently-weighted actions read as a false hierarchy when both are
+  equally reachable text links. Implemented for real in `components.css`
+  (`.c-banner` + 5 tone modifiers) and demoed with a static, non-interactive
+  sample of every tone/variant combination in `preview.html`'s Components
+  gallery — this is genuinely new, not sourced from the brand deck or the
+  teammate's build (see this component's own ⚠️ flag and the Scope note
+  above).
+
 - **v0.9.15 — 2026-08-05** — Reverted PageHeader's **With actions**
   variant, added in the previous pass — explicit user direction: the
   standalone component ships only Default and With subtitle, per its
