@@ -70,6 +70,24 @@ or changed component needs the matching edit in **both**
 copy) — they must never diverge from each other any more than either
 may diverge from `DESIGN-SYSTEM.md`.
 
+**Standing rule — component ordering in preview.html:** the sidebar
+nav's Components child list and the `.comp-block` demo sections in
+`<section id="components">` must both stay sorted alphabetically by
+component name, in lockstep with each other. When adding a new
+component (or splitting an existing demo into standalone pieces, e.g.
+Checkbox/Radio/Switch each getting their own block), insert its nav
+button and its `.comp-block` at the alphabetically correct position in
+both lists — never append to the end — and make sure the nav button's
+`data-nav-target` matches the block's `id`. Both lists carry an inline
+`RULE:` HTML comment at their start restating this.
+
+**Standing rule — component ordering in DESIGN-SYSTEM.md:** the same
+alphabetical-by-name ordering applies to the Components section's `###`
+subsections and its own table-of-contents list right above them —
+insert a new component's `###` heading and its ToC entry at the
+alphabetically correct position, never appended to the end, so the doc
+stays in lockstep with preview.html's nav/demo order.
+
 **Reference point:** `~/Desktop/Collabrium Design System/` is a second,
 independently built Collabrium system from the same source deck, with
 production React components, an app UI kit, and deck templates this
