@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.37</title>
+<title>Collabrium design system | v0.9.39</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -130,7 +130,17 @@
   .hero-logo{padding:var(--spacing-32) 0 var(--spacing-16);}
   .hero-logo iframe{width:100%; height:160px; border:none; display:block;}
   .logo-lockup-card{border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-24); display:inline-flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-12); background:var(--color-neutral-1);}
+  .logo-lockup-card .logo-lockup-img{position:relative; width:100%;}
   .logo-lockup-card img{width:100%; max-width:420px; height:auto; display:block;}
+  .dept-logo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:var(--spacing-16);}
+  .dept-logo-card{border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-20); background:var(--color-neutral-1); display:flex; flex-direction:column; gap:var(--spacing-12);}
+  .dept-logo-card .dept-logo-img{position:relative; border:1px solid var(--color-neutral-2); border-radius:var(--radius-md); background:var(--color-neutral-1); padding:var(--spacing-16); display:flex; align-items:center; justify-content:center;}
+  .dept-logo-card .dept-logo-img img{width:100%; height:auto; display:block;}
+  .dept-logo-tag{display:inline-flex; align-items:center; gap:6px; font-size:var(--text-label3-size); font-weight:700; text-transform:uppercase; letter-spacing:var(--text-label3-tracking); padding:4px var(--spacing-12); border-radius:var(--radius-pill); width:fit-content;}
+  .dept-logo-name{font-family:var(--font-primary); font-weight:800; font-size:var(--text-h5-size); margin:0;}
+  .dept-logo-desc{font-size:var(--text-body2-size); color:var(--color-neutral-6); line-height:1.5; margin:0;}
+  .dept-logo-download{position:absolute; top:var(--spacing-8); right:var(--spacing-8); text-decoration:none; opacity:0; transition:opacity .15s;}
+  .dept-logo-img:hover .dept-logo-download, .logo-lockup-img:hover .dept-logo-download{opacity:1;}
   .element-icon{width:18px; height:18px; vertical-align:middle; margin-right:6px;}
   td.element-cell{white-space:nowrap;}
   .hero-tagline{color:var(--color-neutral-5); font-size:var(--text-body1-size); margin:0 0 var(--spacing-32);}
@@ -305,7 +315,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.37</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.39</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -313,7 +323,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.37</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.39</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -375,6 +385,7 @@
             <button class="c-nav-child" type="button" data-nav-target="comp-modal">Modal / dialog</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-pageheader">PageHeader</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-pagination">Pagination</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-progress">Progress Bar</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-radio">Radio</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-search-input">Search input</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-segctl">Segmented Control</button>
@@ -446,7 +457,10 @@
 
         <div class="swatch-group-label">Logo</div>
         <div class="logo-lockup-card">
-          <img src="logo-lockups/collabrium-default-logo.svg" alt="Collabrium default logo lockup, Gold" />
+          <div class="logo-lockup-img">
+            <img src="logo-lockups/collabrium-default-logo.svg" alt="Collabrium default logo lockup, Gold" />
+            <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabrium-default-logo.svg" download="Collabrium-default-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+          </div>
           <p class="kicker" style="margin:0">Default &middot; Gold</p>
         </div>
         <p class="lede" style="margin:var(--spacing-16) 0">Whenever the mark is used without a specific department context, this Gold lockup is the default &mdash; not a still frame from the animation, not another element's color. Department-specific surfaces (e.g. a Marketing deck cover, a Finance report header) switch to that element's own lockup instead.</p>
@@ -458,6 +472,47 @@
           <tr><td class="element-cell"><img class="element-icon" src="SVG/fire.svg" alt="" />Fire</td><td>Visibility &amp; energy</td><td>Marketing &middot; PR &middot; Sales</td></tr>
           <tr><td class="element-cell"><img class="element-icon" src="SVG/earth.svg" alt="" />Earth</td><td>Support &amp; stability</td><td>HR &middot; CS &middot; Admin</td></tr>
         </table>
+
+        <div class="swatch-group-label">Department logos</div>
+        <p class="lede" style="margin:0 0 var(--spacing-16)">Each Astro digital function inside Collabrium carries its own lockup, tinted to its element.</p>
+        <div class="dept-logo-grid">
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabContent.svg" alt="CollabContent logo, Wood" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabContent.svg" download="CollabContent-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-wood-bg); color:var(--color-salmon-pink)"><img class="element-icon" src="SVG/wood.svg" alt="" style="margin-right:0" />Wood</span>
+            <h3 class="dept-logo-name">CollabContent</h3>
+            <p class="dept-logo-desc">The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved.</p>
+          </div>
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabInfluencers.svg" alt="CollabInfluencers logo, Earth" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabInfluencers.svg" download="CollabInfluencers-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-earth-bg); color:var(--color-green)"><img class="element-icon" src="SVG/earth.svg" alt="" style="margin-right:0" />Earth</span>
+            <h3 class="dept-logo-name">CollabInfluencers</h3>
+            <p class="dept-logo-desc">Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout.</p>
+          </div>
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabSales.svg" alt="CollabSales logo, Gold" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabSales.svg" download="CollabSales-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-gold-bg); color:var(--color-amber)"><img class="element-icon" src="SVG/gold.svg" alt="" style="margin-right:0" />Gold</span>
+            <h3 class="dept-logo-name">CollabSales</h3>
+            <p class="dept-logo-desc">Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff.</p>
+          </div>
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabStudio.svg" alt="CollabStudio logo, Fire" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabStudio.svg" download="CollabStudio-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-fire-bg); color:var(--color-orange)"><img class="element-icon" src="SVG/fire.svg" alt="" style="margin-right:0" />Fire</span>
+            <h3 class="dept-logo-name">CollabStudio</h3>
+            <p class="dept-logo-desc">Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1554,6 +1609,76 @@
             </div>
           </div>
         </div>
+        <div class="comp-block" id="comp-progress">
+          <div class="comp-head"><h3>Progress Bar</h3><button class="copy-markup-btn" data-target="comp-progress" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:0">
+
+              <div class="swatch-group-label" style="margin-top:0">Determinate</div>
+              <p style="margin:0 0 var(--spacing-16);font-size:12px;color:var(--color-neutral-5)">Default, Complete, Error, Stacked</p>
+              <div style="display:flex; flex-direction:column; gap:var(--spacing-32)" id="progress-entrance-group">
+
+                <div class="c-progress">
+                  <div class="c-progress-header"><span class="c-progress-title">Upload progress</span><span class="c-progress-value">72%</span></div>
+                  <div class="c-progress-track size-default"><div class="c-progress-fill" data-fill-target="72" style="width:0%"></div></div>
+                </div>
+
+                <div class="c-progress">
+                  <div class="c-progress-header"><span class="c-progress-title">Onboarding checklist</span><span class="c-progress-value">Complete</span></div>
+                  <div class="c-progress-track size-default"><div class="c-progress-fill tone-success" data-fill-target="100" style="width:0%"></div></div>
+                </div>
+
+                <div class="c-progress">
+                  <div class="c-progress-header"><span class="c-progress-title">Sync failed</span><span class="c-progress-value">Retry needed</span></div>
+                  <div class="c-progress-track size-default"><div class="c-progress-fill tone-error" data-fill-target="38" style="width:0%"></div></div>
+                </div>
+
+                <div class="c-progress">
+                  <div class="c-progress-header"><span class="c-progress-title">Q3 budget by department</span><span class="c-progress-value">RM 400,000 total</span></div>
+                  <div class="c-progress-track size-default stacked">
+                    <div class="c-progress-stack-segment tone-water" data-fill-target="16" style="width:0%"></div>
+                    <div class="c-progress-stack-segment tone-gold" data-fill-target="12" style="width:0%"></div>
+                    <div class="c-progress-stack-segment tone-wood" data-fill-target="22" style="width:0%"></div>
+                    <div class="c-progress-stack-segment tone-earth" data-fill-target="18" style="width:0%"></div>
+                    <div class="c-progress-stack-segment tone-fire" data-fill-target="32" style="width:0%"></div>
+                  </div>
+                  <div class="c-progress-legend is-stacked">
+                    <span class="c-progress-legend-item"><span class="c-progress-legend-swatch" style="background:var(--color-navy)"></span>Water &mdash; 16%</span>
+                    <span class="c-progress-legend-item"><span class="c-progress-legend-swatch" style="background:var(--color-amber)"></span>Gold &mdash; 12%</span>
+                    <span class="c-progress-legend-item"><span class="c-progress-legend-swatch" style="background:var(--color-salmon-pink)"></span>Wood &mdash; 22%</span>
+                    <span class="c-progress-legend-item"><span class="c-progress-legend-swatch" style="background:var(--color-green)"></span>Earth &mdash; 18%</span>
+                    <span class="c-progress-legend-item"><span class="c-progress-legend-swatch" style="background:var(--color-orange)"></span>Fire &mdash; 32%</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <hr class="comp-divider" />
+
+              <div class="swatch-group-label" style="margin-top:0">Indeterminate</div>
+              <div>
+                <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Active</p>
+                <div class="c-progress">
+                  <div class="c-progress-header"><span class="c-progress-title">Syncing your workspace&hellip;</span></div>
+                  <div class="c-progress-track size-default indeterminate">
+                    <div class="c-progress-indeterminate-fill"></div>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="comp-divider" />
+
+              <div class="swatch-group-label" style="margin-top:0">Sizes</div>
+              <table class="spec">
+                <tr><th>Size</th><th>Track</th><th>Use</th></tr>
+                <tr><td>Compact</td><td>4px</td><td>Dense tables, card metadata, inline with compact controls</td></tr>
+                <tr><td>Default</td><td>8px</td><td>Standard dashboard use, section summaries, sidebar metrics</td></tr>
+                <tr><td>Large</td><td>16px</td><td>Prominent single metrics, hero stat sections, department breakdown charts</td></tr>
+              </table>
+
+            </div>
+          </div>
+        </div>
         <div class="comp-block" id="comp-radio">
           <div class="comp-head"><h3>Radio</h3><button class="copy-markup-btn" data-target="comp-radio" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -2358,7 +2483,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.37** — 2026-08-11 — Sourced from the Collabrium brand deck
+**v0.9.39** — 2026-08-11 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2881,6 +3006,35 @@ single-element icon on its own, print work).
   there. `logo.html`'s corrected values remain the canonical reference
   for Wood and Earth either way.
 
+### Department logos
+
+Distinct from the generic single-element lockups in the table above,
+these four are **named product/department lockups** — each one is its
+own sub-brand wordmark ("Collab" + the department name), tinted to
+that department's element color, not just the base Collabrium mark
+recolored. Live in `preview.html`'s Logo area (Department logos grid,
+after the Element/Usage/Department table), each with a "Download .svg"
+button pulling directly from its file below.
+
+⚠️ **First pass — definitions synthesized from a one-line brief per
+department, not sourced from a deck or product spec.** Confirm scope
+and wording with the product/brand team before treating these as
+final.
+
+| File | Department | Element | Definition |
+|---|---|---|---|
+| `logo-lockups/collabContent.svg` | CollabContent | Wood · Salmon Pink `#FF7A90` | The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved. |
+| `logo-lockups/collabInfluencers.svg` | CollabInfluencers | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
+| `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
+| `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
+
+These four don't cover all five elements (no Water/Data-Logistics
+department product exists yet) and aren't a 1:1 substitute for the
+generic per-element lockups in the Default-logo rule table above —
+that table is about recoloring the base Collabrium mark for a
+department-owned surface; this one is about distinct named products
+that happen to live inside Collabrium.
+
 ⚠️ **Needs Input #8 — further resolved, not closed.** Individual static
 vector assets now exist for every letter and element (see `SVG/` above),
 closing most of the original gap. Still missing: a single **combined**
@@ -3042,13 +3196,14 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-31 components: the original 7 basics
+32 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 9 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 7 **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 8 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
-picker, **Segmented Control**, **Slider**, **Chip** — plus two chart
+picker, **Segmented Control**, **Slider**, **Chip**, **Progress
+Bar** — plus two chart
 guidelines, [Chart color mapping](#chart-color-mapping) and [Chart
 chrome & marks](#chart-chrome--marks) (neither a rendered component),
 and 8 more: **App Shell** (the page-level composition layer — Sidebar
@@ -3064,7 +3219,8 @@ consolidated into one component), and **Info Banner** (an inline,
 persistent, container-anchored notification — distinct from Toast's
 floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
 batch, App Shell, Stepper, FileUploader, Dropdown, Search input, Info
-Banner, **Segmented Control**, **Slider**, and **Chip** have **no source in
+Banner, **Segmented Control**, **Slider**, **Chip**, and **Progress
+Bar** have **no source in
 either the original brand deck or the teammate's build**; they're
 built entirely from this document's own token system (color, type,
 spacing, radius, elevation, motion) and marked ⚠️ **designed, not
@@ -3098,6 +3254,7 @@ through.
 - [PageHeader](#pageheader)
 - [Pagination](#pagination)
 - [Password field](#password-field)
+- [Progress Bar](#progress-bar)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -4352,6 +4509,184 @@ that updates between "Show password" and "Hide password" as state
 changes. **Don't:** rely on the icon swap alone to communicate state to
 assistive tech.
 
+### Progress Bar
+
+⚠️ **Designed from scratch — no source in either the original brand
+deck or the teammate's build.** Built from this document's own token
+system by reusing Slider's track anatomy, the system's department
+elemental colors for stacked department contexts, and the data viz
+chromatic palette for non-department stacked contexts — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A horizontal, read-only bar communicating progress toward a known goal
+(**Determinate**) or an active, unmeasured process (**Indeterminate**).
+Distinct from [Slider](#slider): Slider is an input control the user
+drags to set a value; Progress Bar is a read-only display of a value
+the system provides. The two deliberately share track anatomy and
+sizing — they often sit near each other in dashboard layouts — but
+Progress Bar has no thumb, no drag interaction, and no focus-visible
+state of its own.
+
+| Part | Spec |
+|---|---|
+| Track | Full width of parent, `radius-pill`, Neutral-3 `#d8d8d8` fill for the unfilled portion — the same unfilled-track token as [Slider](#slider), keeping the read-only track language consistent across both components |
+| Fill — single | `radius-pill`, fills left to right proportionally. Default fill: Obsidian `#2B2B2C` — the same value-committed color as Slider's own track fill and Input field's focus border; communicates "here is the current value" without implying success or department ownership. Success override: Green `#00C26E`, only when explicitly signaling completion, passed via prop. Department override: the owning department's elemental color, passed via prop — same override logic as [SidebarNav](#sidebarnav)'s icon and Tag's dot |
+| Fill — stacked segments | Contiguous blocks, no gap between segments; `radius-pill` on the outermost edges only (the first segment's left edge, the last segment's right edge) — interior edges are flush/square. See Stacked color rules, below |
+| Fill — indeterminate | A moving gradient overlay — Neutral-5 `#5a5a5a` at 40% opacity, animated left to right — over the Neutral-3 track. Not a percentage fill; communicates activity, not progress |
+| Label — trailing | caption (12px/400), Neutral-5, right-aligned, same baseline as the track's own vertical center; spacing-8 (8px) between the track's right edge and the label |
+| Label — header row | Two labels above the track: title (caption/700/Neutral-9), left-aligned; value (caption/400/Neutral-5), right-aligned; spacing-4 (4px) between the header row's bottom and the track's top |
+| Label — inside fill | Large size only (16px track); caption/700/Neutral-1, centered vertically and horizontally within the fill. Only renders when the fill's width exceeds 40px — narrower fills suppress the label |
+
+**Variants:**
+
+| Variant | Spec |
+|---|---|
+| Determinate — Single | One fill advancing 0% to 100%. Default fill: Obsidian. Use for task completion, upload progress, goal attainment |
+| Determinate — Stacked | Multiple contiguous colored segments. Use for breakdowns (budget by department, capacity by team). Department elemental colors map department segments; the data viz chromatic palette (Purple, then Turquoise) covers non-department data — see Stacked color rules, below |
+| Indeterminate | Animated shimmer, no fill percentage. Use for background tasks, API calls, loading states of unknown duration. Always single — stacked indeterminate is not permitted |
+
+**Sizes:**
+
+| Size | Track | Label | Use |
+|---|---|---|---|
+| Compact | 4px (matches Slider's own compact track, for visual consistency between the two) | caption (12px) | Dense tables, card metadata, inline with compact controls |
+| Default | 8px | caption (12px) | Standard dashboard use, section summaries, sidebar metrics |
+| Large | 16px | caption (12px), inside fill only | Prominent single metrics, hero stat sections, department breakdown charts |
+
+⚠️ All three track heights are one-off literals — same precedent as
+Slider's own 4px track height and SidebarNav's 36px child-item height:
+no named height token exists for a horizontal track rail.
+
+**Stacked color rules.**
+
+*Department breakdown* — use when segments map to Collabrium
+departments. Pull the department table's own colors, in the order
+departments are presented:
+
+| Order | Element | Color |
+|---|---|---|
+| 1 | Fire | Orange `#FF5825` |
+| 2 | Wood | Salmon Pink `#FF7A90` |
+| 3 | Earth | Green `#00C26E` |
+| 4 | Water | Navy Blue `#1473E6` |
+| 5 | Gold | Amber `#FFA425` |
+
+*General data breakdown* — use when segments represent non-department
+data. Pull from the same Purple/Turquoise reserve [Chart color
+mapping](#chart-color-mapping) uses to extend categorical charts past
+5 department-aligned series — not a department color, since these
+segments don't belong to one:
+
+| Order | Color |
+|---|---|
+| 1 | Purple `#9F56FF` |
+| 2 | Turquoise `#00D9D9` |
+
+Only two colors exist in this reserve, so a general breakdown's own
+overflow threshold is 2 segments, not 5 — segment 3 onward already
+falls to the Overflow segment rule, below.
+
+*Overflow segment rule:* beyond the mapped colors above (5 for a
+department breakdown, 2 for a general one), additional segments use
+Neutral-4 `#bdbdbd` — signals unmapped or uncategorized data, the same
+"don't add more brand colors" logic [Chart color mapping](#chart-color-mapping)
+applies past 7 categorical series.
+
+*Remainder rule:* the Neutral-3 unfilled portion sits at the right end,
+representing the unallocated remainder. If segments sum to 100%, no
+remainder shows, and the last segment takes the outer `radius-pill`
+instead.
+
+**States:**
+
+| State | Notes |
+|---|---|
+| Read-only | No interactive states of its own. Exception: when embedded in an interactive parent (e.g. a table row, a card), the bar inherits the parent's hover treatment only — it never adds its own |
+| Indeterminate — active | Shimmer animates continuously |
+| Indeterminate — `prefers-reduced-motion` | Shimmer stops; a static Neutral-4 `#bdbdbd` fill at 60% track width shows instead |
+| Error | Fill switches to Red `#FD3343` — the same value as Badge's Danger text and Toast's Danger icon. Single determinate only; stacked has no single error state |
+| Complete | Fill at 100%. Success/Green `#00C26E` is passed via prop to signal completion explicitly — the bar never auto-changes color on reaching 100%; the caller decides |
+
+**Transition:**
+
+| Property | Value |
+|---|---|
+| Fill width on initial mount (entrance) | Determinate only (single or each stacked segment). Fill starts at 0% and animates up to its real value the same way a value change does — `width`, `duration-base` (220ms), `ease-standard`; not a separate token or a longer "reveal" duration. Fires once, whenever the bar first mounts with a real value (page load, a newly-rendered row, data arriving async) — not tied to scroll position or viewport visibility; that's a presentation choice for a specific gallery/demo, not a rule of the component itself |
+| Fill width on value change | `width` — `duration-base` (220ms), `ease-standard` |
+| Indeterminate shimmer | keyframe animation; gradient travels from -100% to 200% on the X axis, infinite repeat; animation-duration of `duration-ambient` (900ms) — this document's own precedent for continuous/looping motion (see Search input's Loading spinner: "the one duration token named for a continuous loop rather than this system's usual one-shot 'movement settles' transitions"), a stronger match than an earlier draft's computed `duration-slow` × 2 (720ms), which also read as too fast to perceive as loading once actually built |
+| Color change (e.g. to Error) | `background-color` — `duration-fast` (140ms), `ease-standard` — same pairing as Checkbox, SidebarNav, and Slider's own thumb-shadow transition |
+| Reduced motion — determinate | width transition disabled, on both the initial-mount entrance and later value changes; value (and the entrance) jumps instantly |
+| Reduced motion — indeterminate | animation disabled entirely; static Neutral-4 fill at 60% track width (same as the State row, above) |
+
+**Label placement rules.**
+
+| Placement | Use |
+|---|---|
+| No label | Bar only — value is obvious from surrounding context |
+| Trailing | A single compact value, space-limited |
+| Header row | The metric needs a name — the most common pattern for a named progress row |
+| Inside fill | Large size only, single variant only, fill width > 40px only. Never on stacked |
+
+Stacked label rule: always header row above, never trailing or inside
+— segment-level values are communicated via a legend at the usage
+level, not inline on the bar itself.
+
+**Content rules:**
+
+- Include a unit whenever the number is ambiguous (`47%` not `47`;
+  `RM 25,000` not `25000`).
+- Malaysian ringgit follows the system content rule: `RM 100,000` —
+  space after RM, comma thousands.
+- Header row title: caption/700, 40 characters maximum, enforced at
+  authoring level.
+- Indeterminate: suppress the label slot entirely — no percentage
+  exists to show.
+- Stacked at 0%: the segment isn't rendered — a zero-width segment
+  with a visible edge isn't permitted.
+
+**Accessibility:**
+
+- Determinate: `role="progressbar"`; `aria-valuenow`,
+  `aria-valuemin="0"`, `aria-valuemax="100"`; an `aria-label` or
+  associated `<label>` naming the metric.
+- Indeterminate: `role="progressbar"`; omit `aria-valuenow` entirely —
+  its absence signals indeterminate.
+- `aria-valuetext` is required whenever the value carries a unit (e.g.
+  `aria-valuetext="RM 25,000 of RM 100,000"`).
+- Stacked: `role="group"` on the wrapper; each segment is its own
+  `role="progressbar"` with an `aria-label` naming the segment (e.g.
+  "Marketing — 32%") and its own `aria-valuenow`.
+- Color: never rely on fill color alone — a label or `aria-valuetext`
+  always accompanies the bar. Error state additionally surfaces its
+  status message via `aria-live="polite"` on the parent.
+- Motion: the indeterminate animation respects
+  `prefers-reduced-motion` per the Transition rules, above.
+
+**Placement:**
+
+- Always full width of its parent container or defined column — never
+  an intrinsic inline width, same rule as [Slider](#slider).
+- Compact: table cells, card metadata, tight label rows.
+- Default: section summaries, sidebar metric panels, standalone
+  progress rows.
+- Large: hero stat sections, prominent KPIs — one per visible section,
+  maximum.
+
+**Do:** use Obsidian as the default fill — it communicates a committed
+value without implying success or department ownership; only apply
+the Success/Green fill when explicitly signaling completion via prop;
+use department elemental colors for department stacked breakdowns and
+the Purple/Turquoise data viz reserve for non-department ones; include
+`aria-valuetext` whenever a unit matters; suppress the label slot
+entirely on indeterminate bars. **Don't:** assume 100% fill means
+complete — completion color must be passed explicitly via prop;
+animate a determinate bar backward — progress bars never decrease; use
+more than 5 segments in a department stacked bar, or more than 2 in a
+general one — anything past that uses the Neutral-4 overflow color;
+put a label inside a Compact (4px) track or a stacked fill; use a
+department elemental color as a single-fill bar's default — department
+colors classify ownership, not progress.
+
 ### Radio
 
 **Transcribed from the teammate's `Radio.jsx`.**
@@ -5354,6 +5689,69 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.39 — 2026-08-11** — Added **Progress Bar**, a new component:
+  a horizontal, read-only bar for Determinate (single or stacked
+  segments) and Indeterminate progress. Designed from scratch by
+  reusing Slider's track anatomy (Neutral-3 unfilled track,
+  `radius-pill`), Obsidian as the default value-committed fill (the
+  same color as Slider's own track fill and Input field's focus
+  border — not Neutral-9, an earlier draft's mistaken citation caught
+  before writing), department elemental colors for department stacked
+  breakdowns, and the Purple/Turquoise data viz reserve (the same one
+  [Chart color mapping](#chart-color-mapping) uses past 5 categorical
+  series) for non-department stacked breakdowns. Three sizes (Compact
+  4px / Default 8px / Large 16px track, one-off literals per Slider's
+  own precedent), Success/Error color overrides passed via prop rather
+  than automatic, and an indeterminate shimmer that respects
+  `prefers-reduced-motion`. Slotted alphabetically between Password
+  field and Radio; component count 31 → 32.
+
+  Follow-up work on the same component, same day: (1) fixed the
+  indeterminate shimmer's duration after building a reference preview
+  (`progress-bar-preview.html`) and finding the original `duration-slow`
+  × 2 (720ms) — a computed guess with no real precedent in this
+  document — too fast to actually read as "loading"; switched to
+  `duration-ambient` (900ms), which already has a documented precedent
+  for exactly this use (Search input's Loading spinner names it "the
+  one duration token named for a continuous loop rather than this
+  system's usual one-shot 'movement settles' transitions"). (2) Built
+  Progress Bar into the live gallery: `components.css` gets the real
+  `.c-progress-*` ruleset (track/fill, size variants, stacked segments,
+  indeterminate shimmer with its `prefers-reduced-motion` fallback),
+  and `preview.html`'s Components tab gets a live demo — Determinate
+  Default/Complete/Error, a department-colored Stacked example, an
+  animating Indeterminate example, and a summarized three-size
+  (Compact/Default/Large) reference strip. (3) Added a **Fill width on
+  initial mount (entrance)** row to the Transition table: Determinate
+  fills (single or stacked) animate from 0% up to their real value on
+  first mount, reusing the exact same `width`/`duration-base`/
+  `ease-standard` transition already documented for a value change —
+  not a new token or a separate "reveal" duration. This is a
+  component-level rule (fires whenever a bar first mounts with a
+  value); the live gallery additionally defers this animation until
+  the Progress Bar section actually scrolls into view, which is a demo
+  presentation choice, not part of the component's own spec.
+
+- **v0.9.38 — 2026-08-11** — Added a **Department logos** section to
+  [Logo](#logo), documenting the four existing named
+  department-product lockups (`collabContent.svg`,
+  `collabInfluencers.svg`, `collabSales.svg`, `collabStudio.svg`) —
+  each mapped to its element/color and given a first-pass definition.
+  Mirrored live in `preview.html` as a card grid (logo, element tag,
+  name, definition, "Download" button) placed right after the existing
+  Element/Usage/Department table in the Logo area. Flagged as a first
+  pass — the four definitions are synthesized from a one-line brief per
+  department, not sourced from a deck or product spec, and don't cover
+  a Water/Data-Logistics department product (none exists yet). Polish
+  pass same day: removed a redundant "use these on department-specific
+  surfaces instead of the default Gold mark" line from the section
+  intro (already covered by the Default-logo rule table above it),
+  reworded all four department definitions to drop the em dash in
+  favor of plain prose, simplified each card's download button label
+  from "Download .svg" to "Download", and added a matching "Download"
+  button to the default Collabrium lockup card (previously image +
+  caption only, no way to grab the file directly from the gallery).
 
 - **v0.9.37 — 2026-08-11** — Reorganized the Components section's
   `###` subsections into strict alphabetical order by component name
@@ -8037,6 +8435,52 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
       btn.closest('.c-chip').remove();
     });
   });
+})();
+
+// Progress Bar — Determinate fills animate in from 0% up to their real
+// value using the exact same width transition already on .c-progress-fill/
+// .c-progress-stack-segment (duration-base/ease-standard — see
+// DESIGN-SYSTEM.md's Progress Bar "Fill width on initial mount" row), not a
+// separate animation. Gallery-specific: replays every time this section
+// scrolls into view, not just once on page load — that's a demo choice,
+// not part of the component's own spec.
+(function () {
+  const group = document.getElementById('progress-entrance-group');
+  if (!group) return;
+  const fills = group.querySelectorAll('[data-fill-target]');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const play = () => {
+    fills.forEach(el => {
+      const target = el.dataset.fillTarget;
+      if (prefersReducedMotion) {
+        el.style.width = target + '%';
+        return;
+      }
+      el.style.width = '0%';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        el.style.width = target + '%';
+      }));
+    });
+  };
+
+  const reset = () => {
+    if (prefersReducedMotion) return;
+    fills.forEach(el => { el.style.transition = 'none'; el.style.width = '0%'; });
+    requestAnimationFrame(() => { fills.forEach(el => { el.style.transition = ''; }); });
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        play();
+      } else {
+        reset();
+      }
+    });
+  }, { threshold: 0.4 });
+
+  observer.observe(group);
 })();
 
 /* ---------- Right pane: tabbed source viewer ---------- */

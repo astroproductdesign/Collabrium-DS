@@ -1008,3 +1008,67 @@
 .c-chip-filter.is-active:active:not(.is-disabled){background:var(--color-neutral-7); border-color:var(--color-neutral-7);}
 .c-chip-filter:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
 .c-chip-filter.is-disabled{opacity:.4; cursor:not-allowed; pointer-events:none;}
+
+/* Progress Bar — designed from scratch, not transcribed. Reuses Slider's
+   track anatomy (Neutral-3 unfilled track, radius-pill), Obsidian as the
+   default value-committed fill (same value as Slider's own track fill and
+   Input field's focus border), department elemental colors for department
+   stacked breakdowns, and the Purple/Turquoise data viz reserve for
+   non-department ones. Indeterminate shimmer uses duration-ambient (900ms)
+   — this system's own token for continuous/looping motion, same as Search
+   input's Loading spinner — not a one-shot "movement settles" transition. */
+.c-progress{width:100%;}
+.c-progress-header{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:var(--spacing-4);}
+.c-progress-title{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9);}
+.c-progress-value{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:400; color:var(--color-neutral-5);}
+.c-progress-track{position:relative; width:100%; border-radius:var(--radius-pill); background:var(--color-neutral-3); overflow:hidden;}
+.c-progress-track.size-compact{height:4px;}
+.c-progress-track.size-default{height:8px;}
+.c-progress-track.size-large{height:16px;}
+.c-progress-fill{height:100%; border-radius:var(--radius-pill); background:var(--color-obsidian); transition:width var(--duration-base) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);}
+.c-progress-fill.tone-success, .c-progress-stack-segment.tone-success{background:var(--color-green);}
+.c-progress-fill.tone-error, .c-progress-stack-segment.tone-error{background:var(--color-red);}
+.c-progress-fill.tone-fire, .c-progress-stack-segment.tone-fire{background:var(--color-orange);}
+.c-progress-fill.tone-wood, .c-progress-stack-segment.tone-wood{background:var(--color-salmon-pink);}
+.c-progress-fill.tone-earth, .c-progress-stack-segment.tone-earth{background:var(--color-green);}
+.c-progress-fill.tone-water, .c-progress-stack-segment.tone-water{background:var(--color-navy);}
+.c-progress-fill.tone-gold, .c-progress-stack-segment.tone-gold{background:var(--color-amber);}
+.c-progress-fill-label{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-1); white-space:nowrap;}
+.c-progress-trailing-wrap{display:flex; align-items:center; gap:var(--spacing-8);}
+.c-progress-trailing-wrap .c-progress-track{flex:1;}
+.c-progress-trailing{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:400; color:var(--color-neutral-5); flex:none;}
+
+/* Stacked — contiguous segments, radius-pill on outer edges only, interior
+   edges flush. Department breakdown uses the 5 department colors above;
+   General data breakdown uses Purple then Turquoise (only 2 colors exist
+   in that reserve, so its own overflow point is 2 segments, not 5) before
+   falling to the shared Neutral-4 overflow color. */
+.c-progress-track.stacked{display:flex;}
+.c-progress-stack-segment{height:100%; flex:none;}
+.c-progress-stack-segment:first-child{border-top-left-radius:var(--radius-pill); border-bottom-left-radius:var(--radius-pill);}
+.c-progress-stack-segment:last-child{border-top-right-radius:var(--radius-pill); border-bottom-right-radius:var(--radius-pill);}
+.c-progress-stack-remainder{flex:1; height:100%;}
+
+/* Indeterminate — Neutral-5 at 40% opacity, animated shimmer over the
+   Neutral-3 track. prefers-reduced-motion swaps it for a static Neutral-4
+   fill at 60% track width instead of animating at all. */
+.c-progress-track.indeterminate{position:relative;}
+.c-progress-indeterminate-fill{position:absolute; top:0; left:0; height:100%; width:40%; border-radius:var(--radius-pill); background:linear-gradient(90deg, transparent, rgba(90,90,90,.4), transparent); animation:c-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;}
+@keyframes c-progress-shimmer{
+  0%{ transform:translateX(-100%); }
+  100%{ transform:translateX(350%); }
+}
+@media (prefers-reduced-motion: reduce){
+  .c-progress-indeterminate-fill{ animation:none; position:static; width:60%; background:var(--color-neutral-4); }
+  .c-progress-fill{ transition:none; }
+}
+
+/* Legend — Stacked-only. Per DESIGN-SYSTEM.md's Label placement rules, a
+   Stacked bar's segment values live in a legend "at the usage level, not
+   inline on the bar itself" — this is that legend. Rule: always shown
+   below the bar by default; add .is-hidden to suppress it for a given
+   instance (not a hover-reveal — that's a separate, opt-in behavior). */
+.c-progress-legend{margin-top:var(--spacing-8); display:flex; flex-wrap:wrap; gap:var(--spacing-16);}
+.c-progress-legend.is-hidden{display:none;}
+.c-progress-legend-item{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap;}
+.c-progress-legend-swatch{width:8px; height:8px; border-radius:2px; flex:none;}
