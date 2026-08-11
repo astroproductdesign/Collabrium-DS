@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Finance Department — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="../collabrium-dls/tokens.css" />
+<link rel="stylesheet" href="../collabrium-dls/components.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<style>
+  /* ---------------------------------------------------------------
+     Theme: Gold / Earth element (Finance · Legal · Compliance · QA &
+     Audit, per DESIGN-SYSTEM.md's Elemental background tints table).
+     Every value below is EITHER a direct tokens.css variable, or a
+     color-mix() of two existing tokens.css variables — nothing here
+     is a new hex value, and tokens.css/components.css are not
+     modified. The three literal rungs tokens.css already has for
+     Gold (8% tint, 16% tint, full-strength Amber) only cover a light
+     wash through a mid-tone; "deep ochre" and a darkest accent are
+     color-mix()'d from Amber toward Neutral-9 to get further down the
+     same hue, per the dataviz skill's "hold the hue, nudge the
+     lightness" method. */
+  :root{
+    --theme-tint:        var(--color-gold-bg);        /* cream — lightest, 8% */
+    --theme-tint-strong: var(--color-gold-bg-strong);  /* warm gold — 16% */
+    --theme-mid:         var(--color-amber);           /* amber — full strength */
+    --theme-deep:        color-mix(in oklab, var(--color-amber), var(--color-neutral-9) 35%); /* deep ochre */
+    --theme-deepest:     color-mix(in oklab, var(--color-amber), var(--color-neutral-9) 55%); /* deepest ochre */
+    --theme-fill:        color-mix(in srgb, var(--color-amber), transparent 88%); /* muted ~12% wash, area fill only */
+    --theme-hover:       color-mix(in oklab, var(--color-amber), var(--color-neutral-9) 15%);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--color-canvas-warm); /* warm canvas — reinforces "cream neutrals" for this theme too */
+    color:var(--color-neutral-9);
+    font-family:var(--font-primary);
+    padding:var(--spacing-32);
+  }
+  .dash-shell{max-width:1280px; margin:0 auto;}
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--spacing-16); margin:var(--spacing-24) 0 var(--spacing-32);}
+  .kpi-label{margin:0; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .kpi-value{margin:var(--spacing-4) 0 var(--spacing-8); font-size:var(--text-h3-size); font-weight:800; color:var(--color-neutral-9);}
+
+  .dash-charts{display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--spacing-16);}
+  @media (max-width: 1100px){ .dash-charts{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width: 640px){ .dash-charts{grid-template-columns:1fr;} }
+
+  .chart-card{gap:0;}
+  .chart-card-head{margin-bottom:var(--spacing-16);}
+  .chart-card-head h4{margin:0 0 2px;}
+  .chart-card-head p{margin:0;}
+  .chart-canvas-wrap{position:relative; height:260px;}
+
+  .chart-table-toggle{
+    align-self:flex-start; margin-top:var(--spacing-12);
+    font:inherit; font-size:var(--text-caption-size); color:var(--color-neutral-5);
+    background:transparent; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);
+    padding:4px 10px; cursor:pointer;
+  }
+  .chart-table-toggle:hover{color:var(--color-neutral-9); background:var(--color-neutral-2);}
+  .chart-data-table{width:100%; border-collapse:collapse; font-size:var(--text-caption-size); margin-top:var(--spacing-12);}
+  .chart-data-table caption{display:none;}
+  .chart-data-table th,.chart-data-table td{text-align:right; padding:6px 4px; border-bottom:1px solid var(--color-neutral-3); font-variant-numeric:tabular-nums;}
+  .chart-data-table th:first-child,.chart-data-table td:first-child{text-align:left; font-variant-numeric:normal;}
+  .chart-data-table thead th{color:var(--color-neutral-5); border-bottom:1px solid var(--color-neutral-4);}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<div class="dash-shell">
+
+  <div class="c-pageheader">
+    <div class="c-pageheader-row">
+      <div class="c-pageheader-text">
+        <h1>Finance Department</h1>
+        <p class="sub" id="dashDate"></p>
+      </div>
+      <div class="c-pageheader-actions">
+        <button type="button" class="c-btn c-btn-secondary c-btn-sm"><i class="ph ph-download-simple"></i> Export</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Total revenue (YTD)</p>
+      <p class="kpi-value">$4.82M</p>
+      <span class="c-badge c-badge-success"><i class="ph ph-arrow-up"></i> 9.6% vs last year</span>
+    </div>
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Total expenses (YTD)</p>
+      <p class="kpi-value">$3.11M</p>
+      <span class="c-badge c-badge-error"><i class="ph ph-arrow-up"></i> 4.2% vs last year</span>
+    </div>
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Net margin</p>
+      <p class="kpi-value">35.5%</p>
+      <span class="c-badge c-badge-success"><i class="ph ph-arrow-up"></i> 2.1 pts vs last year</span>
+    </div>
+  </div>
+
+  <div class="dash-charts">
+
+    <!-- 1. Bar — revenue by quarter, single series -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Revenue by quarter</h4><p>Current fiscal year</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartRevenue"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableRevenue">View as table</button>
+      <table class="chart-data-table" id="tableRevenue" hidden><caption>Revenue by quarter</caption><thead><tr><th>Quarter</th><th>Revenue</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- 2. Line — expense trend, 12 months, plain (no fill) -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Expense trend</h4><p>Monthly, last 12 months</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartExpense"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableExpense">View as table</button>
+      <table class="chart-data-table" id="tableExpense" hidden><caption>Expense trend</caption><thead><tr><th>Month</th><th>Expenses</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- 3. Doughnut — budget allocation by category, ramp -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Budget allocation</h4><p>By category</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartBudget"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableBudget">View as table</button>
+      <table class="chart-data-table" id="tableBudget" hidden><caption>Budget allocation</caption><thead><tr><th>Category</th><th>Share</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- 4. Area — cash flow, filled line -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Cash flow</h4><p>Net monthly cash position</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartCashFlow"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableCashFlow">View as table</button>
+      <table class="chart-data-table" id="tableCashFlow" hidden><caption>Cash flow</caption><thead><tr><th>Month</th><th>Net cash flow</th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <!-- 5. Scatter — cost vs return by project -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Cost vs. return</h4><p>By project, this fiscal year</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartCostReturn"></canvas></div>
+    </div>
+
+    <!-- 6. Horizontal bar — department spend ranking -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head"><h4>Department spend</h4><p>Ranked, this quarter</p></div>
+      <div class="chart-canvas-wrap"><canvas id="chartSpendRank"></canvas></div>
+      <button type="button" class="chart-table-toggle" data-target="tableSpendRank">View as table</button>
+      <table class="chart-data-table" id="tableSpendRank" hidden><caption>Department spend</caption><thead><tr><th>Department</th><th>Spend</th></tr></thead><tbody></tbody></table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  var tint = cssVar('--theme-tint');
+  var tintStrong = cssVar('--theme-tint-strong');
+  var mid = cssVar('--theme-mid');
+  var deep = cssVar('--theme-deep');
+  var deepest = cssVar('--theme-deepest');
+  var fillWash = cssVar('--theme-fill');
+  var hoverColor = cssVar('--theme-hover');
+  var neutral9 = cssVar('--color-neutral-9');
+  var neutral5 = cssVar('--color-neutral-5');
+  var neutral3 = cssVar('--color-neutral-3');
+  var neutral1 = cssVar('--color-neutral-1');
+  var radiusPx = parseFloat(cssVar('--spacing-4'));       // 4px — the dataviz mark spec's fixed bar-end radius
+  var maxThicknessPx = parseFloat(cssVar('--spacing-24')); // 24px — the same spec's bar-thickness cap
+
+  var FONT = "'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+  function axisTicks() { return { color: neutral5, font: { size: 12, family: FONT } }; }
+  function tooltipBase() {
+    return {
+      backgroundColor: neutral1, titleColor: neutral9, bodyColor: neutral5,
+      borderColor: neutral3, borderWidth: 1, padding: 10, cornerRadius: 8,
+      titleFont: { size: 13, weight: '700', family: FONT }, bodyFont: { size: 12, family: FONT }
+    };
+  }
+  function legendBase() {
+    return { position: 'bottom', labels: { color: neutral5, font: { size: 12, family: FONT }, boxWidth: 10, boxHeight: 10, usePointStyle: true, padding: 16 } };
+  }
+  // "No axis borders, minimal horizontal gridlines only" — both axes
+  // drop their baseline (border:{display:false}); only the y-scale
+  // keeps a hairline grid.
+  function cartesianScales(extra) {
+    var s = {
+      x: { grid: { display: false }, border: { display: false }, ticks: axisTicks() },
+      y: { beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() }
+    };
+    return Object.assign(s, extra || {});
+  }
+
+  function fillTable(id, rows) {
+    var tbody = document.querySelector('#' + id + ' tbody');
+    if (!tbody) return;
+    rows.forEach(function (row) {
+      var tr = document.createElement('tr');
+      row.forEach(function (cell, i) {
+        var el = document.createElement(i === 0 ? 'th' : 'td');
+        if (i === 0) el.scope = 'row';
+        el.textContent = cell;
+        tr.appendChild(el);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+  document.querySelectorAll('.chart-table-toggle').forEach(function (btn) {
+    var chartModeLabel = btn.textContent;
+    var tableModeLabel = chartModeLabel.replace('table', 'chart');
+    btn.addEventListener('click', function () {
+      var wrap = btn.parentElement.querySelector('.chart-canvas-wrap');
+      var table = document.getElementById(btn.dataset.target);
+      var goingToTable = table.hidden;
+      table.hidden = !goingToTable;
+      if (wrap) wrap.hidden = goingToTable;
+      btn.textContent = goingToTable ? tableModeLabel : chartModeLabel;
+    });
+  });
+
+  /* 1. Bar — revenue by quarter */
+  var quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+  var revenue = [1080000, 1150000, 1240000, 1350000];
+  new Chart(document.getElementById('chartRevenue'), {
+    type: 'bar',
+    data: { labels: quarters, datasets: [{ label: 'Revenue', data: revenue, backgroundColor: mid, hoverBackgroundColor: hoverColor, borderRadius: radiusPx, maxBarThickness: maxThicknessPx }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return '$' + i[0].formattedValue; }, label: function (i) { return i.label; } }
+      }) },
+      scales: cartesianScales({ y: { beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + (v / 1000) + 'k'; } }) } })
+    }
+  });
+  fillTable('tableRevenue', quarters.map(function (q, i) { return [q, '$' + revenue[i].toLocaleString()]; }));
+
+  /* 2. Line — expense trend, plain (no fill, distinct from the Area chart) */
+  var months12 = ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
+  var expenses = [235000,242000,251000,268000,239000,247000,258000,261000,270000,265000,278000,284000];
+  new Chart(document.getElementById('chartExpense'), {
+    type: 'line',
+    data: { labels: months12, datasets: [{ label: 'Expenses', data: expenses, borderColor: mid, backgroundColor: mid, fill: false, tension: 0.3, borderWidth: 2, pointRadius: 3, pointBackgroundColor: mid, pointBorderColor: neutral1, pointBorderWidth: 2, pointHoverRadius: 5 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return '$' + i[0].formattedValue; }, label: function (i) { return i.label; } }
+      }) },
+      scales: cartesianScales({ y: { beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + (v / 1000) + 'k'; } }) } })
+    }
+  });
+  fillTable('tableExpense', months12.map(function (m, i) { return [m, '$' + expenses[i].toLocaleString()]; }));
+
+  /* 3. Doughnut — budget allocation, single-hue ramp (this dashboard's
+     theme is monochrome by brief; distinction relies on lightness
+     steps plus the mandatory legend, not hue variety). */
+  var budgetCats = ['Payroll', 'Operations', 'Marketing', 'Compliance', 'Travel'];
+  var budgetShare = [42, 24, 16, 11, 7];
+  // Same-hue ramp, light to dark, one step per slice — no new colors,
+  // just the five rungs already derived above.
+  var budgetColors = [tint, tintStrong, mid, deep, deepest];
+  new Chart(document.getElementById('chartBudget'), {
+    type: 'doughnut',
+    data: { labels: budgetCats, datasets: [{ data: budgetShare, backgroundColor: budgetColors, borderColor: neutral1, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: legendBase(), tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return i[0].formattedValue + '%'; }, label: function (i) { return i.label; } }
+      }) }
+    }
+  });
+  fillTable('tableBudget', budgetCats.map(function (c, i) { return [c, budgetShare[i] + '%']; }));
+
+  /* 4. Area — cash flow. Fill is the muted ~12% wash, never the
+     full-strength color as a fill; line carries full strength. */
+  var cashFlow = [82000,95000,-14000,120000,64000,110000,-22000,98000,140000,76000,105000,132000];
+  new Chart(document.getElementById('chartCashFlow'), {
+    type: 'line',
+    data: { labels: months12, datasets: [{ label: 'Net cash flow', data: cashFlow, borderColor: mid, backgroundColor: fillWash, fill: true, tension: 0.3, borderWidth: 2, pointRadius: 3, pointBackgroundColor: mid, pointBorderColor: neutral1, pointBorderWidth: 2, pointHoverRadius: 5 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { var v = i[0].raw; return (v >= 0 ? '+' : '') + '$' + v.toLocaleString(); }, label: function (i) { return i.label; } }
+      }) },
+      scales: cartesianScales({ y: { grid: { color: neutral3 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + (v / 1000) + 'k'; } }) } })
+    }
+  });
+  fillTable('tableCashFlow', months12.map(function (m, i) { return [m, (cashFlow[i] >= 0 ? '+' : '') + '$' + cashFlow[i].toLocaleString()]; }));
+
+  /* 5. Scatter — cost vs. return by project, single series (one
+     metric pairing, no natural sub-grouping given in the brief). */
+  var projects = ['Atlas Migration','Ledger Revamp','Vendor Consolidation','Audit Automation','Tax Platform','FX Hedge Tool','Spend Analytics','Payroll Cutover'];
+  var costs =   [180000, 95000, 220000, 60000, 310000, 140000, 78000, 205000];
+  var returns = [260000, 130000, 250000, 145000, 420000, 190000, 165000, 240000];
+  new Chart(document.getElementById('chartCostReturn'), {
+    type: 'scatter',
+    data: { datasets: [{ label: 'Project', data: costs.map(function (c, i) { return { x: c, y: returns[i], project: projects[i] }; }), backgroundColor: mid, borderColor: neutral1, borderWidth: 1, pointRadius: 6, pointHoverRadius: 8 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), {
+        callbacks: {
+          title: function (i) { return i[0].raw.project; },
+          label: function (i) { return 'Cost $' + i.raw.x.toLocaleString() + ' → Return $' + i.raw.y.toLocaleString(); }
+        }
+      }) },
+      scales: cartesianScales({
+        x: { title: { display: true, text: 'Cost ($)', color: neutral5, font: { size: 12, family: FONT } }, grid: { display: false }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + (v / 1000) + 'k'; } }) },
+        y: { title: { display: true, text: 'Return ($)', color: neutral5, font: { size: 12, family: FONT } }, beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + (v / 1000) + 'k'; } }) }
+      })
+    }
+  });
+
+  /* 6. Horizontal bar — department spend ranking */
+  var depts = ['Payroll', 'IT & Infrastructure', 'Marketing', 'Facilities', 'Legal & Compliance'];
+  var spend = [1120000, 640000, 510000, 340000, 260000];
+  new Chart(document.getElementById('chartSpendRank'), {
+    type: 'bar',
+    data: { labels: depts, datasets: [{ label: 'Spend', data: spend, backgroundColor: mid, hoverBackgroundColor: hoverColor, borderRadius: radiusPx, maxBarThickness: 20 }] },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return '$' + i[0].formattedValue; }, label: function (i) { return i.label; } }
+      }) },
+      scales: {
+        x: { beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + (v / 1000) + 'k'; } }) },
+        y: { grid: { display: false }, border: { display: false }, ticks: axisTicks() }
+      }
+    }
+  });
+  fillTable('tableSpendRank', depts.map(function (d, i) { return [d, '$' + spend[i].toLocaleString()]; }));
+})();
+</script>
+</body>
+</html>

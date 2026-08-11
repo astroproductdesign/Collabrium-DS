@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finance — Chart Test Page</title>
+
+<!-- Fonts + icons per DESIGN-SYSTEM.md's Technical Implementation order,
+     then the required sequence for this page: tokens.css -> components.css
+     -> Chart.js (CDN) -> chart script (last <script> block, bottom of body). -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="../collabrium-dls/tokens.css" />
+<link rel="stylesheet" href="../collabrium-dls/components.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+<style>
+  /* Every value below is a var() read of tokens.css — no raw hex/px. */
+  body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary);}
+  .shell{max-width:1280px; margin:0 auto; padding:var(--spacing-32);}
+  .c-pageheader{margin-bottom:var(--section-gap);}
+
+  /* color-mix() must live in a real stylesheet to resolve var() args —
+     canvas/Chart.js can't parse var() inside a JS string, so every
+     derived shade is a real custom property, read back via
+     getComputedStyle once at chart-build time. */
+  :root{
+    --hover-fire:  color-mix(in oklab, var(--color-orange), var(--color-neutral-9) 15%);
+    --hover-wood:  color-mix(in oklab, var(--color-salmon-pink), var(--color-neutral-9) 15%);
+    --hover-earth: color-mix(in oklab, var(--color-green), var(--color-neutral-9) 15%);
+    --hover-water: color-mix(in oklab, var(--color-navy), var(--color-neutral-9) 15%);
+    --hover-gold:  color-mix(in oklab, var(--color-amber), var(--color-neutral-9) 15%);
+
+    /* area/line fill wash — 88% transparent off the mark's own color */
+    --wash-gold: color-mix(in srgb, var(--color-amber), transparent 88%);
+
+    /* Doughnut + Radar/Polar ramps — same-hue, light-to-dark, off Gold/Amber
+       (Finance's own element color) */
+    --ramp-gold-tint:        color-mix(in oklab, var(--color-amber), var(--color-neutral-1) 92%);
+    --ramp-gold-tint-strong: color-mix(in oklab, var(--color-amber), var(--color-neutral-1) 84%);
+    --ramp-gold-mid:         color-mix(in oklab, var(--color-amber), var(--color-neutral-1) 50%);
+    --ramp-gold-deep:        color-mix(in oklab, var(--color-amber), var(--color-neutral-9) 35%);
+
+    /* Polar area translucency: 30% transparent on the 3 saturated rungs,
+       15% on the 2 pale tint rungs (the pale ones need to stay MORE
+       opaque or they wash out against the white card before the grid
+       rings even matter). */
+    --ramp-gold-deep-30:        color-mix(in srgb, var(--ramp-gold-deep), transparent 30%);
+    --ramp-gold-base-30:        color-mix(in srgb, var(--color-amber),    transparent 30%);
+    --ramp-gold-mid-30:         color-mix(in srgb, var(--ramp-gold-mid),  transparent 30%);
+    --ramp-gold-tint-strong-15: color-mix(in srgb, var(--ramp-gold-tint-strong), transparent 15%);
+    --ramp-gold-tint-15:        color-mix(in srgb, var(--ramp-gold-tint), transparent 15%);
+
+    /* Bubble — 30% transparent wash per series color, 3 series max */
+    --bubble-wash-fire:  color-mix(in srgb, var(--color-orange),      transparent 30%);
+    --bubble-wash-water: color-mix(in srgb, var(--color-navy),        transparent 30%);
+    --bubble-wash-earth: color-mix(in srgb, var(--color-green),       transparent 30%);
+  }
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--spacing-16); margin-bottom:var(--spacing-32);}
+  /* .c-card p is (0,1,1) specificity and would otherwise beat a bare
+     .kpi-value rule (0,1,0); scoping under .kpi-tile raises this to
+     (0,2,0) so the Stat/KPI card tokens below reliably win. */
+  .kpi-tile .kpi-label{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+  .kpi-tile .kpi-value{margin:var(--spacing-4) 0 var(--spacing-8); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); font-weight:var(--text-h1-weight); color:var(--color-neutral-9);}
+  .kpi-tile .c-badge{align-self:flex-start;}
+
+  .chart-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--spacing-16);}
+  @media (max-width: 1100px){ .chart-grid{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width: 640px){ .chart-grid{grid-template-columns:1fr;} }
+
+  .chart-card{gap:0;}
+  .chart-card-head{margin-bottom:var(--spacing-16);}
+  .chart-card-head h4{margin:0 0 2px;}
+  .chart-card-head p{margin:0;}
+  .chart-canvas-wrap{position:relative; flex:1 1 auto; min-height:260px;}
+  .chart-canvas-wrap.tall{min-height:300px;}
+  .chart-table-toggle{align-self:flex-start; margin-top:var(--spacing-12);}
+  .chart-data-table{width:100%; border-collapse:collapse; font-size:var(--text-caption-size); margin-top:var(--spacing-12);}
+  .chart-data-table th,.chart-data-table td{text-align:right; padding:6px 4px; border-bottom:1px solid var(--color-neutral-3); font-variant-numeric:tabular-nums;}
+  .chart-data-table th:first-child,.chart-data-table td:first-child{text-align:left; font-variant-numeric:normal;}
+  .chart-data-table thead th{color:var(--color-neutral-5); border-bottom:1px solid var(--color-neutral-4);}
+  [hidden]{display:none !important;}
+
+  .debug-card{margin-top:var(--section-gap);}
+  .debug-table{width:100%; border-collapse:collapse; font-size:var(--text-caption-size); margin-top:var(--spacing-12);}
+  .debug-table th,.debug-table td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--color-neutral-3);}
+  .debug-table thead th{color:var(--color-neutral-5); border-bottom:1px solid var(--color-neutral-4);}
+  .debug-table td:last-child{text-align:center;}
+  .debug-table code{font-family:monospace; font-size:11px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="c-pageheader">
+    <div class="c-pageheader-row">
+      <div class="c-pageheader-text">
+        <h1>Finance</h1>
+        <p class="sub">Chart.js test page — every chart type in DESIGN-SYSTEM.md's Chart color mapping and Chart chrome &amp; marks sections, themed for Finance (Gold/Amber).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Total revenue</p>
+      <p class="kpi-value">$2.4M</p>
+      <span class="c-badge c-badge-success"><i class="ph ph-arrow-up"></i> 8.2% vs prior period</span>
+    </div>
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Operating margin</p>
+      <p class="kpi-value">34.6%</p>
+      <span class="c-badge c-badge-success"><i class="ph ph-arrow-up"></i> 1.2 pts vs prior period</span>
+    </div>
+    <div class="c-card kpi-tile">
+      <p class="kpi-label">Budget variance</p>
+      <p class="kpi-value">3.8%</p>
+      <span class="c-badge c-badge-error"><i class="ph ph-arrow-up"></i> 3.8 pts over plan</span>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+
+    <!-- 1. Bar -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Quarterly operating expenses</h4>
+        <p>Finance · last 8 quarters, $K</p>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chartBar"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableBar">View as table</button>
+      <table class="chart-data-table" id="tableBar" hidden>
+        <thead><tr><th>Quarter</th><th>OpEx ($K)</th></tr></thead>
+        <tbody id="tableBarBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 2. Horizontal bar -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Budget allocation by department</h4>
+        <p>This fiscal year, $K</p>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chartHBar"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableHBar">View as table</button>
+      <table class="chart-data-table" id="tableHBar" hidden>
+        <thead><tr><th>Department</th><th>Budget ($K)</th></tr></thead>
+        <tbody id="tableHBarBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 3. Line -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Revenue run-rate</h4>
+        <p>Finance · last 8 months, $K</p>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chartLine"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableLine">View as table</button>
+      <table class="chart-data-table" id="tableLine" hidden>
+        <thead><tr><th>Month</th><th>Run-rate ($K)</th></tr></thead>
+        <tbody id="tableLineBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 4. Area -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Cumulative cash flow</h4>
+        <p>Finance · this fiscal year, $M</p>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chartArea"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableArea">View as table</button>
+      <table class="chart-data-table" id="tableArea" hidden>
+        <thead><tr><th>Quarter</th><th>Cumulative ($M)</th></tr></thead>
+        <tbody id="tableAreaBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 5. Scatter -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Invoice size vs. days to collect</h4>
+        <p>Finance · last 12 invoices</p>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chartScatter"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableScatter">View as table</button>
+      <table class="chart-data-table" id="tableScatter" hidden>
+        <thead><tr><th>Invoice</th><th>Size ($K)</th><th>Days to collect</th></tr></thead>
+        <tbody id="tableScatterBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 6. Doughnut -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Expense breakdown</h4>
+        <p>Finance · last 30 days</p>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chartDoughnut"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableDoughnut">View as table</button>
+      <table class="chart-data-table" id="tableDoughnut" hidden>
+        <thead><tr><th>Category</th><th>Share</th></tr></thead>
+        <tbody id="tableDoughnutBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 7. Radar -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Financial health scorecard</h4>
+        <p>Finance · 0–10 scale</p>
+      </div>
+      <div class="chart-canvas-wrap tall"><canvas id="chartRadar"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tableRadar">View as table</button>
+      <table class="chart-data-table" id="tableRadar" hidden>
+        <thead><tr><th>Dimension</th><th>Score</th></tr></thead>
+        <tbody id="tableRadarBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 8. Bubble (no "View as table" — no accompanying table by spec) -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Cost centers</h4>
+        <p>Budget × actual spend × headcount</p>
+      </div>
+      <div class="chart-canvas-wrap tall"><canvas id="chartBubble"></canvas></div>
+    </div>
+
+    <!-- 9. Polar area -->
+    <div class="c-card chart-card">
+      <div class="chart-card-head">
+        <h4>Audit findings by severity</h4>
+        <p>Legal &amp; Compliance · open findings</p>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="chartPolar"></canvas></div>
+      <button type="button" class="chart-table-toggle c-btn c-btn-secondary c-btn-sm" data-target="tablePolar">View as table</button>
+      <table class="chart-data-table" id="tablePolar" hidden>
+        <thead><tr><th>Category</th><th>Findings</th></tr></thead>
+        <tbody id="tablePolarBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="c-card debug-card">
+    <div class="chart-card-head">
+      <h4>Debug: resolved CSS variables</h4>
+      <p id="debugSummary">Checking…</p>
+    </div>
+    <table class="debug-table">
+      <thead><tr><th>Variable</th><th>Resolved value</th><th>Status</th></tr></thead>
+      <tbody id="debugBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  // Every color/type/spacing value this page uses is read here, via
+  // getComputedStyle, from tokens.css — never a literal hex/px. Each
+  // lookup is logged so the debug panel below can report exactly what
+  // resolved and flag anything that came back empty (missing token,
+  // wrong name, or tokens.css failed to load).
+  var resolved = new Map();
+  function cssVar(name) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    resolved.set(name, v);
+    return v;
+  }
+
+  var FONT = cssVar('--font-primary');
+  var neutral1 = cssVar('--color-neutral-1');
+  var neutral3 = cssVar('--color-neutral-3');
+  var neutral5 = cssVar('--color-neutral-5');
+  var neutral9 = cssVar('--color-neutral-9');
+
+  function typeToken(prefix) {
+    return {
+      size: parseFloat(cssVar('--text-' + prefix + '-size')),
+      weight: cssVar('--text-' + prefix + '-weight'),
+      lh: parseFloat(cssVar('--text-' + prefix + '-lh'))
+    };
+  }
+  var tFootnote = typeToken('footnote');
+  var tLabel2 = typeToken('label2');
+  var tLabel3 = typeToken('label3');
+  var tCaption = typeToken('caption');
+
+  // Chart.js's font.lineHeight, when given a bare number, is a
+  // MULTIPLIER of font size (CSS unitless line-height), not a pixel
+  // value — passing a token's raw lh (e.g. 16) would be read as
+  // "16x the font size" and blow up the space Chart.js reserves for
+  // axis labels. Converting to the actual size/lh ratio keeps the
+  // token's real proportions intact instead.
+  function fontOf(t) { return { size: t.size, weight: t.weight, lineHeight: t.lh / t.size, family: FONT }; }
+
+  var radiusPx = parseFloat(cssVar('--spacing-4'));
+  var maxThicknessV = parseFloat(cssVar('--spacing-24'));
+  var maxThicknessH = parseFloat(cssVar('--spacing-20'));
+  var legendItemGap = parseFloat(cssVar('--spacing-16'));
+  var backdropPad = parseFloat(cssVar('--spacing-4'));
+
+  // Department colors, walked in table order — Fire, Wood, Earth, Water, Gold
+  var fire  = cssVar('--color-orange'),      hoverFire  = cssVar('--hover-fire');
+  var wood  = cssVar('--color-salmon-pink'), hoverWood  = cssVar('--hover-wood');
+  var earth = cssVar('--color-green'),       hoverEarth = cssVar('--hover-earth');
+  var water = cssVar('--color-navy'),        hoverWater = cssVar('--hover-water');
+  var gold  = cssVar('--color-amber'),       hoverGold  = cssVar('--hover-gold');
+
+  var washGold = cssVar('--wash-gold');
+  var rampGold = [cssVar('--ramp-gold-deep'), gold, cssVar('--ramp-gold-mid'), cssVar('--ramp-gold-tint-strong'), cssVar('--ramp-gold-tint')];
+  var rampGoldTranslucent = [cssVar('--ramp-gold-deep-30'), cssVar('--ramp-gold-base-30'), cssVar('--ramp-gold-mid-30'), cssVar('--ramp-gold-tint-strong-15'), cssVar('--ramp-gold-tint-15')];
+
+  var bubbleWashFire  = cssVar('--bubble-wash-fire');
+  var bubbleWashWater = cssVar('--bubble-wash-water');
+  var bubbleWashEarth = cssVar('--bubble-wash-earth');
+
+  // Keyed by canvas id so the table toggle below can call .resize() on
+  // the right instance after un-hiding its canvas.
+  var charts = {};
+
+  function axisTicks() { return { color: neutral5, font: fontOf(tFootnote) }; }
+  function axisTitle(text) { return { display: true, text: text, color: neutral5, font: fontOf(tLabel2) }; }
+  function tooltipBase() {
+    return {
+      backgroundColor: neutral1, titleColor: neutral9, bodyColor: neutral5,
+      borderColor: neutral3, borderWidth: 1, padding: 10, cornerRadius: 8,
+      titleFont: fontOf(tLabel2), bodyFont: fontOf(tLabel3)
+    };
+  }
+  function legendBase() {
+    return { position: 'bottom', align: 'start', labels: { color: neutral5, font: fontOf(tCaption), boxWidth: 10, boxHeight: 10, usePointStyle: true, padding: legendItemGap } };
+  }
+  function cartesianScales(overrides) {
+    var base = {
+      x: { grid: { display: false }, border: { display: false }, ticks: axisTicks() },
+      y: { beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() }
+    };
+    if (overrides && overrides.x) Object.assign(base.x, overrides.x);
+    if (overrides && overrides.y) Object.assign(base.y, overrides.y);
+    return base;
+  }
+  function radialScale(suggestedMax) {
+    return {
+      r: {
+        suggestedMin: 0, suggestedMax: suggestedMax,
+        grid: { color: neutral3 }, angleLines: { color: neutral3 },
+        pointLabels: { color: neutral5, font: fontOf(tFootnote) },
+        ticks: { color: neutral5, backdropColor: neutral1, backdropPadding: backdropPad, font: fontOf(tFootnote) }
+      }
+    };
+  }
+  function fillTable(bodyId, rows) {
+    document.getElementById(bodyId).innerHTML = rows.map(function (r) {
+      return '<tr>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+    }).join('');
+  }
+  document.querySelectorAll('.chart-table-toggle').forEach(function (btn) {
+    // Swap, don't stack: the table replaces the canvas rather than
+    // appending below it, so the card's height doesn't grow while the
+    // table is open. previousElementSibling is always the canvas wrap —
+    // markup order is canvas wrap, then this button, then the table.
+    var canvasWrap = btn.previousElementSibling;
+    var canvasId = canvasWrap.querySelector('canvas').id;
+    btn.addEventListener('click', function () {
+      var t = document.getElementById(btn.dataset.target);
+      var isHidden = t.hasAttribute('hidden');
+      if (isHidden) {
+        canvasWrap.setAttribute('hidden', '');
+        t.removeAttribute('hidden');
+        btn.textContent = 'Hide table';
+      } else {
+        t.setAttribute('hidden', '');
+        canvasWrap.removeAttribute('hidden');
+        // Chart.js can size itself to 0 while its canvas was
+        // display:none; force a resize now that it's visible again
+        // rather than relying on the resize observer to catch up.
+        if (charts[canvasId]) charts[canvasId].resize();
+        btn.textContent = 'View as table';
+      }
+    });
+  });
+
+  // 1. Bar — Finance/Gold, single series
+  var quarters8 = ['Q1 \'24', 'Q2 \'24', 'Q3 \'24', 'Q4 \'24', 'Q1 \'25', 'Q2 \'25', 'Q3 \'25', 'Q4 \'25'];
+  var opex = [1180, 1240, 1205, 1310, 1360, 1290, 1420, 1450];
+  charts.chartBar = new Chart(document.getElementById('chartBar'), {
+    type: 'bar',
+    data: { labels: quarters8, datasets: [{ label: 'OpEx', data: opex, backgroundColor: gold, hoverBackgroundColor: hoverGold, borderRadius: radiusPx, maxBarThickness: maxThicknessV }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), { callbacks: { label: function (i) { return '$' + i.formattedValue + 'K'; } } }) },
+      scales: cartesianScales({ y: { ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + v + 'K'; } }) } })
+    }
+  });
+  fillTable('tableBarBody', quarters8.map(function (q, i) { return [q, '$' + opex[i].toLocaleString() + 'K']; }));
+
+  // 2. Horizontal bar — categorical across departments, walked in order
+  var depts = ['Marketing', 'Product', 'Customer Success', 'Data', 'Finance'];
+  var budget = [640, 410, 260, 380, 520];
+  var deptColors = [fire, wood, earth, water, gold];
+  var deptHovers = [hoverFire, hoverWood, hoverEarth, hoverWater, hoverGold];
+  charts.chartHBar = new Chart(document.getElementById('chartHBar'), {
+    type: 'bar',
+    data: { labels: depts, datasets: [{ label: 'Budget', data: budget, backgroundColor: deptColors, hoverBackgroundColor: deptHovers, borderRadius: radiusPx, maxBarThickness: maxThicknessH }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), { callbacks: { label: function (i) { return '$' + i.formattedValue + 'K'; } } }) },
+      scales: cartesianScales({
+        x: { beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + v + 'K'; } }) },
+        y: { grid: { display: false }, border: { display: false }, ticks: axisTicks() }
+      })
+    }
+  });
+  fillTable('tableHBarBody', depts.map(function (d, i) { return [d, '$' + budget[i] + 'K']; }));
+
+  // 3. Line — Finance/Gold, plain, no fill
+  var months8 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
+  var runRate = [980, 1020, 1005, 1080, 1140, 1110, 1210, 1260];
+  charts.chartLine = new Chart(document.getElementById('chartLine'), {
+    type: 'line',
+    data: { labels: months8, datasets: [{ label: 'Run-rate', data: runRate, borderColor: gold, backgroundColor: gold, fill: false, tension: 0.3, borderWidth: 2, pointRadius: 3, pointBackgroundColor: gold, pointBorderColor: neutral1, pointBorderWidth: 2, pointHoverRadius: 5 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), { callbacks: { label: function (i) { return '$' + i.formattedValue + 'K'; } } }) },
+      scales: cartesianScales({ y: { ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + v + 'K'; } }) } })
+    }
+  });
+  fillTable('tableLineBody', months8.map(function (m, i) { return [m, '$' + runRate[i].toLocaleString() + 'K']; }));
+
+  // 4. Area — Finance/Gold, filled line, ~12% wash
+  var fyQuarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+  var cumCashFlow = [0.6, 1.3, 1.9, 2.4];
+  charts.chartArea = new Chart(document.getElementById('chartArea'), {
+    type: 'line',
+    data: { labels: fyQuarters, datasets: [{ label: 'Cumulative cash flow', data: cumCashFlow, borderColor: gold, backgroundColor: washGold, fill: true, tension: 0.3, borderWidth: 2, pointRadius: 3, pointBackgroundColor: gold, pointBorderColor: neutral1, pointBorderWidth: 2, pointHoverRadius: 5 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), { callbacks: { label: function (i) { return '$' + i.formattedValue + 'M'; } } }) },
+      scales: cartesianScales({ y: { ticks: Object.assign(axisTicks(), { callback: function (v) { return '$' + v + 'M'; } }) } })
+    }
+  });
+  fillTable('tableAreaBody', fyQuarters.map(function (q, i) { return [q, '$' + cumCashFlow[i] + 'M']; }));
+
+  // 5. Scatter — Finance/Gold, with axis titles
+  var invoicePoints = [
+    { x: 4.2, y: 12 }, { x: 8.1, y: 22 }, { x: 2.4, y: 8 }, { x: 15.6, y: 41 },
+    { x: 6.8, y: 18 }, { x: 22.3, y: 55 }, { x: 3.1, y: 10 }, { x: 11.4, y: 29 },
+    { x: 18.9, y: 48 }, { x: 5.6, y: 15 }, { x: 9.7, y: 25 }, { x: 27.5, y: 62 }
+  ];
+  charts.chartScatter = new Chart(document.getElementById('chartScatter'), {
+    type: 'scatter',
+    data: { datasets: [{ label: 'Invoices', data: invoicePoints, backgroundColor: gold, borderColor: neutral1, borderWidth: 1, pointRadius: 6, pointHoverRadius: 8 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: Object.assign(tooltipBase(), { callbacks: { label: function (i) { return '$' + i.raw.x + 'K → ' + i.raw.y + ' days'; } } }) },
+      scales: cartesianScales({
+        x: { title: axisTitle('Invoice size ($K)'), grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() },
+        y: { title: axisTitle('Days to collect'), beginAtZero: true, grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() }
+      })
+    }
+  });
+  fillTable('tableScatterBody', invoicePoints.map(function (p, i) { return ['#' + (i + 1), '$' + p.x + 'K', p.y]; }));
+
+  // 6. Doughnut — Finance/Gold, same-hue ramp, sorted descending
+  var expenseCats = ['Payroll', 'Vendors', 'Facilities', 'Software', 'Travel'];
+  var expenseShare = [42, 24, 16, 11, 7];
+  charts.chartDoughnut = new Chart(document.getElementById('chartDoughnut'), {
+    type: 'doughnut',
+    data: { labels: expenseCats, datasets: [{ data: expenseShare, backgroundColor: rampGold, borderColor: neutral1, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: legendBase(), tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return i[0].formattedValue + '%'; }, label: function (i) { return i.label; } }
+      }) }
+    }
+  });
+  fillTable('tableDoughnutBody', expenseCats.map(function (c, i) { return [c, expenseShare[i] + '%']; }));
+
+  // 7. Radar — Finance/Gold, single series, 0–10 scale
+  var financeDims = ['Liquidity', 'Profitability', 'Efficiency', 'Leverage', 'Growth', 'Compliance'];
+  var financeScores = [7, 8, 6, 5, 7, 9];
+  charts.chartRadar = new Chart(document.getElementById('chartRadar'), {
+    type: 'radar',
+    data: { labels: financeDims, datasets: [{ label: 'This quarter', data: financeScores, borderColor: gold, backgroundColor: washGold, borderWidth: 2, pointRadius: 3, pointBackgroundColor: gold, pointBorderColor: neutral1, pointBorderWidth: 1 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: tooltipBase() },
+      scales: radialScale(10)
+    }
+  });
+  fillTable('tableRadarBody', financeDims.map(function (d, i) { return [d, financeScores[i] + '/10']; }));
+
+  // 8. Bubble — 3 series max, all-pairs-validated
+  function bubbleSet(seed, n, xMin, xMax, yMin, yMax, rMin, rMax) {
+    var pts = [];
+    for (var i = 0; i < n; i++) {
+      var t = (i + seed) / (n + seed);
+      pts.push({ x: Math.round(xMin + (xMax - xMin) * t), y: Math.round(yMin + (yMax - yMin) * (1 - t)), r: Math.round(rMin + (rMax - rMin) * ((i % 3) / 2)) });
+    }
+    return pts;
+  }
+  charts.chartBubble = new Chart(document.getElementById('chartBubble'), {
+    type: 'bubble',
+    data: { datasets: [
+      { label: 'OpEx', data: bubbleSet(1, 6, 200, 600, 180, 620, 8, 20), backgroundColor: bubbleWashFire, borderColor: fire },
+      { label: 'CapEx', data: bubbleSet(2, 6, 80, 300, 60, 260, 6, 16), backgroundColor: bubbleWashWater, borderColor: water },
+      { label: 'Contractors', data: bubbleSet(3, 6, 20, 120, 15, 90, 4, 10), backgroundColor: bubbleWashEarth, borderColor: earth }
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: legendBase(), tooltip: Object.assign(tooltipBase(), {
+        callbacks: { label: function (i) { return i.dataset.label + ': $' + i.raw.x + 'K budget, $' + i.raw.y + 'K actual, ' + i.raw.r + ' heads'; } }
+      }) },
+      scales: cartesianScales({
+        x: { title: axisTitle('Budget ($K)'), grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() },
+        y: { title: axisTitle('Actual spend ($K)'), grid: { color: neutral3 }, border: { display: false }, ticks: axisTicks() }
+      })
+    }
+  });
+
+  // 9. Polar area — Legal & Compliance/Gold, translucent ramp
+  var findingsCats = ['Data handling', 'Access control', 'Retention', 'Vendor risk', 'Incident response'];
+  var findingsCount = [34, 28, 22, 10, 6];
+  charts.chartPolar = new Chart(document.getElementById('chartPolar'), {
+    type: 'polarArea',
+    data: { labels: findingsCats, datasets: [{ data: findingsCount, backgroundColor: rampGoldTranslucent, borderColor: neutral1, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: legendBase(), tooltip: Object.assign(tooltipBase(), {
+        callbacks: { title: function (i) { return i[0].formattedValue + ' findings'; }, label: function (i) { return i.label; } }
+      }) },
+      scales: { r: { grid: { color: neutral3 }, angleLines: { color: neutral3 }, ticks: { color: neutral5, backdropColor: neutral1, backdropPadding: backdropPad, font: fontOf(tFootnote) } } }
+    }
+  });
+  fillTable('tablePolarBody', findingsCats.map(function (c, i) { return [c, findingsCount[i]]; }));
+
+  // Debug panel — every cssVar() lookup made above, flagged if empty
+  var rows = Array.from(resolved.entries()).sort(function (a, b) { return a[0].localeCompare(b[0]); });
+  var missing = rows.filter(function (r) { return !r[1]; });
+  document.getElementById('debugSummary').textContent = rows.length + ' variables resolved, ' + missing.length + ' missing.';
+  document.getElementById('debugBody').innerHTML = rows.map(function (r) {
+    var ok = !!r[1];
+    return '<tr><td><code>' + r[0] + '</code></td><td>' + (ok ? r[1] : '—') + '</td><td>' +
+      (ok ? '<span class="c-badge c-badge-success">OK</span>' : '<span class="c-badge c-badge-error">MISSING</span>') +
+      '</td></tr>';
+  }).join('');
+})();
+</script>
+</body>
+</html>
