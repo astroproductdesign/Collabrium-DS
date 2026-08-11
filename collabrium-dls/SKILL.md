@@ -38,14 +38,14 @@ installable variable-font files for both typefaces (sourced from
 Google's official repo, not the web-embed subsets) — point people there
 instead of them hunting Google Fonts themselves. `preview.html` also has
 a live **Components** section — the 7 basics (Button, Input, Card,
-Badge & Tag, Table row, Modal, Empty state), 10 more
+Badge & Tag, Table row, Modal, Empty state), 9 more
 transcribed from the teammate's real component source (SidebarNav,
-Tabs, Select, Checkbox, Radio, Switch, Toast, Tooltip, DataTable,
+Tabs, Checkbox, Radio, Switch, Toast, Tooltip, DataTable,
 ElementBadge), 4 more **designed from scratch** (Stat/KPI
 card, Filters, Pagination, Date picker, flagged red in the gallery)
-plus a Chart color mapping guideline, 4 more folded into Button/Input
+plus a Chart color mapping guideline, 3 more folded into Button/Input
 field (Button's Icon-only variant, plus Input field's
-Textarea/Password field/Search input clear button siblings), and
+Textarea/Password field siblings), and
 **App Shell**, the page-level composition layer
 (Sidebar placement, Content region, Page header — no separate Top bar,
 Page header is the shell's only top-of-screen chrome) covering how
@@ -69,6 +69,24 @@ or changed component needs the matching edit in **both**
 `preview.html` (live demo) **and** `components.css` (the portable
 copy) — they must never diverge from each other any more than either
 may diverge from `DESIGN-SYSTEM.md`.
+
+**Standing rule — component ordering in preview.html:** the sidebar
+nav's Components child list and the `.comp-block` demo sections in
+`<section id="components">` must both stay sorted alphabetically by
+component name, in lockstep with each other. When adding a new
+component (or splitting an existing demo into standalone pieces, e.g.
+Checkbox/Radio/Switch each getting their own block), insert its nav
+button and its `.comp-block` at the alphabetically correct position in
+both lists — never append to the end — and make sure the nav button's
+`data-nav-target` matches the block's `id`. Both lists carry an inline
+`RULE:` HTML comment at their start restating this.
+
+**Standing rule — component ordering in DESIGN-SYSTEM.md:** the same
+alphabetical-by-name ordering applies to the Components section's `###`
+subsections and its own table-of-contents list right above them —
+insert a new component's `###` heading and its ToC entry at the
+alphabetically correct position, never appended to the end, so the doc
+stays in lockstep with preview.html's nav/demo order.
 
 **Reference point:** `~/Desktop/Collabrium Design System/` is a second,
 independently built Collabrium system from the same source deck, with
