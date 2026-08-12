@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.39** — 2026-08-11 — Sourced from the Collabrium brand deck
+**v0.9.40** — 2026-08-12 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1724,27 +1724,171 @@ always Neutral; file type isn't a status.
 
 ⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
-token system by composing existing Button, Input, Select, and Tag
-patterns, not transcribed. Treat as a first pass needing real
+token system by composing existing Button, Input, Select, Badge, and
+Chip patterns, not transcribed. Treat as a first pass needing real
 design/brand review.
 
 A control cluster for narrowing a data view — sits directly above a
-Table row list or DataTable.
+Table row list or DataTable. Renders as two rows (see **Two-row
+structure** below): a Filter Bar that's always present, and an Applied
+Filters row that only exists once a filter actually holds a value.
+
+**Choosing a variant.** **Default** — the full row of named-dimension
+triggers documented below — is the baseline; use it unless one of the
+two departures below applies. These are independent axes, not a single
+ladder — they're driven by different constraints and can apply on
+their own:
+
+| Constraint | Use |
+|---|---|
+| Normal case | **Default** — a named trigger per dimension, per the Part/Spec table below |
+| More than ~8 filterable dimensions | **Tiered exposure** (see Overflow behaviour below) — 4–6 primary dimensions stay as named triggers, the rest always sit behind "More filters" |
+| Compact filtering specified, or screen real estate is limited (a narrow sidebar panel, a dense toolbar sharing space with other controls) — regardless of dimension count | **Compact filter** — a single icon-bearing trigger (see Filter trigger below) opening every dimension as a nested list, rather than a row of named triggers at all |
+
+Compact filter isn't gated by dimension count the way Tiered exposure
+is — a 3-dimension view still collapses to Compact filter if space is
+the actual constraint, and a 10-dimension view stays on Tiered exposure
+if it isn't. Don't combine Compact filter with a row of Default
+triggers in the same bar — pick one per view, per **Filter trigger**
+below.
 
 | Part | Spec |
 |---|---|
-| Bar | horizontal flex row, spacing-8 gap, wraps on overflow, spacing-16 margin-bottom |
-| Search input | Input field, sm (32px), leading `magnifying-glass` (`icon-sm`, Neutral-5), placeholder text — sits first in the bar; **Tier 1, Regular** (search inside an input field, per [Iconography](#iconography)) |
-| Filter trigger | Button Secondary, sm or md — leading `sliders`/`funnel` icon + label; **Tier 1, Regular** (filter, per [Iconography](#iconography)); gets a small circular Obsidian count badge (caption/700, Neutral-1 text) trailing the label once ≥1 option is selected inside it |
-| Filter trigger — active | 1px Obsidian border + Neutral-9 text (replaces the default Neutral-3/Neutral-9 Secondary styling) whenever it holds a selection, so an applied filter is never visually silent |
+| Bar | horizontal flex row, spacing-8 gap, spacing-16 margin-bottom; wrap behaviour depends on which Overflow variant is in use — see **Overflow behaviour** below |
+| Search input (optional) | Reuses [Search input](#search-input)'s own **Default** variant verbatim, at the Filter Bar's own 32px (sm) height rather than that component's generic 40px (md) — border/radius/fill live on the `<input>` itself, not a wrapper div, so Focus is a genuine `:focus` swap (2px Obsidian border, padding compensated by 1px), exactly as documented there. Leading `magnifying-glass` (`icon-sm`, Neutral-5), **Tier 1, Regular** (search inside an input field, per [Iconography](#iconography)); a Clear (×) button appears only once the field holds a value — `icon-sm`, Neutral-5 at rest → Neutral-9 on hover, removed from tab order (not just visually hidden) when empty, same behaviour as Search input's own Clear row. Sits first in the bar, before any filter trigger, whenever present. Optional — include it only when the dataset is large enough to warrant text search alongside structured filters; a Filters bar with no search input is equally valid |
+| Search input — width & divider (desktop) | 240px default width on ≥641px viewports — this row's own default size, not a fixed literal borrowed from elsewhere. Immediately followed by a 1px Neutral-3 vertical divider (matching the trigger row's own 32px height), separating it from the filter triggers that follow — only rendered when both a search input and at least one trigger are present in the bar |
+| Search input — mobile (≤640px) | Same breakpoint Toast's own responsive collapse already uses. The search input drops its fixed 240px width and grows to the Filter Bar's full width instead, wrapping onto its own row above the filter triggers; the divider is hidden, since there's nothing beside the search input on that row to divide from |
+| Filter trigger | Button Secondary, sm or md — label only by default. A leading `sliders`/`funnel` icon (**Tier 1, Regular**, per [Iconography](#iconography)) is optional, and reserved for **Compact filter** — a single, unlabeled "Filter" trigger that stands in for the entire row of named triggers (see **Choosing a variant** above), not a permanent fixture alongside them. A named-dimension trigger (e.g. "Department", "Status") never carries one, since the label already identifies the dimension and a row of repeated icons reads as noise, not information. Compact filter opens a dropdown listing every dimension as nested triggers — the same nested-list panel the Overflow trigger below uses for its own hidden dimensions, not a second mechanism — so it's never a dead button with nothing behind it. That nested-list panel also carries its own universal **Clear all** (Link style, Neutral-5, sentence case, same recipe as the Applied Filters row's own Clear all below) — visible only when ≥1 filter is applied across *any* dimension — so Compact filter can reset every dimension at once, not just the one currently drilled into |
+| Filter trigger — active | 1px Obsidian border (replaces the default Neutral-3 border), Neutral-9 text — the trigger itself signals engagement directly. A small circular **Badge** — Obsidian fill, Neutral-1 text, caption/700, per [Badge & Tag](#badge--tag) — sits trailing the label, inside the trigger's own padding (not overlaid outside it), showing the count of applied values for that dimension. An early same-day draft tried an external Neutral badge overlaying the corner instead — reverted back to this recipe on review, since the Obsidian border reads as the clearer "engaged" signal and keeping the badge inside the trigger avoids clipping/overlap issues with adjacent triggers |
+| Overflow trigger (optional variant) | Once triggers exceed the bar's width: either let the bar wrap (default), or collapse the overflow behind a single "+N more" trigger — see **Overflow behaviour** below |
 | Dropdown panel | `radius-md` (16px — a compact popover, not the full 20px Card radius), 1px Neutral-3 border, `shadow-3`, spacing-16 padding, positioned 8px below the trigger |
-| Applied filter pill | reuses Tag's pill shape (`radius-pill`, 24px height, 10px horizontal padding, caption/700) but Neutral-2 fill / Neutral-9 text, with a trailing `x` (`icon-micro`) to remove it individually — **Tier 1, Regular** (a remove affordance uses plain `x`, per [Iconography](#iconography)) |
-| Clear all | Link-style button (transparent, Neutral-9, underlined), right-aligned in the bar, **only rendered once ≥1 filter is applied** |
+| Dropdown panel — edge collision | Left-aligned to its trigger by default. On a narrow viewport, a trigger sitting near the right edge otherwise pushes the panel past the screen edge and crops it — flip to right-aligned against that same trigger instead whenever left-aligning would extend past the viewport's right edge (a runtime collision check against available width, not a fixed breakpoint, since which trigger is "near the edge" depends on the bar's own layout, not the viewport size alone). Re-check on resize/orientation change while a panel is open. A `max-width` safety net (viewport width minus a small margin) additionally caps the panel itself on very narrow screens, regardless of alignment |
+| Dropdown Option (checkbox row) | Reuses [Dropdown](#dropdown)'s own Multiple select Dropdown Option verbatim — this system's [Checkbox](#checkbox) glyph (`.c-checkbox-box`/`.on` + `ph-check`), Neutral-2 row-hover fill, body2/400/Neutral-9 label — not a second, ad-hoc checkbox recipe. A Filter trigger's dropdown is functionally the same "checkbox list + commit footer" shape as Multiple select's panel, so it shares that panel's anatomy rather than inventing a parallel one |
+| Dropdown panel — footer | Ghost "Clear" + Primary "Done", space-between, spacing-8 gap, 1px Neutral-3 top border, spacing-12 padding — [Dropdown](#dropdown)'s Multiple select footer, reused verbatim rather than a bespoke single-button footer — see **Dropdown apply behaviour** below |
+| Applied filter chip | **Input Chip**, verbatim (per [Chip](#chip)): 24px height, Neutral-2 `#f0f0f0` fill, 1px Neutral-3 `#d8d8d8` border, `label2` Neutral-9 `#080808` text, no leading icon, trailing × (`icon-micro`, `x`, Neutral-5 at rest → Neutral-9 on hover, 24×24 hit target) to remove it individually. Not Filter Chip's own Multi-select active state (Obsidian fill, leading tick) — Input Chip's own "represents a value the user entered or confirmed, always removable, not toggleable" description is the closer match, since a chip in this row is never toggled back on in place, only removed. Label is **the value alone** — e.g. "Marketing", not "Department: Marketing": at Input Chip's compact 24px height a short, scannable value list reads better than a repeated "Dimension:" prefix on every chip, and the owning trigger's own label already supplies that context immediately above the tray |
+| Row 2 container | Neutral-1 `#ffffff` fill, 1px Neutral-3 border, `radius-sm` (12px), spacing-12 padding — a bordered tray that visually separates the chips from the trigger bar above, rather than leaving them floating loose directly beneath it. Sits spacing-8 below Row 1 — see **Two-row structure** below |
+| Clear All — Filter Bar | Button Ghost, Red `#FD3343` text (the same Red as Badge/Danger and Toast/Danger), right-aligned, spacing-16 left margin from the last trigger. Title case ("Clear All"), matching Button's own label casing. Visible only when ≥1 filter is applied **and** the Applied Filters row is hidden |
+| Clear all — Applied Filters row | Button's Link variant, verbatim (Neutral-9, no recoloring), right-aligned, spacing-16 left margin from the last chip. Sentence case ("Clear all"), matching Link's own casing convention. Visible only when the Applied Filters row is visible. Same recipe as **Applied Filters overflow**'s own "Show less" control below, so the two read as one family of text-link actions inside the same tray rather than two different treatments — dropped the earlier Neutral-5 recoloring for this reason |
+
+Clear All (Filter Bar) and Clear all (Applied Filters row) are mutually
+exclusive — never rendered at the same time; which one shows follows
+directly from whether the Applied Filters row itself is visible (see
+**Two-row structure** below).
+
+**Overflow behaviour.**
+
+| Variant | Rule |
+|---|---|
+| Default — wrap | The bar wraps to another line at spacing-8 row gap once its triggers exceed available width. Use when vertical space isn't constrained |
+| Overflow trigger | Triggers exceeding the bar's width are hidden behind a "+N more" Button Secondary trigger. It follows the same active-trigger recipe above (Obsidian border, trailing Obsidian badge inside the trigger) once it's carrying a count, showing the total applied values across every hidden dimension, not just one. Clicking it opens a dropdown listing the hidden dimensions as nested triggers. A minimum of 2 triggers must stay visible in the bar before the overflow trigger is allowed to appear |
+| Tiered exposure (recommended past ~8 dimensions) | Split dimensions into two fixed tiers, chosen editorially per view — not computed from container width or usage data: **4–6 primary** dimensions render as permanent named triggers, always visible regardless of width; every other dimension always routes to a single **"More filters"** trigger — **Compact filter**'s own recipe and nested-list panel, just labeled "More filters" and scoped to only the secondary-tier dimensions rather than all of them. Unlike the Overflow trigger variant above, which dimension sits where here never shifts with the viewport — the split is authored once, not measured at render time |
+
+**Choosing the primary tier (Tiered exposure only).** 4 is the
+practical floor for the primary set to read as real coverage rather
+than a token gesture; 6 is a sensible ceiling before the bar itself
+becomes the same "which filters actually matter" problem Tiered
+exposure exists to solve — past 6, add a search field inside the "More
+filters" panel rather than raising the primary count further. Pin the
+primary set editorially per view (e.g. "Department, Status, Priority,
+Owner always matter for this table") rather than computing it from
+usage analytics — a primary set that reorders itself between sessions
+based on "most used" reads as the bar rearranging at random, which is
+disorienting rather than helpful.
+
+**Dropdown apply behaviour.** Changes made inside a Filter trigger's
+dropdown are pending, not live, until committed. The panel's footer —
+Ghost "Clear" + Primary "Done", per [Dropdown](#dropdown)'s Multiple
+select — lets **Clear** empty the pending selection while leaving the
+panel open (so more options can still be picked), and lets **Done**
+commit the pending selection and close the panel, the same split of
+scope Multiple select's own footer documents. Clicking outside the
+panel closes it **without** committing anything pending inside, same
+as clicking outside a Multiple select trigger — a filter is never
+applied by an accidental click away from the panel.
+
+**Two-row structure.**
+
+| Row | Visibility | Contains |
+|---|---|---|
+| Row 1 — Filter Bar | Always visible | Search input (optional), filter triggers, overflow trigger (optional), Clear All (only while Row 2 is hidden) |
+| Row 2 — Applied Filters | Renders below Row 1, inside its own bordered container (see Row 2 container above), only once ≥1 filter value is applied; hidden entirely — removed from layout flow, not just visually collapsed — when nothing is active | Applied filter chips (up to 5 visible, then a "+N"/"Show less" overflow control — see **Applied Filters overflow** below), Clear all (only while Row 2 is visible) |
+
+Row 2's container sits spacing-8 below Row 1 when present, itself
+spacing-12 padded. Chips inside sit spacing-4 apart, same grouping rule
+as Chip/Badge/Tag elsewhere in this document.
+
+**Applied Filters overflow.** Reuses [Chip](#chip)'s own Input Chip
+overflow mechanic verbatim, at a higher visible cap suited to a filter
+bar's own denser chip count: beyond **5** visible chips (Chip's own
+generic default is 3 — Filters' Applied Filters row can hold values
+from several dimensions at once, so it earns its own higher cap rather
+than inheriting Chip's), collapse the rest into a `+N` chip (Neutral-2
+fill, 1px Neutral-3 border, Neutral-5 label, no ×). Clicking it expands
+the hidden chips in place, inside the same Row 2 container; once
+expanded, the control itself switches from the `+N` chip to a **Link
+button** reading "Show less" (Neutral-9, underlined, 3px offset —
+Button's own Link recipe, verbatim) to re-collapse — the identical
+expand/collapse contract Chip's own Input Chip overflow already
+documents, just at this row's own cap.
+
+**State orchestration.**
+
+| State | Filter trigger | Count badge | Row 2 (Applied Filters) |
+|---|---|---|---|
+| No filters applied | Default — Neutral-1 fill, Neutral-3 border | Hidden | Hidden, removed from flow |
+| 1 value applied, one dimension | Border turns Obsidian, text Neutral-9 | Shows "1", trailing the label, Obsidian fill | Visible — one chip, labeled with the value alone (e.g. "Marketing") |
+| 2 values applied, one dimension | Border stays Obsidian | Shows "2" | Visible — two chips, same dimension |
+| A chip's × is clicked | Reverts to Default (Neutral-3 border) if this removes that dimension's last value, otherwise unchanged | Decrements by 1; hides once it reaches 0 | That chip is removed; Row 2 itself hides entirely if it was the bar's last remaining chip |
+| Clear All / Clear all is clicked | Every trigger returns to Default (Neutral-3 border) | Every badge hidden | Hidden, every chip removed, row exits the flow |
+
+**Sync rule:** Row 2's chips are the source of truth. A trigger's count
+badge is always *derived* from how many chips exist for that
+dimension — it is never stored or updated independently of the chips
+themselves, so the two values can never drift apart.
+
+**Filter trigger states.**
+
+| State | Spec |
+|---|---|
+| Rest — no active filters | Button Secondary default: Neutral-1 fill, 1px Neutral-3 border, Neutral-9 text |
+| Rest — with active filters | Fill unchanged (Neutral-1), border swaps to 1px Obsidian, plus the trailing Obsidian count badge documented in the Part/Spec table |
+| Hover | Neutral-2 `#f0f0f0` fill — Button Secondary's own hover token |
+| Open | Neutral-2 `#f0f0f0` fill — reuses that same Button Secondary token while the dropdown is open, communicating a committed, in-progress state rather than a passing hover; visually identical to Hover, distinguished by the dropdown itself being on screen |
+| Focus-visible | 2px Obsidian outline, 2px offset — reuses Button's exact focus-visible token |
+| Disabled | 40% opacity, `cursor: not-allowed`, count badge hidden |
+
+**Transition.**
+
+| Element | Motion | Duration | Easing |
+|---|---|---|---|
+| Dropdown panel — open | fade in + slide down 4px | `duration-fast` (140ms) | `ease-standard` |
+| Dropdown panel — close | fade out + slide up 4px | `duration-fast` (140ms) | `ease-standard` |
+| Row 2 (Applied Filters) — appear/disappear | fade in/out | `duration-fast` (140ms) | — |
+| Individual chip — enter | fade in + scale from 95% | `duration-fast` (140ms) | — |
+| Individual chip — exit | fade out + scale to 95% | `duration-fast` (140ms) | — |
+| Count badge — value change | opacity | `duration-fast` (140ms) | — |
+
+`prefers-reduced-motion: reduce`: every transition above becomes
+instant — no fade, slide, or scale — the same fallback this document
+already applies to Chip, Card, and Progress Bar.
+
+**Filter persistence.**
+- Active filters serialize to the page's URL query parameters by
+  default, so a filtered view is shareable as a plain link.
+- Fallback: `sessionStorage`, never `localStorage` — filter state
+  shouldn't outlive the tab/session that set it.
+- On load: restore from URL query parameters if present (the URL wins
+  over the session fallback); Row 2 renders directly in its restored
+  state with no entrance transition on first paint — the Individual
+  chip enter transition above applies to chips added during the
+  session, not ones already present when the page loads.
 
 **Do:** surface a live count on the trigger the instant a filter is
-applied, and always pair it with a "Clear all" escape hatch. **Don't:**
-apply a filter destructively (auto-submitting on every keystroke) —
-require an explicit action inside the dropdown, then apply on close.
+applied, and always pair it with a Clear All/Clear all escape hatch —
+whichever row is currently visible carries it. **Don't:** apply a
+filter destructively — on every keystroke, or on an accidental click
+outside the dropdown — require the panel's own Clear/Done footer
+instead.
 
 ### Info Banner
 
@@ -3206,6 +3350,113 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.40 — 2026-08-12** — Corrected and expanded the existing
+  **Filters** component in place (not a new component; the same
+  section that's existed since it was first flagged as a gap in
+  v0.7.0), then built it into the live gallery — all in one pass,
+  consolidated here from what was originally ten separate same-day
+  entries (v0.9.40–v0.9.49) as the spec settled.
+
+  **Structure.** A **Two-row structure** rule formalizes an
+  always-visible Filter Bar plus a conditionally-rendered Applied
+  Filters row (Row 2), which only renders once ≥1 filter value is
+  applied. Row 2 is its own bordered tray (Neutral-1 fill, 1px
+  Neutral-3 border, `radius-sm`, spacing-12 padding) separating the
+  chips from the trigger bar above, rather than floating loose beneath
+  it.
+
+  **Choosing a variant.** Three ways to lay out Row 1, chosen for
+  different reasons rather than a single ladder: **Default** — a named
+  trigger per dimension — is the baseline. **Tiered exposure** applies
+  past ~8 filterable dimensions: 4–6 primary dimensions (4 as the
+  practical floor, 6 as the ceiling before adding in-panel search
+  instead) stay as permanent named triggers, pinned editorially rather
+  than by usage data; every other dimension always routes to a single
+  "More filters" trigger. **Compact filter** (formerly called "generic
+  trigger," renamed for clarity) is a single icon-bearing trigger that
+  replaces the named-trigger row entirely — used whenever compact
+  filtering is specified or screen real estate is limited, regardless
+  of dimension count; it's an independent axis from Tiered exposure,
+  not gated by the same ~8-dimension threshold. Compact filter (and
+  Tiered exposure's own "More filters") opens every dimension as a
+  nested list with its own back button and a universal Clear all,
+  reusing one nested-list recipe rather than inventing a second
+  mechanism per variant.
+
+  **Filter trigger.** A leading `sliders`/`funnel` icon is optional and
+  reserved for Compact filter only — named-dimension triggers never
+  carry one. Active state: 1px Obsidian border + Neutral-9 text, with
+  a small circular Obsidian-fill Badge trailing the label *inside* the
+  trigger's own padding (an early same-day draft tried an external
+  Neutral badge straddling the corner instead; reverted after review —
+  the border reads as the clearer "engaged" signal, and an inside
+  badge avoids clipping against adjacent triggers). Overflow trigger
+  ("+N more") follows the same active recipe once it's carrying a
+  count.
+
+  **Dropdown panel.** Explicitly reuses [Dropdown](#dropdown)'s own
+  Multiple select anatomy verbatim rather than a bespoke recipe: the
+  same `.c-checkbox-box` glyph for option rows, and a Ghost "Clear" +
+  Primary "Done" footer (an early draft used a single full-width
+  "Apply" button instead; replaced so a Filter trigger's dropdown reads
+  as the same component family as Multiple select). **Edge collision**:
+  left-aligned to its trigger by default, but flips to right-aligned
+  whenever left-aligning would push it past the viewport's right edge
+  — a runtime check against available width, not a fixed breakpoint,
+  re-checked on resize/orientation change while open, since a trigger
+  near the right edge of a narrow screen otherwise cropped the panel
+  (the mobile bug this closes).
+
+  **Applied filter chip.** **Input Chip** verbatim (per
+  [Chip](#chip)): 24px height, Neutral-2 fill, 1px Neutral-3 border,
+  `label2` Neutral-9 text, no leading icon, plain × to remove — not
+  Filter Chip's Obsidian-fill active state (an early draft's choice;
+  a chip here is only ever removed, never toggled back on in place,
+  which is Input Chip's contract). Label is the value alone (e.g.
+  "Marketing") — an early draft required a "[Dimension]: [Value]"
+  prefix; dropped it since it read as clutter at this compact height,
+  and the owning trigger's own label already supplies that context
+  above the tray. **Applied Filters overflow**: beyond 5 visible chips
+  (Chip's own generic default is 3; this row earns a higher cap since
+  it can hold values from several dimensions at once), the rest
+  collapse into a `+N` chip that expands in place and becomes a "Show
+  less" Link to re-collapse — Chip's own Input Chip overflow mechanic,
+  reused verbatim. **Clear All** (Filter Bar, Ghost/Red, shown when Row
+  2 is hidden) and **Clear all** (Row 2 / nested lists, Button's Link
+  variant verbatim — Neutral-9, matching "Show less" exactly) are
+  mutually exclusive.
+
+  **Search input** (optional). Reuses [Search input](#search-input)'s
+  own **Default** variant verbatim at the Filter Bar's own 32px height:
+  border/radius/fill live on the `<input>` itself, a genuine `:focus`
+  swap, and a Clear (×) that appears only once the field holds a
+  value. 240px default width with a 1px Neutral-3 divider after it on
+  ≥641px viewports; on ≤640px (Toast's own existing breakpoint) it
+  drops the fixed width, goes full-width on its own row, and hides the
+  divider.
+
+  **Also documented:** a **State orchestration** table (trigger/badge/
+  chip state through no filters → values applied → a chip removed →
+  Clear all, with the sync rule that chip count always drives badge
+  count, never the reverse); a full **Filter trigger states** table;
+  a **Transition** table (dropdown panel, Row 2, chip enter/exit, all
+  on existing `duration-fast`/`ease-standard` tokens with a
+  `prefers-reduced-motion` fallback); and a **Filter persistence** note
+  (URL query params by default, `sessionStorage` fallback, URL wins on
+  load).
+
+  **Live gallery.** Built into `preview.html`, replacing the old
+  placeholder markup (a static, non-interactive `.c-filterbar` with a
+  handful of dead classes) and removing the three now-stale delegated
+  click handlers that predated this build. `components.css` gets the
+  real `.c-filter-*` ruleset, reusing Checkbox's `.c-checkbox-box`,
+  Button's `.c-btn-ghost`/`.c-btn-primary`, and Chip's `.c-chip-input`/
+  `.c-chip-remove`/`.c-chip-overflow`/`.c-chip-showless` verbatim
+  rather than parallel recipes. The gallery demo shows **Default** with
+  a 10-dimension set (5 primary named triggers + 5 behind "More
+  filters," demonstrating Tiered exposure) and **Compact filter** with
+  a smaller 4-dimension sample.
 
 - **v0.9.39 — 2026-08-11** — Added **Progress Bar**, a new component:
   a horizontal, read-only bar for Determinate (single or stacked

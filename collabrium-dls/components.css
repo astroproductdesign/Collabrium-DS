@@ -635,16 +635,86 @@
 .c-stat-trend .period{color:var(--color-neutral-5); font-weight:400;}
 .c-stat-footer{margin-top:var(--spacing-8); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
 
-/* Filters — designed not transcribed */
-.c-filterbar{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8);}
-.c-filter-search{display:flex; align-items:center; gap:6px; height:32px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); color:var(--color-neutral-5); font-size:var(--text-body2-size);}
-.c-filter-search input{border:0; outline:none; background:transparent; font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); width:120px;}
-.c-filter-trigger{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body2-size); font-weight:600; cursor:pointer;}
+/* Filters — designed not transcribed. Two variants (see DESIGN-SYSTEM.md,
+   "Choosing a variant"): Default (named triggers, optionally Tiered
+   exposure past ~8 dimensions) and Compact filter (single icon-bearing
+   trigger). Reuses Checkbox's own glyph for dropdown option rows,
+   Button's Primary/Ghost for the footer, and Chip's own Input Chip /
+   overflow / show-less classes verbatim for applied filters — not
+   parallel recipes. */
+.c-filterbar{position:relative; display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8);}
+
+/* Search input — Search input's own Default variant verbatim, at the
+   Filter Bar's own 32px height. Border/radius/fill live on the <input>
+   itself, so :focus is a genuine swap, not a JS-toggled class. */
+.c-filter-search{position:relative; display:inline-flex; align-items:center; flex:0 0 auto;}
+.c-filter-search input{width:240px; height:32px; border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); padding:0 30px; font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); outline:none; transition:border-color var(--duration-fast) var(--ease-standard);}
+.c-filter-search input::placeholder{color:var(--color-neutral-5);}
+.c-filter-search input:focus{border:2px solid var(--color-obsidian); padding:0 29px;}
+.c-filter-search .icon-leading{position:absolute; left:var(--spacing-8); font-size:var(--icon-sm); color:var(--color-neutral-5); pointer-events:none;}
+.c-filter-search-clear{position:absolute; right:4px; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; border:0; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer; font-size:var(--icon-sm);}
+.c-filter-search-clear:hover{color:var(--color-neutral-9);}
+.c-filter-search-clear[hidden]{display:none;}
+.c-filter-search-clear:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* Divider after the search input, desktop only — only rendered when
+   both a search input and at least one trigger are present. */
+.c-filter-search-divider{width:1px; height:32px; background:var(--color-neutral-3); flex:0 0 auto;}
+@media (max-width:640px){
+  .c-filter-search{flex:1 1 100%; width:100%;}
+  .c-filter-search input{width:100%;}
+  .c-filter-search-divider{display:none;}
+}
+
+/* Filter trigger — Button Secondary recipe. Active state: border swaps
+   to Obsidian, trailing count badge sits inside the trigger's own
+   padding (not an external overlay). */
+.c-filter-trigger{position:relative; flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body2-size); font-weight:600; cursor:pointer; white-space:nowrap; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);}
+.c-filter-trigger:hover{background:var(--color-neutral-2);}
+.c-filter-trigger.is-open{background:var(--color-neutral-2);}
 .c-filter-trigger.active{border-color:var(--color-obsidian);}
-.c-filter-trigger .count{display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; padding:0 4px; border-radius:var(--radius-pill); background:var(--color-obsidian); color:var(--color-neutral-1); font-size:10px; font-weight:700;}
-.c-filter-pill{display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 10px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); font-size:var(--text-caption-size); font-weight:700;}
-.c-filter-pill i{cursor:pointer; color:var(--color-neutral-5); font-size:12px;}
-.c-filter-clear{background:none; border:0; color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
+.c-filter-trigger:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-filter-trigger:disabled{opacity:.4; cursor:not-allowed; background:var(--color-neutral-1); border-color:var(--color-neutral-3);}
+.c-filter-trigger i.leading{font-size:var(--icon-sm);}
+.c-filter-trigger .chev{font-size:12px; color:var(--color-neutral-5);}
+.c-filter-trigger .count{display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; padding:0 4px; border-radius:var(--radius-pill); background:var(--color-obsidian); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:700; line-height:1;}
+.c-filter-trigger .count[hidden]{display:none;}
+
+/* Dropdown panel — radius-md popover, Neutral-3 border, shadow-3.
+   .is-right flips left/right alignment on edge collision (see
+   DESIGN-SYSTEM.md, "Dropdown panel — edge collision"). */
+.c-filter-panel{position:absolute; top:calc(100% + 8px); left:0; min-width:240px; max-width:calc(100vw - 24px); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-16); z-index:20; opacity:0; transform:translateY(-4px); pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
+.c-filter-panel.is-right{left:auto; right:0;}
+.c-filter-panel.is-open{opacity:1; transform:translateY(0); pointer-events:auto;}
+.c-filter-panel-title{font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--color-neutral-5); margin:0 0 var(--spacing-12);}
+
+/* Dropdown Option (checkbox row) — reuses Dropdown's own Multiple
+   select row: Checkbox's real .c-checkbox-box glyph, Neutral-2 hover. */
+.c-filter-option{display:flex; align-items:center; gap:var(--spacing-8); padding:8px var(--spacing-8); margin:0 calc(var(--spacing-8) * -1); border-radius:var(--radius-sm); cursor:pointer; user-select:none; transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-filter-option:hover{background:var(--color-neutral-2);}
+.c-filter-option .label{font-size:var(--text-body2-size); color:var(--color-neutral-9);}
+
+.c-filter-nested-list{display:flex; flex-direction:column; gap:2px;}
+.c-filter-nested-item{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-8); padding:8px var(--spacing-8); margin:0 calc(var(--spacing-8) * -1); border-radius:var(--radius-sm); cursor:pointer; font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
+.c-filter-nested-item:hover{background:var(--color-neutral-2);}
+.c-filter-back{display:flex; align-items:center; gap:6px; width:100%; background:none; border:none; padding:0 0 var(--spacing-12); margin-bottom:var(--spacing-12); border-bottom:1px solid var(--color-neutral-3); font-family:inherit; font-weight:700; font-size:var(--text-body2-size); color:var(--color-neutral-9); cursor:pointer; text-align:left;}
+.c-filter-back:hover{color:var(--color-neutral-5);}
+.c-filter-back i{font-size:var(--icon-sm);}
+
+/* Dropdown panel footer — Ghost "Clear" + Primary "Done", reusing
+   Button's own .c-btn-ghost/.c-btn-primary verbatim rather than a
+   bespoke footer button recipe. */
+.c-filter-footer{display:flex; justify-content:space-between; gap:var(--spacing-8); margin-top:var(--spacing-12); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+
+/* Row 2 — Applied Filters tray: bordered container separating chips
+   from the trigger bar above. */
+.c-filter-tray{display:flex; flex-wrap:wrap; align-items:center; gap:var(--spacing-4); margin-top:var(--spacing-8); padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);}
+.c-filter-tray[hidden]{display:none;}
+
+/* Clear All (Row 1) — Ghost, Red text, reuses .c-btn-ghost verbatim
+   plus a color override. Clear all (Row 2 / nested list) reuses Chip's
+   own .c-chip-showless class directly — same Link recipe. */
+.c-filter-clear-bar{color:var(--color-red);}
+.c-filter-clear-bar[hidden]{display:none;}
 
 /* Pagination — designed not transcribed */
 .c-pagination{display:flex; align-items:center; justify-content:space-between; padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
