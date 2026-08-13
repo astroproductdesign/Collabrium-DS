@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.40** — 2026-08-12 — Sourced from the Collabrium brand deck
+**v0.9.41** — 2026-08-13 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1679,14 +1679,80 @@ themeable accent.
 | Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color; **Tier 2, Fill** (an empty-state illustration, per [Iconography](#iconography)) |
 | Heading | h4 (20px/800), Neutral-9 |
 | Body | body1 at weight 500, Neutral-5, max-width ~380px |
-| Action | optional Primary button below the body text, `spacing-8` above it |
-| Container | `spacing-40` vertical / `spacing-24` horizontal padding, `spacing-8` internal gap, centered |
+| Action | optional Primary button below the body text — see **Internal spacing** below for the gap above it. Second action (optional): Ghost button, `spacing-8` left margin from Primary — maximum 2 actions total, Primary + Ghost, never 3. Action-only Ghost variant: a Ghost button alone with no Primary, for when the expected resolution is optional or exploratory (e.g. "Browse templates") rather than a direct creation action. Action row is centered, matching the rest of the assembly. Inline variant carries a Link-style action only — never Primary or Ghost (see **Variants** below) |
+| Container | Fill: none — renders on whatever surface it sits on (Card, page, table body) without adding its own background. Max-width: 480px centered — the outer safety net for the whole assembly (Body text's own ~380px max-width is the inner cap). Padding and min-height vary by variant — see **Responsive** below |
+
+**Internal spacing**
+
+| Gap | Token | Why |
+|---|---|---|
+| Icon → Heading | `spacing-12` | icon and heading are related but not a single unit — needs breathing room |
+| Heading → Body | `spacing-4` | tight — they're a semantic unit, like a card title and description |
+| Body → Action | `spacing-16` | the action needs clear separation from the explanatory text above it |
+
+**Variants**
+
+| | Full-page | Section-level | Inline |
+|---|---|---|---|
+| Icon | `icon-hero` (64px), Neutral-4 | `icon-empty` (48px), Neutral-4 | none |
+| Heading | h4 | h4 | none |
+| Body | body1, up to 2 action buttons | body1, up to 2 action buttons | body2 (14px/400), Neutral-5, max-width 320px |
+| Action | up to 2 (Primary + Ghost) | up to 2 (Primary + Ghost) | Link-style only — never Primary or Ghost |
+| Container | fills remaining viewport, vertically and horizontally centered | min-height 240px | spacing-16 padding all sides, no min-height |
+| Use | entire page has no content (first visit, onboarding, zero-state) | one section within a page has no content (table with no rows, list with no items, card panel with no data) | query-specific no-results state scoped to a search field, filtered table, or autocomplete dropdown. Not a persistent data-empty state — don't use when data has never existed (use Section-level instead) |
+
+Full-page's container min-height is `calc(100vh − nav height)`, vertically
+and horizontally centered within the remaining viewport using `display:
+flex; align-items: center; justify-content: center`.
+
+**Error variant**
+
+A named variant sharing Empty's exact anatomy above — same icon/heading/
+body/action/container structure, different semantics. **Must be passed
+explicitly via a variant prop; the component never infers Empty vs. Error
+from the failure itself.**
+
+| | Empty | Error |
+|---|---|---|
+| Meaning | No data exists yet | Data failed to load |
+| Icon color | Neutral-4 | Red `#FD3343` (Badge/Danger's and Toast/Danger's own Red — see [Badge & Tag](#badge--tag)) |
+| Heading | Names what's absent | Names the failure |
+| Body | How to resolve | What happened and what to try |
+| Primary action | Creation action | Retry action |
+| Second action | Lower-commitment alternative | "Contact support", as a Ghost button |
+
+**Never use the Empty variant when data failed to load** — a creation
+prompt shown on top of a broken API call misleads the user into thinking
+nothing exists yet, rather than that something went wrong.
+
+**Responsive**
+
+| Property | Desktop | Mobile (<768px) |
+|---|---|---|
+| Container padding — full-page | `spacing-40` vertical / `spacing-24` horizontal | `spacing-24` vertical / `spacing-16` horizontal |
+| Container padding — section | `spacing-40` vertical / `spacing-24` horizontal | `spacing-24` vertical / `spacing-16` horizontal |
+| Container padding — inline | `spacing-16` all sides | `spacing-12` all sides |
+| Icon — full-page | `icon-hero` (64px) | `icon-empty` (48px) — no room for hero size at mobile |
+| Icon — section | `icon-empty` (48px) | `icon-empty` (48px), unchanged |
+| Body max-width | ~380px | 100% — cap removed |
+| Container max-width | 480px | 100% — cap removed |
+| Action layout | inline row, Primary + Ghost side by side | stacked column, Primary full width above, Ghost full width below, `spacing-8` gap between |
 
 **Do:** always say what causes the empty state and, where possible, how to
 resolve it ("No campaigns yet — create your first one") rather than a bare
 "No data." **Don't:** use a generic spinner or blank card as a stand-in
 for a real empty state — the deck's icon-empty/icon-hero tokens exist
 specifically so this state gets real visual weight.
+
+**Do:** use the error variant when data failed to load — never the empty
+variant on a broken fetch. **Do:** pass the variant explicitly via prop —
+the component does not detect empty vs. error automatically. **Do:** stack
+actions vertically on mobile — never force two buttons side by side on a
+small screen. **Don't:** use `icon-hero` on mobile — reduce to
+`icon-empty` (48px) instead. **Don't:** show a Primary button inside an
+inline empty state — Link only. **Don't:** use a generic "Something went
+wrong" heading on the error variant — name the specific content that
+failed to load.
 
 ### FileUploader
 
@@ -3350,6 +3416,51 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.41 — 2026-08-13** — Expanded the existing **Empty state**
+  component in place (not a new component) with per-gap internal
+  spacing, named variants, an Error variant, a second action slot, and
+  responsive/mobile behavior — none of this existed before; the section
+  previously specified only a single container with a flat `spacing-8`
+  internal gap and one optional Primary action.
+
+  **Internal spacing.** The old single `spacing-8` internal gap is
+  replaced with three named gaps: `spacing-12` between icon and
+  heading (related but not one unit), `spacing-4` between heading and
+  body (a tight semantic pairing, like a card title and description),
+  and `spacing-16` between body and action (the action needs clear
+  separation from the explanatory text above it).
+
+  **Variants.** Three named variants, each with its own icon/heading/
+  body/container rules: **Full-page** (`icon-hero`, fills the
+  remaining viewport, centered — first visit/onboarding/zero-state),
+  **Section-level** (`icon-empty`, 240px min-height — a table, list,
+  or card panel with no data), and **Inline** (no icon, no heading,
+  body2 only, Link-style action only, no min-height — a query-specific
+  no-results state scoped to a search field, filtered table, or
+  autocomplete; not for data that's never existed).
+
+  **Error variant.** A named variant sharing Empty's exact anatomy,
+  different semantics — compared directly against Empty in a new
+  table (icon tint Red `#FD3343`, same Red as Badge/Danger and Toast/
+  Danger; heading names the failure, not what's absent; body explains
+  what happened; Primary action is Retry, not Create; second action is
+  "Contact support"). Must be passed explicitly via a variant prop —
+  the component never infers Empty vs. Error from the failure itself,
+  since a creation prompt on a broken API call misleads the user.
+
+  **Second action slot.** Action row now supports an optional Ghost
+  button alongside Primary (`spacing-8` left margin, 2 actions
+  maximum — never 3), plus an action-only Ghost variant (no Primary)
+  for an optional/exploratory resolution. Inline empty states stay
+  restricted to a Link-style action only — never Primary or Ghost.
+
+  **Responsive/mobile.** New table covering container padding, icon
+  size, body/container max-width, and action layout across Desktop vs.
+  Mobile (<768px) — most notably, `icon-hero` never appears on mobile
+  (drops to `icon-empty`, 48px) and the two-action row stacks to full-
+  width Primary above / full-width Ghost below rather than forcing a
+  side-by-side pair on a small screen.
 
 - **v0.9.40 — 2026-08-12** — Corrected and expanded the existing
   **Filters** component in place (not a new component; the same
