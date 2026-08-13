@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.40** — 2026-08-12 — Sourced from the Collabrium brand deck
+**v0.9.42** — 2026-08-13 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -702,8 +702,8 @@ as `preview.html` does.
 
 **It's genuinely interactive, not just styled markup.**
 SidebarNav and Tabs switch on click, Checkbox/Radio/Switch actually
-toggle (including via keyboard, not just mouse), Table rows and
-DataTable rows select on click, Toast and Modal dismiss and — for
+toggle (including via keyboard, not just mouse), Table rows select on
+click in both variants, Toast and Modal dismiss and — for
 Modal — reopen, Filters' triggers/pills/Clear-all respond, Pagination
 advances, and Date picker days select. Two things are deliberately
 inert: the Date picker's month-nav arrows and its trigger button don't
@@ -713,11 +713,11 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-32 components: the original 7 basics
-(Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
-Empty state), 9 transcribed directly from the teammate's real
+31 components: the original 7 basics
+(Button, Input field, Card, Badge & Tag, Table, Modal / dialog,
+Empty state), 8 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 8 **designed
+Switch, Toast, Tooltip, ElementBadge), 8 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
 picker, **Segmented Control**, **Slider**, **Chip**, **Progress
 Bar** — plus two chart
@@ -758,7 +758,6 @@ through.
 - [Chart color mapping](#chart-color-mapping)
 - [Checkbox](#checkbox)
 - [Chip](#chip)
-- [DataTable](#datatable)
 - [Date picker](#date-picker)
 - [Dropdown](#dropdown)
 - [ElementBadge](#elementbadge)
@@ -780,7 +779,7 @@ through.
 - [Stat / KPI card](#stat--kpi-card)
 - [Stepper](#stepper)
 - [Switch](#switch)
-- [Table row](#table-row)
+- [Table](#table)
 - [Tabs](#tabs)
 - [Textarea](#textarea)
 - [Toast](#toast)
@@ -1399,24 +1398,6 @@ fill — Obsidian is correct (Rule 2, [Component Rules](#component-rules)).
 Don't truncate a Filter Chip label — rewrite it instead. Don't mix
 Single-select and Multi-select behaviour within one group.
 
-### DataTable
-
-**Transcribed from the teammate's `DataTable.jsx`.**
-A composed, bordered table container — distinct from the bare Table row
-spec above, which is for inline use inside another surface. Pick one per
-data view; don't mix them in the same screen.
-
-| Part | Spec |
-|---|---|
-| Container | 1px Neutral-3 border, `radius-lg` (20px, matches Card), `overflow: hidden` (clips the header to the radius), Neutral-1 fill |
-| Header cell | spacing-12/spacing-16 padding, Neutral-2 fill, **h5 type (16px/700 — heavier than the bare Table row header's label3/uppercase)**, Neutral-9, 1px Neutral-3 border-bottom, align per-column |
-| Body cell | spacing-12/spacing-16 padding, **body2 type (14px/20px — this is the source's own "footnote" token, which maps to this doc's body2 scale, not the 12px footnote token)**, weight 500, Neutral-9, tabular figures when numeric, 1px Neutral-3 border-bottom (none on the last row) |
-| Row | `cursor: pointer` only when `onRowClick` is set; reuses Table row's Neutral-2 hover fill for consistency (DataTable has no separate hover token of its own yet) |
-
-**Do:** keep header labels short — the heavier h5 weight wraps
-awkwardly on long labels. **Don't:** add a fifth border style here; it
-inherits Table row's border and hover conventions on purpose.
-
 ### Date picker
 
 ⚠️ **Designed from scratch — no source in either the original
@@ -1679,14 +1660,80 @@ themeable accent.
 | Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color; **Tier 2, Fill** (an empty-state illustration, per [Iconography](#iconography)) |
 | Heading | h4 (20px/800), Neutral-9 |
 | Body | body1 at weight 500, Neutral-5, max-width ~380px |
-| Action | optional Primary button below the body text, `spacing-8` above it |
-| Container | `spacing-40` vertical / `spacing-24` horizontal padding, `spacing-8` internal gap, centered |
+| Action | optional Primary button below the body text — see **Internal spacing** below for the gap above it. Second action (optional): Ghost button, `spacing-8` left margin from Primary — maximum 2 actions total, Primary + Ghost, never 3. Action-only Ghost variant: a Ghost button alone with no Primary, for when the expected resolution is optional or exploratory (e.g. "Browse templates") rather than a direct creation action. Action row is centered, matching the rest of the assembly. Inline variant carries a Link-style action only — never Primary or Ghost (see **Variants** below) |
+| Container | Fill: none — renders on whatever surface it sits on (Card, page, table body) without adding its own background. Max-width: 480px centered — the outer safety net for the whole assembly (Body text's own ~380px max-width is the inner cap). Padding and min-height vary by variant — see **Responsive** below |
+
+**Internal spacing**
+
+| Gap | Token | Why |
+|---|---|---|
+| Icon → Heading | `spacing-12` | icon and heading are related but not a single unit — needs breathing room |
+| Heading → Body | `spacing-4` | tight — they're a semantic unit, like a card title and description |
+| Body → Action | `spacing-16` | the action needs clear separation from the explanatory text above it |
+
+**Variants**
+
+| | Full-page | Section-level | Inline |
+|---|---|---|---|
+| Icon | `icon-hero` (64px), Neutral-4 | `icon-empty` (48px), Neutral-4 | none |
+| Heading | h4 | h4 | none |
+| Body | body1, up to 2 action buttons | body1, up to 2 action buttons | body2 (14px/400), Neutral-5, max-width 320px |
+| Action | up to 2 (Primary + Ghost) | up to 2 (Primary + Ghost) | Link-style only — never Primary or Ghost |
+| Container | fills remaining viewport, vertically and horizontally centered | min-height 240px | spacing-16 padding all sides, no min-height |
+| Use | entire page has no content (first visit, onboarding, zero-state) | one section within a page has no content (table with no rows, list with no items, card panel with no data) | query-specific no-results state scoped to a search field, filtered table, or autocomplete dropdown. Not a persistent data-empty state — don't use when data has never existed (use Section-level instead) |
+
+Full-page's container min-height is `calc(100vh − nav height)`, vertically
+and horizontally centered within the remaining viewport using `display:
+flex; align-items: center; justify-content: center`.
+
+**Error variant**
+
+A named variant sharing Empty's exact anatomy above — same icon/heading/
+body/action/container structure, different semantics. **Must be passed
+explicitly via a variant prop; the component never infers Empty vs. Error
+from the failure itself.**
+
+| | Empty | Error |
+|---|---|---|
+| Meaning | No data exists yet | Data failed to load |
+| Icon color | Neutral-4 | Red `#FD3343` (Badge/Danger's and Toast/Danger's own Red — see [Badge & Tag](#badge--tag)) |
+| Heading | Names what's absent | Names the failure |
+| Body | How to resolve | What happened and what to try |
+| Primary action | Creation action | Retry action |
+| Second action | Lower-commitment alternative | "Contact support", as a Ghost button |
+
+**Never use the Empty variant when data failed to load** — a creation
+prompt shown on top of a broken API call misleads the user into thinking
+nothing exists yet, rather than that something went wrong.
+
+**Responsive**
+
+| Property | Desktop | Mobile (<768px) |
+|---|---|---|
+| Container padding — full-page | `spacing-40` vertical / `spacing-24` horizontal | `spacing-24` vertical / `spacing-16` horizontal |
+| Container padding — section | `spacing-40` vertical / `spacing-24` horizontal | `spacing-24` vertical / `spacing-16` horizontal |
+| Container padding — inline | `spacing-16` all sides | `spacing-12` all sides |
+| Icon — full-page | `icon-hero` (64px) | `icon-empty` (48px) — no room for hero size at mobile |
+| Icon — section | `icon-empty` (48px) | `icon-empty` (48px), unchanged |
+| Body max-width | ~380px | 100% — cap removed |
+| Container max-width | 480px | 100% — cap removed |
+| Action layout | inline row, Primary + Ghost side by side | stacked column, Primary full width above, Ghost full width below, `spacing-8` gap between |
 
 **Do:** always say what causes the empty state and, where possible, how to
 resolve it ("No campaigns yet — create your first one") rather than a bare
 "No data." **Don't:** use a generic spinner or blank card as a stand-in
 for a real empty state — the deck's icon-empty/icon-hero tokens exist
 specifically so this state gets real visual weight.
+
+**Do:** use the error variant when data failed to load — never the empty
+variant on a broken fetch. **Do:** pass the variant explicitly via prop —
+the component does not detect empty vs. error automatically. **Do:** stack
+actions vertically on mobile — never force two buttons side by side on a
+small screen. **Don't:** use `icon-hero` on mobile — reduce to
+`icon-empty` (48px) instead. **Don't:** show a Primary button inside an
+inline empty state — Link only. **Don't:** use a generic "Something went
+wrong" heading on the error variant — name the specific content that
+failed to load.
 
 ### FileUploader
 
@@ -2968,23 +3015,264 @@ its state ("On/Off"). **Don't:** use Switch inside a form that requires
 an explicit Save — that implies deferred application, which contradicts
 what a Switch signals.
 
-### Table row
+### Table
+
+**Consolidates the former separately-documented "Table row" and
+"DataTable."** Table row was never a real second component — it was a
+code-level building block (the bare row/cell rules with no container of
+its own), not a distinct design system entry. Its rules now form this
+component's Anatomy, defined once, and apply to both usage contexts
+below. Designers and developers reference **Table** only.
+
+A data display component for rendering structured rows and cells, in
+two usage contexts: **Standalone** (the table owns its own bordered
+container — the former DataTable) and **Embedded** (the table sits
+inside an existing surface, like a Card, and inherits that surface's
+container — the former Table row's only use case). Sorting, checkbox
+selection, the bulk actions toolbar, the action column, empty/loading
+states, sticky header, and responsive column priority below are new —
+⚠️ **designed from scratch**, extending the transcribed row/header
+anatomy rather than sourced from either the original brand deck or the
+teammate's build. Treat those additions as a first pass needing real
+design/brand review, same as this document's other designed-not-sourced
+components.
+
+**Anatomy** — shared by both variants, not repeated per variant:
 
 | Part | Spec |
 |---|---|
-| Header row | label3, Neutral-5 text, uppercase, 1px Neutral-3 border-bottom only |
-| Body row | body2, Neutral-9 text, 1px Neutral-3 border-bottom, spacing-12 (12px) vertical padding |
-| Row hover | Neutral-2 fill |
+| Header row | label3, Neutral-5, uppercase, 1px Neutral-3 border-bottom only |
+| Body row | body2 (14px/20px), weight 500, Neutral-9, 1px Neutral-3 border-bottom — no border on the last body row |
+| Cell padding | spacing-12 vertical / spacing-16 horizontal |
+| Row hover | Neutral-2 fill — only on an **interactive** row (`onRowClick` defined, checkbox selection enabled, or the row has an action column). A purely presentational row with none of those shows no hover treatment at all — same token as SidebarNav's nav item hover, Button Ghost's hover, and Search input's User Search row hover, when it does apply |
 | Row selected | Neutral-2 fill + 2px Obsidian left border |
-| Numeric columns | right-aligned, tabular figures if the font supports them |
-| Cell icon | `icon-micro` (14px), inherits cell text color — weight follows the icon's own [Iconography](#iconography) tier |
+| Numeric columns | left-aligned, tabular figures if the font supports them — see **Column types and alignment** below |
+| Cell icon | optional — `icon-micro` (14px), inherits cell text color, weight follows the icon's own [Iconography](#iconography) tier. Not a default decoration: include a leading cell icon only when it adds real identifying information (e.g. a channel/source glyph, a file-type marker), not on every column or every table |
+| Cursor on clickable row | `cursor: pointer` only when `onRowClick` is defined — never by default |
+| Border rule | `border-bottom` only — never top and bottom on every row; a table with hairlines on all four sides of every cell reads as noisy at data-table density |
+
+**Variants**
+
+| | Standalone | Embedded |
+|---|---|---|
+| Container | Table owns the full container: 1px Neutral-3 border, `radius-lg` (20px, matches Card), `overflow: hidden` (clips the header to the radius), Neutral-1 fill | none — sits inside an existing surface (a Card, a panel, a modal) and inherits its background, border, and radius |
+| Header cell fill | Neutral-2 | none (transparent) |
+| Header typography | h5 (16px/700), Neutral-9 — heavier, since the standalone surface is more visually prominent on its own | label3 (11px/700, uppercase, `+0.04em` tracking), Neutral-5 — lighter, for a table that's one of several elements inside a parent surface |
+| Use | a table as a primary surface on a page or dashboard section | a table living inside a Card, a panel, or a modal |
+
+Header typography is intentionally different between variants and must
+never be mixed: a Standalone header never takes label3/uppercase, and
+an Embedded header never takes h5/700 — they serve different visual
+hierarchies.
+
+**Column types and alignment**
+
+Every column is **left-aligned**, content and header alike — no
+right- or center-aligned columns. A row scans as one consistent left
+edge regardless of column type, rather than the eye jumping between
+alignments column to column.
+
+| Column type | Alignment |
+|---|---|
+| Text (default) | left-aligned |
+| Numeric | left-aligned, tabular figures if supported |
+| Date/time | left-aligned — dates read left-to-right like text |
+| Status/Badge | left-aligned |
+| Checkbox | left-aligned, left-pinned, first column |
+| Actions | left-aligned, right-pinned, last column |
+| Header cells | always match their body column's alignment |
+
+Alignment describes the content **within** a cell; pin position
+(first/last column) is a separate rule and unchanged — see **Checkbox
+selection** and **Action column** below. When the table scrolls
+horizontally, pin position becomes an actual frozen (sticky) column,
+not just a fixed order — see **Frozen columns**, below.
+
+**Sorting** — **both variants, on by default for every eligible
+column.** Sorting is not an opt-in feature added to a particular
+column, and not a Standalone-only affordance either — every text,
+numeric, date, and status column ships sortable out of the box,
+Embedded included. The only columns that skip it are the ones that
+structurally can't be sorted: Checkbox and Actions (see their own
+Non-sortable header row, below). Every table created against this spec
+going forward inherits sorting by default; a column only loses it when
+there's a specific reason (e.g. a column of freeform notes with no
+meaningful sort order), never by omission:
+
+| Part | Spec |
+|---|---|
+| Sortable header indicator | trailing `arrows-down-up` icon, **Tier 1, Regular** (a control affordance, per [Iconography](#iconography)), `icon-micro` (14px), Neutral-4 at rest |
+| Sort ascending | `arrow-up` icon, Neutral-9, replaces the rest indicator |
+| Sort descending | `arrow-down` icon, Neutral-9, replaces the rest indicator |
+| Sorted column header text | Neutral-9 |
+| Sort trigger | click anywhere on the header cell; `cursor: pointer` on sortable headers |
+| Sort cycle | Unsorted → Ascending → Descending → Unsorted |
+| Exclusivity | one active sort at a time — activating a new column clears the previous |
+| Keyboard | Enter or Space on a focused sortable header cycles sort states |
+| Non-sortable header | no trailing icon, no pointer cursor, no click response |
+
+**Checkbox selection** — both variants, **opt-in**. The default Table
+renders with no checkbox column at all; add one only when bulk
+selection is a real use case for that view, not as a standard part of
+every table:
+
+| Part | Spec |
+|---|---|
+| Column position | left-pinned, first column, 40px fixed width, left-aligned |
+| Header checkbox | selects/deselects all visible rows; three states — unchecked (none), checked (all), indeterminate (some). **Stays in place at all times, including while the bulk actions toolbar is showing** — it's the mechanism for clearing a full selection, not just starting one |
+| Row checkbox | hidden at rest, visible on row hover and whenever any checkbox in the table is checked — never always-visible |
+| Selected row | Neutral-2 fill + 2px Obsidian left border (per Anatomy, above) |
+| Checkbox vs. row click | independent interactions — the checkbox selects the row, a row body click triggers `onRowClick` if defined; clicking the row body never also checks the checkbox |
+| Checkbox component | reuses the existing [Checkbox](#checkbox) component as-is — no new checkbox styling introduced |
+
+**Bulk actions toolbar** — Standalone variant only:
+
+| Part | Spec |
+|---|---|
+| Trigger | appears, replacing the column header labels (Campaign/Status/etc.) and the Action column's header, when ≥1 row is selected; disappears once the header checkbox is unchecked and no rows remain selected |
+| Header checkbox | **not replaced.** It stays exactly where it always sits — left-pinned, first column — so the same control that started the selection can also clear it. There is no separate "select none" affordance |
+| Container | same height as the header row it overlays, Neutral-2 fill, 1px Neutral-3 border-bottom, spacing-12 vertical / spacing-16 horizontal padding |
+| Selection count | left-aligned, label2 (13px/700), Neutral-9, immediately after the header checkbox — e.g. "3 selected", not "3 rows selected"; the toolbar's own context (a table) already says what's being counted |
+| Actions | right-aligned; Ghost buttons sm for non-destructive actions, Danger Ghost for destructive ones; maximum 3 visible before overflow |
+| Overflow | a `dots-three` Ghost IconButton sm if more than 3 actions — opens a context menu |
+| Transition | toolbar fades in + slides down 4px, `duration-fast` `ease-standard`; the column header labels it covers fade out simultaneously |
+
+**Action column** — both variants:
+
+| Part | Spec |
+|---|---|
+| Position | last column, right-pinned, left-aligned content |
+| Width (fixed — never flexible) | 40px for 1 action, 72px for 2 actions, 104px for 3 actions |
+| Visibility | always visible, shown upfront — never hidden until row hover; a user shouldn't have to discover a row has actions by hovering it |
+| Content | 1–3 Ghost IconButton sm |
+| Overflow | if more than 3 actions: a single `dots-three` Ghost IconButton sm opens a context menu |
+| Column header | empty cell — no label, no sort |
+
+**Frozen columns** — both variants, active whenever the table scrolls
+horizontally: the 10+ column desktop scenario in **Column types and
+alignment**'s own Do/Don't threshold, or any table under the 768px
+Responsive breakpoint below. A row's identity and its actions should
+never scroll out of reach just because the columns in between do:
+
+| Column | Behaviour |
+|---|---|
+| Checkbox (if present) | `position: sticky; left: 0` — stays fixed at the left edge while the rest of the row scrolls beneath it |
+| First content column | `position: sticky`, left offset equal to the checkbox column's width (0 if no checkbox) — the row's primary identifier (e.g. a Campaign or Name column) stays visible so a scrolled row is never unidentifiable |
+| Middle columns | scroll normally underneath the frozen columns — never pinned |
+| Action column | `position: sticky; right: 0` — stays fixed at the right edge so actions are always reachable without scrolling back |
+| Scroll boundary shadow | `shadow-1` renders on the trailing edge of each frozen region (the left region's right edge, the right region's left edge) once there is scrolled content underneath it, and disappears once scrolled back to that edge — same appear/disappear convention as **Sticky header**'s own scroll shadow, above |
+| Frozen cell background | opaque, matching the row's own current state (Neutral-1 at rest, Neutral-2 on hover or selected) — otherwise the scrolling columns show through underneath as they pass |
+| Stacking | frozen columns sit above the scrolling columns within the table's own stacking context — not a global z-index, same convention as Sticky header |
+
+Only the checkbox, the first content column, and the action column
+ever freeze — never a whole block of leading or trailing columns.
+Freezing more defeats the purpose of letting the table scroll at all.
+
+**Empty state** — both variants:
+
+| Scenario | Spec |
+|---|---|
+| No data (zero-state) | full [Empty state](#empty-state) component, Section-level variant, centered within the table body — `icon-empty` (48px), h4 heading, body1 body, optional Primary action |
+| No results from filter/search | Inline Empty state variant — body2, Neutral-5, centered, spacing-16 padding, no icon, no heading — e.g. "No results match your filters" |
+| Minimum table body height | 240px for both empty scenarios — prevents the empty state from collapsing |
+
+**Loading state** — both variants:
+
+| Part | Spec |
+|---|---|
+| Pattern | 3 skeleton rows at the same height and column widths as real body rows — matches the actual column count and widths, never a single generic placeholder block |
+| Skeleton alignment | each skeleton bar sits left-aligned within its cell, matching **Column types and alignment** above — never centered or right-set, even in a numeric or status column, so the loading state doesn't fake an alignment the real data won't have |
+| Skeleton fill | Neutral-2, `radius-sm` |
+| Animation | shimmer — reuses [Progress Bar](#progress-bar)'s own indeterminate pattern: Neutral-5 at 40% opacity, gradient animated left to right, `duration-ambient` (900ms) loop — the same duration Progress Bar's indeterminate shimmer uses, not a computed `duration-slow`×2, per that component's own rejected-earlier-draft note |
+| Delay | show the skeleton only after 300ms — prevents a flash on fast responses |
+| Reduced motion | static Neutral-2 skeleton, no shimmer |
+| Transition | skeleton fades out as real data fades in, `duration-fast` `ease-standard` |
+
+**Sticky header** — Standalone variant only:
+
+| Part | Spec |
+|---|---|
+| Behaviour | `position: sticky; top: 0` — the header row stays visible as the table body scrolls |
+| Stacking | z-index managed within the table's own stacking context — not a global z-index |
+| Scroll shadow | `shadow-1` appears under the sticky header once the body has scrolled past 1 row, disappears when scrolled back to top |
+| Trigger | opt-in via prop, off by default — not every standalone table needs a sticky header |
+
+The Embedded variant inherits its parent surface's own scroll behaviour;
+the sticky header rule does not apply there.
+
+**Responsive / mobile** — both variants:
+
+| Property | Desktop | Mobile (<768px) |
+|---|---|---|
+| Overflow | full table visible | horizontal scroll within its scroll container — never collapses into a stacked-card / key-value layout; Table stays tabular (rows and columns) at every width, it just scrolls sideways |
+| Min table width | auto | 600px — below this, the table becomes horizontally scrollable |
+| Column visibility | all columns visible | `priority` prop per column: high (always visible), medium (hidden ≤1024px), low (hidden ≤768px) |
+| Action column | always visible regardless of priority, on all screen sizes — and **frozen** (sticky-right) whenever the table is scrolling horizontally, per **Frozen columns**, above ||
+| Checkbox column | always visible, on all screen sizes — and **frozen** (sticky-left) whenever the table is scrolling horizontally, per **Frozen columns**, above ||
+| First content column | scrolls normally on desktop, unless the table itself is already horizontally scrolling (10+ columns) | **frozen** (sticky-left) per **Frozen columns**, above — the row's identifier stays visible while other columns scroll beneath it |
+| Horizontal cell padding | spacing-16 | spacing-12 |
+| Scrollbar | hidden by default, visible on hover | always visible when content overflows |
 
 **Do:** apply the border only to `border-bottom`, never both top and
 bottom on every row — a table with hairlines on all four sides of every
-cell reads as noisy at data-table density. **Don't:** exceed roughly 8-10
-visible columns before reaching for horizontal scroll or a
-column-priority/collapse pattern; a table that requires zooming out to
-read is a layout failure, not a data problem.
+cell reads as noisy at data-table density. **Do:** keep header labels
+short — the heavier h5 weight wraps awkwardly on long labels in the
+Standalone variant. **Do:** use the Anatomy rules for both variants —
+they're defined once and never duplicated per variant. **Do:** use the
+Embedded variant when the table lives inside a Card or panel, not
+Standalone. **Do:** left-pin the checkbox column and right-pin the
+action column always — these positions never change. **Do:** show the
+skeleton loading state with its 300ms delay to prevent a flash of
+loading state. **Do:** show the "N selected" count in the bulk
+actions toolbar — never just the action buttons alone. **Do:** keep the
+header checkbox visible and interactive within the bulk actions
+toolbar — the same control that selects all rows is what clears the
+selection, so it never gets covered or replaced. **Do:** use the
+header typography that matches the variant — label3/uppercase for
+Embedded, h5/700 for Standalone. **Do:** keep every column left-aligned
+— content and header alike — so a row reads on one consistent edge.
+**Do:** apply row hover only to an interactive row (`onRowClick`
+defined, checkbox selection enabled, or an action column present) —
+never to a purely presentational row. **Do:** show action icons upfront
+by default, not hidden behind hover. **Do:** treat checkbox selection as
+opt-in — render the default Table with no checkbox column when bulk
+selection isn't a real use case for that view. **Do:** ship every
+eligible column sortable by default, in both variants — Checkbox and
+Actions are the only structural exceptions, never a column sorting was
+simply never added to. **Do:** freeze the
+checkbox, first content column, and action column whenever the table
+scrolls horizontally, so a scrolled row is still identifiable and
+actionable without scrolling back.
+
+**Don't:** exceed roughly 8-10 visible columns before reaching for
+horizontal scroll or a column-priority/collapse pattern; a table that
+requires zooming out to read is a layout failure, not a data problem.
+**Don't:** add a fifth border style here; the Standalone container
+inherits the shared Anatomy's border and hover conventions on purpose.
+**Don't:** treat "Table row" as a separate component — it no longer
+exists as a standalone spec; its rules are this component's Anatomy.
+**Don't:** mix Embedded header typography (label3/uppercase) with
+Standalone header typography (h5/700) — they serve different visual
+hierarchies. **Don't:** make the action column's width flexible — use
+the fixed widths per action count above. **Don't:** show the bulk
+actions toolbar in the Embedded variant — Standalone only. **Don't:**
+exceed ~8-10 visible columns before introducing horizontal scroll or
+column hiding. **Don't:** add a hover fill to a non-interactive row —
+that implies a click or selection that isn't actually there. **Don't:**
+add a cell icon by default — it's optional, only for a column where the
+icon carries real identifying information. **Don't:** center or
+right-align a loading skeleton bar to mimic a numeric or status column
+— skeletons stay left-aligned like every other column, per **Column
+types and alignment**. **Don't:** collapse Table into a stacked-card /
+key-value layout on mobile — it stays tabular with horizontal scroll at
+every width, never a card format. **Don't:** freeze more than the
+checkbox, the first content column, and the action column — freezing a
+whole block of leading or trailing columns defeats the point of
+letting the table scroll. **Don't:** cover or hide the header checkbox
+when the bulk actions toolbar shows, and don't add a separate "Clear
+selection" control next to it — the header checkbox unchecked already
+clears a full selection; a second affordance for the same action is
+redundant.
 
 ### Tabs
 
@@ -3350,6 +3638,136 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.42 — 2026-08-13** — Merged the separately-documented **Table
+  row** and **DataTable** into one unified **Table** component. Table
+  row was never a real second component — it was a code-level building
+  block (bare row/cell rules, no container of its own), not a distinct
+  design system entry, so it's dissolved rather than kept as a
+  standalone spec; its rules now form Table's shared Anatomy. Net
+  component count: 32 → 31 (two merged into one, same accounting
+  precedent as the earlier Select/MultiSelect → Dropdown consolidation).
+
+  **Anatomy, defined once.** Header row (label3/Neutral-5/uppercase),
+  body row (body2 14px/20px, **weight 500** — closing a gap where
+  Table row's own body row never specified a weight, now matching
+  DataTable's already-documented value), spacing-12/16 cell padding,
+  Neutral-2 hover, Neutral-2 + 2px Obsidian left border when selected,
+  `icon-micro` cell icons, `border-bottom`-only borders, and
+  `cursor: pointer` only when `onRowClick` is defined — shared by both
+  variants below, never repeated per variant.
+
+  **Variants.** **Standalone** (the former DataTable) owns its own
+  bordered `radius-lg` container with h5/700 headers on a Neutral-2
+  fill. **Embedded** (the former Table row's only use case) has no
+  container of its own — it inherits whatever surface it sits inside
+  (a Card, a panel, a modal) — with lighter label3/uppercase/Neutral-5
+  headers. The two header treatments are intentionally different and
+  must never be mixed.
+
+  **New, designed-from-scratch additions** — none of this existed in
+  either former section: column type alignment rules (text/numeric/
+  date/status/checkbox/actions), every column left-aligned including
+  numeric and status; column sorting on by default for every eligible
+  column in both variants (ascending/descending/unsorted cycle,
+  keyboard-operable — Checkbox and Actions are the only structural
+  exceptions); opt-in checkbox selection built on the existing Checkbox
+  component, left-pinned, with a real three-state header checkbox that
+  stays visible and interactive even while the bulk toolbar is showing;
+  a Standalone-only bulk actions toolbar that overlays the header
+  labels (never the header checkbox itself) once ≥1 row is selected,
+  with an "N selected" count and no separate "Clear selection" control;
+  a right-pinned action column, shown upfront rather than hover-only,
+  with fixed widths per action count (never flexible); frozen (sticky)
+  checkbox/first-content-column/action-column whenever the table
+  scrolls horizontally, with a scroll-boundary shadow; row hover
+  restricted to interactive rows only (`onRowClick`, checkbox
+  selection, or an action column present); Empty state integration
+  (Section-level for zero-data, Inline for no-search-results); a
+  loading skeleton reusing Progress Bar's own indeterminate shimmer at
+  `duration-ambient` (900ms) after a 300ms delay, bars left-aligned
+  like every other column; a Standalone-only sticky header with a
+  `shadow-1` scroll shadow; and a responsive column-priority system for
+  screens under 768px that stays tabular (never a stacked-card layout).
+  All flagged ⚠️ **designed from scratch** within the new section, same
+  as this document's other non-sourced components.
+
+  **Shipped into `components.css` and `preview.html`'s live gallery.**
+  The former `.c-table`/`.c-datatable` CSS rules and their separate
+  "Table row"/"DataTable" demo blocks are gone, replaced by one
+  `.c-table` system (`.c-table-standalone-wrap`/`.c-table-standalone`/
+  `.c-table-embedded`, `.c-table-sort-th`, `.c-table-chk-col`,
+  `.c-table-bulk-toolbar`, `.c-table-action-col`, `.c-table-freeze-left`/
+  `.c-table-freeze-right`, `.c-table-scroll-x`/`.c-table-scroll-x-inner`,
+  `.c-table-skel-bar`) and one live demo covering three variants:
+  horizontal scrolling with sorting and frozen Campaign/Actions
+  columns, checkbox selection with the bulk actions toolbar and a real
+  tri-state header checkbox, and a loading skeleton. Checkbox cells
+  reuse Checkbox's own `.c-checkbox-box`/`.on` glyph verbatim rather
+  than a bespoke input, and the action column reuses Button's own Ghost
+  IconButton sm — neither is a second, parallel control. The loading
+  skeleton's shimmer reuses Progress Bar's own `c-progress-shimmer`
+  keyframe rather than a second copy of the same animation.
+
+  **Two implementation bugs caught during rollout, fixed before
+  shipping.** (1) The bulk actions toolbar used `position: absolute`
+  inside the same element that scrolls horizontally, so it scrolled
+  away with the table content instead of staying pinned over the
+  header — fixed by giving it a non-scrolling ancestor
+  (`.c-table-standalone-wrap`) while only an inner
+  `.c-table-scroll-x-inner` div handles the actual scroll, confirmed
+  this doesn't reopen the earlier sticky-columns bug since frozen
+  columns still resolve against the inner scrolling div. (2) The
+  10-column table's own horizontal scroll didn't work in
+  `preview.html` specifically — `.comp-row`'s `display:flex` gives
+  flex items a default `min-width:auto`, so the 1180px-wide table
+  forced the whole row to overflow instead of scrolling internally;
+  fixed by setting `min-width:0` on the flex items in that row.
+
+- **v0.9.41 — 2026-08-13** — Expanded the existing **Empty state**
+  component in place (not a new component) with per-gap internal
+  spacing, named variants, an Error variant, a second action slot, and
+  responsive/mobile behavior — none of this existed before; the section
+  previously specified only a single container with a flat `spacing-8`
+  internal gap and one optional Primary action.
+
+  **Internal spacing.** The old single `spacing-8` internal gap is
+  replaced with three named gaps: `spacing-12` between icon and
+  heading (related but not one unit), `spacing-4` between heading and
+  body (a tight semantic pairing, like a card title and description),
+  and `spacing-16` between body and action (the action needs clear
+  separation from the explanatory text above it).
+
+  **Variants.** Three named variants, each with its own icon/heading/
+  body/container rules: **Full-page** (`icon-hero`, fills the
+  remaining viewport, centered — first visit/onboarding/zero-state),
+  **Section-level** (`icon-empty`, 240px min-height — a table, list,
+  or card panel with no data), and **Inline** (no icon, no heading,
+  body2 only, Link-style action only, no min-height — a query-specific
+  no-results state scoped to a search field, filtered table, or
+  autocomplete; not for data that's never existed).
+
+  **Error variant.** A named variant sharing Empty's exact anatomy,
+  different semantics — compared directly against Empty in a new
+  table (icon tint Red `#FD3343`, same Red as Badge/Danger and Toast/
+  Danger; heading names the failure, not what's absent; body explains
+  what happened; Primary action is Retry, not Create; second action is
+  "Contact support"). Must be passed explicitly via a variant prop —
+  the component never infers Empty vs. Error from the failure itself,
+  since a creation prompt on a broken API call misleads the user.
+
+  **Second action slot.** Action row now supports an optional Ghost
+  button alongside Primary (`spacing-8` left margin, 2 actions
+  maximum — never 3), plus an action-only Ghost variant (no Primary)
+  for an optional/exploratory resolution. Inline empty states stay
+  restricted to a Link-style action only — never Primary or Ghost.
+
+  **Responsive/mobile.** New table covering container padding, icon
+  size, body/container max-width, and action layout across Desktop vs.
+  Mobile (<768px) — most notably, `icon-hero` never appears on mobile
+  (drops to `icon-empty`, 48px) and the two-action row stacks to full-
+  width Primary above / full-width Ghost below rather than forcing a
+  side-by-side pair on a small screen.
 
 - **v0.9.40 — 2026-08-12** — Corrected and expanded the existing
   **Filters** component in place (not a new component; the same
