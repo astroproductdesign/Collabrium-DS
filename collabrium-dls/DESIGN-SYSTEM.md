@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.43** — 2026-08-13 — Sourced from the Collabrium brand deck
+**v0.9.44** — 2026-08-13 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2380,10 +2380,15 @@ extends the base Card, doesn't replace it. Two states: **Empty**
 | Total row | Inside the Footer: "Total" (label1/700, Neutral-9) and the total cost (label1, Neutral-5), space-between, value right-aligned |
 | CTA button | [Button](#button)'s Primary/md, stretched to the card's full width with its label centered — "Build proposal" is this variant's own copy, not a generic placeholder |
 
-Pricing defaults to Malaysian ringgit — `RM 1,200`, no decimals —
-following this document's own Numbers content rule (space after RM,
-comma thousands). Swap the currency only if the host context
-requires a different one.
+Pricing defaults to Malaysian ringgit — space after RM, comma
+thousands, per this document's own Numbers content rule — but always
+rendered to **2 decimal places** (`RM 1,200.00`, not `RM 1,200`), a
+deliberate exception to that rule's own examples: a quote's line items
+and total are exact costs, not rounded summary figures like a budget
+total elsewhere in this document, so the decimals stay visible on
+every amount in this component (Unit cost, the overflow rows, and the
+Total row alike). Swap the currency only if the host context requires
+a different one.
 
 **Do:** treat the Remove × as optional per row. **Don't:** omit the
 Header or Total row in the Filled state — a quote with no visible
@@ -3460,6 +3465,14 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.44 — 2026-08-13** — [Quote builder](#quote-builder)'s pricing
+  now always renders to 2 decimal places (`RM 1,200.00`, not
+  `RM 1,200`) — a deliberate, documented exception to this document's
+  general Numbers content rule, whose own examples (budget totals
+  elsewhere in this document) omit decimals. Applies to every amount
+  in the component: Unit cost, overflow rows, and the Total row alike.
+  Live gallery example updated to match.
 
 - **v0.9.43 — 2026-08-13** — Two refinements to
   [Quote builder](#quote-builder), added in the previous pass. (1)
