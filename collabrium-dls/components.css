@@ -199,6 +199,17 @@
 .c-card-accent{border-top:3px solid var(--color-salmon-pink);}
 .c-card-interactive:hover{background:var(--color-neutral-2); cursor:pointer;}
 
+/* USP card — Card variant. Header (h4) + Description (p) reuse the base
+   Card styles verbatim; only the bullet list and the CTA button's width
+   are new. The CTA is a real Button component (.c-btn), not rebuilt —
+   .c-card's own column-flex default (align-items:stretch) already makes
+   it full-width, so align-self:stretch here is just documenting that,
+   not overriding anything. */
+.c-card-usp-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-card-usp-list li{display:flex; align-items:center; gap:var(--spacing-8); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
+.c-card-usp-list i{flex:none; font-size:var(--icon-sm); color:var(--color-obsidian);}
+.c-card-usp .c-btn{align-self:stretch; justify-content:center;}
+
 .c-badge{display:inline-flex; align-items:center; gap:4px; font-size:var(--text-label3-size); font-weight:700; padding:2px var(--spacing-8); border-radius:var(--radius-pill); border:1px solid transparent; white-space:nowrap;}
 .c-badge-neutral{background:var(--color-neutral-2); color:var(--color-neutral-9); border-color:var(--color-neutral-3);}
 .c-badge-success{background:rgba(0,194,110,.12); color:var(--color-green); border-color:rgba(0,194,110,.32);}

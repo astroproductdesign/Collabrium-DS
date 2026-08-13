@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.40</title>
+<title>Collabrium design system | v0.9.41</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -315,7 +315,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.40</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.41</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -323,7 +323,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.40</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.41</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -897,6 +897,16 @@
                 <h4>With footer</h4>
                 <p>Footer is a distinct, bordered sub-part.</p>
                 <div class="c-card-footer">Updated 2 hours ago</div>
+              </div>
+              <div class="c-card c-card-usp">
+                <h4>USP card</h4>
+                <p>Header, description, 3 bullet points, CTA button.</p>
+                <ul class="c-card-usp-list">
+                  <li><i class="ph-fill ph-check-circle"></i><span>Details</span></li>
+                  <li><i class="ph-fill ph-check-circle"></i><span>Details</span></li>
+                  <li><i class="ph-fill ph-check-circle"></i><span>Details</span></li>
+                </ul>
+                <button type="button" class="c-btn c-btn-primary c-btn-md">Button</button>
               </div>
             </div>
           </div>
@@ -2482,7 +2492,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.40** — 2026-08-12 — Sourced from the Collabrium brand deck
+**v0.9.41** — 2026-08-13 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3587,6 +3597,7 @@ the Modal footer's divider, scaled down.
 - **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). The chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
 - **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
+- **USP** — a feature-highlight tile, not a generic content card. Anatomy: Header (h4, same as base) → Description (p, same as base body2/Neutral-5) → 3 bullet points (new `.c-card-usp-list`: `ph-fill ph-check-circle` at `icon-sm`, Obsidian — **Tier 2, Fill**, the same call as Button's own leading check-circle example — followed by body2/Neutral-9 text, both vertically centered on the same line, spacing-8 gap) → CTA button (the real [Button](#button) component, Primary/md — never rebuilt from scratch — stretched to the card's full width with its label centered, rather than hugging its own content like a Card-region CTA normally would).
 
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
@@ -5832,6 +5843,21 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.41 — 2026-08-13** — Added a **USP** variant to
+  [Card](#card) (not a new component, so no change to the Scope note's
+  32-component count): Header → Description → 3 bullet points → CTA
+  button. The bullet list is new (`ph-fill ph-check-circle`, Obsidian,
+  Tier 2 Fill, per Button's own leading check-circle precedent); the
+  Header, Description, and CTA all reuse existing Card/Button styles
+  verbatim rather than introducing new ones. The only deliberate
+  deviation from a normal Card CTA is width: this button stretches to
+  the card's full width with its label centered, instead of hugging its
+  own content the way a Card-region CTA normally does — a direct
+  request for this specific variant, not a change to Button or to Card's
+  general CTA guidance elsewhere. Built into the live gallery
+  (`preview.html`'s Card block) as a 7th tile alongside the other six
+  variants.
 
 - **v0.9.40 — 2026-08-12** — Corrected and expanded the existing
   **Filters** component in place (not a new component; the same
