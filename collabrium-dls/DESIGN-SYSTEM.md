@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.41** — 2026-08-13 — Sourced from the Collabrium brand deck
+**v0.9.43** — 2026-08-13 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -713,14 +713,14 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-32 components: the original 7 basics
+33 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
 Empty state), 9 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 8 **designed
+Switch, Toast, Tooltip, DataTable, ElementBadge), 9 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
 picker, **Segmented Control**, **Slider**, **Chip**, **Progress
-Bar** — plus two chart
+Bar**, **Quote builder** — plus two chart
 guidelines, [Chart color mapping](#chart-color-mapping) and [Chart
 chrome & marks](#chart-chrome--marks) (neither a rendered component),
 and 8 more: **App Shell** (the page-level composition layer — Sidebar
@@ -736,8 +736,8 @@ consolidated into one component), and **Info Banner** (an inline,
 persistent, container-anchored notification — distinct from Toast's
 floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
 batch, App Shell, Stepper, FileUploader, Dropdown, Search input, Info
-Banner, **Segmented Control**, **Slider**, **Chip**, and **Progress
-Bar** have **no source in
+Banner, **Segmented Control**, **Slider**, **Chip**, **Progress
+Bar**, and **Quote builder** have **no source in
 either the original brand deck or the teammate's build**; they're
 built entirely from this document's own token system (color, type,
 spacing, radius, elevation, motion) and marked ⚠️ **designed, not
@@ -772,6 +772,7 @@ through.
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Progress Bar](#progress-bar)
+- [Quote builder](#quote-builder)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -2349,6 +2350,114 @@ put a label inside a Compact (4px) track or a stacked fill; use a
 department elemental color as a single-fill bar's default — department
 colors classify ownership, not progress.
 
+### Quote builder
+
+⚠️ **Designed from scratch — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by extension from the existing [Card](#card) (with its
+Footer sub-part) and [Empty state](#empty-state) specs, not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A running list of selected line items building toward a quote —
+extends the base Card, doesn't replace it. Two states: **Empty**
+(nothing selected yet) and **Filled** (≥1 item selected).
+
+**Empty state.**
+
+| Part | Spec |
+|---|---|
+| Header | h4, "Quote builder" — same as the base Card header |
+| Illustration | [Empty state](#empty-state)'s own Icon + Heading, reused verbatim: `icon-empty` (48px), Neutral-4, **Tier 2, Fill** — a `list` glyph; Heading h4 (20px/800), Neutral-9, reading "No items added" |
+
+**Filled state.**
+
+| Part | Spec |
+|---|---|
+| Header | h4, "Quote builder" |
+| Selected items list | first 4 items always visible; items 5+ collapse behind a "Show X more" control — see **Selected items list — display rules** below for the full behavior |
+| Item row | Item name (body2/700, Neutral-9, truncates with an ellipsis past the row's available width) — Unit cost (caption, Neutral-5, right-aligned) — Remove × (**optional** — a read-only/locked line item can omit it; `icon-micro` 14px, Neutral-5, 24×24px hit target, same recipe as FileUploader's row × per [Iconography](#iconography)'s remove-button precedent) — 1px Neutral-3 border-bottom between rows |
+| Divider | [Card](#card)'s own Footer top border, reused as-is between the item list and the section below — not a separate element |
+| Total row | Inside the Footer: "Total" (label1/700, Neutral-9) and the total cost (label1, Neutral-5), space-between, value right-aligned |
+| CTA button | [Button](#button)'s Primary/md, stretched to the card's full width with its label centered — "Build proposal" is this variant's own copy, not a generic placeholder |
+
+Pricing defaults to Malaysian ringgit — `RM 1,200`, no decimals —
+following this document's own Numbers content rule (space after RM,
+comma thousands). Swap the currency only if the host context
+requires a different one.
+
+**Do:** treat the Remove × as optional per row. **Don't:** omit the
+Header or Total row in the Filled state — a quote with no visible
+total defeats the component's purpose.
+
+#### Selected items list — display rules
+
+- **Rule 1 — Default visible count is 4.** When the list holds 4 or
+  fewer items, all items render in full. No overflow control appears.
+- **Rule 2 — Truncation threshold is 5.** When the list holds 5 or
+  more items, only the first 4 are visible by default. A "Show X more"
+  control appears immediately below the 4th row, where X is the exact
+  hidden count (total − 4). Never use a vague "Show more" label — the
+  count is always stated so the user knows what they're expanding
+  into.
+- **Rule 3 — "Show X more" uses the Link button style, without the
+  underline.** Adapts [Chip](#chip)'s own `.c-chip-showless`
+  Link-button recipe (transparent fill, Neutral-9 text) with two
+  deliberate departures from that recipe: no underline — a direct
+  design call for this control specifically — and a trailing
+  caret-down at `icon-micro` (14px), since Chip's own control has no
+  icon and this one needs one to invert to caret-up on expand (see
+  Rule 4). Left-aligned, same horizontal padding as the item rows
+  (i.e. none beyond the card's own padding). The count updates in real
+  time as items are added or removed while the list is in its
+  collapsed state — the control never goes stale.
+- **Rule 4 — Expanding shows all items in a scrollable zone.** Tapping
+  "Show X more" reveals the remaining items. The overflow region
+  switches to `overflow-y: auto` with a 320px `max-height` (the same
+  cap as [Dropdown](#dropdown)'s own list) so it scrolls internally —
+  the Total row and CTA button remain fully visible at all times,
+  never pushed off screen, since both live inside the Card's Footer,
+  outside this scrollable region entirely. The control label swaps to
+  "Show less" with a trailing caret-up.
+- **Rule 5 — "Show less" collapses back to 4.** Tapping "Show less"
+  returns the list to its 4-item default. Scroll position inside the
+  list resets to the top. The control reverts to "Show X more" with
+  the current hidden count.
+- **Rule 6 — Transition uses `duration-base` + `ease-settle`.** The
+  overflow region's height animates on both expand and collapse using
+  the same Grid `0fr → 1fr` technique as SidebarNav's own
+  `.c-nav-children` (see that rule's own components.css comment)
+  rather than a guessed `max-height` value, which would either clip
+  content or leave dead space depending on item count. `ease-settle`
+  is correct here — the list is anchoring into a new resting state,
+  not flying in. Never instant, never bouncy.
+- **Rule 7 — Removing a hidden item updates the count silently.** If a
+  user removes an item while the list is collapsed and that item is
+  one of the hidden ones, the "Show X more" count decrements without
+  triggering an expand. If the total drops to exactly 4, the control
+  disappears entirely without any user action required.
+- **Rule 8 — Removing items while expanded auto-collapses when the
+  threshold is crossed.** If items are removed while the list is
+  expanded and the total drops to 4 or fewer, the "Show less" control
+  disappears and the list settles into its normal full-display state —
+  no user action required to dismiss the expanded view.
+- **Rule 9 — The Total row and the Build CTA are always in view.**
+  Both live inside the Card's Footer, fixed outside the scrollable
+  list region. No interaction with the items list — expanding,
+  scrolling, or removing — ever pushes them out of the visible card
+  area.
+
+**Edge cases.**
+
+| Scenario | Behaviour |
+|---|---|
+| Exactly 4 items | All shown, no overflow control |
+| 5th item added while collapsed | "Show 1 more" appears below item 4 |
+| 5th item added while expanded | Item animates in at the bottom of the list, no state change to the control |
+| Item removed, total → 4, list collapsed | "Show X more" disappears silently |
+| Item removed, total → 4, list expanded | "Show less" disappears, list stays at full display |
+| Clear all | Returns to the Empty state ("Nothing Selected"), list resets entirely — Clear all itself isn't part of this variant's own anatomy above; this row documents the resulting state for whichever control triggers it |
+| Item is one of the hidden items, removed while collapsed | "Show X more" count decrements by 1 (e.g. "Show 3 more" → "Show 2 more"); list stays collapsed |
+
 ### Radio
 
 **Transcribed from the teammate's `Radio.jsx`.**
@@ -3351,6 +3460,41 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.43 — 2026-08-13** — Two refinements to
+  [Quote builder](#quote-builder), added in the previous pass. (1)
+  Dropped the underline from the "Show X more"/"Show less" control
+  (Rule 3) — a direct design call, so this control now departs from
+  Chip's own `.c-chip-showless` Link-button recipe on that one point
+  rather than reusing it verbatim. (2) Established Malaysian ringgit
+  (`RM 1,200`, no decimals) as this component's default pricing
+  currency, following this document's own Numbers content rule — not a
+  new rule, just the first component to state it applies to its own
+  example values explicitly.
+
+- **v0.9.42 — 2026-08-13** — Added **Quote builder**, a new
+  Card-extending component (Scope note bumped 32 → 33): a running
+  selected-items list building toward a quote, in Empty and Filled
+  states. Empty state reuses [Empty state](#empty-state)'s icon +
+  heading verbatim (`list` glyph). Filled state reuses [Card](#card)'s
+  Footer sub-part as the divider before a Total row and a full-width
+  Primary/md "Build proposal" CTA — nothing new invented for that
+  boundary. Also documented **Selected items list — display rules**
+  (Rules 1–9 plus an edge-case table): a 4-item default with a
+  "Show X more"/"Show less" overflow control past 5 items, reusing
+  Chip's own `.c-chip-showless` Link-button recipe (extended with a
+  caret) and SidebarNav's Grid `0fr → 1fr` expand/collapse technique
+  rather than a guessed `max-height`. Two terms from the original brief
+  were resolved before writing this spec: "financial summary" is the
+  same zone as the Total row, not a separate breakdown, and a mentioned
+  "fit banner" was dropped entirely since it was never specified. Built
+  into the live gallery as its own `preview.html` block (not folded
+  into Card's own tile grid, since this is a full component now, not a
+  Card variant like USP is) showing only the Filled
+  state — the Empty state and the Rules 1–9 interaction behavior
+  (live add/remove, expand/collapse animation) are documented as the
+  spec to build against, not wired up live, the same treatment Date
+  picker's inert month-nav already gets.
 
 - **v0.9.41 — 2026-08-13** — Added a **USP** variant to
   [Card](#card) (not a new component, so no change to the Scope note's
