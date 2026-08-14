@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.45** — 2026-08-13 — Sourced from the Collabrium brand deck
+**v0.9.48** — 2026-08-14 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1100,17 +1100,81 @@ the Modal footer's divider, scaled down.
 **Variants:**
 - **Static** — default surface above, no interaction.
 - **Interactive/clickable** — hover raises to `shadow-2`; cursor pointer; focus-visible gets `shadow-focus`.
+- **Selectable** — an Interactive card that sits in a genuine bulk-action context additionally carries a hover-revealed Select checkbox and a persistent Selected state — see **Interactive card — Hover-only vs. Selectable, which one to use** for the deciding rule, and **Interactive card — Selectable**/**Interactive card — Selected**, below, for the full anatomy. A plain Interactive card with no bulk-action context stays as-is, no checkbox.
 - **Element-accented** — a 3px top border in the owning element's color. The rest of the card stays neutral.
 - **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). The chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
 - **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
 - **USP** — a feature-highlight tile, not a generic content card. Anatomy: Header (h4, same as base) → Description (p, same as base body2/Neutral-5) → 3 bullet points (new `.c-card-usp-list`: `ph-fill ph-check-circle` at `icon-sm`, Obsidian — **Tier 2, Fill**, the same call as Button's own leading check-circle example — followed by body2/Neutral-9 text, both vertically centered on the same line, spacing-8 gap) → CTA button (the real [Button](#button) component, Primary/md — never rebuilt from scratch — stretched to the card's full width with its label centered, rather than hugging its own content like a Card-region CTA normally would).
 - **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
+- **Profile card** — a talent/influencer profile summary tile: identity block (name, demographic meta), a divider, persona badges, then an alphabetically-sorted platform list with a Title-weight follower count per row. Extends the base Card (Title, Description, Footer divider) and reuses Search input's own avatar recipe and Badge & Tag's own grouping/dot recipes rather than inventing new structure — see **Profile card**, below, for the full anatomy.
+
+**Interactive card — Hover-only vs. Selectable, which one to use.**
+Whether an Interactive card shows *just* the plain hover raise or also
+reveals a Select checkbox on hover is decided by one concrete
+question: **does something else on the page act on however many cards
+are checked?**
+
+| Use | When | Example |
+|---|---|---|
+| **Hover-only** (no checkbox) — the default | The card's own click performs one direct action per card — opens a detail view, navigates, expands inline — and nothing elsewhere on the page acts on a multi-card selection | A dashboard tile that opens a report; a nav-style card linking to a sub-page |
+| **Selectable** (hover reveals a checkbox) | The card sits in a grid/roster where a separate bulk-action control (a toolbar, a header button reading "Delete 3 selected," an export action, etc.) acts on however many cards are currently checked | A talent-roster grid with a bulk "Add to campaign" toolbar; a template gallery with bulk delete |
+
+This is the same condition [Table](#table)'s own Row hover rule
+already uses to decide whether a row shows a checkbox at all
+(`onRowClick` defined, checkbox selection enabled, or the row has an
+action column) — applied here at the Card level instead of inventing a
+separate litmus test. **Don't add the checkbox "just in case"**: a
+Select checkbox with no bulk-action control anywhere to feed into is a
+dead control, not a safe default or a future-proofing choice — it
+should be added only once that bulk-action context genuinely exists on
+the page.
+
+**Interactive card — Selectable.** Once a card qualifies as Selectable
+per the rule above, it carries a Select checkbox — the same
+hover-reveal recipe [Table](#table)'s own bulk-select column and
+[Profile card](#card)'s own Selectable variant already use, reused
+here at the base Card level rather than each variant inventing its own
+convention:
+
+| Part | Spec |
+|---|---|
+| Checkbox | [Checkbox](#checkbox)'s own real check box (`.c-checkbox-box`/`.on`, 18×18px, 6px radius, Obsidian border+fill when checked with the `icon-micro` check glyph), sits top-right of the card, spacing-16 inset from the top and right edges (the card's own padding) — the exact same position and recipe as Profile card's own Select checkbox |
+| Reveal | hidden at rest (`opacity: 0`), revealed on hover (`opacity: 1`) — same hover-reveals-checkbox pattern as Table's bulk-select row checkboxes and Profile card's own Select checkbox, not a third convention |
+| Reserved space | spacing-24 of extra right padding on the card's Title (`<h4>`) whenever the card is Selectable — whether the checkbox is currently visible (hover) or not (rest). The checkbox only *appears* on hover, but its footprint has to be respected at rest too, otherwise the Title would truncate at one width while idle and clip shorter the instant the checkbox fades in — a layout jump, not just a color change. Same rationale as Profile card's own identity-block reserve |
+
+Checking the checkbox moves the card into its own **Selected** variant,
+below.
+
+**Interactive card — Selected.** A persistent state, not a hover
+state — once checked, the card stays visually marked as selected
+regardless of mouse position, identical to Profile card's own Selected
+variant:
+
+| Part | Spec |
+|---|---|
+| Border | 2px Obsidian (replacing the base Card's 1px Neutral-3) — the same "2px Obsidian border signals actively engaged" convention [Search input](#search-input)'s own Active state and Profile card's own Selected already use. Padding drops by 1px/side in the same instant (`spacing-16` → `spacing-16 − 1px`) so the card's inner content box never moves — this swap is deliberately **instant, not animated**, for the same reason as Profile card's own Selected: `border-width` can't transition in lockstep with a transitioning `padding`, so animating either alone reintroduces a transient content shift |
+| Elevation | `shadow-3` — one step past the Interactive variant's own hover-only `shadow-2`, so a selected card reads as persistently "lifted" even when the pointer isn't over it |
+| Checkbox | stays visible at `opacity: 1` (no longer hover-only) and checked — Obsidian fill, `icon-micro` check glyph |
+| Everything else | unchanged — Selected doesn't add a fill tint and doesn't recolor any text; border + elevation + the persistent checked checkbox are the only three signals |
+
+Hover in/out and toggling into or out of Selected both animate the
+card's `box-shadow` and `border-color` on `duration-base`/
+`ease-settle`, the same pair Profile card's own transition runs on, so
+both read as one continuous, settling motion rather than a hard cut.
+`border-width` and `padding` are deliberately **not** included in that
+transition, for the same reason documented under the Border row above.
 
 ⚠️ **Price summary card is designed from scratch** — no source in
 either the original brand deck or the teammate's build. Built from
 this document's own token system by extension from this same Card
 spec (its Footer sub-part) and [Empty state](#empty-state), not
+transcribed. Treat as a first pass needing real design/brand review.
+
+⚠️ **Profile card is designed from scratch** — no source in either
+the original brand deck or the teammate's build. Built by extension
+from this same Card spec (its Footer sub-part) and [Search
+input](#search-input)'s own User Search avatar recipe, not
 transcribed. Treat as a first pass needing real design/brand review.
 
 Two states: **Empty** (nothing selected yet) and **Filled** (≥1 item
@@ -1213,13 +1277,230 @@ context requires a different one.
 | Clear all | Returns to the Empty state ("No items added"), list resets entirely — Clear all itself isn't part of this variant's own anatomy above; this row documents the resulting state for whichever control triggers it |
 | Item is one of the hidden items, removed while collapsed | "Show X more" count decrements by 1 (e.g. "Show 3 more" → "Show 2 more"); list stays collapsed |
 
+**Profile card.** The base Card's own header slot (Avatar + stacked
+text block), a divider, the persona category badges, then the platform
+list — no Footer; this variant doesn't use one.
+
+**Profile card — Width.** No fixed width — same as the base Card,
+width is always dictated by whatever container or grid column the
+card sits in (`width: 100%` of its own grid cell/flex basis), not a
+hardcoded pixel value. A roster/grid of Profile cards should size
+every tile from the grid's own column-track definition (e.g.
+`repeat(auto-fit, minmax(...))`, the same technique the Card demo
+gallery's own `.c-cards` grid already uses), not from a per-card
+width. **Min-width 240px** is the one constraint: below that, the
+platform row's three zones (icon, name/handle stack, Tier badge +
+Follower count) can't coexist without the trailing zone crushing the
+handle's truncation point down to nothing meaningful.
+
+**Profile card — Header (identity block).** Avatar in the base Card
+header's own icon-chip slot; the text block beside it stacks two rows,
+in this order:
+
+| Part | Spec |
+|---|---|
+| Avatar | 36×36px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary` weight 700, label2 size, showing initials — sized to match the base Card's own **icon-chip header** variant (36×36, same slot), not [Search input](#search-input)'s smaller 32×32 User Search avatar this recipe was originally scaled from, so a Profile card sits at the same header height as every other Card variant instead of introducing its own one-off size (no per-person gradient fills — that stays within this document's own "don't invent new brand colors" rule) |
+| Row 1 — Name | the base Card's own Title token, verbatim: `<h4>` styled at h5 (16px/700), Neutral-9 — same element and same CSS as every other Card variant's own title, not a bigger one-off size. Always a single line: truncates with an ellipsis past the row's available width rather than wrapping, same treatment as Handle and Platform name below |
+| Row 2 — Age · Gender · Location | the base Card's own Description/Subtitle token, verbatim: body2 (14px/400), Neutral-5 — same `<p>` element and same CSS as every other Card variant's own description text, `·` (middle dot) separators, spacing-4 below Row 1, e.g. "20 · Female · Kuala Lumpur." Age is a specific value, not a range — "20," not "20-30" — since a Profile card describes one real person, not an audience segment (a range belongs to a targeting/audience context, not an individual's own profile). Always a single line: truncates with an ellipsis past the row's available width rather than wrapping |
+
+**Profile card — Avatar initials logic.** Always exactly **2
+characters**, uppercase, derived from the Name (never authored
+separately — the initials are computed from whatever Name is set):
+
+- **Rule 1 — Two or more words:** take the first letter of the
+  **first** word and the first letter of the **last** word. "Amirah
+  Yusof" → `AY`. A middle name, if any, is ignored — it never
+  contributes a letter.
+- **Rule 2 — Malay naming particles are skipped, not treated as the
+  last word.** `bin`/`binti`/`b.`/`bt.` ("son of"/"daughter of") and
+  similarly `a/l`/`a/p` (Indian naming particles) are never the source
+  of the second letter, since they're a relationship marker, not a
+  name — the last actual name word after the particle is used instead.
+  "Muhammad Amirul Haqimi bin Abdul Rahman" → `MA` (Muhammad + Abdul,
+  not Muhammad + Rahman, and never Muhammad + bin).
+- **Rule 3 — Single word:** if the Name is only one word, use its
+  first letter alone rather than repeating it or leaving a blank
+  second character — a 1-character avatar, not a forced 2.
+- **Rule 4 — No per-person color.** The avatar's fill is always the
+  same Neutral-2/Neutral-9 pair regardless of whose initials it shows
+  — see the Avatar row above; this rule only governs which letters
+  appear, not their color.
+
+A divider — the same 1px Neutral-3 rule as the base Card's own Footer
+top border, but at spacing-8 margin (tighter than the Footer's own
+spacing-16 — and tightened further still from an earlier spacing-12
+pass, once that read as too airy for a divider that sits between two
+content sections inside one card rather than closing it) — separates
+the identity block above from the persona badges and platform list
+below, instead of relying on spacing alone.
+
+**Profile card — Persona type.** Sits directly below the divider,
+above the platform list. One [Badge](#badge--tag) per category,
+Neutral variant, spacing-4 between adjacent badges (Badge & Tag's own
+documented grouping rule), not one comma-joined label. Sorted
+**alphabetically** — `Beauty` · `Entertainment` · `Fashion` · `Food &
+Lifestyle`, not the order categories happened to be entered in — same
+stable-ordering rationale as the platform list's own alphabetical
+sort below. Wraps freely to as many lines as the category count needs
+— no single-line constraint — spacing-4 below it before the platform
+list starts (tightened from an earlier spacing-8 pass, and much
+tighter than the spacing-16 gap between platform rows themselves,
+since persona badges and the platform list are two sub-sections of
+one region, not two independent rows, while each platform row is
+already its own self-contained unit that needs the fuller gap).
+
+**Profile card — Platform list.** No divider between individual
+platform rows — a spacing-16 vertical gap between rows (widened
+slightly from an earlier spacing-12 pass, once that read as too tight
+against the identity block above) carries the separation on its own,
+since each row already reads as a self-contained unit (icon, name,
+handle, tier, count) without needing a rule to mark its edge. Rows are
+sorted **alphabetically by platform name** (Instagram, TikTok,
+Xiaohongshu, …), not by follower count or tier — a stable, predictable
+order regardless of which platforms a given profile has connected.
+
+| Part | Spec |
+|---|---|
+| Row | leading Platform icon + Platform name/Handle text stack + trailing Tier badge/Follower count, spacing-12 gap between zones, all three zones **vertically centered** on the row (not top-aligned) so the two-line name/handle stack, the single-line icon, and the trailing pair all share the same visual middle |
+| Platform icon | `icon-sm` (16px), Neutral-9, **Tier 2, Fill** (an expressive/informational glyph, per [Iconography](#iconography), the same tier as a card header icon) — Phosphor's own brand glyph where one exists (`ph-fill ph-tiktok-logo`, `ph-fill ph-instagram-logo`); for a platform Phosphor doesn't carry a logo for, use the matching file from [`SVG/`](#using-this-system-in-an-existing-project) instead of stretching a Remix substitute that wouldn't actually read as that platform — Xiaohongshu uses `SVG/Xiaohongshu-word-icon.svg`, inlined (not `<img>`, so its fill can inherit) at the same 16px box, `fill="currentColor"` so it takes the row's own Neutral-9 the same way the Phosphor glyphs do, not its source file's original locked-in `#000000` fill |
+| Platform name | the base Card's own Description token, verbatim: body2 (14px/400), Neutral-5 — same `<p>` styling as Row 2's Age/Gender/Location line, not a bolded/blackened one-off; abbreviate long platform names at content level when needed (Xiaohongshu's own name is short enough it doesn't need one — drop the earlier "(XHS)" parenthetical and the internal caps, sentence case like every other platform name here), the component itself never truncates a platform name |
+| Handle | caption, Neutral-9 (**not** a colored link), weight 700 — [Button](#button)'s own **Link** variant recipe verbatim (transparent, Neutral-9, underlined at 3px offset, and `.c-btn`'s own base weight 700), the same "black link" treatment and weight as Filters' own **Clear all** control, not a blue inline-link color and not body-copy's regular weight; directly below Platform name in the same text stack — truncates with an ellipsis past the row's available width once the trailing zone has taken its own space |
+| Tier badge | [Tag](#badge--tag)'s own elemental recipe for the five follower-count tiers, plus [Tag](#badge--tag)'s plain (unmodified, grey) form for the two non-ranked tiers — seven tiers total, see the table below. Sits inline, immediately before the Follower count, same row, right-aligned as a pair. |
+| Follower count | the base Card's own Title token, verbatim: h5 (16px/700), Neutral-9, tabular numerals, abbreviated per this document's own Numbers content rule (52K, not 52,000) — same size/weight as Row 1's Name, so the number reads with the same weight as the card's own headline, not a de-emphasized metadata value; right-aligned in the trailing zone, no "Followers" label — the platform icon and stacked name/handle already establish what the number is counting; sits directly after the Tier badge, same row |
+
+**Profile card — Empty sections are removed, not left blank.** Both
+the Persona type section and the Platform list are optional as a
+*whole section*, not just empty-safe — if a profile has zero persona
+categories, or zero connected platforms, that entire section
+(including its own spacing/margin) is removed from the card's layout
+rather than rendered as an empty gap. The section below it shifts up
+to close the space, the same way a `display: none` element (not just
+`visibility: hidden`) collapses out of normal flow. A Profile card
+with no persona categories goes straight from the divider into the
+platform list; a Profile card with no connected platforms ends at the
+persona badges (or at the divider, if that's empty too) — never a
+dead blank region sized for content that isn't there.
+
+**Profile card — Tier badge, all seven tiers.** Five are ranked by
+follower count, low to high; two — KOC and Seeder — describe a role
+rather than a follower-count bracket, so they sit outside the ranking
+entirely rather than being squeezed into it at some arbitrary point.
+
+| Tier | Meaning | Recipe |
+|---|---|---|
+| Nano | Smallest follower-count bracket | [Tag](#badge--tag)'s Wood (salmon pink) |
+| Micro | | Tag's Earth (green) |
+| Mid | | Tag's Water (navy) |
+| Macro | | Tag's Fire (orange) |
+| Mega | Largest follower-count bracket | Tag's Gold (amber) |
+| KOC | Key Opinion Consumer — an everyday product user sharing honest reviews/recommendations, not ranked by reach | Tag's own plain/unmodified form — Neutral-2 fill, Neutral-5 text, **no dot** |
+| Seeder | A seeded/gifted-product participant, not ranked by reach | Tag's own plain/unmodified form — Neutral-2 fill, Neutral-5 text, **no dot** |
+
+The five ranked tiers reuse Tag's elemental recipe (the owning tier's
+`-bg` tint at 8% as fill, full-strength element color for both text
+and the 6px dot) in the same Wood→Earth→Water→Fire→Gold order the
+element system already sorts in, so the color progression reads as
+low→high without inventing a new scale. Chosen over Badge's Success/
+Info/Warning specifically because Warning's text is darkened to
+Neutral-9 for AA (see Badge & Tag's own note on this) — reading as
+black text on an amber chip, wrong for a value that should read as
+"amber," not "black." Tag's own text color is always the full-strength
+hue, so Macro reads as orange, not black. KOC and Seeder deliberately
+drop the dot along with the color — the dot signals "this tier sits on
+the ranked ladder," and neither of these two does, so a plain grey Tag
+with no dot correctly reads as "outside the ranking" rather than as an
+unassigned or broken ranked tier.
+
+**Profile card — Placement in a row.** When multiple Profile cards sit
+in the same row (a grid or flex row, e.g. a roster of talent tiles),
+they always match the **tallest card's height** — never their own
+natural content height. Content stays anchored to the top of the card;
+the extra height a shorter card gains is trailing empty space at the
+bottom, not extra padding distributed through the card or content
+stretched to fill it. This is the CSS Grid/`align-items: stretch`
+default (or `align-self: stretch` in a flex row) plus the base Card's
+own `flex-direction: column` — a shorter card's content naturally
+stacks from the top and simply stops short of the row's full height,
+so no extra rule is needed to achieve the top-anchoring itself, only
+to *not* override it with `align-items: start`/`flex-start` the way
+the Card demo gallery's own General/Functional cards grid deliberately
+does for its Price summary + USP pairing (see [Card](#card)'s own
+Variants section) — that override is correct there because a
+Price summary card and a USP card are unrelated content with no reason
+to match height; a row of Profile cards is the opposite case, one
+repeating content type where mismatched heights read as a layout bug,
+not a deliberate difference.
+
+**Profile card — Interactive/selectable.** Reuses the base Card's own
+**Interactive/clickable** variant verbatim, not a new hover treatment:
+hover raises to `shadow-2`; cursor pointer; focus-visible gets
+`shadow-focus`. A Profile card only carries this variant when it's
+actually selectable (e.g. a talent roster with bulk actions) — a
+purely informational Profile card (no selection context) stays Static.
+
+Hover in/out and toggling into or out of Selected both animate the
+card's `box-shadow` and `border-color` on the same `duration-base`/
+`ease-settle` pair the base Card's own `box-shadow` transition already
+runs on, so both read as one continuous, settling motion rather than a
+hard cut. `border-width` and `padding` are deliberately **not**
+included in that transition — see Selected's own Border row below for
+why animating them would itself cause the exact content-shift bug this
+variant has to avoid.
+
+When a Profile card is Interactive in this selectable sense, a
+[Checkbox](#checkbox)'s own real check box (`.c-checkbox-box`/`.on`,
+18×18px, 6px radius, Obsidian border+fill when checked with the
+`icon-micro` check glyph — the exact same recipe, not a re-skinned
+one-off) sits top-right of the card, spacing-16 inset from the top and
+right edges (the card's own padding). It's hidden at rest and revealed
+on hover — `opacity: 0 → 1` — the same hover-reveals-checkbox pattern
+[Table](#table)'s own bulk-select column already uses for its row
+checkboxes, reused here rather than inventing a second convention for
+"a checkbox that only appears when you're about to use it." Checking
+it moves the card into its own **Selected** variant, below.
+
+Reserve **spacing-24** of extra right padding on the header's text
+block (Name + Age/Gender/Location) whenever the card is Interactive —
+whether the checkbox is currently visible (hover) or not (rest). The
+checkbox only *appears* on hover, but its footprint has to be
+respected at rest too, otherwise Name/the meta line would truncate at
+one width while idle and suddenly get clipped shorter the moment the
+checkbox fades in on hover — a layout jump, not just a color change.
+Reserving the space up front means hovering never shifts where Row 1
+or Row 2 truncates.
+
+**Profile card — Selected.** A persistent state, not a hover state —
+once checked, the card stays visually marked as selected regardless of
+mouse position:
+
+| Part | Spec |
+|---|---|
+| Border | 2px Obsidian (replacing the base Card's 1px Neutral-3) — the same "2px Obsidian border signals actively engaged" convention [Search input](#search-input)'s own Active state already uses, reused here rather than a new selection color. Padding drops by 1px/side in the same instant (`spacing-16` → `spacing-16 − 1px`) — the exact compensation [Search input](#search-input)'s own Active state already documents for its own 1px→2px border swap — so the card's *inner content box* never moves: without it, the extra 1px of border on every edge would shrink the content area by 2px each direction the instant a card is selected, reading as the header/platform rows visibly shifting or shrinking rather than just a border appearing. This swap is deliberately **instant, not animated** — `border-width` can't transition in lockstep with a transitioning `padding` (they'd land at different values on different frames), so animating either alone reintroduces the exact shift the compensation exists to prevent; both change in the same frame instead, while `border-color` and `box-shadow` (which don't affect layout at all) are free to animate smoothly |
+| Elevation | `shadow-3` — one step past the Interactive variant's own hover-only `shadow-2`, so a selected card reads as persistently "lifted" even when the pointer isn't over it, not just bordered. Reuses the same elevation scale [Elevation](#elevation) already defines rather than inventing a new shadow value |
+| Checkbox | stays visible at `opacity: 1` (no longer hover-only) and checked — Obsidian fill, `icon-micro` check glyph, Checkbox's own real `.c-checkbox-box.on` state, not a separate "selected card" glyph |
+| Everything else | unchanged — Selected doesn't add a fill tint and doesn't recolor any text; border + elevation + the persistent checked checkbox are the only three signals, so Selected never competes visually with the Tier badge's own element colors inside the card |
+
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
 they're not interchangeable. Treat the Price summary card's Remove ×
-as optional per row. **Don't:** tint a card with an element that
-doesn't own its content. Don't omit the Header or Total row in the
-Price summary card's Filled state — a total with no visible sum
-defeats the component's purpose.
+as optional per row. Keep the Profile card's Name and Follower count on
+the exact same Title token (h5, 16px/700) as every other Card variant's
+own title — the count is a second headline-weight value in the same
+card, not a smaller supporting figure. Reuse the Selectable/Selected
+checkbox recipe identically across the Interactive card and the
+Profile card — one hover-reveal convention, not two. **Don't:** tint a card with an
+element that doesn't own its content. Don't omit the Header or Total
+row in the Price summary card's Filled state — a total with no
+visible sum defeats the component's purpose. Don't read the Profile
+card's Tier badge as a department/ownership signal even though it
+reuses Tag's own Wood/Earth/Water/Fire/Gold classes — here the five
+colors mean follower tier (Nano→Mega), not "this row belongs to the
+Wood/Earth/Water/Fire/Gold department," so keep the Tier badge
+visually scoped to this one row
+rather than implying department ownership applies to the rest of the
+card. Don't comma-join the Profile card's
+persona categories into one Subtitle line — each is its own Badge, so
+they scan independently and never need mid-word truncation.
 
 ### Chart chrome & marks
 
@@ -3524,15 +3805,101 @@ Supplementary, non-interactive information only.
 | Part | Spec |
 |---|---|
 | Trigger wrapper | relatively-positioned inline-flex around the trigger content |
-| Bubble | 6px/10px padding (a one-off compact value, not the spacing scale), `radius-sm` (12px), Neutral-7 fill, Neutral-1 text, caption size, weight 500, `white-space: nowrap` |
+| Bubble | 6px/10px padding (a one-off compact value, not the spacing scale), `radius-sm` (12px), Neutral-7 fill, Neutral-1 text, caption size, weight 500, `white-space: nowrap` up to 240px max-width — at 240px, `white-space: normal` takes over and the bubble wraps to additional lines, growing in height only, never in width |
+| Caret | 6px equilateral triangle pointing toward the trigger, Neutral-7 fill — matches the bubble fill exactly, no border; centered on the bubble edge facing the trigger, perpendicular to the placement direction; implemented as a CSS `::after` pseudo-element, not a separate DOM element. On shift (viewport collision, below): stays centered on the trigger, not the bubble — the pointer relationship to the trigger is always preserved |
 | Placement | top (default) / bottom / left / right, centered on the trigger's cross-axis, 8px gap from the trigger |
 | Visibility | opacity 0 → 1 on hover **or** keyboard focus; `pointer-events: none` at all times |
 | Transition | `opacity` — `var(--duration-fast) var(--ease-standard)` |
 
+**Content rule:** 60 characters maximum per tooltip. Enforced at
+authoring level, not truncated by the component — content exceeding 60
+characters belongs in a Popover or [Info Banner](#info-banner) instead
+of being crammed into a Tooltip.
+
+**Viewport collision.** Flip rule: if the preferred placement overflows
+the viewport, flip to the opposite side — top → bottom, bottom → top,
+left → right, right → left. Shift rule: if flipping still overflows
+(the trigger sits near a corner), shift the bubble along its axis until
+it clears the viewport edge by `spacing-8`. Priority: flip before
+shift — flipping is the less visually disruptive correction of the
+two. Caret on shift: the caret stays centered on the trigger, not the
+bubble, so the pointer relationship is preserved regardless of how far
+the bubble itself has shifted. Fallback: if no placement clears the
+viewport without overflowing, use bottom as the final fallback.
+
+**Show and hide delay.** Every trigger is instant, no artificial wait
+on either side, mouse or keyboard:
+
+| Trigger | Delay |
+|---|---|
+| Mouse enter → show | instant, no delay |
+| Mouse leave → hide | instant — immediate dismissal feels correct, no reason to linger |
+| Focus → show | instant, no delay — keyboard users navigating by Tab see it immediately |
+| Blur → hide | instant |
+
+The bubble still fades in/out over the Transition row's own
+`duration-fast`/`ease-standard` — instant here means no waiting period
+*before* that fade starts, not that the fade itself is skipped.
+
+**Dismiss rules.**
+
+| Event | Behavior |
+|---|---|
+| Mouse leave | instant |
+| Blur (keyboard) | instant |
+| Escape key | dismisses the active tooltip and returns focus to the trigger |
+| Page scroll | instant — prevents a floating bubble from detaching visually from its trigger |
+| Trigger unmounted | instant |
+| Showing a new tooltip | dismisses any existing one — only one tooltip is ever visible at a time |
+
+**Z-index and stacking.** The bubble renders in a portal at the
+document `<body>` level, not inside the trigger's own DOM hierarchy —
+an ancestor with `overflow: hidden` or a new stacking context would
+otherwise silently clip it, the same problem [SidebarNav](#sidebarnav)'s
+own hover label documents independently for its own scrolling nav-list
+container. Layer: above all page content, including Cards, sticky
+headers, and modals; below system-level browser dialogs and OS
+notifications. Because of the portal, the bubble's `z-index` is
+relative to the root stacking context, not any ancestor.
+
+**Accessibility.**
+
+| Attribute | Spec |
+|---|---|
+| `role="tooltip"` | set on the bubble element |
+| `id` | every bubble instance requires a unique id, so it can be wired to `aria-describedby` |
+| `aria-describedby` | set on the trigger, referencing the bubble's id — links trigger to tooltip so screen readers announce the content when the trigger receives focus |
+| `aria-label` alternative | when the tooltip content *is* the trigger's accessible name (e.g. an icon button with no visible label), use `aria-label` on the trigger instead of `aria-describedby` — the name is then always announced regardless of hover/focus state, with the tooltip supplementing it visually |
+| Escape key | dismisses the active tooltip and returns focus to the trigger |
+| Screen reader note | bubble content must already be in the DOM (`opacity: 0`, never `display: none`) before the visual transition fires — screen readers discover it via `aria-describedby` regardless of the current opacity state |
+
+**Touch and mobile.**
+
+| Behavior | Spec |
+|---|---|
+| Touch trigger | long press (500ms) shows the tooltip |
+| Touch dismiss | tapping anywhere outside the bubble dismisses it — registered on the document, not the tooltip itself |
+| `pointer-events: none` | stays in effect — the bubble is never tappable on any device |
+| Scroll dismiss | applies to touch scrolling the same as mouse-wheel scroll |
+
+Usage note: Tooltip is a pointer-and-keyboard pattern. On
+touch-primary surfaces, consider surfacing the same information
+another way — inline helper text below the control, or an
+[Info Banner](#info-banner) — rather than hiding it behind a long
+press.
+
 **Do:** trigger on focus as well as hover, so keyboard users get the same
-information sighted mouse users do. **Don't:** put interactive content
+information sighted mouse users do. Render the bubble in a portal at
+the document body level — never inside the trigger's own DOM
+hierarchy. Keep `aria-describedby` wired so screen readers announce
+tooltip content on focus. Use `aria-label` on the trigger instead of
+`aria-describedby` when the tooltip is the trigger's only accessible
+name (e.g. icon buttons). **Don't:** put interactive content
 (links, buttons) inside a Tooltip — `pointer-events: none` means nothing
-inside is ever clickable by design.
+inside is ever clickable by design. Don't use `display: none` to hide
+the bubble — use `opacity: 0` so the content stays discoverable in the
+DOM before the transition fires. Don't add a show delay on any
+trigger, mouse or keyboard — both need the tooltip immediately.
 
 ## Guidelines
 
@@ -3749,6 +4116,157 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.48 — 2026-08-14** — Substantially expanded [Tooltip](#tooltip)
+  beyond its original teammate-transcribed spec, and fixed its live
+  gallery demo to actually match the resulting rules. Bubble:
+  `white-space: nowrap` now caps at 240px max-width, past which it
+  wraps to additional lines (height only, never width); a new
+  60-character content maximum is enforced at authoring level, not
+  truncated by the component — longer content belongs in a Popover or
+  Info Banner. New Caret part: 6px triangle, Neutral-7 fill (matches
+  the bubble exactly), a `::after` pseudo-element, stays centered on
+  the trigger (not the bubble) through any shift. New Viewport
+  collision behavior: flip to the opposite side first, shift along the
+  axis by `spacing-8` clearance only if flipping still overflows,
+  bottom as the final fallback. Show/hide delay: every trigger — mouse
+  enter, mouse leave, focus, blur — is instant, no artificial wait on
+  either side; the bubble still fades over the Transition row's own
+  `duration-fast`/`ease-standard`, since instant only governs the wait
+  before that fade starts, not the fade itself. New Dismiss rules:
+  instant on mouse leave/blur/scroll/unmount, Escape returns focus to
+  the trigger, and only one tooltip is ever visible at a time. New
+  Z-index/stacking section: the bubble renders in a `<body>`-level
+  portal, escaping ancestor `overflow: hidden`/stacking-context
+  clipping — the same problem [SidebarNav](#sidebarnav)'s own hover
+  label already documents independently for its scrolling nav list.
+  New Accessibility section: `role="tooltip"`, a unique id wired to
+  the trigger's `aria-describedby`, an `aria-label` alternative for
+  icon-only triggers, and a screen-reader note that content must be in
+  the DOM before the opacity transition fires. New Touch/mobile
+  section: 500ms long-press to show, tap-outside-to-dismiss, with a
+  usage note to prefer inline helper text or an Info Banner over a
+  long press on touch-primary surfaces. Do/Don't extended (nothing
+  removed) to cover portal rendering, `aria-describedby`/`aria-label`
+  wiring, never using `display: none`, and never adding a show delay
+  on any trigger.
+
+  Live gallery demo brought in line with all of the above:
+  `components.css`'s `.c-tooltip-bubble` previously had no opacity
+  property at all (rendered permanently visible, not hover-only) and
+  no portal logic, so it was both always-on and silently clipped by
+  `preview.html`'s own `.pane-left` container (`overflow: auto` cut
+  off the bubble's left edge whenever it rendered past the pane's own
+  boundary). Fixed both: Visibility now toggles via a `.is-visible`
+  class, and on show the bubble moves to a `document.body`-level
+  portal (`position: fixed`, computed from the trigger's own
+  `getBoundingClientRect`, via a new `.is-portaled` class) escaping
+  `.pane-left`'s clipping entirely; on hide it moves back into its
+  authored `.c-tooltip-wrap` position so "Copy markup" still captures
+  it correctly. Placement defaults to top, flipping to bottom only if
+  there's no room above the viewport. The demo itself is now a single
+  sample — an info icon trigger showing the tooltip on hover — the
+  second, non-functional "Hover me" button with no bubble wired to it
+  was removed.
+
+- **v0.9.47 — 2026-08-14** — Added a **Selectable** sub-variant to
+  [Card](#card)'s base **Interactive/clickable** variant. Hover: raises
+  to `shadow-2`, no fill change; focus-visible gets `shadow-focus` — the
+  same elevation-only hover convention [Profile card](#card)'s own
+  Selectable variant already uses, no Neutral-2 background tint.
+  Whether a given Interactive card shows just this plain hover or also
+  reveals a Select checkbox turns on one concrete question: does
+  something else on the page (a bulk-action toolbar, a "Delete N
+  selected" control, etc.) act on however many cards are currently
+  checked? If yes, the card is Selectable; if the card's own click just
+  performs one direct action per card (opens a detail view, navigates),
+  it stays Hover-only, no checkbox — the same litmus test
+  [Table](#table)'s own Row hover rule already applies to whether a row
+  shows a checkbox (`onRowClick` defined, checkbox selection enabled,
+  or an action column present), reused here rather than a separate test
+  for Card. The checkbox is never added "just in case" — one with no
+  bulk-action control to feed into is a dead control, not a safe
+  default. Selectable anatomy: Checkbox's own real `.c-checkbox-box`/
+  `.on` (18×18px, 6px radius, Obsidian border+fill + `icon-micro` check
+  glyph when checked), positioned top-right at spacing-16 inset, hidden
+  at rest and revealed on hover (`opacity: 0 → 1`), reusing the exact
+  recipe Profile card's own Selectable variant and Table's bulk-select
+  column already established rather than inventing a third convention.
+  Spacing-24 of extra right padding is reserved on the card's Title at
+  all times when Selectable — not just on hover — so the checkbox's
+  footprint never causes the Title to truncate shorter the instant it
+  fades in. Selected: 2px Obsidian border replaces the base 1px
+  Neutral-3 border, `shadow-3` elevation, checkbox stays checked and
+  visible; border-width and padding change in the same untransitioned
+  instant (`spacing-16` → `spacing-16 − 1px` compensation) while
+  `box-shadow`/`border-color` animate on `duration-base`/`ease-settle` —
+  the same lockstep behavior Profile card's own Selected state uses to
+  avoid a transient content-shift. Demoed live on the Card demo's own
+  General cards gallery, on the existing "Interactive card" tile.
+
+- **v0.9.46 — 2026-08-14** — Added **Profile card**, a new [Card](#card)
+  variant (no Scope note change — a Card variant, not a new component,
+  same accounting as USP and Price summary card): a talent/influencer
+  summary tile. Header: Avatar (36×36, the base Card's own icon-chip
+  slot, showing 2-character initials derived from the Name — first
+  letter of the first and last word, Malay/Indian naming particles
+  like `bin`/`binti`/`a/l`/`a/p` skipped in favor of the real word
+  after them, 1 letter only for a single-word name), Name (the base
+  Card's own Title token verbatim, 1 line, truncates), and Age/Gender/
+  Location (the base Card's own Description token verbatim, a specific
+  age value not a range, 1 line, truncates). A divider, then
+  alphabetically-sorted persona-category Badges (wraps freely, no
+  line cap), then an alphabetically-sorted-by-platform-name Platform
+  list — each row a leading platform icon (Phosphor's own brand glyph,
+  or `SVG/Xiaohongshu-word-icon.svg` inlined with `fill="currentColor"`
+  where Phosphor has none), a name/handle stack (handle styled as a
+  black underlined link, [Button](#button)'s own Link recipe), and a
+  trailing Tier badge + Title-weight Follower count, all three zones
+  vertically centered. Tier badge covers all **7 tiers**: the 5
+  ranked ones (Nano→Mega) reuse [Tag](#badge--tag)'s own elemental
+  classes in low-to-high order (Wood/Earth/Water/Fire/Gold) rather
+  than Badge's status colors, since Badge's Warning variant darkens
+  its text to Neutral-9 for AA — wrong for a value that should read as
+  its own hue; the 2 non-ranked, role-based tiers (KOC, Seeder) are a
+  plain, unmodified Tag — grey, no dot, deliberately outside the
+  ranked color ladder. Persona type and Platform list are each
+  **removed from the layout entirely**, not left blank, when a profile
+  has none of either. Width has no fixed pixel value — it fills
+  whatever grid cell or container it sits in, with a 240px floor.
+  When multiple Profile cards share one row, they match the tallest
+  card's height (`align-items: stretch`), with shorter cards' content
+  staying anchored to the top rather than centering or stretching to
+  fill. Interactive/Selectable reuses the base Card's own Interactive
+  hover (`shadow-2`, cursor pointer, `shadow-focus` on focus-visible)
+  plus a hover-revealed Select checkbox top-right — [Checkbox](#checkbox)'s
+  own real `.c-checkbox-box`/`.on` recipe, the same hover-reveal
+  pattern [Table](#table)'s own bulk-select column already uses — with
+  spacing-24 reserved on the header's text block at all times so
+  Name/the meta line never truncate shorter the instant the checkbox
+  fades in. Checking it moves the card into **Selected**: a persistent
+  2px Obsidian border (the same convention [Search input](#search-input)'s
+  own Active state uses) with padding dropped 1px/side in the same
+  instant to keep the content box from shifting, plus `shadow-3` so it
+  reads as lifted even without the pointer over it. `box-shadow`/
+  `border-color` animate on the card's own `duration-base`/
+  `ease-settle` pair for a seamless hover/Select transition;
+  `border-width`/padding change instantly instead of animating, since
+  the two can't be kept in lockstep mid-transition otherwise. Built
+  into the live gallery as a new **Profile cards** subsection inside
+  Card's own demo block: 3 samples (Amirah Yusof — 3 platforms
+  spanning Mid/Mega/Micro tiers; Muhammad Amirul Haqimi bin Abdul
+  Rahman — a long Malay name demonstrating truncation and initials
+  Rule 2, Selected, 2 platforms at Nano/Macro; Siti Khadijah — the
+  empty-Persona-type case, one platform at KOC), all three Interactive/
+  selectable with a working Select-checkbox click handler reusing
+  Table's own `setCheckboxBox` helper — between them, 6 of the 7 tiers
+  appear live (Seeder is the one tier with no room left to show).
+  `SVG/Xiaohongshu-word-icon.svg`'s fill was changed from a locked-in
+  `#000000` to `currentColor` so it inherits the row's own Neutral-9
+  the same way the Phosphor platform-logo glyphs do, rather than
+  staying a one-off hardcoded color; an earlier `SVG/xiaohongshu.svg`
+  (a different icon, locked to brand red `#FF2442`) was superseded by
+  this one and is no longer used by this component.
 
 - **v0.9.45 — 2026-08-13** — Moved the standalone **Quote builder**
   component into [Card](#card) as a new variant, renamed **Price
