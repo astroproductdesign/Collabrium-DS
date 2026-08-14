@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.46** — 2026-08-14 — Sourced from the Collabrium brand deck
+**v0.9.50** — 2026-08-14 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1100,6 +1100,7 @@ the Modal footer's divider, scaled down.
 **Variants:**
 - **Static** — default surface above, no interaction.
 - **Interactive/clickable** — hover raises to `shadow-2`; cursor pointer; focus-visible gets `shadow-focus`.
+- **Selectable** — an Interactive card that sits in a genuine bulk-action context additionally carries a hover-revealed Select checkbox and a persistent Selected state — see **Interactive card — Hover-only vs. Selectable, which one to use** for the deciding rule, and **Interactive card — Selectable**/**Interactive card — Selected**, below, for the full anatomy. A plain Interactive card with no bulk-action context stays as-is, no checkbox.
 - **Element-accented** — a 3px top border in the owning element's color. The rest of the card stays neutral.
 - **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). The chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
 - **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
@@ -1107,6 +1108,62 @@ the Modal footer's divider, scaled down.
 - **USP** — a feature-highlight tile, not a generic content card. Anatomy: Header (h4, same as base) → Description (p, same as base body2/Neutral-5) → 3 bullet points (new `.c-card-usp-list`: `ph-fill ph-check-circle` at `icon-sm`, Obsidian — **Tier 2, Fill**, the same call as Button's own leading check-circle example — followed by body2/Neutral-9 text, both vertically centered on the same line, spacing-8 gap) → CTA button (the real [Button](#button) component, Primary/md — never rebuilt from scratch — stretched to the card's full width with its label centered, rather than hugging its own content like a Card-region CTA normally would).
 - **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
 - **Profile card** — a talent/influencer profile summary tile: identity block (name, demographic meta), a divider, persona badges, then an alphabetically-sorted platform list with a Title-weight follower count per row. Extends the base Card (Title, Description, Footer divider) and reuses Search input's own avatar recipe and Badge & Tag's own grouping/dot recipes rather than inventing new structure — see **Profile card**, below, for the full anatomy.
+
+**Interactive card — Hover-only vs. Selectable, which one to use.**
+Whether an Interactive card shows *just* the plain hover raise or also
+reveals a Select checkbox on hover is decided by one concrete
+question: **does something else on the page act on however many cards
+are checked?**
+
+| Use | When | Example |
+|---|---|---|
+| **Hover-only** (no checkbox) — the default | The card's own click performs one direct action per card — opens a detail view, navigates, expands inline — and nothing elsewhere on the page acts on a multi-card selection | A dashboard tile that opens a report; a nav-style card linking to a sub-page |
+| **Selectable** (hover reveals a checkbox) | The card sits in a grid/roster where a separate bulk-action control (a toolbar, a header button reading "Delete 3 selected," an export action, etc.) acts on however many cards are currently checked | A talent-roster grid with a bulk "Add to campaign" toolbar; a template gallery with bulk delete |
+
+This is the same condition [Table](#table)'s own Row hover rule
+already uses to decide whether a row shows a checkbox at all
+(`onRowClick` defined, checkbox selection enabled, or the row has an
+action column) — applied here at the Card level instead of inventing a
+separate litmus test. **Don't add the checkbox "just in case"**: a
+Select checkbox with no bulk-action control anywhere to feed into is a
+dead control, not a safe default or a future-proofing choice — it
+should be added only once that bulk-action context genuinely exists on
+the page.
+
+**Interactive card — Selectable.** Once a card qualifies as Selectable
+per the rule above, it carries a Select checkbox — the same
+hover-reveal recipe [Table](#table)'s own bulk-select column and
+[Profile card](#card)'s own Selectable variant already use, reused
+here at the base Card level rather than each variant inventing its own
+convention:
+
+| Part | Spec |
+|---|---|
+| Checkbox | [Checkbox](#checkbox)'s own real check box (`.c-checkbox-box`/`.on`, 18×18px, 6px radius, Obsidian border+fill when checked with the `icon-micro` check glyph), sits top-right of the card, spacing-16 inset from the top and right edges (the card's own padding) — the exact same position and recipe as Profile card's own Select checkbox |
+| Reveal | hidden at rest (`opacity: 0`), revealed on hover (`opacity: 1`) — same hover-reveals-checkbox pattern as Table's bulk-select row checkboxes and Profile card's own Select checkbox, not a third convention |
+| Reserved space | spacing-24 of extra right padding on the card's Title (`<h4>`) whenever the card is Selectable — whether the checkbox is currently visible (hover) or not (rest). The checkbox only *appears* on hover, but its footprint has to be respected at rest too, otherwise the Title would truncate at one width while idle and clip shorter the instant the checkbox fades in — a layout jump, not just a color change. Same rationale as Profile card's own identity-block reserve |
+
+Checking the checkbox moves the card into its own **Selected** variant,
+below.
+
+**Interactive card — Selected.** A persistent state, not a hover
+state — once checked, the card stays visually marked as selected
+regardless of mouse position, identical to Profile card's own Selected
+variant:
+
+| Part | Spec |
+|---|---|
+| Border | 2px Obsidian (replacing the base Card's 1px Neutral-3) — the same "2px Obsidian border signals actively engaged" convention [Search input](#search-input)'s own Active state and Profile card's own Selected already use. Padding drops by 1px/side in the same instant (`spacing-16` → `spacing-16 − 1px`) so the card's inner content box never moves — this swap is deliberately **instant, not animated**, for the same reason as Profile card's own Selected: `border-width` can't transition in lockstep with a transitioning `padding`, so animating either alone reintroduces a transient content shift |
+| Elevation | `shadow-3` — one step past the Interactive variant's own hover-only `shadow-2`, so a selected card reads as persistently "lifted" even when the pointer isn't over it |
+| Checkbox | stays visible at `opacity: 1` (no longer hover-only) and checked — Obsidian fill, `icon-micro` check glyph |
+| Everything else | unchanged — Selected doesn't add a fill tint and doesn't recolor any text; border + elevation + the persistent checked checkbox are the only three signals |
+
+Hover in/out and toggling into or out of Selected both animate the
+card's `box-shadow` and `border-color` on `duration-base`/
+`ease-settle`, the same pair Profile card's own transition runs on, so
+both read as one continuous, settling motion rather than a hard cut.
+`border-width` and `padding` are deliberately **not** included in that
+transition, for the same reason documented under the Border row above.
 
 ⚠️ **Price summary card is designed from scratch** — no source in
 either the original brand deck or the teammate's build. Built from
@@ -1429,7 +1486,9 @@ they're not interchangeable. Treat the Price summary card's Remove ×
 as optional per row. Keep the Profile card's Name and Follower count on
 the exact same Title token (h5, 16px/700) as every other Card variant's
 own title — the count is a second headline-weight value in the same
-card, not a smaller supporting figure. **Don't:** tint a card with an
+card, not a smaller supporting figure. Reuse the Selectable/Selected
+checkbox recipe identically across the Interactive card and the
+Profile card — one hover-reveal convention, not two. **Don't:** tint a card with an
 element that doesn't own its content. Don't omit the Header or Total
 row in the Price summary card's Filled state — a total with no
 visible sum defeats the component's purpose. Don't read the Profile
@@ -3971,6 +4030,41 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.50 — 2026-08-14** — Added a **Selectable** sub-variant to
+  [Card](#card)'s base **Interactive/clickable** variant. Hover: raises
+  to `shadow-2`, no fill change; focus-visible gets `shadow-focus` — the
+  same elevation-only hover convention [Profile card](#card)'s own
+  Selectable variant already uses, no Neutral-2 background tint.
+  Whether a given Interactive card shows just this plain hover or also
+  reveals a Select checkbox turns on one concrete question: does
+  something else on the page (a bulk-action toolbar, a "Delete N
+  selected" control, etc.) act on however many cards are currently
+  checked? If yes, the card is Selectable; if the card's own click just
+  performs one direct action per card (opens a detail view, navigates),
+  it stays Hover-only, no checkbox — the same litmus test
+  [Table](#table)'s own Row hover rule already applies to whether a row
+  shows a checkbox (`onRowClick` defined, checkbox selection enabled,
+  or an action column present), reused here rather than a separate test
+  for Card. The checkbox is never added "just in case" — one with no
+  bulk-action control to feed into is a dead control, not a safe
+  default. Selectable anatomy: Checkbox's own real `.c-checkbox-box`/
+  `.on` (18×18px, 6px radius, Obsidian border+fill + `icon-micro` check
+  glyph when checked), positioned top-right at spacing-16 inset, hidden
+  at rest and revealed on hover (`opacity: 0 → 1`), reusing the exact
+  recipe Profile card's own Selectable variant and Table's bulk-select
+  column already established rather than inventing a third convention.
+  Spacing-24 of extra right padding is reserved on the card's Title at
+  all times when Selectable — not just on hover — so the checkbox's
+  footprint never causes the Title to truncate shorter the instant it
+  fades in. Selected: 2px Obsidian border replaces the base 1px
+  Neutral-3 border, `shadow-3` elevation, checkbox stays checked and
+  visible; border-width and padding change in the same untransitioned
+  instant (`spacing-16` → `spacing-16 − 1px` compensation) while
+  `box-shadow`/`border-color` animate on `duration-base`/`ease-settle` —
+  the same lockstep behavior Profile card's own Selected state uses to
+  avoid a transient content-shift. Demoed live on the Card demo's own
+  General cards gallery, on the existing "Interactive card" tile.
 
 - **v0.9.46 — 2026-08-14** — Added **Profile card**, a new [Card](#card)
   variant (no Scope note change — a Card variant, not a new component,

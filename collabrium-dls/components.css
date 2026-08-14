@@ -197,7 +197,21 @@
 .c-card h4{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
 .c-card p{margin:0; font-size:var(--text-body2-size); color:var(--color-neutral-5);}
 .c-card-accent{border-top:3px solid var(--color-salmon-pink);}
-.c-card-interactive:hover{background:var(--color-neutral-2); cursor:pointer;}
+.c-card-interactive:hover{box-shadow:var(--shadow-2); cursor:pointer;}
+.c-card-interactive:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
+/* Selectable — reuses Profile card's own hover-reveal checkbox + Selected
+   recipe verbatim (see .c-card-profile-select/.c-card-profile.is-selected
+   below) so both variants share one convention. border-width/padding are
+   deliberately excluded from the transition list, same reason as Profile
+   card: animating either alone against an instantly-jumping border-width
+   causes a transient content-shift. */
+.c-card-selectable{position:relative; transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
+.c-card-selectable .c-card-select{position:absolute; top:var(--spacing-16); right:var(--spacing-16); opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);}
+.c-card-selectable .c-card-select .c-checkbox-box{cursor:pointer;}
+.c-card-selectable:hover .c-card-select,
+.c-card-selectable.is-selected .c-card-select{opacity:1;}
+.c-card-selectable h4{padding-right:var(--spacing-24);}
+.c-card-selectable.is-selected{border:2px solid var(--color-obsidian); box-shadow:var(--shadow-3); padding:calc(var(--spacing-16) - 1px);}
 
 /* USP card — Card variant. Header (h4) + Description (p) reuse the base
    Card styles verbatim; only the bullet list and the CTA button's width
