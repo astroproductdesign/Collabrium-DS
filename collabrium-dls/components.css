@@ -243,6 +243,60 @@
 .c-card-price-total .value{color:var(--color-neutral-5);}
 .c-card-price-summary .c-card-footer .c-btn{width:100%; justify-content:center; margin-top:var(--spacing-12);}
 
+/* Profile card — Card variant. Header (Avatar in the icon-chip slot +
+   Name/Age-Gender-Location, both reusing .c-card h4/p verbatim), a
+   divider, Persona badges (real .c-badge pills, sorted alphabetically
+   at content level), then the Platform list (icon + name/handle stack
+   + Tier badge/Follower count, all vertically centered). Tier badges
+   reuse Tag's own elemental classes (.c-tag-wood/-earth/-water/-fire/
+   -gold for Nano/Micro/Mid/Macro/Mega) plus plain .c-tag (no modifier,
+   no dot) for the two non-ranked tiers, KOC and Seeder — see
+   DESIGN-SYSTEM.md's "Tier badge, all seven tiers" table.
+   Width has no hardcoded px — fills its grid cell/container, per the
+   documented Width rule; min-width:240px is the one floor. Persona
+   type and Platform list are each removed from the layout entirely
+   (not left as an empty section) when a profile has none of either.
+   Interactive/selectable reuses this same shadow-2/shadow-focus hover
+   the base Card's own Interactive/clickable variant documents, plus a
+   hover-revealed Select checkbox (Checkbox's own real .c-checkbox-box/
+   .on recipe, same hover-reveal pattern as Table's bulk-select
+   column) top-right. Selected is persistent, not hover-only: 2px
+   Obsidian border + shadow-3 + the checkbox stays checked/visible;
+   padding drops 1px/side in the same instant as the border (same
+   compensation Search input's own Active state uses) so the content
+   box never shifts. box-shadow/border-color run on the card's own
+   duration-base/ease-settle pair for a seamless state change —
+   border-width and padding are deliberately left OUT of that
+   transition, since animating one without the other (they can't stay
+   in lockstep mid-transition) would itself cause the exact shift the
+   padding compensation exists to prevent. */
+.c-card-profile{width:100%; min-width:240px; position:relative; box-sizing:border-box; transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
+.c-card-profile.is-interactive{cursor:pointer;}
+.c-card-profile.is-interactive:hover{box-shadow:var(--shadow-2);}
+.c-card-profile.is-interactive:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
+.c-card-profile-select{position:absolute; top:var(--spacing-16); right:var(--spacing-16); opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);}
+.c-card-profile-select .c-checkbox-box{cursor:pointer;}
+.c-card-profile.is-interactive:hover .c-card-profile-select,
+.c-card-profile.is-selected .c-card-profile-select{opacity:1;}
+.c-card-profile.is-interactive .c-card-profile-identity{padding-right:var(--spacing-24);}
+.c-card-profile.is-selected{border:2px solid var(--color-obsidian); box-shadow:var(--shadow-3); padding:calc(var(--spacing-16) - 1px);}
+.c-card-profile-header{display:flex; gap:var(--spacing-12); align-items:flex-start;}
+.c-card-profile-avatar{flex:none; width:36px; height:36px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-weight:700; font-size:var(--text-label2-size);}
+.c-card-profile-identity{flex:1; min-width:0;}
+.c-card-profile-identity h4{margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-profile-identity p{margin:4px 0 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-profile-divider{margin:var(--spacing-8) 0; border-top:1px solid var(--color-neutral-3);}
+.c-card-profile-personas{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:var(--spacing-4);}
+.c-card-profile-platforms{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-16);}
+.c-card-profile-row{display:flex; align-items:center; gap:var(--spacing-12);}
+.c-card-profile-row i{flex:none; font-size:var(--icon-sm); color:var(--color-neutral-9);}
+.c-card-profile-row svg{flex:none; width:var(--icon-sm); height:var(--icon-sm); color:var(--color-neutral-9);}
+.c-card-profile-stack{flex:1; min-width:0;}
+.c-card-profile-platform{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-5); margin:0;}
+.c-card-profile-handle{display:block; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9); text-decoration:underline; text-underline-offset:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-profile-trailing{flex:none; display:flex; align-items:center; gap:var(--spacing-8);}
+.c-card-profile-followers{font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+
 .c-badge{display:inline-flex; align-items:center; gap:4px; font-size:var(--text-label3-size); font-weight:700; padding:2px var(--spacing-8); border-radius:var(--radius-pill); border:1px solid transparent; white-space:nowrap;}
 .c-badge-neutral{background:var(--color-neutral-2); color:var(--color-neutral-9); border-color:var(--color-neutral-3);}
 .c-badge-success{background:rgba(0,194,110,.12); color:var(--color-green); border-color:rgba(0,194,110,.32);}
