@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.44</title>
+<title>Collabrium design system | v0.9.45</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -315,7 +315,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.44</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.45</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -323,7 +323,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.44</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.45</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -373,7 +373,6 @@
             <button class="c-nav-child" type="button" data-nav-target="comp-chartmap">Chart color mapping</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-checkbox">Checkbox</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-chip">Chip</button>
-            <button class="c-nav-child" type="button" data-nav-target="comp-datatable">DataTable</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-datepicker">Date picker</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-dropdown">Dropdown</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-elementbadge">ElementBadge</button>
@@ -386,7 +385,6 @@
             <button class="c-nav-child" type="button" data-nav-target="comp-pageheader">PageHeader</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-pagination">Pagination</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-progress">Progress Bar</button>
-            <button class="c-nav-child" type="button" data-nav-target="comp-quotebuilder">Quote builder</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-radio">Radio</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-search-input">Search input</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-segctl">Segmented Control</button>
@@ -395,7 +393,7 @@
             <button class="c-nav-child" type="button" data-nav-target="comp-stat">Stat / KPI card</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-stepper">Stepper</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-switch">Switch</button>
-            <button class="c-nav-child" type="button" data-nav-target="comp-table">Table row</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-table">Table</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-tabs">Tabs</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-toast">Toast</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-tooltip">Tooltip</button>
@@ -870,6 +868,7 @@
         <div class="comp-block" id="comp-card">
           <div class="comp-head"><h3>Card</h3><button class="copy-markup-btn" data-target="comp-card" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
+            <div class="swatch-group-label" style="margin-top:0">General cards</div>
             <div class="c-cards">
               <div class="c-card">
                 <h4>Static card</h4>
@@ -899,6 +898,10 @@
                 <p>Footer is a distinct, bordered sub-part.</p>
                 <div class="c-card-footer">Updated 2 hours ago</div>
               </div>
+            </div>
+
+            <div class="swatch-group-label">Functional cards</div>
+            <div class="c-cards" style="align-items:start;">
               <div class="c-card c-card-usp">
                 <h4>USP card</h4>
                 <p>Header, description, 3 bullet points, CTA button.</p>
@@ -908,6 +911,55 @@
                   <li><i class="ph-fill ph-check-circle"></i><span>Details</span></li>
                 </ul>
                 <button type="button" class="c-btn c-btn-primary c-btn-md">Button</button>
+              </div>
+              <div class="c-card c-card-price-summary" style="max-width:320px;">
+                <h4>Price summary</h4>
+                <ul class="c-card-price-list">
+                  <li class="c-card-price-row">
+                    <span class="c-card-price-name">Brand identity kit</span>
+                    <span class="c-card-price-cost">RM 2,400.00</span>
+                    <button type="button" class="c-card-price-remove" aria-label="Remove Brand identity kit"><i class="ph ph-x"></i></button>
+                  </li>
+                  <li class="c-card-price-row">
+                    <span class="c-card-price-name">Landing page build</span>
+                    <span class="c-card-price-cost">RM 980.00</span>
+                    <button type="button" class="c-card-price-remove" aria-label="Remove Landing page build"><i class="ph ph-x"></i></button>
+                  </li>
+                  <li class="c-card-price-row">
+                    <span class="c-card-price-name">Copywriting</span>
+                    <span class="c-card-price-cost">RM 320.00</span>
+                    <button type="button" class="c-card-price-remove" aria-label="Remove Copywriting"><i class="ph ph-x"></i></button>
+                  </li>
+                  <li class="c-card-price-row">
+                    <span class="c-card-price-name">Social templates</span>
+                    <span class="c-card-price-cost">RM 210.00</span>
+                    <button type="button" class="c-card-price-remove" aria-label="Remove Social templates"><i class="ph ph-x"></i></button>
+                  </li>
+                  <li class="c-card-price-overflow">
+                    <div class="c-card-price-overflow-inner">
+                      <ul class="c-card-price-list">
+                        <li class="c-card-price-row">
+                          <span class="c-card-price-name">Photography day rate</span>
+                          <span class="c-card-price-cost">RM 600.00</span>
+                          <button type="button" class="c-card-price-remove" aria-label="Remove Photography day rate"><i class="ph ph-x"></i></button>
+                        </li>
+                        <li class="c-card-price-row">
+                          <span class="c-card-price-name">Email campaign setup</span>
+                          <span class="c-card-price-cost">RM 275.00</span>
+                          <button type="button" class="c-card-price-remove" aria-label="Remove Email campaign setup"><i class="ph ph-x"></i></button>
+                        </li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+                <button type="button" class="c-card-price-more"><span>Show 2 more</span><i class="ph ph-caret-down"></i></button>
+                <div class="c-card-footer">
+                  <div class="c-card-price-total">
+                    <span>Total</span>
+                    <span class="value">RM 4,785.00</span>
+                  </div>
+                  <button type="button" class="c-btn c-btn-primary c-btn-md">Build proposal</button>
+                </div>
               </div>
             </div>
           </div>
@@ -982,21 +1034,6 @@
                 <span class="c-chip c-chip-input" data-overflow-chip hidden><span class="label">Kopi-O</span><button class="c-chip-remove" type="button" aria-label="Remove Kopi-O"><i class="ph ph-x"></i></button></span>
                 <button class="c-chip c-chip-overflow" type="button" id="chip-overflow-toggle" aria-expanded="false">+3</button>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="comp-block" id="comp-datatable">
-          <div class="comp-head"><h3>DataTable</h3><button class="copy-markup-btn" data-target="comp-datatable" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div class="c-datatable">
-              <table>
-                <thead><tr><th>Campaign</th><th>Department</th><th class="num">Spend</th></tr></thead>
-                <tbody>
-                  <tr><td>Q3 Retail Push</td><td>Marketing</td><td class="num">$12,480.50</td></tr>
-                  <tr><td>Partner Onboarding</td><td>Data</td><td class="num">$3,102.00</td></tr>
-                  <tr><td>Vendor Compliance Audit</td><td>Finance</td><td class="num">$0.00</td></tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -1356,11 +1393,15 @@
         <div class="comp-block" id="comp-empty">
           <div class="comp-head"><h3>Empty state</h3><button class="copy-markup-btn" data-target="comp-empty" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
-            <div class="c-empty">
-              <i class="ph-fill ph-tray"></i>
-              <h4>No campaigns yet</h4>
-              <p>Create your first campaign to see performance data here.</p>
-              <button class="c-btn c-btn-primary c-btn-md"><i class="ph ph-plus"></i>Create campaign</button>
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Full-page &mdash; icon-hero, up to 2 actions (Primary + Ghost). Fixed height here to fit the gallery frame; a real full-page instance fills the remaining viewport.</p>
+            <div class="c-empty is-fullpage" style="min-height:360px;">
+              <i class="ph-fill ph-cloud-slash"></i>
+              <h4>Nothing here yet</h4>
+              <p>This is where your dashboards will live once you connect your first data source.</p>
+              <div class="c-empty-actions">
+                <button class="c-btn c-btn-primary c-btn-md"><i class="ph ph-plus"></i>Connect a source</button>
+                <button class="c-btn c-btn-ghost c-btn-md">Browse templates</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1686,62 +1727,6 @@
                 <tr><td>Large</td><td>16px</td><td>Prominent single metrics, hero stat sections, department breakdown charts</td></tr>
               </table>
 
-            </div>
-          </div>
-        </div>
-        <div class="comp-block" id="comp-quotebuilder">
-          <div class="comp-head"><h3>Quote builder</h3><button class="copy-markup-btn" data-target="comp-quotebuilder" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
-          <div class="comp-demo">
-            <div style="max-width:320px;">
-              <div class="c-card c-card-quote">
-                <h4>Quote builder</h4>
-                <ul class="c-card-quote-list">
-                  <li class="c-card-quote-row">
-                    <span class="c-card-quote-name">Brand identity kit</span>
-                    <span class="c-card-quote-cost">RM 2,400.00</span>
-                    <button type="button" class="c-card-quote-remove" aria-label="Remove Brand identity kit"><i class="ph ph-x"></i></button>
-                  </li>
-                  <li class="c-card-quote-row">
-                    <span class="c-card-quote-name">Landing page build</span>
-                    <span class="c-card-quote-cost">RM 980.00</span>
-                    <button type="button" class="c-card-quote-remove" aria-label="Remove Landing page build"><i class="ph ph-x"></i></button>
-                  </li>
-                  <li class="c-card-quote-row">
-                    <span class="c-card-quote-name">Copywriting</span>
-                    <span class="c-card-quote-cost">RM 320.00</span>
-                    <button type="button" class="c-card-quote-remove" aria-label="Remove Copywriting"><i class="ph ph-x"></i></button>
-                  </li>
-                  <li class="c-card-quote-row">
-                    <span class="c-card-quote-name">Social templates</span>
-                    <span class="c-card-quote-cost">RM 210.00</span>
-                    <button type="button" class="c-card-quote-remove" aria-label="Remove Social templates"><i class="ph ph-x"></i></button>
-                  </li>
-                  <li class="c-card-quote-overflow">
-                    <div class="c-card-quote-overflow-inner">
-                      <ul class="c-card-quote-list">
-                        <li class="c-card-quote-row">
-                          <span class="c-card-quote-name">Photography day rate</span>
-                          <span class="c-card-quote-cost">RM 600.00</span>
-                          <button type="button" class="c-card-quote-remove" aria-label="Remove Photography day rate"><i class="ph ph-x"></i></button>
-                        </li>
-                        <li class="c-card-quote-row">
-                          <span class="c-card-quote-name">Email campaign setup</span>
-                          <span class="c-card-quote-cost">RM 275.00</span>
-                          <button type="button" class="c-card-quote-remove" aria-label="Remove Email campaign setup"><i class="ph ph-x"></i></button>
-                        </li>
-                      </ul>
-                    </div>
-                  </li>
-                </ul>
-                <button type="button" class="c-card-quote-more"><span>Show 2 more</span><i class="ph ph-caret-down"></i></button>
-                <div class="c-card-footer">
-                  <div class="c-card-quote-total">
-                    <span>Total</span>
-                    <span class="value">RM 4,785.00</span>
-                  </div>
-                  <button type="button" class="c-btn c-btn-primary c-btn-md">Build proposal</button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -2269,31 +2254,161 @@
           </div>
         </div>
         <div class="comp-block" id="comp-table">
-          <div class="comp-head"><h3>Table row</h3><button class="copy-markup-btn" data-target="comp-table" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-head"><h3>Table</h3><button class="copy-markup-btn" data-target="comp-table" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
-            <table class="c-table">
-              <thead><tr><th>Campaign</th><th>Department</th><th>Status</th><th class="num">Spend</th></tr></thead>
-              <tbody>
-                <tr>
-                  <td>Q3 Retail Push</td>
-                  <td><span class="c-tag c-tag-fire"><span class="dot"></span>Fire</span></td>
-                  <td><span class="c-badge c-badge-success">Live</span></td>
-                  <td class="num">$12,480.50</td>
-                </tr>
-                <tr class="selected">
-                  <td>Partner Onboarding</td>
-                  <td><span class="c-tag c-tag-water"><span class="dot"></span>Water</span></td>
-                  <td><span class="c-badge c-badge-warning">Paused</span></td>
-                  <td class="num">$3,102.00</td>
-                </tr>
-                <tr>
-                  <td>Vendor Compliance Audit</td>
-                  <td><span class="c-tag c-tag-gold"><span class="dot"></span>Gold</span></td>
-                  <td><span class="c-badge c-badge-error">Blocked</span></td>
-                  <td class="num">$0.00</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="comp-row" style="flex-direction:column; align-items:stretch; gap:0; min-width:0;">
+
+              <div class="swatch-group-label" style="margin-top:0">Horizontal scrolling</div>
+              <p style="margin:0 0 var(--spacing-16);font-size:12px;color:var(--color-neutral-5)">Every column defaults to sortable, click any header. Campaign (the row's identifier) and Actions freeze at the left/right edges while the metric columns scroll underneath; scroll the table to see the boundary shadow.</p>
+              <div class="c-table-standalone-wrap c-table-scroll-x" id="tableWideScroll" style="margin-bottom:var(--spacing-32); min-width:0; width:100%;">
+                <table class="c-table c-table-standalone" style="min-width:1180px;">
+                  <thead>
+                    <tr>
+                      <th class="c-table-sort-th c-table-freeze-left" data-col="name">Campaign<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th" data-col="channel">Channel<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th" data-col="status">Status<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th" data-col="start">Start<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th" data-col="end">End<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th num" data-col="impressions">Impressions<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th num" data-col="clicks">Clicks<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th num" data-col="ctr">CTR<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th num" data-col="spend">Spend<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="no-sort c-table-action-col c-table-freeze-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableWideBody">
+                    <tr class="is-interactive" data-name="Back to school" data-channel="Search" data-status="Active" data-start="2026-07-01" data-end="2026-08-31" data-impressions="482300" data-clicks="9140" data-ctr="1.9" data-spend="12000">
+                      <td class="c-table-freeze-left">Back to school</td>
+                      <td>Search</td>
+                      <td><span class="c-badge c-badge-success">Active</span></td>
+                      <td>1 Jul 2026</td>
+                      <td>31 Aug 2026</td>
+                      <td class="num">482,300</td>
+                      <td class="num">9,140</td>
+                      <td class="num">1.9%</td>
+                      <td class="num">RM 12,000</td>
+                      <td class="c-table-action-col c-table-freeze-right">
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Edit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                      </td>
+                    </tr>
+                    <tr class="is-interactive" data-name="Raya promo" data-channel="Social" data-status="Pending" data-start="2026-08-02" data-end="2026-08-20" data-impressions="210900" data-clicks="5320" data-ctr="2.5" data-spend="8500">
+                      <td class="c-table-freeze-left">Raya promo</td>
+                      <td>Social</td>
+                      <td><span class="c-badge c-badge-warning">Pending</span></td>
+                      <td>2 Aug 2026</td>
+                      <td>20 Aug 2026</td>
+                      <td class="num">210,900</td>
+                      <td class="num">5,320</td>
+                      <td class="num">2.5%</td>
+                      <td class="num">RM 8,500</td>
+                      <td class="c-table-action-col c-table-freeze-right">
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Edit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                      </td>
+                    </tr>
+                    <tr class="is-interactive" data-name="App install push" data-channel="Display" data-status="Failed" data-start="2026-06-18" data-end="2026-06-25" data-impressions="96000" data-clicks="1080" data-ctr="1.1" data-spend="4200">
+                      <td class="c-table-freeze-left">App install push</td>
+                      <td>Display</td>
+                      <td><span class="c-badge c-badge-error">Failed</span></td>
+                      <td>18 Jun 2026</td>
+                      <td>25 Jun 2026</td>
+                      <td class="num">96,000</td>
+                      <td class="num">1,080</td>
+                      <td class="num">1.1%</td>
+                      <td class="num">RM 4,200</td>
+                      <td class="c-table-action-col c-table-freeze-right">
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Edit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="swatch-group-label">Checkbox selection</div>
+              <div class="c-table-standalone-wrap" style="margin-bottom:var(--spacing-32)">
+                <div class="c-table-bulk-toolbar" id="tableBulkToolbar">
+                  <span class="c-table-bulk-count" id="tableBulkCount">2 selected</span>
+                  <div class="c-table-bulk-actions">
+                    <button class="c-btn c-btn-ghost c-btn-sm"><i class="ph ph-download-simple"></i>Export</button>
+                    <button class="c-btn c-btn-ghost c-btn-sm"><i class="ph ph-archive"></i>Archive</button>
+                    <button class="c-btn c-btn-ghost c-btn-sm c-table-bulk-danger"><i class="ph ph-trash"></i>Delete</button>
+                  </div>
+                </div>
+                <table class="c-table c-table-standalone">
+                  <thead id="tableChkHead">
+                    <tr>
+                      <th class="c-table-chk-col"><span class="c-checkbox-box force-visible" id="tableHeaderChk" role="checkbox" aria-checked="mixed" tabindex="0"></span></th>
+                      <th class="c-table-sort-th" data-col="name">Campaign<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th" data-col="status">Status<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th" data-col="date">Launched<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="c-table-sort-th num" data-col="budget">Budget<i class="ph ph-arrows-down-up c-table-sort-icon"></i></th>
+                      <th class="no-sort c-table-action-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableChkBody">
+                    <tr class="is-interactive" data-name="Back to school" data-status="Active" data-date="2026-07-01" data-budget="12000">
+                      <td class="c-table-chk-col"><span class="c-checkbox-box" role="checkbox" aria-checked="false" tabindex="0"></span></td>
+                      <td>Back to school</td>
+                      <td><span class="c-badge c-badge-success">Active</span></td>
+                      <td>1 Jul 2026</td>
+                      <td class="num">RM 12,000</td>
+                      <td class="c-table-action-col">
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Edit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                      </td>
+                    </tr>
+                    <tr class="is-interactive is-selected" data-name="Raya promo" data-status="Pending" data-date="2026-08-02" data-budget="8500">
+                      <td class="c-table-chk-col"><span class="c-checkbox-box on force-visible" role="checkbox" aria-checked="true" tabindex="0"><i class="ph ph-check"></i></span></td>
+                      <td>Raya promo</td>
+                      <td><span class="c-badge c-badge-warning">Pending</span></td>
+                      <td>2 Aug 2026</td>
+                      <td class="num">RM 8,500</td>
+                      <td class="c-table-action-col">
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Edit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                      </td>
+                    </tr>
+                    <tr class="is-interactive is-selected" data-name="App install push" data-status="Failed" data-date="2026-06-18" data-budget="4200">
+                      <td class="c-table-chk-col"><span class="c-checkbox-box on force-visible" role="checkbox" aria-checked="true" tabindex="0"><i class="ph ph-check"></i></span></td>
+                      <td>App install push</td>
+                      <td><span class="c-badge c-badge-error">Failed</span></td>
+                      <td>18 Jun 2026</td>
+                      <td class="num">RM 4,200</td>
+                      <td class="c-table-action-col">
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Edit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                      </td>
+                    </tr>
+                    <tr class="is-interactive" data-name="Year-end clearance" data-status="Active" data-date="2026-05-20" data-budget="21000">
+                      <td class="c-table-chk-col"><span class="c-checkbox-box" role="checkbox" aria-checked="false" tabindex="0"></span></td>
+                      <td>Year-end clearance</td>
+                      <td><span class="c-badge c-badge-success">Active</span></td>
+                      <td>20 May 2026</td>
+                      <td class="num">RM 21,000</td>
+                      <td class="c-table-action-col">
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Edit"><i class="ph ph-pencil-simple"></i></button>
+                        <button class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="swatch-group-label">Loading state</div>
+              <div class="c-table-standalone-wrap">
+                <table class="c-table c-table-standalone">
+                  <thead><tr><th>Campaign</th><th>Status</th><th>Launched</th><th class="num">Budget</th></tr></thead>
+                  <tbody>
+                    <tr><td><div class="c-table-skel-bar" style="width:70%"></div></td><td><div class="c-table-skel-bar" style="width:50%"></div></td><td><div class="c-table-skel-bar" style="width:60%"></div></td><td><div class="c-table-skel-bar" style="width:50%"></div></td></tr>
+                    <tr><td><div class="c-table-skel-bar" style="width:55%"></div></td><td><div class="c-table-skel-bar" style="width:50%"></div></td><td><div class="c-table-skel-bar" style="width:60%"></div></td><td><div class="c-table-skel-bar" style="width:50%"></div></td></tr>
+                    <tr><td><div class="c-table-skel-bar" style="width:80%"></div></td><td><div class="c-table-skel-bar" style="width:50%"></div></td><td><div class="c-table-skel-bar" style="width:60%"></div></td><td><div class="c-table-skel-bar" style="width:50%"></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
           </div>
         </div>
         <div class="comp-block" id="comp-tabs">
@@ -2414,9 +2529,9 @@ installable variable-font files for both typefaces (sourced from
 Google's official repo, not the web-embed subsets) — point people there
 instead of them hunting Google Fonts themselves. `preview.html` also has
 a live **Components** section — the 7 basics (Button, Input, Card,
-Badge & Tag, Table row, Modal, Empty state), 9 more
+Badge & Tag, Table, Modal, Empty state), 8 more
 transcribed from the teammate's real component source (SidebarNav,
-Tabs, Checkbox, Radio, Switch, Toast, Tooltip, DataTable,
+Tabs, Checkbox, Radio, Switch, Toast, Tooltip,
 ElementBadge), 4 more **designed from scratch** (Stat/KPI
 card, Filters, Pagination, Date picker, flagged red in the gallery)
 plus a Chart color mapping guideline, 3 more folded into Button/Input
@@ -2545,11 +2660,12 @@ reconciled against a teammate's independent build of the same deck.
 Full version history lives in `DESIGN-SYSTEM.md`'s Changelog section —
 also browsable as its own page in `preview.html` via the Changelog
 button next to the version flag in the top bar.
+
 </script>
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.44** — 2026-08-13 — Sourced from the Collabrium brand deck
+**v0.9.45** — 2026-08-13 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3251,8 +3367,8 @@ as `preview.html` does.
 
 **It's genuinely interactive, not just styled markup.**
 SidebarNav and Tabs switch on click, Checkbox/Radio/Switch actually
-toggle (including via keyboard, not just mouse), Table rows and
-DataTable rows select on click, Toast and Modal dismiss and — for
+toggle (including via keyboard, not just mouse), Table rows select on
+click in both variants, Toast and Modal dismiss and — for
 Modal — reopen, Filters' triggers/pills/Clear-all respond, Pagination
 advances, and Date picker days select. Two things are deliberately
 inert: the Date picker's month-nav arrows and its trigger button don't
@@ -3262,14 +3378,14 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-33 components: the original 7 basics
-(Button, Input field, Card, Badge & Tag, Table row, Modal / dialog,
-Empty state), 9 transcribed directly from the teammate's real
+31 components: the original 7 basics
+(Button, Input field, Card, Badge & Tag, Table, Modal / dialog,
+Empty state), 8 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
-Switch, Toast, Tooltip, DataTable, ElementBadge), 9 **designed
+Switch, Toast, Tooltip, ElementBadge), 8 **designed
 from scratch** — Stat/KPI card, Filters, Pagination, Date
 picker, **Segmented Control**, **Slider**, **Chip**, **Progress
-Bar**, **Quote builder** — plus two chart
+Bar** — plus two chart
 guidelines, [Chart color mapping](#chart-color-mapping) and [Chart
 chrome & marks](#chart-chrome--marks) (neither a rendered component),
 and 8 more: **App Shell** (the page-level composition layer — Sidebar
@@ -3285,8 +3401,8 @@ consolidated into one component), and **Info Banner** (an inline,
 persistent, container-anchored notification — distinct from Toast's
 floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
 batch, App Shell, Stepper, FileUploader, Dropdown, Search input, Info
-Banner, **Segmented Control**, **Slider**, **Chip**, **Progress
-Bar**, and **Quote builder** have **no source in
+Banner, **Segmented Control**, **Slider**, **Chip**, and **Progress
+Bar** have **no source in
 either the original brand deck or the teammate's build**; they're
 built entirely from this document's own token system (color, type,
 spacing, radius, elevation, motion) and marked ⚠️ **designed, not
@@ -3307,7 +3423,6 @@ through.
 - [Chart color mapping](#chart-color-mapping)
 - [Checkbox](#checkbox)
 - [Chip](#chip)
-- [DataTable](#datatable)
 - [Date picker](#date-picker)
 - [Dropdown](#dropdown)
 - [ElementBadge](#elementbadge)
@@ -3321,7 +3436,6 @@ through.
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Progress Bar](#progress-bar)
-- [Quote builder](#quote-builder)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -3330,7 +3444,7 @@ through.
 - [Stat / KPI card](#stat--kpi-card)
 - [Stepper](#stepper)
 - [Switch](#switch)
-- [Table row](#table-row)
+- [Table](#table)
 - [Tabs](#tabs)
 - [Textarea](#textarea)
 - [Toast](#toast)
@@ -3656,11 +3770,121 @@ the Modal footer's divider, scaled down.
 - **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
 - **USP** — a feature-highlight tile, not a generic content card. Anatomy: Header (h4, same as base) → Description (p, same as base body2/Neutral-5) → 3 bullet points (new `.c-card-usp-list`: `ph-fill ph-check-circle` at `icon-sm`, Obsidian — **Tier 2, Fill**, the same call as Button's own leading check-circle example — followed by body2/Neutral-9 text, both vertically centered on the same line, spacing-8 gap) → CTA button (the real [Button](#button) component, Primary/md — never rebuilt from scratch — stretched to the card's full width with its label centered, rather than hugging its own content like a Card-region CTA normally would).
+- **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
+
+⚠️ **Price summary card is designed from scratch** — no source in
+either the original brand deck or the teammate's build. Built from
+this document's own token system by extension from this same Card
+spec (its Footer sub-part) and [Empty state](#empty-state), not
+transcribed. Treat as a first pass needing real design/brand review.
+
+Two states: **Empty** (nothing selected yet) and **Filled** (≥1 item
+selected).
+
+**Price summary card — Empty state.**
+
+| Part | Spec |
+|---|---|
+| Header | h4, "Price summary" — same as the base Card header |
+| Illustration | [Empty state](#empty-state)'s own Icon + Heading, reused verbatim: `icon-empty` (48px), Neutral-4, **Tier 2, Fill** — a `list` glyph; Heading h4 (20px/800), Neutral-9, reading "No items added" |
+
+**Price summary card — Filled state.**
+
+| Part | Spec |
+|---|---|
+| Header | h4, "Price summary" |
+| Selected items list | first 4 items always visible; items 5+ collapse behind a "Show X more" control — see **Selected items list — display rules** below for the full behavior |
+| Item row | Item name (body2/700, Neutral-9, truncates with an ellipsis past the row's available width) — Unit cost (caption, Neutral-5, right-aligned) — Remove × (**optional** — a read-only/locked line item can omit it; `icon-micro` 14px, Neutral-5, 24×24px hit target, same recipe as FileUploader's row × per [Iconography](#iconography)'s remove-button precedent) — 1px Neutral-3 border-bottom between rows |
+| Divider | Card's own Footer top border, reused as-is between the item list and the section below — not a separate element |
+| Total row | Inside the Footer: "Total" (label1/700, Neutral-9) and the total cost (label1, Neutral-5), space-between, value right-aligned |
+| CTA button | [Button](#button)'s Primary/md, stretched to the card's full width with its label centered — "Build proposal" is this variant's own copy, not a generic placeholder |
+
+Pricing defaults to Malaysian ringgit — space after RM, comma
+thousands, per this document's own Numbers content rule — but always
+rendered to **2 decimal places** (`RM 1,200.00`, not `RM 1,200`), a
+deliberate exception to that rule's own examples: a running total's
+line items and total are exact costs, not rounded summary figures like
+a budget total elsewhere in this document, so the decimals stay
+visible on every amount in this component (Unit cost, the overflow
+rows, and the Total row alike). Swap the currency only if the host
+context requires a different one.
+
+**Price summary card — Selected items list — display rules.**
+
+- **Rule 1 — Default visible count is 4.** When the list holds 4 or
+  fewer items, all items render in full. No overflow control appears.
+- **Rule 2 — Truncation threshold is 5.** When the list holds 5 or
+  more items, only the first 4 are visible by default. A "Show X more"
+  control appears immediately below the 4th row, where X is the exact
+  hidden count (total − 4). Never use a vague "Show more" label — the
+  count is always stated so the user knows what they're expanding
+  into.
+- **Rule 3 — "Show X more" uses the Link button style, without the
+  underline.** Adapts [Chip](#chip)'s own `.c-chip-showless`
+  Link-button recipe (transparent fill, Neutral-9 text) with two
+  deliberate departures from that recipe: no underline — a direct
+  design call for this control specifically — and a trailing
+  caret-down at `icon-micro` (14px), since Chip's own control has no
+  icon and this one needs one to invert to caret-up on expand (see
+  Rule 4). Left-aligned, same horizontal padding as the item rows
+  (i.e. none beyond the card's own padding). The count updates in real
+  time as items are added or removed while the list is in its
+  collapsed state — the control never goes stale.
+- **Rule 4 — Expanding shows all items in a scrollable zone.** Tapping
+  "Show X more" reveals the remaining items. The overflow region
+  switches to `overflow-y: auto` with a 320px `max-height` (the same
+  cap as [Dropdown](#dropdown)'s own list) so it scrolls internally —
+  the Total row and CTA button remain fully visible at all times,
+  never pushed off screen, since both live inside the Card's Footer,
+  outside this scrollable region entirely. The control label swaps to
+  "Show less" with a trailing caret-up.
+- **Rule 5 — "Show less" collapses back to 4.** Tapping "Show less"
+  returns the list to its 4-item default. Scroll position inside the
+  list resets to the top. The control reverts to "Show X more" with
+  the current hidden count.
+- **Rule 6 — Transition uses `duration-base` + `ease-settle`.** The
+  overflow region's height animates on both expand and collapse using
+  the same Grid `0fr → 1fr` technique as SidebarNav's own
+  `.c-nav-children` (see that rule's own components.css comment)
+  rather than a guessed `max-height` value, which would either clip
+  content or leave dead space depending on item count. `ease-settle`
+  is correct here — the list is anchoring into a new resting state,
+  not flying in. Never instant, never bouncy.
+- **Rule 7 — Removing a hidden item updates the count silently.** If a
+  user removes an item while the list is collapsed and that item is
+  one of the hidden ones, the "Show X more" count decrements without
+  triggering an expand. If the total drops to exactly 4, the control
+  disappears entirely without any user action required.
+- **Rule 8 — Removing items while expanded auto-collapses when the
+  threshold is crossed.** If items are removed while the list is
+  expanded and the total drops to 4 or fewer, the "Show less" control
+  disappears and the list settles into its normal full-display state —
+  no user action required to dismiss the expanded view.
+- **Rule 9 — The Total row and the Build CTA are always in view.**
+  Both live inside the Card's Footer, fixed outside the scrollable
+  list region. No interaction with the items list — expanding,
+  scrolling, or removing — ever pushes them out of the visible card
+  area.
+
+**Price summary card — Edge cases.**
+
+| Scenario | Behaviour |
+|---|---|
+| Exactly 4 items | All shown, no overflow control |
+| 5th item added while collapsed | "Show 1 more" appears below item 4 |
+| 5th item added while expanded | Item animates in at the bottom of the list, no state change to the control |
+| Item removed, total → 4, list collapsed | "Show X more" disappears silently |
+| Item removed, total → 4, list expanded | "Show less" disappears, list stays at full display |
+| Clear all | Returns to the Empty state ("No items added"), list resets entirely — Clear all itself isn't part of this variant's own anatomy above; this row documents the resulting state for whichever control triggers it |
+| Item is one of the hidden items, removed while collapsed | "Show X more" count decrements by 1 (e.g. "Show 3 more" → "Show 2 more"); list stays collapsed |
 
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
-they're not interchangeable. **Don't:** tint a card with an element that
-doesn't own its content.
+they're not interchangeable. Treat the Price summary card's Remove ×
+as optional per row. **Don't:** tint a card with an element that
+doesn't own its content. Don't omit the Header or Total row in the
+Price summary card's Filled state — a total with no visible sum
+defeats the component's purpose.
 
 ### Chart chrome & marks
 
@@ -3950,24 +4174,6 @@ fill — Obsidian is correct (Rule 2, [Component Rules](#component-rules)).
 Don't truncate a Filter Chip label — rewrite it instead. Don't mix
 Single-select and Multi-select behaviour within one group.
 
-### DataTable
-
-**Transcribed from the teammate's `DataTable.jsx`.**
-A composed, bordered table container — distinct from the bare Table row
-spec above, which is for inline use inside another surface. Pick one per
-data view; don't mix them in the same screen.
-
-| Part | Spec |
-|---|---|
-| Container | 1px Neutral-3 border, `radius-lg` (20px, matches Card), `overflow: hidden` (clips the header to the radius), Neutral-1 fill |
-| Header cell | spacing-12/spacing-16 padding, Neutral-2 fill, **h5 type (16px/700 — heavier than the bare Table row header's label3/uppercase)**, Neutral-9, 1px Neutral-3 border-bottom, align per-column |
-| Body cell | spacing-12/spacing-16 padding, **body2 type (14px/20px — this is the source's own "footnote" token, which maps to this doc's body2 scale, not the 12px footnote token)**, weight 500, Neutral-9, tabular figures when numeric, 1px Neutral-3 border-bottom (none on the last row) |
-| Row | `cursor: pointer` only when `onRowClick` is set; reuses Table row's Neutral-2 hover fill for consistency (DataTable has no separate hover token of its own yet) |
-
-**Do:** keep header labels short — the heavier h5 weight wraps
-awkwardly on long labels. **Don't:** add a fifth border style here; it
-inherits Table row's border and hover conventions on purpose.
-
 ### Date picker
 
 ⚠️ **Designed from scratch — no source in either the original
@@ -4230,14 +4436,80 @@ themeable accent.
 | Icon | `icon-empty` (48px) for section-level empty states, `icon-hero` (64px) for full-page ones; **Neutral-4** color; **Tier 2, Fill** (an empty-state illustration, per [Iconography](#iconography)) |
 | Heading | h4 (20px/800), Neutral-9 |
 | Body | body1 at weight 500, Neutral-5, max-width ~380px |
-| Action | optional Primary button below the body text, `spacing-8` above it |
-| Container | `spacing-40` vertical / `spacing-24` horizontal padding, `spacing-8` internal gap, centered |
+| Action | optional Primary button below the body text — see **Internal spacing** below for the gap above it. Second action (optional): Ghost button, `spacing-8` left margin from Primary — maximum 2 actions total, Primary + Ghost, never 3. Action-only Ghost variant: a Ghost button alone with no Primary, for when the expected resolution is optional or exploratory (e.g. "Browse templates") rather than a direct creation action. Action row is centered, matching the rest of the assembly. Inline variant carries a Link-style action only — never Primary or Ghost (see **Variants** below) |
+| Container | Fill: none — renders on whatever surface it sits on (Card, page, table body) without adding its own background. Max-width: 480px centered — the outer safety net for the whole assembly (Body text's own ~380px max-width is the inner cap). Padding and min-height vary by variant — see **Responsive** below |
+
+**Internal spacing**
+
+| Gap | Token | Why |
+|---|---|---|
+| Icon → Heading | `spacing-12` | icon and heading are related but not a single unit — needs breathing room |
+| Heading → Body | `spacing-4` | tight — they're a semantic unit, like a card title and description |
+| Body → Action | `spacing-16` | the action needs clear separation from the explanatory text above it |
+
+**Variants**
+
+| | Full-page | Section-level | Inline |
+|---|---|---|---|
+| Icon | `icon-hero` (64px), Neutral-4 | `icon-empty` (48px), Neutral-4 | none |
+| Heading | h4 | h4 | none |
+| Body | body1, up to 2 action buttons | body1, up to 2 action buttons | body2 (14px/400), Neutral-5, max-width 320px |
+| Action | up to 2 (Primary + Ghost) | up to 2 (Primary + Ghost) | Link-style only — never Primary or Ghost |
+| Container | fills remaining viewport, vertically and horizontally centered | min-height 240px | spacing-16 padding all sides, no min-height |
+| Use | entire page has no content (first visit, onboarding, zero-state) | one section within a page has no content (table with no rows, list with no items, card panel with no data) | query-specific no-results state scoped to a search field, filtered table, or autocomplete dropdown. Not a persistent data-empty state — don't use when data has never existed (use Section-level instead) |
+
+Full-page's container min-height is `calc(100vh − nav height)`, vertically
+and horizontally centered within the remaining viewport using `display:
+flex; align-items: center; justify-content: center`.
+
+**Error variant**
+
+A named variant sharing Empty's exact anatomy above — same icon/heading/
+body/action/container structure, different semantics. **Must be passed
+explicitly via a variant prop; the component never infers Empty vs. Error
+from the failure itself.**
+
+| | Empty | Error |
+|---|---|---|
+| Meaning | No data exists yet | Data failed to load |
+| Icon color | Neutral-4 | Red `#FD3343` (Badge/Danger's and Toast/Danger's own Red — see [Badge & Tag](#badge--tag)) |
+| Heading | Names what's absent | Names the failure |
+| Body | How to resolve | What happened and what to try |
+| Primary action | Creation action | Retry action |
+| Second action | Lower-commitment alternative | "Contact support", as a Ghost button |
+
+**Never use the Empty variant when data failed to load** — a creation
+prompt shown on top of a broken API call misleads the user into thinking
+nothing exists yet, rather than that something went wrong.
+
+**Responsive**
+
+| Property | Desktop | Mobile (<768px) |
+|---|---|---|
+| Container padding — full-page | `spacing-40` vertical / `spacing-24` horizontal | `spacing-24` vertical / `spacing-16` horizontal |
+| Container padding — section | `spacing-40` vertical / `spacing-24` horizontal | `spacing-24` vertical / `spacing-16` horizontal |
+| Container padding — inline | `spacing-16` all sides | `spacing-12` all sides |
+| Icon — full-page | `icon-hero` (64px) | `icon-empty` (48px) — no room for hero size at mobile |
+| Icon — section | `icon-empty` (48px) | `icon-empty` (48px), unchanged |
+| Body max-width | ~380px | 100% — cap removed |
+| Container max-width | 480px | 100% — cap removed |
+| Action layout | inline row, Primary + Ghost side by side | stacked column, Primary full width above, Ghost full width below, `spacing-8` gap between |
 
 **Do:** always say what causes the empty state and, where possible, how to
 resolve it ("No campaigns yet — create your first one") rather than a bare
 "No data." **Don't:** use a generic spinner or blank card as a stand-in
 for a real empty state — the deck's icon-empty/icon-hero tokens exist
 specifically so this state gets real visual weight.
+
+**Do:** use the error variant when data failed to load — never the empty
+variant on a broken fetch. **Do:** pass the variant explicitly via prop —
+the component does not detect empty vs. error automatically. **Do:** stack
+actions vertically on mobile — never force two buttons side by side on a
+small screen. **Don't:** use `icon-hero` on mobile — reduce to
+`icon-empty` (48px) instead. **Don't:** show a Primary button inside an
+inline empty state — Link only. **Don't:** use a generic "Something went
+wrong" heading on the error variant — name the specific content that
+failed to load.
 
 ### FileUploader
 
@@ -4899,119 +5171,6 @@ put a label inside a Compact (4px) track or a stacked fill; use a
 department elemental color as a single-fill bar's default — department
 colors classify ownership, not progress.
 
-### Quote builder
-
-⚠️ **Designed from scratch — no source in either the original
-brand deck or the teammate's build.** Built from this document's own
-token system by extension from the existing [Card](#card) (with its
-Footer sub-part) and [Empty state](#empty-state) specs, not
-transcribed. Treat as a first pass needing real design/brand review.
-
-A running list of selected line items building toward a quote —
-extends the base Card, doesn't replace it. Two states: **Empty**
-(nothing selected yet) and **Filled** (≥1 item selected).
-
-**Empty state.**
-
-| Part | Spec |
-|---|---|
-| Header | h4, "Quote builder" — same as the base Card header |
-| Illustration | [Empty state](#empty-state)'s own Icon + Heading, reused verbatim: `icon-empty` (48px), Neutral-4, **Tier 2, Fill** — a `list` glyph; Heading h4 (20px/800), Neutral-9, reading "No items added" |
-
-**Filled state.**
-
-| Part | Spec |
-|---|---|
-| Header | h4, "Quote builder" |
-| Selected items list | first 4 items always visible; items 5+ collapse behind a "Show X more" control — see **Selected items list — display rules** below for the full behavior |
-| Item row | Item name (body2/700, Neutral-9, truncates with an ellipsis past the row's available width) — Unit cost (caption, Neutral-5, right-aligned) — Remove × (**optional** — a read-only/locked line item can omit it; `icon-micro` 14px, Neutral-5, 24×24px hit target, same recipe as FileUploader's row × per [Iconography](#iconography)'s remove-button precedent) — 1px Neutral-3 border-bottom between rows |
-| Divider | [Card](#card)'s own Footer top border, reused as-is between the item list and the section below — not a separate element |
-| Total row | Inside the Footer: "Total" (label1/700, Neutral-9) and the total cost (label1, Neutral-5), space-between, value right-aligned |
-| CTA button | [Button](#button)'s Primary/md, stretched to the card's full width with its label centered — "Build proposal" is this variant's own copy, not a generic placeholder |
-
-Pricing defaults to Malaysian ringgit — space after RM, comma
-thousands, per this document's own Numbers content rule — but always
-rendered to **2 decimal places** (`RM 1,200.00`, not `RM 1,200`), a
-deliberate exception to that rule's own examples: a quote's line items
-and total are exact costs, not rounded summary figures like a budget
-total elsewhere in this document, so the decimals stay visible on
-every amount in this component (Unit cost, the overflow rows, and the
-Total row alike). Swap the currency only if the host context requires
-a different one.
-
-**Do:** treat the Remove × as optional per row. **Don't:** omit the
-Header or Total row in the Filled state — a quote with no visible
-total defeats the component's purpose.
-
-#### Selected items list — display rules
-
-- **Rule 1 — Default visible count is 4.** When the list holds 4 or
-  fewer items, all items render in full. No overflow control appears.
-- **Rule 2 — Truncation threshold is 5.** When the list holds 5 or
-  more items, only the first 4 are visible by default. A "Show X more"
-  control appears immediately below the 4th row, where X is the exact
-  hidden count (total − 4). Never use a vague "Show more" label — the
-  count is always stated so the user knows what they're expanding
-  into.
-- **Rule 3 — "Show X more" uses the Link button style, without the
-  underline.** Adapts [Chip](#chip)'s own `.c-chip-showless`
-  Link-button recipe (transparent fill, Neutral-9 text) with two
-  deliberate departures from that recipe: no underline — a direct
-  design call for this control specifically — and a trailing
-  caret-down at `icon-micro` (14px), since Chip's own control has no
-  icon and this one needs one to invert to caret-up on expand (see
-  Rule 4). Left-aligned, same horizontal padding as the item rows
-  (i.e. none beyond the card's own padding). The count updates in real
-  time as items are added or removed while the list is in its
-  collapsed state — the control never goes stale.
-- **Rule 4 — Expanding shows all items in a scrollable zone.** Tapping
-  "Show X more" reveals the remaining items. The overflow region
-  switches to `overflow-y: auto` with a 320px `max-height` (the same
-  cap as [Dropdown](#dropdown)'s own list) so it scrolls internally —
-  the Total row and CTA button remain fully visible at all times,
-  never pushed off screen, since both live inside the Card's Footer,
-  outside this scrollable region entirely. The control label swaps to
-  "Show less" with a trailing caret-up.
-- **Rule 5 — "Show less" collapses back to 4.** Tapping "Show less"
-  returns the list to its 4-item default. Scroll position inside the
-  list resets to the top. The control reverts to "Show X more" with
-  the current hidden count.
-- **Rule 6 — Transition uses `duration-base` + `ease-settle`.** The
-  overflow region's height animates on both expand and collapse using
-  the same Grid `0fr → 1fr` technique as SidebarNav's own
-  `.c-nav-children` (see that rule's own components.css comment)
-  rather than a guessed `max-height` value, which would either clip
-  content or leave dead space depending on item count. `ease-settle`
-  is correct here — the list is anchoring into a new resting state,
-  not flying in. Never instant, never bouncy.
-- **Rule 7 — Removing a hidden item updates the count silently.** If a
-  user removes an item while the list is collapsed and that item is
-  one of the hidden ones, the "Show X more" count decrements without
-  triggering an expand. If the total drops to exactly 4, the control
-  disappears entirely without any user action required.
-- **Rule 8 — Removing items while expanded auto-collapses when the
-  threshold is crossed.** If items are removed while the list is
-  expanded and the total drops to 4 or fewer, the "Show less" control
-  disappears and the list settles into its normal full-display state —
-  no user action required to dismiss the expanded view.
-- **Rule 9 — The Total row and the Build CTA are always in view.**
-  Both live inside the Card's Footer, fixed outside the scrollable
-  list region. No interaction with the items list — expanding,
-  scrolling, or removing — ever pushes them out of the visible card
-  area.
-
-**Edge cases.**
-
-| Scenario | Behaviour |
-|---|---|
-| Exactly 4 items | All shown, no overflow control |
-| 5th item added while collapsed | "Show 1 more" appears below item 4 |
-| 5th item added while expanded | Item animates in at the bottom of the list, no state change to the control |
-| Item removed, total → 4, list collapsed | "Show X more" disappears silently |
-| Item removed, total → 4, list expanded | "Show less" disappears, list stays at full display |
-| Clear all | Returns to the Empty state ("Nothing Selected"), list resets entirely — Clear all itself isn't part of this variant's own anatomy above; this row documents the resulting state for whichever control triggers it |
-| Item is one of the hidden items, removed while collapsed | "Show X more" count decrements by 1 (e.g. "Show 3 more" → "Show 2 more"); list stays collapsed |
-
 ### Radio
 
 **Transcribed from the teammate's `Radio.jsx`.**
@@ -5632,23 +5791,264 @@ its state ("On/Off"). **Don't:** use Switch inside a form that requires
 an explicit Save — that implies deferred application, which contradicts
 what a Switch signals.
 
-### Table row
+### Table
+
+**Consolidates the former separately-documented "Table row" and
+"DataTable."** Table row was never a real second component — it was a
+code-level building block (the bare row/cell rules with no container of
+its own), not a distinct design system entry. Its rules now form this
+component's Anatomy, defined once, and apply to both usage contexts
+below. Designers and developers reference **Table** only.
+
+A data display component for rendering structured rows and cells, in
+two usage contexts: **Standalone** (the table owns its own bordered
+container — the former DataTable) and **Embedded** (the table sits
+inside an existing surface, like a Card, and inherits that surface's
+container — the former Table row's only use case). Sorting, checkbox
+selection, the bulk actions toolbar, the action column, empty/loading
+states, sticky header, and responsive column priority below are new —
+⚠️ **designed from scratch**, extending the transcribed row/header
+anatomy rather than sourced from either the original brand deck or the
+teammate's build. Treat those additions as a first pass needing real
+design/brand review, same as this document's other designed-not-sourced
+components.
+
+**Anatomy** — shared by both variants, not repeated per variant:
 
 | Part | Spec |
 |---|---|
-| Header row | label3, Neutral-5 text, uppercase, 1px Neutral-3 border-bottom only |
-| Body row | body2, Neutral-9 text, 1px Neutral-3 border-bottom, spacing-12 (12px) vertical padding |
-| Row hover | Neutral-2 fill |
+| Header row | label3, Neutral-5, uppercase, 1px Neutral-3 border-bottom only |
+| Body row | body2 (14px/20px), weight 500, Neutral-9, 1px Neutral-3 border-bottom — no border on the last body row |
+| Cell padding | spacing-12 vertical / spacing-16 horizontal |
+| Row hover | Neutral-2 fill — only on an **interactive** row (`onRowClick` defined, checkbox selection enabled, or the row has an action column). A purely presentational row with none of those shows no hover treatment at all — same token as SidebarNav's nav item hover, Button Ghost's hover, and Search input's User Search row hover, when it does apply |
 | Row selected | Neutral-2 fill + 2px Obsidian left border |
-| Numeric columns | right-aligned, tabular figures if the font supports them |
-| Cell icon | `icon-micro` (14px), inherits cell text color — weight follows the icon's own [Iconography](#iconography) tier |
+| Numeric columns | left-aligned, tabular figures if the font supports them — see **Column types and alignment** below |
+| Cell icon | optional — `icon-micro` (14px), inherits cell text color, weight follows the icon's own [Iconography](#iconography) tier. Not a default decoration: include a leading cell icon only when it adds real identifying information (e.g. a channel/source glyph, a file-type marker), not on every column or every table |
+| Cursor on clickable row | `cursor: pointer` only when `onRowClick` is defined — never by default |
+| Border rule | `border-bottom` only — never top and bottom on every row; a table with hairlines on all four sides of every cell reads as noisy at data-table density |
+
+**Variants**
+
+| | Standalone | Embedded |
+|---|---|---|
+| Container | Table owns the full container: 1px Neutral-3 border, `radius-lg` (20px, matches Card), `overflow: hidden` (clips the header to the radius), Neutral-1 fill | none — sits inside an existing surface (a Card, a panel, a modal) and inherits its background, border, and radius |
+| Header cell fill | Neutral-2 | none (transparent) |
+| Header typography | h5 (16px/700), Neutral-9 — heavier, since the standalone surface is more visually prominent on its own | label3 (11px/700, uppercase, `+0.04em` tracking), Neutral-5 — lighter, for a table that's one of several elements inside a parent surface |
+| Use | a table as a primary surface on a page or dashboard section | a table living inside a Card, a panel, or a modal |
+
+Header typography is intentionally different between variants and must
+never be mixed: a Standalone header never takes label3/uppercase, and
+an Embedded header never takes h5/700 — they serve different visual
+hierarchies.
+
+**Column types and alignment**
+
+Every column is **left-aligned**, content and header alike — no
+right- or center-aligned columns. A row scans as one consistent left
+edge regardless of column type, rather than the eye jumping between
+alignments column to column.
+
+| Column type | Alignment |
+|---|---|
+| Text (default) | left-aligned |
+| Numeric | left-aligned, tabular figures if supported |
+| Date/time | left-aligned — dates read left-to-right like text |
+| Status/Badge | left-aligned |
+| Checkbox | left-aligned, left-pinned, first column |
+| Actions | left-aligned, right-pinned, last column |
+| Header cells | always match their body column's alignment |
+
+Alignment describes the content **within** a cell; pin position
+(first/last column) is a separate rule and unchanged — see **Checkbox
+selection** and **Action column** below. When the table scrolls
+horizontally, pin position becomes an actual frozen (sticky) column,
+not just a fixed order — see **Frozen columns**, below.
+
+**Sorting** — **both variants, on by default for every eligible
+column.** Sorting is not an opt-in feature added to a particular
+column, and not a Standalone-only affordance either — every text,
+numeric, date, and status column ships sortable out of the box,
+Embedded included. The only columns that skip it are the ones that
+structurally can't be sorted: Checkbox and Actions (see their own
+Non-sortable header row, below). Every table created against this spec
+going forward inherits sorting by default; a column only loses it when
+there's a specific reason (e.g. a column of freeform notes with no
+meaningful sort order), never by omission:
+
+| Part | Spec |
+|---|---|
+| Sortable header indicator | trailing `arrows-down-up` icon, **Tier 1, Regular** (a control affordance, per [Iconography](#iconography)), `icon-micro` (14px), Neutral-4 at rest |
+| Sort ascending | `arrow-up` icon, Neutral-9, replaces the rest indicator |
+| Sort descending | `arrow-down` icon, Neutral-9, replaces the rest indicator |
+| Sorted column header text | Neutral-9 |
+| Sort trigger | click anywhere on the header cell; `cursor: pointer` on sortable headers |
+| Sort cycle | Unsorted → Ascending → Descending → Unsorted |
+| Exclusivity | one active sort at a time — activating a new column clears the previous |
+| Keyboard | Enter or Space on a focused sortable header cycles sort states |
+| Non-sortable header | no trailing icon, no pointer cursor, no click response |
+
+**Checkbox selection** — both variants, **opt-in**. The default Table
+renders with no checkbox column at all; add one only when bulk
+selection is a real use case for that view, not as a standard part of
+every table:
+
+| Part | Spec |
+|---|---|
+| Column position | left-pinned, first column, 40px fixed width, left-aligned |
+| Header checkbox | selects/deselects all visible rows; three states — unchecked (none), checked (all), indeterminate (some). **Stays in place at all times, including while the bulk actions toolbar is showing** — it's the mechanism for clearing a full selection, not just starting one |
+| Row checkbox | hidden at rest, visible on row hover and whenever any checkbox in the table is checked — never always-visible |
+| Selected row | Neutral-2 fill + 2px Obsidian left border (per Anatomy, above) |
+| Checkbox vs. row click | independent interactions — the checkbox selects the row, a row body click triggers `onRowClick` if defined; clicking the row body never also checks the checkbox |
+| Checkbox component | reuses the existing [Checkbox](#checkbox) component as-is — no new checkbox styling introduced |
+
+**Bulk actions toolbar** — Standalone variant only:
+
+| Part | Spec |
+|---|---|
+| Trigger | appears, replacing the column header labels (Campaign/Status/etc.) and the Action column's header, when ≥1 row is selected; disappears once the header checkbox is unchecked and no rows remain selected |
+| Header checkbox | **not replaced.** It stays exactly where it always sits — left-pinned, first column — so the same control that started the selection can also clear it. There is no separate "select none" affordance |
+| Container | same height as the header row it overlays, Neutral-2 fill, 1px Neutral-3 border-bottom, spacing-12 vertical / spacing-16 horizontal padding |
+| Selection count | left-aligned, label2 (13px/700), Neutral-9, immediately after the header checkbox — e.g. "3 selected", not "3 rows selected"; the toolbar's own context (a table) already says what's being counted |
+| Actions | right-aligned; Ghost buttons sm for non-destructive actions, Danger Ghost for destructive ones; maximum 3 visible before overflow |
+| Overflow | a `dots-three` Ghost IconButton sm if more than 3 actions — opens a context menu |
+| Transition | toolbar fades in + slides down 4px, `duration-fast` `ease-standard`; the column header labels it covers fade out simultaneously |
+
+**Action column** — both variants:
+
+| Part | Spec |
+|---|---|
+| Position | last column, right-pinned, left-aligned content |
+| Width (fixed — never flexible) | 40px for 1 action, 72px for 2 actions, 104px for 3 actions |
+| Visibility | always visible, shown upfront — never hidden until row hover; a user shouldn't have to discover a row has actions by hovering it |
+| Content | 1–3 Ghost IconButton sm |
+| Overflow | if more than 3 actions: a single `dots-three` Ghost IconButton sm opens a context menu |
+| Column header | empty cell — no label, no sort |
+
+**Frozen columns** — both variants, active whenever the table scrolls
+horizontally: the 10+ column desktop scenario in **Column types and
+alignment**'s own Do/Don't threshold, or any table under the 768px
+Responsive breakpoint below. A row's identity and its actions should
+never scroll out of reach just because the columns in between do:
+
+| Column | Behaviour |
+|---|---|
+| Checkbox (if present) | `position: sticky; left: 0` — stays fixed at the left edge while the rest of the row scrolls beneath it |
+| First content column | `position: sticky`, left offset equal to the checkbox column's width (0 if no checkbox) — the row's primary identifier (e.g. a Campaign or Name column) stays visible so a scrolled row is never unidentifiable |
+| Middle columns | scroll normally underneath the frozen columns — never pinned |
+| Action column | `position: sticky; right: 0` — stays fixed at the right edge so actions are always reachable without scrolling back |
+| Scroll boundary shadow | `shadow-1` renders on the trailing edge of each frozen region (the left region's right edge, the right region's left edge) once there is scrolled content underneath it, and disappears once scrolled back to that edge — same appear/disappear convention as **Sticky header**'s own scroll shadow, above |
+| Frozen cell background | opaque, matching the row's own current state (Neutral-1 at rest, Neutral-2 on hover or selected) — otherwise the scrolling columns show through underneath as they pass |
+| Stacking | frozen columns sit above the scrolling columns within the table's own stacking context — not a global z-index, same convention as Sticky header |
+
+Only the checkbox, the first content column, and the action column
+ever freeze — never a whole block of leading or trailing columns.
+Freezing more defeats the purpose of letting the table scroll at all.
+
+**Empty state** — both variants:
+
+| Scenario | Spec |
+|---|---|
+| No data (zero-state) | full [Empty state](#empty-state) component, Section-level variant, centered within the table body — `icon-empty` (48px), h4 heading, body1 body, optional Primary action |
+| No results from filter/search | Inline Empty state variant — body2, Neutral-5, centered, spacing-16 padding, no icon, no heading — e.g. "No results match your filters" |
+| Minimum table body height | 240px for both empty scenarios — prevents the empty state from collapsing |
+
+**Loading state** — both variants:
+
+| Part | Spec |
+|---|---|
+| Pattern | 3 skeleton rows at the same height and column widths as real body rows — matches the actual column count and widths, never a single generic placeholder block |
+| Skeleton alignment | each skeleton bar sits left-aligned within its cell, matching **Column types and alignment** above — never centered or right-set, even in a numeric or status column, so the loading state doesn't fake an alignment the real data won't have |
+| Skeleton fill | Neutral-2, `radius-sm` |
+| Animation | shimmer — reuses [Progress Bar](#progress-bar)'s own indeterminate pattern: Neutral-5 at 40% opacity, gradient animated left to right, `duration-ambient` (900ms) loop — the same duration Progress Bar's indeterminate shimmer uses, not a computed `duration-slow`×2, per that component's own rejected-earlier-draft note |
+| Delay | show the skeleton only after 300ms — prevents a flash on fast responses |
+| Reduced motion | static Neutral-2 skeleton, no shimmer |
+| Transition | skeleton fades out as real data fades in, `duration-fast` `ease-standard` |
+
+**Sticky header** — Standalone variant only:
+
+| Part | Spec |
+|---|---|
+| Behaviour | `position: sticky; top: 0` — the header row stays visible as the table body scrolls |
+| Stacking | z-index managed within the table's own stacking context — not a global z-index |
+| Scroll shadow | `shadow-1` appears under the sticky header once the body has scrolled past 1 row, disappears when scrolled back to top |
+| Trigger | opt-in via prop, off by default — not every standalone table needs a sticky header |
+
+The Embedded variant inherits its parent surface's own scroll behaviour;
+the sticky header rule does not apply there.
+
+**Responsive / mobile** — both variants:
+
+| Property | Desktop | Mobile (<768px) |
+|---|---|---|
+| Overflow | full table visible | horizontal scroll within its scroll container — never collapses into a stacked-card / key-value layout; Table stays tabular (rows and columns) at every width, it just scrolls sideways |
+| Min table width | auto | 600px — below this, the table becomes horizontally scrollable |
+| Column visibility | all columns visible | `priority` prop per column: high (always visible), medium (hidden ≤1024px), low (hidden ≤768px) |
+| Action column | always visible regardless of priority, on all screen sizes — and **frozen** (sticky-right) whenever the table is scrolling horizontally, per **Frozen columns**, above ||
+| Checkbox column | always visible, on all screen sizes — and **frozen** (sticky-left) whenever the table is scrolling horizontally, per **Frozen columns**, above ||
+| First content column | scrolls normally on desktop, unless the table itself is already horizontally scrolling (10+ columns) | **frozen** (sticky-left) per **Frozen columns**, above — the row's identifier stays visible while other columns scroll beneath it |
+| Horizontal cell padding | spacing-16 | spacing-12 |
+| Scrollbar | hidden by default, visible on hover | always visible when content overflows |
 
 **Do:** apply the border only to `border-bottom`, never both top and
 bottom on every row — a table with hairlines on all four sides of every
-cell reads as noisy at data-table density. **Don't:** exceed roughly 8-10
-visible columns before reaching for horizontal scroll or a
-column-priority/collapse pattern; a table that requires zooming out to
-read is a layout failure, not a data problem.
+cell reads as noisy at data-table density. **Do:** keep header labels
+short — the heavier h5 weight wraps awkwardly on long labels in the
+Standalone variant. **Do:** use the Anatomy rules for both variants —
+they're defined once and never duplicated per variant. **Do:** use the
+Embedded variant when the table lives inside a Card or panel, not
+Standalone. **Do:** left-pin the checkbox column and right-pin the
+action column always — these positions never change. **Do:** show the
+skeleton loading state with its 300ms delay to prevent a flash of
+loading state. **Do:** show the "N selected" count in the bulk
+actions toolbar — never just the action buttons alone. **Do:** keep the
+header checkbox visible and interactive within the bulk actions
+toolbar — the same control that selects all rows is what clears the
+selection, so it never gets covered or replaced. **Do:** use the
+header typography that matches the variant — label3/uppercase for
+Embedded, h5/700 for Standalone. **Do:** keep every column left-aligned
+— content and header alike — so a row reads on one consistent edge.
+**Do:** apply row hover only to an interactive row (`onRowClick`
+defined, checkbox selection enabled, or an action column present) —
+never to a purely presentational row. **Do:** show action icons upfront
+by default, not hidden behind hover. **Do:** treat checkbox selection as
+opt-in — render the default Table with no checkbox column when bulk
+selection isn't a real use case for that view. **Do:** ship every
+eligible column sortable by default, in both variants — Checkbox and
+Actions are the only structural exceptions, never a column sorting was
+simply never added to. **Do:** freeze the
+checkbox, first content column, and action column whenever the table
+scrolls horizontally, so a scrolled row is still identifiable and
+actionable without scrolling back.
+
+**Don't:** exceed roughly 8-10 visible columns before reaching for
+horizontal scroll or a column-priority/collapse pattern; a table that
+requires zooming out to read is a layout failure, not a data problem.
+**Don't:** add a fifth border style here; the Standalone container
+inherits the shared Anatomy's border and hover conventions on purpose.
+**Don't:** treat "Table row" as a separate component — it no longer
+exists as a standalone spec; its rules are this component's Anatomy.
+**Don't:** mix Embedded header typography (label3/uppercase) with
+Standalone header typography (h5/700) — they serve different visual
+hierarchies. **Don't:** make the action column's width flexible — use
+the fixed widths per action count above. **Don't:** show the bulk
+actions toolbar in the Embedded variant — Standalone only. **Don't:**
+exceed ~8-10 visible columns before introducing horizontal scroll or
+column hiding. **Don't:** add a hover fill to a non-interactive row —
+that implies a click or selection that isn't actually there. **Don't:**
+add a cell icon by default — it's optional, only for a column where the
+icon carries real identifying information. **Don't:** center or
+right-align a loading skeleton bar to mimic a numeric or status column
+— skeletons stay left-aligned like every other column, per **Column
+types and alignment**. **Don't:** collapse Table into a stacked-card /
+key-value layout on mobile — it stays tabular with horizontal scroll at
+every width, never a card format. **Don't:** freeze more than the
+checkbox, the first content column, and the action column — freezing a
+whole block of leading or trailing columns defeats the point of
+letting the table scroll. **Don't:** cover or hide the header checkbox
+when the bulk actions toolbar shows, and don't add a separate "Clear
+selection" control next to it — the header checkbox unchecked already
+clears a full selection; a second affordance for the same action is
+redundant.
 
 ### Tabs
 
@@ -6015,27 +6415,36 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
-- **v0.9.44 — 2026-08-13** — [Quote builder](#quote-builder)'s pricing
-  now always renders to 2 decimal places (`RM 1,200.00`, not
-  `RM 1,200`) — a deliberate, documented exception to this document's
-  general Numbers content rule, whose own examples (budget totals
-  elsewhere in this document) omit decimals. Applies to every amount
-  in the component: Unit cost, overflow rows, and the Total row alike.
-  Live gallery example updated to match.
+- **v0.9.45 — 2026-08-13** — Moved the standalone **Quote builder**
+  component into [Card](#card) as a new variant, renamed **Price
+  summary card** (Scope note bumped 32 → 31 — the reverse of the
+  v0.9.44 entry below, same accounting precedent as Table row/DataTable
+  → Table and Select/MultiSelect → Dropdown). Quote builder was always
+  built by extending Card's own header and Footer rather than
+  inventing new structure (see the v0.9.44 entry's own "Card-extending
+  component" framing) and CSS classes were already namespaced
+  `.c-card-quote-*`, so this formalizes what was already true
+  structurally — it never needed its own `###` heading, own
+  `preview.html` demo block, or own Scope-note slot. No anatomy,
+  behavior, or Do/Don't rule changed: the Empty/Filled states, all 9
+  Selected-items-list display rules, the edge-case table, and the
+  2-decimal-place pricing exception all carry over unchanged, just
+  renamed from "Quote builder" to "Price summary card" and the visible
+  card header copy from "Quote builder" to "Price summary." Only the
+  CSS class prefix changed (`.c-card-quote-*` → `.c-card-price-*`,
+  `.c-card-quote` → `.c-card-price-summary`) and the live gallery demo
+  moved from its own `#comp-quotebuilder` block into Card's own tile
+  grid as an 8th tile, alongside USP — the same "variant, not a
+  separate component" treatment USP already gets. The v0.9.44 entry
+  below originally shipped as three same-day entries (v0.9.44–v0.9.46:
+  the component's addition, two refinements, and a pricing-format
+  correction) — consolidated here into that one v0.9.44 entry now that
+  the iteration has settled, the same "collapse same-day passes once
+  the spec settles" treatment this Changelog's own v0.9.40 entry
+  documents for Filters.
 
-- **v0.9.43 — 2026-08-13** — Two refinements to
-  [Quote builder](#quote-builder), added in the previous pass. (1)
-  Dropped the underline from the "Show X more"/"Show less" control
-  (Rule 3) — a direct design call, so this control now departs from
-  Chip's own `.c-chip-showless` Link-button recipe on that one point
-  rather than reusing it verbatim. (2) Established Malaysian ringgit
-  (`RM 1,200`, no decimals) as this component's default pricing
-  currency, following this document's own Numbers content rule — not a
-  new rule, just the first component to state it applies to its own
-  example values explicitly.
-
-- **v0.9.42 — 2026-08-13** — Added **Quote builder**, a new
-  Card-extending component (Scope note bumped 32 → 33): a running
+- **v0.9.44 — 2026-08-13** — Added **Quote builder**, a new
+  Card-extending component (Scope note bumped 31 → 32): a running
   selected-items list building toward a quote, in Empty and Filled
   states. Empty state reuses [Empty state](#empty-state)'s icon +
   heading verbatim (`list` glyph). Filled state reuses [Card](#card)'s
@@ -6045,22 +6454,30 @@ rather than maintaining two token sources by hand:
   (Rules 1–9 plus an edge-case table): a 4-item default with a
   "Show X more"/"Show less" overflow control past 5 items, reusing
   Chip's own `.c-chip-showless` Link-button recipe (extended with a
-  caret) and SidebarNav's Grid `0fr → 1fr` expand/collapse technique
-  rather than a guessed `max-height`. Two terms from the original brief
-  were resolved before writing this spec: "financial summary" is the
-  same zone as the Total row, not a separate breakdown, and a mentioned
-  "fit banner" was dropped entirely since it was never specified. Built
-  into the live gallery as its own `preview.html` block (not folded
-  into Card's own tile grid, since this is a full component now, not a
-  Card variant like USP is) showing only the Filled
-  state — the Empty state and the Rules 1–9 interaction behavior
-  (live add/remove, expand/collapse animation) are documented as the
-  spec to build against, not wired up live, the same treatment Date
-  picker's inert month-nav already gets.
+  caret, underline dropped — a direct design call departing from
+  Chip's own recipe on that one point) and SidebarNav's Grid
+  `0fr → 1fr` expand/collapse technique rather than a guessed
+  `max-height`. Two terms from the original brief were resolved before
+  writing this spec: "financial summary" is the same zone as the Total
+  row, not a separate breakdown, and a mentioned "fit banner" was
+  dropped entirely since it was never specified. Pricing defaults to
+  Malaysian ringgit, always rendered to **2 decimal places**
+  (`RM 1,200.00`, not `RM 1,200`) — a deliberate exception to this
+  document's general Numbers content rule, whose own examples (budget
+  totals elsewhere in this document) omit decimals; a quote's line
+  items and total are exact costs, not rounded summary figures, so the
+  decimals stay visible on every amount in the component (Unit cost,
+  overflow rows, and the Total row alike). Built into the live gallery
+  as its own `preview.html` block (not folded into Card's own tile
+  grid, since this is a full component now, not a Card variant like
+  USP is) showing only the Filled state — the Empty state and the
+  Rules 1–9 interaction behavior (live add/remove, expand/collapse
+  animation) are documented as the spec to build against, not wired up
+  live, the same treatment Date picker's inert month-nav already gets.
 
-- **v0.9.41 — 2026-08-13** — Added a **USP** variant to
+- **v0.9.43 — 2026-08-13** — Added a **USP** variant to
   [Card](#card) (not a new component, so no change to the Scope note's
-  32-component count): Header → Description → 3 bullet points → CTA
+  31-component count): Header → Description → 3 bullet points → CTA
   button. The bullet list is new (`ph-fill ph-check-circle`, Obsidian,
   Tier 2 Fill, per Button's own leading check-circle precedent); the
   Header, Description, and CTA all reuse existing Card/Button styles
@@ -6072,6 +6489,136 @@ rather than maintaining two token sources by hand:
   general CTA guidance elsewhere. Built into the live gallery
   (`preview.html`'s Card block) as a 7th tile alongside the other six
   variants.
+
+- **v0.9.42 — 2026-08-13** — Merged the separately-documented **Table
+  row** and **DataTable** into one unified **Table** component. Table
+  row was never a real second component — it was a code-level building
+  block (bare row/cell rules, no container of its own), not a distinct
+  design system entry, so it's dissolved rather than kept as a
+  standalone spec; its rules now form Table's shared Anatomy. Net
+  component count: 32 → 31 (two merged into one, same accounting
+  precedent as the earlier Select/MultiSelect → Dropdown consolidation).
+
+  **Anatomy, defined once.** Header row (label3/Neutral-5/uppercase),
+  body row (body2 14px/20px, **weight 500** — closing a gap where
+  Table row's own body row never specified a weight, now matching
+  DataTable's already-documented value), spacing-12/16 cell padding,
+  Neutral-2 hover, Neutral-2 + 2px Obsidian left border when selected,
+  `icon-micro` cell icons, `border-bottom`-only borders, and
+  `cursor: pointer` only when `onRowClick` is defined — shared by both
+  variants below, never repeated per variant.
+
+  **Variants.** **Standalone** (the former DataTable) owns its own
+  bordered `radius-lg` container with h5/700 headers on a Neutral-2
+  fill. **Embedded** (the former Table row's only use case) has no
+  container of its own — it inherits whatever surface it sits inside
+  (a Card, a panel, a modal) — with lighter label3/uppercase/Neutral-5
+  headers. The two header treatments are intentionally different and
+  must never be mixed.
+
+  **New, designed-from-scratch additions** — none of this existed in
+  either former section: column type alignment rules (text/numeric/
+  date/status/checkbox/actions), every column left-aligned including
+  numeric and status; column sorting on by default for every eligible
+  column in both variants (ascending/descending/unsorted cycle,
+  keyboard-operable — Checkbox and Actions are the only structural
+  exceptions); opt-in checkbox selection built on the existing Checkbox
+  component, left-pinned, with a real three-state header checkbox that
+  stays visible and interactive even while the bulk toolbar is showing;
+  a Standalone-only bulk actions toolbar that overlays the header
+  labels (never the header checkbox itself) once ≥1 row is selected,
+  with an "N selected" count and no separate "Clear selection" control;
+  a right-pinned action column, shown upfront rather than hover-only,
+  with fixed widths per action count (never flexible); frozen (sticky)
+  checkbox/first-content-column/action-column whenever the table
+  scrolls horizontally, with a scroll-boundary shadow; row hover
+  restricted to interactive rows only (`onRowClick`, checkbox
+  selection, or an action column present); Empty state integration
+  (Section-level for zero-data, Inline for no-search-results); a
+  loading skeleton reusing Progress Bar's own indeterminate shimmer at
+  `duration-ambient` (900ms) after a 300ms delay, bars left-aligned
+  like every other column; a Standalone-only sticky header with a
+  `shadow-1` scroll shadow; and a responsive column-priority system for
+  screens under 768px that stays tabular (never a stacked-card layout).
+  All flagged ⚠️ **designed from scratch** within the new section, same
+  as this document's other non-sourced components.
+
+  **Shipped into `components.css` and `preview.html`'s live gallery.**
+  The former `.c-table`/`.c-datatable` CSS rules and their separate
+  "Table row"/"DataTable" demo blocks are gone, replaced by one
+  `.c-table` system (`.c-table-standalone-wrap`/`.c-table-standalone`/
+  `.c-table-embedded`, `.c-table-sort-th`, `.c-table-chk-col`,
+  `.c-table-bulk-toolbar`, `.c-table-action-col`, `.c-table-freeze-left`/
+  `.c-table-freeze-right`, `.c-table-scroll-x`/`.c-table-scroll-x-inner`,
+  `.c-table-skel-bar`) and one live demo covering three variants:
+  horizontal scrolling with sorting and frozen Campaign/Actions
+  columns, checkbox selection with the bulk actions toolbar and a real
+  tri-state header checkbox, and a loading skeleton. Checkbox cells
+  reuse Checkbox's own `.c-checkbox-box`/`.on` glyph verbatim rather
+  than a bespoke input, and the action column reuses Button's own Ghost
+  IconButton sm — neither is a second, parallel control. The loading
+  skeleton's shimmer reuses Progress Bar's own `c-progress-shimmer`
+  keyframe rather than a second copy of the same animation.
+
+  **Two implementation bugs caught during rollout, fixed before
+  shipping.** (1) The bulk actions toolbar used `position: absolute`
+  inside the same element that scrolls horizontally, so it scrolled
+  away with the table content instead of staying pinned over the
+  header — fixed by giving it a non-scrolling ancestor
+  (`.c-table-standalone-wrap`) while only an inner
+  `.c-table-scroll-x-inner` div handles the actual scroll, confirmed
+  this doesn't reopen the earlier sticky-columns bug since frozen
+  columns still resolve against the inner scrolling div. (2) The
+  10-column table's own horizontal scroll didn't work in
+  `preview.html` specifically — `.comp-row`'s `display:flex` gives
+  flex items a default `min-width:auto`, so the 1180px-wide table
+  forced the whole row to overflow instead of scrolling internally;
+  fixed by setting `min-width:0` on the flex items in that row.
+
+- **v0.9.41 — 2026-08-13** — Expanded the existing **Empty state**
+  component in place (not a new component) with per-gap internal
+  spacing, named variants, an Error variant, a second action slot, and
+  responsive/mobile behavior — none of this existed before; the section
+  previously specified only a single container with a flat `spacing-8`
+  internal gap and one optional Primary action.
+
+  **Internal spacing.** The old single `spacing-8` internal gap is
+  replaced with three named gaps: `spacing-12` between icon and
+  heading (related but not one unit), `spacing-4` between heading and
+  body (a tight semantic pairing, like a card title and description),
+  and `spacing-16` between body and action (the action needs clear
+  separation from the explanatory text above it).
+
+  **Variants.** Three named variants, each with its own icon/heading/
+  body/container rules: **Full-page** (`icon-hero`, fills the
+  remaining viewport, centered — first visit/onboarding/zero-state),
+  **Section-level** (`icon-empty`, 240px min-height — a table, list,
+  or card panel with no data), and **Inline** (no icon, no heading,
+  body2 only, Link-style action only, no min-height — a query-specific
+  no-results state scoped to a search field, filtered table, or
+  autocomplete; not for data that's never existed).
+
+  **Error variant.** A named variant sharing Empty's exact anatomy,
+  different semantics — compared directly against Empty in a new
+  table (icon tint Red `#FD3343`, same Red as Badge/Danger and Toast/
+  Danger; heading names the failure, not what's absent; body explains
+  what happened; Primary action is Retry, not Create; second action is
+  "Contact support"). Must be passed explicitly via a variant prop —
+  the component never infers Empty vs. Error from the failure itself,
+  since a creation prompt on a broken API call misleads the user.
+
+  **Second action slot.** Action row now supports an optional Ghost
+  button alongside Primary (`spacing-8` left margin, 2 actions
+  maximum — never 3), plus an action-only Ghost variant (no Primary)
+  for an optional/exploratory resolution. Inline empty states stay
+  restricted to a Link-style action only — never Primary or Ghost.
+
+  **Responsive/mobile.** New table covering container padding, icon
+  size, body/container max-width, and action layout across Desktop vs.
+  Mobile (<768px) — most notably, `icon-hero` never appears on mobile
+  (drops to `icon-empty`, 48px) and the two-action row stacks to full-
+  width Primary above / full-width Ghost below rather than forcing a
+  side-by-side pair on a small screen.
 
 - **v0.9.40 — 2026-08-12** — Corrected and expanded the existing
   **Filters** component in place (not a new component; the same
@@ -7456,6 +8003,7 @@ with nothing else to keep in sync.
 - **v0.1.0 — 2026-07-29** — Initial DLS drafted from the Collabrium
   brand deck (Google Slides). 10 gaps flagged under Needs Input; see table
   at top. Not yet reviewed by brand team.
+
 </script>
 
 <script type="text/plain" id="src-css-vars">/*
@@ -8328,12 +8876,58 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
       return;
     }
 
-    // Table row / DataTable row — click to select, click again to deselect
-    const row = e.target.closest('.c-table tbody tr, .c-datatable tbody tr');
-    if (row) {
-      const wasSelected = row.classList.contains('selected');
-      row.closest('tbody').querySelectorAll('tr').forEach(el => el.classList.remove('selected'));
-      if (!wasSelected) row.classList.add('selected');
+    // Table — sortable header click, on by default for every eligible
+    // column (Checkbox/Actions excepted). Scoped per-table via
+    // closest('table') so multiple Table demos don't reset each other.
+    const sortTh = e.target.closest('.c-table-sort-th[data-col]');
+    if (sortTh) {
+      const table = sortTh.closest('table');
+      const state = ((+sortTh.dataset.state || 0) + 1) % 3;
+      table.querySelectorAll('.c-table-sort-th[data-col]').forEach(other => {
+        if (other !== sortTh) {
+          other.classList.remove('is-sorted');
+          const oIcon = other.querySelector('.c-table-sort-icon');
+          if (oIcon) oIcon.className = 'ph ph-arrows-down-up c-table-sort-icon';
+          other.dataset.state = 0;
+        }
+      });
+      sortTh.dataset.state = state;
+      const icon = sortTh.querySelector('.c-table-sort-icon');
+      const col = sortTh.dataset.col;
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      if (state === 0) {
+        sortTh.classList.remove('is-sorted');
+        if (icon) icon.className = 'ph ph-arrows-down-up c-table-sort-icon';
+      } else {
+        sortTh.classList.add('is-sorted');
+        if (icon) icon.className = state === 1 ? 'ph ph-arrow-up c-table-sort-icon' : 'ph ph-arrow-down c-table-sort-icon';
+        const dir = state === 1 ? 1 : -1;
+        rows.sort((a, b) => {
+          let av = a.dataset[col], bv = b.dataset[col];
+          if (sortTh.classList.contains('num')) { av = +av; bv = +bv; return (av - bv) * dir; }
+          return (av || '').localeCompare(bv || '') * dir;
+        });
+        rows.forEach(r => tbody.appendChild(r));
+      }
+      return;
+    }
+
+    // Table — checkbox selection demo (opt-in). Toggling a row's
+    // .c-checkbox-box swaps the header checkbox between its three real
+    // states (unchecked/checked/indeterminate) and shows/hides the bulk
+    // actions toolbar, which overlays only the header LABELS — the
+    // header checkbox itself is never covered, so it's always reachable
+    // to clear a full selection. See updateTableBulkToolbar below.
+    const tableChk = e.target.closest('#tableChkBody .c-checkbox-box, #tableHeaderChk');
+    if (tableChk) {
+      if (tableChk.id === 'tableHeaderChk') {
+        const shouldCheck = tableChk.getAttribute('aria-checked') !== 'true';
+        document.querySelectorAll('#tableChkBody .c-checkbox-box').forEach(box => setCheckboxBox(box, shouldCheck));
+      } else {
+        setCheckboxBox(tableChk, tableChk.getAttribute('aria-checked') !== 'true');
+      }
+      updateTableBulkToolbar();
       return;
     }
 
@@ -8664,6 +9258,74 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
     const pill = segctl.querySelector('.c-seg-pill');
     pill.style.transition = 'none';
     requestAnimationFrame(() => { pill.style.transition = ''; });
+  });
+
+  // Table — checkbox selection demo. Reuses Checkbox's own real
+  // .c-checkbox-box/.on glyph (see setCheckboxBox), not a bespoke
+  // control. updateTableBulkToolbar drives the header checkbox's three
+  // real states (unchecked/checked/indeterminate) and shows/hides the
+  // bulk actions toolbar without ever covering the header checkbox
+  // itself — see DESIGN-SYSTEM.md's Bulk actions toolbar section.
+  function setCheckboxBox(box, checked) {
+    box.classList.toggle('on', checked);
+    box.setAttribute('aria-checked', checked ? 'true' : 'false');
+    box.innerHTML = checked ? '<i class="ph ph-check"></i>' : '';
+  }
+  function updateTableBulkToolbar() {
+    const body = document.getElementById('tableChkBody');
+    if (!body) return;
+    const boxes = body.querySelectorAll('.c-checkbox-box');
+    const checked = body.querySelectorAll('.c-checkbox-box[aria-checked="true"]');
+    const toolbar = document.getElementById('tableBulkToolbar');
+    const headerChk = document.getElementById('tableHeaderChk');
+    const count = document.getElementById('tableBulkCount');
+    const headerRow = document.querySelector('#tableChkHead tr');
+    if (checked.length > 0) {
+      toolbar.style.height = headerRow.offsetHeight + 'px';
+      toolbar.classList.add('is-visible');
+      count.textContent = checked.length + ' selected';
+    } else {
+      toolbar.classList.remove('is-visible');
+    }
+    // Header checkbox reflects the real three states — unchecked (none),
+    // checked (all), indeterminate (some) — and unchecking it from here
+    // is how a full selection gets cleared; there's no separate control.
+    if (checked.length === 0) {
+      headerChk.classList.remove('on');
+      headerChk.innerHTML = '';
+      headerChk.setAttribute('aria-checked', 'false');
+    } else if (checked.length === boxes.length) {
+      headerChk.classList.add('on');
+      headerChk.innerHTML = '<i class="ph ph-check"></i>';
+      headerChk.setAttribute('aria-checked', 'true');
+    } else {
+      headerChk.classList.add('on');
+      headerChk.innerHTML = '<i class="ph ph-minus"></i>';
+      headerChk.setAttribute('aria-checked', 'mixed');
+    }
+    body.querySelectorAll('tr').forEach(row => {
+      const box = row.querySelector('.c-checkbox-box');
+      row.classList.toggle('is-selected', box && box.getAttribute('aria-checked') === 'true');
+    });
+  }
+  document.querySelectorAll('#tableChkBody .c-checkbox-box, #tableHeaderChk').forEach(box => {
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); box.click(); }
+    });
+  });
+  updateTableBulkToolbar();
+
+  // Table — frozen-column scroll-boundary shadow, shown only on the
+  // side that still has scrolled content underneath (same appear/
+  // disappear convention as Sticky header's own scroll shadow).
+  document.querySelectorAll('.c-table-scroll-x, .c-table-scroll-x-inner').forEach(el => {
+    function updateScrollShadow() {
+      const max = el.scrollWidth - el.clientWidth;
+      el.classList.toggle('is-scrolled-left', el.scrollLeft > 2);
+      el.classList.toggle('is-scrolled-right', el.scrollLeft < max - 2);
+    }
+    el.addEventListener('scroll', updateScrollShadow);
+    updateScrollShadow();
   });
 
   // Slider — built and tested as a standalone reference file first (see
