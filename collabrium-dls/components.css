@@ -850,9 +850,23 @@
 .c-banner-warning .icon{color:var(--color-amber);}
 .c-banner-warning .message,.c-banner-warning .actions .action{color:rgba(154,92,0,.8);}
 
-/* Tooltip */
+/* Tooltip — top placement (default). Visibility: opacity 0 → 1 on
+   hover or keyboard focus, pointer-events:none at all times, instant
+   on both show and hide (no artificial delay) per DESIGN-SYSTEM.md's
+   own Show/hide delay rule — the fade below is the Transition row's
+   own duration-fast/ease-standard, not a wait before it starts.
+   Rendering: the JS below moves the bubble to a document-<body>-level
+   portal on show (position:fixed, computed from the trigger's own
+   getBoundingClientRect) and back into .c-tooltip-wrap on hide — per
+   DESIGN-SYSTEM.md's own Z-index and stacking rule, escaping any
+   ancestor's overflow/scroll clipping (this page's own .pane-left is
+   exactly such an ancestor). Visibility toggles via .is-visible rather
+   than a :hover selector, since the portaled bubble is no longer a
+   descendant of .c-tooltip-wrap while shown. */
 .c-tooltip-wrap{position:relative; display:inline-flex;}
-.c-tooltip-bubble{position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:2; padding:6px 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap;}
+.c-tooltip-bubble{position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); z-index:2; padding:6px 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard);}
+.c-tooltip-bubble.is-visible{opacity:1;}
+.c-tooltip-bubble.is-portaled{position:fixed; bottom:auto; transform:none;}
 
 /* ElementBadge */
 .c-elbadge{display:inline-flex; align-items:center; gap:var(--spacing-12);}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.50</title>
+<title>Collabrium design system | v0.9.48</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -318,7 +318,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.50</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.48</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -326,7 +326,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.50</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.48</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -2581,11 +2581,8 @@
           <div class="comp-demo">
             <div class="c-tooltip-demo">
               <span class="c-tooltip-wrap">
-                <button class="c-icon-btn" type="button"><i class="ph-fill ph-info"></i></button>
-                <span class="c-tooltip-bubble" role="tooltip">Visible to your whole team</span>
-              </span>
-              <span class="c-tooltip-wrap">
-                <button class="c-btn c-btn-secondary c-btn-sm">Hover me</button>
+                <button class="c-icon-btn" type="button" aria-describedby="tooltipDemoBubble"><i class="ph-fill ph-info"></i></button>
+                <span class="c-tooltip-bubble" role="tooltip" id="tooltipDemoBubble">Visible to your whole team</span>
               </span>
             </div>
           </div>
@@ -2805,7 +2802,7 @@ button next to the version flag in the top bar.
 <script type="text/plain" id="src-md-extended">
 # Collabrium Design Language System
 
-**v0.9.50** — 2026-08-14 — Sourced from the Collabrium brand deck
+**v0.9.48** — 2026-08-14 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -6610,15 +6607,101 @@ Supplementary, non-interactive information only.
 | Part | Spec |
 |---|---|
 | Trigger wrapper | relatively-positioned inline-flex around the trigger content |
-| Bubble | 6px/10px padding (a one-off compact value, not the spacing scale), `radius-sm` (12px), Neutral-7 fill, Neutral-1 text, caption size, weight 500, `white-space: nowrap` |
+| Bubble | 6px/10px padding (a one-off compact value, not the spacing scale), `radius-sm` (12px), Neutral-7 fill, Neutral-1 text, caption size, weight 500, `white-space: nowrap` up to 240px max-width — at 240px, `white-space: normal` takes over and the bubble wraps to additional lines, growing in height only, never in width |
+| Caret | 6px equilateral triangle pointing toward the trigger, Neutral-7 fill — matches the bubble fill exactly, no border; centered on the bubble edge facing the trigger, perpendicular to the placement direction; implemented as a CSS `::after` pseudo-element, not a separate DOM element. On shift (viewport collision, below): stays centered on the trigger, not the bubble — the pointer relationship to the trigger is always preserved |
 | Placement | top (default) / bottom / left / right, centered on the trigger's cross-axis, 8px gap from the trigger |
 | Visibility | opacity 0 → 1 on hover **or** keyboard focus; `pointer-events: none` at all times |
 | Transition | `opacity` — `var(--duration-fast) var(--ease-standard)` |
 
+**Content rule:** 60 characters maximum per tooltip. Enforced at
+authoring level, not truncated by the component — content exceeding 60
+characters belongs in a Popover or [Info Banner](#info-banner) instead
+of being crammed into a Tooltip.
+
+**Viewport collision.** Flip rule: if the preferred placement overflows
+the viewport, flip to the opposite side — top → bottom, bottom → top,
+left → right, right → left. Shift rule: if flipping still overflows
+(the trigger sits near a corner), shift the bubble along its axis until
+it clears the viewport edge by `spacing-8`. Priority: flip before
+shift — flipping is the less visually disruptive correction of the
+two. Caret on shift: the caret stays centered on the trigger, not the
+bubble, so the pointer relationship is preserved regardless of how far
+the bubble itself has shifted. Fallback: if no placement clears the
+viewport without overflowing, use bottom as the final fallback.
+
+**Show and hide delay.** Every trigger is instant, no artificial wait
+on either side, mouse or keyboard:
+
+| Trigger | Delay |
+|---|---|
+| Mouse enter → show | instant, no delay |
+| Mouse leave → hide | instant — immediate dismissal feels correct, no reason to linger |
+| Focus → show | instant, no delay — keyboard users navigating by Tab see it immediately |
+| Blur → hide | instant |
+
+The bubble still fades in/out over the Transition row's own
+`duration-fast`/`ease-standard` — instant here means no waiting period
+*before* that fade starts, not that the fade itself is skipped.
+
+**Dismiss rules.**
+
+| Event | Behavior |
+|---|---|
+| Mouse leave | instant |
+| Blur (keyboard) | instant |
+| Escape key | dismisses the active tooltip and returns focus to the trigger |
+| Page scroll | instant — prevents a floating bubble from detaching visually from its trigger |
+| Trigger unmounted | instant |
+| Showing a new tooltip | dismisses any existing one — only one tooltip is ever visible at a time |
+
+**Z-index and stacking.** The bubble renders in a portal at the
+document `<body>` level, not inside the trigger's own DOM hierarchy —
+an ancestor with `overflow: hidden` or a new stacking context would
+otherwise silently clip it, the same problem [SidebarNav](#sidebarnav)'s
+own hover label documents independently for its own scrolling nav-list
+container. Layer: above all page content, including Cards, sticky
+headers, and modals; below system-level browser dialogs and OS
+notifications. Because of the portal, the bubble's `z-index` is
+relative to the root stacking context, not any ancestor.
+
+**Accessibility.**
+
+| Attribute | Spec |
+|---|---|
+| `role="tooltip"` | set on the bubble element |
+| `id` | every bubble instance requires a unique id, so it can be wired to `aria-describedby` |
+| `aria-describedby` | set on the trigger, referencing the bubble's id — links trigger to tooltip so screen readers announce the content when the trigger receives focus |
+| `aria-label` alternative | when the tooltip content *is* the trigger's accessible name (e.g. an icon button with no visible label), use `aria-label` on the trigger instead of `aria-describedby` — the name is then always announced regardless of hover/focus state, with the tooltip supplementing it visually |
+| Escape key | dismisses the active tooltip and returns focus to the trigger |
+| Screen reader note | bubble content must already be in the DOM (`opacity: 0`, never `display: none`) before the visual transition fires — screen readers discover it via `aria-describedby` regardless of the current opacity state |
+
+**Touch and mobile.**
+
+| Behavior | Spec |
+|---|---|
+| Touch trigger | long press (500ms) shows the tooltip |
+| Touch dismiss | tapping anywhere outside the bubble dismisses it — registered on the document, not the tooltip itself |
+| `pointer-events: none` | stays in effect — the bubble is never tappable on any device |
+| Scroll dismiss | applies to touch scrolling the same as mouse-wheel scroll |
+
+Usage note: Tooltip is a pointer-and-keyboard pattern. On
+touch-primary surfaces, consider surfacing the same information
+another way — inline helper text below the control, or an
+[Info Banner](#info-banner) — rather than hiding it behind a long
+press.
+
 **Do:** trigger on focus as well as hover, so keyboard users get the same
-information sighted mouse users do. **Don't:** put interactive content
+information sighted mouse users do. Render the bubble in a portal at
+the document body level — never inside the trigger's own DOM
+hierarchy. Keep `aria-describedby` wired so screen readers announce
+tooltip content on focus. Use `aria-label` on the trigger instead of
+`aria-describedby` when the tooltip is the trigger's only accessible
+name (e.g. icon buttons). **Don't:** put interactive content
 (links, buttons) inside a Tooltip — `pointer-events: none` means nothing
-inside is ever clickable by design.
+inside is ever clickable by design. Don't use `display: none` to hide
+the bubble — use `opacity: 0` so the content stays discoverable in the
+DOM before the transition fires. Don't add a show delay on any
+trigger, mouse or keyboard — both need the tooltip immediately.
 
 ## Guidelines
 
@@ -6836,7 +6919,59 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
-- **v0.9.50 — 2026-08-14** — Added a **Selectable** sub-variant to
+- **v0.9.48 — 2026-08-14** — Substantially expanded [Tooltip](#tooltip)
+  beyond its original teammate-transcribed spec, and fixed its live
+  gallery demo to actually match the resulting rules. Bubble:
+  `white-space: nowrap` now caps at 240px max-width, past which it
+  wraps to additional lines (height only, never width); a new
+  60-character content maximum is enforced at authoring level, not
+  truncated by the component — longer content belongs in a Popover or
+  Info Banner. New Caret part: 6px triangle, Neutral-7 fill (matches
+  the bubble exactly), a `::after` pseudo-element, stays centered on
+  the trigger (not the bubble) through any shift. New Viewport
+  collision behavior: flip to the opposite side first, shift along the
+  axis by `spacing-8` clearance only if flipping still overflows,
+  bottom as the final fallback. Show/hide delay: every trigger — mouse
+  enter, mouse leave, focus, blur — is instant, no artificial wait on
+  either side; the bubble still fades over the Transition row's own
+  `duration-fast`/`ease-standard`, since instant only governs the wait
+  before that fade starts, not the fade itself. New Dismiss rules:
+  instant on mouse leave/blur/scroll/unmount, Escape returns focus to
+  the trigger, and only one tooltip is ever visible at a time. New
+  Z-index/stacking section: the bubble renders in a `<body>`-level
+  portal, escaping ancestor `overflow: hidden`/stacking-context
+  clipping — the same problem [SidebarNav](#sidebarnav)'s own hover
+  label already documents independently for its scrolling nav list.
+  New Accessibility section: `role="tooltip"`, a unique id wired to
+  the trigger's `aria-describedby`, an `aria-label` alternative for
+  icon-only triggers, and a screen-reader note that content must be in
+  the DOM before the opacity transition fires. New Touch/mobile
+  section: 500ms long-press to show, tap-outside-to-dismiss, with a
+  usage note to prefer inline helper text or an Info Banner over a
+  long press on touch-primary surfaces. Do/Don't extended (nothing
+  removed) to cover portal rendering, `aria-describedby`/`aria-label`
+  wiring, never using `display: none`, and never adding a show delay
+  on any trigger.
+
+  Live gallery demo brought in line with all of the above:
+  `components.css`'s `.c-tooltip-bubble` previously had no opacity
+  property at all (rendered permanently visible, not hover-only) and
+  no portal logic, so it was both always-on and silently clipped by
+  `preview.html`'s own `.pane-left` container (`overflow: auto` cut
+  off the bubble's left edge whenever it rendered past the pane's own
+  boundary). Fixed both: Visibility now toggles via a `.is-visible`
+  class, and on show the bubble moves to a `document.body`-level
+  portal (`position: fixed`, computed from the trigger's own
+  `getBoundingClientRect`, via a new `.is-portaled` class) escaping
+  `.pane-left`'s clipping entirely; on hide it moves back into its
+  authored `.c-tooltip-wrap` position so "Copy markup" still captures
+  it correctly. Placement defaults to top, flipping to bottom only if
+  there's no room above the viewport. The demo itself is now a single
+  sample — an info icon trigger showing the tooltip on hover — the
+  second, non-functional "Hover me" button with no bubble wired to it
+  was removed.
+
+- **v0.9.47 — 2026-08-14** — Added a **Selectable** sub-variant to
   [Card](#card)'s base **Interactive/clickable** variant. Hover: raises
   to `shadow-2`, no fill change; focus-visible gets `shadow-focus` — the
   same elevation-only hover convention [Profile card](#card)'s own
@@ -9875,6 +10010,52 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
     box.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); box.click(); }
     });
+  });
+
+  // Tooltip — portal the bubble to <body> on show (see DESIGN-SYSTEM.md's
+  // Z-index and stacking rule) so it escapes this page's own .pane-left
+  // ancestor, which carries overflow:auto and was silently clipping the
+  // bubble whenever it rendered past the pane's own left/top edge. Moved
+  // back into .c-tooltip-wrap on hide so "Copy markup" still captures the
+  // bubble in its original, authored position. Show/hide is instant, no
+  // delay, per the Show/hide delay rule; placement defaults to top and
+  // flips to bottom only if there isn't room above the viewport.
+  document.querySelectorAll('.c-tooltip-wrap').forEach(wrap => {
+    const bubble = wrap.querySelector('.c-tooltip-bubble');
+    const trigger = wrap.querySelector('button, a, [tabindex]');
+    if (!bubble || !trigger) return;
+
+    function positionBubble() {
+      const tr = trigger.getBoundingClientRect();
+      const bw = bubble.offsetWidth, bh = bubble.offsetHeight;
+      const vw = document.documentElement.clientWidth;
+      const vh = document.documentElement.clientHeight;
+      let placement = 'top';
+      let top = tr.top - bh - 8;
+      if (top < 8) { placement = 'bottom'; top = tr.bottom + 8; }
+      if (placement === 'bottom' && top + bh > vh - 8) { placement = 'top'; top = Math.max(8, tr.top - bh - 8); }
+      let left = tr.left + tr.width / 2 - bw / 2;
+      if (left < 8) left = 8;
+      else if (left + bw > vw - 8) left = vw - 8 - bw;
+      bubble.style.top = top + 'px';
+      bubble.style.left = left + 'px';
+    }
+    function showTooltip() {
+      document.body.appendChild(bubble);
+      bubble.classList.add('is-portaled');
+      positionBubble();
+      bubble.classList.add('is-visible');
+    }
+    function hideTooltip() {
+      bubble.classList.remove('is-visible', 'is-portaled');
+      bubble.style.top = '';
+      bubble.style.left = '';
+      wrap.appendChild(bubble);
+    }
+    wrap.addEventListener('mouseenter', showTooltip);
+    wrap.addEventListener('mouseleave', hideTooltip);
+    trigger.addEventListener('focus', showTooltip);
+    trigger.addEventListener('blur', hideTooltip);
   });
 
   // Table — frozen-column scroll-boundary shadow, shown only on the
