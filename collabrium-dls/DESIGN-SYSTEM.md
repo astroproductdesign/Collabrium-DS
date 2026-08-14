@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.42** — 2026-08-13 — Sourced from the Collabrium brand deck
+**v0.9.45** — 2026-08-13 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1104,11 +1104,122 @@ the Modal footer's divider, scaled down.
 - **Icon-chip header** — a 36×36 chip at `radius-sm`, `icon-md` glyph in the element's full-strength color — **Tier 2, Fill** (a department indicator, per [Iconography](#iconography)). The chip background is the element color at **12% opacity** (a one-off `color-mix`), not the standard 8% `-bg` token used for full-card tinting — these are two different tint strengths for two different purposes, don't conflate them. This is the standard way a card declares which department owns it.
 - **Warm** — `canvas-warm-card` fill, border dropped. For a surface that's deliberately blending into the (now default-everywhere) warm page canvas — e.g. a quote block, a featured stat — rather than standing apart from it; not restricted to brand/editorial anymore (see Color Palette's Warm canvas note).
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
+- **USP** — a feature-highlight tile, not a generic content card. Anatomy: Header (h4, same as base) → Description (p, same as base body2/Neutral-5) → 3 bullet points (new `.c-card-usp-list`: `ph-fill ph-check-circle` at `icon-sm`, Obsidian — **Tier 2, Fill**, the same call as Button's own leading check-circle example — followed by body2/Neutral-9 text, both vertically centered on the same line, spacing-8 gap) → CTA button (the real [Button](#button) component, Primary/md — never rebuilt from scratch — stretched to the card's full width with its label centered, rather than hugging its own content like a Card-region CTA normally would).
+- **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
+
+⚠️ **Price summary card is designed from scratch** — no source in
+either the original brand deck or the teammate's build. Built from
+this document's own token system by extension from this same Card
+spec (its Footer sub-part) and [Empty state](#empty-state), not
+transcribed. Treat as a first pass needing real design/brand review.
+
+Two states: **Empty** (nothing selected yet) and **Filled** (≥1 item
+selected).
+
+**Price summary card — Empty state.**
+
+| Part | Spec |
+|---|---|
+| Header | h4, "Price summary" — same as the base Card header |
+| Illustration | [Empty state](#empty-state)'s own Icon + Heading, reused verbatim: `icon-empty` (48px), Neutral-4, **Tier 2, Fill** — a `list` glyph; Heading h4 (20px/800), Neutral-9, reading "No items added" |
+
+**Price summary card — Filled state.**
+
+| Part | Spec |
+|---|---|
+| Header | h4, "Price summary" |
+| Selected items list | first 4 items always visible; items 5+ collapse behind a "Show X more" control — see **Selected items list — display rules** below for the full behavior |
+| Item row | Item name (body2/700, Neutral-9, truncates with an ellipsis past the row's available width) — Unit cost (caption, Neutral-5, right-aligned) — Remove × (**optional** — a read-only/locked line item can omit it; `icon-micro` 14px, Neutral-5, 24×24px hit target, same recipe as FileUploader's row × per [Iconography](#iconography)'s remove-button precedent) — 1px Neutral-3 border-bottom between rows |
+| Divider | Card's own Footer top border, reused as-is between the item list and the section below — not a separate element |
+| Total row | Inside the Footer: "Total" (label1/700, Neutral-9) and the total cost (label1, Neutral-5), space-between, value right-aligned |
+| CTA button | [Button](#button)'s Primary/md, stretched to the card's full width with its label centered — "Build proposal" is this variant's own copy, not a generic placeholder |
+
+Pricing defaults to Malaysian ringgit — space after RM, comma
+thousands, per this document's own Numbers content rule — but always
+rendered to **2 decimal places** (`RM 1,200.00`, not `RM 1,200`), a
+deliberate exception to that rule's own examples: a running total's
+line items and total are exact costs, not rounded summary figures like
+a budget total elsewhere in this document, so the decimals stay
+visible on every amount in this component (Unit cost, the overflow
+rows, and the Total row alike). Swap the currency only if the host
+context requires a different one.
+
+**Price summary card — Selected items list — display rules.**
+
+- **Rule 1 — Default visible count is 4.** When the list holds 4 or
+  fewer items, all items render in full. No overflow control appears.
+- **Rule 2 — Truncation threshold is 5.** When the list holds 5 or
+  more items, only the first 4 are visible by default. A "Show X more"
+  control appears immediately below the 4th row, where X is the exact
+  hidden count (total − 4). Never use a vague "Show more" label — the
+  count is always stated so the user knows what they're expanding
+  into.
+- **Rule 3 — "Show X more" uses the Link button style, without the
+  underline.** Adapts [Chip](#chip)'s own `.c-chip-showless`
+  Link-button recipe (transparent fill, Neutral-9 text) with two
+  deliberate departures from that recipe: no underline — a direct
+  design call for this control specifically — and a trailing
+  caret-down at `icon-micro` (14px), since Chip's own control has no
+  icon and this one needs one to invert to caret-up on expand (see
+  Rule 4). Left-aligned, same horizontal padding as the item rows
+  (i.e. none beyond the card's own padding). The count updates in real
+  time as items are added or removed while the list is in its
+  collapsed state — the control never goes stale.
+- **Rule 4 — Expanding shows all items in a scrollable zone.** Tapping
+  "Show X more" reveals the remaining items. The overflow region
+  switches to `overflow-y: auto` with a 320px `max-height` (the same
+  cap as [Dropdown](#dropdown)'s own list) so it scrolls internally —
+  the Total row and CTA button remain fully visible at all times,
+  never pushed off screen, since both live inside the Card's Footer,
+  outside this scrollable region entirely. The control label swaps to
+  "Show less" with a trailing caret-up.
+- **Rule 5 — "Show less" collapses back to 4.** Tapping "Show less"
+  returns the list to its 4-item default. Scroll position inside the
+  list resets to the top. The control reverts to "Show X more" with
+  the current hidden count.
+- **Rule 6 — Transition uses `duration-base` + `ease-settle`.** The
+  overflow region's height animates on both expand and collapse using
+  the same Grid `0fr → 1fr` technique as SidebarNav's own
+  `.c-nav-children` (see that rule's own components.css comment)
+  rather than a guessed `max-height` value, which would either clip
+  content or leave dead space depending on item count. `ease-settle`
+  is correct here — the list is anchoring into a new resting state,
+  not flying in. Never instant, never bouncy.
+- **Rule 7 — Removing a hidden item updates the count silently.** If a
+  user removes an item while the list is collapsed and that item is
+  one of the hidden ones, the "Show X more" count decrements without
+  triggering an expand. If the total drops to exactly 4, the control
+  disappears entirely without any user action required.
+- **Rule 8 — Removing items while expanded auto-collapses when the
+  threshold is crossed.** If items are removed while the list is
+  expanded and the total drops to 4 or fewer, the "Show less" control
+  disappears and the list settles into its normal full-display state —
+  no user action required to dismiss the expanded view.
+- **Rule 9 — The Total row and the Build CTA are always in view.**
+  Both live inside the Card's Footer, fixed outside the scrollable
+  list region. No interaction with the items list — expanding,
+  scrolling, or removing — ever pushes them out of the visible card
+  area.
+
+**Price summary card — Edge cases.**
+
+| Scenario | Behaviour |
+|---|---|
+| Exactly 4 items | All shown, no overflow control |
+| 5th item added while collapsed | "Show 1 more" appears below item 4 |
+| 5th item added while expanded | Item animates in at the bottom of the list, no state change to the control |
+| Item removed, total → 4, list collapsed | "Show X more" disappears silently |
+| Item removed, total → 4, list expanded | "Show less" disappears, list stays at full display |
+| Clear all | Returns to the Empty state ("No items added"), list resets entirely — Clear all itself isn't part of this variant's own anatomy above; this row documents the resulting state for whichever control triggers it |
+| Item is one of the hidden items, removed while collapsed | "Show X more" count decrements by 1 (e.g. "Show 3 more" → "Show 2 more"); list stays collapsed |
 
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
-they're not interchangeable. **Don't:** tint a card with an element that
-doesn't own its content.
+they're not interchangeable. Treat the Price summary card's Remove ×
+as optional per row. **Don't:** tint a card with an element that
+doesn't own its content. Don't omit the Header or Total row in the
+Price summary card's Filled state — a total with no visible sum
+defeats the component's purpose.
 
 ### Chart chrome & marks
 
@@ -3638,6 +3749,81 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.45 — 2026-08-13** — Moved the standalone **Quote builder**
+  component into [Card](#card) as a new variant, renamed **Price
+  summary card** (Scope note bumped 32 → 31 — the reverse of the
+  v0.9.44 entry below, same accounting precedent as Table row/DataTable
+  → Table and Select/MultiSelect → Dropdown). Quote builder was always
+  built by extending Card's own header and Footer rather than
+  inventing new structure (see the v0.9.44 entry's own "Card-extending
+  component" framing) and CSS classes were already namespaced
+  `.c-card-quote-*`, so this formalizes what was already true
+  structurally — it never needed its own `###` heading, own
+  `preview.html` demo block, or own Scope-note slot. No anatomy,
+  behavior, or Do/Don't rule changed: the Empty/Filled states, all 9
+  Selected-items-list display rules, the edge-case table, and the
+  2-decimal-place pricing exception all carry over unchanged, just
+  renamed from "Quote builder" to "Price summary card" and the visible
+  card header copy from "Quote builder" to "Price summary." Only the
+  CSS class prefix changed (`.c-card-quote-*` → `.c-card-price-*`,
+  `.c-card-quote` → `.c-card-price-summary`) and the live gallery demo
+  moved from its own `#comp-quotebuilder` block into Card's own tile
+  grid as an 8th tile, alongside USP — the same "variant, not a
+  separate component" treatment USP already gets. The v0.9.44 entry
+  below originally shipped as three same-day entries (v0.9.44–v0.9.46:
+  the component's addition, two refinements, and a pricing-format
+  correction) — consolidated here into that one v0.9.44 entry now that
+  the iteration has settled, the same "collapse same-day passes once
+  the spec settles" treatment this Changelog's own v0.9.40 entry
+  documents for Filters.
+
+- **v0.9.44 — 2026-08-13** — Added **Quote builder**, a new
+  Card-extending component (Scope note bumped 31 → 32): a running
+  selected-items list building toward a quote, in Empty and Filled
+  states. Empty state reuses [Empty state](#empty-state)'s icon +
+  heading verbatim (`list` glyph). Filled state reuses [Card](#card)'s
+  Footer sub-part as the divider before a Total row and a full-width
+  Primary/md "Build proposal" CTA — nothing new invented for that
+  boundary. Also documented **Selected items list — display rules**
+  (Rules 1–9 plus an edge-case table): a 4-item default with a
+  "Show X more"/"Show less" overflow control past 5 items, reusing
+  Chip's own `.c-chip-showless` Link-button recipe (extended with a
+  caret, underline dropped — a direct design call departing from
+  Chip's own recipe on that one point) and SidebarNav's Grid
+  `0fr → 1fr` expand/collapse technique rather than a guessed
+  `max-height`. Two terms from the original brief were resolved before
+  writing this spec: "financial summary" is the same zone as the Total
+  row, not a separate breakdown, and a mentioned "fit banner" was
+  dropped entirely since it was never specified. Pricing defaults to
+  Malaysian ringgit, always rendered to **2 decimal places**
+  (`RM 1,200.00`, not `RM 1,200`) — a deliberate exception to this
+  document's general Numbers content rule, whose own examples (budget
+  totals elsewhere in this document) omit decimals; a quote's line
+  items and total are exact costs, not rounded summary figures, so the
+  decimals stay visible on every amount in the component (Unit cost,
+  overflow rows, and the Total row alike). Built into the live gallery
+  as its own `preview.html` block (not folded into Card's own tile
+  grid, since this is a full component now, not a Card variant like
+  USP is) showing only the Filled state — the Empty state and the
+  Rules 1–9 interaction behavior (live add/remove, expand/collapse
+  animation) are documented as the spec to build against, not wired up
+  live, the same treatment Date picker's inert month-nav already gets.
+
+- **v0.9.43 — 2026-08-13** — Added a **USP** variant to
+  [Card](#card) (not a new component, so no change to the Scope note's
+  31-component count): Header → Description → 3 bullet points → CTA
+  button. The bullet list is new (`ph-fill ph-check-circle`, Obsidian,
+  Tier 2 Fill, per Button's own leading check-circle precedent); the
+  Header, Description, and CTA all reuse existing Card/Button styles
+  verbatim rather than introducing new ones. The only deliberate
+  deviation from a normal Card CTA is width: this button stretches to
+  the card's full width with its label centered, instead of hugging its
+  own content the way a Card-region CTA normally does — a direct
+  request for this specific variant, not a change to Button or to Card's
+  general CTA guidance elsewhere. Built into the live gallery
+  (`preview.html`'s Card block) as a 7th tile alongside the other six
+  variants.
 
 - **v0.9.42 — 2026-08-13** — Merged the separately-documented **Table
   row** and **DataTable** into one unified **Table** component. Table
