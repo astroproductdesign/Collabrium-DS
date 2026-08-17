@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.49** — 2026-08-17 — Sourced from the Collabrium brand deck
+**v0.9.50** — 2026-08-17 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -713,7 +713,7 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-31 components: the original 7 basics
+32 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table, Modal / dialog,
 Empty state), 8 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
@@ -723,8 +723,11 @@ picker, **Segmented Control**, **Slider**, **Chip**, **Progress
 Bar** — plus two chart
 guidelines, [Chart color mapping](#chart-color-mapping) and [Chart
 chrome & marks](#chart-chrome--marks) (neither a rendered component),
-and 8 more: **App Shell** (the page-level composition layer — Sidebar
-placement, Content region, Page header), Textarea, Password field,
+and 9 more: **App Shell** (the page-level composition layer — Sidebar
+placement, Content region, Page header), **Back button** (the Level
+2+ navigation control App Shell's own Level 2 placeholder reserved,
+now specced — see [App Shell](#app-shell)'s own note), Textarea,
+Password field,
 **Search input** (a text search field with a clear button, in
 Default/User Search/Item Search variants — the last two searching and
 selecting a person or item from a dropdown), **Stepper** (a
@@ -735,7 +738,7 @@ transcribed **Select** and designed-from-scratch **MultiSelect**,
 consolidated into one component), and **Info Banner** (an inline,
 persistent, container-anchored notification — distinct from Toast's
 floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
-batch, App Shell, Stepper, FileUploader, Dropdown, Search input, Info
+batch, App Shell, **Back button**, Stepper, FileUploader, Dropdown, Search input, Info
 Banner, **Segmented Control**, **Slider**, **Chip**, and **Progress
 Bar** have **no source in
 either the original brand deck or the teammate's build**; they're
@@ -751,6 +754,7 @@ sizes, states, Do/Don't), the same process every component above went
 through.
 
 - [App Shell](#app-shell)
+- [Back button](#back-button-level-2-navigation)
 - [Badge & Tag](#badge--tag)
 - [Button](#button)
 - [Card](#card)
@@ -929,22 +933,21 @@ is neither Dropdown-based nor pill-shaped. Flagged rather than silently
 left inconsistent; needs a follow-up pass to either build the pill
 trigger or revise this row to match what's actually reusable today.
 
-⚠️ **Reserved, added 2026-08-05, not yet specced:** everything above is
-Level 1 — the shared outer frame (Sidebar, Content region, Page header)
-every screen gets. A **Level 2** exists conceptually for
-drill-down/detail screens — a Back control and breadcrumb replacing or
-augmenting Page header's plain title/subtitle once a user navigates
-into a specific record — but has no rules yet. Deliberately deferred:
-guessing Back/breadcrumb behavior with no real detail-view build to
-react against risks the same fate as App Shell's own first-draft flush-
-rail nav variant (plausible, wrong, undone later). **Trigger to actually
-write it: the moment a team is about to build the first real drill-down
-screen, before they build it** — not after divergent builds show up, or
-this section will have recreated the exact "N teams, N answers" problem
-App Shell itself exists to close, just one level deeper. When written,
-Level 2 extends this section (same relationship Main nav has to
-SidebarNav — a use of the existing frame, not a second one) rather than
-replacing it.
+**Level 2 — drill-down/detail screens, now specced.** Everything above
+is Level 1 — the shared outer frame (Sidebar, Content region, Page
+header) every screen gets. Level 2 is [Back button (Level 2+
+navigation)](#back-button-level-2-navigation): a single Back control
+that replaces Page header's plain title/subtitle whenever a screen is
+a child of another screen. This was reserved as an unspecced
+placeholder on 2026-08-05 specifically to avoid guessing Back/
+breadcrumb behavior with no real detail-view build to react against
+— the same risk App Shell's own first-draft flush-rail nav variant
+already illustrates (plausible, wrong, undone later). It's specced now
+because that trigger condition has arrived: a team is about to build
+the first real drill-down screen. Level 2 extends this section — the
+same relationship Main nav has to SidebarNav, a use of the existing
+frame, not a second one — rather than replacing it; Content region's
+own grid/padding rules and Sidebar's own placement are unchanged.
 
 **Do:** let Sidebar own primary navigation and its own Header/Footer
 slots — there's no second nav surface to reach for. Keep the whole
@@ -964,6 +967,62 @@ with a one-off fraction. **Don't:** give a box its own fixed height to
 solve a row-height mismatch — that's what Row height's `align-items:
 stretch` is already for; a hardcoded height fights it instead of using
 it.
+
+### Back button (Level 2+ navigation)
+
+⚠️ **Designed from scratch — fulfils [App Shell](#app-shell)'s
+previously reserved and deliberately deferred Level 2 placeholder.**
+Written now because the first real drill-down screen is about to be
+built — the exact trigger condition that placeholder called for when
+it was reserved on 2026-08-05, rather than guessing Back/breadcrumb
+behavior with no real detail-view build to react against.
+
+A single Back control that appears at the top of any screen that is a
+child of another screen, regardless of depth. It replaces App Shell's
+plain Page header with a Back button row prepended above it on all
+Level 2+ screens — Page header itself is unchanged; this row sits
+above it, not inside it. The back button always navigates one level
+up, never to root. At any depth the user sees exactly one context
+signal: the immediate parent screen's name. There is no breadcrumb
+trail and no root shortcut. Triggered by a table row click, a card
+click, or any other interactive element that routes to a child screen.
+
+This does not modify or override [SidebarNav](#sidebarnav) in any way
+— per [App Shell](#app-shell), SidebarNav remains a direct, unmodified
+instance regardless of Level. The Back button row lives in Content
+region, entirely separate from Sidebar's own placement.
+
+| Part | Spec |
+|---|---|
+| Container | full width of Content region — no fill, no border, a transparent layout layer, matching Page header's own full-width rule |
+| Back button — icon | leading `arrow-left` (Phosphor), `icon-sm` (16px) — **Tier 1, Regular** (a navigation control affordance, per [Iconography](#iconography)) |
+| Back button — gap | spacing-8 between icon and label |
+| Back button — label | label2 (13px/18px, weight 700), Neutral-9 |
+| Back button — style | Ghost at rest — no border, no fill, no shadow |
+| Back button — padding | spacing-8 vertical / spacing-12 horizontal |
+| Back button — radius | `radius-sm` (12px) |
+| Label content | always the immediate parent screen's name — never a generic "Back." Max 40 characters, truncating with an ellipsis past that. Matches the parent page's own title casing. Dynamic: updates at each depth level (an L3 screen's Back button reads the L2 screen's name, not the L1 root) |
+| Gap below | spacing-12 between the back button row's bottom and Page header's title top |
+| Transition | `background-color var(--duration-fast) var(--ease-standard)` — the same pair [SidebarNav](#sidebarnav)'s own Nav item transition uses, reused rather than inventing a new one |
+
+**States** — all four reuse **Button Ghost's** own tokens directly,
+not a parallel set:
+
+| State | Fill | Text/icon | Note |
+|---|---|---|---|
+| Default | transparent | Neutral-9 | matches Button Ghost's own Default row exactly |
+| Hover | Neutral-2 `#f0f0f0` | Neutral-9 | reuses **Button Ghost's** `Hover \| Neutral-2 fill` token, not a new value |
+| Active/pressed | Neutral-3 `#d8d8d8` | Neutral-9 | reuses **Button Ghost's** `Active/pressed \| Neutral-3 fill` token |
+| Focus-visible | transparent | Neutral-9 | 2px Obsidian outline, 2px offset, `radius-sm` — reuses **Button Ghost's** own focus-visible token verbatim |
+
+**Do:** resolve Label to the real parent screen's title at every depth,
+and keep every property value pulled from an existing Button Ghost or
+SidebarNav token rather than inventing a new one. **Don't:** build a
+multi-level breadcrumb trail or add a "Home"/root shortcut — one
+context signal, one level up, is the whole rule. **Don't:** override
+any Button Ghost or SidebarNav state token to make the Back button
+match more closely — if it doesn't fit, that's this component's own
+spec to adjust, not theirs.
 
 ### Badge & Tag
 
@@ -4205,6 +4264,35 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.50 — 2026-08-17** — Added **Back button (Level 2+
+  navigation)**, a new component fulfilling [App Shell](#app-shell)'s
+  own Level 2 placeholder, reserved and deliberately unspecced since
+  2026-08-05. Written now that the trigger condition that placeholder
+  named has arrived — a team is about to build the first real
+  drill-down screen. A single Back control prepended above Page
+  header on any screen that's a child of another: leading `arrow-left`
+  icon, label2 text reading the immediate parent screen's name (never
+  a generic "Back," never a breadcrumb trail, never a root shortcut),
+  Ghost style at rest. All four states (Default, Hover, Active/pressed,
+  Focus-visible) reuse Button Ghost's own tokens directly, and the
+  Transition token reuses SidebarNav's own Nav item pair — no new
+  color, spacing, or motion value introduced anywhere in the spec.
+  Does not modify SidebarNav, which per App Shell stays a direct,
+  unmodified instance regardless of Level. App Shell's own Level 2
+  paragraph updated to point here instead of describing it as
+  unspecced. Scope note's component count moves 31 → 32. Inserted
+  alphabetically between App Shell and Badge & Tag. Implemented for
+  real: `components.css` gained `.c-back-button`/`.c-back-button-row`,
+  and `preview.html`'s live gallery gained a new `comp-back-button`
+  demo block (both the `.c-nav-child` sidebar entry and the
+  `.comp-block` itself, inserted alphabetically in the same spot),
+  showing the Back button row composed directly above a sample Page
+  header to demonstrate the "sits above Page header, doesn't replace
+  it" relationship the spec describes — given its own dedicated block
+  rather than folded into App Shell's own demo, to keep the
+  established one-component-one-block/"Copy markup" convention every
+  other component in the Scope note gets.
 
 - **v0.9.49 — 2026-08-17** — Added a universal **Grid layout** rule to
   [Card](#card), covering every variant without exception. Responsive
