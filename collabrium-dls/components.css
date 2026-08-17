@@ -183,8 +183,15 @@
    shrinking by the button's width once it's gone. */
 .c-search-input-collapsed.is-disabled .c-search-input-clear{visibility:hidden;}
 
-.c-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--spacing-16);}
-.c-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8); transition:box-shadow var(--duration-base) var(--ease-settle);}
+/* Grid layout — universal rule (see DESIGN-SYSTEM.md's Card > Grid layout):
+   align-items:stretch is the grid default (never overridden to start), so
+   every card in a row already matches the tallest card's height; the grid
+   controls column count via auto-fill/minmax, never the card. Base floor is
+   240px (see .c-card's own min-width, below); .c-cards-functional swaps in
+   the 280px floor USP/Price summary need. */
+.c-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:var(--spacing-16);}
+.c-cards-functional{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+.c-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8); transition:box-shadow var(--duration-base) var(--ease-settle); width:100%; min-width:240px; height:100%; box-sizing:border-box;}
 .c-card.warm{background:var(--color-canvas-warm-card); border-color:transparent;}
 .c-card-header{display:flex; align-items:flex-start; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
 /* Shared 36×36 icon-chip pattern — DESIGN-SYSTEM.md documents this as
@@ -219,7 +226,8 @@
    .c-card's own column-flex default (align-items:stretch) already makes
    it full-width, so align-self:stretch here is just documenting that,
    not overriding anything. */
-.c-card-usp-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-card-usp{min-width:280px; height:100%;}
+.c-card-usp-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-8); flex:1;}
 .c-card-usp-list li{display:flex; align-items:center; gap:var(--spacing-8); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
 .c-card-usp-list i{flex:none; font-size:var(--icon-sm); color:var(--color-obsidian);}
 .c-card-usp .c-btn{align-self:stretch; justify-content:center;}
@@ -240,7 +248,8 @@
    since Chip's own control needs neither. See DESIGN-SYSTEM.md's
    "Selected items list — display rules" for the full behavior spec
    this markup alone doesn't express. */
-.c-card-price-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column;}
+.c-card-price-summary{min-width:280px; height:100%;}
+.c-card-price-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; flex:1;}
 .c-card-price-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) 0; border-bottom:1px solid var(--color-neutral-3);}
 .c-card-price-row:last-child{border-bottom:none;}
 .c-card-price-name{flex:1; min-width:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -284,7 +293,7 @@
    transition, since animating one without the other (they can't stay
    in lockstep mid-transition) would itself cause the exact shift the
    padding compensation exists to prevent. */
-.c-card-profile{width:100%; min-width:240px; position:relative; box-sizing:border-box; transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
+.c-card-profile{width:100%; min-width:240px; height:100%; position:relative; box-sizing:border-box; transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
 .c-card-profile.is-interactive{cursor:pointer;}
 .c-card-profile.is-interactive:hover{box-shadow:var(--shadow-2);}
 .c-card-profile.is-interactive:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
