@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.50** — 2026-08-17 — Sourced from the Collabrium brand deck
+**v0.9.51** — 2026-08-17 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -46,7 +46,7 @@ changelog when you do.
 | 8 | No final logo asset | A real animated wordmark + mark SVG (`logo.html`, trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The ink-color discrepancy between the static lockup and the animated mark is **resolved** — both use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
 | 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
-| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case, none brand-team-confirmed: (1) the Tabs component's own "Settings" tab icon, treated as Tier 2 like SidebarNav rather than Tier 1 like a generic nav control; (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
+| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case: (1) **Resolved** — the Tabs component's own optional leading icon is Tier 1, Regular; Tabs are navigation controls, not expressive status indicators, the same resolution [Segmented Control](#segmented-control) already documents for its own icon, see [Tabs](#tabs)'s own anatomy table; (2)-(4) still none brand-team-confirmed: (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
 
 ---
 
@@ -3825,12 +3825,99 @@ In-page section switching, not app-level navigation (use SidebarNav for that).
 | Tab | inline-flex, spacing-8 gap, 40px height, 0/spacing-12 padding, no fill or border, body1 weight 700 |
 | Tab — active | Neutral-9 text, 2px Obsidian underline (drawn as an **inset** `box-shadow: inset 0 -2px 0 var(--color-obsidian)`, not a real border — keeps the underline from shifting row height) |
 | Tab — inactive | Neutral-5 text, no underline |
-| Icon (optional) | `icon-sm` (16px), leading; **Tier 2, Fill** — a judgment call, not explicit in [Iconography](#iconography)'s examples; treated like SidebarNav (a persistent selection control) rather than a generic Tier 1 nav control, see [Needs Input #11](#needs-input-read-this-first) |
-| Trailing count (optional) | caption/700/Neutral-5 |
+| Icon (optional) | `icon-sm` (16px), leading; **Tier 1, Regular** — Tabs are navigation controls, not expressive status indicators. Segmented Control resolves the same question explicitly: "segments are button-like controls, not expressive status indicators — Tier 1 Regular is correct per [Iconography](#iconography)." Tabs fall in the same control class. [Needs Input #11](#needs-input-read-this-first) closed for this component |
+| Trailing count (optional) | caption/700/Neutral-5 — see **Trailing count**, below, for the full behavior spec |
 | Transition | `color`, `box-shadow` — `var(--duration-fast) var(--ease-standard)` |
 
+**States:**
+
+| State | Fill | Text/icon | Notes |
+|---|---|---|---|
+| Hover — inactive only | Neutral-2 `#f0f0f0` | Neutral-7 `#222222` | No underline — the 2px Obsidian underline is reserved for the active state only. Reuses **Button Ghost's** own `Hover \| Neutral-2 fill` token, the same one [Table](#table)'s own Row hover and SidebarNav's Nav item hover reuse, rather than a Tabs-specific value |
+| Hover — active | no change | no change | The active tab doesn't visually respond to hover — it's already the elevated/selected one; the underline stays exactly as-is |
+| Active/pressed | Neutral-3 `#d8d8d8` | unchanged from the tab's current state (Neutral-9 if active, Neutral-5 if inactive) | Direct match to **Button Ghost's** `Active/pressed \| Neutral-3 fill` — the momentary mouse-down state, a different axis from the persistent Tab — active/inactive rows above, same "active" vs. "active-pressed" distinction [SidebarNav](#sidebarnav) documents for its own Nav item |
+| Focus-visible | current fill unchanged | current text unchanged | 2px Obsidian outline, 2px offset, `radius-sm` on the tab element — reuses **Button Ghost's** focus-visible token exactly, additive on top of whatever fill state the tab already has. Applies to both active and inactive tabs when reached via keyboard |
+| Disabled | transparent | Neutral-4 `#bdbdbd`, 40% opacity | `cursor: not-allowed`, no hover or press response — matches **Button Ghost's** disabled convention and [SidebarNav](#sidebarnav)'s own locked/soon Nav item (Neutral-4 text/icon at 40% opacity), not Checkbox/Radio/Switch's 50%-opacity convention, which belongs to compact toggle controls, not row/tab-based controls. A tab is never disabled and active at the same time |
+
+**Tab panel / content area.**
+
+| Part | Spec |
+|---|---|
+| Gap above panel | spacing-16 between the container's border-bottom track and the tab panel content |
+| Panel fill | none — inherits whatever surface it sits on (Card, page, section) rather than adding its own background |
+| Min-height | none — the panel collapses to its own content's height |
+| Panel transition | the incoming panel fades `opacity 0→1` on `duration-fast`/`ease-standard`; the outgoing panel fades out at the same time, not sequentially — both sides of the swap happen at once. Reduced-motion: an instant swap, no fade on either side |
+
+**Overflow and horizontal scroll.**
+
+| Part | Spec |
+|---|---|
+| Scroll behavior | the container scrolls horizontally (`overflow-x: auto`) once tabs exceed the available width |
+| Scrollbar | hidden by default — never reserves its own layout space |
+| Right fade | a 32px gradient overlay on the right edge, the parent surface's color fading to transparent, `pointer-events: none` — appears as soon as any tab is clipped |
+| Left fade | the same 32px gradient on the left edge, once the user has scrolled past the first tab |
+| Tab width | no tab ever shrinks below its natural content width — horizontal scroll handles overflow, never label truncation |
+| Tab label | never truncates with an ellipsis; if it doesn't fit in view, the container scrolls instead |
+
+**Trailing count.** What it represents: a count of items in that
+section — results, pending items, notifications. Use it only when the
+count is meaningful and actionable, never decorative. It updates
+dynamically as the underlying data changes — never a static number.
+Hide it entirely at a count of 0 rather than showing "0." Values above
+99 display as "99+." spacing-4 sits between the label and the count.
+On the active tab, the count switches to Neutral-9 text instead of
+Neutral-5 — it always inherits the tab's own current text color rather
+than carrying a fixed color of its own.
+
+**Default active tab and URL persistence.** The first tab is active on
+first load unless a prop or URL parameter says otherwise. Where context
+supports it, the active tab is serializable to a URL query parameter
+(e.g. `?tab=overview`) so a specific tab is shareable as a deep link.
+If a URL parameter names a tab that no longer exists, fall back to the
+first tab silently — no error state. An explicit `defaultTab` prop
+takes priority over the first-tab default.
+
+**Container width and equal-width clarification.**
+
+| Rule | Spec |
+|---|---|
+| Container width | full width of the parent — the border-bottom track spans full width regardless of how many tabs exist |
+| Tab width | intrinsic — each tab shrinks or grows to fit its own label naturally; tabs never stretch equally to fill the container |
+| Equal-width distribution | not supported in Tabs — equal-width segment distribution belongs to [Segmented Control](#segmented-control), not Tabs |
+| Alignment | all tabs left-align inside the container — never centered or right-aligned |
+
+**Tabs vs. Segmented Control.**
+
+| | Tabs | Segmented Control |
+|---|---|---|
+| Purpose | Section switching — different content renders below | View switching — same content, different layout/density |
+| Width | Full container width, scrolls on overflow | Compact, inline, sized to its context |
+| Max items | ~6 | 2–5 |
+| Active indicator | 2px Obsidian inset underline | Neutral-1 fill + `shadow-1` |
+| Placement | Page-level, always visible | Toolbar, header row, card header |
+
+**Decision rule:** use Tabs when switching reveals different content;
+use Segmented Control when switching changes how the same content is
+displayed. If unsure, ask whether the URL or data query changes —
+yes means Tabs, no means Segmented Control.
+
+**Icon-only tabs are not permitted.** A tab must always carry a visible
+text label — icons are supplementary and never replace the label.
+Unlabelled tabs create ambiguity about which section they represent,
+especially on complex dashboards where multiple sections could
+plausibly share the same icon.
+
+**Nested tabs are not permitted.** A tab panel must never contain
+another tab bar. If a section needs sub-sections, use a Select dropdown
+or a SidebarNav second-level navigation instead — nested tabs create
+spatial and cognitive confusion, since the user loses track of which
+level they're navigating.
+
 **Do:** keep tabs to a single row — wrap the container or let it scroll
-horizontally rather than shrinking labels to fit. **Don't:** use Tabs for
+horizontally rather than shrinking labels to fit. Left-align all tabs
+in the container — never centered or right-aligned. Let the container
+scroll horizontally on overflow, with gradient fades to signal there's
+more to see. **Don't:** use Tabs for
 more than ~6 sections; beyond that, use SidebarNav or a Select instead.
 
 ### Textarea
@@ -4264,6 +4351,60 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.51 — 2026-08-17** — Substantially expanded [Tabs](#tabs).
+  Icon tier resolved from a Needs Input #11 judgment call (Tier 2,
+  Fill) to Tier 1, Regular — Tabs are navigation controls, not
+  expressive status indicators, the same resolution Segmented
+  Control's own icon already documents; Needs Input #11 updated to
+  mark this judgment call resolved while leaving its other three open.
+  New full **States** table: hover (inactive only, reuses Button
+  Ghost/Table Row hover's Neutral-2 token; active tabs don't respond to
+  hover), active/pressed (Button Ghost's Neutral-3 token), focus-visible
+  (Button Ghost's outline token, additive on either active or inactive),
+  and disabled (Neutral-4 at 40% opacity, matching SidebarNav's own
+  locked/soon convention, not Checkbox/Radio/Switch's 50%-opacity one —
+  disabled and active are mutually exclusive). New **Tab panel/content
+  area** spec: spacing-16 gap above the panel, no fill of its own,
+  simultaneous cross-fade on `duration-fast`/`ease-standard` between
+  outgoing/incoming panels, instant swap under reduced motion. New
+  **Overflow and horizontal scroll** spec: `overflow-x: auto` once tabs
+  exceed the container, a hidden scrollbar, 32px edge-fade gradients
+  that appear as content is clipped on either side, and a hard rule
+  that labels never truncate — scrolling handles overflow, not
+  ellipsis. **Trailing count** extended into its own full behavior
+  spec: meaningful/actionable counts only, dynamic updates, hidden at
+  zero, "99+" ceiling, and the count inheriting the active tab's own
+  text color rather than a fixed one. New **Default active tab and URL
+  persistence** section: first-tab default, `?tab=` deep-linking,
+  silent fallback to the first tab on an unknown URL value, and
+  `defaultTab` prop priority. New **Container width and equal-width
+  clarification** table stating tabs are intrinsically sized and
+  left-aligned, never equal-width or centered — that behavior belongs
+  to Segmented Control. New **Tabs vs. Segmented Control** comparison
+  table plus a one-line decision rule (does the URL/data query change?
+  yes → Tabs, no → Segmented Control). New hard rules: icon-only tabs
+  not permitted (a visible label is always required) and nested tabs
+  not permitted (a tab panel can never contain another tab bar — use a
+  Select or SidebarNav second-level nav instead). Do/Don't extended
+  with the left-alignment and horizontal-scroll rules; nothing existing
+  removed. Implemented for real: `components.css`'s `.c-tab`/`.c-tabs`
+  rewritten — icon markup now uses the Regular `ph` glyph set (never
+  `ph-fill`), matching the Tier 1 resolution; the full hover/
+  active-pressed/focus-visible/disabled state set added (all reusing
+  Button Ghost's own tokens); the icon→label gap (spacing-8, now a
+  margin on the icon) split from the label→count gap (spacing-4, now a
+  margin on `.count`) instead of one shared flex gap; the active tab's
+  count now inherits Neutral-9. New `.c-tabs-scroll-wrap` supplies the
+  32px edge-fade gradients, toggled by a new scroll listener that shows
+  each fade only while that side still has clipped content; `.c-tabs`
+  itself gained `overflow-x: auto` with the scrollbar hidden
+  cross-browser. `preview.html`'s live Tabs demo rebuilt to actually
+  exercise this: six tabs in a 380px-capped row — a normal tab
+  (Overview), one with a trailing count (Campaigns), and one with a
+  leading icon (Settings) — overflow on purpose so the scroll behavior
+  and both edge fades are visible and interactive rather than just
+  described.
 
 - **v0.9.50 — 2026-08-17** — Added **Back button (Level 2+
   navigation)**, a new component fulfilling [App Shell](#app-shell)'s

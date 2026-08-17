@@ -687,11 +687,29 @@
 .c-shell-grid > .c-shell-span-3{grid-column:span 3;}
 .c-shell-grid > .c-shell-span-4{grid-column:span 4;}
 
-/* Tabs */
-.c-tabs{display:flex; gap:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3);}
-.c-tab{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:0; background:transparent; cursor:pointer; font-family:inherit; font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-5); box-shadow:none; transition:color var(--duration-fast) var(--ease-standard),box-shadow var(--duration-fast) var(--ease-standard);}
+/* Tabs — per DESIGN-SYSTEM.md's Tabs section. Icon is Tier 1, Regular
+   (Tabs are navigation controls, not expressive status indicators — the
+   same resolution Segmented Control's own icon already documents), so
+   markup uses the Regular `ph` glyph set, never `ph-fill`, here.
+   .c-tabs-scroll-wrap supplies the overflow edge-fades; .c-tabs itself
+   is the actual scrolling element, scrollbar hidden per spec. */
+.c-tabs-scroll-wrap{position:relative;}
+.c-tabs-scroll-wrap::before, .c-tabs-scroll-wrap::after{content:""; position:absolute; top:0; bottom:1px; width:32px; pointer-events:none; opacity:0; transition:opacity var(--duration-fast) var(--ease-standard); z-index:1;}
+.c-tabs-scroll-wrap::before{left:0; background:linear-gradient(to right, var(--color-neutral-1), transparent);}
+.c-tabs-scroll-wrap::after{right:0; background:linear-gradient(to left, var(--color-neutral-1), transparent);}
+.c-tabs-scroll-wrap.show-left::before{opacity:1;}
+.c-tabs-scroll-wrap.show-right::after{opacity:1;}
+.c-tabs{display:flex; gap:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3); overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none;}
+.c-tabs::-webkit-scrollbar{display:none;}
+.c-tab{display:inline-flex; align-items:center; height:40px; padding:0 var(--spacing-12); border:0; background:transparent; border-radius:var(--radius-sm) var(--radius-sm) 0 0; cursor:pointer; font-family:inherit; font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-5); box-shadow:none; white-space:nowrap; flex:none; transition:color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);}
+.c-tab i{margin-right:var(--spacing-8); font-size:var(--icon-sm);}
 .c-tab.active{color:var(--color-neutral-9); box-shadow:inset 0 -2px 0 var(--color-obsidian);}
-.c-tab .count{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-weight:700;}
+.c-tab .count{margin-left:var(--spacing-4); font-size:var(--text-caption-size); color:var(--color-neutral-5); font-weight:700;}
+.c-tab.active .count{color:var(--color-neutral-9);}
+.c-tab:not(.active):not(.is-disabled):hover{background:var(--color-neutral-2); color:var(--color-neutral-7);}
+.c-tab:not(.is-disabled):active{background:var(--color-neutral-3);}
+.c-tab:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-tab.is-disabled{color:var(--color-neutral-4); opacity:.4; cursor:not-allowed; pointer-events:none;}
 
 /* Dropdown — Single select trigger. The box itself is Input Field's own
    container — .c-field/.input-wrap/.icon-trailing/.c-field-error/
