@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.48</title>
+<title>Collabrium design system | v0.9.49</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -318,7 +318,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.48</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.49</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -326,7 +326,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.48</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.49</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -905,7 +905,7 @@
             </div>
 
             <div class="swatch-group-label">Functional cards</div>
-            <div class="c-cards" style="align-items:start;">
+            <div class="c-cards c-cards-functional">
               <div class="c-card c-card-usp">
                 <h4>USP card</h4>
                 <p>Header, description, 3 bullet points, CTA button.</p>
@@ -916,7 +916,7 @@
                 </ul>
                 <button type="button" class="c-btn c-btn-primary c-btn-md">Button</button>
               </div>
-              <div class="c-card c-card-price-summary" style="max-width:320px;">
+              <div class="c-card c-card-price-summary">
                 <h4>Price summary</h4>
                 <ul class="c-card-price-list">
                   <li class="c-card-price-row">
@@ -2802,7 +2802,7 @@ button next to the version flag in the top bar.
 <script type="text/plain" id="src-md-extended">
 # Collabrium Design Language System
 
-**v0.9.48** — 2026-08-14 — Sourced from the Collabrium brand deck
+**v0.9.49** — 2026-08-17 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3911,6 +3911,78 @@ the Modal footer's divider, scaled down.
 - **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
 - **Profile card** — a talent/influencer profile summary tile: identity block (name, demographic meta), a divider, persona badges, then an alphabetically-sorted platform list with a Title-weight follower count per row. Extends the base Card (Title, Description, Footer divider) and reuses Search input's own avatar recipe and Badge & Tag's own grouping/dot recipes rather than inventing new structure — see **Profile card**, below, for the full anatomy.
 
+**Grid layout.** Every card variant follows one universal layout
+contract when placed in a grid — responsive width, equal-height rows,
+and CTA pinning. This applies without exception, including when
+different variants (e.g. Price summary and USP) share the same row.
+
+**Grid layout — Responsive width.** All card variants share one
+responsive-width rule: `width: 100%` of their own grid cell, never a
+fixed pixel width, with a **min-width floor** below which the card's
+own content stops fitting. This applies whether the card sits alone
+(standalone) or inside a grid row (the card fills its cell; the grid,
+not the card, decides how many columns fit per row).
+
+The grid container controls column count, not the card. The
+recommended pattern:
+
+```
+grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+```
+
+This keeps columns at least 240px wide (the base min-width floor),
+lets columns grow equally to fill any space beyond that, and adjusts
+column count automatically as the viewport or container narrows — no
+breakpoint overrides needed. Cards never overflow their column or
+collapse below their floor.
+
+Variants with a higher min-width floor swap in their own value as the
+`minmax()` first argument — e.g. `repeat(auto-fill, minmax(280px, 1fr))`
+for a USP grid, `repeat(auto-fill, minmax(280px, 1fr))` for a Price
+summary grid. When mixing variants in one grid, use the **highest**
+min-width floor among the variants present, or keep them in separate
+grids if that floor would waste space for the narrower variants.
+
+| Variant | Min-width floor | Why |
+|---|---|---|
+| Base Card | 240px | General content |
+| Profile card | 240px | Platform row's three zones (icon, name/handle stack, Tier badge + Follower count) need this much room — see **Profile card — Width**, below |
+| Element-tinted | 240px | Matches base |
+| Warm | 240px | Matches base |
+| Element-accented | 240px | Matches base |
+| USP | 280px | 3 check-bullet points plus a full-width button need more room at minimum width |
+| Price summary card | 280px | Line-item list, RM pricing, and the CTA need more room to stay readable |
+
+Every variant keeps `width: 100%` of its grid cell regardless of its
+min-width floor — a fixed pixel width is never used on any card.
+
+**Grid layout — Equal height rows.** Cards placed in a grid always
+match the tallest card's height in their row — universal, without
+exception, including a Price summary card and a USP card sharing one
+row. The grid container uses `align-items: stretch` (CSS Grid's own
+default — never overridden to `start`/`flex-start` for any card
+variant); each card takes `height: 100%` of its cell. Equal height is
+a layout constraint imposed by the grid — it never reflows, recenters,
+or redistributes the card's own content to fill the extra vertical
+space a shorter card gains; content always stays top-anchored, and the
+extra space is absorbed by the content area's `flex: 1` (see CTA
+pinning, below), never by repositioning content.
+
+**Grid layout — CTA pinning.** When a card contains a CTA button
+(Primary, Ghost, or Link style — a USP card's full-width Primary/md
+button, a Price summary card's Filled-state CTA, or any base Card
+instance with a CTA in its footer slot), the button is always pinned
+to the bottom of the card regardless of how much content sits above it
+or how tall the grid row makes the card. The card's own inner layout:
+`display: flex; flex-direction: column; height: 100%`; its content
+area above the CTA takes `flex: 1` (grows to absorb the grid row's
+extra height while keeping its own content top-anchored); the CTA
+button itself takes `margin-top: auto`, which pushes it to the bottom
+of the flex container. In a mixed-height row this lands every card's
+CTA at the same vertical position — the bottom of the row — with every
+card's content staying top-anchored above it; no manual height
+adjustment needed.
+
 **Interactive card — Hover-only vs. Selectable, which one to use.**
 Whether an Interactive card shows *just* the plain hover raise or also
 reveals a Select checkbox on hover is decided by one concrete
@@ -4083,17 +4155,17 @@ context requires a different one.
 text block), a divider, the persona category badges, then the platform
 list — no Footer; this variant doesn't use one.
 
-**Profile card — Width.** No fixed width — same as the base Card,
-width is always dictated by whatever container or grid column the
-card sits in (`width: 100%` of its own grid cell/flex basis), not a
-hardcoded pixel value. A roster/grid of Profile cards should size
+**Profile card — Width.** Follows the universal responsive-width rule
+— see **Grid layout — Responsive width**, above: `width: 100%` of its
+own grid cell/flex basis, never a hardcoded pixel value, with a
+**240px min-width floor**. A roster/grid of Profile cards should size
 every tile from the grid's own column-track definition (e.g.
-`repeat(auto-fit, minmax(...))`, the same technique the Card demo
-gallery's own `.c-cards` grid already uses), not from a per-card
-width. **Min-width 240px** is the one constraint: below that, the
-platform row's three zones (icon, name/handle stack, Tier badge +
-Follower count) can't coexist without the trailing zone crushing the
-handle's truncation point down to nothing meaningful.
+`repeat(auto-fill, minmax(240px, 1fr))`, the same technique the Card
+demo gallery's own `.c-cards` grid already uses), not from a per-card
+width. The 240px floor exists because below it, the platform row's
+three zones (icon, name/handle stack, Tier badge + Follower count)
+can't coexist without the trailing zone crushing the handle's
+truncation point down to nothing meaningful.
 
 **Profile card — Header (identity block).** Avatar in the base Card
 header's own icon-chip slot; the text block beside it stacks two rows,
@@ -4213,25 +4285,19 @@ the ranked ladder," and neither of these two does, so a plain grey Tag
 with no dot correctly reads as "outside the ranking" rather than as an
 unassigned or broken ranked tier.
 
-**Profile card — Placement in a row.** When multiple Profile cards sit
-in the same row (a grid or flex row, e.g. a roster of talent tiles),
-they always match the **tallest card's height** — never their own
-natural content height. Content stays anchored to the top of the card;
-the extra height a shorter card gains is trailing empty space at the
+**Profile card — Placement in a row.** Follows the universal **Grid
+layout** rule, above: `align-items: stretch` on the grid container,
+`height: 100%` per card, content top-anchored, any CTA pinned to the
+bottom via `margin-top: auto`. When multiple Profile cards sit in the
+same row (a grid or flex row, e.g. a roster of talent tiles), they
+always match the **tallest card's height** — never their own natural
+content height. Content stays anchored to the top of the card; the
+extra height a shorter card gains is trailing empty space at the
 bottom, not extra padding distributed through the card or content
-stretched to fill it. This is the CSS Grid/`align-items: stretch`
-default (or `align-self: stretch` in a flex row) plus the base Card's
-own `flex-direction: column` — a shorter card's content naturally
-stacks from the top and simply stops short of the row's full height,
-so no extra rule is needed to achieve the top-anchoring itself, only
-to *not* override it with `align-items: start`/`flex-start` the way
-the Card demo gallery's own General/Functional cards grid deliberately
-does for its Price summary + USP pairing (see [Card](#card)'s own
-Variants section) — that override is correct there because a
-Price summary card and a USP card are unrelated content with no reason
-to match height; a row of Profile cards is the opposite case, one
-repeating content type where mismatched heights read as a layout bug,
-not a deliberate difference.
+stretched to fill it. The Price summary + USP pairing no longer gets
+an `align-items: start` exception — all card variants, including that
+pairing, follow this same equal-height rule now (see **Grid layout —
+Equal height rows**, above).
 
 **Profile card — Interactive/selectable.** Reuses the base Card's own
 **Interactive/clickable** variant verbatim, not a new hover treatment:
@@ -4302,7 +4368,30 @@ visually scoped to this one row
 rather than implying department ownership applies to the rest of the
 card. Don't comma-join the Profile card's
 persona categories into one Subtitle line — each is its own Badge, so
-they scan independently and never need mid-word truncation.
+they scan independently and never need mid-word truncation. **Do** use
+`align-items: stretch` on every card grid container — universal, no
+exceptions, including the Price summary + USP pairing. Do use
+`height: 100%` on every card in a grid so it fills its cell. Do use
+`width: 100%` on every card — the grid cell decides the card's width,
+the card never decides its own independently. Do let the grid
+container control column count via
+`repeat(auto-fill, minmax(Xpx, 1fr))`. Do use the highest documented
+min-width floor when mixing card variants in the same grid row. Do pin
+CTA buttons with `margin-top: auto` on the button plus `flex: 1` on
+the content area above it — never absolute positioning. Do keep
+content top-anchored even when the grid stretches a card taller than
+its natural height — `flex: 1` absorbs the extra space, the content
+itself never repositions. **Don't** set a fixed pixel width on any
+card variant — `width: 100%` is universal. Don't override
+`align-items` to `start` on any card grid row — there are no
+exceptions left to the equal-height rule. Don't vertically center card
+content to fill extra grid-row height — content is always
+top-anchored. Don't set a grid's `minmax()` first value lower than the
+variant's own documented min-width floor. Don't mix Price summary
+cards and base Cards in the same `auto-fill` grid without using Price
+summary's 280px floor — separate grids are cleaner in that case. Don't
+give any card a fixed height — `height: 100%` fills the grid cell, and
+the tallest card in the row determines that height.
 
 ### Chart chrome & marks
 
@@ -6918,6 +7007,29 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.49 — 2026-08-17** — Added a universal **Grid layout** rule to
+  [Card](#card), covering every variant without exception. Responsive
+  width: `width: 100%` of the grid cell, never a fixed pixel value,
+  each variant carrying its own min-width floor (240px for Base/
+  Profile/Element-tinted/Warm/Element-accented, 280px for USP and
+  Price summary card, whose line-item lists and CTAs need more room);
+  the grid container decides column count via
+  `repeat(auto-fill, minmax(Xpx, 1fr))`, using the highest floor when
+  variants are mixed in one row. Equal height rows: `align-items:
+  stretch` on the grid container and `height: 100%` per card, content
+  always top-anchored — this removes the Price summary + USP pairing's
+  previous `align-items: start` exception; that pairing now follows
+  the same equal-height rule as every other variant. CTA pinning: a
+  card's CTA (Primary/Ghost/Link) always sits at the bottom via
+  `margin-top: auto` on the button and `flex: 1` on the content area
+  above it, so mismatched natural heights in a row still land every
+  CTA at the same vertical position. Profile card's own Width and
+  Placement-in-a-row rules now point to this universal rule instead of
+  documenting their own copy of it. Do/Don't extended with the
+  corresponding grid-layout rules; nothing existing removed. Applied
+  the same rules to the Functional cards grid in the live gallery
+  (`preview.html`).
 
 - **v0.9.48 — 2026-08-14** — Substantially expanded [Tooltip](#tooltip)
   beyond its original teammate-transcribed spec, and fixed its live
