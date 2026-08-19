@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "dynamic-island",
+  "type": "registry:ui",
+  "title": "Dynamic Island",
+  "description": "Dynamic Island loading animation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/loading/dynamic-island.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/dynamic-island.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\nexport const DynamicIsland = () => {\r\n  return (\r\n    <motion.div\r\n      className=\"bg-zinc-950 dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-full flex items-center justify-center px-4 py-2 gap-3 h-8 shadow-sm\"\r\n      animate={{\r\n        width: [80, 110, 80],\r\n      }}\r\n      transition={{\r\n        duration: 2.2,\r\n        repeat: Infinity,\r\n        ease: \"easeInOut\",\r\n      }}\r\n    >\r\n      {/* Green indicator dot */}\r\n      <motion.div\r\n        className=\"w-1.5 h-1.5 rounded-full bg-emerald-500\"\r\n        animate={{ opacity: [0.4, 1, 0.4] }}\r\n        transition={{ duration: 1.1, repeat: Infinity, ease: \"easeInOut\" }}\r\n      />\r\n      {/* Waveform line */}\r\n      <div className=\"flex gap-1 items-center h-2\">\r\n        {[0, 1, 2].map((i) => (\r\n          <motion.div\r\n            key={i}\r\n            className=\"w-0.5 bg-zinc-300 dark:bg-zinc-500 rounded-full\"\r\n            animate={{ height: [3, 8, 3] }}\r\n            transition={{\r\n              duration: 0.8,\r\n              repeat: Infinity,\r\n              ease: \"easeInOut\",\r\n              delay: i * 0.15,\r\n            }}\r\n          />\r\n        ))}\r\n      </div>\r\n    </motion.div>\r\n  );\r\n};\r\n"
+    }
+  ]
+}

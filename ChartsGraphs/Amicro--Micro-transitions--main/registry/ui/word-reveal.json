@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "word-reveal",
+  "type": "registry:ui",
+  "title": "Word Reveal",
+  "description": "Word-by-word fade and scale stagger reveal effect.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/text/word-reveal.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/word-reveal.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\ninterface WordRevealProps {\r\n  text: string;\r\n  duration?: number;\r\n  staggerDelay?: number;\r\n  className?: string;\r\n}\r\n\r\nexport function WordReveal({\r\n  text,\r\n  duration = 0.5,\r\n  staggerDelay = 0.04,\r\n  className = '',\r\n}: WordRevealProps) {\r\n  const words = text.split(/\\s+/);\r\n\r\n  const containerVariants = {\r\n    hidden: { opacity: 0 },\r\n    visible: {\r\n      opacity: 1,\r\n      transition: {\r\n        staggerChildren: staggerDelay,\r\n      },\r\n    },\r\n  };\r\n\r\n  const wordVariants = {\r\n    hidden: { opacity: 0, y: 15, scale: 0.9 },\r\n    visible: {\r\n      opacity: 1,\r\n      y: 0,\r\n      scale: 1,\r\n      transition: {\r\n        duration,\r\n        ease: [0.215, 0.61, 0.355, 1], // easeOutCubic\r\n      },\r\n    },\r\n  };\r\n\r\n  return (\r\n    <motion.div\r\n      variants={containerVariants}\r\n      initial=\"hidden\"\r\n      whileInView=\"visible\"\r\n      viewport={{ once: true, margin: '-10%' }}\r\n      className={`flex flex-wrap gap-x-2 gap-y-1.5 ${className}`}\r\n    >\r\n      {words.map((word, index) => (\r\n        <motion.span\r\n          key={index}\r\n          variants={wordVariants}\r\n          className=\"inline-block\"\r\n        >\r\n          {word}\r\n        </motion.span>\r\n      ))}\r\n    </motion.div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

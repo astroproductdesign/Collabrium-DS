@@ -1,0 +1,1390 @@
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence, animate } from 'motion/react';
+import { 
+  LayoutGrid, List, LayoutTemplate, ArrowDownAZ, Copy, Sun, Moon, Github, 
+  Terminal, Check, Cpu, Zap, Code, ShieldCheck, Sparkles, RefreshCw, Smartphone, 
+  ChevronRight, ChevronDown, Shield, Layers, HelpCircle, Palette, Activity, Menu, X,
+  Heart, Box, BarChart2
+} from 'lucide-react';
+import { buttonsData } from './data/buttons';
+import { AnimatedButton } from './components/AnimatedButton';
+import { getComponentCode, ThemeToggleCode, getCardComponentCode } from './utils/codeGenerator';
+import { CliPage } from './components/CliPage';
+import { SkillsPage } from './components/SkillsPage';
+import { DitherChartsPage, SimpleCompPage } from './components/DitherChartsPage';
+import { MonoChartsPage } from './components/MonoChartsPage';
+import { DitherChartsGrid, SimpleCompGrid } from './components/dither-charts/DitherChartsGrid';
+import { ThreeDPage } from './components/ThreeDPage';
+import { MapleLogo } from './components/MapleLogo';
+import { AppleSponsorShowcase } from './components/AppleSponsorShowcase';
+import { SponsorsPage } from './components/SponsorsPage';
+import { useWebHaptics } from './hooks/useWebHaptics';
+import { Analytics } from '@vercel/analytics/react';
+
+// Loaders imports
+import { loaderGroups, LoaderConfig } from './data/loaders';
+import { loadersCode } from './utils/loadersCode';
+import { InViewRender } from './components/InViewRender';
+import { IconSwap, IconSwapItem } from './components/IconSwap';
+
+// Card layouts imports
+import { cardsData, CardConfig } from './data/cards';
+import { CardArc5 } from './components/cards/CardArc5';
+import { CardArc7 } from './components/cards/CardArc7';
+import { CardLongArc5 } from './components/cards/CardLongArc5';
+import { CardLinearSpread } from './components/cards/CardLinearSpread';
+import { CardCornerFan } from './components/cards/CardCornerFan';
+import { CardStampArc } from './components/cards/CardStampArc';
+import { CardCascadeStagger } from './components/cards/CardCascadeStagger';
+import { CardScatterSpread } from './components/cards/CardScatterSpread';
+import { CardWheelFan } from './components/cards/CardWheelFan';
+import { CardCarousel } from './components/cards/CardCarousel';
+import { CardCoverFlow } from './components/cards/CardCoverFlow';
+import { CardTimeMachine } from './components/cards/CardTimeMachine';
+
+type LayoutMode = 'list' | 'grid' | 'matrix';
+type SortMode = 'default' | 'alphabetical';
+type PageMode = 'home' | 'cli' | 'skills' | 'dither-charts' | '3d-page' | 'simple-comp' | 'mono-charts' | 'sponsors';
+type CatalogTabType = 'buttons' | 'cards' | 'carousels' | 'loaders' | 'dither-charts' | 'simple-comp';
+
+interface SponsorSlot {
+  id: number;
+  companyName: string;
+  description: string;
+  logoType?: string;
+  siteUrl?: string;
+  isAvailable: boolean;
+}
+
+const tabLabels: Record<CatalogTabType, string> = {
+  buttons: 'Buttons',
+  cards: 'Card Spreads',
+  carousels: '3D Carousels',
+  loaders: 'Loaders',
+  'dither-charts': 'Dither Charts',
+  'simple-comp': 'Dither Charts',
+};
+
+function AnimatedNumber({ value }: { value: number | null }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const prevValueRef = useRef(0);
+
+  useEffect(() => {
+    if (value === null) return;
+    const startVal = prevValueRef.current;
+    const controls = animate(startVal, value, {
+      duration: 1.2,
+      ease: [0.16, 1, 0.3, 1], // easeOutExpo
+      onUpdate: (latest) => setDisplayValue(Math.round(latest)),
+      onComplete: () => { prevValueRef.current = value; }
+    });
+    return () => controls.stop();
+  }, [value]);
+
+  if (value === null) return null;
+  return <span className="tabular-nums">{displayValue.toLocaleString('en-US')}</span>;
+}
+
+export default function App() {
+  const [layout, setLayout] = useState<LayoutMode>('grid');
+  const [sortBy, setSortBy] = useState<SortMode>('default');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [stars, setStars] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState<PageMode>('home');
+  const [catalogTab, setCatalogTab] = useState<CatalogTabType>('buttons');
+  const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
+  const POLAR_CHECKOUT_URL = "https://buy.polar.sh/polar_cl_kgaC0fUqnLvTlW7A7RrvGQRaHzmTKjezxWNaA19AyV4" as string; // Replace with your actual Polar Checkout Link
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
+  const [navMoreDropdownOpen, setNavMoreDropdownOpen] = useState(false);
+  const { trigger: triggerHaptic } = useWebHaptics();
+
+  const [sponsors, setSponsors] = useState<SponsorSlot[]>(() => {
+    const defaultSponsors: SponsorSlot[] = [
+      {
+        id: 1,
+        companyName: 'Maple',
+        description: 'Open-source observability built for AI, with fast traces, logs, and metrics powered by OpenTelemetry and ClickHouse.',
+        logoType: 'maple',
+        siteUrl: 'https://maple.dev/',
+        isAvailable: false,
+      },
+      { id: 2, companyName: 'Available Slot', description: 'Advertise your product here.', isAvailable: true },
+      { id: 3, companyName: 'Available Slot', description: 'Advertise your product here.', isAvailable: true },
+      { id: 4, companyName: 'Available Slot', description: 'Advertise your product here.', isAvailable: true },
+    ];
+
+    const cached = localStorage.getItem('amicro_sponsors');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.length > 0) {
+          // Always ensure slot 1 is Maple
+          parsed[0] = defaultSponsors[0];
+        }
+        return parsed;
+      } catch (e) {
+        console.error('Error parsing cached sponsors:', e);
+      }
+    }
+    return defaultSponsors;
+  });
+
+  // Sync sponsors list to localStorage whenever state updates
+  useEffect(() => {
+    localStorage.setItem('amicro_sponsors', JSON.stringify(sponsors));
+  }, [sponsors]);
+
+  // Clean Path Router (Without # hash)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const path = window.location.pathname.replace(/^\//, '').toLowerCase();
+      const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+      const route = path || hash;
+
+      if (hash) {
+        // Automatically clean up any leftover hash in the URL
+        const cleanPath = hash === 'home' || hash === '' ? '/' : `/${hash}`;
+        window.history.replaceState(null, '', cleanPath);
+      }
+
+      if (route.startsWith('cli')) {
+        setCurrentPage('cli');
+      } else if (route.startsWith('skills')) {
+        setCurrentPage('skills');
+      } else if (route.startsWith('mono-charts')) {
+        setCurrentPage('mono-charts');
+      } else if (route.startsWith('dither-charts') || route.startsWith('simple-comp')) {
+        setCurrentPage('dither-charts');
+      } else if (route.startsWith('3d')) {
+        setCurrentPage('3d-page');
+      } else if (route.startsWith('sponsors')) {
+        setCurrentPage('sponsors');
+      } else {
+        setCurrentPage('home');
+      }
+    };
+
+    handleLocationChange();
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    fetch('https://api.github.com/repos/Subhan-code/Amicro--Micro-transitions-')
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        if (typeof data.stargazers_count === 'number') {
+          setStars(data.stargazers_count);
+        } else {
+          throw new Error('Invalid stargazers_count');
+        }
+      })
+      .catch(() => {
+        // Fallback fetch if GitHub API rate-limits unauthenticated client requests
+        fetch('https://img.shields.io/github/stars/Subhan-code/Amicro--Micro-transitions-.json')
+          .then(res => res.json())
+          .then(data => {
+            if (data.value) {
+              const raw = String(data.value).replace(/k/i, '00').replace(/\./g, '');
+              const parsed = parseInt(raw, 10);
+              if (!isNaN(parsed) && parsed > 0) {
+                setStars(parsed);
+              }
+            }
+          })
+          .catch(err => console.error('Error fetching fallback stars:', err));
+      });
+  }, []);
+
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  }, []);
+
+  // Listen for Polar checkout redirect parameter to dynamically fetch and apply paid sponsor slots
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentSuccess = params.get('payment_success');
+    const checkoutId = params.get('checkout_id');
+
+    if (paymentSuccess === 'true' && checkoutId) {
+      // Fetch checkout details from our Vercel serverless API
+      fetch(`/api/checkout-status?checkout_id=${checkoutId}`)
+        .then(async (res) => {
+          if (res.ok) {
+            const data = await res.json();
+            if (data.payment_success) {
+              setSponsors(prev => {
+                const firstAvailableIdx = prev.findIndex(s => s.isAvailable);
+                if (firstAvailableIdx !== -1) {
+                  const nextSponsors = [...prev];
+                  nextSponsors[firstAvailableIdx] = {
+                    id: prev[firstAvailableIdx].id,
+                    companyName: data.companyName,
+                    description: data.description,
+                    siteUrl: data.siteUrl.startsWith('http://') || data.siteUrl.startsWith('https://')
+                      ? data.siteUrl
+                      : `https://${data.siteUrl}`,
+                    isAvailable: false
+                  };
+                  return nextSponsors;
+                }
+                return prev;
+              });
+              showToast(`Sponsorship confirmed for ${data.companyName}!`);
+            }
+          } else {
+            console.error('Failed to retrieve checkout details from API');
+          }
+        })
+        .catch(err => console.error('Error fetching checkout status:', err))
+        .finally(() => {
+          // Clean up URL parameters from browser bar
+          window.history.replaceState({}, document.title, window.location.pathname);
+        });
+    }
+  }, [showToast]);
+
+
+
+  const handleCopyCode = useCallback((button: typeof buttonsData[0]) => {
+    const code = getComponentCode(button);
+    navigator.clipboard.writeText(code)
+      .then(() => {
+        triggerHaptic('success');
+        showToast(`Copied ${button.label} component code!`);
+      })
+      .catch(() => {
+        triggerHaptic('error');
+        showToast("Failed to copy code.");
+      });
+  }, [showToast, triggerHaptic]);
+
+  const handleCopyCardCode = useCallback((card: CardConfig) => {
+    const code = getCardComponentCode(card);
+    navigator.clipboard.writeText(code)
+      .then(() => {
+        triggerHaptic('success');
+        showToast(`Copied ${card.label} component code!`);
+      })
+      .catch(() => {
+        triggerHaptic('error');
+        showToast("Failed to copy code.");
+      });
+  }, [showToast, triggerHaptic]);
+
+  const handleCopyLoaderCode = useCallback((loader: LoaderConfig | string, fallbackName?: string) => {
+    let code: string | undefined;
+    let name: string;
+    let copyId: string;
+
+    if (typeof loader === 'string') {
+      name = fallbackName || loader;
+      copyId = loader;
+      code = loadersCode[loader] || (fallbackName ? loadersCode[fallbackName] : undefined);
+    } else if (loader && typeof loader === 'object') {
+      name = loader.name;
+      copyId = loader.kebabName || loader.name;
+      code = loadersCode[loader.kebabName] ||
+             (loader.component?.name ? loadersCode[loader.component.name] : undefined) ||
+             (loader.component?.displayName ? loadersCode[loader.component.displayName] : undefined) ||
+             loadersCode[loader.name];
+    } else {
+      name = 'Unknown';
+      copyId = 'unknown';
+    }
+
+    if (!code) {
+      code = `// Loader ${name} code not found`;
+    }
+
+    navigator.clipboard.writeText(code)
+      .then(() => {
+        triggerHaptic('success');
+        setCopiedText(copyId);
+        setTimeout(() => setCopiedText(null), 2000);
+        showToast(`Copied ${name} loader code!`);
+      })
+      .catch(() => {
+        triggerHaptic('error');
+        showToast("Failed to copy code.");
+      });
+  }, [showToast, triggerHaptic]);
+
+  const copyCliCommand = useCallback((text: string, id: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        triggerHaptic('light');
+        setCopiedText(id);
+        setTimeout(() => setCopiedText(null), 2000);
+      })
+      .catch(() => {
+        triggerHaptic('error');
+        showToast("Failed to copy command.");
+      });
+  }, [showToast, triggerHaptic]);
+
+  const handleThemeToggle = useCallback(() => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    navigator.clipboard.writeText(ThemeToggleCode)
+      .then(() => {
+        triggerHaptic('medium');
+        showToast("Theme toggled & ThemeToggle code copied!");
+      })
+      .catch(() => {
+        triggerHaptic('error');
+        showToast("Failed to copy theme code.");
+      });
+  }, [theme, showToast, triggerHaptic]);
+
+  const displayedButtons = useMemo(() => {
+    let sorted = [...buttonsData];
+    if (sortBy === 'alphabetical') {
+      sorted.sort((a, b) => a.label.localeCompare(b.label));
+    }
+    return sorted;
+  }, [sortBy]);
+
+  const displayedCards = useMemo(() => {
+    const targetCategory = catalogTab === 'cards' ? 'spreads' : 'carousels';
+    let filtered = cardsData.filter(card => (card.category || 'spreads') === targetCategory);
+    if (sortBy === 'alphabetical') {
+      filtered.sort((a, b) => a.label.localeCompare(b.label));
+    }
+    return filtered;
+  }, [catalogTab, sortBy]);
+
+  const isLightTheme = theme === 'light';
+
+  const navigateTo = (page: PageMode) => {
+    triggerHaptic('light');
+    let targetPath = '/';
+    if (page === 'cli') {
+      targetPath = '/cli';
+    } else if (page === 'skills') {
+      targetPath = '/skills';
+    } else if (page === 'dither-charts' || page === 'simple-comp') {
+      targetPath = '/dither-charts';
+    } else if (page === '3d-page') {
+      targetPath = '/3d';
+    } else if (page === 'mono-charts') {
+      targetPath = '/mono-charts';
+    } else if (page === 'sponsors') {
+      targetPath = '/sponsors';
+    } else {
+      targetPath = '/';
+    }
+
+    if (window.location.pathname !== targetPath || window.location.hash) {
+      window.history.pushState(null, '', targetPath);
+    }
+    setCurrentPage(page === 'simple-comp' ? 'dither-charts' : page);
+    setMobileMenuOpen(false);
+    setNavMoreDropdownOpen(false);
+    setMoreDropdownOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <div className={`relative w-full min-h-dvh flex flex-col font-sans antialiased transition-colors duration-300 ${theme === 'dark' ? 'dark bg-[#121212] text-[#ffffff] selection:bg-neutral-850' : 'bg-[#f8f9fa] text-black selection:bg-neutral-200'}`}>
+      
+      {/* Site Navbar */}
+      <header className="relative z-50 w-full pt-4 pb-4 px-6 border-b border-transparent">
+        <div className="relative z-[3] flex items-center justify-between gap-4 max-w-[1240px] mx-auto">
+          <div className="flex items-center gap-[34px] min-w-0">
+            <button 
+              onClick={() => navigateTo('home')}
+              className={`inline-flex items-center gap-[4px] h-[35px] py-[5px] no-underline shrink-0 group transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-[1.02] cursor-pointer text-left border-0 bg-transparent ${theme === 'dark' ? 'text-white' : 'text-black'}`}
+            >
+              <span className={`inline-flex items-center justify-center w-[24px] h-[24px] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] origin-center group-hover:rotate-[60deg] ${theme === 'dark' ? 'text-[#ededed]' : 'text-black'}`}>
+                {/* Modern double chevron logo */}
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[20px] h-[20px] block">
+                  <path d="M7 6L14 12L7 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40" />
+                  <path d="M13 6L20 12L13 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <span className="text-[16px] font-bold leading-none tracking-[-0.019em] ml-1">
+                <span>Amicro</span>
+              </span>
+            </button>
+            <nav className="hidden sm:flex items-center gap-[8px]">
+              <button 
+                onClick={() => navigateTo('home')}
+                className={`inline-flex items-center justify-center h-[36px] px-[14px] rounded-full text-[13px] font-medium leading-[16px] cursor-pointer no-underline whitespace-nowrap transition-all duration-200 border-0 ${
+                  currentPage === 'home'
+                    ? (theme === 'dark' ? 'text-white bg-[rgba(255,255,255,0.08)]' : 'text-black bg-neutral-200/80 font-semibold')
+                    : (theme === 'dark' ? 'text-[rgba(202,202,202,0.7)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]' : 'text-neutral-600 hover:text-black hover:bg-neutral-200/40')
+                }`}
+              >
+                Components
+              </button>
+
+              <button 
+                onClick={() => navigateTo('cli')}
+                className={`inline-flex items-center justify-center h-[36px] px-[14px] rounded-full text-[13px] font-medium leading-[16px] cursor-pointer no-underline whitespace-nowrap transition-all duration-200 border-0 ${
+                  currentPage === 'cli'
+                    ? (theme === 'dark' ? 'text-white bg-[rgba(255,255,255,0.08)]' : 'text-black bg-neutral-200/80 font-semibold')
+                    : (theme === 'dark' ? 'text-[rgba(202,202,202,0.7)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]' : 'text-neutral-600 hover:text-black hover:bg-neutral-200/40')
+                }`}
+              >
+                CLI Install
+              </button>
+
+              <button 
+                onClick={() => navigateTo('skills')}
+                className={`inline-flex items-center justify-center h-[36px] px-[14px] rounded-full text-[13px] font-medium leading-[16px] cursor-pointer no-underline whitespace-nowrap transition-all duration-200 border-0 ${
+                  currentPage === 'skills'
+                    ? (theme === 'dark' ? 'text-white bg-[rgba(255,255,255,0.08)]' : 'text-black bg-neutral-200/80 font-semibold')
+                    : (theme === 'dark' ? 'text-[rgba(202,202,202,0.7)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]' : 'text-neutral-600 hover:text-black hover:bg-neutral-200/40')
+                }`}
+              >
+                Skills
+              </button>
+
+              <button 
+                onClick={() => navigateTo('mono-charts')}
+                className={`inline-flex items-center justify-center h-[36px] px-[14px] rounded-full text-[13px] font-medium leading-[16px] cursor-pointer no-underline whitespace-nowrap transition-all duration-200 border-0 ${
+                  currentPage === 'mono-charts'
+                    ? (theme === 'dark' ? 'text-white bg-[rgba(255,255,255,0.08)]' : 'text-black bg-neutral-200/80 font-semibold')
+                    : (theme === 'dark' ? 'text-[rgba(202,202,202,0.7)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]' : 'text-neutral-600 hover:text-black hover:bg-neutral-200/40')
+                }`}
+              >
+                Mono Charts
+              </button>
+
+              <button 
+                onClick={() => navigateTo('dither-charts')}
+                className={`inline-flex items-center justify-center h-[36px] px-[14px] rounded-full text-[13px] font-medium leading-[16px] cursor-pointer no-underline whitespace-nowrap transition-all duration-200 border-0 ${
+                  currentPage === 'dither-charts' || currentPage === 'simple-comp'
+                    ? (theme === 'dark' ? 'text-white bg-[rgba(255,255,255,0.08)]' : 'text-black bg-neutral-200/80 font-semibold')
+                    : (theme === 'dark' ? 'text-[rgba(202,202,202,0.7)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]' : 'text-neutral-600 hover:text-black hover:bg-neutral-200/40')
+                }`}
+              >
+                Dither Charts
+              </button>
+
+              <button 
+                onClick={() => navigateTo('3d-page')}
+                className={`inline-flex items-center justify-center h-[36px] px-[14px] rounded-full text-[13px] font-medium leading-[16px] cursor-pointer no-underline whitespace-nowrap transition-all duration-200 border-0 ${
+                  currentPage === '3d-page'
+                    ? (theme === 'dark' ? 'text-white bg-[rgba(255,255,255,0.08)]' : 'text-black bg-neutral-200/80 font-semibold')
+                    : (theme === 'dark' ? 'text-[rgba(202,202,202,0.7)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]' : 'text-neutral-600 hover:text-black hover:bg-neutral-200/40')
+                }`}
+              >
+                3D Page
+              </button>
+
+              <button 
+                onClick={() => navigateTo('sponsors')}
+                className={`inline-flex items-center justify-center gap-1.5 h-[36px] px-[14px] rounded-full text-[13px] font-medium leading-[16px] cursor-pointer no-underline whitespace-nowrap transition-all duration-200 border-0 ${
+                  currentPage === 'sponsors'
+                    ? (theme === 'dark' ? 'text-white bg-[rgba(255,255,255,0.08)]' : 'text-black bg-neutral-200/80 font-semibold')
+                    : (theme === 'dark' ? 'text-[rgba(202,202,202,0.7)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]' : 'text-neutral-600 hover:text-black hover:bg-neutral-200/40')
+                }`}
+              >
+                <span>Sponsors</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#E86F00] animate-pulse" />
+              </button>
+            </nav>
+          </div>
+          
+          {/* Navbar Actions with Theme Toggle at the far right corner */}
+          <div className="flex items-center gap-[8px]">
+            <a 
+              href="https://github.com/Subhan-code/Amicro--Micro-transitions-" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={`inline-flex items-center justify-center gap-1.5 h-[36px] px-[13px] rounded-full font-sans text-[13px] font-medium leading-[16px] no-underline transition-colors duration-150 group ${theme === 'dark' ? 'bg-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.1)] text-[rgba(237,237,237,0.6)] hover:text-[#ededed]' : 'bg-neutral-200/80 hover:bg-neutral-300/80 text-black hover:text-black'}`}
+            >
+              <svg viewBox="0 0 16 16" fill="currentColor" className="w-auto h-[16px] max-w-[16px] block">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+              </svg>
+              <span className="inline-block">
+                <AnimatedNumber value={stars} />
+              </span>
+            </a>
+            <a 
+              href="https://x.com/SubhanHQ" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={`hidden sm:inline-flex items-center justify-center w-[36px] h-[36px] rounded-full transition-colors duration-150 ${theme === 'dark' ? 'bg-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.1)] text-[rgba(237,237,237,0.6)] hover:text-[#ededed]' : 'bg-neutral-200/80 hover:bg-neutral-300/80 text-black hover:text-black'}`}
+            >
+              <svg viewBox="0 0 16 17" fill="currentColor" className="w-[16px] h-[17px] block">
+                <path d="M12.4041 1.39726H14.6953L9.69087 7.2591L15.5781 15.2368H10.9696L7.35741 10.3996L3.22921 15.2368H0.934687L6.28641 8.96575L0.642598 1.39726H5.36795L8.62962 5.81859L12.4041 1.39726ZM11.5992 13.8329H12.8682L4.67667 2.72798H3.31359L11.5992 13.8329Z"></path>
+              </svg>
+            </a>
+
+            {/* Theme Toggle Button on the absolute right corner */}
+            <button
+              onClick={handleThemeToggle}
+              className={`inline-flex items-center justify-center w-[36px] h-[36px] rounded-full transition-colors duration-150 cursor-pointer ${theme === 'dark' ? 'bg-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.1)] text-[rgba(237,237,237,0.6)] hover:text-[#ededed]' : 'bg-neutral-200/80 hover:bg-neutral-300/80 text-black hover:text-black'}`}
+              title="Toggle Theme (Copies ThemeToggle code)"
+            >
+              {theme === 'dark' ? <Sun className="w-[16px] h-[16px]" /> : <Moon className="w-[16px] h-[16px]" />}
+            </button>
+
+            {/* Mobile Menu Toggle */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`inline-flex sm:hidden items-center justify-center w-[36px] h-[36px] rounded-full transition-colors duration-150 cursor-pointer border-0 bg-transparent ${theme === 'dark' ? 'bg-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.1)] text-[rgba(237,237,237,0.6)] hover:text-[#ededed]' : 'bg-neutral-200/80 hover:bg-neutral-300/80 text-black hover:text-black'}`}
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? <X className="w-[18px] h-[18px]" /> : <Menu className="w-[18px] h-[18px]" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu dropdown */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`absolute top-[64px] left-6 right-6 p-4 rounded-2xl border flex flex-col gap-2 z-[999] shadow-2xl sm:hidden backdrop-blur-xl ${
+                theme === 'dark' 
+                  ? 'bg-zinc-950/95 border-white/10 text-white' 
+                  : 'bg-white/95 border-neutral-200 text-black'
+              }`}
+            >
+              <button 
+                onClick={() => navigateTo('home')}
+                className={`flex items-center justify-start h-[40px] px-4 rounded-xl text-[14px] font-semibold cursor-pointer border-0 text-left bg-transparent ${
+                  currentPage === 'home'
+                    ? (theme === 'dark' ? 'text-white bg-white/10' : 'text-black bg-neutral-100 font-bold')
+                    : (theme === 'dark' ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black')
+                }`}
+              >
+                Components
+              </button>
+              <button 
+                onClick={() => navigateTo('cli')}
+                className={`flex items-center justify-start h-[40px] px-4 rounded-xl text-[14px] font-semibold cursor-pointer border-0 text-left bg-transparent ${
+                  currentPage === 'cli'
+                    ? (theme === 'dark' ? 'text-white bg-white/10' : 'text-black bg-neutral-100 font-bold')
+                    : (theme === 'dark' ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black')
+                }`}
+              >
+                CLI Install
+              </button>
+              <button 
+                onClick={() => navigateTo('skills')}
+                className={`flex items-center justify-start h-[40px] px-4 rounded-xl text-[14px] font-semibold cursor-pointer border-0 text-left bg-transparent ${
+                  currentPage === 'skills'
+                    ? (theme === 'dark' ? 'text-white bg-white/10' : 'text-black bg-neutral-100 font-bold')
+                    : (theme === 'dark' ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black')
+                }`}
+              >
+                Skills
+              </button>
+              <button 
+                onClick={() => navigateTo('mono-charts')}
+                className={`flex items-center justify-start h-[40px] px-4 rounded-xl text-[14px] font-semibold cursor-pointer border-0 text-left bg-transparent ${
+                  currentPage === 'mono-charts'
+                    ? (theme === 'dark' ? 'text-white bg-white/10' : 'text-black bg-neutral-100 font-bold')
+                    : (theme === 'dark' ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black')
+                }`}
+              >
+                Mono Charts
+              </button>
+              <button 
+                onClick={() => navigateTo('dither-charts')}
+                className={`flex items-center justify-start h-[40px] px-4 rounded-xl text-[14px] font-semibold cursor-pointer border-0 text-left bg-transparent ${
+                  currentPage === 'dither-charts' || currentPage === 'simple-comp'
+                    ? (theme === 'dark' ? 'text-white bg-white/10' : 'text-black bg-neutral-100 font-bold')
+                    : (theme === 'dark' ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black')
+                }`}
+              >
+                Dither Charts
+              </button>
+              <button 
+                onClick={() => navigateTo('3d-page')}
+                className={`flex items-center justify-start h-[40px] px-4 rounded-xl text-[14px] font-semibold cursor-pointer border-0 text-left bg-transparent ${
+                  currentPage === '3d-page'
+                    ? (theme === 'dark' ? 'text-white bg-white/10' : 'text-black bg-neutral-100 font-bold')
+                    : (theme === 'dark' ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black')
+                }`}
+              >
+                3D Page
+              </button>
+              <button 
+                onClick={() => navigateTo('sponsors')}
+                className={`flex items-center justify-between h-[40px] px-4 rounded-xl text-[14px] font-semibold cursor-pointer border-0 text-left bg-transparent ${
+                  currentPage === 'sponsors'
+                    ? (theme === 'dark' ? 'text-white bg-white/10' : 'text-black bg-neutral-100 font-bold')
+                    : (theme === 'dark' ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-black')
+                }`}
+              >
+                <span>Sponsors</span>
+                <span className="w-2 h-2 rounded-full bg-[#E86F00]" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* Render CliPage component or HomePage */}
+      <AnimatePresence mode="wait">
+        {currentPage === 'cli' ? (
+          <motion.div
+            key="cli-page"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+          >
+            <CliPage theme={theme} onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        ) : currentPage === 'skills' ? (
+          <motion.div
+            key="skills-page"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+          >
+            <SkillsPage theme={theme} onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        ) : currentPage === 'sponsors' ? (
+          <motion.div
+            key="sponsors-page"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+          >
+            <SponsorsPage
+              theme={theme}
+              sponsors={sponsors}
+              checkoutUrl={POLAR_CHECKOUT_URL}
+              onNavigateHome={() => navigateTo('home')}
+              showToast={showToast}
+            />
+          </motion.div>
+        ) : currentPage === 'mono-charts' ? (
+          <motion.div
+            key="mono-charts-page"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+          >
+            <MonoChartsPage
+              theme={theme}
+              sponsors={sponsors}
+              checkoutUrl={POLAR_CHECKOUT_URL}
+              showToast={showToast}
+              triggerHaptic={triggerHaptic}
+              onNavigateHome={() => navigateTo('home')}
+            />
+          </motion.div>
+        ) : currentPage === 'dither-charts' || currentPage === 'simple-comp' ? (
+          <motion.div
+            key="dither-charts-page"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+          >
+            <DitherChartsPage theme={theme} showToast={showToast} triggerHaptic={triggerHaptic} onNavigateHome={() => navigateTo('home')} onNavigate3D={() => navigateTo('3d-page')} />
+          </motion.div>
+        ) : currentPage === '3d-page' ? (
+          <motion.div
+            key="3d-page"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+          >
+            <ThreeDPage theme={theme} showToast={showToast} triggerHaptic={triggerHaptic} onNavigateHome={() => navigateTo('home')} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="home-page"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25 }}
+            className="w-full flex flex-col"
+          >
+            {/* Main Content */}
+            <div className="relative z-10 flex-1 w-full max-w-[1240px] mx-auto px-6 flex flex-col items-center">
+              
+              <div className="mt-12 mb-16 text-center w-full flex flex-col items-center">
+                
+                <h1 className={`text-[32px] sm:text-[46px] font-medium leading-[38px] sm:leading-[52px] tracking-[-0.01em] mb-3 font-sans transition-colors duration-300 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                  Amicro — Micro-transitions
+                </h1>
+                <p className={`text-[14px] sm:text-[17px] leading-[20px] sm:leading-[25px] max-w-[530px] transition-colors duration-300 ${theme === 'dark' ? 'text-[#767676]' : 'text-black'}`}>
+                  A curated library of premium micro-interactions and transition components. Built with React and Motion.
+                </p>
+
+                {/* Hero CTAs */}
+                <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+                  <motion.a 
+                    href="https://github.com/Subhan-code/Amicro--Micro-transitions-" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    whileHover="hover"
+                    initial="initial"
+                    whileTap={{ scale: 0.98 }}
+                    variants={{
+                      hover: { 
+                        scale: 1.04,
+                        boxShadow: theme === 'dark' ? '0 10px 25px -5px rgba(255,255,255,0.1)' : '0 10px 25px -5px rgba(0,0,0,0.15)'
+                      }
+                    }}
+                    className={`inline-flex items-center justify-center gap-1.5 h-[36px] px-[16px] rounded-full text-[13px] font-medium no-underline transition-colors cursor-pointer border-0 ${theme === 'dark' ? 'bg-white text-black hover:bg-neutral-200' : 'bg-neutral-950 text-white hover:bg-neutral-800'}`}
+                  >
+                    <motion.div 
+                      variants={{
+                        hover: { rotate: [0, -15, 15, -15, 0], scale: 1.15 }
+                      }}
+                      transition={{ duration: 0.4 }}
+                      className="flex items-center shrink-0"
+                    >
+                      <Github className="w-4 h-4" />
+                    </motion.div>
+                    <span>GitHub Repo</span>
+                    {stars !== null && (
+                      <span className={`text-[10.5px] px-1.5 py-0.5 rounded-full font-semibold ml-1 ${theme === 'dark' ? 'bg-black/10 text-black/70' : 'bg-white/20 text-white/90'}`}>
+                        <AnimatedNumber value={stars} />
+                      </span>
+                    )}
+                  </motion.a>
+                  <motion.button 
+                    onClick={() => {
+                      const element = document.getElementById('component-grid');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    whileHover="hover"
+                    initial="initial"
+                    whileTap={{ scale: 0.98 }}
+                    variants={{
+                      hover: { 
+                        scale: 1.04,
+                        boxShadow: theme === 'dark' ? '0 10px 25px -5px rgba(0,0,0,0.3)' : '0 10px 25px -5px rgba(0,0,0,0.05)'
+                      }
+                    }}
+                    className={`inline-flex items-center justify-center h-[36px] px-[16px] rounded-full text-[13px] font-medium border cursor-pointer transition-colors ${theme === 'dark' ? 'bg-[#181818] border-neutral-800 text-white hover:bg-neutral-800' : 'bg-white border-neutral-200 text-black hover:bg-neutral-50 shadow-sm'}`}
+                  >
+                    <motion.div
+                      variants={{
+                        hover: { y: [0, -4, 4, -2, 2, 0] }
+                      }}
+                      transition={{ duration: 0.6 }}
+                      className="flex items-center shrink-0 mr-1"
+                    >
+                      <ArrowDownAZ className="w-3 h-3" />
+                    </motion.div>
+                    <span>Browse Components</span>
+                  </motion.button>
+                </div>
+
+                {/* Sponsor Ad Grid */}
+                <div className="w-full max-w-3xl mx-auto mt-10 px-4 sm:px-0 flex flex-col items-center">
+                  <div className={`text-[10px] font-bold uppercase tracking-widest mb-3.5 ${theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'}`}>
+                    Sponsored by
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
+                    {sponsors.map((slot) => {
+                      if (!slot.isAvailable) {
+                        const isMaple = slot.logoType === 'maple';
+                        return (
+                          <a
+                            key={slot.id}
+                            href={slot.siteUrl}
+                            target="_blank"
+                            onClick={() => triggerHaptic('light')}
+                            className={`group relative flex flex-col items-center justify-center text-center p-3 sm:p-3.5 min-h-[78px] rounded-xl border transition-all duration-300 hover:scale-[1.02] ${
+                              isMaple
+                                ? (theme === 'dark'
+                                    ? 'bg-[#1a1410] border-[#E86F00]/30 hover:border-[#E86F00]/50 hover:bg-[#231a14] text-white shadow-[inset_0_1px_0_rgba(232,111,0,0.15)]'
+                                    : 'bg-[#FFF7ED] border-[#FDBA74]/80 hover:border-[#FB923C] hover:bg-[#FFEDD5] text-[#7C2D12] shadow-[0_2px_12px_rgba(232,111,0,0.06)]')
+                                : (theme === 'dark'
+                                    ? 'bg-[#181818] border-neutral-800/80 hover:bg-[#1e1e1e] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]'
+                                    : 'bg-white border-neutral-200 hover:shadow-xs text-black shadow-2xs')
+                            }`}
+                          >
+                            <div className="flex flex-col items-center justify-center w-full">
+                              {isMaple ? (
+                                <div className="flex items-center gap-2 font-bold tracking-tight text-[13.5px] text-neutral-900 dark:text-orange-200">
+                                  <MapleLogo className="w-5 h-5 shrink-0" />
+                                  <span>Maple</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-center gap-1.5 font-bold tracking-tight text-[13.5px] text-emerald-500 w-full px-1">
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                                  <span className="truncate max-w-[120px]">{slot.companyName}</span>
+                                </div>
+                              )}
+                              <p className={`text-[10.5px] sm:text-[11px] leading-[14px] sm:leading-[15px] mt-1 font-medium line-clamp-2 w-full px-0.5 transition-colors ${
+                                isMaple
+                                  ? (theme === 'dark' ? 'text-orange-200/80 group-hover:text-orange-100' : 'text-[#9A3412] group-hover:text-[#7C2D12]')
+                                  : (theme === 'dark' ? 'text-neutral-400 group-hover:text-neutral-300' : 'text-neutral-600 group-hover:text-neutral-800')
+                              }`} title={slot.description}>
+                                {slot.description}
+                              </p>
+                            </div>
+                          </a>
+                        );
+                      } else {
+                        return (
+                          <button
+                            key={slot.id}
+                            onClick={() => {
+                              triggerHaptic('medium');
+                              window.open(POLAR_CHECKOUT_URL, '_blank');
+                            }}
+                            className={`group flex flex-col items-center justify-center text-center p-3 sm:p-3.5 rounded-xl border border-dashed transition-all duration-300 hover:scale-[1.02] cursor-pointer bg-transparent min-h-[78px] ${
+                              theme === 'dark'
+                                ? 'border-neutral-800 hover:border-neutral-700 text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/10'
+                                : 'border-neutral-300 hover:border-neutral-400 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50/30'
+                            }`}
+                          >
+                            <span className="text-[12px] font-bold tracking-tight flex items-center gap-1">
+                              <span>+</span> Sponsor
+                            </span>
+                            <span className={`text-[9.5px] mt-1 transition-colors ${theme === 'dark' ? 'text-neutral-500 group-hover:text-neutral-400' : 'text-neutral-500 group-hover:text-neutral-600'}`}>
+                              $49/mo
+                            </span>
+                          </button>
+                        );
+                      }
+                    })}
+                  </div>
+                </div>
+
+                {/* Filter and layout controls */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 w-full max-w-xl mx-auto px-4 sm:px-0">                  {/* Category Switcher: Dropdown on Mobile, Pills on Desktop */}
+                  <div className="relative block sm:hidden w-full max-w-[260px] mx-auto z-40">
+                    <button
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                      className={`w-full flex items-center justify-between px-5 py-2.5 rounded-full border text-[13px] font-semibold cursor-pointer transition-all duration-300 shadow-sm border-0 focus-visible:outline-none ${
+                        theme === 'dark' 
+                          ? 'bg-[#181818] border-white/5 text-white hover:bg-[#222]' 
+                          : 'bg-white border-neutral-200 text-black hover:bg-neutral-50'
+                      }`}
+                    >
+                      <span>
+                        {tabLabels[catalogTab]}
+                      </span>
+                      <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${dropdownOpen ? 'rotate-90 text-white' : 'text-neutral-400'}`} />
+                    </button>
+
+                    <AnimatePresence>
+                      {dropdownOpen && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40 bg-transparent" 
+                            onClick={() => setDropdownOpen(false)} 
+                          />
+                          <motion.div
+                            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                            animate={{ opacity: 1, y: 6, scale: 1 }}
+                            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
+                            className={`absolute top-full left-0 right-0 z-50 rounded-[20px] border p-1.5 shadow-xl flex flex-col gap-0.5 max-h-[300px] overflow-y-auto backdrop-blur-xl ${
+                              theme === 'dark' 
+                                ? 'bg-[#181818]/95 border-white/5 text-[#ededed] shadow-black/50' 
+                                : 'bg-white/95 border-neutral-200 text-black shadow-neutral-200/50'
+                            }`}
+                          >
+                            {[
+                              { id: 'buttons', label: 'Buttons' },
+                              { id: 'cards', label: 'Card Spreads' },
+                              { id: 'carousels', label: '3D Carousels' },
+                              { id: 'loaders', label: 'Loaders' },
+                              { id: 'dither-charts', label: 'Dither Charts' }
+                            ].map((tab) => (
+                              <button
+                                key={tab.id}
+                                onClick={() => {
+                                  setCatalogTab(tab.id as any);
+                                  setDropdownOpen(false);
+                                }}
+                                className={`w-full text-left px-4 py-2 rounded-xl text-[13px] font-medium cursor-pointer border-0 transition-colors ${
+                                  catalogTab === tab.id
+                                    ? (theme === 'dark' ? 'bg-white/10 text-white font-semibold' : 'bg-neutral-100 text-black font-semibold')
+                                    : (theme === 'dark' ? 'text-neutral-400 hover:text-white hover:bg-white/[0.04]' : 'text-neutral-600 hover:text-black hover:bg-neutral-50')
+                                }`}
+                              >
+                                {tab.label}
+                              </button>
+                            ))}
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Desktop Category Switcher (Pills) */}
+                  <div className={`hidden sm:flex items-center p-1.5 rounded-full border shadow-inner transition-colors duration-300 max-w-full overflow-x-visible ${theme === 'dark' ? 'bg-[#181818] border-white/5' : 'bg-neutral-200/50 border-neutral-300/30'}`}>
+                    <div className="flex items-center gap-2 pr-1">
+                      <button
+                        onClick={() => setCatalogTab('buttons')}
+                        className={`flex-none flex items-center justify-center h-[36px] px-4.5 sm:px-5 rounded-full text-[13px] font-medium leading-none transition-colors cursor-pointer border-0 whitespace-nowrap ${
+                          catalogTab === 'buttons' 
+                            ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                            : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                        }`}
+                      >
+                        Buttons
+                      </button>
+                      <button
+                        onClick={() => setCatalogTab('cards')}
+                        className={`flex-none flex items-center justify-center h-[36px] px-4.5 sm:px-5 rounded-full text-[13px] font-medium leading-none transition-colors cursor-pointer border-0 whitespace-nowrap ${
+                          catalogTab === 'cards' 
+                            ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                            : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                        }`}
+                      >
+                        Card Spreads
+                      </button>
+                      <button
+                        onClick={() => setCatalogTab('carousels')}
+                        className={`flex-none flex items-center justify-center h-[36px] px-4.5 sm:px-5 rounded-full text-[13px] font-medium leading-none transition-colors cursor-pointer border-0 whitespace-nowrap ${
+                          catalogTab === 'carousels' 
+                            ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                            : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                        }`}
+                      >
+                        3D Carousels
+                      </button>
+                      <button
+                        onClick={() => setCatalogTab('loaders')}
+                        className={`flex-none flex items-center justify-center h-[36px] px-4.5 sm:px-5 rounded-full text-[13px] font-medium leading-none transition-colors cursor-pointer border-0 whitespace-nowrap ${
+                          catalogTab === 'loaders' 
+                            ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                            : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                        }`}
+                      >
+                        Loaders
+                      </button>
+                      <button
+                        onClick={() => setCatalogTab('dither-charts')}
+                        className={`flex-none flex items-center justify-center h-[36px] px-4.5 sm:px-5 rounded-full text-[13px] font-medium leading-none transition-colors cursor-pointer border-0 whitespace-nowrap ${
+                          catalogTab === 'dither-charts' || catalogTab === 'simple-comp'
+                            ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                            : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                        }`}
+                      >
+                        Dither Charts
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Secondary controls row on mobile */}
+                  {catalogTab !== 'loaders' && (
+                    <div className="flex items-center justify-center gap-3 shrink-0">
+                      {/* Sort */}
+                      <div className={`flex items-center p-1 rounded-full border shadow-inner transition-colors duration-300 ${theme === 'dark' ? 'bg-[#181818] border-white/5' : 'bg-neutral-200/50 border-neutral-300/30'}`}>
+                        <button
+                          onClick={() => setSortBy(sortBy === 'default' ? 'alphabetical' : 'default')}
+                          className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[13px] font-medium transition-colors cursor-pointer border-0 ${
+                            sortBy === 'alphabetical' 
+                              ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                              : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                          }`}
+                        >
+                          <ArrowDownAZ className="w-3.5 h-3.5" />
+                          <span>A-Z</span>
+                        </button>
+                      </div>
+
+                      {/* Layout */}
+                      <div className={`hidden sm:flex items-center p-1 rounded-full border shadow-inner transition-colors duration-300 ${theme === 'dark' ? 'bg-[#181818] border-white/5' : 'bg-neutral-200/50 border-neutral-300/30'}`}>
+                        <button
+                          onClick={() => setLayout('list')}
+                          className={`p-1.5 rounded-full transition-colors cursor-pointer border-0 ${
+                            layout === 'list' 
+                              ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                              : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                          }`}
+                          aria-label="List layout"
+                        >
+                          <List className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setLayout('grid')}
+                          className={`p-1.5 rounded-full transition-colors cursor-pointer border-0 ${
+                            layout === 'grid' 
+                              ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                              : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                          }`}
+                          aria-label="Grid layout"
+                        >
+                          <LayoutGrid className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setLayout('matrix')}
+                          className={`p-1.5 rounded-full transition-colors cursor-pointer border-0 ${
+                            layout === 'matrix' 
+                              ? (theme === 'dark' ? 'bg-[#2a2a2a] text-white' : 'bg-white text-black shadow-sm') 
+                              : `${theme === 'dark' ? 'text-[#767676] hover:text-white' : 'text-black opacity-70 hover:opacity-100'}`
+                          }`}
+                          aria-label="Matrix layout"
+                        >
+                          <LayoutTemplate className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div 
+                id="component-grid"
+                className={`
+                  w-full mb-16 mx-auto scroll-mt-24 px-4 sm:px-0
+                  ${catalogTab === 'loaders' ? 'flex flex-col items-center w-full max-w-[1060px]' : `
+                    ${layout === 'list' ? 'flex flex-col items-center gap-4 max-w-md' : ''}
+                    ${layout === 'grid' ? (
+                      catalogTab === 'buttons' 
+                        ? 'flex flex-col items-center gap-6 w-full sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-10 lg:gap-12 max-w-[1060px] sm:justify-items-center' 
+                        : 'flex flex-col items-center gap-6 w-full sm:flex-row sm:flex-wrap sm:justify-center sm:gap-6 sm:max-w-6xl'
+                    ) : ''}
+                    ${layout === 'matrix' ? (
+                      catalogTab === 'buttons'
+                        ? 'flex flex-wrap justify-center gap-3 w-full max-w-[1400px] sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-2 sm:justify-items-center'
+                        : 'flex flex-col items-center gap-4 w-full sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4 sm:max-w-6xl'
+                    ) : ''}
+                  `}
+                `}
+              >
+                <AnimatePresence mode="popLayout">
+                  {catalogTab === 'buttons' ? (
+                    displayedButtons.map((button) => (
+                      <motion.div 
+                        layout 
+                        key={button.id}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        className={`${layout === 'list' ? 'w-full' : ''} ${layout === 'grid' ? 'w-full flex justify-center sm:w-auto sm:block' : ''}`}
+                      >
+                        {layout === 'grid' ? (
+                          <div className={`relative w-full max-w-[320px] sm:w-[320px] h-[220px] sm:h-[268px] rounded-[24px] transition-all duration-300 group ${theme === 'dark' ? 'bg-[#181818] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:bg-[#202020]' : 'bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] border border-neutral-100/85 hover:shadow-[0_6px_24px_rgba(0,0,0,0.06)] text-black'}`}>
+                            <div className={`absolute left-[12px] top-[12px] right-[12px] bottom-[68px] rounded-[14px] overflow-hidden flex items-center justify-center transition-colors duration-300 ${theme === 'dark' ? 'bg-[#131313]' : 'bg-[#f4f4f6]'}`}>
+                              <div className={`absolute inset-0 rounded-[14px] pointer-events-none z-10 ${theme === 'dark' ? 'shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]' : 'shadow-[inset_0_0_0_1px_rgba(0,0,0,0.03)]'}`} />
+                              <AnimatedButton config={button} layoutMode={layout} theme={theme} />
+                            </div>
+                            <div className="absolute left-[20px] bottom-[14px] w-[calc(100%-80px)] flex flex-col gap-[2px]">
+                              <div className={`text-[13px] font-semibold leading-[18px] transition-colors ${theme === 'dark' ? 'text-[#ededed]' : 'text-black'}`}>{button.label}</div>
+                              <div className={`text-[11px] font-normal leading-[13px] transition-colors ${theme === 'dark' ? 'text-[#767676]' : 'text-black opacity-70'} capitalize`}>{button.interactionType.replace('-', ' ')} interaction</div>
+                            </div>
+                            <button 
+                              onClick={() => handleCopyCode(button)}
+                              type="button" 
+                              className={`absolute right-[20px] bottom-[12px] w-[32px] h-[32px] rounded-full flex items-center justify-center transition-colors cursor-pointer border-0 focus-visible:outline focus-visible:outline-2 ${theme === 'dark' ? 'bg-white/[0.08] hover:bg-white/[0.12] text-[#ededed]/60 hover:text-[#ededed]' : 'bg-neutral-100 hover:bg-neutral-200 text-black hover:text-black'}`} 
+                              aria-label="Copy interaction code"
+                            >
+                              <Copy className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
+                            </button>
+                          </div>
+                        ) : (
+                          <AnimatedButton config={button} layoutMode={layout} theme={theme} />
+                        )}
+                      </motion.div>
+                    ))
+                  ) : catalogTab === 'loaders' ? (
+                    <div className="w-full flex flex-col gap-16 max-w-[1060px] mx-auto text-left">
+                      {loaderGroups.map((group, groupIdx) => {
+                        const isPhysicsGroup = group.title === 'Physics & Simulation';
+                        return (
+                          <div key={groupIdx} className="flex flex-col gap-6 w-full">
+                            <div className="flex items-center gap-3 px-2">
+                              <h2 className={`text-[17px] font-semibold tracking-tight transition-colors ${theme === 'dark' ? 'text-[#ededed]' : 'text-black'}`}>
+                                {group.title}
+                              </h2>
+                              <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors ${theme === 'dark' ? 'bg-white/[0.06] text-neutral-400' : 'bg-neutral-200/60 text-neutral-600'}`}>
+                                {group.loaders.length} items
+                              </span>
+                            </div>
+                            
+                            {isPhysicsGroup ? (
+                              <div className="w-full">
+                                {group.loaders.map((loader, loaderIdx) => {
+                                  const LoaderComponent = loader.component;
+                                  const isCopied = copiedText === loader.kebabName || copiedText === loader.name;
+                                  return (
+                                    <div 
+                                      key={loaderIdx} 
+                                      className={`relative group rounded-[24px] flex flex-col items-center justify-center p-6 md:p-8 transition-all duration-300 border h-64 md:h-80 w-full overflow-hidden ${
+                                        theme === 'dark' 
+                                          ? 'bg-[#181818] border-white/5 hover:bg-[#1f1f1f] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]' 
+                                          : 'bg-white border-neutral-100 hover:shadow-[0_4px_20px_rgba(0,0,0,0.03)]'
+                                      }`}
+                                    >
+                                      {/* Container for Loader Component */}
+                                      <div className="flex-1 flex items-center justify-center w-full">
+                                        <InViewRender>
+                                          <LoaderComponent theme={theme} />
+                                        </InViewRender>
+                                      </div>
+
+                                      {/* Details row at the bottom of full-width card */}
+                                      <div className="w-full flex items-center justify-between mt-4 px-2">
+                                        <span className={`text-[13px] font-semibold transition-colors ${
+                                          theme === 'dark' ? 'text-neutral-350' : 'text-neutral-700'
+                                        }`}>
+                                          {loader.name}
+                                        </span>
+                                        
+                                        <motion.button
+                                          whileHover={{ scale: 1.08 }}
+                                          whileTap={{ scale: 0.92 }}
+                                          onClick={() => handleCopyLoaderCode(loader)}
+                                          className={`p-2 rounded-xl transition-all cursor-pointer border flex items-center justify-center ${
+                                            isCopied
+                                              ? (theme === 'dark' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-600 border-emerald-300')
+                                              : (theme === 'dark' ? 'bg-white/[0.08] border-transparent hover:bg-white/[0.14] text-neutral-300 hover:text-white' : 'bg-neutral-100 border-transparent hover:bg-neutral-200 text-neutral-650 hover:text-black')
+                                          }`}
+                                          title="Copy loader code"
+                                        >
+                                          <IconSwap>
+                                            <IconSwapItem key={isCopied ? "check" : "copy"}>
+                                              {isCopied ? (
+                                                <Check className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                                              ) : (
+                                                <Copy className="w-4 h-4" />
+                                              )}
+                                            </IconSwapItem>
+                                          </IconSwap>
+                                        </motion.button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full">
+                                {group.loaders.map((loader, loaderIdx) => {
+                                  const LoaderComponent = loader.component;
+                                  const isCopied = copiedText === loader.kebabName || copiedText === loader.name;
+                                  return (
+                                    <div 
+                                      key={loaderIdx} 
+                                      className={`relative group aspect-square rounded-2xl flex flex-col items-center justify-center p-4 transition-all duration-300 border ${
+                                        theme === 'dark' 
+                                          ? 'bg-[#181818] border-white/5 hover:bg-[#1f1f1f] shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]' 
+                                          : 'bg-white border-neutral-100 hover:shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:border-neutral-200/50'
+                                      }`}
+                                    >
+                                      <div className="flex-1 flex items-center justify-center w-full min-h-[64px]">
+                                        <InViewRender>
+                                          <LoaderComponent theme={theme} />
+                                        </InViewRender>
+                                      </div>
+
+                                      <div className="w-full flex items-center justify-between mt-3 px-1 gap-1">
+                                        <span className={`text-[12px] font-medium truncate transition-colors ${
+                                          theme === 'dark' ? 'text-neutral-300' : 'text-neutral-700'
+                                        }`} title={loader.name}>
+                                          {loader.name}
+                                        </span>
+                                        
+                                        <motion.button
+                                          whileHover={{ scale: 1.1 }}
+                                          whileTap={{ scale: 0.9 }}
+                                          onClick={() => handleCopyLoaderCode(loader)}
+                                          className={`p-1.5 rounded-lg transition-all cursor-pointer border flex items-center justify-center ${
+                                            isCopied
+                                              ? (theme === 'dark' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-600 border-emerald-300')
+                                              : (theme === 'dark' ? 'bg-white/[0.08] border-transparent text-neutral-300 hover:text-white hover:bg-white/[0.14]' : 'bg-neutral-100/90 border-transparent text-neutral-600 hover:text-black hover:bg-neutral-200')
+                                          }`}
+                                          title="Copy loader code"
+                                        >
+                                          <IconSwap>
+                                            <IconSwapItem key={isCopied ? "check" : "copy"}>
+                                              {isCopied ? (
+                                                <Check className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                                              ) : (
+                                                <Copy className="w-3.5 h-3.5" />
+                                              )}
+                                            </IconSwapItem>
+                                          </IconSwap>
+                                        </motion.button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : catalogTab === 'dither-charts' || catalogTab === 'simple-comp' ? (
+                    <DitherChartsGrid theme={theme} showToast={showToast} triggerHaptic={triggerHaptic} />
+                  ) : (
+                    displayedCards.map((card) => (
+                      <motion.div 
+                        layout 
+                        key={card.id}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        className={`${layout === 'list' ? 'w-full' : ''} ${layout === 'grid' || layout === 'matrix' ? 'w-full flex justify-center sm:w-auto sm:block' : ''}`}
+                      >
+                        {layout === 'grid' || layout === 'matrix' ? (
+                          <div 
+                            onMouseEnter={() => setHoveredCardId(card.id)}
+                            onMouseLeave={() => setHoveredCardId(null)}
+                            className={`relative w-full max-w-[480px] sm:w-[480px] h-[300px] sm:h-[390px] rounded-[24px] transition-all duration-300 group ${hoveredCardId === card.id ? 'overflow-visible z-20' : 'overflow-hidden z-1'} ${theme === 'dark' ? 'bg-[#181818] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:bg-[#202020]' : 'bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] border border-neutral-100/85 hover:shadow-[0_6px_24px_rgba(0,0,0,0.06)] text-black'}`}
+                          >
+                            <div className={`absolute left-[12px] top-[12px] right-[12px] h-[200px] sm:h-[290px] rounded-[14px] flex items-center justify-center ${hoveredCardId === card.id ? 'overflow-visible' : 'overflow-hidden'} transition-colors duration-300 ${theme === 'dark' ? 'bg-[#131313]' : 'bg-[#f4f4f6]'}`}>
+                              <div className={`absolute inset-0 rounded-[14px] pointer-events-none z-10 ${theme === 'dark' ? 'shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]' : 'shadow-[inset_0_0_0_1px_rgba(0,0,0,0.03)]'}`} />
+                              {card.interactionType === 'card-arc-5' && <CardArc5 hovered={hoveredCardId === card.id} className="scale-[0.55] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-arc-7' && <CardArc7 hovered={hoveredCardId === card.id} className="scale-[0.5] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-long-arc-5' && <CardLongArc5 hovered={hoveredCardId === card.id} className="scale-[0.5] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-linear-spread' && <CardLinearSpread hovered={hoveredCardId === card.id} className="scale-[0.55] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-corner-fan' && <CardCornerFan hovered={hoveredCardId === card.id} className="scale-[0.55] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-stamp-arc' && <CardStampArc hovered={hoveredCardId === card.id} className="scale-[0.55] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-cascade-stagger' && <CardCascadeStagger hovered={hoveredCardId === card.id} className="scale-[0.55] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-scatter-spread' && <CardScatterSpread hovered={hoveredCardId === card.id} className="scale-[0.55] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-wheel-fan' && <CardWheelFan hovered={hoveredCardId === card.id} className="scale-[0.55] sm:scale-[1.2] origin-center" />}
+                              {card.interactionType === 'card-carousel' && <CardCarousel hovered={hoveredCardId === card.id} className="scale-[0.45] sm:scale-[1.0] origin-center" />}
+                              {card.interactionType === 'card-cover-flow' && <CardCoverFlow hovered={hoveredCardId === card.id} className="scale-[0.45] sm:scale-[1.0] origin-center" />}
+                              {card.interactionType === 'card-time-machine' && <CardTimeMachine hovered={hoveredCardId === card.id} className="scale-[0.45] sm:scale-[1.0] origin-center" />}
+                              {card.interactionType === 'card-carousel-mono' && <CardCarousel hovered={hoveredCardId === card.id} isMonochrome={true} className="scale-[0.45] sm:scale-[1.0] origin-center" />}
+                              {card.interactionType === 'card-cover-flow-mono' && <CardCoverFlow hovered={hoveredCardId === card.id} isMonochrome={true} className="scale-[0.45] sm:scale-[1.0] origin-center" />}
+                              {card.interactionType === 'card-time-machine-mono' && <CardTimeMachine hovered={hoveredCardId === card.id} isMonochrome={true} className="scale-[0.45] sm:scale-[1.0] origin-center" />}
+                            </div>
+                            <div className="absolute left-[20px] bottom-[12px] right-[65px] flex flex-col justify-end gap-[3px]">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <div className={`text-[13px] font-semibold leading-[18px] transition-colors ${theme === 'dark' ? 'text-[#ededed]' : 'text-black'}`}>
+                                  {card.label}
+                                </div>
+                                {card.inspiration && (
+                                  <a
+                                    href={card.inspiration.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-colors font-medium whitespace-nowrap"
+                                  >
+                                    by {card.inspiration.name}
+                                  </a>
+                                )}
+                              </div>
+                              <div className={`text-[11px] font-normal leading-[14px] line-clamp-2 transition-colors ${theme === 'dark' ? 'text-[#767676]' : 'text-black opacity-70'}`}>
+                                {card.description}
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => handleCopyCardCode(card)}
+                              type="button" 
+                              className={`absolute right-[20px] bottom-[14px] w-[32px] h-[32px] rounded-full flex items-center justify-center transition-colors cursor-pointer border-0 focus-visible:outline focus-visible:outline-2 ${theme === 'dark' ? 'bg-white/[0.08] hover:bg-white/[0.12] text-[#ededed]/60 hover:text-[#ededed]' : 'bg-neutral-100 hover:bg-neutral-200 text-black hover:text-black'}`} 
+                              aria-label="Copy card code"
+                            >
+                              <Copy className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
+                            </button>
+                          </div>
+                        ) : (
+                          // List view for cards
+                          <div className={`w-full max-w-[500px] flex items-center justify-between p-4 rounded-xl border transition-colors ${theme === 'dark' ? 'bg-[#181818] border-neutral-850 text-white' : 'bg-white border-neutral-200 shadow-sm text-black'}`}>
+                            <div className="flex items-center gap-4">
+                              <div className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 ${theme === 'dark' ? 'bg-[#131313]' : 'bg-neutral-100'}`}>
+                                <LayoutTemplate className="w-5 h-5 text-neutral-400" />
+                              </div>
+                              <div>
+                                <div className="text-[14px] font-semibold">{card.label}</div>
+                                <div className={`text-[11px] ${theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'}`}>{card.description}</div>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => handleCopyCardCode(card)}
+                              className={`p-2 rounded-lg cursor-pointer border-0 ${theme === 'dark' ? 'bg-white/[0.06] text-neutral-300 hover:bg-white/[0.1]' : 'bg-neutral-150 text-neutral-750 hover:bg-neutral-200'}`}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </motion.div>
+                    ))
+                  )}
+                </AnimatePresence>
+              </div>
+
+
+
+            </div>
+
+            {/* Recommended course CTA */}
+            <aside className="relative z-10 w-full max-w-[720px] mx-auto mt-[20px] mb-[70px] flex items-start sm:items-center gap-2.5 sm:gap-[24px] px-6 sm:px-0">
+              <span className={`w-[2px] h-[78px] rounded-[1px] shrink-0 transition-colors ${theme === 'dark' ? 'bg-white/[0.14]' : 'bg-neutral-300'}`} aria-hidden="true" />
+              <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-[24px]">
+                <div className="flex-1 min-w-0 flex flex-col gap-[10px] max-w-[432px]">
+                  <p className={`m-0 text-[14px] leading-[1.4] transition-colors ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                    If you want to use beautiful ready-to-use UI components, I highly recommend <a href="https://oxygen-ui.vercel.app" target="_blank" rel="noopener noreferrer" className={`underline underline-offset-2 transition-colors duration-180 ${theme === 'dark' ? 'text-white decoration-white/50 hover:decoration-white' : 'text-black decoration-black/50 hover:decoration-black'}`}>Oxygen UI</a>.
+                  </p>
+                  <p className="m-0 flex flex-col text-[13px] leading-[18px]">
+                    <a href="https://x.com/SubhanHQ" target="_blank" rel="noopener noreferrer" className={`hover:underline no-underline font-medium ${theme === 'dark' ? 'text-[#e9e9e9]' : 'text-black'}`}>Syed Subhan</a>
+                    <span className={`transition-colors ${theme === 'dark' ? 'text-[#767676]' : 'text-black opacity-70'}`}>Creator of Oxygen UI</span>
+                  </p>
+                </div>
+                <a className={`inline-flex items-center gap-[4px] h-[40px] px-[16px] rounded-[24px] font-medium text-[13px] leading-[13px] no-underline transition-colors duration-200 shrink-0 sm:ml-auto group ${theme === 'dark' ? 'bg-[#ffffff] text-[#0d0d0d] hover:bg-[#e8e8e8]' : 'bg-neutral-950 text-white hover:bg-neutral-800'}`} href="https://oxygen-ui.vercel.app" target="_blank" rel="noopener noreferrer">
+                  <span>Get Oxygen UI</span>
+                  <span className="inline-flex w-[16px] h-[16px]">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
+                      <path d="M7.5 2.5H4.5C3.39543 2.5 2.5 3.39543 2.5 4.5V11.5C2.5 12.6046 3.39543 13.5 4.5 13.5H11.5C12.6046 13.5 13.5 12.6046 13.5 11.5V8.5"></path>
+                      <g className="transition-transform duration-250 group-hover:translate-x-[1.5px] group-hover:-translate-y-[1.5px]">
+                        <path d="M8.5 7.5L13.5 2.5M10 2.5H13.5V6"></path>
+                      </g>
+                    </svg>
+                  </span>
+                </a>
+              </div>
+            </aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <footer className="relative z-10 w-full text-center pb-[24px] text-[13px] leading-[14px]">
+        <span className={theme === 'dark' ? 'text-[#8f8f8f]' : 'text-black opacity-60'}>Created by</span>
+        <a className={`no-underline ml-[4px] font-medium transition-colors ${theme === 'dark' ? 'text-[#e9e9e9] hover:text-white' : 'text-black hover:text-black'}`} href="https://x.com/SubhanHQ" target="_blank" rel="noopener noreferrer">Syed Subhan</a>
+        <span className={`mx-1 ${theme === 'dark' ? 'text-[#8f8f8f]' : 'text-black opacity-60'}`}>·</span>
+        <a className={`no-underline transition-colors ${theme === 'dark' ? 'text-[#e9e9e9] hover:text-white' : 'text-black hover:text-black'}`} href="https://github.com/Subhan-code/Amicro--Micro-transitions-#readme">Terms & License</a>
+      </footer>
+
+      {/* Copy-Success Toast Alert */}
+      <div className="fixed bottom-6 right-6 z-[100] pointer-events-none">
+        <AnimatePresence>
+          {toastMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              className={`px-4 py-3 rounded-xl border flex items-center gap-2.5 text-[13px] font-medium shadow-lg pointer-events-auto ${
+                theme === 'dark' 
+                  ? 'bg-[#181818] border-neutral-800 text-white shadow-black/20' 
+                  : 'bg-white border-neutral-200 text-black shadow-neutral-200/50'
+              }`}
+            >
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>{toastMessage}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+
+
+      <Analytics />
+    </div>
+  );
+}

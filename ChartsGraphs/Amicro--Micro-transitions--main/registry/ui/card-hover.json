@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "card-hover",
+  "type": "registry:ui",
+  "title": "Card Hover",
+  "description": "Dynamic floating card effect on hover.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/hover/card-hover.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/card-hover.tsx",
+      "content": "import React, { useState } from 'react';\r\nimport { motion, AnimatePresence } from 'framer-motion';\r\n\r\ninterface CardHoverProps {\r\n  items: {\r\n    id: string;\r\n    title: string;\r\n    description: string;\r\n    link?: string;\r\n  }[];\r\n  className?: string;\r\n  cardClassName?: string;\r\n}\r\n\r\nexport function CardHover({\r\n  items,\r\n  className = '',\r\n  cardClassName = '',\r\n}: CardHoverProps) {\r\n  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);\r\n\r\n  return (\r\n    <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 w-full ${className}`}>\r\n      {items.map((item, idx) => (\r\n        <a\r\n          key={item.id}\r\n          href={item.link || '#'}\r\n          className=\"relative group block p-2 h-full w-full no-underline\"\r\n          onMouseEnter={() => setHoveredIndex(idx)}\r\n          onMouseLeave={() => setHoveredIndex(null)}\r\n        >\r\n          <AnimatePresence>\r\n            {hoveredIndex === idx && (\r\n              <motion.span\r\n                className=\"absolute inset-0 h-full w-full bg-neutral-200 dark:bg-zinc-800/[0.8] block rounded-3xl -z-10\"\r\n                layoutId=\"hoverBackground\"\r\n                initial={{ opacity: 0 }}\r\n                animate={{\r\n                  opacity: 1,\r\n                  transition: { duration: 0.15 },\r\n                }}\r\n                exit={{\r\n                  opacity: 0,\r\n                  transition: { duration: 0.15, delay: 0.1 },\r\n                }}\r\n              />\r\n            )}\r\n          </AnimatePresence>\r\n          <div\r\n            className={`rounded-2xl h-full w-full p-5 overflow-hidden bg-white dark:bg-black border border-neutral-200 dark:border-zinc-800 group-hover:border-slate-350 dark:group-hover:border-zinc-700 relative z-20 transition-colors duration-200 ${cardClassName}`}\r\n          >\r\n            <div className=\"relative z-50\">\r\n              <h4 className=\"text-zinc-900 dark:text-zinc-100 font-bold tracking-wide mt-2\">\r\n                {item.title}\r\n              </h4>\r\n              <p className=\"mt-2 text-zinc-500 dark:text-zinc-400 tracking-wide leading-relaxed text-sm\">\r\n                {item.description}\r\n              </p>\r\n            </div>\r\n          </div>\r\n        </a>\r\n      ))}\r\n    </div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

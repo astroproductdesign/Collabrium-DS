@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "cursor-trail",
+  "type": "registry:ui",
+  "title": "Cursor Trail",
+  "description": "Custom cursor with particle/dots trail.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/cursor/cursor-trail.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/cursor-trail.tsx",
+      "content": "import React, { useEffect, useState } from 'react';\r\nimport { motion, useSpring } from 'framer-motion';\r\n\r\ninterface CursorTrailProps {\r\n  color?: string;\r\n  size?: number;\r\n  count?: number;\r\n}\r\n\r\nexport function CursorTrail({\r\n  color = 'bg-blue-500',\r\n  size = 8,\r\n  count = 6,\r\n}: CursorTrailProps) {\r\n  const [coords, setCoords] = useState({ x: 0, y: 0 });\r\n  const [isVisible, setIsVisible] = useState(false);\r\n\r\n  useEffect(() => {\r\n    const handleMouseMove = (e: MouseEvent) => {\r\n      setCoords({ x: e.clientX, y: e.clientY });\r\n      if (!isVisible) setIsVisible(true);\r\n    };\r\n\r\n    const handleMouseLeave = () => {\r\n      setIsVisible(false);\r\n    };\r\n\r\n    window.addEventListener('mousemove', handleMouseMove, { passive: true });\r\n    document.addEventListener('mouseleave', handleMouseLeave);\r\n    \r\n    return () => {\r\n      window.removeEventListener('mousemove', handleMouseMove);\r\n      document.removeEventListener('mouseleave', handleMouseLeave);\r\n    };\r\n  }, [isVisible]);\r\n\r\n  // Create an array of springs, each following the one in front of it\r\n  return (\r\n    <>\r\n      {isVisible && Array.from({ length: count }).map((_, index) => {\r\n        // Higher index elements have more damping/delay\r\n        const springConfig = {\r\n          stiffness: 300 - index * 30,\r\n          damping: 25 + index * 2,\r\n          mass: 0.2 + index * 0.1,\r\n        };\r\n\r\n        return (\r\n          <TrailDot\r\n            key={index}\r\n            index={index}\r\n            coords={coords}\r\n            springConfig={springConfig}\r\n            size={size}\r\n            color={color}\r\n            count={count}\r\n          />\r\n        );\r\n      })}\r\n    </>\r\n  );\r\n}\r\n\r\ninterface TrailDotProps {\r\n  index: number;\r\n  coords: { x: number; y: number };\r\n  springConfig: { stiffness: number; damping: number; mass: number };\r\n  size: number;\r\n  color: string;\r\n  count: number;\r\n}\r\n\r\nfunction TrailDot({\r\n  index,\r\n  coords,\r\n  springConfig,\r\n  size,\r\n  color,\r\n  count,\r\n}: TrailDotProps) {\r\n  const x = useSpring(coords.x, springConfig);\r\n  const y = useSpring(coords.y, springConfig);\r\n\r\n  useEffect(() => {\r\n    x.set(coords.x);\r\n    y.set(coords.y);\r\n  }, [coords, x, y]);\r\n\r\n  // Calculate size and opacity based on index (shrinking tail)\r\n  const dotSize = size * (1 - index / count);\r\n  const opacity = 1 - index / count;\r\n\r\n  return (\r\n    <motion.div\r\n      style={{\r\n        x,\r\n        y,\r\n        width: dotSize,\r\n        height: dotSize,\r\n        translateX: '-50%',\r\n        translateY: '-50%',\r\n        opacity,\r\n      }}\r\n      className={`fixed top-0 left-0 rounded-full pointer-events-none z-[9999] ${color}`}\r\n    />\r\n  );\r\n}\r\n"
+    }
+  ]
+}

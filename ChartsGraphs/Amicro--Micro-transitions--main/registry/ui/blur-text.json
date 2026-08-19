@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "blur-text",
+  "type": "registry:ui",
+  "title": "Blur Text",
+  "description": "Blur transition for text container/headings.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/text/blur-text.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/blur-text.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\ninterface BlurTextProps {\r\n  text: string;\r\n  duration?: number;\r\n  staggerDelay?: number;\r\n  initialBlur?: string;\r\n  className?: string;\r\n}\r\n\r\nexport function BlurText({\r\n  text,\r\n  duration = 0.5,\r\n  staggerDelay = 0.02,\r\n  initialBlur = '8px',\r\n  className = '',\r\n}: BlurTextProps) {\r\n  const characters = Array.from(text);\r\n\r\n  const containerVariants = {\r\n    hidden: { opacity: 0 },\r\n    visible: {\r\n      opacity: 1,\r\n      transition: {\r\n        staggerChildren: staggerDelay,\r\n      },\r\n    },\r\n  };\r\n\r\n  const charVariants = {\r\n    hidden: { opacity: 0, filter: `blur(${initialBlur})` },\r\n    visible: {\r\n      opacity: 1,\r\n      filter: 'blur(0px)',\r\n      transition: {\r\n        duration,\r\n        ease: 'easeOut',\r\n      },\r\n    },\r\n  };\r\n\r\n  return (\r\n    <motion.div\r\n      variants={containerVariants}\r\n      initial=\"hidden\"\r\n      whileInView=\"visible\"\r\n      viewport={{ once: true, margin: '-10%' }}\r\n      className={`inline-block ${className}`}\r\n    >\r\n      {characters.map((char, index) => (\r\n        <motion.span\r\n          key={index}\r\n          variants={charVariants}\r\n          className=\"inline-block whitespace-pre\"\r\n        >\r\n          {char}\r\n        </motion.span>\r\n      ))}\r\n    </motion.div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

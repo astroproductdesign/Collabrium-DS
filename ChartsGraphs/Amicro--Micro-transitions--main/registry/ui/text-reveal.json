@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "text-reveal",
+  "type": "registry:ui",
+  "title": "Text Reveal",
+  "description": "Line-by-line slide/reveal text effect.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/text/text-reveal.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/text-reveal.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\ninterface TextRevealProps {\r\n  text: string;\r\n  duration?: number;\r\n  staggerDelay?: number;\r\n  className?: string;\r\n}\r\n\r\nexport function TextReveal({\r\n  text,\r\n  duration = 0.8,\r\n  staggerDelay = 0.15,\r\n  className = '',\r\n}: TextRevealProps) {\r\n  const lines = text.split('\\n');\r\n\r\n  const containerVariants = {\r\n    hidden: { opacity: 0 },\r\n    visible: {\r\n      opacity: 1,\r\n      transition: {\r\n        staggerChildren: staggerDelay,\r\n      },\r\n    },\r\n  };\r\n\r\n  const itemVariants = {\r\n    hidden: { y: '100%' },\r\n    visible: {\r\n      y: 0,\r\n      transition: {\r\n        duration,\r\n        ease: [0.16, 1, 0.3, 1], // easeOutExpo\r\n      },\r\n    },\r\n  };\r\n\r\n  return (\r\n    <motion.div\r\n      variants={containerVariants}\r\n      initial=\"hidden\"\r\n      whileInView=\"visible\"\r\n      viewport={{ once: true, margin: '-20%' }}\r\n      className={`flex flex-col ${className}`}\r\n    >\r\n      {lines.map((line, index) => (\r\n        <div key={index} className=\"overflow-hidden py-1\">\r\n          <motion.span variants={itemVariants} className=\"block\">\r\n            {line}\r\n          </motion.span>\r\n        </div>\r\n      ))}\r\n    </motion.div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

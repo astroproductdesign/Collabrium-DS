@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-reduced-motion",
+  "type": "registry:hook",
+  "title": "Use Reduced Motion",
+  "description": "Detects client system reduced motion media query standard.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/hooks/use-reduced-motion.ts",
+      "type": "registry:hook",
+      "target": "@hooks/use-reduced-motion.ts",
+      "content": "import { useState, useEffect } from 'react';\r\n\r\nexport function useReducedMotion() {\r\n  const [shouldReduceMotion, setShouldReduceMotion] = useState(false);\r\n\r\n  useEffect(() => {\r\n    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');\r\n    setShouldReduceMotion(mediaQuery.matches);\r\n\r\n    const handleMediaChange = (event: MediaQueryListEvent) => {\r\n      setShouldReduceMotion(event.matches);\r\n    };\r\n\r\n    mediaQuery.addEventListener('change', handleMediaChange);\r\n    return () => {\r\n      mediaQuery.removeEventListener('change', handleMediaChange);\r\n    };\r\n  }, []);\r\n\r\n  return shouldReduceMotion;\r\n}\r\n"
+    }
+  ]
+}

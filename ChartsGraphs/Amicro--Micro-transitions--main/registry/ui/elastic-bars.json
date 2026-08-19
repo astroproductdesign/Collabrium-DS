@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "elastic-bars",
+  "type": "registry:ui",
+  "title": "Elastic Bars",
+  "description": "Elastic Bars loading animation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/loading/elastic-bars.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/elastic-bars.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\nexport const ElasticBars = () => (\r\n  <div className=\"flex space-x-2 h-10 items-center justify-center\">\r\n    {[0, 1, 2].map((i) => (\r\n      <motion.div\r\n        key={i}\r\n        className=\"w-2 bg-zinc-800 dark:bg-white rounded-full\"\r\n        animate={{ height: [8, 36, 8] }}\r\n        transition={{\r\n          duration: 1.1,\r\n          repeat: Infinity,\r\n          ease: \"easeInOut\",\r\n          delay: i * 0.15,\r\n        }}\r\n      />\r\n    ))}\r\n  </div>\r\n);\r\n"
+    }
+  ]
+}

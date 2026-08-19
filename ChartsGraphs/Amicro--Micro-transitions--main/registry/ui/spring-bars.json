@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "spring-bars",
+  "type": "registry:ui",
+  "title": "Spring Bars",
+  "description": "Spring Bars loading animation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/loading/spring-bars.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/spring-bars.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\nexport const SpringBars = () => (\r\n  <div className=\"flex flex-col space-y-2 w-10 justify-center\">\r\n    {[0, 1, 2].map((i) => (\r\n      <motion.div\r\n        key={i}\r\n        className=\"h-1.5 bg-zinc-800 dark:bg-white rounded-full origin-left\"\r\n        animate={{ scaleX: [0.2, 1, 0.2] }}\r\n        transition={{\r\n          duration: 1.4,\r\n          repeat: Infinity,\r\n          ease: \"easeInOut\",\r\n          delay: i * 0.15,\r\n        }}\r\n      />\r\n    ))}\r\n  </div>\r\n);\r\n"
+    }
+  ]
+}

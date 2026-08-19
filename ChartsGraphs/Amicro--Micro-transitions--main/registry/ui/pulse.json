@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "pulse",
+  "type": "registry:ui",
+  "title": "Pulse",
+  "description": "Pulsing scaling animation for loading elements.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/loading/pulse.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/pulse.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\ninterface PulseProps {\r\n  size?: number;\r\n  color?: string;\r\n  className?: string;\r\n}\r\n\r\nexport function Pulse({\r\n  size = 12,\r\n  color = 'bg-blue-500',\r\n  className = '',\r\n}: PulseProps) {\r\n  return (\r\n    <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>\r\n      {/* Center Solid Point */}\r\n      <span className={`absolute w-full h-full rounded-full ${color}`} />\r\n      \r\n      {/* Pulsing ring 1 */}\r\n      <motion.span\r\n        initial={{ scale: 1, opacity: 0.5 }}\r\n        animate={{ scale: 2.8, opacity: 0 }}\r\n        transition={{\r\n          repeat: Infinity,\r\n          duration: 1.8,\r\n          ease: 'easeOut',\r\n        }}\r\n        className={`absolute w-full h-full rounded-full ${color} opacity-40`}\r\n      />\r\n\r\n      {/* Pulsing ring 2 */}\r\n      <motion.span\r\n        initial={{ scale: 1, opacity: 0.5 }}\r\n        animate={{ scale: 2.8, opacity: 0 }}\r\n        transition={{\r\n          repeat: Infinity,\r\n          duration: 1.8,\r\n          delay: 0.6,\r\n          ease: 'easeOut',\r\n        }}\r\n        className={`absolute w-full h-full rounded-full ${color} opacity-40`}\r\n      />\r\n    </div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

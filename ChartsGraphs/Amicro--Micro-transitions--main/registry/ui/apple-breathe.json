@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "apple-breathe",
+  "type": "registry:ui",
+  "title": "Apple Breathe",
+  "description": "Apple Breathe loading animation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/loading/apple-breathe.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/apple-breathe.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\nexport const AppleBreathe = () => {\r\n  return (\r\n    <div className=\"relative flex items-center justify-center w-12 h-12\">\r\n      {[0, 60, 120, 180, 240, 300].map((angle, idx) => {\r\n        // Alternating color teal-blue palette\r\n        const bgClass = idx % 2 === 0 \r\n          ? 'bg-teal-400/35 dark:bg-teal-400/40' \r\n          : 'bg-cyan-400/35 dark:bg-cyan-400/40';\r\n        return (\r\n          <motion.div\r\n            key={angle}\r\n            className={`absolute w-3.5 h-3.5 rounded-full ${bgClass}`}\r\n            style={{ transformOrigin: 'center' }}\r\n            animate={{\r\n              scale: [1, 1.75, 1],\r\n              x: [0, Math.cos(angle * Math.PI / 180) * 11, 0],\r\n              y: [0, Math.sin(angle * Math.PI / 180) * 11, 0]\r\n            }}\r\n            transition={{\r\n              duration: 3.6,\r\n              repeat: Infinity,\r\n              ease: \"easeInOut\"\r\n            }}\r\n          />\r\n        );\r\n      })}\r\n    </div>\r\n  );\r\n};\r\n"
+    }
+  ]
+}

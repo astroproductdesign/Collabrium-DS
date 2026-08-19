@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "magnetic-button",
+  "type": "registry:ui",
+  "title": "Magnetic Button",
+  "description": "A button that pulls slightly towards the user's cursor.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/hover/magnetic-button.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/magnetic-button.tsx",
+      "content": "import React, { useRef, useState } from 'react';\r\nimport { motion, useSpring } from 'framer-motion';\r\n\r\ninterface MagneticButtonProps {\r\n  children: React.ReactNode;\r\n  range?: number;\r\n  strength?: number;\r\n  className?: string;\r\n  onClick?: () => void;\r\n}\r\n\r\nexport function MagneticButton({\r\n  children,\r\n  range = 45,\r\n  strength = 0.35,\r\n  className = '',\r\n  onClick,\r\n}: MagneticButtonProps) {\r\n  const ref = useRef<HTMLButtonElement>(null);\r\n  const [position, setPosition] = useState({ x: 0, y: 0 });\r\n\r\n  const springConfig = { stiffness: 150, damping: 15, mass: 0.6 };\r\n  const x = useSpring(0, springConfig);\r\n  const y = useSpring(0, springConfig);\r\n\r\n  const handleMouseMove = (e: React.MouseEvent) => {\r\n    if (!ref.current) return;\r\n    const { clientX, clientY } = e;\r\n    const { left, top, width, height } = ref.current.getBoundingClientRect();\r\n    \r\n    // Center point of the button\r\n    const centerX = left + width / 2;\r\n    const centerY = top + height / 2;\r\n\r\n    // Calculate distance\r\n    const dist = Math.hypot(clientX - centerX, clientY - centerY);\r\n\r\n    if (dist < range) {\r\n      // Magnetic pull\r\n      const targetX = (clientX - centerX) * strength;\r\n      const targetY = (clientY - centerY) * strength;\r\n      x.set(targetX);\r\n      y.set(targetY);\r\n    } else {\r\n      // Return to center\r\n      x.set(0);\r\n      y.set(0);\r\n    }\r\n  };\r\n\r\n  const handleMouseLeave = () => {\r\n    x.set(0);\r\n    y.set(0);\r\n  };\r\n\r\n  return (\r\n    <motion.button\r\n      ref={ref}\r\n      onMouseMove={handleMouseMove}\r\n      onMouseLeave={handleMouseLeave}\r\n      onClick={onClick}\r\n      style={{ x, y }}\r\n      className={`relative inline-flex items-center justify-center rounded-full bg-neutral-900 dark:bg-white text-white dark:text-black font-semibold text-sm h-11 px-6 shadow hover:scale-[1.03] transition-all cursor-pointer select-none border-0 ${className}`}\r\n    >\r\n      <span className=\"relative z-10 block pointer-events-none\">{children}</span>\r\n    </motion.button>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

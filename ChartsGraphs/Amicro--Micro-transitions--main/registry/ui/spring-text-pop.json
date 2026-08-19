@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "spring-text-pop",
+  "type": "registry:ui",
+  "title": "Spring Text Pop",
+  "description": "Spring Text Pop loading animation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/loading/spring-text-pop.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/spring-text-pop.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\nexport const SpringTextPop = () => {\r\n  const text = \"Loading...\";\r\n  return (\r\n    <div className=\"flex font-medium text-sm tracking-widest text-zinc-800 dark:text-white\">\r\n      {text.split(\"\").map((char, i) => (\r\n        <motion.span\r\n          key={i}\r\n          className=\"origin-bottom inline-block\"\r\n          animate={{ y: [0, -6, 0] }}\r\n          transition={{\r\n            duration: 1.2,\r\n            repeat: Infinity,\r\n            ease: \"easeInOut\",\r\n            delay: i * 0.08,\r\n          }}\r\n        >\r\n          {char === \" \" ? \"\\u00A0\" : char}\r\n        </motion.span>\r\n      ))}\r\n    </div>\r\n  );\r\n};\r\n"
+    }
+  ]
+}

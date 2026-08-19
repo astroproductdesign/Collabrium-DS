@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "fade-in",
+  "type": "registry:ui",
+  "title": "Fade In",
+  "description": "Basic fade entrance animation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/entrance/fade-in.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/fade-in.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\ninterface FadeInProps {\r\n  children: React.ReactNode;\r\n  duration?: number;\r\n  delay?: number;\r\n  className?: string;\r\n}\r\n\r\nexport function FadeIn({\r\n  children,\r\n  duration = 0.5,\r\n  delay = 0,\r\n  className = '',\r\n}: FadeInProps) {\r\n  return (\r\n    <motion.div\r\n      initial={{ opacity: 0 }}\r\n      animate={{ opacity: 1 }}\r\n      transition={{\r\n        duration,\r\n        delay,\r\n        ease: [0.215, 0.61, 0.355, 1], // easeOutCubic\r\n      }}\r\n      className={className}\r\n    >\r\n      {children}\r\n    </motion.div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

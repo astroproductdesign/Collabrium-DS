@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "character-stagger",
+  "type": "registry:ui",
+  "title": "Character Stagger",
+  "description": "Character-by-character radial or linear stagger animation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/text/character-stagger.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/character-stagger.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\ninterface CharacterStaggerProps {\r\n  text: string;\r\n  duration?: number;\r\n  staggerDelay?: number;\r\n  yOffset?: number;\r\n  className?: string;\r\n}\r\n\r\nexport function CharacterStagger({\r\n  text,\r\n  duration = 0.4,\r\n  staggerDelay = 0.015,\r\n  yOffset = 15,\r\n  className = '',\r\n}: CharacterStaggerProps) {\r\n  const characters = Array.from(text);\r\n\r\n  const containerVariants = {\r\n    hidden: { opacity: 0 },\r\n    visible: {\r\n      opacity: 1,\r\n      transition: {\r\n        staggerChildren: staggerDelay,\r\n      },\r\n    },\r\n  };\r\n\r\n  const charVariants = {\r\n    hidden: { opacity: 0, y: yOffset, scale: 0.8 },\r\n    visible: {\r\n      opacity: 1,\r\n      y: 0,\r\n      scale: 1,\r\n      transition: {\r\n        type: 'spring',\r\n        stiffness: 300,\r\n        damping: 18,\r\n        mass: 0.8,\r\n        duration,\r\n      },\r\n    },\r\n  };\r\n\r\n  return (\r\n    <motion.div\r\n      variants={containerVariants}\r\n      initial=\"hidden\"\r\n      whileInView=\"visible\"\r\n      viewport={{ once: true, margin: '-10%' }}\r\n      className={`inline-block ${className}`}\r\n    >\r\n      {characters.map((char, index) => (\r\n        <motion.span\r\n          key={index}\r\n          variants={charVariants}\r\n          className=\"inline-block whitespace-pre\"\r\n        >\r\n          {char}\r\n        </motion.span>\r\n      ))}\r\n    </motion.div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

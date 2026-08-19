@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "smooth-ring",
+  "type": "registry:ui",
+  "title": "Smooth Ring",
+  "description": "Smooth Ring loading animation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/loading/smooth-ring.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/smooth-ring.tsx",
+      "content": "import React from 'react';\r\n\r\nexport const SmoothRing = () => (\r\n  <div className=\"w-9 h-9\">\r\n    <svg className=\"w-full h-full animate-spin\" viewBox=\"0 0 32 32\">\r\n      <circle\r\n        cx=\"16\"\r\n        cy=\"16\"\r\n        r=\"14\"\r\n        fill=\"none\"\r\n        strokeWidth=\"3\"\r\n        className=\"stroke-zinc-200 dark:stroke-zinc-800\"\r\n      />\r\n      <circle\r\n        cx=\"16\"\r\n        cy=\"16\"\r\n        r=\"14\"\r\n        fill=\"none\"\r\n        strokeWidth=\"3\"\r\n        className=\"stroke-zinc-800 dark:stroke-white\"\r\n        strokeDasharray=\"38 80\"\r\n        strokeLinecap=\"round\"\r\n      />\r\n    </svg>\r\n  </div>\r\n);\r\n"
+    }
+  ]
+}

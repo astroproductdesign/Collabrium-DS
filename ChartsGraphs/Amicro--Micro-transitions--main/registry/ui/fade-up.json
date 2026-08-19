@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "fade-up",
+  "type": "registry:ui",
+  "title": "Fade Up",
+  "description": "Fade with upward translation.",
+  "dependencies": [
+    "framer-motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/entrance/fade-up.tsx",
+      "type": "registry:ui",
+      "target": "@components/amicro/fade-up.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'framer-motion';\r\n\r\ninterface FadeUpProps {\r\n  children: React.ReactNode;\r\n  duration?: number;\r\n  delay?: number;\r\n  yOffset?: number;\r\n  className?: string;\r\n}\r\n\r\nexport function FadeUp({\r\n  children,\r\n  duration = 0.6,\r\n  delay = 0,\r\n  yOffset = 20,\r\n  className = '',\r\n}: FadeUpProps) {\r\n  return (\r\n    <motion.div\r\n      initial={{ opacity: 0, y: yOffset }}\r\n      animate={{ opacity: 1, y: 0 }}\r\n      transition={{\r\n        duration,\r\n        delay,\r\n        ease: [0.16, 1, 0.3, 1], // easeOutExpo\r\n      }}\r\n      className={className}\r\n    >\r\n      {children}\r\n    </motion.div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}
