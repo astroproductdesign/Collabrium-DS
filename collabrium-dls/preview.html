@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.52</title>
+<title>Collabrium design system | v0.9.53</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -155,6 +155,10 @@
   /* Profile card demo only — the grid its 3 samples sit in. Not part of the component itself, same
      status as .swatch-group-label above. */
   .profile-cards-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:var(--spacing-16); align-items:stretch;}
+  /* Hero Card demo only — a flex row, not a grid, since the Default and Selected examples are
+     deliberately different widths (320px vs. up to 560px); a shared grid column would force one to
+     the other's size. Not part of the component itself, same status as .swatch-group-label above. */
+  .herocard-demo-row{display:flex; flex-wrap:wrap; align-items:flex-start; gap:var(--spacing-24);}
   .swatches{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:var(--spacing-16);}
   .swatch{border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); overflow:hidden;}
   .swatch .fill{height:80px; position:relative;}
@@ -318,7 +322,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.52</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.53</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -326,7 +330,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.52</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.53</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -1121,6 +1125,31 @@
                     </div>
                   </li>
                 </ul>
+              </div>
+            </div>
+
+            <div class="swatch-group-label">Hero Card</div>
+            <div class="herocard-demo-row">
+              <div class="c-herocard" style="max-width:320px;">
+                <div class="c-herocard-ribbon"><span>New</span></div>
+                <span class="c-herocard-eyebrow">Just shipped</span>
+                <h4 class="c-herocard-heading">Automated weekly digests</h4>
+                <p class="c-herocard-body">A quiet summary of what moved, who touched it, and what's next — every Monday.</p>
+                <div class="c-herocard-media"><i class="ph ph-image"></i>Media placeholder</div>
+                <p class="c-herocard-recommendation">Turned on by default for new workspaces.</p>
+                <button type="button" class="c-btn c-btn-ghost c-btn-md c-herocard-cta">Learn more <i class="ph ph-arrow-right"></i></button>
+              </div>
+              <div class="c-herocard c-herocard-selected">
+                <span class="c-herocard-eyebrow">AI insight</span>
+                <h4 class="c-herocard-heading">Demand forecast updated</h4>
+                <p class="c-herocard-body">Model re-ran overnight against the last 90 days of order volume. Confidence is high enough to act on this week without waiting for the next scheduled run.</p>
+                <div class="c-banner c-banner-info" role="status">
+                  <i class="ph-fill ph-info icon"></i>
+                  <div class="body"><div class="message">This forecast refreshes automatically every Monday at 6:00 AM.</div></div>
+                </div>
+                <div class="c-herocard-media" style="min-height:160px;"><i class="ph ph-image"></i>Media placeholder</div>
+                <p class="c-cbrief-source">Source: Order management system · Updated 2 hours ago</p>
+                <button type="button" class="c-btn c-btn-primary c-btn-md c-cbrief-cta">View full report <i class="ph ph-arrow-right"></i></button>
               </div>
             </div>
           </div>
@@ -2830,7 +2859,7 @@ button next to the version flag in the top bar.
 <script type="text/plain" id="src-md-extended">
 # Collabrium Design Language System
 
-**v0.9.52** — 2026-08-17 — Sourced from the Collabrium brand deck
+**v0.9.53** — 2026-08-18 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3997,6 +4026,7 @@ the Modal footer's divider, scaled down.
 - **USP** — a feature-highlight tile, not a generic content card. Anatomy: Header (h4, same as base) → Description (p, same as base body2/Neutral-5) → 3 bullet points (new `.c-card-usp-list`: `ph-fill ph-check-circle` at `icon-sm`, Obsidian — **Tier 2, Fill**, the same call as Button's own leading check-circle example — followed by body2/Neutral-9 text, both vertically centered on the same line, spacing-8 gap) → CTA button (the real [Button](#button) component, Primary/md — never rebuilt from scratch — stretched to the card's full width with its label centered, rather than hugging its own content like a Card-region CTA normally would).
 - **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
 - **Profile card** — a talent/influencer profile summary tile: identity block (name, demographic meta), a divider, persona badges, then an alphabetically-sorted platform list with a Title-weight follower count per row. Extends the base Card (Title, Description, Footer divider) and reuses Search input's own avatar recipe and Badge & Tag's own grouping/dot recipes rather than inventing new structure — see **Profile card**, below, for the full anatomy.
+- **Hero Card** — a promotional/insight tile: Eyebrow, Heading, Body, a media placeholder, optional Recommendation text, and a CTA, in four states (Default, Risk, AI Dark, Selected). Extends the base Card (Neutral-1, radius-lg, shadow-1) rather than inventing new structure, but is the first Card variant with its own corner ribbon, a dark surface, and a fixed/centered modal state — see **Hero Card**, below, for the full anatomy.
 
 **Grid layout.** Every card variant follows one universal layout
 contract when placed in a grid — responsive width, equal-height rows,
@@ -4435,6 +4465,100 @@ mouse position:
 | Checkbox | stays visible at `opacity: 1` (no longer hover-only) and checked — Obsidian fill, `icon-micro` check glyph, Checkbox's own real `.c-checkbox-box.on` state, not a separate "selected card" glyph |
 | Everything else | unchanged — Selected doesn't add a fill tint and doesn't recolor any text; border + elevation + the persistent checked checkbox are the only three signals, so Selected never competes visually with the Tier badge's own element colors inside the card |
 
+⚠️ **Hero Card is designed from scratch** — no source in either the
+original brand deck or the teammate's build. First reviewed and
+committed 2026-08-18; see the Changelog for the review history.
+
+**Hero Card.** A promotional/insight tile — an announcement, a risk
+callout, an AI-generated insight — not a generic content card. Extends
+the base [Card](#card) (Neutral-1, `radius-lg`, `shadow-1`) rather than
+inventing new structure, in four states: **Default**, **Risk**, **AI
+(Dark)**, and **Selected**.
+
+**Hero Card — Shell & shared anatomy.** Eyebrow, Heading, Body, an
+optional media placeholder, optional Recommendation text, and a CTA —
+present in every state, restyled per state below.
+
+| Part | Spec |
+|---|---|
+| Shell | Neutral-1 fill, 1px Neutral-3 border, `radius-lg`, `shadow-1`, spacing-16 padding, spacing-8 internal gap — the base Card recipe exactly, `overflow: hidden` added so a Ribbon's diagonal strip clips to a clean triangle instead of overhanging the card |
+| Eyebrow | h2 (26px/36px/800), Neutral-5, sentence case — **not** uppercase and **not** tracked. A deliberate departure from every other eyebrow/kicker in this system (Hero header's own eyebrow, Chart chrome's axis titles, etc.), which all use `caption` + uppercase + `tracking-eyebrow`; Hero Card's Eyebrow reads closer to a second headline than a label, so it borrows the H2 token instead. **Exception:** the Selected state keeps the original caption/uppercase/tracked treatment (see **Hero Card — Selected state**, below) — this H2 treatment applies to Default, Risk, and AI (Dark) only |
+| Heading | h4 (20px/28px/800), Neutral-9, clamped to 2 lines with an ellipsis (`-webkit-line-clamp: 2`) — not optional, since it's what makes the Ribbon-clearance rule below a guarantee rather than a best-effort padding value |
+| Body | body2 (14px/20px/400), Neutral-5 |
+| Media placeholder | `radius-md`, Neutral-2 fill, 1px dashed Neutral-3 border, 112px min-height, a centered `ph-image` glyph (`icon-md`) over "Media placeholder" caption text, both Neutral-4. A stand-in for real media — swap the fill for an image/video/chart, keep the container's radius and min-height |
+| Recommendation | caption (12px/16px/400), Neutral-5 — a short next-step line, optional |
+| CTA | Default/Risk: [Button](#button) Ghost/md, trailing icon (`ph-arrow-right`, Tier 1 Regular) — the icon trails the label on every Hero Card CTA regardless of state, never leads. AI (Dark): Button Secondary/md instead of Ghost — see **Hero Card — AI (Dark) variant**, below, for why. Selected: Button Primary/md — see **Hero Card — Selected state** |
+
+**Hero Card — Ribbon.** An optional corner flag (`ribbonLabel` prop) —
+Default and Risk only; AI (Dark) and Selected don't carry one.
+
+| Part | Spec |
+|---|---|
+| Position | absolutely positioned 80×80px box, top-right corner of the card |
+| Clip | the 80×80 box has no clip of its own — the diagonal strip inside it is 150px wide (wider than the box's own ~113px diagonal) and is clipped into a clean triangle by the **card's** `overflow: hidden`, not the ribbon box's |
+| Strip | centered on the 80×80 box's own center point via `top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(45deg)` — centering the strip on the box's center, rather than hand-placing it with a `top`/`right` offset, is what keeps the visible text centered in the triangle regardless of box size |
+| Color | `--color-orange` (#FF5825, Fire) — fixed, not element-contextual. Unlike Badge/Tag/ElementBadge, the Ribbon's color doesn't shift with which department owns the card; it's always Fire orange |
+| Text | caption (12px/16px/700), uppercase, `tracking-eyebrow`, Neutral-1, centered in the strip |
+
+**Hero Card — Heading truncation and Ribbon clearance.** The Heading's
+2-line clamp (above) and a scoped `padding-right` work together so a
+Ribbon can never visually overlap the Heading, regardless of how long
+the Heading text is:
+
+| Part | Spec |
+|---|---|
+| Clearance | `padding-right: spacing-60` (60px) on the Heading, scoped via `:has(.c-herocard-ribbon)` so cards without a Ribbon keep the full-width Heading |
+| Why 60px, not a round number | the Ribbon's visible triangle still reaches roughly 56px in from the card's right edge at the Heading's topmost line (16px card padding + the Eyebrow's own line height + spacing-8 gap puts that line ~40px down the card, where the 80×80 diagonal band is still wide) — 60px is the closest token above that geometric minimum, with the 2-line clamp bounding the worst case so the guarantee holds regardless of Heading length |
+| Why the clamp matters | a `padding-right` alone only guarantees clearance for text that's short enough to need it — an unbounded Heading can still wrap past the reserved space on a narrow card. The clamp converts "usually clears" into "always clears" by capping how much Heading there is to clear in the first place |
+
+**Hero Card — Risk variant.** Same shell and anatomy, restyled to read
+as a warning without a full alert treatment.
+
+| Part | Spec |
+|---|---|
+| Fill | `--color-fire-bg` (#FFEEE9, Fire's 8% tint) |
+| Border | 1px `--color-orange` (#FF5825), replacing the base shell's 1px Neutral-3 |
+| Everything else | unchanged from the shared anatomy above — Eyebrow stays H2/Neutral-5, Heading stays Neutral-9, same CTA (Ghost/md, trailing icon) |
+
+**Hero Card — AI (Dark) variant.** This system's first dark-surface
+card — an AI-generated insight reads as its own, distinct surface
+rather than a tinted Card.
+
+| Part | Spec |
+|---|---|
+| Fill | `--color-neutral-8` (#171717) |
+| Border | 1px `rgba(255,255,255,.08)` — a literal, not a token; no other component uses a dark surface yet, so this is scoped to Hero Card rather than generalized into a reusable overlay scale |
+| Shadow at rest | `0 1px 2px rgba(0,0,0,.32)` — a dark-surface-adjusted equivalent of `shadow-1`, not the token itself, since `shadow-1` is calibrated for a light card on a light canvas |
+| Eyebrow | `--color-amber` (#FFA425, Gold) — the only color override; still H2/sentence case |
+| Heading | `--color-neutral-1` (#ffffff) |
+| Body, Recommendation | `rgba(255,255,255,.60)` — 60% white, a literal for the same reason as the border above |
+| Media placeholder | re-themed for the dark surface: `rgba(255,255,255,.08)` fill, `rgba(255,255,255,.16)` border, `rgba(255,255,255,.4)` icon/text — the light-card media placeholder's Neutral-2/Neutral-3/Neutral-4 values would read as a pale, fighting rectangle on a dark card, not a placeholder |
+| CTA | [Button](#button) Secondary/md, trailing icon — **not** Ghost (Ghost's transparent background has no border to read against a dark fill) and **not** Primary (this is a card-level secondary action; Primary is reserved for the one primary action on a screen) |
+| Hover | `shadow-2`, plus a pointer-tracked 3D tilt: `perspective(800px) rotateX(calc(mouse-y * -4deg)) rotateY(calc(mouse-x * 4deg)) scale(1.05)`, where mouse-x/mouse-y are normalized (−1 to +1) cursor coordinates within the card's own bounds, updated on `mousemove` and reset to 0 on `mouseleave`. Entrance transition runs on `duration-fast`/`ease-standard`; the return-to-rest transition on mouse-leave runs on the slower `duration-base`/`ease-settle` instead — an asymmetric pair, not a shared one, so the tilt snaps in but settles back out |
+| CTA icon on hover | shifts `spacing-4` on the X axis, `duration-fast`/`ease-standard`, triggered by the card's `:hover` (not the button's own) — the whole card is the interactive unit |
+
+**Hero Card — Selected state.** The same content as the shared anatomy
+— Eyebrow, Heading, Body, an Info Banner, a media placeholder, a
+source line, a CTA — shown two ways: as a plain, bigger static card
+sitting in normal page flow, and as a fixed/centered animated detail
+panel opened by clicking a card. Both are the same state; neither is a
+simplified stand-in for the other.
+
+| Part | Spec |
+|---|---|
+| Eyebrow | reverts to caption (12px/16px/700), uppercase, `tracking-eyebrow`, Neutral-5 — the Default/Risk/AI (Dark) H2/sentence-case change was never asked for on Selected, so it keeps the original treatment both here and on the modal form |
+| Heading, Body | unchanged from the shared anatomy — h4/Neutral-9, body2/Neutral-5 |
+| Info Banner | the real [Info Banner](#info-banner) component, informational variant (`ph-fill ph-info`, `role="status"`) — not a bespoke callout |
+| Media placeholder | the shared anatomy's recipe, at a taller 160px min-height to feel proportionate to the bigger panel |
+| Source line | footnote (12px/16px/400), Neutral-5 — a citation for where the content came from, e.g. "Source: Order management system · Updated 2 hours ago" |
+| CTA | Button Primary/md, trailing icon — Selected is the one place a Hero Card CTA is a genuine primary action, since it's the detail view's own single most important next step |
+| Static card sizing | `width: min(560px, calc(100vw - spacing-32))` (caps at 560px on desktop, bleeds to near-full-width on mobile with spacing-16 gutters each side), `max-height: calc(100dvh - spacing-60)` with `overflow-y: auto`, spacing-24 padding, spacing-16 internal gap — spacing-60 rather than a literal 64px, since it's the closest existing token above the geometric minimum and this system prefers reusing the nearest token over growing the spacing scale for one component |
+| Modal positioning | `position: fixed; top: 50%; left: 50%`, identical sizing to the static card above. `transform: translate(-50%, -50%)` is the resting centered position — the entrance/exit animation transform is layered on top of it (e.g. `translate(-50%,-50%) perspective(1000px) rotateX(-8deg) translateY(24px)` at rest before entering), never substituted for it |
+| Modal entrance | panel: opacity 0→1 and `perspective(1000px) rotateX(-8deg) translateY(24px)` → `rotateX(0deg) translateY(0)`, `duration-base` (220ms), `ease-standard` — no bounce, no spring. Scrim: opacity 0→1, `duration-fast` (140ms), no delay |
+| Modal exit | reverse of entrance, but asymmetric on purpose: the panel collapses first at `duration-fast` (140ms), then the scrim's own fade-out is delayed by that same 140ms (`transition-delay: var(--duration-fast)` on the scrim's own rule) so it only starts once the panel has visibly finished collapsing — "reverse of entrance" doesn't mean "same timing as entrance," it means the panel-then-scrim sequencing runs backwards too |
+| Close | a `ph-x` (Tier 1 Regular, 20px, Neutral-5) button top-right of the panel; closes on scrim click, the close button, or Escape |
+| Known gap | opening/closing is click/Escape/scrim-click only — the card that opens the modal isn't part of a tab-reachable keyboard flow yet (it's a `<div>` with a click handler, not a focusable control). Flagged here rather than silently shipped as if it were solved |
+
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
 they're not interchangeable. Treat the Price summary card's Remove ×
@@ -4479,7 +4603,22 @@ variant's own documented min-width floor. Don't mix Price summary
 cards and base Cards in the same `auto-fill` grid without using Price
 summary's 280px floor — separate grids are cleaner in that case. Don't
 give any card a fixed height — `height: 100%` fills the grid cell, and
-the tallest card in the row determines that height.
+the tallest card in the row determines that height. **Do** clamp the
+Hero Card Heading to 2 lines and reserve the Ribbon-clearance padding
+together, never one without the other — the padding alone is only a
+guarantee once the Heading's length is bounded. Do keep the Hero Card
+Ribbon's color fixed (Fire orange) regardless of which department or
+state the card is in — unlike Badge/Tag, it isn't element-contextual.
+**Don't** give the Hero Card's AI (Dark) variant a Ghost or Primary CTA
+— Ghost's transparent fill has nothing to read against on a dark
+surface, and Primary is reserved for the screen's one primary action;
+Secondary is the deliberate middle choice. Don't apply the Hero Card's
+H2 Eyebrow treatment to the Selected state — Selected keeps the
+original caption/uppercase Eyebrow on purpose, both in its static-card
+and modal forms. Don't invent new dark-surface tokens off the AI (Dark)
+variant's one-off `rgba(255,255,255,…)` overlay values — they're
+scoped to this component until a second dark-surface component
+actually needs the same values.
 
 ### Chart chrome & marks
 
@@ -7182,6 +7321,34 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.53 — 2026-08-18** — Added **Hero Card**, a new [Card](#card)
+  sub-component (⚠️ designed from scratch, no source in either the
+  brand deck or the teammate's build) — a promotional/insight tile in
+  four states: Default, Risk, AI (Dark), and Selected. Full anatomy,
+  the corner Ribbon (Fire orange, `overflow:hidden`-clipped diagonal
+  strip), the 2-line Heading clamp paired with a `:has()`-scoped
+  Ribbon-clearance padding (so overlap is a guarantee to avoid, not a
+  best-effort padding value), the AI (Dark) variant's pointer-tracked
+  3D tilt and asymmetric hover/rest transition timing, and the Selected
+  state's dual form (a plain bigger static card, and a fixed/centered
+  animated `.c-cbrief` modal with asymmetric entrance/exit timing —
+  panel collapses first, then the scrim fades on a matched delay) are
+  all documented under **Card**'s Variants list and a new **Hero Card**
+  section. Two token-scope decisions made explicitly rather than
+  silently: the modal's `max-height` clearance reuses the existing
+  `spacing-60` token rather than adding a new `spacing-64` (the scale
+  jumps 48→60→120, and 64 doesn't fit as a natural step); the AI (Dark)
+  variant's white-on-dark overlay values stay literals scoped to this
+  one component rather than becoming reusable tokens, since no other
+  component uses a dark surface yet. `components.css`: full
+  `.c-herocard*`/`.c-cbrief*` rule set added directly after the Profile
+  card rules. `preview.html`: new **Hero Card** subsection inside the
+  Card component block, directly below Profile cards — shows only the
+  Default variant (with ribbon) and the Selected state per the review
+  decision to keep the live gallery small; Risk and AI (Dark) are fully
+  specified here and in `components.css` but not demoed live. Version
+  flag bumped to v0.9.53.
 
 - **v0.9.52 — 2026-08-17** — Restyled [Profile card](#card)'s Platform
   list Handle and Follower count. Handle: dropped the underline and the
