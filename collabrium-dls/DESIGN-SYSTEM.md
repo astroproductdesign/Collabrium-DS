@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.51** — 2026-08-17 — Sourced from the Collabrium brand deck
+**v0.9.52** — 2026-08-17 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1495,9 +1495,9 @@ order regardless of which platforms a given profile has connected.
 | Row | leading Platform icon + Platform name/Handle text stack + trailing Tier badge/Follower count, spacing-12 gap between zones, all three zones **vertically centered** on the row (not top-aligned) so the two-line name/handle stack, the single-line icon, and the trailing pair all share the same visual middle |
 | Platform icon | `icon-sm` (16px), Neutral-9, **Tier 2, Fill** (an expressive/informational glyph, per [Iconography](#iconography), the same tier as a card header icon) — Phosphor's own brand glyph where one exists (`ph-fill ph-tiktok-logo`, `ph-fill ph-instagram-logo`); for a platform Phosphor doesn't carry a logo for, use the matching file from [`SVG/`](#using-this-system-in-an-existing-project) instead of stretching a Remix substitute that wouldn't actually read as that platform — Xiaohongshu uses `SVG/Xiaohongshu-word-icon.svg`, inlined (not `<img>`, so its fill can inherit) at the same 16px box, `fill="currentColor"` so it takes the row's own Neutral-9 the same way the Phosphor glyphs do, not its source file's original locked-in `#000000` fill |
 | Platform name | the base Card's own Description token, verbatim: body2 (14px/400), Neutral-5 — same `<p>` styling as Row 2's Age/Gender/Location line, not a bolded/blackened one-off; abbreviate long platform names at content level when needed (Xiaohongshu's own name is short enough it doesn't need one — drop the earlier "(XHS)" parenthetical and the internal caps, sentence case like every other platform name here), the component itself never truncates a platform name |
-| Handle | caption, Neutral-9 (**not** a colored link), weight 700 — [Button](#button)'s own **Link** variant recipe verbatim (transparent, Neutral-9, underlined at 3px offset, and `.c-btn`'s own base weight 700), the same "black link" treatment and weight as Filters' own **Clear all** control, not a blue inline-link color and not body-copy's regular weight; directly below Platform name in the same text stack — truncates with an ellipsis past the row's available width once the trailing zone has taken its own space |
+| Handle | caption, Neutral-9 (**not** a colored link), weight 400/regular — plain text, no underline; not [Button](#button)'s Link variant recipe (that convention is reserved for actual clickable link-styled controls like Filters' own **Clear all**, and a platform handle here is display text, not a tappable link affordance); directly below Platform name in the same text stack — truncates with an ellipsis past the row's available width once the trailing zone has taken its own space |
 | Tier badge | [Tag](#badge--tag)'s own elemental recipe for the five follower-count tiers, plus [Tag](#badge--tag)'s plain (unmodified, grey) form for the two non-ranked tiers — seven tiers total, see the table below. Sits inline, immediately before the Follower count, same row, right-aligned as a pair. |
-| Follower count | the base Card's own Title token, verbatim: h5 (16px/700), Neutral-9, tabular numerals, abbreviated per this document's own Numbers content rule (52K, not 52,000) — same size/weight as Row 1's Name, so the number reads with the same weight as the card's own headline, not a de-emphasized metadata value; right-aligned in the trailing zone, no "Followers" label — the platform icon and stacked name/handle already establish what the number is counting; sits directly after the Tier badge, same row |
+| Follower count | caption size (12px/16px, matching the Handle directly above it in the same column), weight 700, Neutral-9, tabular numerals, abbreviated per this document's own Numbers content rule (52K, not 52,000) — bold weight keeps it reading as a headline-weight value rather than a de-emphasized metadata figure, while its size now matches the Handle instead of the base Card's Title token; right-aligned in the trailing zone, no "Followers" label — the platform icon and stacked name/handle already establish what the number is counting; sits directly after the Tier badge, same row |
 
 **Profile card — Empty sections are removed, not left blank.** Both
 the Persona type section and the Platform list are optional as a
@@ -1608,10 +1608,11 @@ mouse position:
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
 they're not interchangeable. Treat the Price summary card's Remove ×
-as optional per row. Keep the Profile card's Name and Follower count on
-the exact same Title token (h5, 16px/700) as every other Card variant's
-own title — the count is a second headline-weight value in the same
-card, not a smaller supporting figure. Reuse the Selectable/Selected
+as optional per row. Keep the Profile card's Follower count at the same
+caption size as the Handle directly above it, while keeping its own
+bold (700) weight — it stays a headline-weight value against the
+Handle's regular weight, not a smaller supporting figure, just no
+longer sized to the Title token. Reuse the Selectable/Selected
 checkbox recipe identically across the Interactive card and the
 Profile card — one hover-reveal convention, not two. **Don't:** tint a card with an
 element that doesn't own its content. Don't omit the Header or Total
@@ -4351,6 +4352,27 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.52 — 2026-08-17** — Restyled [Profile card](#card)'s Platform
+  list Handle and Follower count. Handle: dropped the underline and the
+  weight-700 override — no longer [Button](#button)'s Link variant
+  recipe, since a platform handle here is display text, not a tappable
+  link affordance; now plain caption text at its own regular (400)
+  weight. Follower count: font-size (and line-height) now matches the
+  Handle directly above it — caption, 12px/16px — instead of the base
+  Card's Title token (h5, 16px); kept its own bold (700) weight so it
+  still reads as a headline-weight value against the Handle's regular
+  weight, just no longer sized to match the card's own Title. Do
+  bullet updated to match (previously said Follower count shares the
+  exact Title token with every other Card variant — no longer true).
+  `components.css`: `.c-card-profile-handle` lost `text-decoration:
+  underline`/`text-underline-offset` and its `font-weight: 700` override
+  (now inherits `--text-caption-weight`, 400); `.c-card-profile-followers`
+  switched from `--text-h5-size`/`--text-h5-lh` to
+  `--text-caption-size`/`--text-caption-lh`, keeping its explicit `700`
+  weight. No markup change needed in `preview.html` — both classes are
+  plain, unstyled-inline instances there, so the CSS update alone
+  reflects in the live gallery.
 
 - **v0.9.51 — 2026-08-17** — Substantially expanded [Tabs](#tabs).
   Icon tier resolved from a Needs Input #11 judgment call (Tier 2,
