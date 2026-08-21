@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>HeroCard — draft preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<style>
+  /* ============================================================
+     DRAFT ONLY — this file is a review sandbox for the HeroCard
+     component. Nothing here is copied into components.css,
+     DESIGN-SYSTEM.md, or preview.html yet. Per the SKILL.md standing
+     rule, a real component lands in all three at once — this page
+     exists so that step happens after sign-off, not before.
+     ============================================================ */
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary);}
+  .shell{max-width:1080px; margin:0 auto; padding:var(--spacing-48) var(--spacing-32) var(--spacing-60);}
+
+  .draft-banner{background:var(--color-neutral-9); color:var(--color-neutral-1); border-radius:var(--radius-md); padding:var(--spacing-16); margin-bottom:var(--spacing-40); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+  .draft-banner b{color:var(--color-amber);}
+  .draft-banner ul{margin:var(--spacing-8) 0 0; padding-left:20px;}
+  .draft-banner li{margin-bottom:4px;}
+  .draft-banner code{background:rgba(255,255,255,.12); padding:1px 6px; border-radius:4px; font-size:12px;}
+
+  h1{font-size:var(--text-h2-size); line-height:var(--text-h2-lh); font-weight:var(--text-h2-weight); margin:0 0 var(--spacing-8);}
+  .lede{font-size:var(--text-body2-size); color:var(--color-neutral-5); max-width:640px; margin:0 0 var(--spacing-40);}
+
+  .section-title{font-size:var(--text-label1-size); font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow); color:var(--color-neutral-5); margin:0 0 var(--spacing-16); padding-top:var(--spacing-24); border-top:1px solid var(--color-neutral-3);}
+  .section-title:first-of-type{border-top:0; padding-top:0;}
+
+  .row{display:grid; grid-template-columns:repeat(2,1fr); gap:var(--spacing-24); margin-bottom:var(--spacing-16);}
+  @media (max-width:760px){ .row{grid-template-columns:1fr;} }
+  .cell{display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .cell .cell-label{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-weight:700;}
+
+  /* =========================================================
+     .c-herocard — component under review
+     ========================================================= */
+  .c-herocard{
+    position:relative;
+    background:var(--color-neutral-1);
+    border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-1);
+    padding:var(--spacing-16);
+    display:flex;
+    flex-direction:column;
+    gap:var(--spacing-8);
+    overflow:hidden; /* clips the ribbon triangle */
+  }
+
+  .c-herocard-eyebrow{
+    font-size:var(--text-h2-size); line-height:var(--text-h2-lh);
+    font-weight:var(--text-h2-weight); letter-spacing:var(--text-h2-tracking);
+    color:var(--color-neutral-5);
+  }
+  .c-herocard-heading{
+    margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh);
+    font-weight:var(--text-h4-weight); letter-spacing:var(--text-h4-tracking);
+    color:var(--color-neutral-9);
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden;
+  }
+  /* Ribbon clearance, scoped to cards that actually have one. The ribbon's
+     visible triangle still reaches ~56px in from the right edge at the
+     heading's topmost line (card padding-top 16 + eyebrow line 16 + gap 8
+     = 40px down the card, where the 80x80 band is still wide) — 60px
+     reserves a safety margin above that geometric minimum. Paired with
+     the 2-line clamp above so the worst case is bounded, not just likely. */
+  .c-herocard:has(.c-herocard-ribbon) .c-herocard-heading{
+    padding-right:var(--spacing-60);
+  }
+  .c-herocard-body{
+    margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh);
+    font-weight:var(--text-body2-weight); color:var(--color-neutral-5);
+  }
+  .c-herocard-media{
+    border-radius:var(--radius-md); background:var(--color-neutral-2);
+    border:1px dashed var(--color-neutral-3);
+    min-height:112px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; color:var(--color-neutral-4); font-size:var(--text-caption-size);
+  }
+  .c-herocard-media i{font-size:var(--icon-md);}
+  .c-herocard-recommendation{
+    font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);
+  }
+  .c-herocard-cta{align-self:flex-start; margin-top:2px;}
+
+  /* Ribbon — 80x80 corner box clipped by the card's overflow:hidden;
+     inner strip rotated 45deg, centered on the box's own center point so
+     the visible triangle's text sits centered regardless of box size. */
+  .c-herocard-ribbon{position:absolute; top:0; right:0; width:80px; height:80px; pointer-events:none;}
+  .c-herocard-ribbon span{
+    position:absolute; top:50%; left:50%; width:150px; padding:5px 0;
+    background:var(--color-orange); color:var(--color-neutral-1);
+    font-size:var(--text-caption-size); font-weight:700; text-transform:uppercase;
+    letter-spacing:var(--tracking-eyebrow); text-align:center;
+    transform:translate(-50%,-50%) rotate(45deg);
+  }
+
+  /* Risk variant override */
+  .c-herocard-risk{
+    background:var(--color-fire-bg);
+    border-color:var(--color-orange);
+  }
+  .c-herocard-risk .c-herocard-heading{color:var(--color-neutral-9);}
+
+  /* =========================================================
+     Selected state — same .c-herocard shell, just bigger. Sits in
+     normal page flow (no position:fixed/scrim here); the fixed/centered/
+     animated modal version further down is the same content, wired to
+     the real click-to-open interaction.
+     ========================================================= */
+  .c-herocard-selected{
+    width:min(560px, calc(100vw - var(--spacing-32)));
+    max-height:calc(100dvh - var(--spacing-64));
+    overflow-y:auto;
+    padding:var(--spacing-24);
+    gap:var(--spacing-16);
+  }
+  /* Eyebrow reverted to its pre-H2 styling here only — the Default/Risk/
+     AI (Dark) change to H2/sentence-case wasn't asked for on this state,
+     so Selected (both the static card and the .c-cbrief modal, which is
+     the same state) keeps the original caption/uppercase treatment. */
+  .c-herocard-selected .c-herocard-eyebrow,
+  .c-cbrief .c-herocard-eyebrow{
+    font-size:var(--text-caption-size); line-height:var(--text-caption-lh);
+    font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow);
+  }
+
+  /* =========================================================
+     AI (Dark) variant — overrides + variant-only elements
+     ========================================================= */
+  .c-herocard-ai{
+    background:var(--color-neutral-8);
+    border-color:rgba(255,255,255,.08);
+    box-shadow:0 1px 2px rgba(0,0,0,.32);
+    cursor:pointer;
+    --mouse-x:0; --mouse-y:0;
+    /* exit/rest timing — governs the transition BACK to rest on mouseleave */
+    transition:box-shadow var(--duration-base) var(--ease-settle), transform var(--duration-base) var(--ease-settle);
+  }
+  .c-herocard-ai:hover{
+    box-shadow:var(--shadow-2);
+    transform:perspective(800px) rotateX(calc(var(--mouse-y) * -4deg)) rotateY(calc(var(--mouse-x) * 4deg)) scale(1.05);
+    /* enter timing — overrides the base transition while hovered */
+    transition:box-shadow var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+  }
+  .c-herocard-ai .c-herocard-eyebrow{color:var(--color-amber);}
+  .c-herocard-ai .c-herocard-heading{color:var(--color-neutral-1);}
+  .c-herocard-ai .c-herocard-body,
+  .c-herocard-ai .c-herocard-recommendation{color:rgba(255,255,255,.60);}
+  /* Default variant's media placeholder is styled for a white card; re-themed
+     here for the dark shell rather than left as a pale box that fights the
+     surface it sits on. */
+  .c-herocard-ai .c-herocard-media{
+    background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.16); color:rgba(255,255,255,.4);
+  }
+
+  /* CTA uses the real .c-btn-secondary recipe verbatim — this is a
+     card-level secondary action, not the screen's one Primary button.
+     The icon-shift-on-hover below is shared with the Default/Risk ghost
+     CTAs via the .c-herocard-cta marker class. */
+  .c-herocard-cta i{display:inline-block; transition:transform var(--duration-fast) var(--ease-standard);}
+  .c-herocard-ai:hover .c-herocard-cta i{transform:translateX(var(--spacing-4));}
+
+  /* =========================================================
+     Selected state — the HeroCard opened into a full detail panel.
+     Same shell language as the base card (Neutral-1, radius-lg,
+     shadow-4 instead of shadow-1 since it's floating above a scrim),
+     just bigger and fixed/centered instead of sitting in the grid.
+     ========================================================= */
+  .c-cbrief-scrim{
+    position:fixed; inset:0; z-index:400;
+    background:var(--shadow-overlay);
+    opacity:0; pointer-events:none;
+    /* exit: fade starts only after the panel's fast collapse finishes */
+    transition:opacity var(--duration-fast) var(--ease-standard) var(--duration-fast);
+  }
+  .c-cbrief-scrim.is-open{
+    opacity:1; pointer-events:auto;
+    transition:opacity var(--duration-fast) var(--ease-standard);
+  }
+  .c-cbrief{
+    position:fixed; top:50%; left:50%;
+    /* caps at 560px on desktop; bleeds to near-full-width on mobile with
+       spacing-16 gutters each side */
+    width:min(560px, calc(100vw - var(--spacing-32)));
+    /* rows/actions scroll on short screens rather than clipping off-screen */
+    max-height:calc(100dvh - var(--spacing-64));
+    overflow-y:auto;
+    background:var(--color-neutral-1); border-radius:var(--radius-lg); box-shadow:var(--shadow-4);
+    padding:var(--spacing-24);
+    display:flex; flex-direction:column; gap:var(--spacing-16);
+    opacity:0;
+    /* translate(-50%,-50%) is the resting centered position; the entrance
+       animation is layered on top of it, never instead of it */
+    transform:translate(-50%,-50%) perspective(1000px) rotateX(-8deg) translateY(24px);
+    /* exit: fast collapse */
+    transition:opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+  }
+  .c-cbrief-scrim.is-open .c-cbrief{
+    opacity:1; transform:translate(-50%,-50%) perspective(1000px) rotateX(0deg) translateY(0);
+    /* enter: base duration, no bounce/spring */
+    transition:opacity var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);
+  }
+  .c-cbrief-close{
+    position:absolute; top:var(--spacing-16); right:var(--spacing-16);
+    background:none; border:none; cursor:pointer; padding:0; line-height:1;
+    color:var(--color-neutral-5); font-size:20px;
+  }
+  /* Eyebrow/heading/body are the literal .c-herocard-* classes reused
+     verbatim — "same as default variant" means the exact same rule, not
+     a look-alike copy that can drift from it. */
+  .c-cbrief-source{font-size:var(--text-footnote-size); line-height:var(--text-footnote-lh); color:var(--color-neutral-5);}
+  .c-cbrief-cta{align-self:flex-start;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="draft-banner">
+    <b>Draft preview — not yet in components.css / DESIGN-SYSTEM.md / preview.html.</b>
+    Review here first; nothing lands in the real files until you say go. Two things worth
+    a decision before this gets committed:
+    <ul>
+      <li><code>tokens.css</code> has no <code>--color-gold</code> or <code>--color-fire</code> token — the
+        real names are <code>--color-amber</code> (#FFA425, the Gold element) and <code>--color-orange</code>
+        (#FF5825, the Fire element). This draft uses the real token names; the spec's element
+        names and the token file's hue names just don't match 1:1.</li>
+      <li>The spec's <code>.type-eyebrow</code>/<code>.type-h4</code>/etc. read like utility classes, but no
+        such layer exists anywhere else in this system — every other component (Card, Stat/KPI,
+        Badge…) applies the token variables directly on its own scoped selectors instead. This
+        draft follows that existing pattern (<code>.c-herocard-heading{font-size:var(--text-h4-size)…}</code>)
+        rather than introducing a new generic type-utility layer. Say if you'd rather have the
+        utilities as a real, reusable thing.</li>
+    </ul>
+  </div>
+
+  <h1>HeroCard</h1>
+  <p class="lede">Two variants below: Default and Risk. Each token/color/spacing value is a
+    live <code>var()</code> read from <code>tokens.css</code>; card shell, ghost button, and badge
+    recipes reuse <code>.c-card</code>/<code>.c-btn</code> conventions already in <code>components.css</code>
+    where the spec matched them exactly.</p>
+
+  <div class="section-title">Default variant</div>
+  <div class="row">
+    <div class="cell">
+      <span class="cell-label">Without ribbon</span>
+      <div class="c-herocard" style="max-width:320px;">
+        <span class="c-herocard-eyebrow">Workspace tip</span>
+        <h4 class="c-herocard-heading">Bring your team into one shared view</h4>
+        <p class="c-herocard-body">Invite collaborators to comment, edit, and approve without leaving the workspace.</p>
+        <div class="c-herocard-media"><i class="ph ph-image"></i>Media placeholder</div>
+        <div class="c-herocard-recommendation">Recommended for teams of 5 or more.</div>
+        <button type="button" class="c-btn c-btn-ghost c-btn-md c-herocard-cta">Explore <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+    <div class="cell">
+      <span class="cell-label">With ribbon (ribbonLabel="New")</span>
+      <div class="c-herocard" style="max-width:320px;">
+        <div class="c-herocard-ribbon"><span>New</span></div>
+        <span class="c-herocard-eyebrow">Just shipped</span>
+        <h4 class="c-herocard-heading">Automated weekly digests</h4>
+        <p class="c-herocard-body">A quiet summary of what moved, who touched it, and what's next — every Monday.</p>
+        <div class="c-herocard-media"><i class="ph ph-image"></i>Media placeholder</div>
+        <div class="c-herocard-recommendation">Turned on by default for new workspaces.</div>
+        <button type="button" class="c-btn c-btn-ghost c-btn-md c-herocard-cta">Learn more <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Risk variant</div>
+  <div class="row">
+    <div class="cell">
+      <span class="cell-label">Compliance risk example</span>
+      <div class="c-herocard c-herocard-risk" style="max-width:320px;">
+        <span class="c-herocard-eyebrow">Compliance risk</span>
+        <h4 class="c-herocard-heading">Renewal exposure is climbing</h4>
+        <p class="c-herocard-body">3 contracts lapse within 30 days with no assigned owner.</p>
+        <div class="c-herocard-media"><i class="ph ph-image"></i>Media placeholder</div>
+        <div class="c-herocard-recommendation">Assign an owner before Friday to avoid auto-lapse.</div>
+        <button type="button" class="c-btn c-btn-ghost c-btn-md c-herocard-cta">Review contracts <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+    <div class="cell">
+      <span class="cell-label">Data risk example, with ribbon</span>
+      <div class="c-herocard c-herocard-risk" style="max-width:320px;">
+        <div class="c-herocard-ribbon"><span>Watch</span></div>
+        <span class="c-herocard-eyebrow">Data risk</span>
+        <h4 class="c-herocard-heading">Access review is on track</h4>
+        <p class="c-herocard-body">Most permissions were reviewed within policy this quarter.</p>
+        <div class="c-herocard-media"><i class="ph ph-image"></i>Media placeholder</div>
+        <div class="c-herocard-recommendation">No action required this cycle.</div>
+        <button type="button" class="c-btn c-btn-ghost c-btn-md c-herocard-cta">View report <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">AI (Dark) variant</div>
+  <p class="lede" style="margin-top:calc(-1 * var(--spacing-8));">Hover to see the pointer-tracked tilt; click either card to open the shared <code>.c-cbrief</code> detail panel (Escape, scrim click, or the × all close it). One shared panel is wired up for this draft — a real build would populate its content per card.</p>
+  <div class="row">
+    <div class="cell">
+      <span class="cell-label">Demand forecast example</span>
+      <div class="c-herocard c-herocard-ai" style="max-width:320px;">
+        <span class="c-herocard-eyebrow">AI insight</span>
+        <h4 class="c-herocard-heading">Demand forecast updated</h4>
+        <p class="c-herocard-body">Model re-ran overnight against the last 90 days of order volume.</p>
+        <div class="c-herocard-media"><i class="ph ph-image"></i>Media placeholder</div>
+        <p class="c-herocard-recommendation">Consider increasing Q3 safety stock by 8%.</p>
+        <button type="button" class="c-btn c-btn-secondary c-btn-md c-herocard-cta">Explore insight <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+    <div class="cell">
+      <span class="cell-label">Churn signal example</span>
+      <div class="c-herocard c-herocard-ai" style="max-width:320px;">
+        <span class="c-herocard-eyebrow">AI insight</span>
+        <h4 class="c-herocard-heading">Churn signal is inconclusive</h4>
+        <p class="c-herocard-body">Usage-drop pattern matches past churn only about half the time.</p>
+        <div class="c-herocard-media"><i class="ph ph-image"></i>Media placeholder</div>
+        <p class="c-herocard-recommendation">Hold off on an intervention until next week's re-run.</p>
+        <button type="button" class="c-btn c-btn-secondary c-btn-md c-herocard-cta">Explore insight <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Selected state</div>
+  <p class="lede" style="margin-top:calc(-1 * var(--spacing-8));">The exact same shell as the Default variant — Neutral-1, Neutral-3
+    border, radius-lg, shadow-1 — just bigger. Eyebrow/heading/body reuse the Default variant's own classes
+    verbatim, plus an Info Banner (informational variant), a media placeholder, a source line, and a Primary CTA.
+    Shown directly here; the same content also opens as the animated detail panel when you click an AI (Dark) card
+    above.</p>
+  <div class="c-herocard c-herocard-selected">
+    <span class="c-herocard-eyebrow">AI insight</span>
+    <h4 class="c-herocard-heading">Demand forecast updated</h4>
+    <p class="c-herocard-body">Model re-ran overnight against the last 90 days of order volume. Confidence is high enough to act on this week without waiting for the next scheduled run.</p>
+    <div class="c-banner c-banner-info" role="status">
+      <i class="ph-fill ph-info icon"></i>
+      <div class="body"><div class="message">This forecast refreshes automatically every Monday at 6:00 AM.</div></div>
+    </div>
+    <div class="c-herocard-media" style="min-height:160px;"><i class="ph ph-image"></i>Media placeholder</div>
+    <p class="c-cbrief-source">Source: Order management system · Updated 2 hours ago</p>
+    <button type="button" class="c-btn c-btn-primary c-btn-md c-cbrief-cta">View full report <i class="ph ph-arrow-right"></i></button>
+  </div>
+
+</div>
+
+<div class="c-cbrief-scrim" id="cbriefScrim">
+  <div class="c-cbrief" role="dialog" aria-modal="true" aria-label="Demand forecast updated">
+    <button type="button" class="c-cbrief-close" data-cbrief-close aria-label="Close"><i class="ph ph-x"></i></button>
+    <span class="c-herocard-eyebrow">AI insight</span>
+    <h3 class="c-herocard-heading">Demand forecast updated</h3>
+    <p class="c-herocard-body">Model re-ran overnight against the last 90 days of order volume. Confidence is high enough to act on this week without waiting for the next scheduled run.</p>
+    <div class="c-banner c-banner-info" role="status">
+      <i class="ph-fill ph-info icon"></i>
+      <div class="body"><div class="message">This forecast refreshes automatically every Monday at 6:00 AM.</div></div>
+    </div>
+    <div class="c-herocard-media" style="min-height:160px;"><i class="ph ph-image"></i>Media placeholder</div>
+    <p class="c-cbrief-source">Source: Order management system · Updated 2 hours ago</p>
+    <button type="button" class="c-btn c-btn-primary c-btn-md c-cbrief-cta">View full report <i class="ph ph-arrow-right"></i></button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    document.querySelectorAll('.c-herocard-ai').forEach(function (card) {
+      card.addEventListener('mousemove', function (e) {
+        var r = card.getBoundingClientRect();
+        var x = ((e.clientX - r.left) / r.width) * 2 - 1;
+        var y = ((e.clientY - r.top) / r.height) * 2 - 1;
+        card.style.setProperty('--mouse-x', x.toFixed(3));
+        card.style.setProperty('--mouse-y', y.toFixed(3));
+      });
+      card.addEventListener('mouseleave', function () {
+        card.style.setProperty('--mouse-x', 0);
+        card.style.setProperty('--mouse-y', 0);
+      });
+      card.addEventListener('click', function () { openBrief(); });
+    });
+
+    var scrim = document.getElementById('cbriefScrim');
+    function openBrief() {
+      scrim.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeBrief() {
+      scrim.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+    scrim.addEventListener('click', function (e) { if (e.target === scrim) closeBrief(); });
+    document.querySelectorAll('[data-cbrief-close]').forEach(function (btn) {
+      btn.addEventListener('click', closeBrief);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && scrim.classList.contains('is-open')) closeBrief();
+    });
+  })();
+</script>
+</body>
+</html>
