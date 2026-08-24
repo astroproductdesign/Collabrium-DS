@@ -48,6 +48,8 @@
 
 .c-field{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
 .c-field label{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight);}
+.c-field label .required-mark{color:var(--color-red); font-weight:700; margin-left:var(--spacing-4);}
+.c-field label .required-label-icon{color:var(--color-neutral-5); font-size:var(--icon-sm); margin-left:var(--spacing-4); vertical-align:middle;}
 .c-field input{height:40px; border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); padding:0 var(--spacing-12); font-size:var(--text-body2-size); font-family:inherit; color:var(--color-neutral-9);}
 .c-field input:focus{outline:none; border:2px solid var(--color-obsidian); padding:0 11px;}
 .c-field-error input{border:2px solid var(--color-red); padding:0 11px;}

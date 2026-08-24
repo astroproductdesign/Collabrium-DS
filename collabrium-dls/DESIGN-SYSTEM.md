@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.53** — 2026-08-18 — Sourced from the Collabrium brand deck
+**v0.9.54** — 2026-08-24 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2733,6 +2733,43 @@ spacing-4` from the last character), no parenthetical "(required)"
 string. Optional fields get no marker at all — don't add "(optional)"
 text either; the absence of `*` is the signal.
 
+*Asterisk token* — the asterisk inherits the label's own caption token at
+weight 700 (the same override the Label row already documents) — no
+separate type token of its own. Color is the same Red `#FD3343` used for
+error text and Badge/Danger throughout this document.
+
+*Asterisk position* — the `*` sits directly after the last character of
+the label text, spacing-4 margin-left. When the label also carries a
+trailing icon (e.g. an info/tooltip icon), the `*` sits between the label
+text and the trailing icon — never after the icon. Order: [Label text]
+[`*`] [trailing icon].
+
+*Screen reader behavior* — the `*` is a visual-only signal. Add
+`aria-required="true"` on the input element as the machine-readable
+required signal — screen readers announce "required" from the aria
+attribute, not by reading "asterisk" from the visual `*`. The existing
+`aria-describedby` wiring for helper/error text is separate from
+`aria-required` — both apply simultaneously on a required field that also
+has helper or error text.
+
+*Form-level rule* — when all fields in a form are required, omit the `*`
+from every field entirely; instead place a single form-level note above
+the first field: "All fields are required" — caption token, weight 400,
+Neutral-5. When most fields are required, when most are optional, or when
+there's no clear majority, keep the `*` on required fields only and add a
+form-level note above the first field: "* Required field" — caption
+token, weight 400, Neutral-5. Never add "(required)" or "(optional)"
+inline with the label in any scenario — that rule stands regardless of
+which form-level pattern is used.
+
+| Scenario | Field treatment | Form-level note |
+|---|---|---|
+| All required | No `*` on any field | "All fields are required" |
+| Most required | `*` on required only | "* Required field" |
+| Most optional | `*` on required only | "* Required field" |
+| Mixed, no clear majority | `*` on required only | "* Required field" |
+| Optional fields | No marker ever | None |
+
 **Success / valid state:**
 
 | State | Border | Fill | Notes |
@@ -4462,6 +4499,38 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.54 — 2026-08-24** — Extended [Input field](#input-field)'s
+  Required field indicator rule with four sub-rules and a summary table,
+  and added a live demo for it. Asterisk token: inherits the label's own
+  caption/700 override (not a separate type token), Red `#FD3343` — the
+  same value used for error text and Badge/Danger throughout this
+  document. Asterisk position: sits directly after the label text with
+  spacing-4 margin-left, and — when the label also carries a trailing
+  icon — between the label text and the icon, never after it. Screen
+  reader behavior: the `*` is visual-only; `aria-required="true"` on the
+  input is the machine-readable signal, applied independently of and
+  simultaneously with the existing `aria-describedby` helper/error
+  wiring. Form-level rule: when every field in a form is required, drop
+  the per-field `*` entirely and add a single "All fields are required"
+  note above the first field instead; otherwise keep the `*` on required
+  fields only and add a "* Required field" note above the first field —
+  the existing "never '(required)'/'(optional)' inline" rule stands
+  regardless of pattern. Added a Scenario → Field treatment → Form-level
+  note summary table covering all-required, most-required, most-optional,
+  mixed/no-majority, and all-optional cases. `preview.html`: added a
+  "Required Field Indicator" demo section to the Input field gallery — a
+  required field (Red `*`, `aria-required="true"`), a second required
+  field showing label-text→`*`→trailing-icon ordering, and a plain
+  optional field for contrast, prefaced by a "* Required field"
+  form-level note; also fixed the adjacent States demo's Error state,
+  which previously read "This field is required" (duplicating this new
+  section) — changed to `value="Astro"` with "This workspace name is
+  already taken," a genuine validation error rather than a
+  required-but-empty field. `components.css`: added `.c-field label
+  .required-mark` (Red `#FD3343`, weight 700, spacing-4 margin-left) and
+  `.c-field label .required-label-icon` (Neutral-5, icon-sm, spacing-4
+  margin-left).
 
 - **v0.9.53 — 2026-08-18** — Added **Hero Card**, a new [Card](#card)
   sub-component (⚠️ designed from scratch, no source in either the
