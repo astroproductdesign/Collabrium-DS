@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.56** — 2026-08-24 — Sourced from the Collabrium brand deck
+**v0.9.57** — 2026-08-24 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -172,6 +172,22 @@ fill, and never an element that doesn't own the content.
 | Earth | `#E6F9F1` | `#CDF3E2` | HR · People Ops · Customer Success · Admin |
 | Water | `#E8F1FD` | `#D0E3FB` | Data · Logistics · Supply Chain · Exec Strategy |
 | Gold | `#FFF6E9` | `#FFEDD3` | Finance · Legal · Compliance · QA & Audit |
+
+### Elemental pastel tints
+
+A separate, stronger tint scale from the `-bg`/`-bg-strong` pair above —
+55% white mix rather than 8%/16% — for decorative, ambient effects (a
+gradient glow, an ambient wash) that need real, visible color, never for
+surface fills or backgrounds; that job stays with `-bg`/`-bg-strong`.
+First used by [Prompt input bar](#prompt-input-bar)'s glow.
+
+| Element | `-pastel` (55% white mix) |
+|---|---|
+| Fire | `#FFB49D` |
+| Wood | `#FFC3CD` |
+| Earth | `#8CE4BE` |
+| Water | `#95C0F4` |
+| Gold | `#FFD69D` |
 
 ### Elements — motif & motion (for department-colored surfaces)
 
@@ -413,6 +429,8 @@ overshoot, no elastic easing.
 | duration-base | 220ms | Default UI transitions |
 | duration-slow | 360ms | Panel / section reveals |
 | duration-ambient | 900ms | Background / ambient motion |
+| duration-morph | 420ms | Pose-to-pose shape transitions — e.g. [Prompt input bar](#prompt-input-bar)'s expanded/collapsed morph |
+| duration-reveal | 550ms | Entrance reveals that need to read as more deliberate than `duration-slow` — e.g. Prompt input bar's own entrance |
 
 Each element owns an easing curve, used when the motion is thematically
 tied to that element (e.g. a Water-owned panel slides with
@@ -427,6 +445,8 @@ reach for an elemental curve deliberately, not by default.
 | ease-flare | `cubic-bezier(.05,.7,.1,1)` | **Fire** — pulse outward, rise |
 | ease-precise | `cubic-bezier(.4,0,.2,1)` | **Gold** — sharp, decisive |
 | ease-grow | `cubic-bezier(.25,.46,.45,.94)` | **Wood** — branching growth |
+| ease-morph | `cubic-bezier(.22,1,.36,1)` | Pose-to-pose shape transitions — fast out, no overshoot, pairs with `duration-morph` |
+| ease-reveal | `cubic-bezier(.16,1,.3,1)` | Entrance reveals — fast out, no overshoot, pairs with `duration-reveal` |
 
 ---
 
@@ -775,6 +795,7 @@ through.
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Progress Bar](#progress-bar)
+- [Prompt input bar](#prompt-input-bar)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -3295,6 +3316,75 @@ put a label inside a Compact (4px) track or a stacked fill; use a
 department elemental color as a single-fill bar's default — department
 colors classify ownership, not progress.
 
+### Prompt input bar
+
+**AI Native.** ⚠️ **Designed from scratch** — no source in either the
+original brand deck or the teammate's build. First reviewed and
+committed 2026-08-24; see the Changelog for the review history. This is
+the first component in a new AI Native category — components whose
+whole purpose is an AI interaction surface, not a generic control
+restyled for one. Prompt input bar won't be the last one in it.
+
+An AI composer input field, with two poses — an expanded card and a
+collapsed pill — that morphs between them on scroll. **Floating bar**
+is its first variant: pinned to the bottom of the content region,
+free-floating over the canvas. Naming it as a variant (not just "the"
+Prompt input bar) leaves room for Inline and Docked variants later
+without renaming anything. Class prefix: `.c-prompt-bar*`.
+
+**Prompt input bar — Anatomy (Floating bar variant).**
+
+| Part | Spec |
+|---|---|
+| Wrapper (`.c-prompt-bar`) | `position: absolute`, anchored to the bottom of the content region (not the viewport) — `bottom: spacing-24`, horizontally centered via `left: 50%` + `translateX(-50%)`. Width `min(620px, calc(100% - spacing-32))`. `z-index: 20` — above canvas content, below nav (50)/menus (60)/modal (90). Carries three independent translate terms on one `transform`: `--prompt-bar-shift` (parks the collapsed pill beside a dock), `--prompt-bar-push` (a side panel shoving it aside), and the reveal's own `translateY` — separate variables because different events own them and either can change without the other |
+| Glow layers (`.c-prompt-bar-glow-outer`/`-inner`) | Two absolutely-positioned siblings behind the surface, both `pointer-events: none` and `aria-hidden`. Outer: `inset: -4px`, `blur(16px)`, `opacity: .7`. Inner: `inset: -1px`, `blur(1px)`, `opacity: 1`. Both paint a horizontal gradient of the 5 [elemental pastel tints](#color-palette) (Fire→Wood→Earth→Water→Gold→back-to-Fire, 6 stops so the loop tiles without a seam) at `background-size: 200% 100%`, animated via `background-position` 0%→200% on a 4s `linear infinite` loop — never a rotating oversized layer, which bleeds into surrounding UI. `mix-blend-mode: screen` declared first as a fallback, then `plus-lighter` — an unsupported value is dropped by the parser, leaving the prior declaration in effect, which is the fallback mechanism, not two competing rules. Radius follows the surface: `radius-lg + 4px`/`+ 1px` expanded, `radius-pill` collapsed, transitioning on `duration-morph`/`ease-morph` — otherwise the glow keeps square corners around a rounded pill |
+| Surface (`.c-prompt-bar-surface`) | `display: grid; grid-template-rows: auto 1fr`. `radius-lg` (20px), `shadow-4`, Neutral-1 fill, spacing-16 padding. `position: relative; z-index: 10` so the glow only peeks out around the edge. Transitions `grid-template-rows`, `border-radius`, and `padding` on `duration-morph`/`ease-morph` |
+| AI mark (`.c-prompt-bar-mark`) | The real [Button](#button) Primary icon-only variant (`c-btn-icon.c-btn-sm`, 32×32px) for fill/size/icon, with `border-radius` overridden back to a true circle (`radius-pill`) — the real icon-only recipe is `radius-sm` by default, a deliberate override here. `ph-fill ph-sparkle` — **Tier 2, Fill** (an expressive mark, not a control). `position: absolute`, `left: spacing-16`, vertically centered, `pointer-events: none`, `aria-hidden` (the input's own `aria-label` already names the component). Absolute, not a flex child — the surface is a grid, so a flow child would become a grid item, and an absolute one can arrive on opacity + transform instead of a width that runs layout every frame of the morph. `opacity: 0` + `scale(.5)` expanded, `opacity: 1` + `scale(1)` collapsed; position is `left: spacing-16` in both poses — expanded it just sits invisible over the input's left edge, which costs nothing |
+| Field (`.c-prompt-bar-field`) | `position: relative`, flex row, `align-items: center`, `min-width: 0`. Holds the real `<input>`, the running ghost line, and the reduced-motion static label |
+| Input | `<input type="text" aria-label="Ask anything">` — full width, no border, no outline, transparent background, body1 type (a deliberate departure from [Input field](#input-field)'s own body2 — this isn't a form field, it's a composer surface), Neutral-9 text. `position: relative; z-index: 1` so it sits above the ghost line. Native `::placeholder` is set to transparent — the real hint is the ghost line below, not the browser's own placeholder rendering |
+| Running line (`.c-prompt-bar-ghost` > `.c-prompt-bar-ghost-text`) | A `<span>`, not `::placeholder` — a placeholder can't be masked, transformed, or measured, and all three are needed once the box becomes a pill. `position: absolute; inset: 0`, flex row, `align-items: center`, `justify-content: flex-start` (left-aligned, matching where real typed text lands — not centered), `overflow: hidden`, `white-space: nowrap`, `pointer-events: none`, body1, Neutral-5. Inner `-text` span is `inline-block` so its full width is measurable via `scrollWidth` even while the parent clips it. Hides (`opacity: 0`) when the field carries a value, via an `.is-typing` class on the field |
+| Reduced-motion label (`.c-prompt-bar-ghost-static`) | `display: none` by default. Under `prefers-reduced-motion: reduce`, the running line is hidden entirely and this shows instead — a short label ("Ask me anything") that fits the pill outright rather than a clipped sentence |
+| Second row (`.c-prompt-bar-more`) | `overflow: hidden`, `min-height: 0` (required — the `0fr` row can't collapse without it), flex column, `padding-top: spacing-12`. Transitions `padding-top` and `opacity` on `duration-morph`/`ease-morph` |
+| Toolbar (`.c-prompt-bar-toolbar`) | Flex row, `justify-content: space-between`. Left group (`.c-prompt-bar-group`): Add image (`ph ph-image`), Attach file (`ph ph-paperclip`), More options (`ph ph-dots-three`). Right group: Voice input (`ph ph-microphone`), Send (`ph ph-arrow-up`). All five icons are **Tier 1, Regular** — every one is a control. Every button is the real Button icon-only variant (`c-btn-icon.c-btn-sm`) verbatim — Ghost for Add image/Attach file/More options/Voice input, Primary for Send — not a bespoke button class. Every button needs an `aria-label`, since all are icon-only |
+
+**Prompt input bar — States.**
+
+| State | Class | What changes |
+|---|---|---|
+| Hidden | (base) | `opacity: 0`, `translateY(16px)` — pre-reveal |
+| Revealed | `.is-revealed` | Fades and rises in on `duration-reveal`/`ease-reveal`, `transition-delay: 1150ms` so it lands after the rest of the canvas sequence |
+| Expanded | (default, revealed) | Full card: two rows, `radius-lg`, toolbar visible, mark hidden |
+| Collapsed | `.is-collapsed` | Narrows to `--prompt-bar-w` (236px), parks at `--prompt-bar-shift`, `radius-pill` on the surface and both glow layers, second row folds to `0fr` with `padding-top: 0`/`opacity: 0`, mark fades in, surface left padding grows to 56px (16 gutter + 32 mark + 8 gap), running line starts its marquee |
+| Morphable | `.is-morphable` | Added after the entrance has played. Declares one transition for `transform`, `width`, and `bottom` on `duration-morph`/`ease-morph` so collapse and expand take the same 420ms — without it, expansion falls through to the entrance rule's slower `duration-reveal` and reads as lag. Must be declared **after** `.is-collapsed` in source order to win the cascade tie once added |
+| Typing | `.is-typing` on the field | Running line hides |
+| Pushed | `--prompt-bar-push` | A side panel opened over the same corner; the bar slides left by exactly the overlap, capped so it never leaves the gutter |
+| Launched | `.is-launched` | The chat overlay is open — the bar fades out, `pointer-events: none`, so it isn't sitting under the shell it became |
+| Mobile (≤640px) | `.is-collapsed` still applies | Keeps the shrink, drops the parking: full-width, insets 16px on all four sides, `bottom` carries `env(safe-area-inset-bottom)`, never becomes a pill (`radius-lg` stays, not `radius-pill`). `--prompt-bar-w` and `--prompt-bar-shift` are simply not consulted |
+
+**Prompt input bar — Behavior.**
+
+- **Scroll collapse** — asymmetric thresholds, deliberately: collapse once `scrollTop > 240`, expand only when `scrollTop <= 8`. A single threshold flip-flops either side of the boundary; the hold is the point. Listen on the scroll container (not `window`), `{ passive: true }`, throttled through `requestAnimationFrame`.
+- **Launch** — a click anywhere on the bar (card or pill) opens the chat overlay; `Enter` in the input does the same, `preventDefault()`. Not wired to `focusin` — the overlay hands focus back to this bar on close, and a focus-to-open rule would immediately reopen it.
+- **Geometry sync** — measure, don't hardcode: re-measure the pill's park position (`--prompt-bar-shift`) on state change, not on every scroll event (caching at init is wrong — icon fonts load late and move a dock's edge, parking the pill short of its seam). Also re-run on resize and on `document.fonts.ready`. Use `offsetWidth`/`offsetHeight` and computed style, never client rects — this element transitions `width`, so a client rect returns whichever frame the morph happens to be on.
+- **Marquee (collapsed running line)** — mask both ends (`linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%)`). Travel distance is `min(0, window − scrollWidth)` — negative or zero, so the line only ever shifts left to reveal overflow, never right; a line that already fits parks on a no-op. Duration derived from distance at ~60px/s, so speed is constant whatever sentence is showing; travel is 64% of the animation cycle (two 32% legs), the rest is holding at each extreme (`0%,18%` at start, `50%,68%` at the far end, `100%` back) — the holds are what make it readable. The window is a constant (236 − 64) on desktop because the width is mid-transition and unmeasurable; on mobile it's measured from `clientWidth − 64` because the collapsed bar keeps its full width there.
+- **Placeholder choreography** — one-shot, not a loop: (1) type "Everything else lives right here." with a trailing caret, (2) pulse the caret on it for 5s (500ms blink), (3) delete it, (4) type "I am your Collabrium assistant, let me help you", (5) stop indefinitely — the final message is the resting state. Every step pauses while the input is focused, so it never fights real typing. Starts only once the bar's own reveal has finished. If the bar collapses before the sequence completes, fast-forward straight to the final sentence — a half-typed fragment must never be what shuttles through the pill. A guard timer lands the final string regardless, so a stalled interval can't leave it half-typed.
+- **Reduced motion** (`prefers-reduced-motion: reduce`) — glow animations off; morph transitions off (the two poses still exist, only the travel between them goes — `.is-morphable` is named explicitly in the override since it declares its own transition at higher specificity and a media query alone wouldn't beat it); the mark arrives without the scale; the running line hides entirely in favor of the static short label; the placeholder choreography is skipped, with the final sentence set directly.
+
+**Do:** keep the toolbar's icon-only buttons as real Button Ghost/Primary
+icon-only instances, not bespoke button classes — even though that
+means the Send button is a `radius-sm` square, not a pill, and the AI
+mark's own Primary-icon-only base needs its radius overridden back to
+a circle. Pair `duration-morph`/`ease-morph` on every property that
+moves during a pose change, and `duration-reveal`/`ease-reveal` only
+on the one-time entrance — mixing them reads as lag. Reserve
+`--prompt-bar-shift`/`--prompt-bar-push` for real measured geometry;
+never hardcode a park offset. **Don't** center the running ghost
+line — it must left-align to match where real typed text lands.
+Don't let the placeholder choreography loop; it's one-shot, ending on
+the resting sentence. Don't collapse the bar into a pill on mobile —
+keep the shrink (second row folds away), drop the parking and the
+pill shape.
+
 ### Radio
 
 **Transcribed from the teammate's `Radio.jsx`.**
@@ -4712,7 +4802,7 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
-- **v0.9.56 — 2026-08-24** — Added a **Trailing count (optional)**
+- **v0.9.57 — 2026-08-24** — Added a **Trailing count (optional)**
   rule to [Chip](#chip)'s Filter Chip, and demoed it in `preview.html`/
   `components.css`. An inline numeral after the label — `label2`
   (13px/18px) at weight 400, one step lighter than the label's own
@@ -4736,7 +4826,7 @@ rather than maintaining two token sources by hand:
   the same tick-toggle click handler as the existing Multi-select demo
   group.
 
-- **v0.9.55 — 2026-08-24** — Brought [Pagination](#pagination)'s
+- **v0.9.56 — 2026-08-24** — Brought [Pagination](#pagination)'s
   `preview.html` gallery and `components.css` up to date with the
   component's full current spec (Default + Overflow variants,
   developed over several rounds and previously documented only in this
@@ -4770,7 +4860,7 @@ rather than maintaining two token sources by hand:
   options, and resizing to a 375px viewport correctly collapses both
   variants to their documented mobile layouts with no console errors.
 
-- **v0.9.54 — 2026-08-24** — Extended [Input field](#input-field)'s
+- **v0.9.55 — 2026-08-24** — Extended [Input field](#input-field)'s
   Required field indicator rule with four sub-rules and a summary table,
   and added a live demo for it. Asterisk token: inherits the label's own
   caption/700 override (not a separate type token), Red `#FD3343` — the
@@ -4801,6 +4891,44 @@ rather than maintaining two token sources by hand:
   .required-mark` (Red `#FD3343`, weight 700, spacing-4 margin-left) and
   `.c-field label .required-label-icon` (Neutral-5, icon-sm, spacing-4
   margin-left).
+
+- **v0.9.54 — 2026-08-24** — Added **Prompt input bar** (⚠️ designed
+  from scratch, no source in either the brand deck or the teammate's
+  build), the first component in a new **AI Native** category — an AI
+  composer that morphs between an expanded card and a collapsed pill on
+  scroll, and its **Floating bar** variant (pinned to the bottom of the
+  content region, free-floating over the canvas). Per review: AI Native
+  is a category *label* on the component, not a new top-level nav
+  section — `preview.html`'s Components list/section stays one flat
+  alphabetical list, same standing rule as always, with "Prompt input
+  bar" inserted between Progress Bar and Radio. Full anatomy, States,
+  and Behavior (scroll-collapse thresholds, launch, measured geometry
+  sync for the dock-park/side-panel-push shifts, marquee math, the
+  one-shot placeholder typing choreography, reduced motion) documented
+  under a new **Prompt input bar** section. Two new Motion tokens
+  (`duration-morph`/`ease-morph` for pose-to-pose transitions,
+  `duration-reveal`/`ease-reveal` for the entrance) and a new
+  **Elemental pastel tints** scale (55% white mix, distinct from the
+  existing 8%/16% `-bg`/`-bg-strong` pair) added to support this
+  component's morph timing and glow gradient — both were reviewed and
+  confirmed as reusable tokens now rather than component-scoped
+  literals, unlike Hero Card's AI (Dark) overlay values. Three
+  resolved-during-review deviations from the icon-only Button spec,
+  all deliberate: the AI mark is the real Primary icon-only variant
+  with its radius overridden back to a circle (the real variant is
+  `radius-sm` by default); the toolbar buttons are the real Ghost/
+  Primary icon-only variants at their real size, replacing an earlier
+  bespoke 36×36 button; a "More options" (`ph-dots-three`) Ghost
+  icon-only button was added to the toolbar's left group, after Attach
+  file. `components.css`: full `.c-prompt-bar*` rule set added at the
+  end of the file (a new, unnested component, unlike Hero Card's
+  in-place addition under Card). `tokens.css`: the two Motion token
+  pairs and the pastel tint scale. `preview.html`: new **Prompt input
+  bar** nav child + comp-block inserted alphabetically inside the
+  existing Components list, showing only the Expanded and Collapsed
+  poses side by side (no scroll/dock/side-panel/launch interaction
+  demo — that stays in the review draft, not the formal gallery).
+  Version flag bumped to v0.9.54.
 
 - **v0.9.53 — 2026-08-18** — Added **Hero Card**, a new [Card](#card)
   sub-component (⚠️ designed from scratch, no source in either the
