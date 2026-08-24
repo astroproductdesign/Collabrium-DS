@@ -1053,15 +1053,82 @@
 .c-filter-clear-bar{color:var(--color-red);}
 .c-filter-clear-bar[hidden]{display:none;}
 
-/* Pagination — designed not transcribed */
-.c-pagination{display:flex; align-items:center; justify-content:space-between; padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+/* Pagination — designed not transcribed. Two variants, chosen by
+   totalPages, never a manual flag: Default below, rendered while
+   totalPages < 10; Overflow below, taking over once totalPages >= 10
+   (pattern reference: Uber Base's own Pagination component, adapted
+   to this system's tokens and reused sub-components). See
+   DESIGN-SYSTEM.md's Pagination section for the full spec. */
+.c-pagination{display:flex; align-items:center; justify-content:space-between; padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3); gap:var(--spacing-16); flex-wrap:wrap;}
 .c-pagination .count{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
 .c-page-controls{display:flex; align-items:center; gap:4px;}
-.c-page-btn{width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;}
+.c-page-btn{width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-5); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
 .c-page-btn:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
-.c-page-btn.current{background:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-page-btn:active{background:var(--color-neutral-3); color:var(--color-neutral-9);}
+.c-page-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-page-btn.current{background:var(--color-obsidian); color:var(--color-neutral-1); cursor:default;}
+.c-page-btn.current:hover,.c-page-btn.current:active{background:var(--color-obsidian);}
 .c-page-btn:disabled{color:var(--color-neutral-4); cursor:not-allowed; background:transparent;}
 .c-page-ellipsis{width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:var(--color-neutral-5); font-size:var(--text-caption-size);}
+
+/* Prev/Next (Default) — Ghost icon-buttons reusing Button Ghost's own
+   Default/Hover/Active/Focus-visible/Disabled tokens verbatim, kept as
+   a distinct class from .c-page-btn above since the resting icon color
+   (Neutral-9) differs from the numbered buttons' own Neutral-5. */
+.c-page-nav{width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-9); font-size:var(--icon-sm); cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-page-nav:hover{background:var(--color-neutral-2);}
+.c-page-nav:active{background:var(--color-neutral-3);}
+.c-page-nav:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-page-nav:disabled{color:var(--color-neutral-4); cursor:not-allowed; background:transparent;}
+
+/* Mobile indicator (Default) — hidden at rest, swapped in for the
+   numbered cluster + result count under 767px; see the @media block
+   below. Sits between the Prev/Next buttons in source order so the
+   flex row reads Prev / indicator / Next once the numbered slots are
+   hidden, with no reordering needed. */
+.c-pagination-indicator{display:none; font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-9); padding:0 var(--spacing-4);}
+
+@media (max-width:767px){
+  .c-pagination{justify-content:center;}
+  .c-pagination .count{display:none;}
+  .c-page-controls .c-page-btn,.c-page-controls .c-page-ellipsis{display:none;}
+  .c-pagination-indicator{display:inline-flex;}
+}
+
+/* Overflow pagination (totalPages >= 10) — Prev/Next become text-style
+   Ghost links (Button Ghost's own tokens, unmodified, just rendered as
+   label+icon instead of icon-only) and the numbered cluster is
+   replaced by Dropdown's Single select, Outlined style, reused
+   verbatim for both Rows-per-page and the current-page value. Value
+   text is set to caption (12px/16px) here, overriding Dropdown's own
+   documented body2 (14px) convention, so the numerals match "of
+   [total]" and Default's own page numbers instead of reading one size
+   up from their neighbors. */
+.c-pagination-overflow{display:flex; align-items:center; justify-content:space-between; padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3); gap:var(--spacing-16); flex-wrap:wrap;}
+.c-pagination-overflow-rows{display:flex; align-items:center; gap:var(--spacing-8);}
+.c-pagination-overflow-rows label{font-size:var(--text-caption-size); color:var(--color-neutral-5); white-space:nowrap;}
+.c-pagination-overflow-controls{display:flex; align-items:center; gap:var(--spacing-4);}
+.c-pagination-overflow-select-wrap{position:relative; display:inline-flex; align-items:center;}
+.c-pagination-overflow-select{height:40px; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); border-radius:var(--radius-sm); padding:0 28px 0 var(--spacing-12); font-family:inherit; font-size:var(--text-caption-size); color:var(--color-neutral-9); appearance:none; -webkit-appearance:none; cursor:pointer;}
+.c-pagination-overflow-select:hover{background:var(--color-neutral-2);}
+.c-pagination-overflow-select:focus{outline:none; border:2px solid var(--color-obsidian); padding:0 27px 0 11px;}
+.c-pagination-overflow-select:disabled{color:var(--color-neutral-5); background:var(--color-neutral-2); cursor:not-allowed;}
+.c-pagination-overflow-select-wrap i{position:absolute; right:var(--spacing-8); pointer-events:none; color:var(--color-neutral-5); font-size:var(--icon-sm);}
+.c-pagination-overflow-nav{display:inline-flex; align-items:center; gap:var(--spacing-4); padding:6px var(--spacing-8); border-radius:var(--radius-sm); border:none; background:transparent; font-family:inherit; font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-pagination-overflow-nav:hover{background:var(--color-neutral-2);}
+.c-pagination-overflow-nav:active{background:var(--color-neutral-3);}
+.c-pagination-overflow-nav:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-pagination-overflow-nav:disabled{color:var(--color-neutral-4); cursor:not-allowed; background:transparent;}
+.c-pagination-overflow-total{font-size:var(--text-caption-size); color:var(--color-neutral-5); padding:0 var(--spacing-4);}
+
+@media (max-width:767px){
+  .c-pagination-overflow{justify-content:center;}
+  .c-pagination-overflow-rows{display:none;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .c-page-btn,.c-page-nav,.c-pagination-overflow-nav{transition:none;}
+}
 
 /* Date picker — designed not transcribed */
 .c-dp-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body1-size); font-weight:500;}

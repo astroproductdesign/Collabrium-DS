@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.54</title>
+<title>Collabrium design system | v0.9.55</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -322,7 +322,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.54</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.55</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -330,7 +330,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.54</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.55</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -1856,18 +1856,50 @@
         <div class="comp-block" id="comp-pagination">
           <div class="comp-head"><h3>Pagination</h3><button class="copy-markup-btn" data-target="comp-pagination" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
+
+            <p style="margin:0 0 var(--spacing-16); font-size:var(--text-caption-size); color:var(--color-neutral-5);">Resize this window below 768px to see the mobile responsive versions.</p>
+
+            <p class="swatch-group-label" style="margin-top:0">Default pagination &mdash; totalPages &lt; 10</p>
             <div class="c-pagination">
-              <span class="count">Showing 1&ndash;20 of 248</span>
+              <span class="count">Showing 41&ndash;60 of 116</span>
               <div class="c-page-controls">
-                <button class="c-page-btn" disabled type="button"><i class="ph ph-caret-left"></i></button>
+                <button class="c-page-nav" type="button" aria-label="Previous page"><i class="ph ph-caret-left"></i></button>
+                <span class="c-pagination-indicator">3 of 6</span>
                 <button class="c-page-btn" type="button">1</button>
-                <button class="c-page-btn current" type="button">2</button>
-                <button class="c-page-btn" type="button">3</button>
-                <span class="c-page-ellipsis">&hellip;</span>
-                <button class="c-page-btn" type="button">12</button>
-                <button class="c-page-btn" type="button"><i class="ph ph-caret-right"></i></button>
+                <button class="c-page-btn" type="button">2</button>
+                <button class="c-page-btn current" type="button" aria-current="page">3</button>
+                <button class="c-page-btn" type="button">4</button>
+                <button class="c-page-btn" type="button">5</button>
+                <button class="c-page-btn" type="button">6</button>
+                <button class="c-page-nav" type="button" aria-label="Next page"><i class="ph ph-caret-right"></i></button>
               </div>
             </div>
+
+            <p class="swatch-group-label">Overflow pagination &mdash; totalPages &ge; 10</p>
+            <div class="c-pagination-overflow">
+              <div class="c-pagination-overflow-rows">
+                <label for="pagination-rows-demo">Rows per page</label>
+                <div class="c-pagination-overflow-select-wrap">
+                  <select class="c-pagination-overflow-select" id="pagination-rows-demo" aria-label="Rows per page">
+                    <option>10</option>
+                    <option selected>20</option>
+                    <option>50</option>
+                    <option>100</option>
+                  </select>
+                  <i class="ph ph-caret-down" aria-hidden="true"></i>
+                </div>
+              </div>
+              <div class="c-pagination-overflow-controls">
+                <button class="c-pagination-overflow-nav" type="button"><i class="ph ph-caret-left"></i>Prev</button>
+                <div class="c-pagination-overflow-select-wrap">
+                  <select class="c-pagination-overflow-select js-pagination-page-select" aria-label="Current page" data-total-pages="77" data-current-page="23"></select>
+                  <i class="ph ph-caret-down" aria-hidden="true"></i>
+                </div>
+                <span class="c-pagination-overflow-total">of 77</span>
+                <button class="c-pagination-overflow-nav" type="button">Next<i class="ph ph-caret-right"></i></button>
+              </div>
+            </div>
+
           </div>
         </div>
         <div class="comp-block" id="comp-progress">
@@ -2879,7 +2911,7 @@ button next to the version flag in the top bar.
 <script type="text/plain" id="src-md-extended">
 # Collabrium Design Language System
 
-**v0.9.54** — 2026-08-24 — Sourced from the Collabrium brand deck
+**v0.9.55** — 2026-08-24 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -5748,6 +5780,13 @@ token system, not transcribed. Treat as a first pass needing real
 design/brand review.
 
 Sits as a table or list footer — same border convention as DataTable.
+Two variants, chosen automatically by page count, never a manual flag:
+**Default pagination** (below) renders while `totalPages < 10`;
+**Overflow pagination** (below) takes over once `totalPages ≥ 10` — a
+row of individual numbered buttons stops being practical much past
+that point. Both read from the same `totalPages` prop.
+
+**Default pagination** (`totalPages` < 10)
 
 | Part | Spec |
 |---|---|
@@ -5758,14 +5797,155 @@ Sits as a table or list footer — same border convention as DataTable.
 | Page number — hover | Neutral-2 fill, Neutral-9 text |
 | Page number — current | Obsidian fill, Neutral-1 text — the only filled state, kept unambiguous against its neighbors |
 | Prev / Next | 32×32px Ghost icon-buttons (`caret-left`/`caret-right`, `icon-sm`); **Tier 1, Regular** (navigation control, per [Iconography](#iconography)); disabled at the first/last page — Neutral-4 icon, `cursor: not-allowed` |
-| Ellipsis | static "…" in the same 32×32 box for alignment, caption/Neutral-5, no interactive state |
-| Page-size select (optional) | Select, sm, right-aligned, spacing-8 gap from the Next button (e.g. "20 / page") |
+| Ellipsis | static "…" in the same 32×32 box for alignment, caption/Neutral-5, no interactive state. Represents a collapsed range of page numbers not currently visible in the 7-slot window — not clickable, consistent with the "no interactive state" spec above: a clickable ellipsis adds implementation complexity without meaningful value, and once page count reaches double digits, Overflow pagination's own current-page select takes over as the way to reach a distant page. `aria-hidden="true"` — a visual alignment element, not navigable content |
+
+Default pagination has no page-size control — page size is fixed by
+whatever the parent screen passes in, not user-adjustable here. Only
+Overflow pagination exposes a Rows-per-page select (see **Overflow
+pagination**, below).
+
+**States:**
+
+| State | Spec |
+|---|---|
+| Page number — default | transparent fill, Neutral-5 text |
+| Page number — hover | Neutral-2 fill, Neutral-9 text |
+| Page number — current | Obsidian fill, Neutral-1 text — the only filled state, kept unambiguous against its neighbors |
+| Page number — pressed | Neutral-3 fill, text unchanged — matches **Button Ghost's** own `Active/pressed \| Neutral-3 fill` token |
+| Page number — focus-visible | current fill + 2px Obsidian outline, 2px offset, `radius-sm` — reuses **Button Ghost's** own focus-visible token, additive on top of whatever fill the current state already has |
+| Prev/Next — hover | Neutral-2 fill — reuses **Button Ghost's** icon-button hover token |
+| Prev/Next — pressed | Neutral-3 fill — matches **Button Ghost's** own `Active/pressed \| Neutral-3 fill` token |
+| Prev/Next — focus-visible | 2px Obsidian outline, 2px offset, `radius-sm` — same token as Page number — focus-visible, above |
+| Prev/Next — disabled | Neutral-4 icon, `cursor: not-allowed` |
+| Current page — interactivity | not clickable — `cursor: default`, no hover, no press response. Stays focusable and sits in the natural tab order, so screen readers can announce the current position — clicking the current page would reload the same data (a non-action), but keeping it focusable maintains an unbroken tab order across the whole cluster |
+
+**Transition:**
+
+| Part | Property | Duration/easing |
+|---|---|---|
+| Page number — hover/press | `background-color`, `color` | `duration-fast` (140ms), `ease-standard` — matches Button's and Tab's own hover/press transition |
+| Prev/Next — hover/press | `background-color`, `color` | `duration-fast` (140ms), `ease-standard` — same tokens |
+| Result count — update | none | updates instantly when new data arrives, no transition |
+| Reduced motion | — | all transitions instant |
+
+**Minimum page rule.** Pagination hides entirely when the total
+result count fits on a single page — never render a single-page
+pagination control. It renders only once total results exceed the
+current page size: the component receives `totalResults` and
+`pageSize` props and hides itself whenever `totalResults ≤ pageSize`.
+A single-page pagination control with a disabled Prev/Next
+communicates nothing and adds visual weight for no reason.
+
+**Result count format** (Default pagination only — Overflow pagination
+has no item-based result count; see its own anatomy, below):
+
+| Scenario | Format |
+|---|---|
+| Standard | "Showing [start]–[end] of [total]" — en dash (–), never a hyphen (-) |
+| Single result | "Showing 1 of 1" — not "Showing 1–1 of 1" |
+| Zero results | "No results" — not "Showing 0–0 of 0" |
+| Last page, uneven | "Showing 221–248 of 248" — the end value is the actual last item, never a rounded page boundary |
+| Unknown total | "Showing 1–20" — omit "of [total]" entirely when the total count is unavailable |
+| During load | previous count shown in Neutral-4, updates to the new count once data arrives |
+
+**Loading state.** Pagination controls stay fully visible and
+interactive during load — never disabled while waiting for data. The
+parent table/list's content area shows its own skeleton loading state,
+per [Table](#table)'s documented Loading state (3 skeleton rows,
+Neutral-2 fill, shimmer, 300ms delay). On Default pagination, the
+result count shows the previous count in Neutral-4 until new data
+arrives (see **Result count format**, above), and the current page
+button updates immediately on click, before data arrives — an
+optimistic selection that gives instant feedback the interaction
+registered. On Overflow pagination, the same optimistic-update
+principle applies to its current-page select instead (see **Overflow
+pagination**, below) — there's no result count to freeze, since that
+variant has none. Prev/Next remain active during load on both
+variants, so the user can navigate again before the previous request
+resolves.
+
+**Rows-per-page select** (Overflow pagination only — Default has no
+page-size control; see above). Options: 10, 20, 50, 100. Default
+selection: 20. On change: resets to page 1 immediately and the content
+area's skeleton loading state appears. Persistence: the selected page
+size persists to `localStorage` under the key `pagination-page-size`;
+on load, the component restores from `localStorage` if a value exists
+there, falling back to 20 if not.
+
+**Overflow pagination** (`totalPages` ≥ 10)
+
+Pattern reference: Uber Base's own Pagination component
+(base.uber.com), adapted here to this document's existing tokens and
+reused sub-components rather than transcribed pixel-for-pixel.
+Replaces Default's numbered-button row and ellipsis outright once page
+count reaches double digits — collapses the whole control cluster down
+to Prev / current-page select / total-pages label / Next.
+
+| Part | Spec |
+|---|---|
+| Container | same as Default — flex row, `justify-content: space-between`, spacing-16 padding-top, 1px Neutral-3 top border |
+| Page-size select (optional) | [Dropdown](#dropdown)'s Single select, Outlined style, reused verbatim (Neutral-1 fill, 1px Neutral-3 border, Neutral-2 fill on hover — Input Field's own recipe; 40px height, per Dropdown's own documented Container spec — Dropdown has no separate `sm` size to reuse instead) — left-aligned, labeled "Rows per page" directly to its left, caption/400/Neutral-5. Value text set to caption (12px/16px), overriding Dropdown's own documented body2 (14px) value-text convention — a deliberate exception so the visible number reads at the same size as the "of [total]" label and Default pagination's own page-number numerals, not one size up from its neighbors |
+| Prev / Next | text-style Ghost links, not the icon-only 32×32 squares Default uses — leading `caret-left`/trailing `caret-right` (`icon-sm`, Tier 1 Regular) plus a "Prev"/"Next" label, caption/700, Neutral-9; no fixed box size, content-width only; reuses **Button Ghost's** own color/hover/pressed/focus-visible tokens (this document's own Button section) unmodified; disabled at the first/last page — Neutral-4 text/icon, `cursor: not-allowed`, same convention as Default's Prev/Next |
+| Current page | [Dropdown](#dropdown)'s Single select, Outlined style, reused verbatim — same 40px height, bordered chrome, and caption (12px/16px) value-text override described in the page-size row above, so the current-page numeral, "of [total]", and the page-size numeral all read at one consistent size. Its option list is every page from 1 to `totalPages` rather than arbitrary text; picking a value navigates directly, the same "commit on change" behavior the page-size select already uses |
+| Total pages label | plain "of [total]" text directly after the current-page select, caption/400, Neutral-5 (e.g. "of 77") |
+
+No item-based result count ("Showing X–Y of Z") in this variant —
+"of [total]" already communicates scope in terms of pages, and this
+pattern's whole point is a compact horizontal footprint that a second
+text block would work against.
+
+**States.** Nothing bespoke here — every interactive part reuses its
+source component's own state table verbatim. Prev/Next: **Button
+Ghost's** Default/Hover/Active-pressed/Focus-visible/Disabled tokens.
+Current-page select and page-size select: **Dropdown → Single select,
+Outlined**'s own States table (Default/Hover/Open/Filled/Disabled),
+unmodified. No new states, transition timings, or tokens invented for
+this variant.
+
+**Responsive / Mobile (<768px) — Overflow pagination:**
+
+| Part | Desktop | Mobile (<768px) |
+|---|---|---|
+| Rows-per-page select | left-aligned in container | hidden — page size fixed at the default, same convention as Default's own (now-absent) page-size control |
+| Prev / current-page select / Next | left-to-right row, container's right side | unchanged, but now the only thing in the container |
+| Container layout | `justify-content: space-between` (rows-per-page vs. the rest) | single row, centered, full width — with rows-per-page hidden there's nothing left to space between |
+
+**Responsive / Mobile (<768px)** — Default pagination:
+
+| Part | Desktop | Mobile (<768px) |
+|---|---|---|
+| Page number slots | full 7-slot cluster | hidden entirely |
+| Prev/Next | full 32×32px Ghost buttons | retained, same size |
+| Current page indicator | Obsidian-filled page button | "[current] of [total]" — caption/700/Neutral-9, between Prev and Next |
+| Result count | left-aligned in container | hidden entirely — "[current] of [total]" already covers position and scope at this width |
+| Container layout | `justify-content: space-between` | single row, centered, full width |
 
 **Do:** cap visible page-number slots at roughly 7 and collapse the
 rest behind an ellipsis (`1 … 4 5 [6] 7 8 … 24`), keeping the current
-page and its immediate neighbors always visible. **Don't:** disable
-Prev/Next by hiding them — keep the slot present but visually inactive,
-so the control cluster doesn't shift width across pages.
+page and its immediate neighbors always visible. Update the current
+page control immediately on click/change, before data arrives —
+optimistic selection gives instant feedback, on both variants. Persist
+Overflow's page-size selection to `localStorage` — users expect a
+density preference to carry across sessions. Use an en dash (–) in the
+result count range, never a hyphen (-). Show "No results" when the
+count is zero — never "Showing 0–0 of 0". Hide pagination entirely
+when all results fit on one page. Switch automatically from Default to
+Overflow pagination the moment `totalPages` reaches 10 — never gate
+the switch behind a manual flag. Reuse **Dropdown → Single select,
+Outlined** verbatim for Overflow's current-page and page-size
+selects — don't invent a new pill-select recipe to match a reference
+screenshot more closely.
+**Don't:** disable Prev/Next by hiding them — keep the slot present but
+visually inactive, so the control cluster doesn't shift width across
+pages. Don't disable Prev/Next during page load — keep them active so
+the user can navigate again before the previous request resolves.
+Don't show Overflow's Rows-per-page select on mobile — fix the density
+at the default value instead, the same convention Default's own mobile
+layout already uses for everything it hides. Don't show an item-based
+result count in Overflow pagination, on desktop or mobile — "of [total
+pages]" is the only count of scope that variant carries. Don't show
+Default's item-based result count on its own mobile layout either —
+"[current] of [total]" already covers it there.
 
 ### Password field
 
@@ -7378,6 +7558,40 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.55 — 2026-08-24** — Brought [Pagination](#pagination)'s
+  `preview.html` gallery and `components.css` up to date with the
+  component's full current spec (Default + Overflow variants,
+  developed over several rounds and previously documented only in this
+  file). `preview.html`: replaced the old single, partial Default-only
+  demo with two labeled examples — Default pagination (numbered
+  cluster with ellipsis, no page-size control, Prev/Next as distinct
+  Ghost icon-buttons) and Overflow pagination (Rows-per-page and
+  current-page as Dropdown Outlined selects populated 1…77 via a small
+  gallery script, text-style Prev/Next links, "of [total]" label) —
+  plus a caption noting both are responsive below 768px and inviting
+  the reader to resize the window to see it live, rather than a
+  fabricated narrow-frame mockup (this file's own established
+  convention: responsive behavior is real, viewport-driven CSS,
+  documented in prose, not staged). `components.css`: rewrote the
+  Pagination block entirely. Default: added the previously-missing
+  Pressed/Focus-visible states and `duration-fast`/`ease-standard`
+  transition to `.c-page-btn`; split Prev/Next into a new `.c-page-nav`
+  class (Neutral-9 resting icon color, Button Ghost's tokens) since the
+  old markup had incorrectly reused `.c-page-btn` (Neutral-5 resting
+  color) for both; added `.c-pagination-indicator` and a
+  `max-width:767px` block that hides the numbered cluster + result
+  count and shows it instead, matching the Responsive/Mobile table.
+  Overflow: added a full new rule set from scratch —
+  `.c-pagination-overflow*` (Outlined-style selects, text-style
+  Ghost nav links, total-pages label) and its own `max-width:767px`
+  block hiding the Rows-per-page select. Reduced-motion handling added
+  for all three transitioning classes. Resynced the `preview.html`
+  embedded doc mirror to match this file exactly (confirmed
+  byte-for-byte). Verified live: both variants render correctly at
+  desktop width, the current-page select populates with all 77
+  options, and resizing to a 375px viewport correctly collapses both
+  variants to their documented mobile layouts with no console errors.
 
 - **v0.9.54 — 2026-08-24** — Extended [Input field](#input-field)'s
   Required field indicator rule with four sub-rules and a summary table,
@@ -11023,6 +11237,25 @@ document.querySelectorAll('.copy-markup-btn').forEach(btn => {
   }, { threshold: 0.4 });
 
   observer.observe(group);
+})();
+
+/* ---------- Pagination — Overflow's current-page select ----------
+   Populated with every page from 1 to data-total-pages rather than
+   arbitrary text, per DESIGN-SYSTEM.md's Pagination spec (Overflow
+   pagination — Current page row). Gallery-specific population only;
+   the markup itself already carries data-total-pages/data-current-page. */
+(function () {
+  document.querySelectorAll('.js-pagination-page-select').forEach(sel => {
+    const total = parseInt(sel.dataset.totalPages, 10);
+    const current = parseInt(sel.dataset.currentPage, 10);
+    for (let i = 1; i <= total; i++) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      if (i === current) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  });
 })();
 
 /* ---------- Filters — Default (Tiered exposure) + Compact filter ---------- */
