@@ -929,6 +929,35 @@
 .c-banner-warning .icon{color:var(--color-amber);}
 .c-banner-warning .message,.c-banner-warning .actions .action{color:rgba(154,92,0,.8);}
 
+/* AI Recommendation — reuses Prompt input bar's own glow gradient and
+   c-prompt-bar-glow-move keyframe verbatim (defined further down this
+   file), not a second copy of the animation. Fill and border are two
+   pseudo-element layers instead of a flat background/border-color pair,
+   since both need to animate independently of the tone's fixed text. */
+.c-banner-ai{position:relative; background:none; border-color:transparent; overflow:hidden;}
+.c-banner-ai .icon{position:relative; z-index:1; color:var(--color-neutral-9);}
+.c-banner-ai .body{position:relative; z-index:1;}
+.c-banner-ai .close{position:relative; z-index:1;}
+.c-banner-ai .message,.c-banner-ai .actions .action{color:rgba(8,8,8,.8);}
+.c-banner-ai::before,
+.c-banner-ai::after{
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+  border-radius:inherit;
+  background-image:linear-gradient(90deg,var(--color-fire-pastel) 0%,var(--color-wood-pastel) 20%,var(--color-earth-pastel) 40%,var(--color-water-pastel) 60%,var(--color-gold-pastel) 80%,var(--color-fire-pastel) 100%);
+  background-size:200% 100%;
+  animation:c-prompt-bar-glow-move 4s linear infinite;
+}
+.c-banner-ai::before{opacity:.12;}
+.c-banner-ai::after{
+  z-index:2; padding:1px;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+}
+@media (prefers-reduced-motion:reduce){
+  .c-banner-ai::before, .c-banner-ai::after{animation:none;}
+}
+
 /* Tooltip — top placement (default). Visibility: opacity 0 → 1 on
    hover or keyboard focus, pointer-events:none at all times, instant
    on both show and hide (no artificial delay) per DESIGN-SYSTEM.md's
