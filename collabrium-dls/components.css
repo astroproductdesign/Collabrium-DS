@@ -1489,3 +1489,176 @@
 .c-progress-legend.is-hidden{display:none;}
 .c-progress-legend-item{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap;}
 .c-progress-legend-swatch{width:8px; height:8px; border-radius:2px; flex:none;}
+
+/* =========================================================
+   Prompt input bar — AI Native category. Floating bar variant
+   (the first of what may become Inline/Docked variants later,
+   without renaming anything — hence the plain .c-prompt-bar*
+   prefix, not .c-prompt-bar-floating*). See DESIGN-SYSTEM.md's
+   "Prompt input bar" section for full anatomy/states/behavior.
+   ========================================================= */
+.c-prompt-bar{
+  --prompt-bar-morph-dur:var(--duration-morph);
+  --prompt-bar-morph-ease:var(--ease-morph);
+  --prompt-bar-w:236px;
+  --prompt-bar-shift:0px;
+  --prompt-bar-push:0px;
+  --prompt-bar-marquee-dx:0px;
+  --prompt-bar-marquee-dur:8s;
+  position:absolute;
+  bottom:var(--spacing-24);
+  left:50%;
+  width:min(620px, calc(100% - var(--spacing-32)));
+  z-index:20;
+  opacity:0;
+  transform:translate(calc(-50% + var(--prompt-bar-shift) + var(--prompt-bar-push)), 16px);
+  transition:opacity var(--duration-reveal) var(--ease-reveal), transform var(--duration-reveal) var(--ease-reveal);
+  transition-delay:1150ms;
+}
+.c-prompt-bar.is-revealed{
+  opacity:1;
+  transform:translate(calc(-50% + var(--prompt-bar-shift) + var(--prompt-bar-push)), 0);
+}
+.c-prompt-bar.is-collapsed{width:var(--prompt-bar-w);}
+/* Declared AFTER .is-collapsed so it wins on source order once JS adds
+   it post-entrance — collapse/expand then run on the morph timing
+   instead of falling through to the slower entrance transition. */
+.c-prompt-bar.is-morphable{
+  transition:
+    transform var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    width var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    bottom var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.c-prompt-bar.is-launched{opacity:0; pointer-events:none;}
+
+/* Glow layers — animated pastel gradient behind the surface, clipped
+   to a clean edge-glow by sitting a lower z-index than the surface. */
+.c-prompt-bar-glow-outer,
+.c-prompt-bar-glow-inner{
+  position:absolute; pointer-events:none;
+  background-image:linear-gradient(90deg,var(--color-fire-pastel) 0%,var(--color-wood-pastel) 20%,var(--color-earth-pastel) 40%,var(--color-water-pastel) 60%,var(--color-gold-pastel) 80%,var(--color-fire-pastel) 100%);
+  background-size:200% 100%;
+  animation:c-prompt-bar-glow-move 4s linear infinite;
+  mix-blend-mode:screen;
+  mix-blend-mode:plus-lighter;
+  transition:border-radius var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.c-prompt-bar-glow-outer{inset:-4px; filter:blur(16px); opacity:.7; border-radius:calc(var(--radius-lg) + 4px);}
+.c-prompt-bar-glow-inner{inset:-1px; filter:blur(1px); opacity:1; border-radius:calc(var(--radius-lg) + 1px);}
+.c-prompt-bar.is-collapsed .c-prompt-bar-glow-outer,
+.c-prompt-bar.is-collapsed .c-prompt-bar-glow-inner{border-radius:var(--radius-pill);}
+@keyframes c-prompt-bar-glow-move{ from{background-position:0% 0;} to{background-position:200% 0;} }
+
+/* Surface */
+.c-prompt-bar-surface{
+  display:grid; grid-template-rows:auto 1fr;
+  position:relative; z-index:10;
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-4);
+  background:var(--color-neutral-1);
+  padding:var(--spacing-16);
+  transition:
+    grid-template-rows var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    border-radius var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    padding var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.c-prompt-bar.is-collapsed .c-prompt-bar-surface{
+  grid-template-rows:auto 0fr;
+  border-radius:var(--radius-pill);
+  padding-left:56px; /* 16 gutter + 32 mark (real .c-btn-icon.c-btn-sm width) + 8 gap */
+}
+
+/* AI mark — the real .c-btn Primary icon-only variant (c-btn-icon.c-btn-sm)
+   for fill/size/icon, radius overridden back to a true circle. Kept
+   non-interactive (pointer-events:none, aria-hidden, no handler) — a
+   Tier 2 Fill mark, not a control; the input's own aria-label already
+   names the component. Absolute, not a flex child, since the surface
+   is a grid — a flow child would become a grid item, and the mark
+   needs to arrive on opacity+transform, not a width that runs layout
+   every frame of the morph. */
+.c-prompt-bar-mark{
+  position:absolute; left:var(--spacing-16); top:50%;
+  border-radius:var(--radius-pill);
+  opacity:0; pointer-events:none;
+  transform:translateY(-50%) scale(.5);
+  transition:opacity var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease), transform var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.c-prompt-bar.is-collapsed .c-prompt-bar-mark{opacity:1; transform:translateY(-50%) scale(1);}
+
+/* Field */
+.c-prompt-bar-field{position:relative; display:flex; align-items:center; min-width:0;}
+.c-prompt-bar-field input{
+  width:100%; border:none; outline:none; background:transparent;
+  font-family:var(--font-primary); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight);
+  color:var(--color-neutral-9);
+  position:relative; z-index:1;
+}
+.c-prompt-bar-field input::placeholder{color:transparent;} /* the real hint is the ghost line, not the native placeholder */
+
+/* Running ghost line — a span, not ::placeholder, since it needs to be
+   masked/transformed/measured once the box becomes a pill. Left-aligned
+   to match where real typed text lands, not centered. */
+.c-prompt-bar-ghost{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:flex-start;
+  overflow:hidden; white-space:nowrap; pointer-events:none;
+  font-family:var(--font-primary); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight);
+  color:var(--color-neutral-5);
+  transition:opacity var(--duration-fast) var(--ease-standard);
+}
+.c-prompt-bar-field.is-typing .c-prompt-bar-ghost{opacity:0;}
+.c-prompt-bar.is-collapsed .c-prompt-bar-ghost{
+  mask-image:linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+}
+.c-prompt-bar-ghost-text{display:inline-block;}
+.c-prompt-bar-ghost-text.is-caret-pulsing::after{
+  content:''; display:inline-block; width:1px; height:1em; margin-left:2px; vertical-align:middle;
+  background:var(--color-neutral-5);
+  animation:c-prompt-bar-caret-blink 500ms steps(1) infinite;
+}
+@keyframes c-prompt-bar-caret-blink{50%{opacity:0;}}
+.c-prompt-bar.is-collapsed .c-prompt-bar-ghost-text{
+  animation:c-prompt-bar-marquee var(--prompt-bar-marquee-dur) ease-in-out infinite;
+}
+@keyframes c-prompt-bar-marquee{
+  0%,18%{transform:translateX(0);}
+  50%,68%{transform:translateX(var(--prompt-bar-marquee-dx));}
+  100%{transform:translateX(0);}
+}
+.c-prompt-bar-ghost-static{display:none; font-family:var(--font-primary); font-size:var(--text-body1-size); color:var(--color-neutral-5);}
+
+/* Second row / toolbar — buttons inside are the real .c-btn Ghost/Primary
+   icon-only variants (c-btn-icon.c-btn-sm), not bespoke button classes. */
+.c-prompt-bar-more{
+  overflow:hidden; min-height:0;
+  display:flex; flex-direction:column;
+  padding-top:var(--spacing-12);
+  transition:padding-top var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease), opacity var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.c-prompt-bar.is-collapsed .c-prompt-bar-more{padding-top:0; opacity:0;}
+.c-prompt-bar-toolbar{display:flex; align-items:center; justify-content:space-between;}
+.c-prompt-bar-group{display:flex; align-items:center; gap:var(--spacing-8);}
+
+/* Reduced motion */
+@media (prefers-reduced-motion:reduce){
+  .c-prompt-bar-glow-outer, .c-prompt-bar-glow-inner{animation:none;}
+  .c-prompt-bar-ghost-text{animation:none !important;}
+  .c-prompt-bar.is-morphable{transition:none;}
+  .c-prompt-bar-mark{transition:opacity var(--duration-fast) var(--ease-standard);}
+  .c-prompt-bar-ghost{display:none;}
+  .c-prompt-bar-ghost-static{display:block;}
+}
+
+/* Mobile — keeps the shrink, drops the parking, never becomes a pill */
+@media (max-width:640px){
+  .c-prompt-bar{
+    left:var(--spacing-16); right:var(--spacing-16); width:auto;
+    bottom:calc(var(--spacing-24) + env(safe-area-inset-bottom));
+  }
+  .c-prompt-bar, .c-prompt-bar.is-revealed{transform:none;}
+  .c-prompt-bar.is-collapsed{width:auto;}
+  .c-prompt-bar.is-collapsed .c-prompt-bar-surface{border-radius:var(--radius-lg);}
+  .c-prompt-bar.is-collapsed .c-prompt-bar-glow-outer{border-radius:calc(var(--radius-lg) + 4px);}
+  .c-prompt-bar.is-collapsed .c-prompt-bar-glow-inner{border-radius:calc(var(--radius-lg) + 1px);}
+}

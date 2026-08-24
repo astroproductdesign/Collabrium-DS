@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Prompt input bar — Floating bar — draft preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<style>
+  /* ============================================================
+     DRAFT ONLY — review sandbox for Prompt input bar (Floating
+     bar variant). Nothing here is copied into components.css,
+     DESIGN-SYSTEM.md, or preview.html yet.
+     ============================================================ */
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary);}
+  .shell{max-width:1080px; margin:0 auto; padding:var(--spacing-48) var(--spacing-32) var(--spacing-60);}
+
+  .draft-banner{background:var(--color-neutral-9); color:var(--color-neutral-1); border-radius:var(--radius-md); padding:var(--spacing-16); margin-bottom:var(--spacing-24); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+  .draft-banner b{color:var(--color-amber);}
+  .draft-banner ul{margin:var(--spacing-8) 0 0; padding-left:20px;}
+  .draft-banner li{margin-bottom:4px;}
+  .draft-banner code{background:rgba(255,255,255,.12); padding:1px 6px; border-radius:4px; font-size:12px;}
+
+  h1{font-size:var(--text-h2-size); line-height:var(--text-h2-lh); font-weight:var(--text-h2-weight); margin:0 0 var(--spacing-8);}
+  .lede{font-size:var(--text-body2-size); color:var(--color-neutral-5); max-width:720px; margin:0 0 var(--spacing-24);}
+
+  .controls{display:flex; flex-wrap:wrap; gap:var(--spacing-8); margin-bottom:var(--spacing-16);}
+  .controls button{font-family:inherit;}
+  .controls .hint{width:100%; font-size:var(--text-caption-size); color:var(--color-neutral-5); margin-top:2px;}
+
+  /* =========================================================
+     Demo scaffold — a bounded "content region" the bar pins to
+     the bottom of, with a scrollable inner canvas, a toy dock,
+     and a toy side panel to exercise --prompt-bar-shift/-push.
+     None of this is part of the component itself.
+     ========================================================= */
+  .demo-region{position:relative; height:520px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow:hidden; background:var(--color-neutral-1); box-shadow:var(--shadow-1);}
+  .demo-scroll{position:absolute; inset:0; overflow-y:auto;}
+  .demo-scroll-inner{padding:var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-16);}
+  .demo-block{background:var(--color-neutral-2); border-radius:var(--radius-md); height:120px; display:flex; align-items:center; justify-content:center; color:var(--color-neutral-5); font-size:var(--text-caption-size);}
+  .demo-scroll-spacer{height:140px;}
+
+  .demo-dock{position:absolute; right:var(--spacing-16); bottom:var(--spacing-16); width:44px; height:44px; border-radius:var(--radius-pill); background:var(--color-neutral-9); color:var(--color-neutral-1); display:flex; align-items:center; justify-content:center; z-index:15; opacity:0; pointer-events:none; transition:opacity var(--duration-base) var(--ease-standard);}
+  .demo-dock.is-active{opacity:1;}
+
+  .demo-side-panel{position:absolute; top:0; right:0; bottom:0; width:260px; background:var(--color-neutral-1); border-left:1px solid var(--color-neutral-3); box-shadow:var(--shadow-3); z-index:30; transform:translateX(100%); transition:transform var(--duration-base) var(--ease-settle); padding:var(--spacing-16); font-size:var(--text-body2-size); color:var(--color-neutral-5);}
+  .demo-side-panel.is-open{transform:translateX(0);}
+
+  .demo-overlay-scrim{position:fixed; inset:0; background:var(--shadow-overlay); z-index:80; opacity:0; pointer-events:none; transition:opacity var(--duration-base) var(--ease-standard);}
+  .demo-overlay-scrim.is-open{opacity:1; pointer-events:auto;}
+  .demo-overlay-panel{position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:min(480px, calc(100% - var(--spacing-32))); background:var(--color-neutral-1); border-radius:var(--radius-lg); box-shadow:var(--shadow-4); padding:var(--spacing-24); text-align:center;}
+  .demo-overlay-scrim:not(.is-open) .demo-overlay-panel{display:none;}
+  .demo-overlay-panel i{font-size:32px; color:var(--color-neutral-9);}
+  .demo-overlay-panel h3{margin:var(--spacing-12) 0 0; font-size:var(--text-h4-size);}
+  .demo-overlay-panel p{margin:var(--spacing-8) 0 var(--spacing-16); color:var(--color-neutral-5); font-size:var(--text-body2-size);}
+
+  /* =========================================================
+     .c-prompt-bar — component under review
+     ========================================================= */
+  .c-prompt-bar{
+    --prompt-bar-morph-dur:420ms;
+    --prompt-bar-morph-ease:cubic-bezier(.22,1,.36,1);
+    --prompt-bar-w:236px;
+    --prompt-bar-shift:0px;
+    --prompt-bar-push:0px;
+    --prompt-bar-marquee-dx:0px;
+    --prompt-bar-marquee-dur:8s;
+    position:absolute;
+    bottom:var(--spacing-24);
+    left:50%;
+    width:min(620px, calc(100% - var(--spacing-32)));
+    z-index:20;
+    opacity:0;
+    transform:translate(calc(-50% + var(--prompt-bar-shift) + var(--prompt-bar-push)), 16px);
+    transition:opacity 550ms cubic-bezier(.16,1,.3,1), transform 550ms cubic-bezier(.16,1,.3,1);
+    transition-delay:1150ms;
+  }
+  .c-prompt-bar.is-revealed{
+    opacity:1;
+    transform:translate(calc(-50% + var(--prompt-bar-shift) + var(--prompt-bar-push)), 0);
+  }
+  .c-prompt-bar.is-collapsed{width:var(--prompt-bar-w);}
+  /* Declared AFTER .is-collapsed so it wins on source order once added post-entrance. */
+  .c-prompt-bar.is-morphable{
+    transition:
+      transform var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+      width var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+      bottom var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+  }
+  .c-prompt-bar.is-launched{opacity:0; pointer-events:none;}
+
+  /* Glow layers */
+  .c-prompt-bar-glow-outer,
+  .c-prompt-bar-glow-inner{
+    position:absolute; pointer-events:none;
+    background-image:linear-gradient(90deg,#FFB49D 0%,#FFC3CD 20%,#8CE4BE 40%,#95C0F4 60%,#FFD69D 80%,#FFB49D 100%);
+    background-size:200% 100%;
+    animation:c-prompt-bar-glow-move 4s linear infinite;
+    mix-blend-mode:screen;
+    mix-blend-mode:plus-lighter;
+    transition:border-radius var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+  }
+  .c-prompt-bar-glow-outer{inset:-4px; filter:blur(16px); opacity:.7; border-radius:calc(var(--radius-lg) + 4px);}
+  .c-prompt-bar-glow-inner{inset:-1px; filter:blur(1px); opacity:1; border-radius:calc(var(--radius-lg) + 1px);}
+  .c-prompt-bar.is-collapsed .c-prompt-bar-glow-outer,
+  .c-prompt-bar.is-collapsed .c-prompt-bar-glow-inner{border-radius:var(--radius-pill);}
+  @keyframes c-prompt-bar-glow-move{ from{background-position:0% 0;} to{background-position:200% 0;} }
+
+  /* Surface */
+  .c-prompt-bar-surface{
+    display:grid; grid-template-rows:auto 1fr;
+    position:relative; z-index:10;
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-4);
+    background:var(--color-neutral-1);
+    padding:var(--spacing-16);
+    transition:
+      grid-template-rows var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+      border-radius var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+      padding var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+  }
+  .c-prompt-bar.is-collapsed .c-prompt-bar-surface{
+    grid-template-rows:auto 0fr;
+    border-radius:var(--radius-pill);
+    padding-left:56px; /* 16 gutter + 32 mark (real .c-btn-icon.c-btn-sm width) + 8 gap */
+  }
+
+  /* AI mark */
+  /* Visual recipe is the real .c-btn Primary icon-only variant
+     (c-btn-icon.c-btn-sm) — sizing/fill/icon reused verbatim, but
+     radius reverted to a true circle (radius-pill) per the original
+     spec, overriding .c-btn-sm's own radius-sm. Kept non-interactive
+     (pointer-events:none, aria-hidden, no click handler) since the
+     spec calls this a Tier 2 Fill mark, not a control — the input's
+     own aria-label already names the component. */
+  .c-prompt-bar-mark{
+    position:absolute; left:var(--spacing-16); top:50%;
+    border-radius:var(--radius-pill);
+    opacity:0; pointer-events:none;
+    transform:translateY(-50%) scale(.5);
+    transition:opacity var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease), transform var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+  }
+  .c-prompt-bar.is-collapsed .c-prompt-bar-mark{opacity:1; transform:translateY(-50%) scale(1);}
+
+  /* Field */
+  .c-prompt-bar-field{position:relative; display:flex; align-items:center; min-width:0;}
+  .c-prompt-bar-field input{
+    width:100%; border:none; outline:none; background:transparent;
+    font-family:var(--font-primary); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight);
+    color:var(--color-neutral-9);
+    position:relative; z-index:1;
+  }
+  .c-prompt-bar-field input::placeholder{color:transparent;} /* the real hint is the ghost line, not the native placeholder */
+
+  /* Running ghost line */
+  .c-prompt-bar-ghost{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:flex-start;
+    overflow:hidden; white-space:nowrap; pointer-events:none;
+    font-family:var(--font-primary); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight);
+    color:var(--color-neutral-5);
+    transition:opacity var(--duration-fast) var(--ease-standard);
+  }
+  .c-prompt-bar-field.is-typing .c-prompt-bar-ghost{opacity:0;}
+  .c-prompt-bar.is-collapsed .c-prompt-bar-ghost{
+    mask-image:linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+  }
+  .c-prompt-bar-ghost-text{display:inline-block;}
+  .c-prompt-bar-ghost-text.is-caret-pulsing::after{
+    content:''; display:inline-block; width:1px; height:1em; margin-left:2px; vertical-align:middle;
+    background:var(--color-neutral-5);
+    animation:c-prompt-bar-caret-blink 500ms steps(1) infinite;
+  }
+  @keyframes c-prompt-bar-caret-blink{50%{opacity:0;}}
+  .c-prompt-bar.is-collapsed .c-prompt-bar-ghost-text{
+    animation:c-prompt-bar-marquee var(--prompt-bar-marquee-dur) ease-in-out infinite;
+  }
+  @keyframes c-prompt-bar-marquee{
+    0%,18%{transform:translateX(0);}
+    50%,68%{transform:translateX(var(--prompt-bar-marquee-dx));}
+    100%{transform:translateX(0);}
+  }
+  .c-prompt-bar-ghost-static{display:none; font-family:var(--font-primary); font-size:var(--text-body1-size); color:var(--color-neutral-5);}
+
+  /* Second row / toolbar */
+  .c-prompt-bar-more{
+    overflow:hidden; min-height:0;
+    display:flex; flex-direction:column;
+    padding-top:var(--spacing-12);
+    transition:padding-top var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease), opacity var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+  }
+  .c-prompt-bar.is-collapsed .c-prompt-bar-more{padding-top:0; opacity:0;}
+  .c-prompt-bar-toolbar{display:flex; align-items:center; justify-content:space-between;}
+  .c-prompt-bar-group{display:flex; align-items:center; gap:var(--spacing-8);}
+  /* Toolbar buttons are the real .c-btn Ghost/Primary icon-only variants
+     (c-btn-icon.c-btn-sm) verbatim — no bespoke .c-prompt-bar-btn/-send
+     classes. That means radius-sm (12px) squares, not the originally-
+     specced 36×36/radius-pill custom size — a deliberate normalization,
+     not an oversight. See the draft-banner note above. */
+
+  /* Reduced motion — real media query */
+  @media (prefers-reduced-motion:reduce){
+    .c-prompt-bar-glow-outer, .c-prompt-bar-glow-inner{animation:none;}
+    .c-prompt-bar-ghost-text{animation:none !important;}
+    .c-prompt-bar.is-morphable{transition:none;}
+    .c-prompt-bar-mark{transition:opacity var(--duration-fast) var(--ease-standard);}
+    .c-prompt-bar-ghost{display:none;}
+    .c-prompt-bar-ghost-static{display:block;}
+  }
+  /* Demo-only convenience toggle mirroring the media query above, so this
+     draft is reviewable without changing OS/browser settings. Not part of
+     the component — the real rule is the @media block above. */
+  html.demo-reduced-motion .c-prompt-bar-glow-outer,
+  html.demo-reduced-motion .c-prompt-bar-glow-inner{animation:none;}
+  html.demo-reduced-motion .c-prompt-bar-ghost-text{animation:none !important;}
+  html.demo-reduced-motion .c-prompt-bar.is-morphable{transition:none;}
+  html.demo-reduced-motion .c-prompt-bar-mark{transition:opacity var(--duration-fast) var(--ease-standard);}
+  html.demo-reduced-motion .c-prompt-bar-ghost{display:none;}
+  html.demo-reduced-motion .c-prompt-bar-ghost-static{display:block;}
+
+  /* Mobile — keeps the shrink, drops the parking, never becomes a pill */
+  @media (max-width:640px){
+    .c-prompt-bar{
+      left:var(--spacing-16); right:var(--spacing-16); width:auto;
+      bottom:calc(var(--spacing-24) + env(safe-area-inset-bottom));
+    }
+    .c-prompt-bar, .c-prompt-bar.is-revealed{transform:none;}
+    .c-prompt-bar.is-collapsed{width:auto;}
+    .c-prompt-bar.is-collapsed .c-prompt-bar-surface{border-radius:var(--radius-lg);}
+    .c-prompt-bar.is-collapsed .c-prompt-bar-glow-outer{border-radius:calc(var(--radius-lg) + 4px);}
+    .c-prompt-bar.is-collapsed .c-prompt-bar-glow-inner{border-radius:calc(var(--radius-lg) + 1px);}
+  }
+
+  /* =========================================================
+     Static side-by-side poses — the component on its own, no
+     scroll/dock/side-panel/overlay demo scaffold. Each stage gives
+     the bar a normal (position:relative) flow instead of the real
+     component's position:absolute, purely so it can sit inline
+     here; that override is inline-style, local to this demo.
+     ========================================================= */
+  .section-title{font-size:var(--text-label1-size); font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow); color:var(--color-neutral-5); margin:var(--spacing-32) 0 var(--spacing-16);}
+  .pose-row{display:flex; gap:var(--spacing-24); flex-wrap:wrap; margin-bottom:var(--spacing-8);}
+  .pose-example{flex:1 1 260px; display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .pose-label{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
+  .pose-stage{position:relative; background:var(--color-canvas-warm-card); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-32); display:flex; align-items:center; justify-content:center;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="draft-banner">
+    <b>Draft preview — not yet in components.css / DESIGN-SYSTEM.md / preview.html.</b>
+    Review here first; nothing lands in the real files until you say go.
+    <ul>
+      <li>No existing <code>floating-ask</code>/<code>ask-icon-btn</code>/<code>ask-send</code>/<code>c-canvas-askbox</code> markup was found anywhere in this repo — this is a fresh build, not a rename.</li>
+      <li>Two remaining deliberate spec departures, intentional not oversights: the 550ms/420ms custom timings + their two custom eases (not in the Motion token table), and body1 input text (Input field's own box is body2).</li>
+      <li><b style="color:var(--color-green);">Resolved:</b> all four toolbar buttons now use the real <code>.c-btn</code> Ghost/Primary icon-only variants (<code>c-btn-icon.c-btn-sm</code>) verbatim, replacing the bespoke 36×36 custom buttons. <b>Visible side effect worth double-checking:</b> the Send button is now a <code>radius-sm</code> (12px) rounded square, not the originally-specced <code>radius-pill</code> circle — the real icon-only variant doesn't have a pill option. Also, since icon-only buttons in this system inherit the button's own font-size for their glyph (14px at sm) rather than a separately-applied <code>icon-sm</code> token, these icons render slightly smaller (14px) than the original custom 20px.</li>
+      <li><b style="color:var(--color-green);">Confirmed:</b> glow gradient mixes all 5 brand elements with white at 55% — Fire→Wood→Earth→Water→Gold→back-to-Fire (6 stops so the loop tiles without a seam).</li>
+    </ul>
+  </div>
+
+  <h1>Prompt input bar — Floating bar</h1>
+
+  <div class="section-title">Expanded vs. collapsed, on their own</div>
+  <div class="pose-row">
+    <div class="pose-example">
+      <span class="pose-label">Expanded (default, revealed)</span>
+      <div class="pose-stage">
+        <div class="c-prompt-bar is-revealed is-morphable" style="position:relative; left:auto; bottom:auto; transform:none; margin:0;">
+          <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+          <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+          <div class="c-prompt-bar-surface">
+            <div class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-mark" aria-hidden="true"><i class="ph-fill ph-sparkle"></i></div>
+            <div class="c-prompt-bar-field">
+              <input type="text" aria-label="Ask anything" />
+              <div class="c-prompt-bar-ghost" aria-hidden="true">
+                <span class="c-prompt-bar-ghost-text" id="poseExpandedGhostText"></span>
+              </div>
+              <span class="c-prompt-bar-ghost-static">Ask me anything</span>
+            </div>
+            <div class="c-prompt-bar-more">
+              <div class="c-prompt-bar-toolbar">
+                <div class="c-prompt-bar-group">
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                </div>
+                <div class="c-prompt-bar-group">
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
+                  <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pose-example">
+      <span class="pose-label">Collapsed</span>
+      <div class="pose-stage">
+        <div class="c-prompt-bar is-revealed is-morphable is-collapsed" id="poseCollapsedBar" style="position:relative; left:auto; bottom:auto; transform:none; margin:0;">
+          <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+          <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+          <div class="c-prompt-bar-surface">
+            <div class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-mark" aria-hidden="true"><i class="ph-fill ph-sparkle"></i></div>
+            <div class="c-prompt-bar-field">
+              <input type="text" aria-label="Ask anything" />
+              <div class="c-prompt-bar-ghost" aria-hidden="true">
+                <span class="c-prompt-bar-ghost-text" id="poseCollapsedGhostText">I am your Collabrium assistant, let me help you</span>
+              </div>
+              <span class="c-prompt-bar-ghost-static">Ask me anything</span>
+            </div>
+            <div class="c-prompt-bar-more">
+              <div class="c-prompt-bar-toolbar">
+                <div class="c-prompt-bar-group">
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                </div>
+                <div class="c-prompt-bar-group">
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
+                  <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Interactive demo (scroll / dock / side-panel / launch)</div>
+  <p class="lede">Pinned to the bottom of the content region below (not the viewport) — scroll the region to see the asymmetric collapse/expand thresholds, click the bar or press Enter in it to "launch," and use the toggles to exercise the dock-park (<code>--prompt-bar-shift</code>) and side-panel-push (<code>--prompt-bar-push</code>) mechanics. Resize the browser under 640px for the mobile behavior.</p>
+
+  <div class="controls">
+    <button type="button" class="c-btn c-btn-secondary c-btn-sm" id="toggleDockBtn">Toggle dock</button>
+    <button type="button" class="c-btn c-btn-secondary c-btn-sm" id="toggleSidePanelBtn">Toggle side panel</button>
+    <button type="button" class="c-btn c-btn-secondary c-btn-sm" id="forceCollapseBtn">Force collapse/expand</button>
+    <button type="button" class="c-btn c-btn-secondary c-btn-sm" id="toggleReducedMotionBtn">Toggle reduced motion</button>
+    <span class="hint">"Toggle reduced motion" is a demo-only convenience — the real rule is the <code>@media (prefers-reduced-motion: reduce)</code> block in the CSS, which already fires on its own if your OS has it set.</span>
+  </div>
+
+  <div class="demo-region" id="demoRegion">
+    <div class="demo-scroll" id="demoScrollRegion">
+      <div class="demo-scroll-inner">
+        <div class="demo-block">Canvas content block 1 — scroll past scrollTop 240 to collapse</div>
+        <div class="demo-block">Canvas content block 2</div>
+        <div class="demo-block">Canvas content block 3</div>
+        <div class="demo-block">Canvas content block 4</div>
+        <div class="demo-block">Canvas content block 5</div>
+        <div class="demo-block">Canvas content block 6 — scroll back to the top (≤8) to expand again</div>
+        <div class="demo-scroll-spacer"></div>
+      </div>
+    </div>
+
+    <div class="demo-dock" id="demoDock" aria-hidden="true"><i class="ph ph-sidebar-simple"></i></div>
+
+    <div class="c-prompt-bar" id="promptBar">
+      <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+      <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+      <div class="c-prompt-bar-surface">
+        <div class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-mark" aria-hidden="true"><i class="ph-fill ph-sparkle"></i></div>
+        <div class="c-prompt-bar-field" id="promptField">
+          <input type="text" aria-label="Ask anything" id="promptInput" />
+          <div class="c-prompt-bar-ghost" aria-hidden="true">
+            <span class="c-prompt-bar-ghost-text" id="ghostText"></span>
+          </div>
+          <span class="c-prompt-bar-ghost-static">Ask me anything</span>
+        </div>
+        <div class="c-prompt-bar-more">
+          <div class="c-prompt-bar-toolbar">
+            <div class="c-prompt-bar-group">
+              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+            </div>
+            <div class="c-prompt-bar-group">
+              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
+              <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-side-panel" id="demoSidePanel">
+      <b style="color:var(--color-neutral-9);">Demo side panel</b>
+      <p>Stands in for a real side panel opening over the same corner. The bar should slide left by exactly the overlap, capped at the left gutter.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="demo-overlay-scrim" id="chatOverlay">
+  <div class="demo-overlay-panel">
+    <i class="ph-fill ph-chat-circle-dots"></i>
+    <h3>Chat overlay (stand-in)</h3>
+    <p>In the real product this becomes the full chat surface. Closing hands focus back to the bar per spec.</p>
+    <button type="button" class="c-btn c-btn-primary c-btn-md" id="closeOverlayBtn">Close</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var bar = document.getElementById('promptBar');
+  var field = document.getElementById('promptField');
+  var input = document.getElementById('promptInput');
+  var ghostText = document.getElementById('ghostText');
+  var scrollRegion = document.getElementById('demoScrollRegion');
+  var dock = document.getElementById('demoDock');
+  var sidePanel = document.getElementById('demoSidePanel');
+  var overlay = document.getElementById('chatOverlay');
+
+  function reducedMotion(){
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('demo-reduced-motion');
+  }
+
+  var state = { collapsed:false, launched:false };
+  var choreographyDone = false;
+  var choreographyTimer = null;
+  var guardTimer = null;
+  var FIRST_TEXT = "Everything else lives right here.";
+  var FINAL_TEXT = "I am your Collabrium assistant, let me help you";
+
+  // ---- Reveal ----
+  function reveal(){
+    bar.classList.add('is-revealed');
+    var enterMs = reducedMotion() ? 0 : 550;
+    var delayMs = reducedMotion() ? 0 : 1150;
+    setTimeout(function(){
+      bar.classList.add('is-morphable'); // declared after .is-collapsed in CSS, wins on source order
+      startTypingChoreography();
+    }, delayMs + enterMs);
+  }
+  window.addEventListener('load', function(){ setTimeout(reveal, 50); });
+
+  // ---- Scroll collapse — asymmetric thresholds ----
+  var ticking = false;
+  function onScroll(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      var st = scrollRegion.scrollTop;
+      if (!state.collapsed && st > 240) setCollapsed(true);
+      else if (state.collapsed && st <= 8) setCollapsed(false);
+      ticking = false;
+    });
+  }
+  scrollRegion.addEventListener('scroll', onScroll, {passive:true});
+
+  function setCollapsed(val){
+    state.collapsed = val;
+    bar.classList.toggle('is-collapsed', val);
+    if (val && !choreographyDone) {
+      // fast-forward — a half-typed fragment must never shuttle through the pill
+      clearTimeout(choreographyTimer); clearTimeout(guardTimer);
+      ghostText.classList.remove('is-caret-pulsing');
+      ghostText.textContent = FINAL_TEXT;
+      choreographyDone = true;
+    }
+    syncGeometry();
+    if (val) startMarquee(); else stopMarquee();
+  }
+
+  // ---- Launch ----
+  function launch(){
+    if (state.launched) return;
+    state.launched = true;
+    bar.classList.add('is-launched');
+    overlay.classList.add('is-open');
+  }
+  bar.addEventListener('click', function(){ launch(); });
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') { e.preventDefault(); launch(); }
+  });
+  // Not wired to focusin, deliberately — the overlay hands focus back to the
+  // bar on close, and a focus-to-open rule would immediately reopen it.
+  document.getElementById('closeOverlayBtn').addEventListener('click', function(){
+    overlay.classList.remove('is-open');
+    state.launched = false;
+    bar.classList.remove('is-launched');
+    input.focus();
+  });
+
+  input.addEventListener('input', function(){
+    field.classList.toggle('is-typing', input.value.length > 0);
+  });
+
+  // ---- Geometry sync — measured, not hardcoded ----
+  function syncGeometry(){
+    if (dock.classList.contains('is-active')) {
+      var dockRect = dock.getBoundingClientRect();
+      var regionRect = scrollRegion.parentElement.getBoundingClientRect();
+      var barWidth = state.collapsed
+        ? parseFloat(getComputedStyle(bar).getPropertyValue('--prompt-bar-w'))
+        : bar.offsetWidth;
+      var dockLeftWithinRegion = dockRect.left - regionRect.left;
+      var centerX = regionRect.width / 2;
+      var desiredCenter = dockLeftWithinRegion - 12 - barWidth / 2;
+      bar.style.setProperty('--prompt-bar-shift', (desiredCenter - centerX) + 'px');
+    } else {
+      bar.style.setProperty('--prompt-bar-shift', '0px');
+    }
+  }
+  function syncPush(){
+    if (sidePanel.classList.contains('is-open')) {
+      var panelRect = sidePanel.getBoundingClientRect();
+      var barRect = bar.getBoundingClientRect();
+      var overlapPx = Math.max(0, barRect.right - panelRect.left);
+      var gutter = 16;
+      var maxShift = Math.max(0, barRect.left - gutter);
+      bar.style.setProperty('--prompt-bar-push', (-Math.min(overlapPx, maxShift)) + 'px');
+    } else {
+      bar.style.setProperty('--prompt-bar-push', '0px');
+    }
+  }
+  window.addEventListener('resize', function(){ syncGeometry(); syncPush(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncGeometry);
+
+  document.getElementById('toggleDockBtn').addEventListener('click', function(){
+    dock.classList.toggle('is-active');
+    syncGeometry();
+  });
+  document.getElementById('toggleSidePanelBtn').addEventListener('click', function(){
+    sidePanel.classList.toggle('is-open');
+    syncPush();
+  });
+  document.getElementById('forceCollapseBtn').addEventListener('click', function(){
+    setCollapsed(!state.collapsed);
+  });
+  document.getElementById('toggleReducedMotionBtn').addEventListener('click', function(){
+    document.documentElement.classList.toggle('demo-reduced-motion');
+  });
+
+  // ---- Marquee — collapsed running line ----
+  function computeMarqueeWindow(){
+    if (window.innerWidth <= 640) return field.clientWidth - 64;
+    return 236 - 64; // constant on desktop — width is mid-transition and unmeasurable
+  }
+  function startMarquee(){
+    var win = computeMarqueeWindow();
+    var textWidth = ghostText.scrollWidth;
+    var dx = Math.min(0, win - textWidth); // negative or 0 — never shifts right
+    var travelPx = Math.abs(dx);
+    var travelMs = (travelPx / 60) * 1000; // ~60px/s
+    var totalMs = travelPx === 0 ? 0 : travelMs / 0.64; // travel is 64% of the cycle (2 x 32%)
+    bar.style.setProperty('--prompt-bar-marquee-dx', dx + 'px');
+    bar.style.setProperty('--prompt-bar-marquee-dur', (totalMs || 1) + 'ms');
+  }
+  function stopMarquee(){
+    bar.style.setProperty('--prompt-bar-marquee-dx', '0px');
+  }
+
+  // ---- Placeholder choreography — one-shot ----
+  function isPausedForFocus(){ return document.activeElement === input; }
+
+  function typeString(str, done){
+    var i = 0;
+    (function tick(){
+      if (isPausedForFocus()) { choreographyTimer = setTimeout(tick, 150); return; }
+      i++;
+      ghostText.textContent = str.slice(0, i);
+      if (i < str.length) choreographyTimer = setTimeout(tick, 35);
+      else done();
+    })();
+  }
+  function deleteString(str, done){
+    var i = str.length;
+    (function tick(){
+      if (isPausedForFocus()) { choreographyTimer = setTimeout(tick, 150); return; }
+      i--;
+      ghostText.textContent = str.slice(0, Math.max(0, i));
+      if (i > 0) choreographyTimer = setTimeout(tick, 20);
+      else done();
+    })();
+  }
+  function waitStep(delayMs, fn){
+    var start = Date.now();
+    (function tick(){
+      if (isPausedForFocus()) { choreographyTimer = setTimeout(tick, 150); return; }
+      var elapsed = Date.now() - start;
+      if (elapsed >= delayMs) fn(); else choreographyTimer = setTimeout(tick, delayMs - elapsed);
+    })();
+  }
+
+  function startTypingChoreography(){
+    if (reducedMotion()) {
+      ghostText.textContent = FINAL_TEXT;
+      choreographyDone = true;
+      return;
+    }
+    guardTimer = setTimeout(function(){
+      if (!choreographyDone) {
+        ghostText.classList.remove('is-caret-pulsing');
+        ghostText.textContent = FINAL_TEXT;
+        choreographyDone = true;
+      }
+    }, 15000);
+
+    ghostText.classList.add('is-caret-pulsing');
+    typeString(FIRST_TEXT, function(){
+      waitStep(5000, function(){
+        ghostText.classList.remove('is-caret-pulsing');
+        deleteString(FIRST_TEXT, function(){
+          typeString(FINAL_TEXT, function(){
+            choreographyDone = true;
+            clearTimeout(guardTimer);
+            if (state.collapsed) startMarquee();
+          });
+        });
+      });
+    });
+  }
+})();
+</script>
+<script>
+(function(){
+  // Static "collapsed" pose above — same marquee math as the real
+  // component, run once on load so the running line actually travels
+  // instead of sitting at the CSS default's no-op 0px/8s.
+  var bar = document.getElementById('poseCollapsedBar');
+  var ghostText = document.getElementById('poseCollapsedGhostText');
+  function run(){
+    var win = 236 - 64; // desktop constant, per spec
+    var textWidth = ghostText.scrollWidth;
+    var dx = Math.min(0, win - textWidth);
+    var travelPx = Math.abs(dx);
+    var travelMs = (travelPx / 60) * 1000;
+    var totalMs = travelPx === 0 ? 0 : travelMs / 0.64;
+    bar.style.setProperty('--prompt-bar-marquee-dx', dx + 'px');
+    bar.style.setProperty('--prompt-bar-marquee-dur', (totalMs || 1) + 'ms');
+  }
+  window.addEventListener('load', function(){ setTimeout(run, 50); });
+})();
+</script>
+<script>
+(function(){
+  // Static "expanded" pose above — one-shot typewriter reveal of the
+  // resting sentence, same char-by-char/caret approach as the real
+  // choreography's final step, just without the type-pause-delete
+  // lead-in (this stage shows the resting state, not the whole sequence).
+  var ghostText = document.getElementById('poseExpandedGhostText');
+  var FINAL_TEXT = "I am your Collabrium assistant, let me help you";
+  function typeOut(str, done){
+    var i = 0;
+    ghostText.classList.add('is-caret-pulsing');
+    (function tick(){
+      i++;
+      ghostText.textContent = str.slice(0, i);
+      if (i < str.length) setTimeout(tick, 35);
+      else { ghostText.classList.remove('is-caret-pulsing'); if (done) done(); }
+    })();
+  }
+  window.addEventListener('load', function(){ setTimeout(function(){ typeOut(FINAL_TEXT); }, 300); });
+})();
+</script>
+</body>
+</html>
