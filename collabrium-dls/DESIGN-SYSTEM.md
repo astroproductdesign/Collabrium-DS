@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.59** — 2026-08-24 — Sourced from the Collabrium brand deck
+**v0.9.60** — 2026-08-24 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3062,8 +3062,28 @@ Icon color follows Toast's pattern — full-strength tone color, since a Tier 2 
 | Success | `check-circle` | Green | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
 | Danger | `x-circle` | Red | Red at 10% | Red `#FD3343` | Red at 30% |
 | Warning | `warning` | Amber | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
+| AI Recommendation | `sparkle` | Neutral-9 | animated pastel gradient wash, 12% opacity — see below | Neutral-9 | animated pastel gradient ring — see below |
 
-All five icons are **Tier 2, Fill**.
+All six icons are **Tier 2, Fill**.
+
+**AI Recommendation — background & border animation.**
+
+Reuses [Prompt input bar](#ai-native)'s own glow mechanism
+verbatim — the same 6-stop gradient (`--color-fire-pastel` →
+`--color-wood-pastel` → `--color-earth-pastel` → `--color-water-pastel`
+→ `--color-gold-pastel` → back to fire), the same
+`c-prompt-bar-glow-move` keyframe, and the same 4s `linear infinite`
+loop — not a second copy of the animation with its own timing that
+could drift out of sync with Prompt input bar's over a future edit.
+
+| Layer | Spec |
+|---|---|
+| Fill (`.c-banner-ai::before`) | absolute, `inset: 0`, the shared gradient at `background-size: 200% 100%`, `opacity: .12` — a wash, not a saturated fill, since it sits directly behind body copy that must stay AA-legible against every hue in the loop, not just one |
+| Border (`.c-banner-ai::after`) | absolute, `inset: 0`, `padding: 1px`, the same gradient at full opacity, clipped to a 1px ring via the standard `mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude` technique — replaces this tone's solid 1px border with an animated one |
+| Radius | both layers inherit the Container's own `radius-md` — matches Container, not Prompt input bar's `radius-lg`/`radius-pill`; this is a flat banner, not a card with a glow sitting behind a separate shape |
+| Icon | `ph-fill ph-sparkle` — the same glyph as [Prompt input bar](#ai-native)'s AI mark, fixed Neutral-9 (not animated) — a bare Tier 2 Fill icon like every other tone, not the mark's circular Primary-fill badge |
+| Text | Message and Action text fixed to Neutral-9, the same choice as the Neutral tone — the gradient cycles through 5 hues, so text can't be tied to any single one of them without going illegible for 4 of every 5 loops |
+| Reduced motion | `animation: none` on both layers, same rule Prompt input bar uses for its own glow — the gradient stays in place, only the motion stops; there's no single "resting" hue to fall back to any more than Prompt input bar has one |
 
 **Tone usage — when to use each:**
 
@@ -3074,6 +3094,37 @@ All five icons are **Tier 2, Fill**.
 | Success | confirming a condition completed positively — a sync finished, a state is healthy |
 | Warning | a caution or approaching limit the user should notice but that isn't blocking yet |
 | Danger | a failing or blocking condition — typically paired with the Persistent variant, since a failure state doesn't resolve just because the user closed the banner |
+| AI Recommendation | a proactive, system-generated suggestion the user didn't ask for — see its own trigger rules below before reaching for this tone |
+
+**AI Recommendation — trigger rules.**
+
+What distinguishes this tone from Info (the general default) is that
+it's a *proactive, system-generated suggestion the user did not ask
+for* — not a fact, not a status, and not a response to something the
+user just did (that's Toast's job).
+
+- **Real signal required** — must be backed by an actual usage
+  pattern, content analysis, or detected inefficiency. Never use the
+  AI treatment to dress up a generic, always-true tip; if there's no
+  signal behind it, it's an Info banner.
+- **Always carries an action** — exactly one primary action in the
+  Action slot (e.g. "Apply", "Try this", "Review"). A recommendation
+  with nothing to do about it is just an Info banner with extra
+  motion.
+- **Always Dismissible, never Persistent** — a suggestion is never a
+  blocking system state. Forcing an un-dismissible AI suggestion to
+  stay on screen reads as manipulative, not helpful.
+- **One per section, not two** — Info Banner's general cap is 2
+  banners per section; AI Recommendation overrides that down to 1
+  visible at a time, even if an Info/Warning/etc. banner is also
+  present. Two independently animated banners compete for attention in
+  a way two static ones don't.
+- **No repeat re-trigger** — once dismissed, the same recommendation
+  must not reappear in the same session. A materially different
+  recommendation (a new signal) may trigger again.
+- **Not for errors or state** — a failing sync, an approaching limit, a
+  completed action keep their own Danger/Warning/Success tone. AI
+  Recommendation is for a suggestion, not a report.
 
 **Placement:**
 
@@ -3082,7 +3133,7 @@ All five icons are **Tier 2, Fill**.
 | Position | always at the top of its parent section or card, above all other content |
 | Width | full width of the parent container |
 | Multiple banners | stack with spacing-8 gap |
-| Maximum | 2 banners per section |
+| Maximum | 2 banners per section — capped at 1 if either is AI Recommendation (see its own trigger rules) |
 
 **Content length:**
 
@@ -3118,10 +3169,14 @@ Focus does not move to the banner on appear. Escape dismisses the
 active dismissible banner. Respects `prefers-reduced-motion`.
 
 **Do:** use Persistent when the banner describes a system state outside
-the user's control; use Info as the default tone when in doubt.
+the user's control; use Info as the default tone when in doubt; use AI
+Recommendation only when there's a real signal behind the suggestion,
+and always pair it with exactly one action.
 **Don't:** put a destructive action in the action slot; use Banner for
 transient feedback (that's Toast's job); place a Banner outside a
-section or card.
+section or card; make an AI Recommendation banner Persistent — it must
+always be dismissible; show more than one AI Recommendation banner in
+the same section at once.
 
 ### Input field
 
@@ -5082,6 +5137,32 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.60 — 2026-08-24** — Added an **AI Recommendation** tone to
+  [Info Banner](#info-banner), and demoed it in `preview.html`/
+  `components.css`. Reuses [Prompt input bar](#ai-native)'s own
+  glow mechanism verbatim rather than a second copy of the animation:
+  same 6-stop pastel gradient, same `c-prompt-bar-glow-move` keyframe,
+  same 4s linear infinite loop. Icon is `ph-fill ph-sparkle` — the same
+  glyph as Prompt input bar's AI mark — fixed Neutral-9, a bare Tier 2
+  Fill icon like every other tone, not the mark's circular Primary-fill
+  badge. Fill is the gradient at 12% opacity behind the body copy;
+  border is the same gradient at full opacity clipped to a 1px ring via
+  the standard `mask-composite: exclude` technique, replacing this
+  tone's solid 1px border. Message/Action text fixed to Neutral-9,
+  since the gradient cycles 5 hues and can't be tied to any one of
+  them. New **trigger rules** subsection: requires a real signal behind
+  the suggestion (never a dressed-up generic tip), always carries
+  exactly one action, always Dismissible/never Persistent, capped at 1
+  visible per section (stricter than Info Banner's usual 2), no repeat
+  re-trigger once dismissed, never used for error/status conditions
+  (those keep their own Danger/Warning/Success tone). Do/Don't extended
+  accordingly, nothing removed. `components.css`: added `.c-banner-ai`
+  and its `::before`/`::after` pseudo-element layers (wash + ring),
+  reduced-motion override turning both animations off. `preview.html`:
+  added a sixth example to the Info Banner gallery — Dismissible, one
+  action ("Apply suggestion"), sparkle icon — alongside the five
+  existing tone examples.
 
 - **v0.9.59 — 2026-08-24** — **[Chat window](#ai-native)**'s left rail
   no longer just vanishes below the shell's 820px single-column
