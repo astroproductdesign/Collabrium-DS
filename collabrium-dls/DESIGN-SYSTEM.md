@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.57** — 2026-08-24 — Sourced from the Collabrium brand deck
+**v0.9.59** — 2026-08-24 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -179,7 +179,7 @@ A separate, stronger tint scale from the `-bg`/`-bg-strong` pair above —
 55% white mix rather than 8%/16% — for decorative, ambient effects (a
 gradient glow, an ambient wash) that need real, visible color, never for
 surface fills or backgrounds; that job stays with `-bg`/`-bg-strong`.
-First used by [Prompt input bar](#prompt-input-bar)'s glow.
+First used by [Prompt input bar](#ai-native)'s glow.
 
 | Element | `-pastel` (55% white mix) |
 |---|---|
@@ -429,7 +429,7 @@ overshoot, no elastic easing.
 | duration-base | 220ms | Default UI transitions |
 | duration-slow | 360ms | Panel / section reveals |
 | duration-ambient | 900ms | Background / ambient motion |
-| duration-morph | 420ms | Pose-to-pose shape transitions — e.g. [Prompt input bar](#prompt-input-bar)'s expanded/collapsed morph |
+| duration-morph | 420ms | Pose-to-pose shape transitions — e.g. [Prompt input bar](#ai-native)'s expanded/collapsed morph |
 | duration-reveal | 550ms | Entrance reveals that need to read as more deliberate than `duration-slow` — e.g. Prompt input bar's own entrance |
 
 Each element owns an easing curve, used when the motion is thematically
@@ -773,6 +773,21 @@ to markup for a new component — write the spec here first (variants,
 sizes, states, Do/Don't), the same process every component above went
 through.
 
+**One exception to the flat alphabetical list, and it's deliberate:
+[AI Native](#ai-native)'s two subcomponents.** Everything else below is
+one flat A→Z list with no grouping, and [AI Native](#ai-native) itself
+is a real, counted component like any other — it sits first because
+that's already its correct alphabetical position (AI sorts ahead of
+App). The actual exception is its children: **Chat window**
+and **Prompt input bar** are pulled out of their own
+alphabetical slots (Chat window would otherwise fall between Chart
+color mapping and Checkbox; Prompt input bar between Progress Bar and
+Radio) and grouped under their parent instead, staying alphabetical
+among themselves. Don't add a second parent/child grouping on this
+precedent without a deliberate spec change — one exception documented
+is a rule; two or three undocumented ones is just an inconsistent list.
+
+- [AI Native](#ai-native)
 - [App Shell](#app-shell)
 - [Back button](#back-button-level-2-navigation)
 - [Badge & Tag](#badge--tag)
@@ -795,7 +810,6 @@ through.
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Progress Bar](#progress-bar)
-- [Prompt input bar](#prompt-input-bar)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -809,6 +823,342 @@ through.
 - [Textarea](#textarea)
 - [Toast](#toast)
 - [Tooltip](#tooltip)
+
+### AI Native
+
+One component with two subcomponents, listed alphabetically below —
+**Chat window** and **Prompt input bar** — the same "one component,
+several named variants documented in one place" convention
+[Card](#card) already uses for General/Functional/Profile/Hero Card,
+rather than a separate nav entry and comp-block per variant. What
+unifies the two: an AI Native component *is* the AI interaction, not a
+generic control pressed into service for one. Chat window is literally
+the expanded form of Prompt input bar — clicking the bar's Floating
+variant morphs it into the window via a shared FLIP animation (see
+Chat window's own Behavior section, below).
+
+**Chat window.** ⚠️ **Designed from scratch** — no source in either the
+original brand deck or the teammate's build. First reviewed and committed 2026-08-24;
+see the Changelog for the review history.
+
+A modal chat surface — conversation history rail on the left, active
+thread on the right. It is the expanded form of **Prompt input bar**,
+below: clicking the Floating bar variant morphs it into this window.
+Class prefix: `.c-chat*` — kept flat rather than
+`.c-chat-window-*`, since there is only one chat surface in the system
+and the longer prefix would buy nothing over twenty sub-parts.
+
+**Chat window — Anatomy (root & shell).**
+
+| Part | Spec |
+|---|---|
+| Root (`.c-chat`) | `position: fixed; inset: 0`, `z-index: 95` — above the nav (50) and the [Card](#card) modal (90), below only the load wipe panel (100). `perspective: 1600px` so the fold reads at screen scale. `display: none` at rest, `block` when `.is-open` |
+| Veil (`.c-chat-veil`) | `position: absolute; inset: 0`, `rgba(20,20,20,.42)`, opacity transition at 480ms `ease-standard`. Click closes the window |
+| Shell (`.c-chat-shell`) | `position: absolute; inset: 0; margin: auto` against a fixed width/height — **not** `translate(-50%,-50%)`; the fold animation owns this element's transform outright, and a centring transform would be overwritten by its first frame. `width: min(1200px, calc(100vw - spacing-48))`, `height: min(820px, calc(100vh - spacing-48))`. `display: grid; grid-template-columns: 288px minmax(0, 1fr)`. Neutral-1 fill, `radius-lg` (20px), `overflow: hidden`, `shadow-4`. `transform-origin: 0 0` — the FLIP math depends on it. `role="dialog" aria-modal="true" aria-labelledby` pointing at the thread title |
+
+**Chat window — Anatomy (left rail, `.c-chat-rail`).**
+
+| Part | Spec |
+|---|---|
+| New chat (`.c-chat-new`) | The real [Button](#button) Secondary variant, full width |
+| Pillar filter (`.c-chat-pillars`) | A real `role="radiogroup"` with roving tabindex; arrow keys **move and select**, Home/End to the ends. Label (`.c-chat-flabel`): label3/800, `tracking-eyebrow`, uppercase, Neutral-5, `width: 100%` so it takes its own line. Pills reuse the real [Chip](#chip) Filter Chip (`.c-chip.c-chip-filter`, `.is-active`/`.is-disabled`) — not a bespoke pill class. A pillar with no conversations is shown and unusable (`.is-disabled`, `aria-disabled="true"`), not removed: the point of chips over folders is that the full pillar set stays visible |
+| Conversation list (`.c-chat-conversations`) | `flex: 1 1 auto; min-height: 0; overflow-y: auto`, `overscroll-behavior: contain`, 2px gap. Group header (`.c-chat-conversations-head`): caption/700, `tracking-eyebrow`, uppercase, Neutral-5 ("Today", "Earlier this week") — a group with nothing left under it hides too. Row (`.c-chat-conversation`): flex column, 1px gap, full width, `spacing-8`/`spacing-12` padding, `radius-sm`, transparent fill, body2, Neutral-5, left-aligned |
+| Conversation title (`.c-chat-conversation-title`) | Single line, `nowrap`, `overflow: hidden`, `text-overflow: ellipsis` |
+| Conversation pillar line (`.c-chat-conversation-pillar`) | label3/700, Neutral-4, truncating. **Text, not a coloured spine** — under "All" it's the only thing saying where a conversation came from, and colour alone carrying meaning is ruled out. Hidden once a pillar is selected, where the chip already says it. **Not uppercased**, unlike every other eyebrow in the system: pillar names are camelCase products ("CollabSales"), and the eyebrow recipe would render them COLLABSALES, losing the seam the capital S provides — the name wins over the convention |
+| Empty state (`.c-chat-empty`) | Caption, Neutral-5, "No conversations in this pillar yet." Shown only when every row is filtered out |
+| Filter mechanism | A class (`.is-off-pillar { display: none }`), not the `[hidden]` attribute — these elements already declare `display`, and the UA sheet's `[hidden]{display:none}` carries zero specificity, so it would lose |
+| Scrim (`.c-chat-rail-scrim`) | `display: none` at rest, same as the rail toggle above — only exists below the 820px breakpoint. There, `position: absolute; inset: 0; z-index: 20`, `rgba(20,20,20,.42)`, opacity transition on `duration-base`/`ease-standard`, `pointer-events: none` until `.is-open`. Sits between the rail (`z-index: 30`) and the main panel — see the Single column row below for why `.c-chat-main` needs its own explicit `z-index` for this ordering to actually hold |
+
+**Chat window — Anatomy (right panel, `.c-chat-main`).**
+
+| Part | Spec |
+|---|---|
+| Header (`.c-chat-hd`) | Flex row, `align-items: flex-start`, `justify-content: space-between`, `spacing-16` gap, `spacing-20`/`spacing-24` padding, 1px Neutral-3 border-bottom. Title (`h2`): h5 token (16px/800), letter-spacing 0, Neutral-9. Description (`p`): caption, Neutral-5, `spacing-4` above (e.g. "Collabrium assistant · reading this workspace"). **No close button** — the veil and Escape both close this, and a third route is chrome the surface doesn't need; `space-between` stays as the rule a right-aligned control would rejoin, which is exactly what it does below 820px, when the rail toggle appears on this same row |
+| Rail toggle (`.c-chat-rail-toggle`) | The real [Button](#button) Ghost icon-only variant (`c-btn-icon.c-btn-sm`), `ph ph-sidebar-simple` — **Tier 1, Regular** ("expand/collapse" is one of [Iconography](#iconography)'s own Tier 1 examples). `display: none` at rest; only exists at all below the 820px single-column breakpoint, where it sits at the header's right edge. Opens the rail as an overlay drawer — see States and Behavior below. `aria-expanded` and `aria-label` ("Open conversations" / "Close conversations") toggle with state; `aria-controls` points at the rail |
+| Thread wrap (`.c-chat-thread-wrap`) | New wrapper around the thread — `position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column`. Exists only so **Jump to present**, below, has a containing block whose bottom edge is the top of the composer, without measuring the composer's own height. Adds nothing visual; `.c-chat-thread` keeps every property it would have had without this wrapper |
+| Thread (`.c-chat-thread`) | `flex: 1 1 auto; min-height: 0; overflow-y: auto`, `overscroll-behavior: contain`, `spacing-24` padding, flex column, `spacing-24` gap. Inner (`.c-chat-thread-inner`): `max-width: 760px`, `margin: 0 auto`, flex column, `spacing-24` gap — the reading measure, centred |
+| Message (`.c-chat-msg`) | Flex row, `spacing-12` gap. `.is-me` → `justify-content: flex-end`. `.is-ai` → `flex-direction: column` instead, so its bubble and action row stack vertically in the same container rather than needing a second wrapper |
+| User bubble | `.c-chat-msg.is-me .c-chat-bubble`: `max-width: 78%`, `spacing-12`/`spacing-16` padding, Neutral-2 fill, `radius-md` (16px), Neutral-9 text |
+| AI bubble | `.c-chat-msg.is-ai .c-chat-bubble`: **plain text on the page — no fill, no border, no radius.** body1 (16px), `line-height: 1.65`, Neutral-9. This asymmetry is deliberate and is the one rule not to undo: the reader's own turns are the tinted, right-aligned ones; the assistant's run as page copy. It keeps a long answer from being boxed in, and it's why there's no AI avatar mark anywhere in this thread — the alignment and the fill already say who is speaking. Internal typography: `p` with `spacing-12` bottom margin (none on the last), `ul` with `spacing-20` left padding, `li` with `spacing-4` bottom margin, `b` at weight 700 |
+| Citation | Reuses [Badge](#badge--tag), Neutral variant, verbatim — `<span class="c-badge c-badge-neutral c-chat-cite">`. `.c-chat-cite` adds **only** `margin-top: spacing-4`; nothing else, since Badge Neutral already gives the full box (22px height, `spacing-8` padding, caption/700, `radius-pill`, Neutral-2 fill, Neutral-5 text, 1px Neutral-3 border, `white-space: nowrap`). **Badge, not [Tag](#badge--tag)** — Tag carries a 6px element dot meaning "which department owns this"; a citation is neither a status nor an ownership marker. Leading icon at `icon-micro` (14px), inheriting the badge's text colour, **Tier 2, Fill** (a citation communicates context, it doesn't trigger an action — if a citation ever becomes clickable it flips to Tier 1, Regular and needs a real `<button>`) |
+| Composer (`.c-chat-composer`) | One [Prompt input bar](#ai-native), **Inline** variant — see that component's own section for the Floating-vs-Inline diff. Container: `spacing-16`/`spacing-24`/`spacing-24` padding, `--color-canvas-warm` fill, 1px Neutral-3 top border. **Warm, not white, for a measured reason:** the Prompt input bar's glow layers use `mix-blend-mode: plus-lighter` on the Floating variant, which is a no-op against white — on a white tray the strongest cue tying this composer back to the bar the reader clicked would render invisible; on canvas it blooms. (The Inline variant itself uses `mix-blend-mode: normal` for exactly this reason — see Prompt input bar.) Inner wrap: `max-width: 760px`, `margin: 0 auto`, matching the thread's own measure so the input lines up under the messages |
+| Footer (`.c-chat-foot`) | `max-width: 760px`, `margin: spacing-8 auto 0`, caption, Neutral-5, centred. Copy: "AI can make mistakes. Please double-check responses." ⚠️ This sits against the house content rule "skip *please* — UI isn't asking a favor," which would give "AI can make mistakes. Double-check responses." Shipped as specified; flagged rather than silently resolved either way |
+
+**Chat window — Message actions (`.c-chat-actions`).**
+
+The hover row under every assistant turn — `ActionBar` in industry
+terms (assistant-ui, Vercel AI Elements). **Always in flow, never
+revealed by height.** The row occupies its space at `opacity: 0` and
+only fades in; animating its height would reflow the thread on every
+hover and jump the scroll position, the same reason nothing else in
+this component animates a layout property.
+
+| Part | Spec |
+|---|---|
+| Container | Flex row, `align-items: center`, `gap: 2px`, `height: 28px`, `margin-top: spacing-4`, always in flow |
+| Reveal | `opacity 0 → 1` on `.c-chat-msg:hover`, `:focus-within`, or `.is-open` (a held-open More options menu keeps it visible) — `duration-fast`/`ease-standard`. Buttons left-aligned, flush with the message's own text edge; the timestamp trails immediately after the last button (`margin-left: spacing-8`, not `auto` — it sits next to More options, not pinned to the row's far edge) |
+| Coarse pointer | `@media (hover: none), (pointer: coarse)` → `opacity: 1` permanently. A hover-only affordance is unreachable on the tablets this is read on |
+| Buttons (`.c-chat-action`) | 28×28px, `radius-sm`, transparent fill, no border, Neutral-5 icon at `icon-sm` (16px). Hover: Neutral-2 fill, Neutral-9 icon. `:focus-visible`: 2px Obsidian outline, 2px offset. A transparent `::after` at `inset: -8px` lifts the hit area to 44px without changing the painted box. Every button is icon-only, so every one needs an `aria-label` |
+
+| Order | Action | Icon | Tier | Notes |
+|---|---|---|---|---|
+| 1 | Copy | `ph ph-copy` | Tier 1, Regular | On click, swaps to `ph-fill ph-check` in Green for 1600ms then reverts — **Tier 2, Fill** for that moment only, since a "Copied" confirmation is a status mark, not the button's own action mark. Also announces "Copied to clipboard" via a visually-hidden `role="status" aria-live="polite"` node. Tries `navigator.clipboard.writeText` first; if refused (some embedded views refuse it outright), falls back to a focused, selected off-screen textarea the reader can copy from manually, rather than failing silently |
+| 2 | Read aloud | `ph ph-speaker-high` → `ph ph-spinner-gap` (loading) → `ph ph-stop` (playing) | Tier 1, Regular throughout | Three states: Idle, Loading (spinning, `duration-ambient` linear infinite — the same continuous-process treatment as Search input's own Loading spinner), Playing (`aria-pressed="true"`, `aria-label="Stop reading"`). Only one message reads aloud at a time — starting a second stops the first |
+| 3 | Good response | `ph ph-thumbs-up` / `ph-fill ph-thumbs-up` | Tier 1, Regular | Mutually exclusive with Bad response via `aria-pressed`; selecting one clears the other |
+| 4 | Bad response | `ph ph-thumbs-down` / `ph-fill ph-thumbs-down` | Tier 1, Regular | Same pair. Clicking an already-pressed thumb clears it back to neutral rather than being a no-op. The fill-vs-outline swap on selection is a *state* change, the same logic Checkbox/Radio/Stepper already use — not a tier change |
+| 5 | More options | `ph ph-dots-three` | Tier 1, Regular | Opens a menu — see below |
+
+**More options menu.** A fresh row/popover recipe, not a reuse of
+something that doesn't exist: there is no `.c-account-menu-item` in
+this system (App Shell's own Don't list explicitly defers an account
+menu as a not-yet-built requirement). Built from the real popover
+shell already used by [Filters](#filters)/Search input's dropdown
+(`shadow-3`, `radius-md`, 1px Neutral-3 border, Neutral-1 fill,
+`spacing-4` padding), with a new `.c-chat-menu-item` row (36px height,
+`spacing-12` gap, `radius-sm`, Neutral-2 hover, `icon-sm` Neutral-5
+leading icon). `position: fixed`, positioned in JS from the trigger's
+own `getBoundingClientRect()` — the thread is a scroll container, and
+a clipped ancestor clips a `position: absolute` descendant too.
+`aria-haspopup="menu"`/`aria-expanded` on the trigger, `role="menu"` on
+the panel; click-outside and Escape close it. The trigger's action row
+gets `.is-open` while the menu is up, holding it visible — otherwise
+moving the pointer to the menu fades away the button that opened it.
+⚠️ **Contents unconfirmed** — Retry (`ph ph-arrow-clockwise`), Share
+(`ph ph-share-network`), Report (`ph ph-flag`) shipped as proposed, not
+settled. Deliberately no Edit — editing belongs to the reader's own
+turn, not the assistant's.
+
+**Timestamp (`.c-chat-time`).** `<time datetime="…">`, caption,
+Neutral-5, `font-variant-numeric: tabular-nums` (a column of times that
+jitters as digits change reads as broken), full absolute timestamp on
+the `title` attribute. Sits immediately after the More options button,
+not pinned to the row's far edge.
+
+**While streaming:** `.c-chat-msg.is-streaming .c-chat-actions {
+display: none }` — not `opacity: 0`. Mid-stream the buttons must not be
+tabbable, and a Copy that fires on half a response is a bug, not a
+feature; the row appears once the turn completes. **User turns get no
+action row in this build** — Copy and Edit on the reader's own message
+are the obvious pair, and both are deliberately out of scope.
+
+**Chat window — Jump to present (`.c-chat-jump`).**
+
+The underlying thing is a **scroll pin, not a button.** The thread
+auto-follows new content only while the reader is already at the
+bottom; scrolling up releases that pin. Without the release, a
+streaming response drags the reader back down mid-sentence every time
+a token lands — the single most irritating thing a chat surface can
+do. This control's job is to **re-establish the pin**: it scrolls to
+the bottom and re-attaches, in that order. That's also why the label
+is "Jump to present" rather than "Scroll to bottom" — *bottom* is
+spatial, *present* is temporal, and the reader is thinking temporally.
+
+| Part | Spec |
+|---|---|
+| Box | 32×32px, `radius-pill`, Neutral-1 fill, 1px Neutral-3 border, `shadow-2`. `ph ph-arrow-down` at `icon-sm`, Neutral-9 — **Tier 1, Regular** ("arrow down" is in Iconography's own Tier 1 list; a movement, not a disclosure) |
+| Placement | `position: absolute` inside `.c-chat-thread-wrap`, `bottom: spacing-16`, `left: 50%` + `translateX(-50%)` — an overlay, not a child of the scroller, so it holds still while content moves under it |
+| Hover / focus | Hover: Neutral-2 fill, `shadow-3`. Focus-visible: 2px Obsidian outline, 2px offset. Transparent `::after` at `inset: -6px` → 44px hit area |
+| New-content dot | `.has-new::before` — 8px Obsidian circle, top-right, 2px Neutral-1 ring. Reuses [SidebarNav](#sidebarnav)'s own collapsed trailing-count convention (an 8px dot badge overlaid top-right); SidebarNav tints its dot with the owning element's accent, but there's no owning element here, so it takes Obsidian. Label becomes `aria-label="Jump to present, new messages below"` |
+| Entrance / exit | `opacity` + `transform: translateY(8px)` at `duration-base`/`ease-settle`. `visibility: hidden` at rest with `transition: visibility 0s linear duration-base`, flipping to `0s` when visible — so it leaves the tab order and the accessibility tree while away, which `opacity` alone would not do |
+
+| State | Class | Button |
+|---|---|---|
+| Pinned — at the bottom, following | — | Absent |
+| Detached — scrolled up | `.is-visible` | Visible |
+| Detached, content arrived since | `.is-visible.has-new` | Visible with dot |
+
+**Behavior — the pin.** One boolean, `pinned`, true on open. Distance
+from bottom is `scrollHeight - scrollTop - clientHeight`.
+**Asymmetric thresholds:** detach and show past 150px, re-pin and hide
+only within 30px — the same reasoning as Prompt input bar's 240/8
+scroll-collapse thresholds; a single value flip-flops either side of
+the boundary. **Detach only on an upward scroll** — the implementation
+trap worth stating: a programmatic scroll-to-bottom fires a `scroll`
+event too, and a handler that reads any scroll as user intent will
+immediately re-detach itself. Track `lastScrollTop` and only detach
+when `scrollTop < lastScrollTop`; a programmatic scroll to the bottom
+is always downward, so it can never trip this. **While pinned, new
+content scrolls instantly** (`scrollTop = scrollHeight`, not smooth) —
+smooth scrolling can't keep up with arriving tokens and lands the
+reader permanently a few lines behind. **While detached, arriving
+content sets `.has-new`**, cleared on re-pin, and **announces once, not
+per token** — a visually-hidden `aria-live="polite"` node says "New
+response below" the first time content arrives during a detach period
+and stays silent until the next one. **Clicking the button** scrolls
+to the bottom (`smooth`, or `auto` under reduced motion), re-pins,
+clears `.has-new`, and returns focus to the composer input.
+
+**Four edge cases that separate a working implementation from one that
+fights the reader:** (1) **Sending a message always force-scrolls and
+re-pins**, wherever the reader was — they just spoke, they want the
+answer. (2) **Prepending older history must not move the viewport or
+trigger the button** — measure `scrollHeight` before the insert and
+after, then add the difference to `scrollTop`, so the reader stays on
+the message they were reading (`overflow-anchor` alone isn't enough
+here). (3) **A window resize must not re-pin** — resizing changes
+`scrollHeight`, and a naive distance check would read that as "reached
+the bottom," yanking a detached reader away from what they were
+reading; recompute on resize, but only ever use it to keep an
+*already-pinned* reader glued to the bottom through the resize, never
+to flip `pinned` to true. (4) **Opening the window starts pinned at the
+bottom with no button** — `scrollTop = scrollHeight` set synchronously
+on open, before the fold animation plays (scroll position is
+unaffected by a transformed ancestor, so this is safe at that point).
+**Not a replacement for `End`** — a focused scroll container already
+answers `End`/`Home` natively; the button is a pointer affordance, not
+a substitute for the keyboard route.
+
+**Chat window — States.**
+
+| State | Class | What changes |
+|---|---|---|
+| Closed | (base) | `display: none`, `aria-hidden="true"` |
+| Opening | `.is-open` + `.is-folding-open` | Display flips, fold animation runs |
+| Shown | `.is-open .is-shown` | Veil at full opacity; rail and main fade in as their own layer once the fold settles |
+| Closing | `.is-folding-closed` | Fold reverses, veil clears |
+| Conversation — hover | `:hover` | Neutral-2 fill, Neutral-9 text |
+| Conversation — active | `.is-active` | Neutral-2 fill, Neutral-9 text, weight 700 |
+| Pillar — selected | `aria-checked="true"` | Obsidian fill, Neutral-1 text |
+| Pillar — empty | `aria-disabled="true"` | `opacity: .4`, `cursor: default`, no hover response |
+| Filtered out | `.is-off-pillar` | `display: none` |
+| Single column | Shell width ≤820px | `.c-chat-main` spans both grid tracks (`grid-column: 1 / -1`) — measured via a CSS container query on the shell's own width, not the viewport, since the shell is itself capped at `min(1200px, 100vw-48px)` and can be narrower than the window. (A size container query can't restyle the container element itself, only its descendants — hence spanning `.c-chat-main` rather than trying to flip the shell's own `grid-template-columns`.) The rail no longer just disappears at this width — it becomes a slide-in drawer, reachable via the rail toggle in the header; see the two rows below. `.c-chat-main` also picks up its own `position: relative; z-index: 1` here, lower than the scrim's 20 — without an explicit stacking context of its own, a grid item with no `position`/`z-index` sits in an ambiguous stacking relationship with a later sibling's `z-index` regardless of how high that sibling's value goes, which let the composer (`.c-prompt-bar-surface`, `z-index: 10`) paint above the scrim until this was added |
+| Rail drawer — closed | (base, ≤820px) | Rail at `transform: translateX(-100%)`, off-canvas; scrim `opacity: 0; pointer-events: none` |
+| Rail drawer — open | `.c-chat-rail.is-open` + `.c-chat-rail-scrim.is-open` | Rail slides to `translateX(0)` — 288px, capped at 85% width, `shadow-4`, no border-right, Neutral-1 fill (needed now that it's an overlay with content behind it, unlike the desktop column where nothing ever sat behind it). Scrim fades to `opacity: 1`, `pointer-events: auto` |
+
+**Chat window — Behavior.**
+
+- **Open / close** — `showChat(trigger)` opens; the veil, Escape, and nothing else close it. Focus moves to the composer input on open, and returns to the trigger on close. **Focus trap on Tab** — a full takeover that let Tab reach the page behind would put focus on controls the reader can't see; wraps from last to first and back.
+- **Fold animation** — opens by morphing out of the Prompt input bar's on-screen rect, so the bar reads as *becoming* the chat window. `.8s cubic-bezier(.25,.9,.35,1)` open, `.55s cubic-bezier(.3,.6,.35,1)` close — its own shorter track, not the open reversed. Parameterised by `--fold-dx/-dy/-sx/-sy/-dir` set inline from live FLIP rects, computed top-left-to-top-left to match the shell's `transform-origin: 0 0`. Recomputed at **both** open and close — the page can scroll while the window is up, and the bar's rect moves with it. Measure the shell **untransformed**: clear any running fold class, force a reflow, then read rects — a mid-flight pose baked into the next fold compounds. `--fold-dir` flips the rotation sign so the panel always turns toward the viewer: `+1` when the bar sits left of the viewport centre, `-1` when right. No `transition` on `transform` — an animation and a transition on the same property fight, and the animation has to win. Once the open animation finishes, its own animation class is removed — a lingering `forwards`-filled transform (even an identity one) would otherwise silently make the shell a new containing block for any `position: fixed` descendant, including the More options menu, throwing off its alignment. The Floating bar fades out (`.is-launched`) while this is up, so it isn't sitting under the window it became. Back the `animationend` handler with a `setTimeout` — a backgrounded tab can miss the event outright and strand the window on screen.
+- **Pillar filter** — recency stays the reading order, and the pillar filters across it, rather than pillars becoming folders; "what was I just doing" is the common re-entry, and a folder structure answers the rarer question at its expense. Selecting a pillar hides non-matching conversations, hides any group header left with nothing under it, and hides the pillar line on the rows that remain. The empty-state line shows only when every row is filtered out.
+- **Reduced motion** — veil and content fades off; fold animations `animation: none`, JS branches straight to the finished state; glow gradients stop; the Jump to present button's entrance drops the `translateY` but keeps the opacity fade (it's `visibility: hidden` at rest, so removing the transition entirely would leave it permanently unreachable), and its click scrolls with `behavior: 'auto'` — a long thread smooth-scrolled across several viewports is exactly the vestibular trigger the preference exists to suppress. Rail-drawer and scrim transitions drop too.
+- **Rail toggle** — delegated, shell-relative event handling (`closest('.c-chat-shell')`), not id-scoped, so the same handlers work for any number of chat window instances on a page. Opening moves focus to the rail's first focusable element (new chat, or the first conversation); closing returns focus to the toggle. Closes on: clicking the scrim, clicking the toggle again, pressing Escape, or selecting a conversation — a pillar chip inside the rail deliberately does **not** close it, the same reasoning as message actions' own Do/Don't below (a filter is a refinement, not a destination).
+
+**Do:** treat Jump to present as a scroll pin with a button attached,
+not a button with a scroll handler — detach only on an upward scroll,
+so a programmatic scroll can never detach itself; scroll instantly
+while pinned, since smooth can't keep up with streaming; restore
+`scrollTop` by the height difference when prepending older history.
+Keep the AI bubble's asymmetry (plain text, no fill) — it's the one
+rule not to undo. Reuse Badge Neutral for citations verbatim, and the
+real Filter Chip for pillars, rather than inventing either. **Don't:**
+let a window resize re-pin a detached reader; announce arriving
+content more than once per detach period; put the Jump to present
+button inside the scroll container, where it would move with the
+content it exists to escape; use `opacity: 0` alone to hide it, since
+it would stay tabbable; add a close button to the header, when the
+veil and Escape already cover it; give the citation a Tag's dot, which
+signals ownership rather than context; close the rail drawer on a
+pillar-chip click, which is a filter, not a destination; give an
+absolutely-positioned drawer no fill and let it inherit transparency
+from a desktop layout that never needed one.
+
+**Prompt input bar.** ⚠️ **Designed from scratch** — no source in either the original brand
+deck or the teammate's build. First reviewed and committed 2026-08-24;
+see the Changelog for the review history.
+
+An AI composer input field, with two poses — an expanded card and a
+collapsed pill — that morphs between them on scroll. **Floating bar**
+is its first variant: pinned to the bottom of the content region,
+free-floating over the canvas, and its click target for **Chat
+window**'s own launch, above — see that section's own Behavior
+section for the shared FLIP animation. **Inline** is the second variant
+— see its own Anatomy table below — used as **Chat window**'s
+composer. Naming it as a variant (not just "the" Prompt input bar)
+leaves room for a Docked variant later without renaming anything. Class
+prefix: `.c-prompt-bar*`.
+
+**Prompt input bar — Anatomy (Floating bar variant).**
+
+| Part | Spec |
+|---|---|
+| Wrapper (`.c-prompt-bar`) | `position: absolute`, anchored to the bottom of the content region (not the viewport) — `bottom: spacing-24`, horizontally centered via `left: 50%` + `translateX(-50%)`. Width `min(620px, calc(100% - spacing-32))`. `z-index: 20` — above canvas content, below nav (50)/menus (60)/modal (90). Carries three independent translate terms on one `transform`: `--prompt-bar-shift` (parks the collapsed pill beside a dock), `--prompt-bar-push` (a side panel shoving it aside), and the reveal's own `translateY` — separate variables because different events own them and either can change without the other |
+| Glow layers (`.c-prompt-bar-glow-outer`/`-inner`) | Two absolutely-positioned siblings behind the surface, both `pointer-events: none` and `aria-hidden`. Outer: `inset: -4px`, `blur(16px)`, `opacity: .7`. Inner: `inset: -1px`, `blur(1px)`, `opacity: 1`. Both paint a horizontal gradient of the 5 [elemental pastel tints](#color-palette) (Fire→Wood→Earth→Water→Gold→back-to-Fire, 6 stops so the loop tiles without a seam) at `background-size: 200% 100%`, animated via `background-position` 0%→200% on a 4s `linear infinite` loop — never a rotating oversized layer, which bleeds into surrounding UI. `mix-blend-mode: screen` declared first as a fallback, then `plus-lighter` — an unsupported value is dropped by the parser, leaving the prior declaration in effect, which is the fallback mechanism, not two competing rules. Radius follows the surface: `radius-lg + 4px`/`+ 1px` expanded, `radius-pill` collapsed, transitioning on `duration-morph`/`ease-morph` — otherwise the glow keeps square corners around a rounded pill |
+| Surface (`.c-prompt-bar-surface`) | `display: grid; grid-template-rows: auto 1fr`. `radius-lg` (20px), `shadow-4`, Neutral-1 fill, spacing-16 padding. `position: relative; z-index: 10` so the glow only peeks out around the edge. Transitions `grid-template-rows`, `border-radius`, and `padding` on `duration-morph`/`ease-morph` |
+| AI mark (`.c-prompt-bar-mark`) | The real [Button](#button) Primary icon-only variant (`c-btn-icon.c-btn-sm`, 32×32px) for fill/size/icon, with `border-radius` overridden back to a true circle (`radius-pill`) — the real icon-only recipe is `radius-sm` by default, a deliberate override here. `ph-fill ph-sparkle` — **Tier 2, Fill** (an expressive mark, not a control). `position: absolute`, `left: spacing-16`, vertically centered, `pointer-events: none`, `aria-hidden` (the input's own `aria-label` already names the component). Absolute, not a flex child — the surface is a grid, so a flow child would become a grid item, and an absolute one can arrive on opacity + transform instead of a width that runs layout every frame of the morph. `opacity: 0` + `scale(.5)` expanded, `opacity: 1` + `scale(1)` collapsed; position is `left: spacing-16` in both poses — expanded it just sits invisible over the input's left edge, which costs nothing |
+| Field (`.c-prompt-bar-field`) | `position: relative`, flex row, `align-items: center`, `min-width: 0`. Holds the real `<input>`, the running ghost line, and the reduced-motion static label |
+| Input | `<input type="text" aria-label="Ask anything">` — full width, no border, no outline, transparent background, body1 type (a deliberate departure from [Input field](#input-field)'s own body2 — this isn't a form field, it's a composer surface), Neutral-9 text. `position: relative; z-index: 1` so it sits above the ghost line. Native `::placeholder` is set to transparent — the real hint is the ghost line below, not the browser's own placeholder rendering |
+| Running line (`.c-prompt-bar-ghost` > `.c-prompt-bar-ghost-text`) | A `<span>`, not `::placeholder` — a placeholder can't be masked, transformed, or measured, and all three are needed once the box becomes a pill. `position: absolute; inset: 0`, flex row, `align-items: center`, `justify-content: flex-start` (left-aligned, matching where real typed text lands — not centered), `overflow: hidden`, `white-space: nowrap`, `pointer-events: none`, body1, Neutral-5. Inner `-text` span is `inline-block` so its full width is measurable via `scrollWidth` even while the parent clips it. Hides (`opacity: 0`) when the field carries a value, via an `.is-typing` class on the field |
+| Reduced-motion label (`.c-prompt-bar-ghost-static`) | `display: none` by default. Under `prefers-reduced-motion: reduce`, the running line is hidden entirely and this shows instead — a short label ("Ask me anything") that fits the pill outright rather than a clipped sentence |
+| Second row (`.c-prompt-bar-more`) | `overflow: hidden`, `min-height: 0` (required — the `0fr` row can't collapse without it), flex column, `padding-top: spacing-12`. Transitions `padding-top` and `opacity` on `duration-morph`/`ease-morph` |
+| Toolbar (`.c-prompt-bar-toolbar`) | Flex row, `justify-content: space-between`. Left group (`.c-prompt-bar-group`): Add image (`ph ph-image`), Attach file (`ph ph-paperclip`), More options (`ph ph-dots-three`). Right group: Voice input (`ph ph-microphone`), Send (`ph ph-arrow-up`). All five icons are **Tier 1, Regular** — every one is a control. Every button is the real Button icon-only variant (`c-btn-icon.c-btn-sm`) verbatim — Ghost for Add image/Attach file/More options/Voice input, Primary for Send — not a bespoke button class. Every button needs an `aria-label`, since all are icon-only |
+
+**Prompt input bar — States.**
+
+| State | Class | What changes |
+|---|---|---|
+| Hidden | (base) | `opacity: 0`, `translateY(16px)` — pre-reveal |
+| Revealed | `.is-revealed` | Fades and rises in on `duration-reveal`/`ease-reveal`, `transition-delay: 1150ms` so it lands after the rest of the canvas sequence |
+| Expanded | (default, revealed) | Full card: two rows, `radius-lg`, toolbar visible, mark hidden |
+| Collapsed | `.is-collapsed` | Narrows to `--prompt-bar-w` (236px), parks at `--prompt-bar-shift`, `radius-pill` on the surface and both glow layers, second row folds to `0fr` with `padding-top: 0`/`opacity: 0`, mark fades in, surface left padding grows to 56px (16 gutter + 32 mark + 8 gap), running line starts its marquee |
+| Morphable | `.is-morphable` | Added after the entrance has played. Declares one transition for `transform`, `width`, and `bottom` on `duration-morph`/`ease-morph` so collapse and expand take the same 420ms — without it, expansion falls through to the entrance rule's slower `duration-reveal` and reads as lag. Must be declared **after** `.is-collapsed` in source order to win the cascade tie once added |
+| Typing | `.is-typing` on the field | Running line hides |
+| Pushed | `--prompt-bar-push` | A side panel opened over the same corner; the bar slides left by exactly the overlap, capped so it never leaves the gutter |
+| Launched | `.is-launched` | The chat overlay is open — the bar fades out, `pointer-events: none`, so it isn't sitting under the shell it became |
+| Mobile (≤640px) | `.is-collapsed` still applies | Keeps the shrink, drops the parking: full-width, insets 16px on all four sides, `bottom` carries `env(safe-area-inset-bottom)`, never becomes a pill (`radius-lg` stays, not `radius-pill`). `--prompt-bar-w` and `--prompt-bar-shift` are simply not consulted |
+
+**Prompt input bar — Behavior.**
+
+- **Scroll collapse** — asymmetric thresholds, deliberately: collapse once `scrollTop > 240`, expand only when `scrollTop <= 8`. A single threshold flip-flops either side of the boundary; the hold is the point. Listen on the scroll container (not `window`), `{ passive: true }`, throttled through `requestAnimationFrame`.
+- **Launch** — a click anywhere on the bar (card or pill) opens the chat overlay; `Enter` in the input does the same, `preventDefault()`. Not wired to `focusin` — the overlay hands focus back to this bar on close, and a focus-to-open rule would immediately reopen it.
+- **Geometry sync** — measure, don't hardcode: re-measure the pill's park position (`--prompt-bar-shift`) on state change, not on every scroll event (caching at init is wrong — icon fonts load late and move a dock's edge, parking the pill short of its seam). Also re-run on resize and on `document.fonts.ready`. Use `offsetWidth`/`offsetHeight` and computed style, never client rects — this element transitions `width`, so a client rect returns whichever frame the morph happens to be on.
+- **Marquee (collapsed running line)** — mask both ends (`linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%)`). Travel distance is `min(0, window − scrollWidth)` — negative or zero, so the line only ever shifts left to reveal overflow, never right; a line that already fits parks on a no-op. Duration derived from distance at ~60px/s, so speed is constant whatever sentence is showing; travel is 64% of the animation cycle (two 32% legs), the rest is holding at each extreme (`0%,18%` at start, `50%,68%` at the far end, `100%` back) — the holds are what make it readable. The window is a constant (236 − 64) on desktop because the width is mid-transition and unmeasurable; on mobile it's measured from `clientWidth − 64` because the collapsed bar keeps its full width there.
+- **Placeholder choreography** — one-shot, not a loop: (1) type "Everything else lives right here." with a trailing caret, (2) pulse the caret on it for 5s (500ms blink), (3) delete it, (4) type "I am your Collabrium assistant, let me help you", (5) stop indefinitely — the final message is the resting state. Every step pauses while the input is focused, so it never fights real typing. Starts only once the bar's own reveal has finished. If the bar collapses before the sequence completes, fast-forward straight to the final sentence — a half-typed fragment must never be what shuttles through the pill. A guard timer lands the final string regardless, so a stalled interval can't leave it half-typed.
+- **Reduced motion** (`prefers-reduced-motion: reduce`) — glow animations off; morph transitions off (the two poses still exist, only the travel between them goes — `.is-morphable` is named explicitly in the override since it declares its own transition at higher specificity and a media query alone wouldn't beat it); the mark arrives without the scale; the running line hides entirely in favor of the static short label; the placeholder choreography is skipped, with the final sentence set directly.
+
+**Prompt input bar — Anatomy (Inline variant, `.c-prompt-bar--inline`).**
+
+Used as [Chat window](#ai-native)'s composer — a fixed-position card
+in flow, never collapsing, with no scroll-driven morph at all. Diffs
+from the Floating bar variant only; everything not listed here is
+unchanged (same `.c-prompt-bar-surface`/`-field`/`-toolbar` markup, same
+real Button classes).
+
+| Property | Floating bar | Inline |
+|---|---|---|
+| Position | `absolute`, anchored to content region | `relative`, in flow (not literal `static` — the glow layers are absolutely positioned against this element and need a positioned ancestor to contain them) |
+| Width | `min(620px, 100% - spacing-32)` | 100% of its container |
+| Collapse on scroll | Yes, at 240/8 | **Never** — no `.is-collapsed`, no morph, no scroll listener |
+| AI mark | Appears when collapsed | **Never rendered** — omitted from the markup entirely |
+| Running ghost line | Typewriter + marquee | **Not used** — a plain `::placeholder` instead ("Reply to Collabrium…") |
+| Elevation | `shadow-4` | `shadow-2` |
+| Glow blend | `plus-lighter` | `normal` |
+| Glow outer | `inset -4px`, `blur(16px)`, `opacity .7` | `inset -7px`, `blur(13px)`, `opacity .4` |
+| Glow inner | `inset -1px`, `blur(1px)`, `opacity 1` | `inset -1.5px`, `blur(2px)`, `opacity .5` |
+| Radius | `radius-lg`, morphs to pill | `radius-lg`, fixed |
+| Toolbar | Folds away when collapsed | Always visible; two controls only (Add image, Attach file) plus a context label ("Reading: this workspace", caption/700/Neutral-5) and Send |
+| Toolbar button size | 32×32px (the real `c-btn-icon.c-btn-sm` recipe) | Same 32×32px — **not** a separate 36px-to-32px reduction; both variants share the identical real Button size |
+| Send | `radius-sm` square (Do: no bespoke override) | `radius-pill` override on top of the real Primary icon-only recipe — the same override technique as the AI mark's own circle |
+
+The glow figures aren't arbitrary. Over `canvas-warm` `#FCFAF5`,
+`plus-lighter` has only 3/5/10 levels of headroom left in R/G/B — on a
+composer-width ring that renders as nothing at all, which is why the
+Floating bar's own blend mode is a no-op there and needs `normal`
+instead once the surrounding tray is warm, not white. `normal`
+composites unconditionally, and the lowered opacities are what hold
+the Inline glow *below* the Floating bar's intensity rather than above
+it. `shadow-4` drops to `shadow-2` for the same competing-signal reason
+— a 48px grey bloom over the same ring is what the glow would be
+fighting.
+
+**Do:** keep the toolbar's icon-only buttons as real Button Ghost/Primary
+icon-only instances, not bespoke button classes — even though that
+means the Send button is a `radius-sm` square on Floating bar (Inline
+overrides it to a pill instead, deliberately), and the AI mark's own
+Primary-icon-only base needs its radius overridden back to a circle.
+Pair `duration-morph`/`ease-morph` on every property that moves during
+a pose change, and `duration-reveal`/`ease-reveal` only on the one-time
+entrance — mixing them reads as lag. Reserve
+`--prompt-bar-shift`/`--prompt-bar-push` for real measured geometry;
+never hardcode a park offset. **Don't** center the running ghost
+line — it must left-align to match where real typed text lands.
+Don't let the placeholder choreography loop; it's one-shot, ending on
+the resting sentence. Don't collapse the bar into a pill on mobile —
+keep the shrink (second row folds away), drop the parking and the
+pill shape. Don't give the Inline variant a scroll-collapse listener
+or an AI mark — those exist to solve the Floating bar's own
+over-the-canvas problem, which Inline, sitting in flow inside a
+composer tray, doesn't have.
+
 
 ### App Shell
 
@@ -3316,75 +3666,6 @@ put a label inside a Compact (4px) track or a stacked fill; use a
 department elemental color as a single-fill bar's default — department
 colors classify ownership, not progress.
 
-### Prompt input bar
-
-**AI Native.** ⚠️ **Designed from scratch** — no source in either the
-original brand deck or the teammate's build. First reviewed and
-committed 2026-08-24; see the Changelog for the review history. This is
-the first component in a new AI Native category — components whose
-whole purpose is an AI interaction surface, not a generic control
-restyled for one. Prompt input bar won't be the last one in it.
-
-An AI composer input field, with two poses — an expanded card and a
-collapsed pill — that morphs between them on scroll. **Floating bar**
-is its first variant: pinned to the bottom of the content region,
-free-floating over the canvas. Naming it as a variant (not just "the"
-Prompt input bar) leaves room for Inline and Docked variants later
-without renaming anything. Class prefix: `.c-prompt-bar*`.
-
-**Prompt input bar — Anatomy (Floating bar variant).**
-
-| Part | Spec |
-|---|---|
-| Wrapper (`.c-prompt-bar`) | `position: absolute`, anchored to the bottom of the content region (not the viewport) — `bottom: spacing-24`, horizontally centered via `left: 50%` + `translateX(-50%)`. Width `min(620px, calc(100% - spacing-32))`. `z-index: 20` — above canvas content, below nav (50)/menus (60)/modal (90). Carries three independent translate terms on one `transform`: `--prompt-bar-shift` (parks the collapsed pill beside a dock), `--prompt-bar-push` (a side panel shoving it aside), and the reveal's own `translateY` — separate variables because different events own them and either can change without the other |
-| Glow layers (`.c-prompt-bar-glow-outer`/`-inner`) | Two absolutely-positioned siblings behind the surface, both `pointer-events: none` and `aria-hidden`. Outer: `inset: -4px`, `blur(16px)`, `opacity: .7`. Inner: `inset: -1px`, `blur(1px)`, `opacity: 1`. Both paint a horizontal gradient of the 5 [elemental pastel tints](#color-palette) (Fire→Wood→Earth→Water→Gold→back-to-Fire, 6 stops so the loop tiles without a seam) at `background-size: 200% 100%`, animated via `background-position` 0%→200% on a 4s `linear infinite` loop — never a rotating oversized layer, which bleeds into surrounding UI. `mix-blend-mode: screen` declared first as a fallback, then `plus-lighter` — an unsupported value is dropped by the parser, leaving the prior declaration in effect, which is the fallback mechanism, not two competing rules. Radius follows the surface: `radius-lg + 4px`/`+ 1px` expanded, `radius-pill` collapsed, transitioning on `duration-morph`/`ease-morph` — otherwise the glow keeps square corners around a rounded pill |
-| Surface (`.c-prompt-bar-surface`) | `display: grid; grid-template-rows: auto 1fr`. `radius-lg` (20px), `shadow-4`, Neutral-1 fill, spacing-16 padding. `position: relative; z-index: 10` so the glow only peeks out around the edge. Transitions `grid-template-rows`, `border-radius`, and `padding` on `duration-morph`/`ease-morph` |
-| AI mark (`.c-prompt-bar-mark`) | The real [Button](#button) Primary icon-only variant (`c-btn-icon.c-btn-sm`, 32×32px) for fill/size/icon, with `border-radius` overridden back to a true circle (`radius-pill`) — the real icon-only recipe is `radius-sm` by default, a deliberate override here. `ph-fill ph-sparkle` — **Tier 2, Fill** (an expressive mark, not a control). `position: absolute`, `left: spacing-16`, vertically centered, `pointer-events: none`, `aria-hidden` (the input's own `aria-label` already names the component). Absolute, not a flex child — the surface is a grid, so a flow child would become a grid item, and an absolute one can arrive on opacity + transform instead of a width that runs layout every frame of the morph. `opacity: 0` + `scale(.5)` expanded, `opacity: 1` + `scale(1)` collapsed; position is `left: spacing-16` in both poses — expanded it just sits invisible over the input's left edge, which costs nothing |
-| Field (`.c-prompt-bar-field`) | `position: relative`, flex row, `align-items: center`, `min-width: 0`. Holds the real `<input>`, the running ghost line, and the reduced-motion static label |
-| Input | `<input type="text" aria-label="Ask anything">` — full width, no border, no outline, transparent background, body1 type (a deliberate departure from [Input field](#input-field)'s own body2 — this isn't a form field, it's a composer surface), Neutral-9 text. `position: relative; z-index: 1` so it sits above the ghost line. Native `::placeholder` is set to transparent — the real hint is the ghost line below, not the browser's own placeholder rendering |
-| Running line (`.c-prompt-bar-ghost` > `.c-prompt-bar-ghost-text`) | A `<span>`, not `::placeholder` — a placeholder can't be masked, transformed, or measured, and all three are needed once the box becomes a pill. `position: absolute; inset: 0`, flex row, `align-items: center`, `justify-content: flex-start` (left-aligned, matching where real typed text lands — not centered), `overflow: hidden`, `white-space: nowrap`, `pointer-events: none`, body1, Neutral-5. Inner `-text` span is `inline-block` so its full width is measurable via `scrollWidth` even while the parent clips it. Hides (`opacity: 0`) when the field carries a value, via an `.is-typing` class on the field |
-| Reduced-motion label (`.c-prompt-bar-ghost-static`) | `display: none` by default. Under `prefers-reduced-motion: reduce`, the running line is hidden entirely and this shows instead — a short label ("Ask me anything") that fits the pill outright rather than a clipped sentence |
-| Second row (`.c-prompt-bar-more`) | `overflow: hidden`, `min-height: 0` (required — the `0fr` row can't collapse without it), flex column, `padding-top: spacing-12`. Transitions `padding-top` and `opacity` on `duration-morph`/`ease-morph` |
-| Toolbar (`.c-prompt-bar-toolbar`) | Flex row, `justify-content: space-between`. Left group (`.c-prompt-bar-group`): Add image (`ph ph-image`), Attach file (`ph ph-paperclip`), More options (`ph ph-dots-three`). Right group: Voice input (`ph ph-microphone`), Send (`ph ph-arrow-up`). All five icons are **Tier 1, Regular** — every one is a control. Every button is the real Button icon-only variant (`c-btn-icon.c-btn-sm`) verbatim — Ghost for Add image/Attach file/More options/Voice input, Primary for Send — not a bespoke button class. Every button needs an `aria-label`, since all are icon-only |
-
-**Prompt input bar — States.**
-
-| State | Class | What changes |
-|---|---|---|
-| Hidden | (base) | `opacity: 0`, `translateY(16px)` — pre-reveal |
-| Revealed | `.is-revealed` | Fades and rises in on `duration-reveal`/`ease-reveal`, `transition-delay: 1150ms` so it lands after the rest of the canvas sequence |
-| Expanded | (default, revealed) | Full card: two rows, `radius-lg`, toolbar visible, mark hidden |
-| Collapsed | `.is-collapsed` | Narrows to `--prompt-bar-w` (236px), parks at `--prompt-bar-shift`, `radius-pill` on the surface and both glow layers, second row folds to `0fr` with `padding-top: 0`/`opacity: 0`, mark fades in, surface left padding grows to 56px (16 gutter + 32 mark + 8 gap), running line starts its marquee |
-| Morphable | `.is-morphable` | Added after the entrance has played. Declares one transition for `transform`, `width`, and `bottom` on `duration-morph`/`ease-morph` so collapse and expand take the same 420ms — without it, expansion falls through to the entrance rule's slower `duration-reveal` and reads as lag. Must be declared **after** `.is-collapsed` in source order to win the cascade tie once added |
-| Typing | `.is-typing` on the field | Running line hides |
-| Pushed | `--prompt-bar-push` | A side panel opened over the same corner; the bar slides left by exactly the overlap, capped so it never leaves the gutter |
-| Launched | `.is-launched` | The chat overlay is open — the bar fades out, `pointer-events: none`, so it isn't sitting under the shell it became |
-| Mobile (≤640px) | `.is-collapsed` still applies | Keeps the shrink, drops the parking: full-width, insets 16px on all four sides, `bottom` carries `env(safe-area-inset-bottom)`, never becomes a pill (`radius-lg` stays, not `radius-pill`). `--prompt-bar-w` and `--prompt-bar-shift` are simply not consulted |
-
-**Prompt input bar — Behavior.**
-
-- **Scroll collapse** — asymmetric thresholds, deliberately: collapse once `scrollTop > 240`, expand only when `scrollTop <= 8`. A single threshold flip-flops either side of the boundary; the hold is the point. Listen on the scroll container (not `window`), `{ passive: true }`, throttled through `requestAnimationFrame`.
-- **Launch** — a click anywhere on the bar (card or pill) opens the chat overlay; `Enter` in the input does the same, `preventDefault()`. Not wired to `focusin` — the overlay hands focus back to this bar on close, and a focus-to-open rule would immediately reopen it.
-- **Geometry sync** — measure, don't hardcode: re-measure the pill's park position (`--prompt-bar-shift`) on state change, not on every scroll event (caching at init is wrong — icon fonts load late and move a dock's edge, parking the pill short of its seam). Also re-run on resize and on `document.fonts.ready`. Use `offsetWidth`/`offsetHeight` and computed style, never client rects — this element transitions `width`, so a client rect returns whichever frame the morph happens to be on.
-- **Marquee (collapsed running line)** — mask both ends (`linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%)`). Travel distance is `min(0, window − scrollWidth)` — negative or zero, so the line only ever shifts left to reveal overflow, never right; a line that already fits parks on a no-op. Duration derived from distance at ~60px/s, so speed is constant whatever sentence is showing; travel is 64% of the animation cycle (two 32% legs), the rest is holding at each extreme (`0%,18%` at start, `50%,68%` at the far end, `100%` back) — the holds are what make it readable. The window is a constant (236 − 64) on desktop because the width is mid-transition and unmeasurable; on mobile it's measured from `clientWidth − 64` because the collapsed bar keeps its full width there.
-- **Placeholder choreography** — one-shot, not a loop: (1) type "Everything else lives right here." with a trailing caret, (2) pulse the caret on it for 5s (500ms blink), (3) delete it, (4) type "I am your Collabrium assistant, let me help you", (5) stop indefinitely — the final message is the resting state. Every step pauses while the input is focused, so it never fights real typing. Starts only once the bar's own reveal has finished. If the bar collapses before the sequence completes, fast-forward straight to the final sentence — a half-typed fragment must never be what shuttles through the pill. A guard timer lands the final string regardless, so a stalled interval can't leave it half-typed.
-- **Reduced motion** (`prefers-reduced-motion: reduce`) — glow animations off; morph transitions off (the two poses still exist, only the travel between them goes — `.is-morphable` is named explicitly in the override since it declares its own transition at higher specificity and a media query alone wouldn't beat it); the mark arrives without the scale; the running line hides entirely in favor of the static short label; the placeholder choreography is skipped, with the final sentence set directly.
-
-**Do:** keep the toolbar's icon-only buttons as real Button Ghost/Primary
-icon-only instances, not bespoke button classes — even though that
-means the Send button is a `radius-sm` square, not a pill, and the AI
-mark's own Primary-icon-only base needs its radius overridden back to
-a circle. Pair `duration-morph`/`ease-morph` on every property that
-moves during a pose change, and `duration-reveal`/`ease-reveal` only
-on the one-time entrance — mixing them reads as lag. Reserve
-`--prompt-bar-shift`/`--prompt-bar-push` for real measured geometry;
-never hardcode a park offset. **Don't** center the running ghost
-line — it must left-align to match where real typed text lands.
-Don't let the placeholder choreography loop; it's one-shot, ending on
-the resting sentence. Don't collapse the bar into a pill on mobile —
-keep the shrink (second row folds away), drop the parking and the
-pill shape.
-
 ### Radio
 
 **Transcribed from the teammate's `Radio.jsx`.**
@@ -4801,6 +5082,103 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.59 — 2026-08-24** — **[Chat window](#ai-native)**'s left rail
+  no longer just vanishes below the shell's 820px single-column
+  breakpoint — it becomes a slide-in overlay drawer, reachable via a
+  new **rail toggle** (`.c-chat-rail-toggle`, Ghost icon-only Button,
+  `ph ph-sidebar-simple` — Tier 1, Regular, "expand/collapse" is one of
+  [Iconography](#iconography)'s own Tier 1 examples) at the header's
+  right edge, same row as the title — the `justify-content:
+  space-between` the header already had reserved for exactly this.
+  Opens over a new scrim (`.c-chat-rail-scrim`), 288px wide (capped at
+  85%), `shadow-4`, no border-right, Neutral-1 fill. Closes via the
+  scrim, the toggle again, Escape, or selecting a conversation — a
+  pillar chip inside the rail deliberately does not close it, same
+  reasoning as Message actions' own Do/Don't. Delegated,
+  shell-relative event handling (`closest('.c-chat-shell')`, not
+  id-scoped) so one set of handlers covers any number of chat window
+  instances on a page. Two corrections made while building this: (1)
+  the rail had never needed its own background on the desktop column,
+  where nothing ever sat behind it — as an overlay it needs an
+  explicit Neutral-1 fill or the main panel bleeds through; (2)
+  `.c-chat-main` needed an explicit `position: relative; z-index: 1`
+  (kept lower than the scrim's 20) — without one, being a CSS grid item
+  left it in an ambiguous stacking relationship with the scrim
+  regardless of the scrim's own z-index, and the composer
+  (`.c-prompt-bar-surface`, `z-index: 10`) kept painting above the
+  overlay meant to dim it. `components.css`: the old
+  `.c-chat-rail{display:none}` single-line override inside the
+  `@container (max-width:820px)` block replaced with the full drawer/
+  toggle/scrim rule set; no new tokens needed in `tokens.css`, every
+  value already existed. `preview.html`: `id="chatRail"` added to the
+  real rail for `aria-controls`, the toggle button added to the real
+  header, the scrim added as a sibling, and the same delegated
+  open/close/Escape/conversation-select handlers wired into the page's
+  existing chat-window script. Version flag bumped to v0.9.59.
+
+- **v0.9.58 — 2026-08-24** — Added **[AI Native](#ai-native)**, a new
+  component with two subcomponents documented in one section —
+  **Chat window** and **Prompt input bar** — the same "one component,
+  several named variants in one place" convention [Card](#card) already
+  uses for General/Functional/Profile/Hero Card, rather than a separate
+  heading, nav entry, and comp-block per variant. **Chat window**: a
+  modal chat surface (conversation history rail + active thread) that's
+  the expanded form of Prompt input bar — clicking the Floating bar
+  variant morphs it into this window via a shared FLIP animation. Full
+  anatomy (root/veil/shell, left rail with New chat/pillar
+  filter/conversation list, right panel with header/thread/composer/
+  footer), plus two named sub-parts documented as their own
+  subsections: **Message actions** (Copy with clipboard-refused
+  fallback and a one-time announce, Read aloud's three states with only
+  one message playing at a time, mutually-exclusive thumbs, a new More
+  options menu — content unconfirmed) and **Jump to present** (a scroll
+  pin, not a button: asymmetric 150px/30px detach/re-pin thresholds,
+  detach gated to upward scrolls only so a programmatic scroll-to-bottom
+  can never self-detach, instant-not-smooth scrolling while pinned, a
+  once-per-detach-period announcement, and the four edge cases — send
+  force-re-pins, prepending history must preserve scroll position,
+  resize must never re-pin a detached reader, opening starts pinned
+  with no button). **Prompt input bar**: previously sat alphabetically
+  between Progress Bar and Radio with just an "AI Native" badge; now
+  grouped with Chat window under the real AI Native heading, badge
+  dropped as redundant. Gains a second, formally documented variant,
+  **Inline** (`.c-prompt-bar--inline`) — used as Chat window's own
+  composer: fixed in flow rather than absolute, never collapses, no AI
+  mark, a plain `::placeholder` instead of the running ghost line,
+  `shadow-2`/`normal`-blend glow tuned to sit below the Floating bar's
+  own intensity, and the one deliberate divergence from Floating bar's
+  Do rule — Send gets a `radius-pill` override instead of staying a
+  `radius-sm` square. Two real corrections made during review, both
+  flagged in the affected sections rather than silently fixed: the
+  pillar filter reuses the real Filter Chip (`.c-chip.c-chip-filter`) —
+  there is no `.c-fpill` in this system; the More options menu is a new
+  `.c-chat-menu-item` row built on the real popover shell, since there
+  is no `.c-account-menu-item` either (App Shell's own Don't list
+  defers an account menu as not-yet-built). `components.css`: full
+  `.c-chat*` rule set added at the end of the file, plus
+  `.c-prompt-bar--inline` appended directly after the existing
+  `.c-prompt-bar*` block (an extension of that component, not a new
+  one). `tokens.css`: unchanged — every value Chat window needs already
+  existed; the only runtime-set custom properties
+  (`--fold-dx/-dy/-sx/-sy/-dir`) are JS-computed per open/close, the
+  same pattern as Prompt input bar's own `--prompt-bar-shift`/`-push`,
+  and were never meant to be static tokens. `preview.html`: **AI
+  Native** added as the single real nav entry and comp-block — Chat
+  window and Prompt input bar are **not** separate nav children,
+  matching Card's own single-entry-with-internal-variants pattern; each
+  subcomponent gets a `swatch-group-label` divider within the one
+  comp-block instead. Chat window's own portion shows the real
+  component itself, open and in flow, rather than requiring a click
+  through a trigger — a page-local override collapses the
+  fixed-position/veil/fold-animation presentation down to an inline one
+  that fills its container's actual width (responding into the real
+  single-column state below 820px of that width, same as the component
+  would anywhere else, rather than forcing a wider fixed size); pillar
+  filter, conversation selection, message actions, Jump to present, and
+  a minimal send all still fully wired. Net component count: 36 → 37
+  (AI Native; its two subcomponents aren't separately counted, same as
+  Card's own variants aren't). Version flag bumped to v0.9.58.
 
 - **v0.9.57 — 2026-08-24** — Added a **Trailing count (optional)**
   rule to [Chip](#chip)'s Filter Chip, and demoed it in `preview.html`/
