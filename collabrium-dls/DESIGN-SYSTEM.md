@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.55** — 2026-08-24 — Sourced from the Collabrium brand deck
+**v0.9.56** — 2026-08-24 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1941,6 +1941,7 @@ value, and is always interactive.
 | Label | `label2` (13px/18px, weight 700), Neutral-9 `#080808` — the typescale table's own use case for `label2` is "Buttons, tags, chips" |
 | Leading icon (optional, Filter Chip only) | Two distinct uses, never both on the same chip at once: **(1) category icon** — `icon-sm` (16px), a secondary variant for when every option in the group has a clear glyph (e.g. a department icon); **Tier 1, Regular** — a judgment call, not an explicit example in [Iconography](#iconography), since it identifies/classifies rather than expressing status (see [Needs Input #11](#needs-input-read-this-first) for the doc's existing precedent of flagging tier calls this way). **(2) selection tick** — Multi-select's own active-state indicator (see States below), reusing Checkbox's exact `ph-check` glyph, which [Iconography](#iconography) already lists as **Tier 1, Regular** ("check and minus, the Checkbox marks"). If a chip carries a category icon and becomes active in a multi-select group, the tick replaces it rather than rendering both — one leading-icon slot, one purpose at a time. Either icon inherits the label's color; spacing-4 (4px) gap to the label |
 | Remove button (×) | `icon-micro` (14px) `x` glyph, **Tier 1, Regular** — a remove affordance, the same reasoning as **Tag**'s own remove button; Neutral-5 `#5a5a5a` at rest, Neutral-9 on hover; 24×24px hit target via padding — the same hit-target precedent as FileUploader's row × and Input Field's Clear ×; spacing-4 (4px) gap from the label; stops click propagation so removing the chip never triggers whatever the chip sits inside |
+| Trailing count (optional, Filter Chip only) | `label2` (13px/18px), weight 400 — one step lighter than the label's own weight 700, creating visual hierarchy between the category name and its count; spacing-4 (4px) gap from the label text — see **Trailing count**, below, for the full behavior spec |
 | Internal gap | spacing-4 (4px) between every part — icon → label → × |
 
 **States — Input Chip.** Not toggleable; only the × remove button is
@@ -1983,6 +1984,61 @@ specific brand element (same reasoning as Segmented Control, Toast,
 and SidebarNav's collapse transition). No `box-shadow` in the
 transition property list, since Filter Chip no longer carries one at
 any state.
+
+**Trailing count (optional).** An inline numeric indicator showing the
+number of items belonging to that filter option. Sits directly after
+the label text inside the chip — not a separate overlaid badge, not a
+floating element; part of the chip's own content flow.
+
+Distinct from the `+N` overflow chip described in **Grouping and
+overflow**, below: overflow communicates how many chips are hidden.
+The trailing count communicates how many items the filter option
+itself contains.
+
+*Anatomy* — `label2` (13px/18px), weight 400, one step lighter than
+the label's own weight 700 to create visual hierarchy between the
+category name and its count; spacing-4 (4px) gap from the label.
+
+*Color by state:*
+
+| State | Label | Count |
+|---|---|---|
+| Inactive — default | Neutral-9 | Neutral-5 `#5a5a5a` — visually subordinate to the label |
+| Inactive — hover | Neutral-9 | Neutral-5, unchanged |
+| Inactive — pressed | Neutral-9 | Neutral-5, unchanged |
+| Active — default | Neutral-1 | Neutral-1 at 70% opacity — maintains the lighter-than-label relationship on the dark fill |
+| Active — hover | Neutral-1 | Neutral-1 at 70% opacity |
+| Active — pressed | Neutral-1 | Neutral-1 at 70% opacity |
+| Disabled | 40% opacity throughout | inherits the parent's opacity |
+
+*Content rules:*
+- Format: plain number only — no parentheses, no brackets, no label.
+  "Sales 6" not "Sales (6)".
+- Zero count: show "0" — never hide at zero. A zero count communicates
+  the filter option is currently empty, which is meaningful
+  information in its own right.
+- Max value: "99+" for values above 99 — consistent with Badge, Tab's
+  own trailing count, and SidebarNav's own trailing count conventions.
+- Dynamic: the count updates in real time as underlying data changes —
+  never a static, cached value.
+- Separator: a single space between the label text and the count — no
+  punctuation, no dot separator.
+
+*When to use:*
+- Optional — not every Filter Chip group needs a trailing count. Use
+  it only when the count is meaningful to the user's decision about
+  which filter to apply.
+- Consistent within a group: either all chips in a group show a count,
+  or none do — never mix chips with and without counts in the same
+  group.
+- Works in both Single-select and Multi-select selection modes.
+
+*What it is not:*
+- Not a Badge overlay — a Badge sits outside the chip boundary; the
+  trailing count is inside, part of the chip's own label row.
+- Not the `+N` overflow chip — the `+N` chip appears outside the group
+  to signal hidden chips; the trailing count sits inside a chip to
+  signal item quantity within that filter category.
 
 **Content rules:**
 - Filter Chip labels: 24 characters maximum, enforced at
@@ -2041,13 +2097,21 @@ any state.
 Chip for predefined toggleable options — Single-select when exactly
 one choice always applies, Multi-select when any number (including
 zero) can. Give every × an `aria-label` naming what it removes. Keep
-the `+N` overflow control non-removable in either of its states.
+the `+N` overflow control non-removable in either of its states. Show
+"0" when a filter option has no matching items — hiding the count at
+zero removes meaningful information. Use trailing counts consistently
+within a group — all or none. Update counts in real time as data
+changes — never cache a static count.
 **Don't:** mix Input and Filter Chips in the same group. Don't use
 Filter Chip inside a form that requires explicit submit — use Checkbox
 instead. Don't use an accent/elemental color as an active Filter Chip's
 fill — Obsidian is correct (Rule 2, [Component Rules](#component-rules)).
 Don't truncate a Filter Chip label — rewrite it instead. Don't mix
-Single-select and Multi-select behaviour within one group.
+Single-select and Multi-select behaviour within one group. Don't use
+parentheses or brackets around the count — plain number only,
+separated by a space. Don't use a Badge overlaid on the chip for this
+purpose — the count is inline content, not an overlay. Don't mix chips
+with trailing counts and chips without them in the same group.
 
 ### Date picker
 
@@ -4647,6 +4711,30 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.56 — 2026-08-24** — Added a **Trailing count (optional)**
+  rule to [Chip](#chip)'s Filter Chip, and demoed it in `preview.html`/
+  `components.css`. An inline numeral after the label — `label2`
+  (13px/18px) at weight 400, one step lighter than the label's own
+  weight 700 — showing how many items a filter option contains;
+  distinct from the `+N` overflow chip (which signals hidden chips,
+  not item quantity). Color by state: Neutral-5 inactive, Neutral-1 at
+  70% opacity active (keeping the lighter-than-label relationship on
+  the dark fill), inherits the parent's 40% opacity when disabled.
+  Content rules: plain number only (no parens/brackets), "0" shown
+  rather than hidden at zero, "99+" cap above 99, single-space
+  separator, updates live rather than a cached value. Usage rules:
+  optional per group, but consistent within one — all chips show a
+  count or none do — and works in both Single- and Multi-select modes.
+  Do/Don't extended accordingly, nothing removed. `components.css`:
+  added `.c-chip-filter .count` (weight 400, Neutral-5) and
+  `.c-chip-filter.is-active .count` (`rgba(255,255,255,.7)`); disabled
+  opacity inherited from the existing `.c-chip-filter.is-disabled` rule
+  rather than redeclared. `preview.html`: added a new interactive
+  Filter Chip group ("All 99+", "Marketing 14", "Sales 6", "Archived
+  0") demonstrating the zero and 99+ content rules together, wired to
+  the same tick-toggle click handler as the existing Multi-select demo
+  group.
 
 - **v0.9.55 — 2026-08-24** — Brought [Pagination](#pagination)'s
   `preview.html` gallery and `components.css` up to date with the

@@ -1494,6 +1494,14 @@
 .c-chip-filter.is-active:active:not(.is-disabled){background:var(--color-neutral-7); border-color:var(--color-neutral-7);}
 .c-chip-filter:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
 .c-chip-filter.is-disabled{opacity:.4; cursor:not-allowed; pointer-events:none;}
+/* Trailing count (optional, Filter Chip only) — label2/400, one step
+   lighter than the label's own 700, spacing-4 gap (inherited from
+   .c-chip's own gap). Neutral-1 at 70% opacity when active keeps the
+   same lighter-than-label relationship on the dark fill. Disabled's
+   40% opacity is inherited from .c-chip-filter.is-disabled above, not
+   redeclared here. */
+.c-chip-filter .count{font-weight:400; color:var(--color-neutral-5);}
+.c-chip-filter.is-active .count{color:rgba(255,255,255,.7);}
 
 /* Progress Bar — designed from scratch, not transcribed. Reuses Slider's
    track anatomy (Neutral-3 unfilled track, radius-pill), Obsidian as the
