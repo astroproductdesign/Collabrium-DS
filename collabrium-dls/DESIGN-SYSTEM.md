@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.60** — 2026-08-24 — Sourced from the Collabrium brand deck
+**v0.9.62** — 2026-08-26 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -1247,10 +1247,51 @@ looks* — see the scope note in this section's opening paragraph.
 
 **Responsive** ⚠️ provisional, first pass, no source: below 1024px,
 collapse to a 72px icon-only rail (labels hidden, tooltip on hover
-instead); below 768px, becomes an off-canvas drawer, sliding in over the
-content with `shadow-4` beneath it — still the same SidebarNav instance
-and the same inset placement rule, just triggered by a different
-affordance, not a third variant.
+instead) — still the same SidebarNav instance and the same inset
+placement rule. Below 768px, Main nav switches from an in-flow flex
+child to a floating overlay instead: `position: fixed`, anchored to
+the same `spacing-16` top/left insets, sitting on top of Content
+region (now full width, no longer sharing a row with it) rather than
+beside it. No scrim — the content behind stays fully visible and
+interactive, unlike Chat window's own rail drawer. This replaces an
+earlier draft of this paragraph that specced a full-height off-canvas
+drawer at this breakpoint; that variant is gone, not layered alongside
+the floating card. The card's own sizing and collapse behavior once
+positioned this way — height, width caps, the shadow, the
+logo-only collapsed state — are SidebarNav's own concern, not a
+layout/placement one: see its own [Mobile responsive
+behavior](#sidebarnav) section.
+
+**Initial state & content clearance.** Below 768px, Main nav loads
+**collapsed**, not expanded — the opposite of its desktop/tablet
+default. Since the rail is a floating overlay with no scrim at this
+width, starting expanded would cover Page header's own title before
+anyone has touched anything on the page. Content region gains enough
+top padding to clear the *collapsed* rail's own rendered footprint
+(its top inset plus its collapsed height) specifically, so the title
+never starts out hidden behind it. This clearance is sized against
+the collapsed state deliberately, not the expanded one: once someone
+taps the rail open, it's expected to cover more of the page again —
+that's the same accepted floating-overlay/no-scrim tradeoff this
+section already establishes above, not a regression this padding is
+trying to prevent. Collapsing back returns the page to its clear
+state.
+
+⚠️ **Reference-implementation caveat, not a spec change.** The live
+gallery demo anchors Main nav with `position: absolute` against
+`.c-shell` itself rather than the `position: fixed` specced above,
+and caps its height at `calc(100% - 32px)` of `.c-shell` rather than
+`calc(100dvh - 32px)`. `.c-shell` in the demo is a bounded, fixed-height
+mockup box (see its own `height: 480px`), not the real page — anchoring
+`position: fixed` there would escape the demo card entirely and stick
+to the actual browser window's corner instead of the App Shell example
+it's meant to illustrate. A real consuming page, which *is* the
+viewport, should still use `position: fixed` and `100dvh` exactly as
+specced above. Content region's own clearance value is a similar
+approximation: `spacing-120`, the nearest existing token above the
+~90px this demo's own collapsed rail (16px inset + its own header row)
+actually measures — a real build should measure its own collapsed
+rail rather than assume this exact number carries over.
 
 #### Content region
 
@@ -3964,7 +4005,7 @@ unless explicitly documented as an exception for a specific context.
 | Nav item — disabled | Neutral-4 text/icon, fill stays transparent, `cursor: not-allowed` — matches Button Ghost's disabled and Pagination's Ghost icon-button disabled, not Checkbox/Radio/Switch's 50%-opacity convention (that belongs to compact toggle controls, not row-based nav items) |
 | Icon | `icon-base` (20px); may take an element color override when the item is department-specific; **Tier 2, Fill** (a sidebar nav item, per [Iconography](#iconography)) |
 | Trailing count | optional, caption/700/Neutral-5, right-aligned |
-| Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — sign-out, account, or help slot |
+| Footer (optional) | pinned to the bottom (`margin-top: auto`), spacing-16 padding-top — holds the User account section (see below) as its typical last (often only) item, plus optionally a help/secondary Nav item above it |
 | Transition | `background-color`, `color` — `var(--duration-fast) var(--ease-standard)` |
 
 **Note on "active" vs. "active-pressed"** — these are different axes.
@@ -4130,8 +4171,93 @@ level deep.
   scrolling region via its own `margin-top: auto` and never scrolls with
   the item list.
 
+**User account section.**
+
+Lives inside the Footer (see Footer row, above) as its own row, always
+the last element in it — a persistent identity/account entry point,
+distinct in purpose from a Nav item's page-navigation role even though
+it borrows several of Nav item's own tokens. Selecting it opens a menu
+of user- and platform-level actions (e.g. Settings, Log out) — not a
+page destination itself.
+
+| Part | Spec |
+|---|---|
+| Trigger — expanded | full width button, 0/spacing-12 padding, 56px height (taller than Nav item's 40px, to fit two stacked text lines), `radius-sm`, spacing-12 gap between avatar and text block; flex row, avatar left-aligned, text block fills the remaining width |
+| Avatar | 36×36px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, weight 700, label2 size, showing initials — [Card](#card)'s own Profile card avatar recipe, reused verbatim rather than a new avatar treatment, including its **Avatar initials logic** (2 characters derived from Name, Malay naming particles skipped, single-word names get 1 character, no per-person color) |
+| Name | body2 (14px), weight 700, Neutral-9, single line, truncates with an ellipsis — same truncation precedent as Profile card's own Row 1 — Name. This is a deliberate exception to SidebarNav's general "labels wrap, they don't truncate" rule (see above): that rule protects a single-line Nav item label with nowhere else to go; this trigger already reserves a fixed second line for Role, so letting Name wrap instead would silently grow the footer past its own fixed height |
+| Role | caption (12px), weight 400, Neutral-5, single line, truncates with an ellipsis, directly below Name — spacing-4 (4px) between the two lines, matching Profile card's own Row 1 → Row 2 spacing |
+| Hover | Neutral-2 fill — reuses Nav item's own hover token, same row-control precedent as every other clickable row in SidebarNav |
+| Focus-visible | 2px Obsidian outline, 2px offset — reuses Button's exact focus-visible token, same precedent as Nav item's own focus-visible |
+| Open (menu visible) | Neutral-2 fill persists on the trigger — same precedent as Department switcher trigger's own active/open state, above |
+| ARIA | `aria-haspopup="menu"`, `aria-expanded` toggles `true`/`false` — a menu of actions, not a `listbox` of selectable values, so this pairs with `menu`/`menuitem` rather than Department switcher's own `listbox`/`option` pairing |
+
+**Collapsed.**
+
+| Part | Spec |
+|---|---|
+| Trigger — collapsed | avatar only, independently centered horizontally within the 72px rail — same centering precedent as the Collapsible state's header logo and every collapsed Nav item icon; Name and Role are hidden entirely, the same convention as every other label in Collapsed mode |
+| Hover label | the same shared collapsed hover-label sub-pattern the rest of SidebarNav's items use (see Collapsed — hover label, above), showing "Name · Role" as its one line |
+| Menu | clicking the collapsed avatar opens the identical menu content described below — the menu itself has no separate "collapsed" variant, only its trigger's own appearance changes |
+
+**Menu.**
+
+| Part | Spec |
+|---|---|
+| Container | 240px width — fixed, independent of the rail's own current width (even collapsed at 72px the menu still renders at the full 240px, the same fixed-width precedent Collapsed — hover label already sets for SidebarNav's own overlays); Neutral-1 fill, 1px Neutral-3 border, `radius-md`, `shadow-3` — same popover convention as Department switcher's own dropdown |
+| Placement | left-aligned flush with the trigger's own left edge, same horizontal placement rule as Department switcher's dropdown — but opens **upward**, above the trigger, rather than below it. The trigger sits at the very bottom of the viewport by design (`margin-top: auto`), so a downward-opening panel would routinely overflow the viewport's bottom edge; opening upward is this component's permanent placement rule rather than a one-off viewport-collision fallback, since the trigger's position relative to the viewport bottom never changes |
+| Item | 40px height, 0/spacing-12 padding, `radius-sm`, spacing-12 gap between icon and label — matches Nav item's own row proportions, since these are still simple one-tap actions, just menu-presented instead of nav-presented; body2 (14px)/500/Neutral-9 label — one step down from Nav item's own body1, marking this as a secondary/utility list rather than primary navigation; icon `icon-base` (20px), **Tier 2, Fill** — matches Nav item's own Icon treatment verbatim (see Nav item's Icon row, above) rather than following Iconography's general "clickable control → Tier 1, Regular" rule, a deliberate exception for visual consistency between the primary nav list and this menu, since both live inside the same SidebarNav instance |
+| Item — hover | Neutral-2 fill — the same Nav item/Table row hover token reused everywhere else in this document |
+| Divider (optional) | 1px Neutral-3 hairline, spacing-4 (4px) vertical margin — separates Settings from the trailing sign-out action, the same hairline treatment as Section label's own divider rule above |
+| Roles | `role="menu"` on the container; `role="menuitem"` on each item |
+| Keyboard | arrow keys navigate items, Enter/Space activates the focused item, Escape closes and returns focus to the trigger — same keyboard contract as Department switcher's own dropdown, adapted from `listbox`/`option` to `menu`/`menuitem` |
+| Closes on | outside click, Escape, or item selection — same as Department switcher's own dropdown |
+
+**Animation.** Reuses Department switcher's own dropdown animation, mirrored for the opposite opening direction: fade in + slight slide **up** from the trigger's own top edge (exit: fade out + slight slide down); `duration-fast`/`ease-standard`; instant appear/disappear under `prefers-reduced-motion`.
+
+**Accessibility.**
+
+- Trigger: `aria-haspopup="menu"`, `aria-expanded` reflects open/closed; carries an `aria-label` stating the full "Name, Role" pair when collapsed, since the visible text disappears at 72px.
+- Menu: `role="menu"`.
+- Each item: `role="menuitem"`.
+- Keyboard: arrow keys navigate, Enter/Space selects, Escape closes and returns focus to the trigger.
+
+**Mobile responsive behavior.**
+
+⚠️ Provisional, first pass, no source — and supersedes [App
+Shell](#app-shell)'s own earlier <768px description (a full-height
+off-canvas drawer sliding in from the edge). That section's <1024px
+icon-rail tier is unchanged; only the phone-width tier below it is
+replaced, by this.
+
+Below 768px, SidebarNav stops behaving like a fixed-height column and
+becomes a **content-sized card** instead — the same instance, the same
+interactions (Nav items, Department switcher, the User account
+section's own menu all work exactly as documented above); only how
+much space the container itself takes up changes.
+
+| Part | Spec |
+|---|---|
+| Height | `auto` — the card is only ever as tall as its own header + visible items + footer require ("the height shrinks accordingly depending on the number of navigation items"), rather than always stretching to fill the screen. A `max-height: calc(100dvh - 32px)` safety cap plus the existing Overflow behavior's own `overflow-y: auto` scroll (see above) still apply once a genuinely long item list would otherwise push the card off-screen |
+| Width | unchanged, 240px expanded — additionally capped at `calc(100vw - 32px)` so it can never overflow a narrow phone viewport, the same `min(fixed-value, viewport-minus-gutter)` safety pattern this system already uses elsewhere for fixed-width surfaces on small screens |
+| Elevation | gains `shadow-3` (the same popover-elevation token Department switcher's own dropdown and Filters/Date picker already use) — the desktop rail sits flush in its own layout column and needs no shadow of its own, but once it's positioned as a floating card on top of page content (an [App Shell](#app-shell) placement decision, not this component's own), it needs one to read as elevated above what's behind it |
+| Trigger | none separate from the existing [Collapsible state](#sidebarnav)'s own toggle, above — there is no additional hamburger/menu affordance that opens or closes this card. The same expand/collapse toggle does both jobs: the card is always present, just collapsible down to a minimal footprint (see Collapsed, below) rather than dismissed entirely |
+| Backdrop | none. Unlike Chat window's own rail drawer, the page behind stays fully visible and interactive — this is a floating card, not a modal/scrim overlay |
+
+**Collapsed (mobile).** A different collapse target than desktop's:
+desktop's Collapsible state shrinks to a fixed 72px icon-only rail at
+full height; mobile's collapse goes further, shrinking in **both
+dimensions** down to just the header/logo — "it collapses until it
+shows only the main logo."
+
+| Part | Spec |
+|---|---|
+| Visible | the header/logo row only |
+| Hidden | every Nav item in full (not just labels — the items themselves), every Section label and divider, and the Footer/User account section in full — Collapsible state's existing "labels hidden" rules extend here to "the whole row hidden" |
+| Width / height | both `auto`, hugging the header row's own intrinsic size — not desktop's fixed 72px, since there's no icon column left to reserve room for once every item is hidden |
+| Toggle | the same floating overlay toggle already documented in Collapsible state, straddling the card's own edge — unchanged mechanism, repositioned to match the now much shorter card |
+| Collapsed — hover label | doesn't apply in this state — that sub-pattern exists to preview a hidden item's label on hover/focus, and there are no item icons visible here to attach it to |
+
 ⚠️ **Needs Input — SidebarNav.**
-- Mobile/responsive behavior — not yet defined.
 - Keyboard navigation (arrow keys, `Enter`, `Escape` on the accordion) —
   to be defined in a future accessibility pass.
 
@@ -5137,6 +5263,146 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.62 — 2026-08-26** — [App Shell](#app-shell) catches up to
+  SidebarNav's own v0.9.61 changes and gets its Responsive row rewritten
+  to match, its Main nav demo actually implements the mobile placement
+  that row only described in prose, and that demo now showcases the
+  Department switcher.
+
+  **Responsive row rewritten.** Below 768px, Main nav switches from an
+  in-flow flex child to `position: fixed` (same `spacing-16` insets),
+  floating on top of Content region rather than beside it, no scrim —
+  replacing an earlier draft of this row that specced a full-height
+  off-canvas drawer at this breakpoint instead. Sizing/collapse
+  behavior once positioned this way is SidebarNav's own concern, per
+  its own [Mobile responsive behavior](#sidebarnav) section (v0.9.61).
+
+  **Main nav demo — mobile placement actually implemented**, not just
+  documented: below 768px, `.c-sidebar-shell` switches from an in-flow
+  flex child to a positioned overlay anchored top-left, and
+  `.c-shell-main` expands to fill the row on its own (nothing else
+  needed there — removing the sidebar from flex flow is enough).
+  Collapsed state needed no new code at all — it already shares the
+  same `.c-sidebar`/`.c-sidebar.is-collapsed` mobile rules as the
+  standalone SidebarNav demo, so it already shrinks to logo-only once
+  the rail itself is positioned correctly. One deliberate deviation
+  from the documented spec, called out as a reference-implementation
+  caveat rather than a silent inconsistency: the demo anchors with
+  `position: absolute` against `.c-shell` and caps height at
+  `calc(100% - 32px)` of it, instead of the spec's `position: fixed` /
+  `calc(100dvh - 32px)` — `.c-shell` here is a bounded 480px-tall mockup
+  box, not the real page, so `position: fixed` would escape the demo
+  card and stick to the actual browser corner instead of illustrating
+  the App Shell example. A real consuming page should still use
+  `position: fixed` / `100dvh` exactly as specced.
+
+  **Main nav demo — mobile initial state & content clearance**, also
+  newly documented and implemented: below 768px, Main nav now loads
+  **collapsed**, not expanded — the opposite of its desktop/tablet
+  default — since starting expanded on a scrim-less floating overlay
+  would cover Page header's own title before anyone's touched anything.
+  Content region gains `padding-top: spacing-120` on mobile to clear
+  the *collapsed* rail's own rendered footprint (its top inset plus its
+  collapsed height, ~90px measured against `spacing-120` as the nearest
+  existing token above it) specifically — expanding the rail afterward
+  is still expected to cover more of the page again, that's the
+  accepted no-scrim tradeoff, not a regression this padding tries to
+  prevent. `preview.html`: new `initAppShellMobileCollapsed()` init,
+  gated by `matchMedia`, scoped to the App Shell demo only — the bare
+  SidebarNav gallery block has no page content behind it to protect, so
+  it keeps its normal expanded default.
+
+  **Main nav demo — nav items trimmed to 2 dummy entries** (Dashboard,
+  Reports under Overview), dropping the Departments group (Marketing,
+  Data — Soon) that used to sit below it — the standalone SidebarNav
+  gallery already covers those item variants in depth, and App Shell's
+  demo is meant to illustrate placement, not re-litigate every nav-item
+  state.
+
+  **Main nav demo — Department switcher now showcased**, reusing the
+  exact same trigger/dropdown markup and the same 5 departments
+  (Default, Content, Influencers, Sales, Studio) as the standalone
+  SidebarNav demo — no new JS needed, the existing handlers are already
+  generic (keyed off `data-dept-dropdown`, scoped via
+  `closest('.c-sidebar-shell')`). Verified switching swaps the expanded
+  header to the selected department's lockup and the collapsed icon to
+  its element SVG, exactly as [Department switcher](#sidebarnav)
+  documents.
+
+  `components.css`: new `@media (max-width:768px)` block scoped to
+  `.c-shell`, plus its own `.c-shell-content{padding-top:...}` rule.
+  `preview.html`: App Shell's Main nav markup updated (department
+  trigger/dropdown, trimmed item list), new mobile-collapsed init
+  script, new `#deptSidebarNav` min-height rule for the *standalone*
+  demo (see v0.9.61's own Footer fix entry for why that one's needed).
+
+- **v0.9.61 — 2026-08-26** — [SidebarNav](#sidebarnav) gains a **User
+  account section** and its own **mobile responsive behavior**, and a
+  pre-existing **Footer positioning bug** is fixed.
+
+  **User account section.** New footer row — 36×36 avatar (initials,
+  reusing [Card](#card)'s own Profile card avatar recipe verbatim),
+  Name/Role stacked beside it (body2/700 and caption/400, both
+  truncating with an ellipsis — the one deliberate exception to
+  SidebarNav's "labels wrap, don't truncate" rule, since this row
+  already reserves a fixed second line for Role). Selecting it opens a
+  **menu** (Settings, a divider, Log out) anchored to the trigger's own
+  left edge but opening **upward** — the trigger sits at the bottom of
+  the rail, so a downward panel would routinely overflow the viewport.
+  Menu item icons are `ph-fill`/**Tier 2**, matching Nav item's own
+  icon treatment verbatim rather than Iconography's usual "clickable
+  control → Tier 1, Regular" rule, a deliberate exception for visual
+  consistency within this one component. Collapsed rail: avatar only,
+  independently centered, same hover-label sub-pattern every other
+  collapsed item already uses. `components.css`: `.c-sidebar-user*`
+  and `.c-user-menu*` rules added. `preview.html`: wired into both the
+  SidebarNav gallery demo and App Shell's own Main nav demo (App
+  Shell's "no properties overridden" rule means its demo tracks
+  SidebarNav's real anatomy, not a frozen snapshot of it).
+
+  **Mobile responsive behavior.** ⚠️ Provisional, first pass, no
+  source. Below 768px SidebarNav stops stretching to fill its
+  container's height and becomes a content-sized card instead:
+  `height: auto` (capped at `calc(100dvh - 32px)`, scrollable past
+  that), `width` capped at `calc(100vw - 32px)`, `shadow-3` added since
+  it now reads as a floating surface rather than an in-flow column. No
+  new open/close trigger — the existing collapse toggle does that job
+  too. Collapsed goes further than desktop's fixed 72px icon rail:
+  every Nav item and the Footer hide in full, not just their labels, so
+  the card shrinks in both dimensions down to just its own header/logo.
+  `components.css`: new `@media (max-width:768px)` block on
+  `.c-sidebar`/`.c-sidebar.is-collapsed`.
+
+  **Footer positioning bug, fixed.** `.c-sidebar-footer` used
+  `margin-top: var(--spacing-16)` in `components.css`, even though this
+  document has specified `margin-top: auto` (pinned to the bottom) for
+  it since the Footer row was first written — a spec/code mismatch that
+  stayed invisible in every gallery demo, because a demo's own rail
+  height always matched its content exactly (nothing to push against),
+  and only became visible once a rail was given a taller, fixed-height
+  container ([App Shell](#app-shell)'s Main nav, stretched to
+  `calc(100dvh - 32px)`): the User account section sat wherever the
+  last Nav item happened to end, tens to hundreds of pixels above the
+  rail's real bottom edge, in *both* expanded and collapsed states.
+  Fixed to `margin-top: auto`, matching the documentation that was
+  right all along. Confirmed this also holds under the "collapse only
+  changes width, not height" rule the Collapsible state row already
+  establishes: a fixed-height rail (App Shell's real placement, or this
+  fix's own `min-height` stand-in for the standalone gallery demo,
+  below) now keeps one constant height across both states, with the
+  Footer following the same bottom edge either way — previously, the
+  standalone demo's own height silently *shrank* on collapse (hidden
+  Section labels/dividers/accordion removing real content height, with
+  nothing holding the box open), so the Footer looked "pinned" purely
+  by coincidence, immediately after whatever the last visible row
+  happened to be, not by the fix actually working. `preview.html`
+  (gallery-only, not a spec change): `#deptSidebarNav` gets a
+  `min-height` above 768px, standing in for the fixed height a real
+  consuming page's own layout provides for free (App Shell's own
+  `calc(100dvh - 32px)` stretch) — explicitly scoped to desktop/tablet
+  only, since below 768px the rail is supposed to shrink with fewer
+  visible rows, per its own Mobile responsive behavior above.
 
 - **v0.9.60 — 2026-08-24** — Added an **AI Recommendation** tone to
   [Info Banner](#info-banner), and demoed it in `preview.html`/
