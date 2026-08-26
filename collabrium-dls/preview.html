@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.62</title>
+<title>Collabrium design system | v0.9.65</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -364,7 +364,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.62</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.65</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -372,7 +372,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.62</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.65</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -996,9 +996,20 @@
                               <div class="c-prompt-bar-group">
                                 <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
                                 <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                                <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
                               </div>
                               <div class="c-prompt-bar-group">
-                                <span class="c-chat-composer-context">Reading: this workspace</span>
+                                <div class="c-prompt-bar-model">
+                                  <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                    <span class="c-prompt-bar-model-label js-model-label">Standard</span>
+                                    <i class="ph ph-caret-down"></i>
+                                  </button>
+                                  <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
+                                    <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
+                                    <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
+                                  </div>
+                                </div>
+                                <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
                                 <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" id="chatSendBtn" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
                               </div>
                             </div>
@@ -1038,6 +1049,16 @@
                             <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
                           </div>
                           <div class="c-prompt-bar-group">
+                            <div class="c-prompt-bar-model">
+                              <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="c-prompt-bar-model-label js-model-label">Standard</span>
+                                <i class="ph ph-caret-down"></i>
+                              </button>
+                              <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
+                                <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
+                                <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
+                              </div>
+                            </div>
                             <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
                             <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
                           </div>
@@ -1058,7 +1079,7 @@
                       <div class="c-prompt-bar-field">
                         <input type="text" aria-label="Ask anything" />
                         <div class="c-prompt-bar-ghost" aria-hidden="true">
-                          <span class="c-prompt-bar-ghost-text" id="promptbarPoseCollapsedGhost">I am your Collabrium assistant, let me help you</span>
+                          <span class="c-prompt-bar-ghost-text" id="promptbarPoseCollapsedGhost"></span>
                         </div>
                         <span class="c-prompt-bar-ghost-static">Ask me anything</span>
                       </div>
@@ -1070,6 +1091,16 @@
                             <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
                           </div>
                           <div class="c-prompt-bar-group">
+                            <div class="c-prompt-bar-model">
+                              <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="c-prompt-bar-model-label js-model-label">Standard</span>
+                                <i class="ph ph-caret-down"></i>
+                              </button>
+                              <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
+                                <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
+                                <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
+                              </div>
+                            </div>
                             <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
                             <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
                           </div>
@@ -1095,9 +1126,20 @@
                       <div class="c-prompt-bar-group">
                         <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
                         <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
                       </div>
                       <div class="c-prompt-bar-group">
-                        <span class="c-chat-composer-context">Reading: this workspace</span>
+                        <div class="c-prompt-bar-model">
+                          <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="c-prompt-bar-model-label js-model-label">Standard</span>
+                            <i class="ph ph-caret-down"></i>
+                          </button>
+                          <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
+                            <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
+                            <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
+                          </div>
+                        </div>
+                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
                         <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
                       </div>
                     </div>
@@ -3327,10 +3369,9 @@ button next to the version flag in the top bar.
 
 </script>
 
-<script type="text/plain" id="src-md-extended">
-# Collabrium Design Language System
+<script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.62** — 2026-08-26 — Sourced from the Collabrium brand deck
+**v0.9.65** — 2026-08-26 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -4410,7 +4451,7 @@ prefix: `.c-prompt-bar*`.
 | Running line (`.c-prompt-bar-ghost` > `.c-prompt-bar-ghost-text`) | A `<span>`, not `::placeholder` — a placeholder can't be masked, transformed, or measured, and all three are needed once the box becomes a pill. `position: absolute; inset: 0`, flex row, `align-items: center`, `justify-content: flex-start` (left-aligned, matching where real typed text lands — not centered), `overflow: hidden`, `white-space: nowrap`, `pointer-events: none`, body1, Neutral-5. Inner `-text` span is `inline-block` so its full width is measurable via `scrollWidth` even while the parent clips it. Hides (`opacity: 0`) when the field carries a value, via an `.is-typing` class on the field |
 | Reduced-motion label (`.c-prompt-bar-ghost-static`) | `display: none` by default. Under `prefers-reduced-motion: reduce`, the running line is hidden entirely and this shows instead — a short label ("Ask me anything") that fits the pill outright rather than a clipped sentence |
 | Second row (`.c-prompt-bar-more`) | `overflow: hidden`, `min-height: 0` (required — the `0fr` row can't collapse without it), flex column, `padding-top: spacing-12`. Transitions `padding-top` and `opacity` on `duration-morph`/`ease-morph` |
-| Toolbar (`.c-prompt-bar-toolbar`) | Flex row, `justify-content: space-between`. Left group (`.c-prompt-bar-group`): Add image (`ph ph-image`), Attach file (`ph ph-paperclip`), More options (`ph ph-dots-three`). Right group: Voice input (`ph ph-microphone`), Send (`ph ph-arrow-up`). All five icons are **Tier 1, Regular** — every one is a control. Every button is the real Button icon-only variant (`c-btn-icon.c-btn-sm`) verbatim — Ghost for Add image/Attach file/More options/Voice input, Primary for Send — not a bespoke button class. Every button needs an `aria-label`, since all are icon-only |
+| Toolbar (`.c-prompt-bar-toolbar`) | Flex row, `justify-content: space-between`. Left group (`.c-prompt-bar-group`): Add image (`ph ph-image`), Attach file (`ph ph-paperclip`), More options (`ph ph-dots-three`). Right group: **model switcher** (Ghost dropdown — see its own Anatomy below), Voice input (`ph ph-microphone`), Send (`ph ph-arrow-up`) — same right-group order as the Inline variant's own toolbar, below, so the two don't drift into two different controls in the same slot. All four icon buttons are **Tier 1, Regular** — every one is a control. Every icon button is the real Button icon-only variant (`c-btn-icon.c-btn-sm`) verbatim — Ghost for Add image/Attach file/More options/Voice input, Primary for Send — not a bespoke button class; the model switcher trigger is the real Button Ghost variant too, just its small **text** size (`c-btn-sm`), not icon-only. Every icon-only button needs an `aria-label`, since it has no visible text |
 
 **Prompt input bar — States.**
 
@@ -4419,7 +4460,7 @@ prefix: `.c-prompt-bar*`.
 | Hidden | (base) | `opacity: 0`, `translateY(16px)` — pre-reveal |
 | Revealed | `.is-revealed` | Fades and rises in on `duration-reveal`/`ease-reveal`, `transition-delay: 1150ms` so it lands after the rest of the canvas sequence |
 | Expanded | (default, revealed) | Full card: two rows, `radius-lg`, toolbar visible, mark hidden |
-| Collapsed | `.is-collapsed` | Narrows to `--prompt-bar-w` (236px), parks at `--prompt-bar-shift`, `radius-pill` on the surface and both glow layers, second row folds to `0fr` with `padding-top: 0`/`opacity: 0`, mark fades in, surface left padding grows to 56px (16 gutter + 32 mark + 8 gap), running line starts its marquee |
+| Collapsed | `.is-collapsed` | Narrows to `--prompt-bar-w` (406px), parks at `--prompt-bar-shift`, `radius-pill` on the surface and both glow layers, second row folds to `0fr` with `padding-top: 0`/`opacity: 0`, mark fades in, surface padding becomes `11px spacing-16 11px 56px` (was a uniform `spacing-16`) — 56px left is unchanged (16 gutter + 32 mark + 8 gap); 11px top/bottom is a deliberate one-off, not on the spacing-4/8/12/16 scale, landing the pill at exactly ~46px against the input's own 24px line box (spacing-8 undershoots to 40px, spacing-12 overshoots to 48px) — the same kind of computed one-off the 56px value next to it already is. Running line is already at rest (typed out while Expanded — see Behavior below), no separate collapse-time animation |
 | Morphable | `.is-morphable` | Added after the entrance has played. Declares one transition for `transform`, `width`, and `bottom` on `duration-morph`/`ease-morph` so collapse and expand take the same 420ms — without it, expansion falls through to the entrance rule's slower `duration-reveal` and reads as lag. Must be declared **after** `.is-collapsed` in source order to win the cascade tie once added |
 | Typing | `.is-typing` on the field | Running line hides |
 | Pushed | `--prompt-bar-push` | A side panel opened over the same corner; the bar slides left by exactly the overlap, capped so it never leaves the gutter |
@@ -4431,7 +4472,7 @@ prefix: `.c-prompt-bar*`.
 - **Scroll collapse** — asymmetric thresholds, deliberately: collapse once `scrollTop > 240`, expand only when `scrollTop <= 8`. A single threshold flip-flops either side of the boundary; the hold is the point. Listen on the scroll container (not `window`), `{ passive: true }`, throttled through `requestAnimationFrame`.
 - **Launch** — a click anywhere on the bar (card or pill) opens the chat overlay; `Enter` in the input does the same, `preventDefault()`. Not wired to `focusin` — the overlay hands focus back to this bar on close, and a focus-to-open rule would immediately reopen it.
 - **Geometry sync** — measure, don't hardcode: re-measure the pill's park position (`--prompt-bar-shift`) on state change, not on every scroll event (caching at init is wrong — icon fonts load late and move a dock's edge, parking the pill short of its seam). Also re-run on resize and on `document.fonts.ready`. Use `offsetWidth`/`offsetHeight` and computed style, never client rects — this element transitions `width`, so a client rect returns whichever frame the morph happens to be on.
-- **Marquee (collapsed running line)** — mask both ends (`linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%)`). Travel distance is `min(0, window − scrollWidth)` — negative or zero, so the line only ever shifts left to reveal overflow, never right; a line that already fits parks on a no-op. Duration derived from distance at ~60px/s, so speed is constant whatever sentence is showing; travel is 64% of the animation cycle (two 32% legs), the rest is holding at each extreme (`0%,18%` at start, `50%,68%` at the far end, `100%` back) — the holds are what make it readable. The window is a constant (236 − 64) on desktop because the width is mid-transition and unmeasurable; on mobile it's measured from `clientWidth − 64` because the collapsed bar keeps its full width there.
+- **Collapsed running line — no scroll.** The resting sentence finishes typing while still Expanded (below), so by the time a scroll collapses the bar the line is already static, complete text — collapsing just narrows the box around it. Both ends stay masked (`linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%)`) to soften the trailing edge if the sentence slightly overflows the pill, but nothing moves: at ~406px wide the resting sentence (346px) very nearly fits the collapsed track (334px available), and a scroll animation that barely has anywhere to travel reads as jitter, not motion. This replaced an earlier marquee (a looping horizontal scroll, `min(0, window − scrollWidth)` travel at ~60px/s) that made sense at the pill's original, much narrower 236px width, where the overflow was large enough for a scroll to actually read as intentional.
 - **Placeholder choreography** — one-shot, not a loop: (1) type "Everything else lives right here." with a trailing caret, (2) pulse the caret on it for 5s (500ms blink), (3) delete it, (4) type "I am your Collabrium assistant, let me help you", (5) stop indefinitely — the final message is the resting state. Every step pauses while the input is focused, so it never fights real typing. Starts only once the bar's own reveal has finished. If the bar collapses before the sequence completes, fast-forward straight to the final sentence — a half-typed fragment must never be what shuttles through the pill. A guard timer lands the final string regardless, so a stalled interval can't leave it half-typed.
 - **Reduced motion** (`prefers-reduced-motion: reduce`) — glow animations off; morph transitions off (the two poses still exist, only the travel between them goes — `.is-morphable` is named explicitly in the override since it declares its own transition at higher specificity and a media query alone wouldn't beat it); the mark arrives without the scale; the running line hides entirely in favor of the static short label; the placeholder choreography is skipped, with the final sentence set directly.
 
@@ -4449,13 +4490,13 @@ real Button classes).
 | Width | `min(620px, 100% - spacing-32)` | 100% of its container |
 | Collapse on scroll | Yes, at 240/8 | **Never** — no `.is-collapsed`, no morph, no scroll listener |
 | AI mark | Appears when collapsed | **Never rendered** — omitted from the markup entirely |
-| Running ghost line | Typewriter + marquee | **Not used** — a plain `::placeholder` instead ("Reply to Collabrium…") |
+| Running ghost line | Typewriter | **Not used** — a plain `::placeholder` instead ("Reply to Collabrium…") |
 | Elevation | `shadow-4` | `shadow-2` |
 | Glow blend | `plus-lighter` | `normal` |
 | Glow outer | `inset -4px`, `blur(16px)`, `opacity .7` | `inset -7px`, `blur(13px)`, `opacity .4` |
 | Glow inner | `inset -1px`, `blur(1px)`, `opacity 1` | `inset -1.5px`, `blur(2px)`, `opacity .5` |
 | Radius | `radius-lg`, morphs to pill | `radius-lg`, fixed |
-| Toolbar | Folds away when collapsed | Always visible; two controls only (Add image, Attach file) plus a context label ("Reading: this workspace", caption/700/Neutral-5) and Send |
+| Toolbar | Folds away when collapsed | Always visible; three controls (Add image, Attach file, **More options** — previously missing here, now matching Floating bar's own left group). Right group is identical to Floating bar's own — model switcher, Voice input, Send, same order — deliberately kept in sync rather than diverging by variant; the model switcher itself replaces the earlier plain-text "Reading: this workspace" context label this row used to carry |
 | Toolbar button size | 32×32px (the real `c-btn-icon.c-btn-sm` recipe) | Same 32×32px — **not** a separate 36px-to-32px reduction; both variants share the identical real Button size |
 | Send | `radius-sm` square (Do: no bespoke override) | `radius-pill` override on top of the real Primary icon-only recipe — the same override technique as the AI mark's own circle |
 
@@ -4469,6 +4510,40 @@ the Inline glow *below* the Floating bar's intensity rather than above
 it. `shadow-4` drops to `shadow-2` for the same competing-signal reason
 — a 48px grey bloom over the same ring is what the glow would be
 fighting.
+
+**Prompt input bar — Model switcher (`.c-prompt-bar-model`).**
+
+Shared by both variants — Floating bar and Inline carry the identical
+control in the identical right-group position (model switcher, Voice
+input, Send), rather than each toolbar inventing its own answer to
+"which control goes here." On Inline it replaces the earlier plain-text
+"Reading: this workspace" context label; on Floating bar it's new
+outright — that toolbar never had anything in this slot before.
+
+| Part | Spec |
+|---|---|
+| Trigger (`.c-prompt-bar-model-trigger`) | The real [Button](#button) Ghost variant, small text size (`c-btn-ghost.c-btn-sm`) — not an icon-only recipe, this one carries a label. Neutral-7 text (one step lighter than the toolbar's Neutral-9 icons, matching the label's lower-emphasis role). Trailing `ph-caret-down`, 12px, Neutral-5. Label (`.c-prompt-bar-model-label`) truncates at `max-width: 160px` with an ellipsis rather than wrapping or pushing Send out of the row |
+| Menu (`.c-prompt-bar-model-menu`) | Opens **upward** — the composer sits at the bottom of its surface, same reasoning as a bottom sheet. Reuses the exact popover shell [Chat window](#ai-native)'s own More options menu already established: `shadow-3`, `radius-md`, 1px Neutral-3 border, Neutral-1 fill, `spacing-4` padding |
+| Row (`.c-prompt-bar-model-item`) | 36px height, `spacing-12` gap, `radius-sm`, transparent fill, Neutral-2 on hover, body2 text, left-aligned — same recipe as `.c-chat-menu-item`. Trailing check icon shown only on the active option, **visibility-toggled rather than added/removed** so every row reserves the same width and the label column never shifts depending on which one is active — the same trailing-check idiom Department switcher's own dropdown already uses for its selected item |
+| Model names | Placeholder only ("Standard"/"Advanced") — real product naming wasn't specified at time of writing and isn't itself a design-system concern; treat the switcher's own anatomy above as the spec, not these two labels |
+
+**Model switcher — Behavior.** `position: fixed` on the menu,
+positioned in JS from the trigger's own `getBoundingClientRect()` at
+open time (`right`/`bottom`, right-aligned and opening upward) — this
+is **not** a stylistic choice. It was tried first as `position:
+absolute` inside `.c-prompt-bar-more`, and silently failed: that
+element carries its own `overflow: hidden`, required for the Floating
+bar's collapse-to-`0fr` morph, and it clips any absolutely-positioned
+descendant that tries to render outside its box regardless of which
+variant (Floating or Inline) the switcher sits inside — the menu was
+correctly positioned and simply invisible. Same root cause, same fix,
+as Chat window's own More options menu already had to solve for the
+same reason. Delegated, multi-instance-safe event handling (`closest`
+lookups from the click target, not per-instance `querySelector` calls)
+— the same pattern the Chat window rail toggle already uses — since a
+page can carry more than one Prompt input bar instance at once, of
+either variant. Closes on: outside click, Escape, or selecting an
+option.
 
 **Do:** keep the toolbar's icon-only buttons as real Button Ghost/Primary
 icon-only instances, not bespoke button classes — even though that
@@ -4487,7 +4562,11 @@ keep the shrink (second row folds away), drop the parking and the
 pill shape. Don't give the Inline variant a scroll-collapse listener
 or an AI mark — those exist to solve the Floating bar's own
 over-the-canvas problem, which Inline, sitting in flow inside a
-composer tray, doesn't have.
+composer tray, doesn't have. Don't give a popover anchored inside this
+component `position: absolute` — `.c-prompt-bar-more`'s own
+`overflow: hidden` will clip it the instant it tries to render outside
+that box; use `position: fixed` with JS-measured placement instead, the
+same fix Chat window's own More options menu already required.
 
 
 ### App Shell
@@ -8594,6 +8673,88 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.65 — 2026-08-26** — **[Prompt input bar](#ai-native)**'s
+  Floating bar and Inline variants had drifted into two different
+  right-hand toolbars: Floating bar carried Voice input + Send, Inline
+  carried the model switcher + Send, with neither variant showing all
+  three. Fixed by giving both the identical right group, in the
+  identical order: **model switcher, Voice input, Send**. Floating bar
+  gains the model switcher outright (its toolbar never had one before);
+  Inline gains Voice input (its toolbar never had one before). No new
+  CSS was needed — `.c-prompt-bar-model*` was already unscoped, not
+  `.c-prompt-bar--inline`-only, so the existing rules apply to both
+  variants as soon as the markup carries them; `components.css` only
+  changed a comment clarifying the class was never Inline-only.
+  `preview.html`: added the missing control to all four affected
+  instances — the Floating bar Expanded and Collapsed poses, the
+  standalone Inline swatch, and Chat window's real composer. The
+  model-switcher script was already delegated/multi-instance-safe
+  (v0.9.63), so it needed no changes to cover the two new instances.
+  `tokens.css`: unchanged. Version flag bumped to v0.9.65.
+
+- **v0.9.64 — 2026-08-26** — **[Prompt input bar](#ai-native)**'s
+  Collapsed pill drops its marquee: the running line's earlier looping
+  horizontal scroll is replaced with the same one-shot typewriter
+  reveal Expanded already uses. Direct consequence of v0.9.63's resize
+  — at the old 236px width the resting sentence overflowed by enough
+  that a scroll genuinely read as motion; at the new ~406px width it's
+  346px against a 334px available track, so the scroll had almost
+  nowhere to travel and looked like jitter instead. The trailing-edge
+  mask stays (softens the ~12px that still doesn't fit), but nothing
+  animates it anymore — the sentence finishes typing while still
+  Expanded, per the existing placeholder choreography, so by the time a
+  real scroll would collapse the bar the line is already static,
+  complete text; collapsing just narrows the box around it.
+  `components.css`: removed `--prompt-bar-marquee-dx`/`-dur`, the
+  `.is-collapsed .c-prompt-bar-ghost-text` animation rule, and the
+  `@keyframes c-prompt-bar-marquee` block; the reduced-motion override
+  that targeted the marquee now targets the caret-blink pseudo-element
+  instead, since that's the only animation left on the ghost text.
+  `preview.html`: the Collapsed pose's demo script now calls the same
+  `typeOut()` the Expanded pose already used, instead of computing
+  marquee travel/duration from measured text width; both now also
+  respect `prefers-reduced-motion` by setting the final text directly
+  rather than animating it, closing a gap the marquee-based demo never
+  actually had to handle. `tokens.css`: unchanged. Version flag bumped
+  to v0.9.64.
+
+- **v0.9.63 — 2026-08-26** — Three changes to **[Prompt input bar](#ai-native)**,
+  one of them a bug fix. (1) Floating bar's Collapsed pill resized from
+  236×56 to ~406×46: width via the component's own `--prompt-bar-w`
+  custom property (406px), height via the collapsed surface's padding
+  (11px top/bottom, a deliberate one-off landing exactly on 46px against
+  the input's own 24px line box — spacing-8 undershoots at 40px,
+  spacing-12 overshoots at 48px; same status as the existing 56px left
+  padding beside it). The marquee's desktop speed constant moved from
+  `236 − 64` to `406 − 64` to match. (2) Inline variant's toolbar gains
+  the **More options** button it was missing (it was already on Floating
+  bar's own toolbar) and a new **model switcher** — a Ghost dropdown
+  (`.c-prompt-bar-model`) replacing the earlier plain-text "Reading: this
+  workspace" label, documented in its own new Anatomy/Behavior
+  subsection. (3) **Bug fix**, caught before this shipped: the model
+  switcher's menu was initially built `position: absolute` inside
+  `.c-prompt-bar-more`, which has its own `overflow: hidden` (required
+  for the Floating bar's collapse-to-`0fr` morph) — opening the menu
+  upward rendered it outside that box and it was silently clipped, not
+  visibly broken. Same failure Chat window's own More options menu
+  already hit and solved; same fix applies: `position: fixed`, positioned
+  in JS from the trigger's `getBoundingClientRect()`, which no ancestor's
+  `overflow` can clip. The open/close JS is also delegated and
+  multi-instance-safe (matching the rail toggle's own established
+  pattern), since a page can now carry more than one Inline instance.
+  `tokens.css`: unchanged, no new token was needed for either change —
+  same as the 56px left-padding precedent, an occasional one-off pixel
+  value is accepted without promoting it to a token. `components.css`:
+  `--prompt-bar-w` default changed to `406px`; the collapsed-surface
+  padding rule extended from a `padding-left` override to all four
+  sides; a new `.c-prompt-bar-model*` rule set added after the Inline
+  variant's own rules. `preview.html`: both Inline instances (Chat
+  window's real composer and the standalone Inline swatch) gained the
+  More options button and model switcher; the demo's marquee script
+  constant updated to match; a new delegated model-switcher script
+  added alongside the existing rail-toggle one. Version flag bumped to
+  v0.9.63.
+
 - **v0.9.62 — 2026-08-26** — [App Shell](#app-shell) catches up to
   SidebarNav's own v0.9.61 changes and gets its Responsive row rewritten
   to match, its Main nav demo actually implements the mobile placement
@@ -10879,7 +11040,6 @@ with nothing else to keep in sync.
 - **v0.1.0 — 2026-07-29** — Initial DLS drafted from the Collabrium
   brand deck (Google Slides). 10 gaps flagged under Needs Input; see table
   at top. Not yet reviewed by brand team.
-
 </script>
 
 <script type="text/plain" id="src-css-vars">/*
@@ -13497,21 +13657,27 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
 </script>
 <script>
 (function(){
-  // Prompt input bar demo (comp-promptbar) — Expanded pose runs a
+  // Prompt input bar demo (comp-promptbar) — both poses run the same
   // one-shot typewriter reveal of the resting sentence (same char-by-
   // char/caret approach as the real placeholder choreography's final
-  // step, without the type-pause-delete lead-in, since this stage shows
-  // the resting state, not the whole sequence). Collapsed pose runs the
-  // same marquee math as the real component so its running line
-  // actually travels instead of sitting at the CSS default's no-op.
+  // step, without the type-pause-delete lead-in, since these stages
+  // show the resting state, not the whole sequence). Collapsed used to
+  // run a marquee instead — dropped once the pill was resized to
+  // ~406px, since the resting sentence now nearly fits its available
+  // track width (346px of text vs. 334px available); a scroll that
+  // barely needs to travel just read as jitter. The remaining sliver
+  // of overflow is handled by the existing edge mask on
+  // .c-prompt-bar-ghost, same as before, just without any motion.
   var expandedGhost = document.getElementById('promptbarPoseExpandedGhost');
-  var collapsedBar = document.getElementById('promptbarPoseCollapsedBar');
   var collapsedGhost = document.getElementById('promptbarPoseCollapsedGhost');
-  if (!expandedGhost || !collapsedBar || !collapsedGhost) return;
+  if (!expandedGhost || !collapsedGhost) return;
+
+  function reducedMotion(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
 
   var FINAL_TEXT = "I am your Collabrium assistant, let me help you";
 
   function typeOut(el, str){
+    if (reducedMotion()) { el.textContent = str; return; }
     var i = 0;
     el.classList.add('is-caret-pulsing');
     (function tick(){
@@ -13522,20 +13688,61 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
     })();
   }
 
-  function runMarquee(){
-    var win = 236 - 64; // desktop constant, per spec — width is mid-transition and unmeasurable
-    var textWidth = collapsedGhost.scrollWidth;
-    var dx = Math.min(0, win - textWidth); // negative or 0 — never shifts right
-    var travelPx = Math.abs(dx);
-    var travelMs = (travelPx / 60) * 1000; // ~60px/s
-    var totalMs = travelPx === 0 ? 0 : travelMs / 0.64; // travel is 64% of the cycle (two 32% legs)
-    collapsedBar.style.setProperty('--prompt-bar-marquee-dx', dx + 'px');
-    collapsedBar.style.setProperty('--prompt-bar-marquee-dur', (totalMs || 1) + 'ms');
-  }
-
   window.addEventListener('load', function(){
     setTimeout(function(){ typeOut(expandedGhost, FINAL_TEXT); }, 300);
-    setTimeout(runMarquee, 50);
+    setTimeout(function(){ typeOut(collapsedGhost, FINAL_TEXT); }, 300);
+  });
+})();
+</script>
+<script>
+// Model switcher (Inline variant only) — delegated, multi-instance safe,
+// since a page can carry more than one Inline composer at once (Chat
+// window's real composer, plus the standalone Inline swatch below it).
+// See DESIGN-SYSTEM.md's own "Model switcher — Behavior" for why the
+// menu is position:fixed, JS-positioned, rather than absolute.
+(function(){
+  function closeAllMenus(){
+    document.querySelectorAll('.c-prompt-bar-model-menu.is-open').forEach(function(m){
+      m.classList.remove('is-open');
+      var wrap = m.closest('.c-prompt-bar-model');
+      var t = wrap && wrap.querySelector('.js-model-trigger');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  }
+  document.addEventListener('click', function(e){
+    var trigger = e.target.closest('.js-model-trigger');
+    if (trigger) {
+      var wrap = trigger.closest('.c-prompt-bar-model');
+      var menu = wrap.querySelector('.js-model-menu');
+      var wasOpen = menu.classList.contains('is-open');
+      closeAllMenus();
+      if (!wasOpen) {
+        var rect = trigger.getBoundingClientRect();
+        menu.style.right = (window.innerWidth - rect.right) + 'px';
+        menu.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+        menu.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+      return;
+    }
+    var option = e.target.closest('.js-model-option');
+    if (option) {
+      var menu2 = option.closest('.js-model-menu');
+      var wrap2 = option.closest('.c-prompt-bar-model');
+      var trig2 = wrap2.querySelector('.js-model-trigger');
+      menu2.querySelectorAll('.js-model-option').forEach(function(o){
+        o.classList.toggle('is-active', o === option);
+        o.setAttribute('aria-selected', o === option ? 'true' : 'false');
+      });
+      wrap2.querySelector('.js-model-label').textContent = option.dataset.model;
+      closeAllMenus();
+      trig2.focus();
+      return;
+    }
+    if (!e.target.closest('.c-prompt-bar-model')) closeAllMenus();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') closeAllMenus();
   });
 })();
 </script>
