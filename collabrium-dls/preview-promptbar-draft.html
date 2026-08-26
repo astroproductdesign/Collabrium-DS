@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Prompt input bar — draft</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--color-neutral-2); color:var(--color-neutral-9); font-family:var(--font-primary);}
+
+  .draft-shell{max-width:1360px; margin:0 auto; padding:var(--spacing-32) var(--spacing-24) var(--spacing-60);}
+  .draft-head{margin-bottom:var(--spacing-32);}
+  .draft-head h1{font-size:var(--text-h3-size); font-weight:800; margin:0 0 var(--spacing-8);}
+  .draft-head p{font-size:var(--text-body2-size); color:var(--color-neutral-6); line-height:1.6; max-width:80ch; margin:0;}
+  .draft-flag{
+    display:inline-flex; align-items:center; gap:6px; background:rgba(255,164,37,.16);
+    color:var(--color-neutral-9); font-size:var(--text-label3-size); font-weight:600;
+    letter-spacing:var(--text-label3-tracking); padding:2px var(--spacing-8); border-radius:var(--radius-pill);
+    margin-bottom:var(--spacing-12);
+  }
+  .fix-flag{
+    display:inline-flex; align-items:center; gap:6px; background:rgba(60,168,90,.16);
+    color:var(--color-neutral-9); font-size:var(--text-label3-size); font-weight:600;
+    letter-spacing:var(--text-label3-tracking); padding:2px var(--spacing-8); border-radius:var(--radius-pill);
+    margin:var(--spacing-8) 0 0;
+  }
+
+  .comp-block{margin-bottom:var(--spacing-60);}
+  .comp-block:last-child{margin-bottom:0;}
+  .comp-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--spacing-16);}
+  .comp-head h2{font-size:var(--text-h4-size); font-weight:800; margin:0;}
+  .comp-demo{border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); padding:var(--spacing-24); background:var(--color-neutral-1);}
+  .swatch-group-label{font-size:var(--text-label3-size); text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-5); font-weight:700; margin:var(--spacing-32) 0 var(--spacing-12);}
+  .swatch-group-label:first-of-type{margin-top:0;}
+
+  /* Desktop / Mobile side-by-side comparison rows — demo-only
+     scaffolding, same status as .swatch-group-label. */
+  .dm-row{display:flex; gap:var(--spacing-24); align-items:flex-start; flex-wrap:wrap;}
+  .dm-col{display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .dm-col-desktop{flex:1 1 420px; min-width:320px;}
+  .dm-col-mobile{flex:0 0 375px;}
+  .dm-col-label{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
+  .promptbar-pose-stage{position:relative; background:var(--color-canvas-warm-card); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-32); display:flex; align-items:center; justify-content:center; height:100%;}
+  .mobile-frame{width:375px; height:190px; border:1px solid var(--color-neutral-3); border-radius:16px; overflow:hidden; background:var(--color-canvas-warm);}
+  .mobile-frame iframe{width:100%; height:100%; border:none; display:block;}
+  .mobile-inline-stage{background:var(--color-canvas-warm); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-16); width:375px;}
+
+  /* Chat window demo frame — copied verbatim from preview.html's own
+     page-local override, so both instances below fill their own
+     container's actual width/height rather than the real component's
+     fixed-modal sizing (which is viewport-relative and only makes
+     sense for the real fixed-position surface, not an inline gallery
+     swatch). */
+  .chatwindow-frame{position:relative; width:100%; height:min(640px, 75vh);}
+  .chatwindow-frame .c-chat-shell{position:relative; inset:auto; margin:0; width:100%; height:100%; opacity:1;}
+  .chatwindow-frame .c-chat-rail, .chatwindow-frame .c-chat-main{opacity:1;}
+  .chatwindow-frame-mobile{width:375px; flex:0 0 375px;}
+
+  .review-notes{margin-top:var(--spacing-60); padding:var(--spacing-24); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md);}
+  .review-notes h2{font-size:var(--text-h5-size); margin:0 0 var(--spacing-12);}
+  .review-notes ul{margin:0; padding-left:var(--spacing-20); font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-7);}
+  .review-notes li{margin-bottom:var(--spacing-12);}
+  .review-notes li:last-child{margin-bottom:0;}
+  .review-notes code{background:var(--color-neutral-2); border-radius:4px; padding:1px 5px; font-size:.92em;}
+
+  /* =========================================================
+     PROPOSED enhancements — not yet in components.css.
+     ========================================================= */
+
+  /* 1. Collapsed pill resized to ~406×46 (was 236×56). See review
+     notes for the full derivation of the 11px/406px values. */
+  .c-prompt-bar{--prompt-bar-w:406px;}
+  .c-prompt-bar.is-collapsed .c-prompt-bar-surface{padding:11px var(--spacing-16) 11px 56px;}
+
+  /* 3. Inline variant's model switcher — a Ghost dropdown reusing
+     Button Ghost (.c-btn-ghost.c-btn-sm) for the trigger and the same
+     popover shell Chat window's own More options menu already reuses
+     (shadow-3, radius-md, 1px Neutral-3 border, Neutral-1 fill,
+     spacing-4 padding). FIXED since the last round: this used to be
+     position:absolute inside .c-prompt-bar-more, which has its own
+     overflow:hidden (required for the Floating bar's collapse-to-0fr
+     morph) — opening upward tried to render outside that box and got
+     silently clipped, so the menu never appeared. Same root cause,
+     same fix, as Chat window's own More options menu already had to
+     solve: position:fixed, positioned in JS from the trigger's own
+     rect, so no ancestor's overflow can clip it regardless of which
+     variant (Floating or Inline) the switcher sits inside. */
+  .c-prompt-bar-model{position:relative; flex:none;}
+  .c-prompt-bar-model-trigger{gap:6px; color:var(--color-neutral-7); max-width:160px;}
+  .c-prompt-bar-model-label{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .c-prompt-bar-model-trigger i{font-size:12px; color:var(--color-neutral-5); flex:none;}
+  .c-prompt-bar-model-menu{
+    position:fixed; z-index:60; display:none;
+    min-width:180px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4);
+  }
+  .c-prompt-bar-model-menu.is-open{display:block;}
+  .c-prompt-bar-model-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:36px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); background:transparent; border:none; font-family:inherit; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9); text-align:left; cursor:pointer;}
+  .c-prompt-bar-model-item:hover{background:var(--color-neutral-2);}
+  .c-prompt-bar-model-item span{flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .c-prompt-bar-model-item i{font-size:var(--icon-sm); color:var(--color-neutral-9); visibility:hidden; flex:none;}
+  .c-prompt-bar-model-item.is-active i{visibility:visible;}
+</style>
+</head>
+<body>
+<div class="draft-shell">
+
+  <div class="draft-head">
+    <span class="draft-flag"><i class="ph-fill ph-warning"></i> Draft — not yet in DESIGN-SYSTEM.md</span>
+    <h1>Prompt input bar</h1>
+    <p>Baseline pulled verbatim from <code>preview.html</code>/<code>components.css</code>, with three proposed enhancements layered on top: (1) a smaller ~406×46 collapsed pill, (2) an Inline toolbar with a More options icon and a Ghost dropdown model switcher, and (3) genuine desktop/mobile comparisons for every state, including the real Chat window (which uses the Inline variant as its composer). Nothing here has touched the formal files yet.</p>
+    <br />
+    <span class="fix-flag"><i class="ph-fill ph-check-circle"></i> Fixed since last round: the model dropdown menu was invisible on click</span>
+  </div>
+
+  <div class="comp-block">
+    <div class="comp-head"><h2>Prompt input bar</h2></div>
+    <div class="comp-demo">
+
+      <div class="swatch-group-label" style="margin-top:0">Floating bar — Expanded</div>
+      <div class="dm-row">
+        <div class="dm-col dm-col-desktop">
+          <span class="dm-col-label">Desktop</span>
+          <div class="promptbar-pose-stage">
+            <div class="c-prompt-bar is-revealed is-morphable" style="position:relative; left:auto; bottom:auto; transform:none; margin:0;">
+              <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+              <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+              <div class="c-prompt-bar-surface">
+                <div class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-mark" aria-hidden="true"><i class="ph-fill ph-sparkle"></i></div>
+                <div class="c-prompt-bar-field">
+                  <input type="text" aria-label="Ask anything" />
+                  <div class="c-prompt-bar-ghost" aria-hidden="true">
+                    <span class="c-prompt-bar-ghost-text" id="promptbarPoseExpandedGhost"></span>
+                  </div>
+                  <span class="c-prompt-bar-ghost-static">Ask me anything</span>
+                </div>
+                <div class="c-prompt-bar-more">
+                  <div class="c-prompt-bar-toolbar">
+                    <div class="c-prompt-bar-group">
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                    </div>
+                    <div class="c-prompt-bar-group">
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
+                      <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dm-col dm-col-mobile">
+          <span class="dm-col-label">Mobile — real 375px viewport</span>
+          <div class="mobile-frame"><iframe src="preview-promptbar-draft-mobile.html?state=expanded" title="Expanded — mobile"></iframe></div>
+        </div>
+      </div>
+
+      <div class="swatch-group-label">Floating bar — Collapsed (now ~406&times;46, was 236&times;56)</div>
+      <div class="dm-row">
+        <div class="dm-col dm-col-desktop">
+          <span class="dm-col-label">Desktop</span>
+          <div class="promptbar-pose-stage">
+            <div class="c-prompt-bar is-revealed is-morphable is-collapsed" id="promptbarPoseCollapsedBar" style="position:relative; left:auto; bottom:auto; transform:none; margin:0;">
+              <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+              <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+              <div class="c-prompt-bar-surface">
+                <div class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-mark" aria-hidden="true"><i class="ph-fill ph-sparkle"></i></div>
+                <div class="c-prompt-bar-field">
+                  <input type="text" aria-label="Ask anything" />
+                  <div class="c-prompt-bar-ghost" aria-hidden="true">
+                    <span class="c-prompt-bar-ghost-text" id="promptbarPoseCollapsedGhost">I am your Collabrium assistant, let me help you</span>
+                  </div>
+                  <span class="c-prompt-bar-ghost-static">Ask me anything</span>
+                </div>
+                <div class="c-prompt-bar-more">
+                  <div class="c-prompt-bar-toolbar">
+                    <div class="c-prompt-bar-group">
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                    </div>
+                    <div class="c-prompt-bar-group">
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
+                      <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dm-col dm-col-mobile">
+          <span class="dm-col-label">Mobile — real 375px viewport</span>
+          <div class="mobile-frame"><iframe src="preview-promptbar-draft-mobile.html?state=collapsed" title="Collapsed — mobile"></iframe></div>
+        </div>
+      </div>
+
+      <div class="swatch-group-label">Inline variant — standalone (as used by Chat window's composer)</div>
+      <div class="dm-row">
+        <div class="dm-col dm-col-desktop">
+          <span class="dm-col-label">Desktop</span>
+          <div class="promptbar-pose-stage" style="background:var(--color-canvas-warm); padding:var(--spacing-24); justify-content:stretch;">
+            <div class="c-prompt-bar c-prompt-bar--inline is-revealed" role="group" aria-label="Message composer" style="max-width:640px;">
+              <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+              <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+              <div class="c-prompt-bar-surface">
+                <div class="c-prompt-bar-field">
+                  <input type="text" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" />
+                </div>
+                <div class="c-prompt-bar-more">
+                  <div class="c-prompt-bar-toolbar">
+                    <div class="c-prompt-bar-group">
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                    </div>
+                    <div class="c-prompt-bar-group">
+                      <div class="c-prompt-bar-model">
+                        <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
+                          <span class="c-prompt-bar-model-label js-model-label">Standard</span>
+                          <i class="ph ph-caret-down"></i>
+                        </button>
+                        <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
+                          <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
+                          <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
+                        </div>
+                      </div>
+                      <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dm-col dm-col-mobile">
+          <span class="dm-col-label">Mobile &mdash; 375px (already <code>width:100%</code> in flow, no media query needed)</span>
+          <div class="mobile-inline-stage">
+            <div class="c-prompt-bar c-prompt-bar--inline is-revealed" role="group" aria-label="Message composer">
+              <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+              <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+              <div class="c-prompt-bar-surface">
+                <div class="c-prompt-bar-field">
+                  <input type="text" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" />
+                </div>
+                <div class="c-prompt-bar-more">
+                  <div class="c-prompt-bar-toolbar">
+                    <div class="c-prompt-bar-group">
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                      <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                    </div>
+                    <div class="c-prompt-bar-group">
+                      <div class="c-prompt-bar-model">
+                        <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
+                          <span class="c-prompt-bar-model-label js-model-label">Standard</span>
+                          <i class="ph ph-caret-down"></i>
+                        </button>
+                        <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
+                          <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
+                          <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
+                        </div>
+                      </div>
+                      <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatch-group-label">Chat window — desktop vs. mobile (uses the Inline variant above as its composer)</div>
+      <p style="margin:0 0 var(--spacing-16);font-size:14px;color:var(--color-neutral-5)">Both are the real, fully interactive component — pillar filter, conversation switching, message actions, Jump to present, and the rail-toggle drawer all work. The mobile column is a genuinely narrow <code>.c-chat-shell</code> (375px), so the shipped <code>@container (max-width:820px)</code> single-column rule and rail-toggle drawer fire for real, not simulated. Click the sidebar icon in the mobile header to open the drawer.</p>
+      <div class="dm-row">
+        <div class="dm-col dm-col-desktop">
+          <span class="dm-col-label">Desktop</span>
+          <div class="chatwindow-frame">
+            <div class="c-chat-shell" id="chatWindowShell" role="region" aria-labelledby="chatTitle">
+              <div class="c-chat-rail" id="chatRail">
+                <button type="button" class="c-btn c-btn-secondary c-btn-md c-chat-new"><i class="ph ph-plus"></i> New chat</button>
+                <div class="c-chat-pillars" role="radiogroup" aria-labelledby="chatPillarsLabel" id="chatPillars">
+                  <span class="c-chat-flabel" id="chatPillarsLabel">Filter by pillar</span>
+                  <div class="c-chip-group">
+                    <button type="button" class="c-chip c-chip-filter is-active" role="radio" aria-checked="true" tabindex="0" data-pillar="all">All</button>
+                    <button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1" data-pillar="collabsales">CollabSales</button>
+                    <button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1" data-pillar="collabstudio">CollabStudio</button>
+                    <button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1" data-pillar="collabcontent">CollabContent</button>
+                    <button type="button" class="c-chip c-chip-filter is-disabled" role="radio" aria-checked="false" aria-disabled="true" tabindex="-1" data-pillar="collabinfluencers">CollabInfluencers</button>
+                  </div>
+                </div>
+                <div class="c-chat-conversations" id="chatConversations" role="listbox" aria-label="Conversations">
+                  <div class="c-chat-group">
+                    <div class="c-chat-conversations-head">Today</div>
+                    <button type="button" class="c-chat-conversation is-active" data-pillar="collabsales" role="option" aria-selected="true">
+                      <span class="c-chat-conversation-title">Q3 pipeline review</span>
+                      <span class="c-chat-conversation-pillar">CollabSales</span>
+                    </button>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabstudio" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Storyboard options for launch spot</span>
+                      <span class="c-chat-conversation-pillar">CollabStudio</span>
+                    </button>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabcontent" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Approve Q3 blog calendar</span>
+                      <span class="c-chat-conversation-pillar">CollabContent</span>
+                    </button>
+                  </div>
+                  <div class="c-chat-group">
+                    <div class="c-chat-conversations-head">Earlier this week</div>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabsales" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Forecast accuracy check-in</span>
+                      <span class="c-chat-conversation-pillar">CollabSales</span>
+                    </button>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabstudio" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Revise hero video color grade</span>
+                      <span class="c-chat-conversation-pillar">CollabStudio</span>
+                    </button>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabcontent" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Content brief: back-to-school push</span>
+                      <span class="c-chat-conversation-pillar">CollabContent</span>
+                    </button>
+                  </div>
+                  <div class="c-chat-empty" id="chatEmpty">No conversations in this pillar yet.</div>
+                </div>
+              </div>
+              <div class="c-chat-rail-scrim"></div>
+              <div class="c-chat-main">
+                <div class="c-chat-hd">
+                  <div>
+                    <h2 id="chatTitle">Q3 pipeline review</h2>
+                    <p>Collabrium assistant &middot; reading this workspace</p>
+                  </div>
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm c-chat-rail-toggle" aria-label="Open conversations" aria-expanded="false" aria-controls="chatRail"><i class="ph ph-sidebar-simple"></i></button>
+                </div>
+                <div class="c-chat-thread-wrap">
+                <div class="c-chat-thread" id="chatThread">
+                  <div class="c-chat-thread-inner">
+                    <div class="c-chat-msg is-me">
+                      <div class="c-chat-bubble">How's the Q3 pipeline tracking against forecast, and where's the biggest risk?</div>
+                    </div>
+                    <div class="c-chat-msg is-ai">
+                      <div class="c-chat-bubble">
+                        <p>Q3 is tracking at <b>82% of forecast</b> with three weeks left in the quarter. The gap is concentrated in one segment:</p>
+                        <ul>
+                          <li>Enterprise renewals are ahead of plan (+6%)</li>
+                          <li>Mid-market new business is behind (&minus;18%), mostly stalled in the proposal stage</li>
+                          <li>Two opportunities worth $340K combined have had no activity in 12+ days</li>
+                        </ul>
+                        <span class="c-badge c-badge-neutral c-chat-cite"><i class="ph-fill ph-chart-line"></i> Pipeline report, Aug 21</span>
+                      </div>
+                      <div class="c-chat-actions" role="toolbar" aria-label="Message actions">
+                        <button type="button" class="c-chat-action js-copy" aria-label="Copy"><i class="ph ph-copy"></i></button>
+                        <button type="button" class="c-chat-action js-read" aria-label="Read aloud"><i class="ph ph-speaker-high"></i></button>
+                        <button type="button" class="c-chat-action js-thumb" data-thumb="up" aria-pressed="false" aria-label="Good response"><i class="ph ph-thumbs-up"></i></button>
+                        <button type="button" class="c-chat-action js-thumb" data-thumb="down" aria-pressed="false" aria-label="Bad response"><i class="ph ph-thumbs-down"></i></button>
+                        <button type="button" class="c-chat-action js-more" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                        <time class="c-chat-time" datetime="2026-08-24T10:14" title="24 August 2026, 10:14">3 hours ago</time>
+                      </div>
+                    </div>
+                    <div class="c-chat-msg is-me">
+                      <div class="c-chat-bubble">What would close the gap fastest?</div>
+                    </div>
+                    <div class="c-chat-msg is-ai">
+                      <div class="c-chat-bubble">
+                        <p>Fastest lever is the two stalled proposals — reaching back out this week keeps them inside the quarter. Beyond that:</p>
+                        <ul>
+                          <li>Re-engage the 4 opportunities that went quiet after a demo</li>
+                          <li>Pull forward 2 renewals currently slotted for early Q4</li>
+                        </ul>
+                        <span class="c-badge c-badge-neutral c-chat-cite"><i class="ph-fill ph-list-checks"></i> Deal activity, last 30 days</span>
+                      </div>
+                      <div class="c-chat-actions" role="toolbar" aria-label="Message actions">
+                        <button type="button" class="c-chat-action js-copy" aria-label="Copy"><i class="ph ph-copy"></i></button>
+                        <button type="button" class="c-chat-action js-read" aria-label="Read aloud"><i class="ph ph-speaker-high"></i></button>
+                        <button type="button" class="c-chat-action js-thumb" data-thumb="up" aria-pressed="false" aria-label="Good response"><i class="ph ph-thumbs-up"></i></button>
+                        <button type="button" class="c-chat-action js-thumb" data-thumb="down" aria-pressed="false" aria-label="Bad response"><i class="ph ph-thumbs-down"></i></button>
+                        <button type="button" class="c-chat-action js-more" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                        <time class="c-chat-time" datetime="2026-08-24T10:16" title="24 August 2026, 10:16">3 hours ago</time>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="c-chat-jump" id="chatJump" aria-label="Jump to present"><i class="ph ph-arrow-down"></i></button>
+                </div>
+                <div class="c-chat-composer">
+                  <div class="c-chat-composer-inner">
+                    <div class="c-prompt-bar c-prompt-bar--inline is-revealed" role="group" aria-label="Message composer">
+                      <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+                      <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+                      <div class="c-prompt-bar-surface">
+                        <div class="c-prompt-bar-field">
+                          <input type="text" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" id="chatComposerInput" />
+                        </div>
+                        <div class="c-prompt-bar-more">
+                          <div class="c-prompt-bar-toolbar">
+                            <div class="c-prompt-bar-group">
+                              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                            </div>
+                            <div class="c-prompt-bar-group">
+                              <div class="c-prompt-bar-model">
+                                <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                  <span class="c-prompt-bar-model-label js-model-label">Standard</span>
+                                  <i class="ph ph-caret-down"></i>
+                                </button>
+                                <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
+                                  <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
+                                  <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
+                                </div>
+                              </div>
+                              <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" id="chatSendBtn" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="c-chat-foot">AI can make mistakes. Please double-check responses.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dm-col chatwindow-frame-mobile">
+          <span class="dm-col-label">Mobile — real 375px <code>.c-chat-shell</code> width</span>
+          <div class="chatwindow-frame" style="width:375px;">
+            <div class="c-chat-shell" id="chatWindowShellM" role="region" aria-labelledby="chatTitleM">
+              <div class="c-chat-rail" id="chatRailM">
+                <button type="button" class="c-btn c-btn-secondary c-btn-md c-chat-new"><i class="ph ph-plus"></i> New chat</button>
+                <div class="c-chat-pillars" role="radiogroup" aria-labelledby="chatPillarsLabelM" id="chatPillarsM">
+                  <span class="c-chat-flabel" id="chatPillarsLabelM">Filter by pillar</span>
+                  <div class="c-chip-group">
+                    <button type="button" class="c-chip c-chip-filter is-active" role="radio" aria-checked="true" tabindex="0" data-pillar="all">All</button>
+                    <button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1" data-pillar="collabsales">CollabSales</button>
+                    <button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1" data-pillar="collabstudio">CollabStudio</button>
+                    <button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1" data-pillar="collabcontent">CollabContent</button>
+                    <button type="button" class="c-chip c-chip-filter is-disabled" role="radio" aria-checked="false" aria-disabled="true" tabindex="-1" data-pillar="collabinfluencers">CollabInfluencers</button>
+                  </div>
+                </div>
+                <div class="c-chat-conversations" id="chatConversationsM" role="listbox" aria-label="Conversations">
+                  <div class="c-chat-group">
+                    <div class="c-chat-conversations-head">Today</div>
+                    <button type="button" class="c-chat-conversation is-active" data-pillar="collabsales" role="option" aria-selected="true">
+                      <span class="c-chat-conversation-title">Q3 pipeline review</span>
+                      <span class="c-chat-conversation-pillar">CollabSales</span>
+                    </button>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabstudio" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Storyboard options for launch spot</span>
+                      <span class="c-chat-conversation-pillar">CollabStudio</span>
+                    </button>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabcontent" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Approve Q3 blog calendar</span>
+                      <span class="c-chat-conversation-pillar">CollabContent</span>
+                    </button>
+                  </div>
+                  <div class="c-chat-group">
+                    <div class="c-chat-conversations-head">Earlier this week</div>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabsales" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Forecast accuracy check-in</span>
+                      <span class="c-chat-conversation-pillar">CollabSales</span>
+                    </button>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabstudio" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Revise hero video color grade</span>
+                      <span class="c-chat-conversation-pillar">CollabStudio</span>
+                    </button>
+                    <button type="button" class="c-chat-conversation" data-pillar="collabcontent" role="option" aria-selected="false">
+                      <span class="c-chat-conversation-title">Content brief: back-to-school push</span>
+                      <span class="c-chat-conversation-pillar">CollabContent</span>
+                    </button>
+                  </div>
+                  <div class="c-chat-empty" id="chatEmptyM">No conversations in this pillar yet.</div>
+                </div>
+              </div>
+              <div class="c-chat-rail-scrim"></div>
+              <div class="c-chat-main">
+                <div class="c-chat-hd">
+                  <div>
+                    <h2 id="chatTitleM">Q3 pipeline review</h2>
+                    <p>Collabrium assistant &middot; reading this workspace</p>
+                  </div>
+                  <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm c-chat-rail-toggle" aria-label="Open conversations" aria-expanded="false" aria-controls="chatRailM"><i class="ph ph-sidebar-simple"></i></button>
+                </div>
+                <div class="c-chat-thread-wrap">
+                <div class="c-chat-thread" id="chatThreadM">
+                  <div class="c-chat-thread-inner">
+                    <div class="c-chat-msg is-me">
+                      <div class="c-chat-bubble">How's the Q3 pipeline tracking against forecast, and where's the biggest risk?</div>
+                    </div>
+                    <div class="c-chat-msg is-ai">
+                      <div class="c-chat-bubble">
+                        <p>Q3 is tracking at <b>82% of forecast</b> with three weeks left in the quarter. The gap is concentrated in one segment:</p>
+                        <ul>
+                          <li>Enterprise renewals are ahead of plan (+6%)</li>
+                          <li>Mid-market new business is behind (&minus;18%), mostly stalled in the proposal stage</li>
+                          <li>Two opportunities worth $340K combined have had no activity in 12+ days</li>
+                        </ul>
+                        <span class="c-badge c-badge-neutral c-chat-cite"><i class="ph-fill ph-chart-line"></i> Pipeline report, Aug 21</span>
+                      </div>
+                      <div class="c-chat-actions" role="toolbar" aria-label="Message actions">
+                        <button type="button" class="c-chat-action js-copy" aria-label="Copy"><i class="ph ph-copy"></i></button>
+                        <button type="button" class="c-chat-action js-read" aria-label="Read aloud"><i class="ph ph-speaker-high"></i></button>
+                        <button type="button" class="c-chat-action js-thumb" data-thumb="up" aria-pressed="false" aria-label="Good response"><i class="ph ph-thumbs-up"></i></button>
+                        <button type="button" class="c-chat-action js-thumb" data-thumb="down" aria-pressed="false" aria-label="Bad response"><i class="ph ph-thumbs-down"></i></button>
+                        <button type="button" class="c-chat-action js-more" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                        <time class="c-chat-time" datetime="2026-08-24T10:14" title="24 August 2026, 10:14">3 hours ago</time>
+                      </div>
+                    </div>
+                    <div class="c-chat-msg is-me">
+                      <div class="c-chat-bubble">What would close the gap fastest?</div>
+                    </div>
+                    <div class="c-chat-msg is-ai">
+                      <div class="c-chat-bubble">
+                        <p>Fastest lever is the two stalled proposals — reaching back out this week keeps them inside the quarter. Beyond that:</p>
+                        <ul>
+                          <li>Re-engage the 4 opportunities that went quiet after a demo</li>
+                          <li>Pull forward 2 renewals currently slotted for early Q4</li>
+                        </ul>
+                        <span class="c-badge c-badge-neutral c-chat-cite"><i class="ph-fill ph-list-checks"></i> Deal activity, last 30 days</span>
+                      </div>
+                      <div class="c-chat-actions" role="toolbar" aria-label="Message actions">
+                        <button type="button" class="c-chat-action js-copy" aria-label="Copy"><i class="ph ph-copy"></i></button>
+                        <button type="button" class="c-chat-action js-read" aria-label="Read aloud"><i class="ph ph-speaker-high"></i></button>
+                        <button type="button" class="c-chat-action js-thumb" data-thumb="up" aria-pressed="false" aria-label="Good response"><i class="ph ph-thumbs-up"></i></button>
+                        <button type="button" class="c-chat-action js-thumb" data-thumb="down" aria-pressed="false" aria-label="Bad response"><i class="ph ph-thumbs-down"></i></button>
+                        <button type="button" class="c-chat-action js-more" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                        <time class="c-chat-time" datetime="2026-08-24T10:16" title="24 August 2026, 10:16">3 hours ago</time>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="c-chat-jump" id="chatJumpM" aria-label="Jump to present"><i class="ph ph-arrow-down"></i></button>
+                </div>
+                <div class="c-chat-composer">
+                  <div class="c-chat-composer-inner">
+                    <div class="c-prompt-bar c-prompt-bar--inline is-revealed" role="group" aria-label="Message composer">
+                      <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+                      <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+                      <div class="c-prompt-bar-surface">
+                        <div class="c-prompt-bar-field">
+                          <input type="text" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" id="chatComposerInputM" />
+                        </div>
+                        <div class="c-prompt-bar-more">
+                          <div class="c-prompt-bar-toolbar">
+                            <div class="c-prompt-bar-group">
+                              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                              <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                            </div>
+                            <div class="c-prompt-bar-group">
+                              <div class="c-prompt-bar-model">
+                                <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                  <span class="c-prompt-bar-model-label js-model-label">Standard</span>
+                                  <i class="ph ph-caret-down"></i>
+                                </button>
+                                <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
+                                  <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
+                                  <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
+                                </div>
+                              </div>
+                              <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" id="chatSendBtnM" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="c-chat-foot">AI can make mistakes. Please double-check responses.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shared "More options" menu — single instance reused by both
+           chat window instances above, repositioned in JS against
+           whichever trigger opened it. Same object the real component
+           already uses this way for multiple messages within one
+           thread; extending that to multiple shells is the same idea. -->
+      <div class="c-chat-menu" id="chatActionMenu" role="menu">
+        <button type="button" class="c-chat-menu-item" role="menuitem"><i class="ph ph-arrow-clockwise"></i> Retry</button>
+        <button type="button" class="c-chat-menu-item" role="menuitem"><i class="ph ph-share-network"></i> Share</button>
+        <button type="button" class="c-chat-menu-item" role="menuitem"><i class="ph ph-flag"></i> Report</button>
+      </div>
+      <div class="sr-only" id="chatActionStatus" role="status" aria-live="polite"></div>
+
+    </div>
+  </div>
+
+  <div class="review-notes">
+    <h2>What changed, and why</h2>
+    <ul>
+      <li><b>Bug fix — model dropdown was invisible.</b> Root cause: the menu was <code>position:absolute</code> inside <code>.c-prompt-bar-more</code>, and that element has its own <code>overflow:hidden</code> — required for the Floating bar's collapse-to-<code>0fr</code> morph animation to actually hide its second row rather than just fading it. Opening the menu upward tried to render outside that box and got silently clipped: it wasn't broken math, the menu was positioned correctly and simply invisible. This is the exact same failure Chat window's own More options menu already hit and solved (documented in its own Anatomy section: "the thread is a scroll container, and a clipped ancestor clips a <code>position: absolute</code> descendant too") — same fix applies here: <code>position:fixed</code>, with <code>right</code>/<code>bottom</code> set in JS from the trigger's own <code>getBoundingClientRect()</code> at open time. Fixed-position elements escape all ancestor clipping, which is the whole point. Also switched the open/close JS from a single-instance <code>querySelector</code> to a delegated, multi-instance-safe handler (matching the rail-toggle's own established pattern) — needed now that up to four model switchers can exist on one page (two standalone Inline swatches, two Chat window composers).</li>
+      <li><b>Desktop/mobile comparison, all four items.</b> Expanded and Collapsed each get a real 375px iframe for mobile (their breakpoint is <code>@media</code>-based, so it needs a genuine narrow viewport, not a narrow div — the iframe now takes a <code>?state=</code> param so each gets its own small frame instead of one long scrolling one). Inline's mobile column is a plain 375px div, no iframe — it was already <code>width:100%</code> in flow and needed nothing special. <b>New:</b> Chat window itself, side by side at desktop and a real 375px shell width — its single-column breakpoint is a <code>@container</code> query on the shell's own size, so a plain narrow wrapper div triggers it directly, no iframe needed. Both Chat window instances are fully interactive (pillar filter, conversation switching, message actions, Jump to present, rail-toggle drawer, send) — the underlying script was refactored from a single hardcoded set of element ids into a small <code>initChatWindowInstance(ids)</code> function called once per shell, so two independent instances can coexist on one page without id collisions; the rail-toggle and message-actions wiring already worked this way (delegated by class, not id) and needed no change.</li>
+      <li><b>Not touched this round:</b> the 406×46 resize and the Inline toolbar's More options icon both carry over unchanged from before. Still not demoed anywhere: the real scroll-driven collapse and the click-to-launch-Chat-window FLIP fold for the Floating bar — unrelated to today's fix/request, flagging again since it hasn't moved.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var expandedGhost = document.getElementById('promptbarPoseExpandedGhost');
+  var collapsedBar = document.getElementById('promptbarPoseCollapsedBar');
+  var collapsedGhost = document.getElementById('promptbarPoseCollapsedGhost');
+  if (!expandedGhost || !collapsedBar || !collapsedGhost) return;
+
+  var FINAL_TEXT = "I am your Collabrium assistant, let me help you";
+
+  function typeOut(el, str){
+    var i = 0;
+    el.classList.add('is-caret-pulsing');
+    (function tick(){
+      i++;
+      el.textContent = str.slice(0, i);
+      if (i < str.length) setTimeout(tick, 35);
+      else el.classList.remove('is-caret-pulsing');
+    })();
+  }
+
+  function runMarquee(){
+    var surface = collapsedBar.querySelector('.c-prompt-bar-surface');
+    var cs = getComputedStyle(surface);
+    var padL = parseFloat(cs.paddingLeft) || 0;
+    var padR = parseFloat(cs.paddingRight) || 0;
+    var win = collapsedBar.getBoundingClientRect().width - padL - padR;
+    var textWidth = collapsedGhost.scrollWidth;
+    var dx = Math.min(0, win - textWidth);
+    var travelPx = Math.abs(dx);
+    var travelMs = (travelPx / 60) * 1000;
+    var totalMs = travelPx === 0 ? 0 : travelMs / 0.64;
+    collapsedBar.style.setProperty('--prompt-bar-marquee-dx', dx + 'px');
+    collapsedBar.style.setProperty('--prompt-bar-marquee-dur', (totalMs || 1) + 'ms');
+  }
+
+  window.addEventListener('load', function(){
+    setTimeout(function(){ typeOut(expandedGhost, FINAL_TEXT); }, 300);
+    setTimeout(runMarquee, 50);
+  });
+})();
+</script>
+<script>
+(function(){
+  // ---- Model switcher (proposed) — delegated, multi-instance safe ----
+  function closeAllMenus(){
+    document.querySelectorAll('.c-prompt-bar-model-menu.is-open').forEach(function(m){
+      m.classList.remove('is-open');
+      var wrap = m.closest('.c-prompt-bar-model');
+      var t = wrap && wrap.querySelector('.js-model-trigger');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  }
+  document.addEventListener('click', function(e){
+    var trigger = e.target.closest('.js-model-trigger');
+    if (trigger) {
+      var wrap = trigger.closest('.c-prompt-bar-model');
+      var menu = wrap.querySelector('.js-model-menu');
+      var wasOpen = menu.classList.contains('is-open');
+      closeAllMenus();
+      if (!wasOpen) {
+        var rect = trigger.getBoundingClientRect();
+        menu.style.right = (window.innerWidth - rect.right) + 'px';
+        menu.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+        menu.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+      return;
+    }
+    var option = e.target.closest('.js-model-option');
+    if (option) {
+      var menu2 = option.closest('.js-model-menu');
+      var wrap2 = option.closest('.c-prompt-bar-model');
+      var trig2 = wrap2.querySelector('.js-model-trigger');
+      menu2.querySelectorAll('.js-model-option').forEach(function(o){
+        o.classList.toggle('is-active', o === option);
+        o.setAttribute('aria-selected', o === option ? 'true' : 'false');
+      });
+      wrap2.querySelector('.js-model-label').textContent = option.dataset.model;
+      closeAllMenus();
+      trig2.focus();
+      return;
+    }
+    if (!e.target.closest('.c-prompt-bar-model')) closeAllMenus();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') closeAllMenus();
+  });
+})();
+</script>
+<script>
+(function(){
+  // ---- Chat window — refactored to support N instances on one page.
+  // Rail-toggle (delegated by class) and this section's shared More
+  // options menu/status node both already work across instances with
+  // no change; only the per-instance parts (pillar filter, conversation
+  // list, jump-to-present, send) needed parameterizing by id. ----
+  function reducedMotion(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+
+  // ---- Rail toggle (mobile/narrow drawer) — shared across all shells ----
+  function closeRailDrawer(shell){
+    if(!shell) return;
+    var rail = shell.querySelector('.c-chat-rail');
+    var scrim = shell.querySelector('.c-chat-rail-scrim');
+    var toggle = shell.querySelector('.c-chat-rail-toggle');
+    if(rail) rail.classList.remove('is-open');
+    if(scrim) scrim.classList.remove('is-open');
+    if(toggle){
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open conversations');
+    }
+    return toggle;
+  }
+  document.addEventListener('click', function(e){
+    var toggle = e.target.closest('.c-chat-rail-toggle');
+    if(toggle){
+      var toggleShell = toggle.closest('.c-chat-shell');
+      var toggleRail = toggleShell && toggleShell.querySelector('.c-chat-rail');
+      if(!toggleRail) return;
+      var opening = !toggleRail.classList.contains('is-open');
+      if(opening){
+        toggleRail.classList.add('is-open');
+        var openScrim = toggleShell.querySelector('.c-chat-rail-scrim');
+        if(openScrim) openScrim.classList.add('is-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Close conversations');
+        var firstFocusable = toggleRail.querySelector('button, [href], input, [tabindex]:not([tabindex="-1"])');
+        if(firstFocusable) firstFocusable.focus();
+      } else {
+        closeRailDrawer(toggleShell);
+        toggle.focus();
+      }
+      return;
+    }
+    var scrimHit = e.target.closest('.c-chat-rail-scrim');
+    if(scrimHit && scrimHit.classList.contains('is-open')){
+      var toggleBtn = closeRailDrawer(scrimHit.closest('.c-chat-shell'));
+      if(toggleBtn) toggleBtn.focus();
+      return;
+    }
+    var convRow = e.target.closest('.c-chat-conversation');
+    if(convRow){
+      var ownerShell = convRow.closest('.c-chat-shell');
+      var ownerRail = ownerShell && ownerShell.querySelector('.c-chat-rail');
+      if(ownerRail && ownerRail.classList.contains('is-open')) closeRailDrawer(ownerShell);
+    }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    document.querySelectorAll('.c-chat-rail.is-open').forEach(function(rail){
+      closeRailDrawer(rail.closest('.c-chat-shell'));
+    });
+  });
+
+  // ---- Message actions — shared menu/status, wired per-shell ----
+  var actionStatus = document.getElementById('chatActionStatus');
+  var actionMenu = document.getElementById('chatActionMenu');
+  var openMenuTrigger = null;
+  var playingButton = null;
+
+  function announce(text){
+    actionStatus.textContent = '';
+    requestAnimationFrame(function(){ actionStatus.textContent = text; });
+  }
+
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    setTimeout(function(){ if(document.body.contains(ta)) document.body.removeChild(ta); }, 4000);
+  }
+
+  function closeMenu(){
+    actionMenu.classList.remove('is-open');
+    if(openMenuTrigger){
+      openMenuTrigger.setAttribute('aria-expanded', 'false');
+      openMenuTrigger.closest('.c-chat-actions').classList.remove('is-open');
+      openMenuTrigger.focus();
+    }
+    openMenuTrigger = null;
+  }
+  document.addEventListener('click', function(e){
+    if(openMenuTrigger && !actionMenu.contains(e.target) && e.target !== openMenuTrigger) closeMenu();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && openMenuTrigger) closeMenu();
+  });
+
+  function wireActionsIn(root){
+    root.querySelectorAll('.js-copy').forEach(function(btn){
+      if(btn._wired) return; btn._wired = true;
+      btn.addEventListener('click', function(){
+        var bubble = btn.closest('.c-chat-msg').querySelector('.c-chat-bubble');
+        var text = bubble.innerText;
+        var icon = btn.querySelector('i');
+        var revert = function(){ icon.className = 'ph ph-copy'; btn.classList.remove('is-copied'); };
+        var confirm = function(){
+          icon.className = 'ph-fill ph-check';
+          btn.classList.add('is-copied');
+          announce('Copied to clipboard');
+          setTimeout(revert, 1600);
+        };
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(confirm, function(){ fallbackCopy(text); });
+        } else {
+          fallbackCopy(text);
+        }
+      });
+    });
+
+    root.querySelectorAll('.js-read').forEach(function(btn){
+      if(btn._wired) return; btn._wired = true;
+      var icon = btn.querySelector('i');
+      function setState(state){
+        btn.classList.remove('is-loading', 'is-playing');
+        if(state === 'loading'){
+          btn.classList.add('is-loading');
+          icon.className = 'ph ph-spinner-gap';
+          btn.setAttribute('aria-label', 'Read aloud');
+          btn.removeAttribute('aria-pressed');
+        } else if(state === 'playing'){
+          btn.classList.add('is-playing');
+          icon.className = 'ph ph-stop';
+          btn.setAttribute('aria-label', 'Stop reading');
+          btn.setAttribute('aria-pressed', 'true');
+        } else {
+          icon.className = 'ph ph-speaker-high';
+          btn.setAttribute('aria-label', 'Read aloud');
+          btn.removeAttribute('aria-pressed');
+        }
+      }
+      btn._setReadState = setState;
+      btn.addEventListener('click', function(){
+        if(btn.classList.contains('is-playing') || btn.classList.contains('is-loading')){
+          setState('idle');
+          if(playingButton === btn) playingButton = null;
+          return;
+        }
+        if(playingButton && playingButton !== btn) playingButton._setReadState('idle');
+        playingButton = btn;
+        setState('loading');
+        setTimeout(function(){ if(playingButton === btn) setState('playing'); }, 600);
+      });
+    });
+
+    root.querySelectorAll('.js-thumb').forEach(function(btn){
+      if(btn._wired) return; btn._wired = true;
+      btn.addEventListener('click', function(){
+        var group = btn.closest('.c-chat-actions').querySelectorAll('.js-thumb');
+        var wasPressed = btn.getAttribute('aria-pressed') === 'true';
+        group.forEach(function(b){
+          b.setAttribute('aria-pressed', 'false');
+          b.querySelector('i').className = 'ph ph-thumbs-' + b.dataset.thumb;
+        });
+        if(!wasPressed){
+          btn.setAttribute('aria-pressed', 'true');
+          btn.querySelector('i').className = 'ph-fill ph-thumbs-' + btn.dataset.thumb;
+        }
+      });
+    });
+
+    root.querySelectorAll('.js-more').forEach(function(btn){
+      if(btn._wired) return; btn._wired = true;
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        if(openMenuTrigger === btn){ closeMenu(); return; }
+        if(openMenuTrigger) closeMenu();
+        var rect = btn.getBoundingClientRect();
+        actionMenu.style.top = (rect.bottom + 4) + 'px';
+        actionMenu.style.left = rect.left + 'px';
+        actionMenu.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+        btn.closest('.c-chat-actions').classList.add('is-open');
+        openMenuTrigger = btn;
+      });
+    });
+  }
+
+  // ---- Per-instance wiring: pillar filter, conversation select,
+  // jump-to-present, send. Parameterized by id so N shells can coexist. ----
+  function initChatWindowInstance(ids){
+    var shell = document.getElementById(ids.shell);
+    var thread = document.getElementById(ids.thread);
+    if(!shell || !thread) return;
+
+    var pillarWrap = document.getElementById(ids.pillars);
+    var pillarButtons = Array.prototype.slice.call(pillarWrap.querySelectorAll('[role="radio"]'));
+    var enabledPillars = pillarButtons.filter(function(b){ return b.getAttribute('aria-disabled') !== 'true'; });
+    var conversationsList = document.getElementById(ids.conversations);
+    var emptyEl = document.getElementById(ids.empty);
+
+    function selectPillar(btn){
+      if(btn.getAttribute('aria-disabled') === 'true') return;
+      pillarButtons.forEach(function(b){
+        var active = (b === btn);
+        b.setAttribute('aria-checked', active ? 'true' : 'false');
+        b.classList.toggle('is-active', active);
+        b.tabIndex = active ? 0 : -1;
+      });
+      var pillar = btn.dataset.pillar;
+      conversationsList.classList.toggle('pillar-selected', pillar !== 'all');
+      var anyVisible = false;
+      conversationsList.querySelectorAll('.c-chat-conversation').forEach(function(row){
+        var match = (pillar === 'all') || (row.dataset.pillar === pillar);
+        row.classList.toggle('is-off-pillar', !match);
+        if(match) anyVisible = true;
+      });
+      conversationsList.querySelectorAll('.c-chat-group').forEach(function(group){
+        var visible = Array.prototype.some.call(group.querySelectorAll('.c-chat-conversation'), function(r){
+          return !r.classList.contains('is-off-pillar');
+        });
+        group.style.display = visible ? '' : 'none';
+      });
+      emptyEl.classList.toggle('is-visible', !anyVisible);
+    }
+    pillarButtons.forEach(function(b){ b.addEventListener('click', function(){ selectPillar(b); }); });
+    pillarWrap.addEventListener('keydown', function(e){
+      var idx = enabledPillars.indexOf(document.activeElement);
+      if(idx === -1) return;
+      var next = null;
+      if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){ next = enabledPillars[(idx + 1) % enabledPillars.length]; }
+      else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ next = enabledPillars[(idx - 1 + enabledPillars.length) % enabledPillars.length]; }
+      else if(e.key === 'Home'){ next = enabledPillars[0]; }
+      else if(e.key === 'End'){ next = enabledPillars[enabledPillars.length - 1]; }
+      if(next){ e.preventDefault(); next.focus(); selectPillar(next); }
+    });
+
+    conversationsList.querySelectorAll('.c-chat-conversation').forEach(function(row){
+      row.addEventListener('click', function(){
+        conversationsList.querySelectorAll('.c-chat-conversation.is-active').forEach(function(r){ r.classList.remove('is-active'); });
+        row.classList.add('is-active');
+      });
+    });
+
+    wireActionsIn(shell);
+
+    var jumpBtn = document.getElementById(ids.jump);
+    var pinned = true;
+    var lastScrollTop = 0;
+
+    function distanceFromBottom(){ return thread.scrollHeight - thread.scrollTop - thread.clientHeight; }
+    function showJump(){ jumpBtn.classList.add('is-visible'); }
+    function hideJump(){ jumpBtn.classList.remove('is-visible', 'has-new'); jumpBtn.setAttribute('aria-label', 'Jump to present'); }
+    function resetPin(){
+      pinned = true;
+      hideJump();
+      thread.scrollTop = thread.scrollHeight;
+      lastScrollTop = thread.scrollTop;
+    }
+    resetPin();
+
+    thread.addEventListener('scroll', function(){
+      var scrollTop = thread.scrollTop;
+      var distance = distanceFromBottom();
+      var scrolledUp = scrollTop < lastScrollTop;
+      if(pinned && scrolledUp && distance > 150){
+        pinned = false;
+        showJump();
+      } else if(!pinned && distance <= 30){
+        pinned = true;
+        hideJump();
+      }
+      lastScrollTop = scrollTop;
+    }, { passive: true });
+
+    jumpBtn.addEventListener('click', function(){
+      thread.scrollTo({ top: thread.scrollHeight, behavior: reducedMotion() ? 'auto' : 'smooth' });
+      pinned = true;
+      hideJump();
+      var input = document.getElementById(ids.composerInput);
+      if(input) input.focus();
+    });
+
+    window.addEventListener('resize', function(){
+      if(pinned) thread.scrollTop = thread.scrollHeight;
+    });
+
+    function sendMessage(){
+      var input = document.getElementById(ids.composerInput);
+      if(!input || !input.value.trim()) return;
+      var inner = thread.querySelector('.c-chat-thread-inner');
+      var msg = document.createElement('div');
+      msg.className = 'c-chat-msg is-me';
+      var bubble = document.createElement('div');
+      bubble.className = 'c-chat-bubble';
+      bubble.textContent = input.value.trim();
+      msg.appendChild(bubble);
+      inner.appendChild(msg);
+      input.value = '';
+      pinned = true;
+      hideJump();
+      thread.scrollTop = thread.scrollHeight;
+    }
+    var sendBtn = document.getElementById(ids.sendBtn);
+    if(sendBtn) sendBtn.addEventListener('click', sendMessage);
+    var composerInputEl = document.getElementById(ids.composerInput);
+    if(composerInputEl) composerInputEl.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); sendMessage(); }
+    });
+  }
+
+  initChatWindowInstance({
+    shell:'chatWindowShell', thread:'chatThread', pillars:'chatPillars',
+    conversations:'chatConversations', empty:'chatEmpty', jump:'chatJump',
+    composerInput:'chatComposerInput', sendBtn:'chatSendBtn'
+  });
+  initChatWindowInstance({
+    shell:'chatWindowShellM', thread:'chatThreadM', pillars:'chatPillarsM',
+    conversations:'chatConversationsM', empty:'chatEmptyM', jump:'chatJumpM',
+    composerInput:'chatComposerInputM', sendBtn:'chatSendBtnM'
+  });
+})();
+</script>
+</body>
+</html>

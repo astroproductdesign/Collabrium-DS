@@ -1686,11 +1686,9 @@
 .c-prompt-bar{
   --prompt-bar-morph-dur:var(--duration-morph);
   --prompt-bar-morph-ease:var(--ease-morph);
-  --prompt-bar-w:236px;
+  --prompt-bar-w:406px;
   --prompt-bar-shift:0px;
   --prompt-bar-push:0px;
-  --prompt-bar-marquee-dx:0px;
-  --prompt-bar-marquee-dur:8s;
   position:absolute;
   bottom:var(--spacing-24);
   left:50%;
@@ -1751,7 +1749,12 @@
 .c-prompt-bar.is-collapsed .c-prompt-bar-surface{
   grid-template-rows:auto 0fr;
   border-radius:var(--radius-pill);
-  padding-left:56px; /* 16 gutter + 32 mark (real .c-btn-icon.c-btn-sm width) + 8 gap */
+  /* 11px top/bottom is a deliberate one-off, not the spacing scale —
+     it lands the pill at exactly ~46px against the input's own 24px
+     line box (spacing-8 undershoots to 40px, spacing-12 overshoots to
+     48px). 56px left is the same kind of one-off: 16 gutter + 32 mark
+     (real .c-btn-icon.c-btn-sm width) + 8 gap. Right stays spacing-16. */
+  padding:11px var(--spacing-16) 11px 56px;
 }
 
 /* AI mark — the real .c-btn Primary icon-only variant (c-btn-icon.c-btn-sm)
@@ -1804,14 +1807,6 @@
   animation:c-prompt-bar-caret-blink 500ms steps(1) infinite;
 }
 @keyframes c-prompt-bar-caret-blink{50%{opacity:0;}}
-.c-prompt-bar.is-collapsed .c-prompt-bar-ghost-text{
-  animation:c-prompt-bar-marquee var(--prompt-bar-marquee-dur) ease-in-out infinite;
-}
-@keyframes c-prompt-bar-marquee{
-  0%,18%{transform:translateX(0);}
-  50%,68%{transform:translateX(var(--prompt-bar-marquee-dx));}
-  100%{transform:translateX(0);}
-}
 .c-prompt-bar-ghost-static{display:none; font-family:var(--font-primary); font-size:var(--text-body1-size); color:var(--color-neutral-5);}
 
 /* Second row / toolbar — buttons inside are the real .c-btn Ghost/Primary
@@ -1829,7 +1824,7 @@
 /* Reduced motion */
 @media (prefers-reduced-motion:reduce){
   .c-prompt-bar-glow-outer, .c-prompt-bar-glow-inner{animation:none;}
-  .c-prompt-bar-ghost-text{animation:none !important;}
+  .c-prompt-bar-ghost-text.is-caret-pulsing::after{animation:none;}
   .c-prompt-bar.is-morphable{transition:none;}
   .c-prompt-bar-mark{transition:opacity var(--duration-fast) var(--ease-standard);}
   .c-prompt-bar-ghost{display:none;}
@@ -1884,6 +1879,42 @@
    bar's own AI mark. The other two toolbar buttons keep the real
    radius-sm Ghost recipe untouched. */
 .c-prompt-bar-send{border-radius:var(--radius-pill);}
+
+/* Model switcher — shared by both variants, same right-group slot
+   (model switcher, Voice input, Send) on Floating bar and Inline
+   alike, not scoped to .c-prompt-bar--inline despite living in this
+   file section. On Inline it replaces the earlier plain-text "Reading:
+   this workspace" context label; on Floating bar the slot is new
+   outright. Trigger reuses the real Button Ghost variant
+   (c-btn-ghost.c-btn-sm) verbatim; only the menu below is new. See
+   DESIGN-SYSTEM.md's own "Model switcher" subsection for the full
+   anatomy/behavior spec. */
+.c-prompt-bar-model{position:relative; flex:none;}
+.c-prompt-bar-model-trigger{gap:6px; color:var(--color-neutral-7); max-width:160px;}
+.c-prompt-bar-model-label{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-prompt-bar-model-trigger i{font-size:12px; color:var(--color-neutral-5); flex:none;}
+/* position:fixed, not absolute — .c-prompt-bar-more (this menu's
+   nearest positioned ancestor) has its own overflow:hidden, required
+   for the Floating bar's collapse-to-0fr morph, and it silently clips
+   an absolutely-positioned descendant that tries to render outside it.
+   Same failure Chat window's own .c-chat-menu already hit and solved;
+   positioned in JS from the trigger's own getBoundingClientRect(), the
+   same way, so no ancestor's overflow can clip it. */
+.c-prompt-bar-model-menu{
+  position:fixed; z-index:60; display:none;
+  min-width:180px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4);
+}
+.c-prompt-bar-model-menu.is-open{display:block;}
+.c-prompt-bar-model-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:36px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); background:transparent; border:none; font-family:inherit; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9); text-align:left; cursor:pointer;}
+.c-prompt-bar-model-item:hover{background:var(--color-neutral-2);}
+.c-prompt-bar-model-item span{flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* Trailing check, visibility-toggled rather than added/removed — same
+   idiom Department switcher's own dropdown uses for its selected item
+   — so every row reserves the same width and the label column never
+   shifts depending on which one is active. */
+.c-prompt-bar-model-item i{font-size:var(--icon-sm); color:var(--color-neutral-9); visibility:hidden; flex:none;}
+.c-prompt-bar-model-item.is-active i{visibility:visible;}
 
 /* Chat window — modal chat surface (conversation history rail + active
    thread), the expanded form of Prompt input bar's own Floating variant.
@@ -2046,7 +2077,6 @@
 
 .c-chat-composer{flex:none; padding:var(--spacing-16) var(--spacing-24) var(--spacing-24); background:var(--color-canvas-warm); border-top:1px solid var(--color-neutral-3);}
 .c-chat-composer-inner{max-width:760px; margin:0 auto;}
-.c-chat-composer-context{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
 .c-chat-foot{max-width:760px; margin:var(--spacing-8) auto 0; font-size:var(--text-caption-size); color:var(--color-neutral-5); text-align:center;}
 
