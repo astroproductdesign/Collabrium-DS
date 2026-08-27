@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.65** — 2026-08-26 — Sourced from the Collabrium brand deck
+**v0.9.66** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -5301,6 +5301,18 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.66 — 2026-08-27** — `preview.html` only, no component
+  change: removed the standalone "Inline variant" swatch from
+  **[Prompt input bar](#ai-native)**'s gallery entry. It duplicated
+  what [Chat window](#ai-native)'s own real composer, directly above
+  it in the same gallery entry, already demonstrates live — the Inline
+  variant remains fully documented in DESIGN-SYSTEM.md and still
+  rendered on the page, just via that one real instance rather than a
+  second static copy. Also corrected a stale code comment in the
+  model-switcher script that still said "Inline variant only" and
+  referenced the now-removed swatch by name. `components.css`,
+  `tokens.css`: unchanged. Version flag bumped to v0.9.66.
 
 - **v0.9.65 — 2026-08-26** — **[Prompt input bar](#ai-native)**'s
   Floating bar and Inline variants had drifted into two different

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.65</title>
+<title>Collabrium design system | v0.9.66</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -364,7 +364,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.65</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.66</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -372,7 +372,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.65</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.66</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -1105,42 +1105,6 @@
                             <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="swatch-group-label">Inline variant — as used by Chat window's composer</div>
-            <div class="promptbar-pose-stage" style="background:var(--color-canvas-warm); padding:var(--spacing-24);">
-              <div class="c-prompt-bar c-prompt-bar--inline is-revealed" role="group" aria-label="Message composer" style="max-width:640px;">
-                <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
-                <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
-                <div class="c-prompt-bar-surface">
-                  <div class="c-prompt-bar-field">
-                    <input type="text" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" />
-                  </div>
-                  <div class="c-prompt-bar-more">
-                    <div class="c-prompt-bar-toolbar">
-                      <div class="c-prompt-bar-group">
-                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
-                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
-                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
-                      </div>
-                      <div class="c-prompt-bar-group">
-                        <div class="c-prompt-bar-model">
-                          <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
-                            <span class="c-prompt-bar-model-label js-model-label">Standard</span>
-                            <i class="ph ph-caret-down"></i>
-                          </button>
-                          <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
-                            <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
-                            <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
-                          </div>
-                        </div>
-                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
-                        <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
                       </div>
                     </div>
                   </div>
@@ -3371,7 +3335,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.65** — 2026-08-26 — Sourced from the Collabrium brand deck
+**v0.9.66** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -8673,6 +8637,18 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.66 — 2026-08-27** — `preview.html` only, no component
+  change: removed the standalone "Inline variant" swatch from
+  **[Prompt input bar](#ai-native)**'s gallery entry. It duplicated
+  what [Chat window](#ai-native)'s own real composer, directly above
+  it in the same gallery entry, already demonstrates live — the Inline
+  variant remains fully documented in DESIGN-SYSTEM.md and still
+  rendered on the page, just via that one real instance rather than a
+  second static copy. Also corrected a stale code comment in the
+  model-switcher script that still said "Inline variant only" and
+  referenced the now-removed swatch by name. `components.css`,
+  `tokens.css`: unchanged. Version flag bumped to v0.9.66.
+
 - **v0.9.65 — 2026-08-26** — **[Prompt input bar](#ai-native)**'s
   Floating bar and Inline variants had drifted into two different
   right-hand toolbars: Floating bar carried Voice input + Send, Inline
@@ -13695,11 +13671,12 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
 })();
 </script>
 <script>
-// Model switcher (Inline variant only) — delegated, multi-instance safe,
-// since a page can carry more than one Inline composer at once (Chat
-// window's real composer, plus the standalone Inline swatch below it).
-// See DESIGN-SYSTEM.md's own "Model switcher — Behavior" for why the
-// menu is position:fixed, JS-positioned, rather than absolute.
+// Model switcher — shared by both variants, delegated and multi-
+// instance safe, since a page can carry more than one Prompt input bar
+// at once (Chat window's real Inline composer, plus the Floating bar's
+// own Expanded/Collapsed poses above it). See DESIGN-SYSTEM.md's own
+// "Model switcher — Behavior" for why the menu is position:fixed,
+// JS-positioned, rather than absolute.
 (function(){
   function closeAllMenus(){
     document.querySelectorAll('.c-prompt-bar-model-menu.is-open').forEach(function(m){
