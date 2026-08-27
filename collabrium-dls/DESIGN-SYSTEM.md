@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.66** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.68** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -561,7 +561,7 @@ final.
 | File | Department | Element | Definition |
 |---|---|---|---|
 | `logo-lockups/collabContent.svg` | CollabContent | Wood · Salmon Pink `#FF7A90` | The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved. |
-| `logo-lockups/collabInfluencers.svg` | CollabInfluencers | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
+| `logo-lockups/collabInfluencers.svg` | CollabInfluence | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
 | `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
 | `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
 
@@ -5302,6 +5302,48 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.68 — 2026-08-27** — Closes the second of v0.9.67's two open
+  seams: the internal lowercase ids now match the renamed department —
+  **`data-dept="influencers"`** → **`data-dept="influence"`** (both
+  Department switcher instances) and **`data-pillar="collabinfluencers"`**
+  → **`data-pillar="collabinfluence"`** (the disabled pillar filter
+  chip). No CSS selector or JS string ever hardcoded either literal
+  value — the filter/switcher logic reads `dataset.dept`/`dataset.pillar`
+  generically and compares them against each other, not against a fixed
+  string — so this is a pure rename with zero behavior risk; verified no
+  `[data-dept=...]`/`[data-pillar=...]` selector exists in
+  `components.css` and no conversation row currently carries
+  `data-pillar="collabinfluencers"` to also update (that pillar has zero
+  conversations). **Still deliberately not touched**, per your own
+  call: `logo-lockups/collabInfluencers.svg` and its 8 references —
+  the file itself will be swapped manually when the new asset is
+  uploaded, at which point its filename and every `src`/`href`/
+  `data-logo` call site need updating together. `components.css`:
+  unchanged. `preview.html`: the two `data-dept` attributes and the one
+  `data-pillar` attribute updated; no JS changes needed. Version flag
+  bumped to v0.9.68.
+
+- **v0.9.67 — 2026-08-27** — Partial rename: **`CollabInfluencers`** →
+  **`CollabInfluence`** (department directory name/copy), and the bare
+  department-switcher name **`Influencers`** → **`Influence`**, matching
+  the brand's own positioning statement ("...Astro's Sales, Media,
+  Influence, Content, and Studio teams..."), which had said "Influence"
+  all along. Scoped deliberately: this is not a full rename. **Not
+  changed** — held for a separate decision: the logo file itself
+  (`logo-lockups/collabInfluencers.svg`, still referenced verbatim by
+  its 8 `src`/`href`/`data-logo` call sites) and the lowercase internal
+  ids (`data-dept="influencers"`, `data-pillar="collabinfluencers"`) —
+  both still read "influencers." One deliberate seam from this split:
+  the pillar filter chip's Download button now offers
+  `download="CollabInfluence-logo.svg"` as the suggested save-as name
+  while the real source file is still `collabInfluencers.svg` — expected
+  until the logo file itself is renamed. `components.css`: unchanged —
+  nothing in this rename touched CSS. `preview.html`: updated the
+  Department directory card (`alt`, `download`, `<h3>`), the disabled
+  pillar filter chip's label, both live Department switcher instances'
+  `aria-label`/`data-name` (their `data-dept` values untouched, per
+  above), and one JS code comment. Version flag bumped to v0.9.67.
+
 - **v0.9.66 — 2026-08-27** — `preview.html` only, no component
   change: removed the standalone "Inline variant" swatch from
   **[Prompt input bar](#ai-native)**'s gallery entry. It duplicated
@@ -5454,7 +5496,7 @@ rather than maintaining two token sources by hand:
 
   **Main nav demo — Department switcher now showcased**, reusing the
   exact same trigger/dropdown markup and the same 5 departments
-  (Default, Content, Influencers, Sales, Studio) as the standalone
+  (Default, Content, Influence, Sales, Studio) as the standalone
   SidebarNav demo — no new JS needed, the existing handlers are already
   generic (keyed off `data-dept-dropdown`, scoped via
   `closest('.c-sidebar-shell')`). Verified switching swaps the expanded
@@ -6856,7 +6898,7 @@ with nothing else to keep in sync.
   reusing `.c-sidebar-logo-collapsed`'s existing show/hide rule for the
   passive collapsed element icon). `preview.html`'s Department switcher
   demo now also exercises the collapsed rail correctly — its 4
-  non-default sample departments (Content/Influencers/Sales/Studio) are
+  non-default sample departments (Content/Influence/Sales/Studio) are
   demo-only mapped to Wood/Earth/Gold/Fire respectively so the collapsed
   icon has something real to show.
 
