@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.68** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.69** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2139,7 +2139,7 @@ simplified stand-in for the other.
 |---|---|
 | Eyebrow | reverts to caption (12px/16px/700), uppercase, `tracking-eyebrow`, Neutral-5 — the Default/Risk/AI (Dark) H2/sentence-case change was never asked for on Selected, so it keeps the original treatment both here and on the modal form |
 | Heading, Body | unchanged from the shared anatomy — h4/Neutral-9, body2/Neutral-5 |
-| Info Banner | the real [Info Banner](#info-banner) component, informational variant (`ph-fill ph-info`, `role="status"`) — not a bespoke callout |
+| Info Banner | the real [Info Banner](#info-banner) component, AI Recommendation tone (`ph-fill ph-sparkle`, animated gradient wash/ring, `role="status"`) — not a bespoke callout. Dismissible, one action, per that tone's own trigger rules (real signal behind the suggestion, never Persistent) |
 | Media placeholder | the shared anatomy's recipe, at a taller 160px min-height to feel proportionate to the bigger panel |
 | Source line | footnote (12px/16px/400), Neutral-5 — a citation for where the content came from, e.g. "Source: Order management system · Updated 2 hours ago" |
 | CTA | Button Primary/md, trailing icon — Selected is the one place a Hero Card CTA is a genuine primary action, since it's the detail view's own single most important next step |
@@ -5345,6 +5345,30 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.69 — 2026-08-27** — **Hero Card**'s Selected state swaps its
+  Info Banner from the informational tone to the **AI Recommendation**
+  tone — reusing the real, already-built [Info Banner](#info-banner)
+  variant verbatim (`.c-banner-ai`, animated gradient wash/ring, same
+  `c-prompt-bar-glow-move` keyframe [Prompt input bar](#ai-native)
+  already uses), not a new banner or new CSS. This was more than a
+  class swap: AI Recommendation's own trigger rules require a Dismissible
+  banner with exactly one action carrying a real, signal-backed
+  suggestion — an Info-tone banner with neither would just be "an Info
+  banner with extra motion" per that tone's own documented rule. Added
+  a close button (`aria-label="Dismiss"`) and one action ("Turn on
+  auto-apply"), and rewrote the message from a passive schedule note
+  ("This forecast refreshes automatically every Monday at 6:00 AM.")
+  into an actual proactive suggestion tied to the card's own existing
+  confidence signal ("Confidence is high enough to auto-apply this
+  forecast — turn on for future updates?", 83 characters, under the
+  120-character cap). Icon swaps `ph-fill ph-info` → `ph-fill
+  ph-sparkle`, matching every other AI Recommendation instance in the
+  system. No cap conflict — Selected state carries only this one banner,
+  well under the "1 if AI Recommendation" per-section maximum.
+  `components.css`: unchanged — `.c-banner-ai` already existed (added
+  in v0.9.60). `preview.html`: Hero Card Selected state's live demo
+  markup updated to the pattern above. Version flag bumped to v0.9.69.
 
 - **v0.9.68 — 2026-08-27** — **[Chat window](#ai-native)**'s pillar
   filter chips now show a trailing count (own conversation total per
