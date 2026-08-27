@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.67** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.68** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -861,7 +861,7 @@ and the longer prefix would buy nothing over twenty sub-parts.
 | Part | Spec |
 |---|---|
 | New chat (`.c-chat-new`) | The real [Button](#button) Secondary variant, full width |
-| Pillar filter (`.c-chat-pillars`) | A real `role="radiogroup"` with roving tabindex; arrow keys **move and select**, Home/End to the ends. Label (`.c-chat-flabel`): label3/800, `tracking-eyebrow`, uppercase, Neutral-5, `width: 100%` so it takes its own line. Pills reuse the real [Chip](#chip) Filter Chip (`.c-chip.c-chip-filter`, `.is-active`/`.is-disabled`) — not a bespoke pill class. A pillar with no conversations is shown and unusable (`.is-disabled`, `aria-disabled="true"`), not removed: the point of chips over folders is that the full pillar set stays visible |
+| Pillar filter (`.c-chat-pillars`) | A real `role="radiogroup"` with roving tabindex; arrow keys **move and select**, Home/End to the ends. Label (`.c-chat-flabel`): label3/800, `tracking-eyebrow`, uppercase, Neutral-5, `width: 100%` so it takes its own line. Pills reuse the real [Chip](#chip) Filter Chip (`.c-chip.c-chip-filter`, `.is-active`/`.is-disabled`) — not a bespoke pill class — including its optional trailing count (`<span class="count">`, plain number, own conversation total per pillar), shown consistently across every pill per Chip's own "all chips in a group show a count, or none do" rule. A pillar with no conversations is shown and unusable (`.is-disabled`, `aria-disabled="true"`), not removed: the point of chips over folders is that the full pillar set stays visible — and it still carries its own trailing count (`0`), per Chip's own "never hide at zero" rule, rather than an empty pill with nothing to distinguish it |
 | Conversation list (`.c-chat-conversations`) | `flex: 1 1 auto; min-height: 0; overflow-y: auto`, `overscroll-behavior: contain`, 2px gap. Group header (`.c-chat-conversations-head`): caption/700, `tracking-eyebrow`, uppercase, Neutral-5 ("Today", "Earlier this week") — a group with nothing left under it hides too. Row (`.c-chat-conversation`): flex column, 1px gap, full width, `spacing-8`/`spacing-12` padding, `radius-sm`, transparent fill, body2, Neutral-5, left-aligned |
 | Conversation title (`.c-chat-conversation-title`) | Single line, `nowrap`, `overflow: hidden`, `text-overflow: ellipsis` |
 | Conversation pillar line (`.c-chat-conversation-pillar`) | label3/700, Neutral-4, truncating. **Text, not a coloured spine** — under "All" it's the only thing saying where a conversation came from, and colour alone carrying meaning is ruled out. Hidden once a pillar is selected, where the chip already says it. **Not uppercased**, unlike every other eyebrow in the system: pillar names are camelCase products ("CollabSales"), and the eyebrow recipe would render them COLLABSALES, losing the seam the capital S provides — the name wins over the convention |
@@ -5345,6 +5345,23 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.68 — 2026-08-27** — **[Chat window](#ai-native)**'s pillar
+  filter chips now show a trailing count (own conversation total per
+  pillar), reusing [Chip](#chip)'s existing, already-documented
+  trailing-count feature — no new CSS, no new component. Every pill
+  shows one, including the disabled, zero-conversation
+  `CollabInfluencers` pillar (`0`, never hidden), per Chip's own
+  "never hide at zero" and "all chips in a group show a count, or none
+  do" rules. `components.css`, `tokens.css`: unchanged — `.c-chip-
+  filter .count` already existed. `preview.html`: added `<span
+  class="label">`/`<span class="count">` markup to the live Chat
+  window demo's five pillar chips (`All` 6, `CollabSales` 2,
+  `CollabStudio` 2, `CollabContent` 2, `CollabInfluencers` 0), counts
+  matching the demo's own visible conversation list; no JS changes —
+  pillar selection/filtering already worked off `data-pillar` and
+  `aria-checked`, never the chip's text content. Version flag bumped
+  to v0.9.68.
 
 - **v0.9.67 — 2026-08-27** — **[Stepper](#stepper)** overhaul: fixed
   a real doc/code split (Completed/Active had been documented one way
