@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.68** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.69** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -561,7 +561,7 @@ final.
 | File | Department | Element | Definition |
 |---|---|---|---|
 | `logo-lockups/collabContent.svg` | CollabContent | Wood · Salmon Pink `#FF7A90` | The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved. |
-| `logo-lockups/collabInfluencers.svg` | CollabInfluence | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
+| `logo-lockups/collabInfluence.svg` | CollabInfluence | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
 | `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
 | `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
 
@@ -5301,6 +5301,26 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.69 — 2026-08-27** — Closes the third and last open seam from
+  the CollabInfluencers → CollabInfluence rename: the real logo file
+  has been swapped. **`logo-lockups/collabInfluencers.svg`** (old
+  asset) is deleted; **`logo-lockups/collabInfluence.svg`** (the
+  uploaded replacement) takes its place, filename included — matching
+  the department's own renamed spelling instead of trailing behind it.
+  All 6 markup call sites in `preview.html` updated together —
+  the Logo section's download card (`img src`, download `href`) and
+  both live Department switcher instances (`data-logo` and their
+  thumbnail `img src`) — plus the Logo section's asset table row in
+  this document (and its synced copy in `preview.html`'s embedded doc
+  block). The `download="CollabInfluence-logo.svg"` save-as name was
+  already correct since v0.9.67 (it was the source file's own name
+  that lagged); nothing needed changing there. The uploaded asset
+  itself: the same "collab" wordmark in Obsidian with the "o" replaced
+  by a Green mark, followed by "Influence" set in Green — consistent
+  with this row's own documented `Earth · Green #00C26E` pairing,
+  rendered and eyeballed directly rather than assumed. `components.css`:
+  unchanged — this rename never touched CSS. `tokens.css`: unchanged.
 
 - **v0.9.68 — 2026-08-27** — Closes the second of v0.9.67's two open
   seams: the internal lowercase ids now match the renamed department —
