@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>DRAFT — Loading State (AI Native)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<!-- Real, unmodified tokens/components — nothing about them changes for this draft. -->
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<style>
+/* ============================================================
+   DRAFT PAGE CHROME ONLY — everything below this comment block
+   and above the "NEW COMPONENT" comment is scaffolding for this
+   draft page itself, not part of the component. None of it goes
+   into components.css.
+   ============================================================ */
+body{margin:0; padding:var(--spacing-48) var(--spacing-32) var(--spacing-120); background:var(--color-neutral-2); font-family:var(--font-primary); color:var(--color-neutral-9); display:flex; flex-direction:column; align-items:center; gap:var(--spacing-48);}
+.draft-banner{width:100%; max-width:900px; padding:var(--spacing-16) var(--spacing-20); background:rgba(255,164,37,.14); border:1px solid rgba(255,164,37,.38); border-radius:var(--radius-sm); font-size:14px; line-height:1.6; color:#7a4a00;}
+.draft-banner strong{color:var(--color-neutral-9);}
+.page-col{width:100%; max-width:900px; display:flex; flex-direction:column; gap:var(--spacing-32);}
+.page-head h1{font-size:28px; margin:0 0 var(--spacing-8);}
+.page-head p{font-size:14px; line-height:1.6; color:var(--color-neutral-5); margin:0; max-width:640px;}
+.variant-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); padding:var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-16);}
+.variant-head{display:flex; align-items:baseline; justify-content:space-between; gap:var(--spacing-16); flex-wrap:wrap;}
+.variant-head h2{font-size:18px; margin:0;}
+.variant-head span{font-size:12px; color:var(--color-neutral-5); font-family:monospace;}
+.variant-stage{padding:var(--spacing-32); background:var(--color-neutral-2); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center;}
+.variant-notes{font-size:13px; line-height:1.6; color:var(--color-neutral-5); margin:0;}
+.variant-notes code{background:var(--color-neutral-2); padding:1px 5px; border-radius:4px; font-size:12px; color:var(--color-neutral-9);}
+.toggle-row{display:flex; align-items:center; gap:var(--spacing-12);}
+.toggle-row label{font-size:14px; font-weight:600;}
+.adapt-list{margin:0; padding-left:18px; font-size:13px; line-height:1.8; color:var(--color-neutral-5);}
+.adapt-list code{background:var(--color-neutral-2); padding:1px 5px; border-radius:4px; font-size:12px; color:var(--color-neutral-9);}
+.adapt-list strong{color:var(--color-neutral-9);}
+.excluded{margin:0; padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-2); border-radius:var(--radius-sm); font-size:13px; line-height:1.6; color:var(--color-neutral-5);}
+
+/* ============================================================
+   NEW COMPONENT — Loading State (AI Native)
+
+   Pixel-grid loader for long-running AI work: a 3x3 grid of dots
+   pulsing in a wavefront pattern, paired with a static label and a
+   live elapsed timer in tabular-figure numerals — all motion stays
+   in the grid, both text elements just read. Three
+   variants — Drive (square cells), Dots (round cells), Orbit (a
+   single comet lapping the grid's 8-cell perimeter, center cell
+   always dim). The source component's fourth variant, Surfer (a
+   meme-video card), is deliberately excluded per instruction, not
+   an oversight — this draft only adapts Drive/Dots/Orbit.
+
+   Adapted from the source component:
+   - `bg-ink` -> `var(--color-neutral-9)`, the system's flat "ink"
+     foreground analog.
+   - `font-mono` on the elapsed timer -> `var(--font-primary)` with
+     `font-variant-numeric:tabular-nums` instead — this system ships
+     exactly one type family and aligns numerals the same way Price
+     summary card's line-item costs and Chat's own timestamps
+     already do, rather than introducing a second family for one
+     component.
+   - `ease-in-out` -> `var(--ease-standard)`, per this system's own
+     Motion rule: "reach for an elemental curve deliberately, not by
+     default."
+   - The 650ms (Drive/Dots) and 950ms (Orbit) per-cell cycle
+     lengths, and their delay tables, are the source's own tuned
+     values, kept as literal ms — like `c-prompt-bar-glow-move`'s 4s
+     or Chat's own 480ms veil fade — rather than forced onto
+     `duration-ambient` (900ms), since the "two fronts always in
+     flight" effect on Drive/Dots depends on the exact relationship
+     between the delay spread and the cycle length, not a swappable
+     token.
+   - Arbitrary Tailwind values (`gap-2.5`, `size-[4px]`) were mapped
+     to token spacing where a token existed, and kept as literal px
+     only where the value is doing genuinely fine-grained pixel-grid
+     work no spacing token is meant to cover (the 4px cell and its
+     1.5px gap) — the same precedent icon-micro-scale hit targets
+     and small swatches already set elsewhere in this system.
+
+   Collabrium pastel gradient — added on request, on the grid cells
+   only (also tried on the label shimmer; reverted — see below).
+   First pass reused `c-prompt-bar-glow-move` verbatim: a moving
+   linear-gradient background sweeping across each 4px cell. On a
+   surface that small the gradient's own internal stops blended into
+   each other visibly within a single dot — several hues at once,
+   not one. Per follow-up request, replaced with a genuinely
+   different technique: `c-loading-color-cycle` animates
+   `background-color` (a flat fill, not a gradient) through 5 discrete
+   stops — Gold → Water → Wood → Fire → Earth, the requested order,
+   which doesn't match `c-prompt-bar-glow-move`'s own Fire-first
+   sequence, so this is its own keyframe, not a reuse. Every active
+   cell holds each pastel solid for most of its 20% segment, then
+   crossfades to the next over a short handoff — never more than two
+   colors interpolating at once, and only briefly.
+   - Grid cells: each active cell gets a second, synced-phase
+     animation layered on top of its existing per-cell opacity pulse
+     — `animation: c-loading-color-cycle 5s linear infinite,
+     c-loading-pixel-on <dur> var(--ease-standard) <per-cell delay>
+     infinite;`. Two different CSS properties (background-color,
+     opacity), so they don't fight — the whole grid steps through the
+     color sequence together, in sync, on a shared 5s cycle, while
+     each cell still pulses bright/dim independently on its own
+     wavefront/comet timing. The always-dim center cell in Orbit is
+     left flat Neutral-9, no color cycle — it stays the one cell that
+     "never participates," a neutral anchor the comet's color visibly
+     orbits.
+   - Label: static, plain Neutral-9 text — no gradient, no shimmer,
+     no animation at all. First went grayscale-shimmer, then that was
+     judged too much movement/noise next to the grid's own motion —
+     removed outright rather than swapped for a subtler version. All
+     motion in this component now lives in the grid; the label and
+     the elapsed timer are both just read as text.
+   - Reduced motion only affects the grid now, freezing it to a flat
+     Gold-pastel fill at each cell's own resting opacity — a
+     representative static frame, same spirit as Progress Bar's
+     indeterminate-fill fallback. The label has nothing left to
+     freeze; it was never animated to begin with.
+   ============================================================ */
+.c-loading{display:inline-flex; align-items:center; gap:var(--spacing-8); font-family:var(--font-primary);}
+
+.c-loading-grid{display:grid; grid-template-columns:repeat(3, 4px); gap:1.5px; flex:none;}
+.c-loading-cell{width:4px; height:4px; background:var(--color-neutral-9); border-radius:1px; opacity:.15;}
+.c-loading-grid.dots .c-loading-cell{border-radius:50%;}
+.c-loading-cell.is-off{opacity:.07;}
+
+/* Pastel color layer — one flat color at a time, not a moving
+   spatial gradient. Every active cell in every variant shares one
+   synced `c-loading-color-cycle` (background-color, not
+   background-image) so the whole grid steps through the sequence
+   together — gold -> water -> wood -> fire -> earth -> back to gold —
+   layered under the per-cell opacity pulse below via a second
+   `animation` entry. */
+.c-loading-grid.drive .c-loading-cell,
+.c-loading-grid.dots .c-loading-cell{animation:c-loading-color-cycle 5s linear infinite, c-loading-pixel-on 650ms var(--ease-standard) infinite;}
+.c-loading-grid.drive .c-loading-cell:nth-child(1),.c-loading-grid.dots .c-loading-cell:nth-child(1){animation-delay:0s, 90ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(2),.c-loading-grid.dots .c-loading-cell:nth-child(2){animation-delay:0s, 180ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(3),.c-loading-grid.dots .c-loading-cell:nth-child(3){animation-delay:0s, 270ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(4),.c-loading-grid.dots .c-loading-cell:nth-child(4){animation-delay:0s, 0ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(5),.c-loading-grid.dots .c-loading-cell:nth-child(5){animation-delay:0s, 90ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(6),.c-loading-grid.dots .c-loading-cell:nth-child(6){animation-delay:0s, 180ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(7),.c-loading-grid.dots .c-loading-cell:nth-child(7){animation-delay:0s, 90ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(8),.c-loading-grid.dots .c-loading-cell:nth-child(8){animation-delay:0s, 180ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(9),.c-loading-grid.dots .c-loading-cell:nth-child(9){animation-delay:0s, 270ms;}
+
+/* Orbit — a single comet lapping the grid's 8-cell perimeter clockwise
+   from top-left; the center cell (5th) never participates — no
+   gradient, no pulse, flat Neutral-9 at its fixed .07 "off" opacity. */
+.c-loading-grid.orbit .c-loading-cell:nth-child(5){animation:none;}
+.c-loading-grid.orbit .c-loading-cell:not(:nth-child(5)){animation:c-loading-color-cycle 5s linear infinite, c-loading-pixel-on 950ms var(--ease-standard) infinite;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(1){animation-delay:0s, 0ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(2){animation-delay:0s, 110ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(3){animation-delay:0s, 220ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(4){animation-delay:0s, 770ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(6){animation-delay:0s, 330ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(7){animation-delay:0s, 660ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(8){animation-delay:0s, 550ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(9){animation-delay:0s, 440ms;}
+
+@keyframes c-loading-pixel-on{
+  0%,100%{opacity:.15;}
+  50%{opacity:1;}
+}
+
+/* One color holds, then hands off to the next over a short crossfade
+   (the last 4% of each 20% segment) — 5 colors, 5 even segments,
+   wrapping smoothly from earth back to gold at the loop point. Never
+   more than two colors interpolating at once, and only briefly. */
+@keyframes c-loading-color-cycle{
+  0%,16%{background-color:var(--color-gold-pastel);}
+  20%,36%{background-color:var(--color-water-pastel);}
+  40%,56%{background-color:var(--color-wood-pastel);}
+  60%,76%{background-color:var(--color-fire-pastel);}
+  80%,96%{background-color:var(--color-earth-pastel);}
+  100%{background-color:var(--color-gold-pastel);}
+}
+
+/* Label is static — no shimmer, no gradient, no animation. Went
+   through a pastel-clipped version (too low-contrast, reverted to
+   grayscale) and then the grayscale shimmer itself was judged too
+   much motion sitting next to the grid's own animation — removed
+   rather than toned down. All motion in this component now lives in
+   the grid; the label just reads as plain text, same treatment the
+   elapsed timer already had. */
+.c-loading-label{font-size:var(--text-caption-size); font-weight:500; color:var(--color-neutral-9); white-space:nowrap;}
+
+.c-loading-elapsed{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); font-variant-numeric:tabular-nums; flex:none;}
+
+@media (prefers-reduced-motion:reduce){
+  .c-loading-grid.drive .c-loading-cell,
+  .c-loading-grid.dots .c-loading-cell,
+  .c-loading-grid.orbit .c-loading-cell:not(:nth-child(5)){animation:none; opacity:.15; background-color:var(--color-gold-pastel);}
+}
+
+/* Draft-only testing convenience — mirrors the reduced-motion block
+   above but keyed to a class instead of the OS media feature, so the
+   toggle switch below can preview it without changing system
+   settings. Not part of the shipped component. */
+.force-reduced-motion .c-loading-grid.drive .c-loading-cell,
+.force-reduced-motion .c-loading-grid.dots .c-loading-cell,
+.force-reduced-motion .c-loading-grid.orbit .c-loading-cell:not(:nth-child(5)){animation:none !important; opacity:.15; background-color:var(--color-gold-pastel);}
+</style>
+</head>
+<body>
+
+<div class="draft-banner">
+  <strong>Draft — not committed.</strong> This page loads the real, unmodified <code>tokens.css</code> and <code>components.css</code>. The new Loading State CSS lives only in this file's own &lt;style&gt; block, ready to move into <code>components.css</code>/<code>DESIGN-SYSTEM.md</code> once approved. Nothing here has touched those files yet.
+</div>
+
+<div class="page-col">
+  <div class="page-head">
+    <h1>Loading State — AI Native</h1>
+    <p>Pixel-grid loader for long-running AI work, adapted from the source React component's Drive, Dots, and Orbit variants. Surfer (the meme-video variant) is left out per instruction. Each demo below is live — the grid wavefront and the elapsed timer are running with the real system's fonts, colors, and motion tokens; the label is static text.</p>
+  </div>
+
+  <div class="variant-card">
+    <div class="variant-head">
+      <h2>Drive</h2>
+      <span>.c-loading-grid.drive — square cells, 650ms</span>
+    </div>
+    <div class="variant-stage">
+      <div class="c-loading" role="status">
+        <span class="c-loading-grid drive" aria-hidden="true">
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+        </span>
+        <span class="c-loading-label">Building your forecast</span>
+        <span class="c-loading-elapsed">0.0s</span>
+      </div>
+    </div>
+    <p class="variant-notes">Chevron wavefront driving right, two fronts always in flight since the 650ms per-cell cycle is shorter than the time the wave takes to cross the grid.</p>
+  </div>
+
+  <div class="variant-card">
+    <div class="variant-head">
+      <h2>Dots</h2>
+      <span>.c-loading-grid.dots — round cells, 650ms</span>
+    </div>
+    <div class="variant-stage">
+      <div class="c-loading" role="status">
+        <span class="c-loading-grid dots" aria-hidden="true">
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+        </span>
+        <span class="c-loading-label">Analyzing signals</span>
+        <span class="c-loading-elapsed">0.0s</span>
+      </div>
+    </div>
+    <p class="variant-notes">Identical wavefront and timing to Drive — only <code>border-radius</code> changes, from a 1px near-square corner to a full circle.</p>
+  </div>
+
+  <div class="variant-card">
+    <div class="variant-head">
+      <h2>Orbit</h2>
+      <span>.c-loading-grid.orbit — comet, 950ms</span>
+    </div>
+    <div class="variant-stage">
+      <div class="c-loading" role="status">
+        <span class="c-loading-grid orbit" aria-hidden="true">
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+          <span class="c-loading-cell"></span><span class="c-loading-cell is-off"></span><span class="c-loading-cell"></span>
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+        </span>
+        <span class="c-loading-label">Drafting your brief</span>
+        <span class="c-loading-elapsed">0.0s</span>
+      </div>
+    </div>
+    <p class="variant-notes">A single comet laps the grid's 8-cell perimeter clockwise; the center cell stays fixed at its dim 7% "off" opacity and never lights up.</p>
+  </div>
+
+  <div class="variant-card">
+    <div class="variant-head">
+      <h2>Reduced motion</h2>
+    </div>
+    <div class="toggle-row">
+      <button type="button" class="c-btn c-btn-secondary c-btn-md" id="rmToggle">Preview prefers-reduced-motion: reduce</button>
+    </div>
+    <div class="variant-stage" id="rmStage">
+      <div class="c-loading" role="status">
+        <span class="c-loading-grid drive" aria-hidden="true">
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+          <span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>
+        </span>
+        <span class="c-loading-label">Building your forecast</span>
+        <span class="c-loading-elapsed">0.0s</span>
+      </div>
+    </div>
+    <p class="variant-notes">The grid freezes to a flat, dim resting state — the only thing reduced motion needs to touch, now that the label is static text by default and the elapsed timer keeps ticking regardless (it's conveying real information, not decoration). This toggle is a draft-only convenience to preview that frozen grid state without changing OS settings; the real, shipped rule is the <code>@media (prefers-reduced-motion: reduce)</code> block above it.</p>
+  </div>
+
+  <div class="variant-card">
+    <div class="variant-head"><h2>What's adapted vs. excluded</h2></div>
+    <ul class="adapt-list">
+      <li><strong>Included:</strong> Drive, Dots, Orbit — all three ported as their own <code>.c-loading-grid</code> modifier.</li>
+      <li><strong>Colors:</strong> <code>bg-ink</code> → <code>var(--color-neutral-9)</code>; elapsed timer → <code>var(--color-neutral-5)</code>, the same muted tone Price summary card's costs and Chat's timestamps already use.</li>
+      <li><strong>Typography:</strong> label and timer both render in <code>var(--font-primary)</code> — no monospace font introduced for the timer; numeral alignment comes from <code>font-variant-numeric: tabular-nums</code> instead, matching this system's existing precedent.</li>
+      <li><strong>Motion:</strong> <code>ease-in-out</code> → <code>var(--ease-standard)</code>. Per-cell cycle lengths (650ms / 950ms) and the delay tables that create the wavefront/comet are kept as the source's own tuned literal values.</li>
+      <li><strong>Label — animation removed on request:</strong> the source shimmered the label; this went through a pastel-clipped version (too low-contrast, reverted to grayscale) and then the grayscale shimmer itself was judged too much movement next to the grid's own animation. Removed rather than toned down — the label is now plain, static Neutral-9 text, same treatment as the elapsed timer beside it. All motion in this component now lives in the grid.</li>
+      <li><strong>Collabrium pastel gradient — added on request, grid only:</strong> the grid cells step through Gold → Water → Wood → Fire → Earth one flat color at a time (<code>c-loading-color-cycle</code>, a new keyframe animating <code>background-color</code>) rather than a moving gradient — the first pass reused Prompt input bar's own <code>c-prompt-bar-glow-move</code> gradient sweep, but at 4px the gradient's stops blended into each other within a single dot, showing several hues at once instead of one. Layered under each cell's existing opacity pulse, so color and brightness still animate independently on different cycles.</li>
+      <li><strong>Reduced motion:</strong> newly added — the source component didn't define this keyframe or its own reduced-motion behavior explicitly in the code shared. The grid's fallback follows Banner-ai's "freeze the wash in place" precedent (settles on a flat Gold-pastel frame at each cell's own resting opacity). The label has nothing to freeze — it was already static before reduced motion entered the picture.</li>
+    </ul>
+    <p class="excluded"><strong>Excluded — Surfer variant.</strong> The meme-video card (autoplay <code>&lt;video&gt;</code>, video-load-failure fallback state, <code>videoSrc</code> prop) is not part of this draft. Only Drive/Dots/Orbit were requested.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  function fmt(totalSeconds){
+    if (totalSeconds < 60) return totalSeconds.toFixed(1) + 's';
+    var m = Math.floor(totalSeconds / 60);
+    var s = (totalSeconds % 60).toFixed(1);
+    return m + 'm ' + s + 's';
+  }
+  var start = performance.now();
+  var els = document.querySelectorAll('.c-loading-elapsed');
+  function tick(){
+    var elapsedSeconds = (performance.now() - start) / 1000;
+    els.forEach(function(el){ el.textContent = fmt(elapsedSeconds); });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  var btn = document.getElementById('rmToggle');
+  var stage = document.getElementById('rmStage');
+  btn.addEventListener('click', function(){
+    var on = stage.classList.toggle('force-reduced-motion');
+    btn.textContent = on ? 'Showing: reduced motion (click to restore)' : 'Preview prefers-reduced-motion: reduce';
+  });
+})();
+</script>
+
+</body>
+</html>
