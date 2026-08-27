@@ -240,6 +240,12 @@
    .c-empty verbatim, not restyled here. Filled state's divider between
    the item list and the Total/CTA region is .c-card-footer's own top
    border, not a new element; the remove button is optional per row.
+   Remove is opacity-hidden until its row is hovered/focused (same
+   reveal-on-row-hover pattern as Chat's message actions above) so it
+   never sits under the pointer at rest — the row's height and the
+   button's hit target don't move when it appears, only its visibility
+   does, which is what actually prevents the accidental-click case this
+   guards against.
    Items 5+ collapse behind "Show X more" using the same Grid 0fr->1fr
    expand/collapse technique as SidebarNav's .c-nav-children (see that
    rule's own comment above) rather than a guessed max-height, which
@@ -256,7 +262,9 @@
 .c-card-price-row:last-child{border-bottom:none;}
 .c-card-price-name{flex:1; min-width:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .c-card-price-cost{flex:none; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
-.c-card-price-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); font-size:var(--icon-micro); cursor:pointer;}
+.c-card-price-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); font-size:var(--icon-micro); cursor:pointer; opacity:0; transition:opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-card-price-row:hover .c-card-price-remove,
+.c-card-price-row:focus-within .c-card-price-remove{opacity:1;}
 .c-card-price-remove:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
 .c-card-price-remove:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
 .c-card-price-overflow{display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--duration-base) var(--ease-settle);}

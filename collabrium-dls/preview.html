@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.70</title>
+<title>Collabrium design system | v0.9.71</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -364,7 +364,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.70</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.71</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -372,7 +372,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.70</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.71</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -3314,7 +3314,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.70** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.71** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -5090,6 +5090,7 @@ selected).
 | Header | h4, "Price summary" |
 | Selected items list | first 4 items always visible; items 5+ collapse behind a "Show X more" control — see **Selected items list — display rules** below for the full behavior |
 | Item row | Item name (body2/700, Neutral-9, truncates with an ellipsis past the row's available width) — Unit cost (caption, Neutral-5, right-aligned) — Remove × (**optional** — a read-only/locked line item can omit it; `icon-micro` 14px, Neutral-5, 24×24px hit target, same recipe as FileUploader's row × per [Iconography](#iconography)'s remove-button precedent) — 1px Neutral-3 border-bottom between rows |
+| Remove × visibility | hidden (`opacity: 0`) at rest, revealed on that row's own hover or keyboard focus-within — `duration-fast`/`ease-standard`, the same reveal-on-row convention as Chat's message actions; the row's height and the ×'s 24×24px hit target never move when it appears, only its visibility does. Deliberate: a line-item list is dense and scanned quickly, and an always-visible × sitting a `spacing-12` reach from the item name it belongs to reads as always "armed," inviting an accidental click the user didn't mean to make — hover/focus scoped to one row at a time removes that risk without adding a confirmation step |
 | Divider | Card's own Footer top border, reused as-is between the item list and the section below — not a separate element |
 | Total row | Inside the Footer: "Total" (label1/700, Neutral-9) and the total cost (label1, Neutral-5), space-between, value right-aligned |
 | CTA button | [Button](#button)'s Primary/md, stretched to the card's full width with its label centered — "Build proposal" is this variant's own copy, not a generic placeholder |
@@ -5467,7 +5468,10 @@ simplified stand-in for the other.
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
 they're not interchangeable. Treat the Price summary card's Remove ×
-as optional per row. Keep the Profile card's Follower count at the same
+as optional per row, and keep it hover/focus-revealed rather than
+always visible — see **Remove × visibility** above; don't make it
+permanently visible as a "clarity" fix, since that's the exact
+accidental-removal risk the reveal exists to prevent. Keep the Profile card's Follower count at the same
 caption size as the Handle directly above it, while keeping its own
 bold (700) weight — it stays a headline-weight value against the
 Handle's regular weight, not a smaller supporting figure, just no
@@ -8659,6 +8663,33 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.71 — 2026-08-27** — **Price summary card**'s per-row Remove ×
+  (`.c-card-price-remove`) is now hidden at rest and revealed only on
+  that row's own hover or keyboard focus — `opacity: 0 → 1`,
+  `duration-fast`/`ease-standard`, the same reveal-on-hover convention
+  already used elsewhere (Chat's message actions, Table's bulk-select
+  checkbox column). Previously every row's × sat permanently visible a
+  `spacing-12` reach from the item name, which read as always "armed"
+  in a dense, quickly-scanned line-item list and invited an accidental
+  click. Scoped to `.c-card-price-row:hover`/`:focus-within` so it's
+  one row at a time, not the whole list at once; `:focus-within`
+  (not just `:hover`) keeps it reachable via keyboard — tabbing to the
+  button still focuses and reveals it even though it starts at
+  `opacity: 0`. No layout shift: the row height and the ×'s 24×24px
+  hit target are unchanged, only visibility animates, so nothing else
+  in the row reflows when it appears or disappears. Verified against
+  the real `components.css`/`tokens.css` in isolation: rest state shows
+  zero × icons, hovering one row reveals only that row's ×, the other
+  rows stay hidden, and the existing hover background/color treatment
+  on the button itself still applies once revealed. Default, Risk, and
+  AI (Dark) Hero Card states, Chat, and every other component using a
+  similar remove affordance (Tag, Chip, Input Chip, FileUploader) are
+  untouched — this is scoped to Price summary card alone, since those
+  other remove buttons live in shorter, more deliberately-interacted-
+  with lists (a handful of chips/tags) where a permanently visible ×
+  doesn't carry the same accidental-click risk a longer running list
+  does. `tokens.css`: unchanged.
 
 - **v0.9.70 — 2026-08-27** — Fixed a real mobile overflow bug in
   **Hero Card**'s Selected state (static, in-flow form —
