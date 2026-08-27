@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.72** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.73** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -564,13 +564,15 @@ final.
 | `logo-lockups/collabInfluence.svg` | CollabInfluence | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
 | `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
 | `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
+| `logo-lockups/collabMedia.svg` | CollabMedia | Water · Navy Blue `#1473E6` | Media planning system that recommends digital media space and channel strategy based on a brand's available revenue — turning budget into a data-driven media plan. |
 
-These four don't cover all five elements (no Water/Data-Logistics
-department product exists yet) and aren't a 1:1 substitute for the
-generic per-element lockups in the Default-logo rule table above —
-that table is about recoloring the base Collabrium mark for a
-department-owned surface; this one is about distinct named products
-that happen to live inside Collabrium.
+These five now cover all five elements — CollabMedia is the
+Water/Data-Logistics department product this table previously flagged
+as missing. They aren't a 1:1 substitute for the generic per-element
+lockups in the Default-logo rule table above — that table is about
+recoloring the base Collabrium mark for a department-owned surface;
+this one is about distinct named products that happen to live inside
+Collabrium.
 
 ⚠️ **Needs Input #8 — further resolved, not closed.** Individual static
 vector assets now exist for every letter and element (see `SVG/` above),
@@ -5342,6 +5344,34 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.73 — 2026-08-27** — New **[Department logos](#department-logos)**
+  entry: **CollabMedia**, tied to **Water** (Navy Blue `#1473E6`) — the
+  media planning product, closing the gap this section had flagged
+  since v0.9.38 ("no Water/Data-Logistics department product exists
+  yet"). Definition: "Media planning system that recommends digital
+  media space and channel strategy based on a brand's available
+  revenue — turning budget into a data-driven media plan." The element
+  pairing wasn't a judgment call made here — the supplied
+  `logo-lockups/collabMedia.svg` asset already uses `#1473E6` for its
+  accent fill, the same value this document's own Water/Navy Blue
+  brand accent already specifies, so the logo and the element system
+  agree without any recoloring. The Department logos table's own
+  "these four don't cover all five elements" caveat is updated to
+  reflect that all five now do.
+  `preview.html`: the new lockup added as a fifth card in the
+  Department logos grid (`.dept-logo-grid`), same recipe as the
+  existing four — image, hover-reveal Download button, Water `-bg`
+  tag with `SVG/water.svg`, name, definition. Also added as a fifth
+  option (`data-dept="media"`, `SVG/water.svg`) in **both** instances
+  of the Department switcher dropdown — the standalone SidebarNav
+  demo's `#deptDropdown` and the App Shell demo's
+  `#appShellDeptDropdown` — kept symmetric with each other, same as
+  the existing four options already are. No JS changes needed: the
+  switcher's click handling reads everything off `data-*` attributes,
+  so a fifth `.c-dept-option` needed no new logic. `components.css`,
+  `tokens.css`: unchanged — reuses `--color-water-bg`/`--color-navy`,
+  both already defined. Version flag bumped to v0.9.73.
 
 - **v0.9.72 — 2026-08-27** — `preview.html` only, no component
   change: removed the "Expanded (default, revealed)" swatch from

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.72</title>
+<title>Collabrium design system | v0.9.73</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -364,7 +364,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.72</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.73</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -372,7 +372,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.72</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.73</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -565,6 +565,15 @@
             <span class="dept-logo-tag" style="background:var(--color-fire-bg); color:var(--color-orange)"><img class="element-icon" src="SVG/fire.svg" alt="" style="margin-right:0" />Fire</span>
             <h3 class="dept-logo-name">CollabStudio</h3>
             <p class="dept-logo-desc">Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns.</p>
+          </div>
+          <div class="dept-logo-card">
+            <div class="dept-logo-img">
+              <img src="logo-lockups/collabMedia.svg" alt="CollabMedia logo, Water" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-lockups/collabMedia.svg" download="CollabMedia-logo.svg"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-water-bg); color:var(--color-navy)"><img class="element-icon" src="SVG/water.svg" alt="" style="margin-right:0" />Water</span>
+            <h3 class="dept-logo-name">CollabMedia</h3>
+            <p class="dept-logo-desc">Media planning system that recommends digital media space and channel strategy based on a brand's available revenue — turning budget into a data-driven media plan.</p>
           </div>
         </div>
       </div>
@@ -1119,6 +1128,10 @@
                   </div>
                   <div class="c-dept-option" role="option" aria-selected="false" aria-label="Studio" data-dept="studio" data-name="Studio" data-logo="logo-lockups/collabStudio.svg" data-element-icon="SVG/fire.svg">
                     <span class="c-dept-option-logo"><img src="logo-lockups/collabStudio.svg" alt="" /></span>
+                    <i class="ph ph-check c-dept-check"></i>
+                  </div>
+                  <div class="c-dept-option" role="option" aria-selected="false" aria-label="Media" data-dept="media" data-name="Media" data-logo="logo-lockups/collabMedia.svg" data-element-icon="SVG/water.svg">
+                    <span class="c-dept-option-logo"><img src="logo-lockups/collabMedia.svg" alt="" /></span>
                     <i class="ph ph-check c-dept-check"></i>
                   </div>
                 </div>
@@ -2674,6 +2687,10 @@
                       <span class="c-dept-option-logo"><img src="logo-lockups/collabStudio.svg" alt="" /></span>
                       <i class="ph ph-check c-dept-check"></i>
                     </div>
+                    <div class="c-dept-option" role="option" aria-selected="false" aria-label="Media" data-dept="media" data-name="Media" data-logo="logo-lockups/collabMedia.svg" data-element-icon="SVG/water.svg">
+                      <span class="c-dept-option-logo"><img src="logo-lockups/collabMedia.svg" alt="" /></span>
+                      <i class="ph ph-check c-dept-check"></i>
+                    </div>
                   </div>
                   <button class="c-sidebar-toggle js-sidebar-toggle" type="button" aria-label="Collapse sidebar" data-sidebar-toggle="deptSidebarNav">
                     <svg class="js-sidebar-toggle-icon" viewBox="0 0 20 20" fill="none">
@@ -3270,7 +3287,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.72** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.73** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3834,13 +3851,15 @@ final.
 | `logo-lockups/collabInfluence.svg` | CollabInfluence | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
 | `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
 | `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
+| `logo-lockups/collabMedia.svg` | CollabMedia | Water · Navy Blue `#1473E6` | Media planning system that recommends digital media space and channel strategy based on a brand's available revenue — turning budget into a data-driven media plan. |
 
-These four don't cover all five elements (no Water/Data-Logistics
-department product exists yet) and aren't a 1:1 substitute for the
-generic per-element lockups in the Default-logo rule table above —
-that table is about recoloring the base Collabrium mark for a
-department-owned surface; this one is about distinct named products
-that happen to live inside Collabrium.
+These five now cover all five elements — CollabMedia is the
+Water/Data-Logistics department product this table previously flagged
+as missing. They aren't a 1:1 substitute for the generic per-element
+lockups in the Default-logo rule table above — that table is about
+recoloring the base Collabrium mark for a department-owned surface;
+this one is about distinct named products that happen to live inside
+Collabrium.
 
 ⚠️ **Needs Input #8 — further resolved, not closed.** Individual static
 vector assets now exist for every letter and element (see `SVG/` above),
@@ -8613,6 +8632,34 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.73 — 2026-08-27** — New **[Department logos](#department-logos)**
+  entry: **CollabMedia**, tied to **Water** (Navy Blue `#1473E6`) — the
+  media planning product, closing the gap this section had flagged
+  since v0.9.38 ("no Water/Data-Logistics department product exists
+  yet"). Definition: "Media planning system that recommends digital
+  media space and channel strategy based on a brand's available
+  revenue — turning budget into a data-driven media plan." The element
+  pairing wasn't a judgment call made here — the supplied
+  `logo-lockups/collabMedia.svg` asset already uses `#1473E6` for its
+  accent fill, the same value this document's own Water/Navy Blue
+  brand accent already specifies, so the logo and the element system
+  agree without any recoloring. The Department logos table's own
+  "these four don't cover all five elements" caveat is updated to
+  reflect that all five now do.
+  `preview.html`: the new lockup added as a fifth card in the
+  Department logos grid (`.dept-logo-grid`), same recipe as the
+  existing four — image, hover-reveal Download button, Water `-bg`
+  tag with `SVG/water.svg`, name, definition. Also added as a fifth
+  option (`data-dept="media"`, `SVG/water.svg`) in **both** instances
+  of the Department switcher dropdown — the standalone SidebarNav
+  demo's `#deptDropdown` and the App Shell demo's
+  `#appShellDeptDropdown` — kept symmetric with each other, same as
+  the existing four options already are. No JS changes needed: the
+  switcher's click handling reads everything off `data-*` attributes,
+  so a fifth `.c-dept-option` needed no new logic. `components.css`,
+  `tokens.css`: unchanged — reuses `--color-water-bg`/`--color-navy`,
+  both already defined. Version flag bumped to v0.9.73.
+
 - **v0.9.72 — 2026-08-27** — `preview.html` only, no component
   change: removed the "Expanded (default, revealed)" swatch from
   **[Prompt input bar](#ai-native)**'s "Floating bar" gallery entry,
@@ -11124,6 +11171,7 @@ with nothing else to keep in sync.
 - **v0.1.0 — 2026-07-29** — Initial DLS drafted from the Collabrium
   brand deck (Google Slides). 10 gaps flagged under Needs Input; see table
   at top. Not yet reviewed by brand team.
+
 </script>
 
 <script type="text/plain" id="src-css-vars">/*
