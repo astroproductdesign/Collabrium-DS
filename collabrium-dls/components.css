@@ -240,6 +240,12 @@
    .c-empty verbatim, not restyled here. Filled state's divider between
    the item list and the Total/CTA region is .c-card-footer's own top
    border, not a new element; the remove button is optional per row.
+   Remove is opacity-hidden until its row is hovered/focused (same
+   reveal-on-row-hover pattern as Chat's message actions above) so it
+   never sits under the pointer at rest — the row's height and the
+   button's hit target don't move when it appears, only its visibility
+   does, which is what actually prevents the accidental-click case this
+   guards against.
    Items 5+ collapse behind "Show X more" using the same Grid 0fr->1fr
    expand/collapse technique as SidebarNav's .c-nav-children (see that
    rule's own comment above) rather than a guessed max-height, which
@@ -256,7 +262,9 @@
 .c-card-price-row:last-child{border-bottom:none;}
 .c-card-price-name{flex:1; min-width:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .c-card-price-cost{flex:none; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
-.c-card-price-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); font-size:var(--icon-micro); cursor:pointer;}
+.c-card-price-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); font-size:var(--icon-micro); cursor:pointer; opacity:0; transition:opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-card-price-row:hover .c-card-price-remove,
+.c-card-price-row:focus-within .c-card-price-remove{opacity:1;}
 .c-card-price-remove:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
 .c-card-price-remove:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
 .c-card-price-overflow{display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--duration-base) var(--ease-settle);}
@@ -358,8 +366,9 @@
 .c-herocard-ai .c-herocard-media{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.16); color:rgba(255,255,255,.4);}
 .c-herocard-ai:hover .c-herocard-cta i{transform:translateX(var(--spacing-4));}
 
-/* Selected state — same shell, just bigger, sitting in normal page flow. Eyebrow reverts to the pre-H2 caption/uppercase styling here and on .c-cbrief below (the same state's modal form) — the Default/Risk/AI H2 change was never asked for on Selected. */
-.c-herocard-selected{width:min(560px, calc(100vw - var(--spacing-32))); max-height:calc(100dvh - var(--spacing-60)); overflow-y:auto; padding:var(--spacing-24); gap:var(--spacing-16);}
+/* Selected state — same shell, just bigger, sitting in normal page flow. Eyebrow reverts to the pre-H2 caption/uppercase styling here and on .c-cbrief below (the same state's modal form) — the Default/Risk/AI H2 change was never asked for on Selected.
+   Mobile fix: width/max-height used to be copy-pasted from .c-cbrief below (the fixed/centered MODAL form of this same state) — min(560px, calc(100vw - spacing-32)) plus a self-scrolling max-height. That math only holds for something position:fixed and genuinely measured against the true viewport, which .c-cbrief is and this in-flow card isn't; 100vw doesn't know this card's real parent width, so on a phone the card kept requesting close to 560px regardless of how little room its actual container gave it, overflowing every narrow container tested. Fixed by giving it Card's own universal width:100%/max-width recipe instead (see Card's own Do/Don't: "Do use width:100% on every card — the grid cell decides the card's width") and dropping the inherited max-height/overflow-y, which never made sense for in-flow content that should just grow and let the page scroll. */
+.c-herocard-selected{width:100%; max-width:560px; padding:var(--spacing-24); gap:var(--spacing-16);}
 .c-herocard-selected .c-herocard-eyebrow,
 .c-cbrief .c-herocard-eyebrow{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow);}
 
@@ -1432,25 +1441,56 @@
    weight are --border-width-sm/--border-width-md, not literal
    1px/2px — the only component in this system where those are
    tokenized so far (see tokens.css). */
-.c-stepper{display:flex; align-items:flex-start;}
+.c-stepper{display:flex; align-items:flex-start; container-type:inline-size;}
 .c-stepper.vertical{flex-direction:column; gap:var(--spacing-8);}
 .c-step{display:flex; flex:none;}
 .c-stepper:not(.vertical) .c-step{flex-direction:column; align-items:center; gap:var(--spacing-8); width:24px;}
 .c-stepper.vertical .c-step{gap:var(--spacing-12);}
+.c-step.is-disabled{opacity:.4; cursor:not-allowed;}
 .c-step-rail{display:flex; flex-direction:column; align-items:center;}
 .c-stepper.vertical .c-step-rail{gap:var(--spacing-8);}
 .c-step-indicator{flex:none; width:24px; height:24px; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:var(--text-label1-weight);}
-/* Completed — unfilled with a border and a tick glyph (icon-sm,
-   Obsidian, Tier 1 Regular — the same ph-check convention Dropdown's
-   own row and Checkbox already use) instead of the step number; fill
-   vs. outline still carries Active vs. Completed, just swapped from
-   the previous pass. Active — filled Obsidian, no border, the step
-   number in Neutral-1 (the same fill+number treatment Completed used
-   to have, moved onto Active instead). Upcoming — unchanged. */
-.c-step-indicator.completed{background:var(--color-neutral-1); border:var(--border-width-sm) solid var(--color-obsidian); color:var(--color-obsidian);}
-.c-step-indicator.completed i{font-size:var(--icon-sm);}
+/* Completed/Active — solid fill carries both states; Completed swaps
+   the step number for a check glyph outright rather than keeping an
+   outlined/numbered look. Upcoming stays the plain outlined/numbered
+   treatment for both.
+   Error/Warning are FLAGS layered on top of a step's derived state,
+   never a 4th/5th value in the state enum: Error is only ever added
+   to whichever step is currently Active, Warning only to a step
+   that's already Completed — enforced by the consuming app, not just
+   documented, since an Error on an Upcoming step or a Warning on the
+   Active one asserts something that hasn't happened. At most one
+   Error can exist at a time (follows from there only ever being one
+   Active step); Warnings are unbounded, since each is an independent
+   caveat about a step that's already done. A flagged step drops its
+   number/check for its own glyph and keeps a fill — deliberate for
+   Error even though a fill elsewhere in this indicator means
+   "settled," because Error has to be the loudest thing in the row.
+   Resolving an Error returns the step to plain Active; it does not
+   auto-advance — resolving and advancing are two separate acts.
+   Icons: check/x are Tier 1, Regular (`ph-check`/`ph-x` — both
+   already Iconography's own documented Tier 1 examples: "check...
+   the Checkbox marks" and the plain-`x` remove affordance) rather
+   than Tier 2 Fill's `ph-fill ph-check`/`ph-fill ph-x`, which this
+   icon set renders as a checkbox/x-in-a-square glyph, not a bare
+   mark — redundant framing once it sits inside this indicator's own
+   circle. `x-circle`, this system's usual Tier 2 status-error glyph
+   (see Toast), is skipped for the same reason: a second circle
+   nested inside the indicator's own. Warning has no such conflict —
+   `ph-fill ph-warning` is a plain triangle, a textbook Tier 2 case
+   (Iconography's own "status indicators" list). All three sized at
+   icon-micro (14px), one scale across the row. Warning's label/
+   description color matches Badge's own `.c-badge-warning` text
+   color exactly (`--color-neutral-9`), not Toast/Banner's darkened
+   amber ink. Contrast (Component Rule 5): Neutral-1 on Red `#FD3343`
+   measures 3.69:1; Obsidian on Amber `#FFA425` measures 7.13:1,
+   Neutral-1 on the same fill fails at 1.98:1. */
+.c-step-indicator.completed{background:var(--color-green); color:var(--color-neutral-1);}
 .c-step-indicator.active{background:var(--color-obsidian); color:var(--color-neutral-1);}
 .c-step-indicator.upcoming{background:var(--color-neutral-1); border:var(--border-width-sm) solid var(--color-neutral-3); color:var(--color-neutral-5);}
+.c-step-indicator.error{background:var(--color-red); color:var(--color-neutral-1);}
+.c-step-indicator.warning{background:var(--color-amber); color:var(--color-obsidian);}
+.c-step-indicator.completed i, .c-step-indicator.error i, .c-step-indicator.warning i{font-size:var(--icon-micro);}
 .c-step-connector{background:var(--color-neutral-3); flex:none;}
 .c-stepper:not(.vertical) .c-step-connector{flex:1; height:var(--border-width-sm); margin:var(--spacing-12) var(--spacing-4) 0;}
 .c-stepper.vertical .c-step-connector{width:var(--border-width-sm); height:var(--spacing-16);}
@@ -1459,7 +1499,28 @@
 .c-step-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
 .c-step-label.active{font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
 .c-step-label.completed, .c-step-label.upcoming{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+.c-step-label.error{font-weight:var(--text-body2-weight); color:var(--color-red);}
+.c-step-label.warning{font-weight:var(--text-body2-weight); color:var(--color-neutral-9);}
+/* Description is all-or-nothing per stepper (Component Rules), so a
+   flag's message reuses the same slot/line rather than adding a
+   second one — it replaces the step's description, the way Input
+   field's error text replaces its helper, instead of appending
+   beneath it. */
 .c-step-desc{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-step-desc.error{color:var(--color-red); font-weight:700;}
+.c-step-desc.warning{color:var(--color-neutral-9); font-weight:700;}
+
+/* Mobile — below 480px of the stepper's own container width (a
+   container query, not viewport, so it responds inside a narrow
+   modal/drawer too): descriptions hide and an overlong label
+   truncates with an ellipsis, a density/scannability improvement for
+   small screens. Horizontal only — vertical is already a single
+   narrow column and needs nothing. */
+@container (max-width:480px){
+  .c-stepper:not(.vertical) .c-step-desc{display:none;}
+  .c-stepper:not(.vertical) .c-step{width:auto; flex:1 1 0; min-width:0;}
+  .c-stepper:not(.vertical) .c-step-label{display:block; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+}
 
 /* Back button (Level 2+ navigation) — designed from scratch, fulfils App
    Shell's own reserved Level 2 placeholder. All four states reuse Button

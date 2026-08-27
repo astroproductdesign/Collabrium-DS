@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.69** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.70** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -46,7 +46,7 @@ changelog when you do.
 | 8 | No final logo asset | A real animated wordmark + mark SVG (`logo.html`, trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The ink-color discrepancy between the static lockup and the animated mark is **resolved** — both use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
 | 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
-| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case: (1) **Resolved** — the Tabs component's own optional leading icon is Tier 1, Regular; Tabs are navigation controls, not expressive status indicators, the same resolution [Segmented Control](#segmented-control) already documents for its own icon, see [Tabs](#tabs)'s own anatomy table; (2)-(4) still none brand-team-confirmed: (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
+| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Five judgment calls made where the rule's examples didn't explicitly cover a case: (1) **Resolved** — the Tabs component's own optional leading icon is Tier 1, Regular; Tabs are navigation controls, not expressive status indicators, the same resolution [Segmented Control](#segmented-control) already documents for its own icon, see [Tabs](#tabs)'s own anatomy table; (2)-(4) still none brand-team-confirmed: (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight; (5) **Resolved** — [Stepper](#stepper)'s Completed check and Error × are Tier 1, Regular (`ph-check`/`ph-x`) rather than Tier 2 Fill, since this icon set's `ph-fill ph-check`/`ph-fill ph-x` render as a boxed checkbox/×-in-a-square glyph — redundant framing once already sitting inside the indicator's own circle; Stepper's Warning has no such conflict and is Tier 2 Fill (`ph-fill ph-warning`), a plain triangle, textbook "status indicators" |
 
 ---
 
@@ -4457,30 +4457,71 @@ text — not transcribed. Treat as a first pass needing real design/brand
 review.
 
 Tracks progress through a multi-step flow — onboarding, a multi-page
-form, a checkout — as an ordered list of steps, each in one of three
-states.
+form, a checkout — as an ordered list of steps.
+
+**State model.** Every step derives one base state from a single
+`currentStep` index — before it is Completed, at it is Active, after
+it is Upcoming — never tracked per step. Error and Warning are flags
+layered on top of that derived state, not a 4th/5th base value: Error
+only ever applies to the currently Active step, Warning only ever to
+an already-Completed step (an Error on an Upcoming step, or a Warning
+on the Active one, would assert something that hasn't happened yet).
+At most one Error can exist at a time, since there's only ever one
+Active step; Warnings are unbounded — each is independent per
+completed step. Resolving an Error returns the step to plain Active;
+it does not auto-advance — resolving and advancing are two separate
+acts.
 
 | Part | Spec |
 |---|---|
 | Indicator | 24×24px circle, `radius-pill` |
-| Indicator — Completed | Obsidian fill, Neutral-1 text, shows the step number (not an icon — fill vs. outline is what carries the state) |
-| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian text |
-| Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 text |
-| Label | body2 (14px/20px); weight 700 + Neutral-9 when Active, weight 400 + Neutral-5 when Completed/Upcoming — same bold-vs-muted pattern as SidebarNav's active/inactive nav items |
-| Description (optional) | caption (12px), Neutral-5 — smaller than the label, spacing-4 below it |
+| Indicator — Completed | `--color-green` fill, Neutral-1 `ph-check` icon — swaps the step number for the glyph outright rather than keeping a numbered look |
+| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian step number |
+| Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 step number |
+| Indicator — Error (flag) | `--color-red` fill, Neutral-1 `ph-x` icon — a fill even though a fill elsewhere in this indicator means "settled," since Error has to be the loudest thing in the row |
+| Indicator — Warning (flag) | `--color-amber` fill, Obsidian `ph-fill ph-warning` icon |
+| Label | body2 (14px/20px); weight 700 + Neutral-9 when Active, weight 400 + Neutral-5 when Completed/Upcoming — same bold-vs-muted pattern as SidebarNav's active/inactive nav items; Error label is `--color-red`, Warning label is Neutral-9 (matches Badge's own `.c-badge-warning` text color exactly, not Toast/Banner's darkened amber ink) |
+| Description (optional) | caption (12px), Neutral-5 — smaller than the label, spacing-4 below it. All-or-nothing per stepper: either every step carries one or none do. A flag's message reuses this same slot rather than adding a second line — it replaces the description, the way Input field's error text replaces its helper |
 | Connector | 1px fill in Neutral-3 (the hairline-border token), not a literal border |
 | Connector — horizontal | sits between each pair of indicators, sharing an equal `flex: 1` share of the row so every connector is the same length regardless of neighboring label width |
 | Connector — vertical | fixed spacing-16 length, held spacing-8 off the indicator above (the rail's own gap) and spacing-8 off the indicator below (the list's gap) — equal on both sides, never touching either circle |
 
+**Icons.** Completed's check and Error's × are **Tier 1, Regular**
+(`ph-check`/`ph-x`) rather than Tier 2 Fill's `ph-fill ph-check`/
+`ph-fill ph-x`, which this icon set renders as a checkbox/×-in-a-square
+glyph, not a bare mark — redundant framing once it's already sitting
+inside this indicator's own circle. `x-circle`, this system's usual
+Tier 2 status-error glyph (see Toast), is skipped for the same reason:
+a second circle nested inside the indicator's own. Warning has no such
+conflict — `ph-fill ph-warning` is a plain triangle, a textbook Tier 2
+case (Iconography's own "status indicators" list). All three sized at
+`icon-micro` (14px), one scale across the row. Contrast (Component
+Rule 5): Neutral-1 on Red `#FD3343` measures 3.69:1; Obsidian on Amber
+`#FFA425` measures 7.13:1, Neutral-1 on that same fill fails at
+1.98:1 — the reason Warning's icon/text is Obsidian, not Neutral-1,
+while Error's is Neutral-1. See [Needs Input #11](#needs-input-read-this-first)
+for this doc's running list of icon-tier judgment calls — this one is
+resolved there.
+
+**Mobile.** Below 480px of the stepper's own *container* width (a
+container query, not the viewport, so it responds correctly inside a
+narrow modal/drawer too), Horizontal's descriptions hide and an
+overlong label truncates with an ellipsis. Vertical needs no
+equivalent treatment — it's already a single narrow column.
+
 **Variants:** orientation (Horizontal / Vertical) and per-step description
 are independent, giving Horizontal/Vertical × With/No description as
-four presentations, not four hard-coded variants.
+four presentations, not four hard-coded variants; the Error/Warning
+flags layer on top of any of the four.
 
 **Do:** derive each step's state from a single `currentStep` index —
 before it is Completed, at it is Active, after it is Upcoming — rather
-than tracking state per step. **Don't:** let the connector's length or
-spacing depend on label or description length; both orientations keep
-it fixed/equal on purpose (see the Connector rows above).
+than tracking state per step. Add Error only to the Active step and
+Warning only to a Completed step, never the reverse. **Don't:** let
+the connector's length or spacing depend on label or description
+length; both orientations keep it fixed/equal on purpose (see the
+Connector rows above). Don't auto-advance a step when its Error
+resolves — resolving and advancing are two separate acts.
 
 ### Switch
 
@@ -5301,6 +5342,31 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.70 — 2026-08-27** — **Stepper**'s live demo and documentation
+  brought back in sync with its own CSS. `components.css` already had
+  the real fix — solid Green/Red/Amber fills with `ph-check`/`ph-x`/
+  `ph-fill ph-warning` icons for Completed/Error/Warning, plus the
+  Error/Warning-as-flags-not-states model, all fully commented — but
+  `preview.html`'s live gallery markup and this document's own Anatomy
+  section had never been updated to match: the gallery still showed
+  the pre-fix numbered circles (no icons at all) with no Error/Warning
+  examples anywhere, and this section still documented the old
+  Obsidian-fill/numbered-only, three-state version. Rewrote both to
+  describe what the CSS actually does, and restructured the gallery
+  demo to the previously-agreed layout — Horizontal base states (no
+  description), Vertical base states (no description), then Horizontal
+  with Error + Warning flags (with description, since a flag's message
+  needs a description slot to sit in — this stepper's descriptions are
+  all-or-nothing, not opt-in per row). Verified live: Completed renders
+  solid `--color-green` with a white check, Error solid `--color-red`
+  with a white ×, Warning solid `--color-amber` with an Obsidian
+  warning triangle, all confirmed via computed styles, not just
+  eyeballed. Also added the Stepper icon-tier decision as judgment
+  call (5) under [Needs Input #11](#needs-input-read-this-first),
+  marked resolved, since the Anatomy section above now cites it.
+  `components.css`: unchanged — this was a docs/demo-only sync, the
+  real fix already existed there. `tokens.css`: unchanged.
 
 - **v0.9.69 — 2026-08-27** — Closes the third and last open seam from
   the CollabInfluencers → CollabInfluence rename: the real logo file
