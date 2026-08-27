@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.71</title>
+<title>Collabrium design system | v0.9.72</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -364,7 +364,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.71</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.72</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -372,7 +372,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.71</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.72</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -1024,50 +1024,8 @@
             </div>
 
             <div class="swatch-group-label">Prompt input bar</div>
-            <div class="swatch-group-label">Floating bar — Expanded vs. Collapsed</div>
+            <div class="swatch-group-label">Floating bar — Collapsed</div>
             <div class="promptbar-pose-row">
-              <div class="promptbar-pose-example">
-                <span class="promptbar-pose-label">Expanded (default, revealed)</span>
-                <div class="promptbar-pose-stage">
-                  <div class="c-prompt-bar is-revealed is-morphable" style="position:relative; left:auto; bottom:auto; transform:none; margin:0;">
-                    <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
-                    <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
-                    <div class="c-prompt-bar-surface">
-                      <div class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-mark" aria-hidden="true"><i class="ph-fill ph-sparkle"></i></div>
-                      <div class="c-prompt-bar-field">
-                        <input type="text" aria-label="Ask anything" />
-                        <div class="c-prompt-bar-ghost" aria-hidden="true">
-                          <span class="c-prompt-bar-ghost-text" id="promptbarPoseExpandedGhost"></span>
-                        </div>
-                        <span class="c-prompt-bar-ghost-static">Ask me anything</span>
-                      </div>
-                      <div class="c-prompt-bar-more">
-                        <div class="c-prompt-bar-toolbar">
-                          <div class="c-prompt-bar-group">
-                            <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
-                            <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
-                            <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
-                          </div>
-                          <div class="c-prompt-bar-group">
-                            <div class="c-prompt-bar-model">
-                              <button type="button" class="c-btn c-btn-ghost c-btn-sm c-prompt-bar-model-trigger js-model-trigger" aria-haspopup="listbox" aria-expanded="false">
-                                <span class="c-prompt-bar-model-label js-model-label">Standard</span>
-                                <i class="ph ph-caret-down"></i>
-                              </button>
-                              <div class="c-prompt-bar-model-menu js-model-menu" role="listbox" aria-label="AI model">
-                                <button type="button" class="c-prompt-bar-model-item js-model-option is-active" role="option" aria-selected="true" data-model="Standard"><span>Standard</span><i class="ph ph-check"></i></button>
-                                <button type="button" class="c-prompt-bar-model-item js-model-option" role="option" aria-selected="false" data-model="Advanced"><span>Advanced</span><i class="ph ph-check"></i></button>
-                              </div>
-                            </div>
-                            <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
-                            <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div class="promptbar-pose-example">
                 <span class="promptbar-pose-label">Collapsed</span>
                 <div class="promptbar-pose-stage">
@@ -3312,7 +3270,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.71** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.72** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -8655,6 +8613,25 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.72 — 2026-08-27** — `preview.html` only, no component
+  change: removed the "Expanded (default, revealed)" swatch from
+  **[Prompt input bar](#ai-native)**'s "Floating bar" gallery entry,
+  leaving only Collapsed. The section label changed to match —
+  "Floating bar — Expanded vs. Collapsed" → "Floating bar —
+  Collapsed" — since it no longer shows a comparison. Also fixed the
+  typewriter-reveal script and two code comments that referenced the
+  now-removed swatch: the script's own guard clause required *both*
+  ghosts to exist before typing either one
+  (`if (!expandedGhost || !collapsedGhost) return;`), so removing the
+  Expanded markup without touching the script would have silently
+  broken the typewriter effect on the remaining Collapsed swatch too
+  — caught before shipping, not after. The real component is
+  unaffected: Prompt input bar's own Expanded/Collapsed states remain
+  fully documented above and still function identically wherever the
+  real component renders (Chat window's floating trigger, etc.) —
+  this only touched one static gallery swatch. `components.css`,
+  `tokens.css`: unchanged. Version flag bumped to v0.9.72.
+
 - **v0.9.71 — 2026-08-27** — Same gap as v0.9.70, different component:
   **Hero Card**'s Selected state (the static, in-flow form —
   `.c-herocard-selected`) was still showing the plain informational
@@ -13764,20 +13741,19 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
 </script>
 <script>
 (function(){
-  // Prompt input bar demo (comp-promptbar) — both poses run the same
+  // Prompt input bar demo (comp-promptbar) — the Collapsed pose runs a
   // one-shot typewriter reveal of the resting sentence (same char-by-
   // char/caret approach as the real placeholder choreography's final
-  // step, without the type-pause-delete lead-in, since these stages
-  // show the resting state, not the whole sequence). Collapsed used to
-  // run a marquee instead — dropped once the pill was resized to
-  // ~406px, since the resting sentence now nearly fits its available
-  // track width (346px of text vs. 334px available); a scroll that
-  // barely needs to travel just read as jitter. The remaining sliver
-  // of overflow is handled by the existing edge mask on
+  // step, without the type-pause-delete lead-in, since this stage
+  // shows the resting state, not the whole sequence). Used to run a
+  // marquee instead — dropped once the pill was resized to ~406px,
+  // since the resting sentence now nearly fits its available track
+  // width (346px of text vs. 334px available); a scroll that barely
+  // needs to travel just read as jitter. The remaining sliver of
+  // overflow is handled by the existing edge mask on
   // .c-prompt-bar-ghost, same as before, just without any motion.
-  var expandedGhost = document.getElementById('promptbarPoseExpandedGhost');
   var collapsedGhost = document.getElementById('promptbarPoseCollapsedGhost');
-  if (!expandedGhost || !collapsedGhost) return;
+  if (!collapsedGhost) return;
 
   function reducedMotion(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
 
@@ -13796,7 +13772,6 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
   }
 
   window.addEventListener('load', function(){
-    setTimeout(function(){ typeOut(expandedGhost, FINAL_TEXT); }, 300);
     setTimeout(function(){ typeOut(collapsedGhost, FINAL_TEXT); }, 300);
   });
 })();
@@ -13805,7 +13780,7 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
 // Model switcher — shared by both variants, delegated and multi-
 // instance safe, since a page can carry more than one Prompt input bar
 // at once (Chat window's real Inline composer, plus the Floating bar's
-// own Expanded/Collapsed poses above it). See DESIGN-SYSTEM.md's own
+// own Collapsed pose above it). See DESIGN-SYSTEM.md's own
 // "Model switcher — Behavior" for why the menu is position:fixed,
 // JS-positioned, rather than absolute.
 (function(){

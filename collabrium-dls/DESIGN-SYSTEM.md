@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.71** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.72** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -5342,6 +5342,25 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.72 — 2026-08-27** — `preview.html` only, no component
+  change: removed the "Expanded (default, revealed)" swatch from
+  **[Prompt input bar](#ai-native)**'s "Floating bar" gallery entry,
+  leaving only Collapsed. The section label changed to match —
+  "Floating bar — Expanded vs. Collapsed" → "Floating bar —
+  Collapsed" — since it no longer shows a comparison. Also fixed the
+  typewriter-reveal script and two code comments that referenced the
+  now-removed swatch: the script's own guard clause required *both*
+  ghosts to exist before typing either one
+  (`if (!expandedGhost || !collapsedGhost) return;`), so removing the
+  Expanded markup without touching the script would have silently
+  broken the typewriter effect on the remaining Collapsed swatch too
+  — caught before shipping, not after. The real component is
+  unaffected: Prompt input bar's own Expanded/Collapsed states remain
+  fully documented above and still function identically wherever the
+  real component renders (Chat window's floating trigger, etc.) —
+  this only touched one static gallery swatch. `components.css`,
+  `tokens.css`: unchanged. Version flag bumped to v0.9.72.
 
 - **v0.9.71 — 2026-08-27** — Same gap as v0.9.70, different component:
   **Hero Card**'s Selected state (the static, in-flow form —
