@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.66</title>
+<title>Collabrium design system | v0.9.67</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -364,7 +364,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.66</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.67</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -372,7 +372,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.66</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.67</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -2783,10 +2783,66 @@
           <div class="comp-head"><h3>Stepper</h3><button class="copy-markup-btn" data-target="comp-stepper" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
 
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Horizontal &mdash; With Description</p>
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Base states &mdash; Horizontal, No Description</p>
             <div class="c-stepper">
               <div class="c-step">
-                <span class="c-step-indicator completed">1</span>
+                <span class="c-step-indicator completed"><i class="ph ph-check"></i></span>
+                <div class="c-step-text"><span class="c-step-label completed">Account</span></div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step">
+                <span class="c-step-indicator active">2</span>
+                <div class="c-step-text"><span class="c-step-label active">Profile</span></div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step">
+                <span class="c-step-indicator upcoming">3</span>
+                <div class="c-step-text"><span class="c-step-label upcoming">Preferences</span></div>
+              </div>
+              <span class="c-step-connector"></span>
+              <div class="c-step is-disabled">
+                <span class="c-step-indicator upcoming">4</span>
+                <div class="c-step-text"><span class="c-step-label upcoming">Review</span></div>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Base states &mdash; Vertical, No Description</p>
+            <div class="c-stepper vertical" style="max-width:280px">
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator completed"><i class="ph ph-check"></i></span>
+                  <span class="c-step-connector"></span>
+                </div>
+                <div class="c-step-text"><span class="c-step-label completed">Account</span></div>
+              </div>
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator active">2</span>
+                  <span class="c-step-connector"></span>
+                </div>
+                <div class="c-step-text"><span class="c-step-label active">Profile</span></div>
+              </div>
+              <div class="c-step">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator upcoming">3</span>
+                  <span class="c-step-connector"></span>
+                </div>
+                <div class="c-step-text"><span class="c-step-label upcoming">Preferences</span></div>
+              </div>
+              <div class="c-step is-disabled">
+                <div class="c-step-rail">
+                  <span class="c-step-indicator upcoming">4</span>
+                </div>
+                <div class="c-step-text"><span class="c-step-label upcoming">Review</span></div>
+              </div>
+            </div>
+
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Flags &mdash; Horizontal, With Description. Error and Warning are flags on a step, not separate positions: Error only ever lands on the Active step, Warning only on a Completed one. A flag's message replaces that step's description on the same line.</p>
+            <div class="c-stepper">
+              <div class="c-step">
+                <span class="c-step-indicator completed"><i class="ph ph-check"></i></span>
                 <div class="c-step-text">
                   <span class="c-step-label completed">Account</span>
                   <span class="c-step-desc">Email and password</span>
@@ -2794,18 +2850,18 @@
               </div>
               <span class="c-step-connector"></span>
               <div class="c-step">
-                <span class="c-step-indicator active">2</span>
+                <span class="c-step-indicator warning"><i class="ph-fill ph-warning"></i></span>
                 <div class="c-step-text">
-                  <span class="c-step-label active">Profile</span>
-                  <span class="c-step-desc">Name and photo</span>
+                  <span class="c-step-label warning">Profile</span>
+                  <span class="c-step-desc warning">Photo missing &mdash; you can still continue</span>
                 </div>
               </div>
               <span class="c-step-connector"></span>
               <div class="c-step">
-                <span class="c-step-indicator upcoming">3</span>
+                <span class="c-step-indicator error"><i class="ph ph-x"></i></span>
                 <div class="c-step-text">
-                  <span class="c-step-label upcoming">Preferences</span>
-                  <span class="c-step-desc">Notifications and theme</span>
+                  <span class="c-step-label error">Payment</span>
+                  <span class="c-step-desc error">Card declined &mdash; fix to continue</span>
                 </div>
               </div>
               <span class="c-step-connector"></span>
@@ -2815,89 +2871,6 @@
                   <span class="c-step-label upcoming">Review</span>
                   <span class="c-step-desc">Confirm and finish</span>
                 </div>
-              </div>
-            </div>
-
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Horizontal &mdash; No Description</p>
-            <div class="c-stepper">
-              <div class="c-step">
-                <span class="c-step-indicator completed">1</span>
-                <div class="c-step-text"><span class="c-step-label completed">Account</span></div>
-              </div>
-              <span class="c-step-connector"></span>
-              <div class="c-step">
-                <span class="c-step-indicator active">2</span>
-                <div class="c-step-text"><span class="c-step-label active">Profile</span></div>
-              </div>
-              <span class="c-step-connector"></span>
-              <div class="c-step">
-                <span class="c-step-indicator upcoming">3</span>
-                <div class="c-step-text"><span class="c-step-label upcoming">Preferences</span></div>
-              </div>
-              <span class="c-step-connector"></span>
-              <div class="c-step">
-                <span class="c-step-indicator upcoming">4</span>
-                <div class="c-step-text"><span class="c-step-label upcoming">Review</span></div>
-              </div>
-            </div>
-
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Vertical &mdash; With Description</p>
-            <div class="c-stepper vertical" style="max-width:280px">
-              <div class="c-step">
-                <div class="c-step-rail">
-                  <span class="c-step-indicator completed">1</span>
-                  <span class="c-step-connector"></span>
-                </div>
-                <div class="c-step-text">
-                  <span class="c-step-label completed">Account</span>
-                  <span class="c-step-desc">Email and password</span>
-                </div>
-              </div>
-              <div class="c-step">
-                <div class="c-step-rail">
-                  <span class="c-step-indicator active">2</span>
-                  <span class="c-step-connector"></span>
-                </div>
-                <div class="c-step-text">
-                  <span class="c-step-label active">Profile</span>
-                  <span class="c-step-desc">Name and photo</span>
-                </div>
-              </div>
-              <div class="c-step">
-                <div class="c-step-rail">
-                  <span class="c-step-indicator upcoming">3</span>
-                </div>
-                <div class="c-step-text">
-                  <span class="c-step-label upcoming">Preferences</span>
-                  <span class="c-step-desc">Notifications and theme</span>
-                </div>
-              </div>
-            </div>
-
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Vertical &mdash; No Description</p>
-            <div class="c-stepper vertical" style="max-width:280px">
-              <div class="c-step">
-                <div class="c-step-rail">
-                  <span class="c-step-indicator completed">1</span>
-                  <span class="c-step-connector"></span>
-                </div>
-                <div class="c-step-text"><span class="c-step-label completed">Account</span></div>
-              </div>
-              <div class="c-step">
-                <div class="c-step-rail">
-                  <span class="c-step-indicator active">2</span>
-                  <span class="c-step-connector"></span>
-                </div>
-                <div class="c-step-text"><span class="c-step-label active">Profile</span></div>
-              </div>
-              <div class="c-step">
-                <div class="c-step-rail">
-                  <span class="c-step-indicator upcoming">3</span>
-                </div>
-                <div class="c-step-text"><span class="c-step-label upcoming">Preferences</span></div>
               </div>
             </div>
 
@@ -3335,7 +3308,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.66** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.67** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -3381,7 +3354,7 @@ changelog when you do.
 | 8 | No final logo asset | A real animated wordmark + mark SVG (`logo.html`, trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The ink-color discrepancy between the static lockup and the animated mark is **resolved** — both use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
 | 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
-| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case: (1) **Resolved** — the Tabs component's own optional leading icon is Tier 1, Regular; Tabs are navigation controls, not expressive status indicators, the same resolution [Segmented Control](#segmented-control) already documents for its own icon, see [Tabs](#tabs)'s own anatomy table; (2)-(4) still none brand-team-confirmed: (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
+| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Five judgment calls made where the rule's examples didn't explicitly cover a case: (1) **Resolved** — the Tabs component's own optional leading icon is Tier 1, Regular; Tabs are navigation controls, not expressive status indicators, the same resolution [Segmented Control](#segmented-control) already documents for its own icon, see [Tabs](#tabs)'s own anatomy table; (2)-(4) still none brand-team-confirmed: (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight; (5) **Resolved** — [Stepper](#stepper)'s Completed/Error flag glyphs (check/x) use Tier 1, Regular (`ph-check`/`ph-x`), not Tier 2, Fill, even though both are status marks: this icon library's Fill weight renders `check`/`x` as a checkbox/x-in-a-square glyph (a frame plus the mark), not a bare one, which visually conflicts once nested inside Stepper's own circular indicator. Both glyphs are already Tier 1 by this section's own examples ("check... the Checkbox marks", the plain-`x` remove affordance) — reused here, not reclassified. `x-circle`, the usual Tier 2 status-error glyph (see `Toast`), is skipped for the same reason: a second circle nested inside the indicator's own. Warning's `ph-fill ph-warning` triangle has no such conflict and stays Tier 2, Fill, a textbook case of this section's own "status indicators" example |
 
 ---
 
@@ -7793,29 +7766,73 @@ review.
 
 Tracks progress through a multi-step flow — onboarding, a multi-page
 form, a checkout — as an ordered list of steps, each in one of three
-states.
+base states, plus two optional flags a step can carry on top of that.
+
+**State model.** Every step's base state derives from a single
+`currentStep` index — before it is Completed, at it is Active, after
+it is Upcoming — never tracked per step. Error and Warning are
+**flags** layered on top of that derived state, not a fourth and fifth
+value in the state enum: adding them as enum values would reintroduce
+the per-step tracking `currentStep` exists to prevent, and would make
+two simultaneous "Active" steps reachable again. A flag is valid only
+in one place — **Error only on the Active step, Warning only on a
+Completed one** — and this is enforced by the consuming app's logic,
+not left as a documentation-only convention: an Error on an Upcoming
+step asserts a failure for something never attempted, a Warning on the
+Active step is redundant with just being the current step (whatever's
+wrong belongs in that step's own UI), and an Error on a Completed step
+is a contradiction in terms. At most one Error can exist at a time —
+this follows directly from there only ever being one Active step.
+Warnings are unbounded: any number of Completed steps may each carry
+an independent caveat about work that's already done. Resolving an
+Error returns the step to plain Active; it does **not** auto-advance
+to the next step — resolving and advancing are two separate acts, and
+auto-advancing on a successful revalidation takes that decision away
+from the user at the exact moment they were paying attention to it.
+Error blocks forward navigation only — back-navigation to a Completed
+step, where the flow supports it at all, still works while an Error is
+outstanding.
 
 | Part | Spec |
 |---|---|
 | Indicator | 24×24px circle, `radius-pill` |
-| Indicator — Completed | Obsidian fill, Neutral-1 text, shows the step number (not an icon — fill vs. outline is what carries the state) |
-| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian text |
+| Indicator — Completed | Success green fill (`--color-green`), Neutral-1 `ph-check` icon at `icon-micro` (14px) — replaces the step number outright |
+| Indicator — Active | Solid Obsidian fill, Neutral-1 text — shows the step number, not an icon; Active isn't a flagged state |
 | Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 text |
+| Indicator — Error (flag) | Solid Red fill, Neutral-1 `ph-x` icon at `icon-micro` — bare X, not `x-circle` (the indicator is already the circle). Replaces the step's number/check outright. Neutral-1 on Red `#FD3343` measures 3.69:1, clearing the 3:1 floor for a graphical object ([Component Rule 5](#component-rules)) |
+| Indicator — Warning (flag) | Solid Amber fill, Obsidian `ph-fill ph-warning` icon at `icon-micro`. Obsidian on Amber `#FFA425` measures 7.13:1; Neutral-1 on the same fill fails at 1.98:1 ([Component Rule 5](#component-rules)) |
+| Indicator — Disabled | `opacity: .4`, `cursor: not-allowed` on the whole step (indicator + label + description together) — the same convention `Chip`, `Segmented Control`, `Slider`, and `Tabs` already use. A modifier, not a fifth fill/border recipe: combines with whatever base state the step is actually in, almost always Upcoming (a step locked until earlier ones are complete) |
 | Label | body2 (14px/20px); weight 700 + Neutral-9 when Active, weight 400 + Neutral-5 when Completed/Upcoming — same bold-vs-muted pattern as SidebarNav's active/inactive nav items |
+| Label — Error / Warning | Same weight/size as Completed/Upcoming (400, not bold — a flag isn't "more current" than Active). Error: Red text. Warning: `--color-neutral-9`, matching `.c-badge-warning`'s own text color exactly, not Toast/Banner's darkened amber ink |
 | Description (optional) | caption (12px), Neutral-5 — smaller than the label, spacing-4 below it |
+| Description — Error / Warning | The flag's message **replaces** the step's description on the same line — it never adds a second line beneath it. Same relationship as [Input field](#input-field)'s own helper/error text: a step with no flag shows its description (or nothing); a flagged step shows the flag's message instead, caption/700 in the flag's own text color. Descriptions are all-or-nothing across a stepper ([Component Rules](#component-rules)), so this reuses the existing slot rather than adding a second one that would force a description onto every other step |
 | Connector | 1px fill in Neutral-3 (the hairline-border token), not a literal border |
 | Connector — horizontal | sits between each pair of indicators, sharing an equal `flex: 1` share of the row so every connector is the same length regardless of neighboring label width |
 | Connector — vertical | fixed spacing-16 length, held spacing-8 off the indicator above (the rail's own gap) and spacing-8 off the indicator below (the list's gap) — equal on both sides, never touching either circle |
+| Mobile | Below 480px of the stepper's own container width (a `@container` query, not viewport, so it responds inside a narrow modal/drawer too): descriptions hide and an overlong label truncates with an ellipsis — a density/scannability improvement, horizontal only (vertical is already a single narrow column) |
 
 **Variants:** orientation (Horizontal / Vertical) and per-step description
 are independent, giving Horizontal/Vertical × With/No description as
-four presentations, not four hard-coded variants.
+four presentations, not four hard-coded variants. Error and Warning are
+flags on top of any of those four, not separate variants of their own.
 
-**Do:** derive each step's state from a single `currentStep` index —
-before it is Completed, at it is Active, after it is Upcoming — rather
-than tracking state per step. **Don't:** let the connector's length or
-spacing depend on label or description length; both orientations keep
-it fixed/equal on purpose (see the Connector rows above).
+**Do:** derive each step's base state from a single `currentStep`
+index, then layer Error/Warning/Disabled on top as flags on a specific
+step, never as extra values in the state enum itself. Enforce
+Error-on-Active-only, Warning-on-Completed-only, and at-most-one-Error
+in code, not just in this table. Let a flag's message replace the
+step's description on the same line, the way Input field's error text
+replaces its helper. Give Completed/Warning/Error different glyph
+shapes (check / warning-triangle / bare x) so the three survive
+greyscale and don't rely on color alone. **Don't:** let the
+connector's length or spacing depend on label or description length;
+both orientations keep it fixed/equal on purpose (see the Connector
+rows above). Don't put a Warning on the Active step or an Error on an
+Upcoming one — neither means anything. Don't put a flag's message in
+the description slot as a second line — it replaces the description,
+it doesn't join it. Don't let a Warning gate progress — if it must be
+acknowledged before continuing, it's an Error, not a Warning. Don't
+auto-advance when an Error clears.
 
 ### Switch
 
@@ -8636,6 +8653,42 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.67 — 2026-08-27** — **[Stepper](#stepper)** overhaul: fixed
+  a real doc/code split (Completed/Active had been documented one way
+  and shipped another since this component's original pass) and added
+  Error and Warning as flags a step can carry. Completed is now a
+  solid Success-green fill with a Neutral-1 check icon, replacing the
+  step number outright, instead of the previously-shipped
+  outlined-Obsidian-with-number look. Active stays solid Obsidian
+  (unchanged — it was already correct in `components.css`, only the
+  doc had drifted). Error (new) is a solid Red fill with a Neutral-1 X
+  icon, valid only on the Active step; Warning (new) is a solid Amber
+  fill with an Obsidian warning-triangle icon, valid only on a
+  Completed step — both enforced as flags layered on the existing
+  `currentStep`-derived state, never as new values in the state enum,
+  and each is only ever added to the one step it's valid on (at most
+  one Error at a time, unbounded Warnings). A flag's message replaces
+  the step's description on the same line rather than adding a second
+  one. Also new: a `Disabled` modifier (`opacity:.4`, matching
+  Chip/Segmented Control/Slider/Tabs' own convention) and a
+  `@container` mobile rule that hides descriptions and truncates
+  overlong labels below 480px of the stepper's own width. Completed's
+  check and Error's X use Tier 1, Regular (`ph-check`/`ph-x`), not
+  Tier 2, Fill — this icon library's Fill weight renders those two as
+  a checkbox/x-in-a-square glyph, which conflicts once nested inside
+  Stepper's own circular indicator; both are already Tier 1 by
+  Iconography's own existing examples, not a new classification — see
+  [Needs Input #11](#needs-input-read-this-first)'s judgment-call list,
+  now five entries. `components.css`: `.c-step-indicator.completed`
+  swapped from outlined-Obsidian to solid-green, `.c-step-indicator.
+  error`/`.warning` added, `.c-step-label.error`/`.warning` and
+  `.c-step-desc.error`/`.warning` added, `.c-step.is-disabled` added,
+  `@container` rule added to `.c-stepper`. `preview.html`: live demo
+  restructured to Horizontal + Vertical base states (no description)
+  followed by flags on the Horizontal stepper (with description).
+  `tokens.css`: unchanged — no new tokens needed. Version flag bumped
+  to v0.9.67.
 
 - **v0.9.66 — 2026-08-27** — `preview.html` only, no component
   change: removed the standalone "Inline variant" swatch from
