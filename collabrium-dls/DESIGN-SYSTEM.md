@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.70** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.71** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2139,11 +2139,11 @@ simplified stand-in for the other.
 |---|---|
 | Eyebrow | reverts to caption (12px/16px/700), uppercase, `tracking-eyebrow`, Neutral-5 — the Default/Risk/AI (Dark) H2/sentence-case change was never asked for on Selected, so it keeps the original treatment both here and on the modal form |
 | Heading, Body | unchanged from the shared anatomy — h4/Neutral-9, body2/Neutral-5 |
-| Info Banner | the real [Info Banner](#info-banner) component, informational variant (`ph-fill ph-info`, `role="status"`) — not a bespoke callout |
+| Info Banner | the real [Info Banner](#info-banner) component, **AI Recommendation** variant — `ph-fill ph-sparkle`, `role="status"`, Dismissible (a `close` button), exactly one Action, animated gradient wash/border reusing `c-prompt-bar-glow-move` verbatim (see Prompt input bar's own glow) — not the plain informational variant, and not a bespoke callout. Message ≤120 chars, action label ≤3 words, per that variant's own trigger rules |
 | Media placeholder | the shared anatomy's recipe, at a taller 160px min-height to feel proportionate to the bigger panel |
 | Source line | footnote (12px/16px/400), Neutral-5 — a citation for where the content came from, e.g. "Source: Order management system · Updated 2 hours ago" |
 | CTA | Button Primary/md, trailing icon — Selected is the one place a Hero Card CTA is a genuine primary action, since it's the detail view's own single most important next step |
-| Static card sizing | `width: min(560px, calc(100vw - spacing-32))` (caps at 560px on desktop, bleeds to near-full-width on mobile with spacing-16 gutters each side), `max-height: calc(100dvh - spacing-60)` with `overflow-y: auto`, spacing-24 padding, spacing-16 internal gap — spacing-60 rather than a literal 64px, since it's the closest existing token above the geometric minimum and this system prefers reusing the nearest token over growing the spacing scale for one component |
+| Static card sizing | `width: 100%; max-width: 560px` — the parent (grid cell, container, whatever real page it sits in) decides the actual width, same as every other Card variant (see this section's own "Do use `width: 100%` on every card" rule below); caps at 560px so it doesn't sprawl on a wide page. Grows to fit its content height and lets the page scroll — no `max-height`/`overflow-y` of its own, unlike the Modal form below |
 | Modal positioning | `position: fixed; top: 50%; left: 50%`, identical sizing to the static card above. `transform: translate(-50%, -50%)` is the resting centered position — the entrance/exit animation transform is layered on top of it (e.g. `translate(-50%,-50%) perspective(1000px) rotateX(-8deg) translateY(24px)` at rest before entering), never substituted for it |
 | Modal entrance | panel: opacity 0→1 and `perspective(1000px) rotateX(-8deg) translateY(24px)` → `rotateX(0deg) translateY(0)`, `duration-base` (220ms), `ease-standard` — no bounce, no spring. Scrim: opacity 0→1, `duration-fast` (140ms), no delay |
 | Modal exit | reverse of entrance, but asymmetric on purpose: the panel collapses first at `duration-fast` (140ms), then the scrim's own fade-out is delayed by that same 140ms (`transition-delay: var(--duration-fast)` on the scrim's own rule) so it only starts once the panel has visibly finished collapsing — "reverse of entrance" doesn't mean "same timing as entrance," it means the panel-then-scrim sequencing runs backwards too |
@@ -5342,6 +5342,32 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.71 — 2026-08-27** — Same gap as v0.9.70, different component:
+  **Hero Card**'s Selected state (the static, in-flow form —
+  `.c-herocard-selected`) was still showing the plain informational
+  Info Banner (`c-banner-info`, a static refresh-schedule message) in
+  `preview.html`'s live gallery, instead of the **AI Recommendation**
+  variant (`c-banner-ai` — sparkle icon, dismissible, one action,
+  animated gradient wash) that this section's own Anatomy table and
+  `components.css`'s `.c-banner-ai` rules already describe/implement.
+  Same root cause as Stepper: the CSS was real, the gallery markup and
+  parts of this document's own table had drifted from it. Fixed: the
+  gallery instance now uses `c-banner-ai` with contextual copy for
+  this card's own forecast narrative ("Confidence is high enough to
+  auto-apply this forecast — turn on for future updates?" / "Turn on
+  auto-apply"), matching the AI Recommendation tone's own message-
+  length and one-action rules. Also caught and fixed a second, adjacent
+  drift in the same table while here: the "Static card sizing" row
+  still documented the pre-mobile-fix formula
+  (`width: min(560px, calc(100vw - spacing-32))` with a viewport-
+  relative `max-height`/`overflow-y`) even though `components.css`
+  has carried the real fix (`width: 100%; max-width: 560px`, no
+  `max-height`) since that bug was fixed — the row now matches. The
+  Modal form (`.c-cbrief`) was never affected by either drift; its own
+  viewport-relative sizing is correct as-is and untouched.
+  `components.css`: unchanged — both fixes already existed there, this
+  was a gallery/docs-only sync. `tokens.css`: unchanged.
 
 - **v0.9.70 — 2026-08-27** — **Stepper**'s live demo and documentation
   brought back in sync with its own CSS. `components.css` already had
