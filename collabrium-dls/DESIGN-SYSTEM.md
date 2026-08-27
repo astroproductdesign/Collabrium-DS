@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.71** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.69** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -46,7 +46,7 @@ changelog when you do.
 | 8 | No final logo asset | A real animated wordmark + mark SVG (`logo.html`, trimmed to a fixed 5-frame Gold→Water→Wood→Fire→Earth sequence with `coin.svg` as the Gold frame), the full vector source library (`SVG/` — every letter and element icon), and a combined static lockup (`logo-lockups/collabrium-default-logo.svg`, the default — see [Logo](#logo)) now exist. The ink-color discrepancy between the static lockup and the animated mark is **resolved** — both use `#2B2B2C`. Still missing: 4 of 5 department-colored lockup variants (Fire, Wood, Water, Earth), a clear-space rule, minimum size, and monochrome/reverse versions | Use `logo.html` for the live mark, `logo-lockups/collabrium-default-logo.svg` as the default static mark, and `SVG/` for individual pieces; don't extract a still frame or hand-composite the `SVG/` files as a "final" lockup without brand-team sign-off |
 | 9 | Photography direction | Deck explicitly marks this "Placeholder. Will be incorporated later when we nail down the logo." | No placeholder proposed — genuinely blocked on logo finalization |
 | 10 | No technical implementation values | Section exists with blank fields (loading strategy, font-display value, file formats, token/CSS variable format) | **Partially resolved** — file formats and token/CSS format answered with a real integration guide (5 required files, in order, see [Technical Implementation](#technical-implementation)); loading strategy and `font-display` still genuinely need eng input, left open |
-| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Five judgment calls made where the rule's examples didn't explicitly cover a case: (1) **Resolved** — the Tabs component's own optional leading icon is Tier 1, Regular; Tabs are navigation controls, not expressive status indicators, the same resolution [Segmented Control](#segmented-control) already documents for its own icon, see [Tabs](#tabs)'s own anatomy table; (2)-(4) still none brand-team-confirmed: (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight; (5) **Resolved** — [Stepper](#stepper)'s Completed/Error flag glyphs (check/x) use Tier 1, Regular (`ph-check`/`ph-x`), not Tier 2, Fill, even though both are status marks: this icon library's Fill weight renders `check`/`x` as a checkbox/x-in-a-square glyph (a frame plus the mark), not a bare one, which visually conflicts once nested inside Stepper's own circular indicator. Both glyphs are already Tier 1 by this section's own examples ("check... the Checkbox marks", the plain-`x` remove affordance) — reused here, not reclassified. `x-circle`, the usual Tier 2 status-error glyph (see `Toast`), is skipped for the same reason: a second circle nested inside the indicator's own. Warning's `ph-fill ph-warning` triangle has no such conflict and stays Tier 2, Fill, a textbook case of this section's own "status indicators" example |
+| 11 | Icon weight policy reversed, propagated | [Iconography](#iconography) moved from "Fill exclusively" to a two-tier Regular/Fill split, with no cited source (deck or teammate build) | **Resolved** — [Component Rules](#component-rules) #6, the Guidelines Do/Don't list, the stylesheet `<link>`s (now loading both Regular and Fill), and every icon instance in `preview.html`'s live Components gallery have all been reclassified per-tier, in both this document and its mirrored copy in `preview.html`. Four judgment calls made where the rule's examples didn't explicitly cover a case: (1) **Resolved** — the Tabs component's own optional leading icon is Tier 1, Regular; Tabs are navigation controls, not expressive status indicators, the same resolution [Segmented Control](#segmented-control) already documents for its own icon, see [Tabs](#tabs)'s own anatomy table; (2)-(4) still none brand-team-confirmed: (2) the Stat/KPI card's trend indicators (caret-up/down, flat minus), treated as Tier 2 (expressive/informational) despite "arrow up/down" appearing in the Tier 1 example list, since they're not clickable; (3) Date picker's trigger-button calendar icon, kept Tier 2 per the explicit "Card / section header: Calendar... Fill" example despite sitting inside a button; (4) the "Copied" confirmation checkmark shown briefly after a Copy action, treated as a Tier 2 status confirmation rather than inheriting the Copy button's own Tier 1 weight |
 
 ---
 
@@ -561,7 +561,7 @@ final.
 | File | Department | Element | Definition |
 |---|---|---|---|
 | `logo-lockups/collabContent.svg` | CollabContent | Wood · Salmon Pink `#FF7A90` | The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved. |
-| `logo-lockups/collabInfluencers.svg` | CollabInfluencers | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
+| `logo-lockups/collabInfluence.svg` | CollabInfluence | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
 | `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
 | `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
 
@@ -861,7 +861,7 @@ and the longer prefix would buy nothing over twenty sub-parts.
 | Part | Spec |
 |---|---|
 | New chat (`.c-chat-new`) | The real [Button](#button) Secondary variant, full width |
-| Pillar filter (`.c-chat-pillars`) | A real `role="radiogroup"` with roving tabindex; arrow keys **move and select**, Home/End to the ends. Label (`.c-chat-flabel`): label3/800, `tracking-eyebrow`, uppercase, Neutral-5, `width: 100%` so it takes its own line. Pills reuse the real [Chip](#chip) Filter Chip (`.c-chip.c-chip-filter`, `.is-active`/`.is-disabled`) — not a bespoke pill class — including its optional trailing count (`<span class="count">`, plain number, own conversation total per pillar), shown consistently across every pill per Chip's own "all chips in a group show a count, or none do" rule. A pillar with no conversations is shown and unusable (`.is-disabled`, `aria-disabled="true"`), not removed: the point of chips over folders is that the full pillar set stays visible — and it still carries its own trailing count (`0`), per Chip's own "never hide at zero" rule, rather than an empty pill with nothing to distinguish it |
+| Pillar filter (`.c-chat-pillars`) | A real `role="radiogroup"` with roving tabindex; arrow keys **move and select**, Home/End to the ends. Label (`.c-chat-flabel`): label3/800, `tracking-eyebrow`, uppercase, Neutral-5, `width: 100%` so it takes its own line. Pills reuse the real [Chip](#chip) Filter Chip (`.c-chip.c-chip-filter`, `.is-active`/`.is-disabled`) — not a bespoke pill class. A pillar with no conversations is shown and unusable (`.is-disabled`, `aria-disabled="true"`), not removed: the point of chips over folders is that the full pillar set stays visible |
 | Conversation list (`.c-chat-conversations`) | `flex: 1 1 auto; min-height: 0; overflow-y: auto`, `overscroll-behavior: contain`, 2px gap. Group header (`.c-chat-conversations-head`): caption/700, `tracking-eyebrow`, uppercase, Neutral-5 ("Today", "Earlier this week") — a group with nothing left under it hides too. Row (`.c-chat-conversation`): flex column, 1px gap, full width, `spacing-8`/`spacing-12` padding, `radius-sm`, transparent fill, body2, Neutral-5, left-aligned |
 | Conversation title (`.c-chat-conversation-title`) | Single line, `nowrap`, `overflow: hidden`, `text-overflow: ellipsis` |
 | Conversation pillar line (`.c-chat-conversation-pillar`) | label3/700, Neutral-4, truncating. **Text, not a coloured spine** — under "All" it's the only thing saying where a conversation came from, and colour alone carrying meaning is ruled out. Hidden once a pillar is selected, where the chip already says it. **Not uppercased**, unlike every other eyebrow in the system: pillar names are camelCase products ("CollabSales"), and the eyebrow recipe would render them COLLABSALES, losing the seam the capital S provides — the name wins over the convention |
@@ -1776,7 +1776,6 @@ selected).
 | Header | h4, "Price summary" |
 | Selected items list | first 4 items always visible; items 5+ collapse behind a "Show X more" control — see **Selected items list — display rules** below for the full behavior |
 | Item row | Item name (body2/700, Neutral-9, truncates with an ellipsis past the row's available width) — Unit cost (caption, Neutral-5, right-aligned) — Remove × (**optional** — a read-only/locked line item can omit it; `icon-micro` 14px, Neutral-5, 24×24px hit target, same recipe as FileUploader's row × per [Iconography](#iconography)'s remove-button precedent) — 1px Neutral-3 border-bottom between rows |
-| Remove × visibility | hidden (`opacity: 0`) at rest, revealed on that row's own hover or keyboard focus-within — `duration-fast`/`ease-standard`, the same reveal-on-row convention as Chat's message actions; the row's height and the ×'s 24×24px hit target never move when it appears, only its visibility does. Deliberate: a line-item list is dense and scanned quickly, and an always-visible × sitting a `spacing-12` reach from the item name it belongs to reads as always "armed," inviting an accidental click the user didn't mean to make — hover/focus scoped to one row at a time removes that risk without adding a confirmation step |
 | Divider | Card's own Footer top border, reused as-is between the item list and the section below — not a separate element |
 | Total row | Inside the Footer: "Total" (label1/700, Neutral-9) and the total cost (label1, Neutral-5), space-between, value right-aligned |
 | CTA button | [Button](#button)'s Primary/md, stretched to the card's full width with its label centered — "Build proposal" is this variant's own copy, not a generic placeholder |
@@ -2140,11 +2139,11 @@ simplified stand-in for the other.
 |---|---|
 | Eyebrow | reverts to caption (12px/16px/700), uppercase, `tracking-eyebrow`, Neutral-5 — the Default/Risk/AI (Dark) H2/sentence-case change was never asked for on Selected, so it keeps the original treatment both here and on the modal form |
 | Heading, Body | unchanged from the shared anatomy — h4/Neutral-9, body2/Neutral-5 |
-| Info Banner | the real [Info Banner](#info-banner) component, AI Recommendation tone (`ph-fill ph-sparkle`, animated gradient wash/ring, `role="status"`) — not a bespoke callout. Dismissible, one action, per that tone's own trigger rules (real signal behind the suggestion, never Persistent) |
+| Info Banner | the real [Info Banner](#info-banner) component, informational variant (`ph-fill ph-info`, `role="status"`) — not a bespoke callout |
 | Media placeholder | the shared anatomy's recipe, at a taller 160px min-height to feel proportionate to the bigger panel |
 | Source line | footnote (12px/16px/400), Neutral-5 — a citation for where the content came from, e.g. "Source: Order management system · Updated 2 hours ago" |
 | CTA | Button Primary/md, trailing icon — Selected is the one place a Hero Card CTA is a genuine primary action, since it's the detail view's own single most important next step |
-| Static card sizing | `width: 100%; max-width: 560px` — the parent (grid cell, container, whatever real page it sits in) decides the actual width, same as every other Card variant (see this section's own "Do use `width: 100%` on every card" rule below); caps at 560px so it doesn't sprawl on a wide page. Grows to fit its content height and lets the page scroll — no `max-height`/`overflow-y` of its own, unlike the Modal form below |
+| Static card sizing | `width: min(560px, calc(100vw - spacing-32))` (caps at 560px on desktop, bleeds to near-full-width on mobile with spacing-16 gutters each side), `max-height: calc(100dvh - spacing-60)` with `overflow-y: auto`, spacing-24 padding, spacing-16 internal gap — spacing-60 rather than a literal 64px, since it's the closest existing token above the geometric minimum and this system prefers reusing the nearest token over growing the spacing scale for one component |
 | Modal positioning | `position: fixed; top: 50%; left: 50%`, identical sizing to the static card above. `transform: translate(-50%, -50%)` is the resting centered position — the entrance/exit animation transform is layered on top of it (e.g. `translate(-50%,-50%) perspective(1000px) rotateX(-8deg) translateY(24px)` at rest before entering), never substituted for it |
 | Modal entrance | panel: opacity 0→1 and `perspective(1000px) rotateX(-8deg) translateY(24px)` → `rotateX(0deg) translateY(0)`, `duration-base` (220ms), `ease-standard` — no bounce, no spring. Scrim: opacity 0→1, `duration-fast` (140ms), no delay |
 | Modal exit | reverse of entrance, but asymmetric on purpose: the panel collapses first at `duration-fast` (140ms), then the scrim's own fade-out is delayed by that same 140ms (`transition-delay: var(--duration-fast)` on the scrim's own rule) so it only starts once the panel has visibly finished collapsing — "reverse of entrance" doesn't mean "same timing as entrance," it means the panel-then-scrim sequencing runs backwards too |
@@ -2154,10 +2153,7 @@ simplified stand-in for the other.
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
 they're not interchangeable. Treat the Price summary card's Remove ×
-as optional per row, and keep it hover/focus-revealed rather than
-always visible — see **Remove × visibility** above; don't make it
-permanently visible as a "clarity" fix, since that's the exact
-accidental-removal risk the reveal exists to prevent. Keep the Profile card's Follower count at the same
+as optional per row. Keep the Profile card's Follower count at the same
 caption size as the Handle directly above it, while keeping its own
 bold (700) weight — it stays a headline-weight value against the
 Handle's regular weight, not a smaller supporting figure, just no
@@ -4462,73 +4458,29 @@ review.
 
 Tracks progress through a multi-step flow — onboarding, a multi-page
 form, a checkout — as an ordered list of steps, each in one of three
-base states, plus two optional flags a step can carry on top of that.
-
-**State model.** Every step's base state derives from a single
-`currentStep` index — before it is Completed, at it is Active, after
-it is Upcoming — never tracked per step. Error and Warning are
-**flags** layered on top of that derived state, not a fourth and fifth
-value in the state enum: adding them as enum values would reintroduce
-the per-step tracking `currentStep` exists to prevent, and would make
-two simultaneous "Active" steps reachable again. A flag is valid only
-in one place — **Error only on the Active step, Warning only on a
-Completed one** — and this is enforced by the consuming app's logic,
-not left as a documentation-only convention: an Error on an Upcoming
-step asserts a failure for something never attempted, a Warning on the
-Active step is redundant with just being the current step (whatever's
-wrong belongs in that step's own UI), and an Error on a Completed step
-is a contradiction in terms. At most one Error can exist at a time —
-this follows directly from there only ever being one Active step.
-Warnings are unbounded: any number of Completed steps may each carry
-an independent caveat about work that's already done. Resolving an
-Error returns the step to plain Active; it does **not** auto-advance
-to the next step — resolving and advancing are two separate acts, and
-auto-advancing on a successful revalidation takes that decision away
-from the user at the exact moment they were paying attention to it.
-Error blocks forward navigation only — back-navigation to a Completed
-step, where the flow supports it at all, still works while an Error is
-outstanding.
+states.
 
 | Part | Spec |
 |---|---|
 | Indicator | 24×24px circle, `radius-pill` |
-| Indicator — Completed | Success green fill (`--color-green`), Neutral-1 `ph-check` icon at `icon-micro` (14px) — replaces the step number outright |
-| Indicator — Active | Solid Obsidian fill, Neutral-1 text — shows the step number, not an icon; Active isn't a flagged state |
+| Indicator — Completed | Obsidian fill, Neutral-1 text, shows the step number (not an icon — fill vs. outline is what carries the state) |
+| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian text |
 | Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 text |
-| Indicator — Error (flag) | Solid Red fill, Neutral-1 `ph-x` icon at `icon-micro` — bare X, not `x-circle` (the indicator is already the circle). Replaces the step's number/check outright. Neutral-1 on Red `#FD3343` measures 3.69:1, clearing the 3:1 floor for a graphical object ([Component Rule 5](#component-rules)) |
-| Indicator — Warning (flag) | Solid Amber fill, Obsidian `ph-fill ph-warning` icon at `icon-micro`. Obsidian on Amber `#FFA425` measures 7.13:1; Neutral-1 on the same fill fails at 1.98:1 ([Component Rule 5](#component-rules)) |
-| Indicator — Disabled | `opacity: .4`, `cursor: not-allowed` on the whole step (indicator + label + description together) — the same convention `Chip`, `Segmented Control`, `Slider`, and `Tabs` already use. A modifier, not a fifth fill/border recipe: combines with whatever base state the step is actually in, almost always Upcoming (a step locked until earlier ones are complete) |
 | Label | body2 (14px/20px); weight 700 + Neutral-9 when Active, weight 400 + Neutral-5 when Completed/Upcoming — same bold-vs-muted pattern as SidebarNav's active/inactive nav items |
-| Label — Error / Warning | Same weight/size as Completed/Upcoming (400, not bold — a flag isn't "more current" than Active). Error: Red text. Warning: `--color-neutral-9`, matching `.c-badge-warning`'s own text color exactly, not Toast/Banner's darkened amber ink |
 | Description (optional) | caption (12px), Neutral-5 — smaller than the label, spacing-4 below it |
-| Description — Error / Warning | The flag's message **replaces** the step's description on the same line — it never adds a second line beneath it. Same relationship as [Input field](#input-field)'s own helper/error text: a step with no flag shows its description (or nothing); a flagged step shows the flag's message instead, caption/700 in the flag's own text color. Descriptions are all-or-nothing across a stepper ([Component Rules](#component-rules)), so this reuses the existing slot rather than adding a second one that would force a description onto every other step |
 | Connector | 1px fill in Neutral-3 (the hairline-border token), not a literal border |
 | Connector — horizontal | sits between each pair of indicators, sharing an equal `flex: 1` share of the row so every connector is the same length regardless of neighboring label width |
 | Connector — vertical | fixed spacing-16 length, held spacing-8 off the indicator above (the rail's own gap) and spacing-8 off the indicator below (the list's gap) — equal on both sides, never touching either circle |
-| Mobile | Below 480px of the stepper's own container width (a `@container` query, not viewport, so it responds inside a narrow modal/drawer too): descriptions hide and an overlong label truncates with an ellipsis — a density/scannability improvement, horizontal only (vertical is already a single narrow column) |
 
 **Variants:** orientation (Horizontal / Vertical) and per-step description
 are independent, giving Horizontal/Vertical × With/No description as
-four presentations, not four hard-coded variants. Error and Warning are
-flags on top of any of those four, not separate variants of their own.
+four presentations, not four hard-coded variants.
 
-**Do:** derive each step's base state from a single `currentStep`
-index, then layer Error/Warning/Disabled on top as flags on a specific
-step, never as extra values in the state enum itself. Enforce
-Error-on-Active-only, Warning-on-Completed-only, and at-most-one-Error
-in code, not just in this table. Let a flag's message replace the
-step's description on the same line, the way Input field's error text
-replaces its helper. Give Completed/Warning/Error different glyph
-shapes (check / warning-triangle / bare x) so the three survive
-greyscale and don't rely on color alone. **Don't:** let the
-connector's length or spacing depend on label or description length;
-both orientations keep it fixed/equal on purpose (see the Connector
-rows above). Don't put a Warning on the Active step or an Error on an
-Upcoming one — neither means anything. Don't put a flag's message in
-the description slot as a second line — it replaces the description,
-it doesn't join it. Don't let a Warning gate progress — if it must be
-acknowledged before continuing, it's an Error, not a Warning. Don't
-auto-advance when an Error clears.
+**Do:** derive each step's state from a single `currentStep` index —
+before it is Completed, at it is Active, after it is Upcoming — rather
+than tracking state per step. **Don't:** let the connector's length or
+spacing depend on label or description length; both orientations keep
+it fixed/equal on purpose (see the Connector rows above).
 
 ### Switch
 
@@ -5350,138 +5302,67 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
-- **v0.9.71 — 2026-08-27** — **Price summary card**'s per-row Remove ×
-  (`.c-card-price-remove`) is now hidden at rest and revealed only on
-  that row's own hover or keyboard focus — `opacity: 0 → 1`,
-  `duration-fast`/`ease-standard`, the same reveal-on-hover convention
-  already used elsewhere (Chat's message actions, Table's bulk-select
-  checkbox column). Previously every row's × sat permanently visible a
-  `spacing-12` reach from the item name, which read as always "armed"
-  in a dense, quickly-scanned line-item list and invited an accidental
-  click. Scoped to `.c-card-price-row:hover`/`:focus-within` so it's
-  one row at a time, not the whole list at once; `:focus-within`
-  (not just `:hover`) keeps it reachable via keyboard — tabbing to the
-  button still focuses and reveals it even though it starts at
-  `opacity: 0`. No layout shift: the row height and the ×'s 24×24px
-  hit target are unchanged, only visibility animates, so nothing else
-  in the row reflows when it appears or disappears. Verified against
-  the real `components.css`/`tokens.css` in isolation: rest state shows
-  zero × icons, hovering one row reveals only that row's ×, the other
-  rows stay hidden, and the existing hover background/color treatment
-  on the button itself still applies once revealed. Default, Risk, and
-  AI (Dark) Hero Card states, Chat, and every other component using a
-  similar remove affordance (Tag, Chip, Input Chip, FileUploader) are
-  untouched — this is scoped to Price summary card alone, since those
-  other remove buttons live in shorter, more deliberately-interacted-
-  with lists (a handful of chips/tags) where a permanently visible ×
-  doesn't carry the same accidental-click risk a longer running list
-  does. `tokens.css`: unchanged.
+- **v0.9.69 — 2026-08-27** — Closes the third and last open seam from
+  the CollabInfluencers → CollabInfluence rename: the real logo file
+  has been swapped. **`logo-lockups/collabInfluencers.svg`** (old
+  asset) is deleted; **`logo-lockups/collabInfluence.svg`** (the
+  uploaded replacement) takes its place, filename included — matching
+  the department's own renamed spelling instead of trailing behind it.
+  All 6 markup call sites in `preview.html` updated together —
+  the Logo section's download card (`img src`, download `href`) and
+  both live Department switcher instances (`data-logo` and their
+  thumbnail `img src`) — plus the Logo section's asset table row in
+  this document (and its synced copy in `preview.html`'s embedded doc
+  block). The `download="CollabInfluence-logo.svg"` save-as name was
+  already correct since v0.9.67 (it was the source file's own name
+  that lagged); nothing needed changing there. The uploaded asset
+  itself: the same "collab" wordmark in Obsidian with the "o" replaced
+  by a Green mark, followed by "Influence" set in Green — consistent
+  with this row's own documented `Earth · Green #00C26E` pairing,
+  rendered and eyeballed directly rather than assumed. `components.css`:
+  unchanged — this rename never touched CSS. `tokens.css`: unchanged.
 
-- **v0.9.70 — 2026-08-27** — Fixed a real mobile overflow bug in
-  **Hero Card**'s Selected state (static, in-flow form —
-  `.c-herocard-selected`, distinct from its Modal form,
-  `.c-cbrief`, below). Default, Risk, and AI (Dark) needed no changes —
-  they carry no width rule of their own, so they already inherit
-  Card's universal `width: 100%` convention and render correctly at
-  any width, verified at 375px and 320px with both real and
-  deliberately longer stand-in copy. Selected was the exception: its
-  width formula, `min(560px, calc(100vw - spacing-32))`, was copied
-  verbatim from the Modal form, where that math is correct (a
-  `position: fixed` element genuinely measured against the true
-  viewport). Wrong for an in-flow card — `100vw` doesn't know the
-  card's real parent width, so on a narrow phone it kept requesting
-  close to 560px regardless of how little room its actual container
-  gave it, overflowing every narrow container tested. Rendering it
-  directly inside 320px/375px containers confirmed the overflow, and
-  confirmed the fix resolves it cleanly. Fix: `width: 100%; max-width:
-  560px`, dropping the inherited `max-height`/`overflow-y: auto` too —
-  a self-scrolling inner panel only makes sense for a fixed overlay
-  capped against the viewport's height, not in-flow content that
-  should grow and let the page scroll. This also brings Selected in
-  line with a rule this system already documented but Selected alone
-  had skipped: "Do use `width: 100%` on every card — the grid cell
-  decides the card's width." No `@media`/`@container` breakpoint was
-  added, because nothing measured needed one — this was a wrong
-  formula, not a missing responsive treatment. `.c-cbrief` (the Modal
-  form) is untouched — its own viewport-relative math is correct as
-  shipped. `tokens.css`: unchanged.
+- **v0.9.68 — 2026-08-27** — Closes the second of v0.9.67's two open
+  seams: the internal lowercase ids now match the renamed department —
+  **`data-dept="influencers"`** → **`data-dept="influence"`** (both
+  Department switcher instances) and **`data-pillar="collabinfluencers"`**
+  → **`data-pillar="collabinfluence"`** (the disabled pillar filter
+  chip). No CSS selector or JS string ever hardcoded either literal
+  value — the filter/switcher logic reads `dataset.dept`/`dataset.pillar`
+  generically and compares them against each other, not against a fixed
+  string — so this is a pure rename with zero behavior risk; verified no
+  `[data-dept=...]`/`[data-pillar=...]` selector exists in
+  `components.css` and no conversation row currently carries
+  `data-pillar="collabinfluencers"` to also update (that pillar has zero
+  conversations). **Still deliberately not touched**, per your own
+  call: `logo-lockups/collabInfluencers.svg` and its 8 references —
+  the file itself will be swapped manually when the new asset is
+  uploaded, at which point its filename and every `src`/`href`/
+  `data-logo` call site need updating together. `components.css`:
+  unchanged. `preview.html`: the two `data-dept` attributes and the one
+  `data-pillar` attribute updated; no JS changes needed. Version flag
+  bumped to v0.9.68.
 
-- **v0.9.69 — 2026-08-27** — **Hero Card**'s Selected state swaps its
-  Info Banner from the informational tone to the **AI Recommendation**
-  tone — reusing the real, already-built [Info Banner](#info-banner)
-  variant verbatim (`.c-banner-ai`, animated gradient wash/ring, same
-  `c-prompt-bar-glow-move` keyframe [Prompt input bar](#ai-native)
-  already uses), not a new banner or new CSS. This was more than a
-  class swap: AI Recommendation's own trigger rules require a Dismissible
-  banner with exactly one action carrying a real, signal-backed
-  suggestion — an Info-tone banner with neither would just be "an Info
-  banner with extra motion" per that tone's own documented rule. Added
-  a close button (`aria-label="Dismiss"`) and one action ("Turn on
-  auto-apply"), and rewrote the message from a passive schedule note
-  ("This forecast refreshes automatically every Monday at 6:00 AM.")
-  into an actual proactive suggestion tied to the card's own existing
-  confidence signal ("Confidence is high enough to auto-apply this
-  forecast — turn on for future updates?", 83 characters, under the
-  120-character cap). Icon swaps `ph-fill ph-info` → `ph-fill
-  ph-sparkle`, matching every other AI Recommendation instance in the
-  system. No cap conflict — Selected state carries only this one banner,
-  well under the "1 if AI Recommendation" per-section maximum.
-  `components.css`: unchanged — `.c-banner-ai` already existed (added
-  in v0.9.60). `preview.html`: Hero Card Selected state's live demo
-  markup updated to the pattern above. Version flag bumped to v0.9.69.
-
-- **v0.9.68 — 2026-08-27** — **[Chat window](#ai-native)**'s pillar
-  filter chips now show a trailing count (own conversation total per
-  pillar), reusing [Chip](#chip)'s existing, already-documented
-  trailing-count feature — no new CSS, no new component. Every pill
-  shows one, including the disabled, zero-conversation
-  `CollabInfluencers` pillar (`0`, never hidden), per Chip's own
-  "never hide at zero" and "all chips in a group show a count, or none
-  do" rules. `components.css`, `tokens.css`: unchanged — `.c-chip-
-  filter .count` already existed. `preview.html`: added `<span
-  class="label">`/`<span class="count">` markup to the live Chat
-  window demo's five pillar chips (`All` 6, `CollabSales` 2,
-  `CollabStudio` 2, `CollabContent` 2, `CollabInfluencers` 0), counts
-  matching the demo's own visible conversation list; no JS changes —
-  pillar selection/filtering already worked off `data-pillar` and
-  `aria-checked`, never the chip's text content. Version flag bumped
-  to v0.9.68.
-
-- **v0.9.67 — 2026-08-27** — **[Stepper](#stepper)** overhaul: fixed
-  a real doc/code split (Completed/Active had been documented one way
-  and shipped another since this component's original pass) and added
-  Error and Warning as flags a step can carry. Completed is now a
-  solid Success-green fill with a Neutral-1 check icon, replacing the
-  step number outright, instead of the previously-shipped
-  outlined-Obsidian-with-number look. Active stays solid Obsidian
-  (unchanged — it was already correct in `components.css`, only the
-  doc had drifted). Error (new) is a solid Red fill with a Neutral-1 X
-  icon, valid only on the Active step; Warning (new) is a solid Amber
-  fill with an Obsidian warning-triangle icon, valid only on a
-  Completed step — both enforced as flags layered on the existing
-  `currentStep`-derived state, never as new values in the state enum,
-  and each is only ever added to the one step it's valid on (at most
-  one Error at a time, unbounded Warnings). A flag's message replaces
-  the step's description on the same line rather than adding a second
-  one. Also new: a `Disabled` modifier (`opacity:.4`, matching
-  Chip/Segmented Control/Slider/Tabs' own convention) and a
-  `@container` mobile rule that hides descriptions and truncates
-  overlong labels below 480px of the stepper's own width. Completed's
-  check and Error's X use Tier 1, Regular (`ph-check`/`ph-x`), not
-  Tier 2, Fill — this icon library's Fill weight renders those two as
-  a checkbox/x-in-a-square glyph, which conflicts once nested inside
-  Stepper's own circular indicator; both are already Tier 1 by
-  Iconography's own existing examples, not a new classification — see
-  [Needs Input #11](#needs-input-read-this-first)'s judgment-call list,
-  now five entries. `components.css`: `.c-step-indicator.completed`
-  swapped from outlined-Obsidian to solid-green, `.c-step-indicator.
-  error`/`.warning` added, `.c-step-label.error`/`.warning` and
-  `.c-step-desc.error`/`.warning` added, `.c-step.is-disabled` added,
-  `@container` rule added to `.c-stepper`. `preview.html`: live demo
-  restructured to Horizontal + Vertical base states (no description)
-  followed by flags on the Horizontal stepper (with description).
-  `tokens.css`: unchanged — no new tokens needed. Version flag bumped
-  to v0.9.67.
+- **v0.9.67 — 2026-08-27** — Partial rename: **`CollabInfluencers`** →
+  **`CollabInfluence`** (department directory name/copy), and the bare
+  department-switcher name **`Influencers`** → **`Influence`**, matching
+  the brand's own positioning statement ("...Astro's Sales, Media,
+  Influence, Content, and Studio teams..."), which had said "Influence"
+  all along. Scoped deliberately: this is not a full rename. **Not
+  changed** — held for a separate decision: the logo file itself
+  (`logo-lockups/collabInfluencers.svg`, still referenced verbatim by
+  its 8 `src`/`href`/`data-logo` call sites) and the lowercase internal
+  ids (`data-dept="influencers"`, `data-pillar="collabinfluencers"`) —
+  both still read "influencers." One deliberate seam from this split:
+  the pillar filter chip's Download button now offers
+  `download="CollabInfluence-logo.svg"` as the suggested save-as name
+  while the real source file is still `collabInfluencers.svg` — expected
+  until the logo file itself is renamed. `components.css`: unchanged —
+  nothing in this rename touched CSS. `preview.html`: updated the
+  Department directory card (`alt`, `download`, `<h3>`), the disabled
+  pillar filter chip's label, both live Department switcher instances'
+  `aria-label`/`data-name` (their `data-dept` values untouched, per
+  above), and one JS code comment. Version flag bumped to v0.9.67.
 
 - **v0.9.66 — 2026-08-27** — `preview.html` only, no component
   change: removed the standalone "Inline variant" swatch from
@@ -5635,7 +5516,7 @@ rather than maintaining two token sources by hand:
 
   **Main nav demo — Department switcher now showcased**, reusing the
   exact same trigger/dropdown markup and the same 5 departments
-  (Default, Content, Influencers, Sales, Studio) as the standalone
+  (Default, Content, Influence, Sales, Studio) as the standalone
   SidebarNav demo — no new JS needed, the existing handlers are already
   generic (keyed off `data-dept-dropdown`, scoped via
   `closest('.c-sidebar-shell')`). Verified switching swaps the expanded
@@ -7037,7 +6918,7 @@ with nothing else to keep in sync.
   reusing `.c-sidebar-logo-collapsed`'s existing show/hide rule for the
   passive collapsed element icon). `preview.html`'s Department switcher
   demo now also exercises the collapsed rail correctly — its 4
-  non-default sample departments (Content/Influencers/Sales/Studio) are
+  non-default sample departments (Content/Influence/Sales/Studio) are
   demo-only mapped to Wood/Earth/Gold/Fire respectively so the collapsed
   icon has something real to show.
 
