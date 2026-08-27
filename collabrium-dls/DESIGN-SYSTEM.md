@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.69** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.70** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -2143,7 +2143,7 @@ simplified stand-in for the other.
 | Media placeholder | the shared anatomy's recipe, at a taller 160px min-height to feel proportionate to the bigger panel |
 | Source line | footnote (12px/16px/400), Neutral-5 — a citation for where the content came from, e.g. "Source: Order management system · Updated 2 hours ago" |
 | CTA | Button Primary/md, trailing icon — Selected is the one place a Hero Card CTA is a genuine primary action, since it's the detail view's own single most important next step |
-| Static card sizing | `width: min(560px, calc(100vw - spacing-32))` (caps at 560px on desktop, bleeds to near-full-width on mobile with spacing-16 gutters each side), `max-height: calc(100dvh - spacing-60)` with `overflow-y: auto`, spacing-24 padding, spacing-16 internal gap — spacing-60 rather than a literal 64px, since it's the closest existing token above the geometric minimum and this system prefers reusing the nearest token over growing the spacing scale for one component |
+| Static card sizing | `width: 100%; max-width: 560px` — the parent (grid cell, container, whatever real page it sits in) decides the actual width, same as every other Card variant (see this section's own "Do use `width: 100%` on every card" rule below); caps at 560px so it doesn't sprawl on a wide page. Grows to fit its content height and lets the page scroll — no `max-height`/`overflow-y` of its own, unlike the Modal form below |
 | Modal positioning | `position: fixed; top: 50%; left: 50%`, identical sizing to the static card above. `transform: translate(-50%, -50%)` is the resting centered position — the entrance/exit animation transform is layered on top of it (e.g. `translate(-50%,-50%) perspective(1000px) rotateX(-8deg) translateY(24px)` at rest before entering), never substituted for it |
 | Modal entrance | panel: opacity 0→1 and `perspective(1000px) rotateX(-8deg) translateY(24px)` → `rotateX(0deg) translateY(0)`, `duration-base` (220ms), `ease-standard` — no bounce, no spring. Scrim: opacity 0→1, `duration-fast` (140ms), no delay |
 | Modal exit | reverse of entrance, but asymmetric on purpose: the panel collapses first at `duration-fast` (140ms), then the scrim's own fade-out is delayed by that same 140ms (`transition-delay: var(--duration-fast)` on the scrim's own rule) so it only starts once the panel has visibly finished collapsing — "reverse of entrance" doesn't mean "same timing as entrance," it means the panel-then-scrim sequencing runs backwards too |
@@ -5345,6 +5345,35 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.70 — 2026-08-27** — Fixed a real mobile overflow bug in
+  **Hero Card**'s Selected state (static, in-flow form —
+  `.c-herocard-selected`, distinct from its Modal form,
+  `.c-cbrief`, below). Default, Risk, and AI (Dark) needed no changes —
+  they carry no width rule of their own, so they already inherit
+  Card's universal `width: 100%` convention and render correctly at
+  any width, verified at 375px and 320px with both real and
+  deliberately longer stand-in copy. Selected was the exception: its
+  width formula, `min(560px, calc(100vw - spacing-32))`, was copied
+  verbatim from the Modal form, where that math is correct (a
+  `position: fixed` element genuinely measured against the true
+  viewport). Wrong for an in-flow card — `100vw` doesn't know the
+  card's real parent width, so on a narrow phone it kept requesting
+  close to 560px regardless of how little room its actual container
+  gave it, overflowing every narrow container tested. Rendering it
+  directly inside 320px/375px containers confirmed the overflow, and
+  confirmed the fix resolves it cleanly. Fix: `width: 100%; max-width:
+  560px`, dropping the inherited `max-height`/`overflow-y: auto` too —
+  a self-scrolling inner panel only makes sense for a fixed overlay
+  capped against the viewport's height, not in-flow content that
+  should grow and let the page scroll. This also brings Selected in
+  line with a rule this system already documented but Selected alone
+  had skipped: "Do use `width: 100%` on every card — the grid cell
+  decides the card's width." No `@media`/`@container` breakpoint was
+  added, because nothing measured needed one — this was a wrong
+  formula, not a missing responsive treatment. `.c-cbrief` (the Modal
+  form) is untouched — its own viewport-relative math is correct as
+  shipped. `tokens.css`: unchanged.
 
 - **v0.9.69 — 2026-08-27** — **Hero Card**'s Selected state swaps its
   Info Banner from the informational tone to the **AI Recommendation**

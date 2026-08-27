@@ -358,8 +358,9 @@
 .c-herocard-ai .c-herocard-media{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.16); color:rgba(255,255,255,.4);}
 .c-herocard-ai:hover .c-herocard-cta i{transform:translateX(var(--spacing-4));}
 
-/* Selected state — same shell, just bigger, sitting in normal page flow. Eyebrow reverts to the pre-H2 caption/uppercase styling here and on .c-cbrief below (the same state's modal form) — the Default/Risk/AI H2 change was never asked for on Selected. */
-.c-herocard-selected{width:min(560px, calc(100vw - var(--spacing-32))); max-height:calc(100dvh - var(--spacing-60)); overflow-y:auto; padding:var(--spacing-24); gap:var(--spacing-16);}
+/* Selected state — same shell, just bigger, sitting in normal page flow. Eyebrow reverts to the pre-H2 caption/uppercase styling here and on .c-cbrief below (the same state's modal form) — the Default/Risk/AI H2 change was never asked for on Selected.
+   Mobile fix: width/max-height used to be copy-pasted from .c-cbrief below (the fixed/centered MODAL form of this same state) — min(560px, calc(100vw - spacing-32)) plus a self-scrolling max-height. That math only holds for something position:fixed and genuinely measured against the true viewport, which .c-cbrief is and this in-flow card isn't; 100vw doesn't know this card's real parent width, so on a phone the card kept requesting close to 560px regardless of how little room its actual container gave it, overflowing every narrow container tested. Fixed by giving it Card's own universal width:100%/max-width recipe instead (see Card's own Do/Don't: "Do use width:100% on every card — the grid cell decides the card's width") and dropping the inherited max-height/overflow-y, which never made sense for in-flow content that should just grow and let the page scroll. */
+.c-herocard-selected{width:100%; max-width:560px; padding:var(--spacing-24); gap:var(--spacing-16);}
 .c-herocard-selected .c-herocard-eyebrow,
 .c-cbrief .c-herocard-eyebrow{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow);}
 
