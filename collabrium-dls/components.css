@@ -2311,7 +2311,7 @@
    Class prefix: .c-thinking*. Four variants — Steps, Reasoning, Search,
    Coding — share this one shell and differ only in row content, never
    in the shell around them. */
-.c-thinking{display:flex; flex-direction:column; width:100%; max-width:380px; min-height:0; transition:min-height var(--duration-morph) var(--ease-settle);}
+.c-thinking{display:flex; flex-direction:column; width:100%; max-width:380px; min-height:0; transition:min-height var(--duration-morph) var(--ease-morph);}
 .c-thinking.is-active{min-height:176px;}
 
 .c-thinking-header{display:inline-flex; align-items:center; gap:var(--spacing-8); align-self:flex-start; margin:-6px; padding:6px; border:none; background:transparent; border-radius:var(--radius-sm); cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard); font-family:var(--font-primary);}
@@ -2357,7 +2357,7 @@
    icon swap reads as leaning the other way; it's a font-rendering
    correction, not a re-derived constant. */
 .c-thinking-line-wrap{position:relative; margin-top:var(--spacing-8); padding-left:var(--spacing-16);}
-.c-thinking-line{position:absolute; left:calc(var(--icon-sm) / 2 - 1px); top:0; width:1px; height:0; background:var(--color-neutral-3); transition:height var(--duration-reveal) var(--ease-settle);}
+.c-thinking-line{position:absolute; left:calc(var(--icon-sm) / 2 - 1px); top:0; width:1px; height:0; background:var(--color-neutral-3); transition:height var(--duration-reveal) var(--ease-reveal);}
 .c-thinking-rows{display:flex; flex-direction:column; gap:2px; padding:var(--spacing-4) 0;}
 
 .c-thinking-query{display:flex; align-items:center; gap:var(--spacing-8); min-height:26px; padding:0 var(--spacing-4); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
@@ -2399,4 +2399,87 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
   .c-thinking-status .done{animation:none;}
   .c-thinking-row, .c-thinking-query, .c-thinking-more{animation:none;}
   .c-thinking-row-icon.is-spin{animation:none;}
+}
+
+/* =========================================================
+   Streaming Text — AI Native's arrival state: the model's own prose,
+   resolving word by word, with a citation landing in position and the
+   message actions/Follow-ups becoming reachable only once the last
+   word settles. See DESIGN-SYSTEM.md's own "Streaming Text" section
+   for the full 22-rule contract this markup alone can't express (never
+   simulating a stream over content already in hand, the ~55ms/word
+   fallback cadence a real buffer should smooth toward, the below-12-
+   words instant reveal, structured content landing whole, a stopped/
+   failed stream keeping its partial text, no loop ever) — this file
+   only owns the shell, the citation chip, the action-row/Follow-ups
+   reveal, and the reduced-motion fallback.
+   No pre-reserved height by default (Rule 8: appending is the default
+   reveal, not a pre-sized box) — a host that genuinely needs to hold
+   space for this component's own settled size (a fixed-height
+   container, a card with its own footer) reserves that space itself;
+   this component doesn't invent a generic constant for a size only the
+   host actually knows. */
+.c-streaming{display:flex; flex-direction:column; width:100%; max-width:420px;}
+
+.c-streaming-text{margin:0; font-family:var(--font-primary); font-size:var(--text-body1-size); line-height:1.65; font-weight:var(--text-body1-weight); color:var(--color-neutral-9);}
+
+.c-streaming-caret{display:inline-block; width:2px; height:1em; margin-left:2px; vertical-align:text-bottom; border-radius:1px; background:var(--color-neutral-9); animation:c-prompt-bar-caret-blink 500ms steps(1) infinite;}
+
+/* vertical-align:middle ties this to the surrounding text's own font
+   metrics rather than a fixed px offset — it stays centered whichever
+   size this component's own text renders at (body1 here, matching
+   Chat window's AI bubble; a smaller host would still center right). */
+.c-streaming-cite{display:inline-flex; align-items:center; gap:4px; height:18px; padding:0 5px; margin:0 2px; border-radius:6px; background:var(--color-neutral-3); color:var(--color-neutral-7); font-family:var(--font-primary); font-size:11px; text-decoration:none; vertical-align:middle; transition:background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); animation:c-thinking-fade-in var(--duration-slow) var(--ease-settle) both;}
+.c-streaming-cite:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.c-streaming-cite-avatar{width:12px; height:12px; border-radius:3px; flex:none; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; color:var(--color-neutral-1);}
+
+/* Rule 17 — a stopped stream keeps its text and gets marked, not
+   discarded. Sits ahead of the action row it unlocks. */
+.c-streaming-note{margin-top:var(--spacing-4); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+
+/* Rule 15 — the action row is unrendered during the stream, not merely
+   dimmed: toggled with the `hidden` attribute (removed from layout and
+   the accessibility tree, unreachable by Tab) rather than opacity,
+   which would leave it selectable/focusable while invisible. Removing
+   `hidden` naturally retriggers this animation, the same way any
+   display:none-to-block transition restarts a CSS animation — no JS
+   class dance needed to play the entrance once. */
+.c-streaming-actions{display:flex; align-items:center; gap:2px; margin-top:var(--spacing-8); animation:c-thinking-fade-in var(--duration-slow) var(--ease-standard) both;}
+
+.c-streaming-sources-trigger{display:flex; align-items:center; gap:var(--spacing-8); margin-left:var(--spacing-4); padding:2px var(--spacing-8); border:none; background:transparent; border-radius:var(--radius-sm); cursor:pointer; font-family:var(--font-primary); transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-streaming-sources-trigger:hover{background:var(--color-neutral-2);}
+.c-streaming-sources-avatars{display:flex; flex:none;}
+.c-streaming-sources-avatars span{width:14px; height:14px; border-radius:50%; box-shadow:0 0 0 1.5px var(--color-neutral-1); margin-left:-4px; display:flex; align-items:center; justify-content:center; font-size:7px; font-weight:700; color:var(--color-neutral-1);}
+.c-streaming-sources-avatars span:first-child{margin-left:0;}
+.c-streaming-sources-trigger-label{font-size:var(--text-caption-size); color:var(--color-neutral-7);}
+
+.c-streaming-sources{display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows var(--duration-base) var(--ease-settle), opacity var(--duration-base) var(--ease-settle);}
+.c-streaming.is-sources-open .c-streaming-sources{grid-template-rows:1fr; opacity:1;}
+.c-streaming-sources-inner{overflow:hidden;}
+.c-streaming-sources-list{margin-top:var(--spacing-8); padding:var(--spacing-4); display:flex; flex-direction:column; background:var(--color-neutral-3); border-radius:var(--radius-sm);}
+.c-streaming-source-row{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-4) var(--spacing-8); border-radius:8px; text-decoration:none; color:var(--color-neutral-7); transition:background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-streaming-source-row:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.c-streaming-source-avatar{width:20px; height:20px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:var(--color-neutral-1);}
+.c-streaming-source-name{font-size:var(--text-caption-size); font-weight:600;}
+.c-streaming-source-domain{margin-left:auto; font-size:var(--text-footnote-size); color:var(--color-neutral-5);}
+
+/* Rule 16 — Follow-ups only on settle, and only after the actions;
+   `hidden` by default for the same reason the action row is. */
+.c-streaming-followups{margin-top:var(--spacing-12); animation:c-thinking-fade-in var(--duration-slow) var(--ease-standard) both;}
+.c-streaming-followups-label{margin:0 0 2px; font-size:var(--text-caption-size); font-weight:600; color:var(--color-neutral-7);}
+.c-streaming-followup{display:flex; align-items:center; gap:var(--spacing-8); width:100%; padding:var(--spacing-8) 2px; border:none; border-bottom:1px solid var(--color-neutral-3); background:transparent; font-family:var(--font-primary); font-size:var(--text-caption-size); color:var(--color-neutral-9); text-align:left; cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+.c-streaming-followup:hover{background:var(--color-neutral-2);}
+.c-streaming-followup i{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none;}
+.c-streaming-followup:last-child{border-bottom:none;}
+
+/* Rule 21 — reduced motion drops the per-word fade/cadence but keeps
+   the progressive arrival itself (that's a JS timing concern, handled
+   where the reveal is scheduled, not here); what CSS owns is dropping
+   every entrance animation on this component's own decorative parts. */
+@media (prefers-reduced-motion:reduce){
+  .c-streaming-caret{animation:none; opacity:1;}
+  .c-streaming-cite{animation:none;}
+  .c-streaming-sources{transition:none;}
+  .c-streaming-followup{animation:none;}
+  .c-streaming-actions, .c-streaming-followups{animation:none;}
 }

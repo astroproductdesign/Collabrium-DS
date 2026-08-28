@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.75** — 2026-08-28 — Sourced from the Collabrium brand deck
+**v0.9.76** — 2026-08-28 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -776,16 +776,17 @@ sizes, states, Do/Don't), the same process every component above went
 through.
 
 **One exception to the flat alphabetical list, and it's deliberate:
-[AI Native](#ai-native)'s four subcomponents.** Everything else below is
+[AI Native](#ai-native)'s five subcomponents.** Everything else below is
 one flat A→Z list with no grouping, and [AI Native](#ai-native) itself
 is a real, counted component like any other — it sits first because
 that's already its correct alphabetical position (AI sorts ahead of
 App). The actual exception is its children: **Chat window**,
-**Loading State**, **Prompt input bar**, and **Thinking** are pulled out
-of their own alphabetical slots (Chat window would otherwise fall
-between Chart color mapping and Checkbox; Loading State between Input
-field and Modal / dialog; Prompt input bar between Progress Bar and
-Radio; Thinking between Textarea and Toast) and grouped under their
+**Loading State**, **Prompt input bar**, **Streaming Text**, and
+**Thinking** are pulled out of their own alphabetical slots (Chat
+window would otherwise fall between Chart color mapping and Checkbox;
+Loading State between Input field and Modal / dialog; Prompt input bar
+between Progress Bar and Radio; Streaming Text between Stepper and
+Switch; Thinking between Textarea and Toast) and grouped under their
 parent instead, staying alphabetical among themselves. Don't add a
 second parent/child grouping on this precedent without a deliberate
 spec change — one exception documented is a rule; two or three
@@ -830,20 +831,22 @@ undocumented ones is just an inconsistent list.
 
 ### AI Native
 
-One component with four subcomponents, listed alphabetically below —
-**Chat window**, **Loading State**, **Prompt input bar**, and
-**Thinking** — the same "one component, several named variants
-documented in one place" convention [Card](#card) already uses for
-General/Functional/Profile/Hero Card, rather than a separate nav entry
-and comp-block per variant. What unifies them: an AI Native component
-*is* the AI interaction, not a generic control pressed into service for
-one. Chat window is literally the expanded form of Prompt input bar —
-clicking the bar's Floating variant morphs it into the window via a
-shared FLIP animation (see Chat window's own Behavior section, below).
-Loading State and Thinking are the two pre-result wait states either
-surface shows while that AI interaction is running, before anything
-has streamed back — which one appears is decided by Thinking's own
-Rule 2 gate (below), never by preference.
+One component with five subcomponents, listed alphabetically below —
+**Chat window**, **Loading State**, **Prompt input bar**, **Streaming
+Text**, and **Thinking** — the same "one component, several named
+variants documented in one place" convention [Card](#card) already
+uses for General/Functional/Profile/Hero Card, rather than a separate
+nav entry and comp-block per variant. What unifies them: an AI Native
+component *is* the AI interaction, not a generic control pressed into
+service for one. Chat window is literally the expanded form of Prompt
+input bar — clicking the bar's Floating variant morphs it into the
+window via a shared FLIP animation (see Chat window's own Behavior
+section, below). Loading State and Thinking are the two pre-result
+wait states either surface shows while that AI interaction is running,
+before anything has streamed back — which one appears is decided by
+Thinking's own Rule 2 gate (below), never by preference. Streaming
+Text is what either of those hands off to at first token: the model's
+own prose actually arriving, not a wait state standing in for it.
 
 **Chat window.** ⚠️ **Designed from scratch** — no source in either the
 original brand deck or the teammate's build. First reviewed and committed 2026-08-24;
@@ -1094,7 +1097,7 @@ each one closes off a specific way this pattern has been seen to fail.
 - **Rule 3 — It never expands.** No chevron, no disclosure, no trace, no click target. Revealing what the system is doing is a different component's job — see Rule 13.
 - **Rule 4 — The label is live, not static.** It is a status and it changes as phases change: "Thinking" → "Reading the export" → "Comparing books" → "Drafting." A label set once and left is a spinner with extra steps, and the phase copy is most of this component's value.
 - **Rule 5 — The timer shows from the first frame.** For AI work, elapsed time is a quality signal — readers have learned that a longer wait means a harder problem. Withholding it until some threshold reads as opacity. Compute it from a start timestamp, never by accumulating ticks; a throttled background tab makes an accumulated count wrong by an order of magnitude.
-- **Rule 6 — It vanishes completely at first token.** Not at completion — at the first token. Pre-first-token is this component; streaming is the text itself. It leaves nothing behind: no record, no past-tense label, no residue. A loader still animating beside arriving text is the commonest defect in this pattern.
+- **Rule 6 — It vanishes completely at first token.** Not at completion — at the first token. Pre-first-token is this component; streaming is [Streaming Text](#ai-native). It leaves nothing behind: no record, no past-tense label, no residue. A loader still animating beside arriving text is the commonest defect in this pattern.
 - **Rule 7 — One per operation. Never two in a view.** Three of these on one screen is not three transparent operations, it is an architecture problem surfacing as noise. Aggregate to one that names the slowest thing.
 - **Rule 8 — It never blocks.** No overlay, no modal, no page-level use. AI work is in-flow work. If a surface genuinely has to be blocked, this is not the pattern.
 - **Rule 9 — It never appears without a Stop.** AI work is expensive and interruptible. In Chat window the Prompt input bar's Send swaps to stop-generating; in any other container, the Stop is that container's own responsibility — but it must exist. This component's own markup carries no Stop control itself; the rule is a hosting requirement, not a missing anatomy part.
@@ -1261,6 +1264,83 @@ component `position: absolute` — `.c-prompt-bar-more`'s own
 that box; use `position: fixed` with JS-measured placement instead, the
 same fix Chat window's own More options menu already required.
 
+**Streaming Text.** ⚠️ **Designed from scratch** — no source in either
+the original brand deck or the teammate's build.
+
+The model's own prose, arriving word by word, with a citation landing
+in position mid-sentence and the message actions/Follow-ups becoming
+reachable only once the last word settles. This is what [Loading
+State](#ai-native) and [Thinking](#ai-native) both hand off to at first
+token — the thing either of them was standing in for. Once the stream
+settles it becomes an ordinary static message; nothing about it stays
+animated, and nothing about it can re-enter this state (Rule 4, Rule
+22). Class prefix: `.c-streaming*`.
+
+**Streaming Text — Anatomy.**
+
+| Part | Spec |
+|---|---|
+| Root (`.c-streaming`) | Flex column, `max-width: 420px` — drop it into a chat thread's own 760px measure and it just fills to that instead. No pre-reserved height by default: appending is the default reveal, not a pre-sized box (Rule 8) |
+| Text (`.c-streaming-text`) | `body1` at `line-height: 1.65` — matches [Chat window](#ai-native)'s own AI bubble exactly, its most common host. Words append as real text nodes one at a time; never a full re-render of what's revealed so far, which would tear down and replay every earlier node's own entrance animation (the citation chip's, specifically) on every new word |
+| Caret (`.c-streaming-caret`) | A 2px bar reusing [Prompt input bar](#ai-native)'s own `c-prompt-bar-caret-blink` keyframe verbatim, recolored to Neutral-9 rather than the ghost text's Neutral-5. Present only while streaming; removed outright the instant the last word lands, never faded out (Rule 4) |
+| Citation (`.c-streaming-cite`) | Inline chip — source avatar + domain — landing mid-sentence as a token like any other (Rule 14), not appended after the fact. `vertical-align: middle`, tied to the surrounding text's own font metrics rather than a fixed px offset, so it still centers correctly regardless of host text size |
+| Note (`.c-streaming-note`) | Present only on `.is-interrupted` — "Stopped early," Neutral-5 caption, sitting ahead of the action row it unlocks (Rule 17) |
+| Actions (`.c-streaming-actions`) | [Chat window](#ai-native)'s own `.c-chat-action` buttons, reused verbatim — same context, same behavior, including Copy's swap-to-a-green-check. Toggled with the `hidden` attribute, not opacity: Rule 15 requires this row to be genuinely absent from the tab order while streaming, not merely dimmed |
+| Sources (`.c-streaming-sources` + trigger) | Overlapping avatar stack + a count, disclosure via Price summary card's own `0fr → 1fr` grid-rows technique, the same one Thinking's own trace already uses |
+| Follow-ups (`.c-streaming-followups`) | A caption/600 label plus a list of prompts, each reusing Thinking's own row-entrance keyframe. `hidden` until settle, and never on an interrupted response — they're derived from a completed answer that, on interrupt, doesn't exist (Rule 16) |
+
+**Streaming Text — Content types.** The reveal mechanic is chosen by
+what the content actually is, not by preference:
+
+| Content | Reveal |
+|---|---|
+| Prose | Word by word — the default (Rule 5) |
+| Citation | Lands in position, mid-stream, as a token like any other (Rule 14) |
+| List | Item by item, never word by word — a bulleted list revealed one word at a time reads as one long broken sentence (Rule 13) |
+| Table / structured rows | Arrives whole, once complete — nobody reads a table in reading order (Rule 11) |
+| Code block | Arrives whole; the surrounding prose still streams around it. Syntax highlighting can't run on an incomplete token anyway (Rule 12) |
+
+**Streaming Text — Rules.** Twenty-two rules, not stylistic preference
+— each one closes off a specific way a streaming reveal has been seen
+to fail.
+
+- **Rule 1 — Model-generated prose only.** This component renders text a model is actually producing. It never renders text the system computed — the Hero card's own recommendation lines come from arithmetic in `renderRevenuePeriod`, deterministic and instant, and must appear whole. Computed text is not generated text.
+- **Rule 2 — Never simulate a stream over content you already hold.** If the full string is already in hand — cached, replayed, computed, or arrived in one response — render it whole. Animating a reveal over complete content makes the product measurably slower in order to look more sophisticated. That's the one thing this component must never be used for.
+- **Rule 3 — Begins at the first token, not before.** Everything before the first token belongs to [Loading State](#ai-native) or [Thinking](#ai-native). This component's own arrival is what removes those.
+- **Rule 4 — Ends when the last word settles, and then it is no longer this component.** On settle the text becomes an ordinary static message. Nothing about it stays animated, nothing stays in a streaming class, and nothing about it can re-enter this state.
+- **Rule 5 — Reveal at word granularity, never character.** Character-by-character is a simulation of typing and reads as theatrical. Word-by-word matches both how tokens actually arrive and how people actually read.
+- **Rule 6 — Cadence comes from token arrival, smoothed through a buffer.** Raw arrival is lumpy — twenty words at once, then 400ms of nothing — which reads as broken rather than fast. Hold arriving tokens and release at a steady rate, targeting ~55ms per word (about 180wpm, inside comfortable reading speed), draining faster when the buffer is backing up. The fixed 55ms is a fallback, not the mechanism.
+- **Rule 7 — Below roughly 12 words, reveal the response whole.** 55ms × 12 is 660ms of animation over something that could have been instant. Short answers aren't improved by being delayed.
+- **Rule 8 — Appending is the default reveal. Pre-reserved layout is the exception.** In normal top-down text flow, appending a word never moves a word already on screen — only the last line grows. In a chat thread, where nothing sits below the message, append. Reserve the final layout only where content below must not move: a card with a footer, a fixed-height container, a message followed by controls that are already on screen.
+- **Rule 9 — When you do pre-reserve, use `visibility`, not opacity alone.** `opacity: 0` leaves unrevealed words selectable and in the accessibility tree — a drag-select or Ctrl+A picks up text the reader can't see. `visibility: hidden` reserves the same layout space and excludes the text from both. Pair it with opacity for the fade, giving `visibility` a `0s` delay on the way in — the same technique [Chat window](#ai-native)'s own Jump to present button already uses.
+- **Rule 10 — Never justify streaming text, and never balance it.** `text-align: justify` recalculates word spacing on every line as content changes, so earlier lines shift. `text-wrap: balance`/`pretty` redistribute across the whole block for the same reason. Both break Rule 8's guarantee that nothing already read moves.
+- **Rule 11 — Structured output lands whole.** Tables, comparison rows, option cards, KPI rows. Nobody reads a table in reading order, so revealing it that way fights the content. It appears as a unit once complete.
+- **Rule 12 — Code blocks land whole.** A partially-revealed block is unreadable, and syntax highlighting can't run on an incomplete token — it either flickers as it re-highlights or renders bare and then jumps. The surrounding prose streams; the block arrives as a unit.
+- **Rule 13 — Lists stream by item, not by word.** A bulleted list revealed word by word reads as one long broken sentence. Each item appears whole, in order.
+- **Rule 14 — Citations arrive in position, as part of the stream.** Not appended at the end. A citation lands mid-sentence where it belongs, which means citation rendering can't be deferred to settle — it's stream content like any other token.
+- **Rule 15 — Message actions are unavailable until settle.** Copy on half a response is a bug. Thumbs on an incomplete answer is meaningless. The action row isn't merely dimmed during the stream — it isn't rendered, so nothing in it is reachable by Tab.
+- **Rule 16 — Follow-ups appear only on settle, and only after the actions.** They're derived from the completed answer, so they can't exist before it. Landing them after the action row keeps the order: the answer, then what you can do with it, then where you might go next.
+- **Rule 17 — A stopped stream keeps its text.** Interruption doesn't discard what was delivered. The partial response stays, is marked as interrupted, and its action row becomes available on what exists. A stopped response is still a response, and deleting it destroys output the reader may already have read.
+- **Rule 18 — A failed stream keeps its text too.** A dropped connection leaves the partial text in place with an error state and a retry beside it. Retry appends or replaces per the product's own decision, but it never silently erases what arrived.
+- **Rule 19 — `aria-busy` during, announce on completion. Never a live region on the text.** `aria-busy="true"` on the message while streaming, and no `aria-live` anywhere on the streaming content — a live region over text mutating every 55ms is unusable. On settle, flip `aria-busy` to false and announce completion politely, once. A partially-arrived response isn't useful to read, and the settled one is reachable normally.
+- **Rule 20 — It never scrolls anything. The thread owns that.** Streaming text doesn't call `scrollIntoView` or touch `scrollTop`. Following new content is the thread's own scroll pin, and the new-content signal is Jump to present's. Two things scrolling one container is how a reader gets yanked mid-sentence.
+- **Rule 21 — Reduced motion reveals in one step.** No per-word fade, no cadence. Text appears as it arrives, in whatever chunks the buffer delivers, with no transition. The progressive arrival stays — that's the information — and only the animation of each word goes.
+- **Rule 22 — No loop. No replay. No re-stream.** The stream runs exactly once, per message, ever. Scrolling an old message back into view must not restart it. A looping reveal is an animation rather than a stream, and a reader who looks away and back would watch the answer un-write itself.
+
+**Do:** render only text a model is actually producing, whole and
+instantly for anything already fully in hand; reveal prose word by
+word, lists item by item, tables/code/structured rows as a single
+unit; keep the action row and Follow-ups entirely unrendered — not
+dimmed — until settle; keep a stopped or failed stream's partial text
+in place, marked, with its own actions reachable on what exists;
+flip `aria-busy` and announce once, on settle, never mid-stream.
+**Don't:** animate a reveal over content already fully in hand; hold a
+short, sub-12-word answer back at 55ms/word when it could render
+whole; justify or balance streaming text, or let the last word's
+paragraph-below-it push words already read; let this component call
+`scrollIntoView` or otherwise fight the thread's own scroll pin; loop,
+replay, or re-stream a message once it has settled, for any reason.
+
 **Thinking.** ⚠️ **Designed from scratch** — no source in either the
 original brand deck or the teammate's build.
 
@@ -1279,7 +1359,7 @@ sideways, never back — per Rule 21. Class prefix: `.c-thinking*`.
 
 | Part | Spec |
 |---|---|
-| Root (`.c-thinking`) | Flex column, `max-width: 380px`. `min-height` transitions between `0` and its working/expanded value (`176px`) on `duration-morph`/`ease-settle` — a pose change, not decoration, so it borrows Prompt input bar's own morph timing rather than Loading State's `ease-standard` |
+| Root (`.c-thinking`) | Flex column, `max-width: 380px`. `min-height` transitions between `0` and its working/expanded value (`176px`) on `duration-morph`/`ease-morph` — a pose change, not decoration, so it takes Prompt input bar's own morph pairing rather than Loading State's `ease-standard` |
 | Header (`.c-thinking-header`) | The one clickable surface: `<button>`, mark + status + chevron, negative-margin hit-target trick (the same one Chat window's own icon buttons use) so the visual box stays small while the click target grows. `aria-expanded` reflects state |
 | Mark (`.c-thinking-mark`) | `ph-fill ph-sparkle`, `icon-sm`, Neutral-7 while working, Neutral-5 once `.is-done` — this system's one AI-native glyph (Prompt input bar's own mark, AI Recommendation banner's icon), not a new one invented for this component |
 | Status (`.c-thinking-status`) | Two spans sharing one grid cell — `.working` (shimmering, live per Rule 13) and `.done` (static, fades in per Rule 7) — toggled by `.is-done` rather than a text-content swap, so the header never reflows mid-change |
@@ -1290,7 +1370,7 @@ sideways, never back — per Rule 21. Class prefix: `.c-thinking*`.
 | Part | Spec |
 |---|---|
 | Trace (`.c-thinking-trace`) | `0fr → 1fr` grid-rows + opacity, `duration-base`/`ease-settle` — Price summary card's own expand/collapse technique, verbatim, not SidebarNav's slower variant of the same idea |
-| Line (`.c-thinking-line-wrap` / `.c-thinking-line`) | A 1px Neutral-3 vertical rule anchored at `calc(icon-sm / 2 - 1px)` from the trace's left edge, centering it under the header mark above for every variant — derived from that icon's own box geometry, not a hand-picked offset. Height transitions on a reveal-paced duration as rows arrive |
+| Line (`.c-thinking-line-wrap` / `.c-thinking-line`) | A 1px Neutral-3 vertical rule anchored at `calc(icon-sm / 2 - 1px)` from the trace's left edge, centering it under the header mark above for every variant — derived from that icon's own box geometry, not a hand-picked offset. Height transitions on `duration-reveal`/`ease-reveal` as rows arrive — a one-time entrance, the same pairing Prompt input bar's own Do's require and Loading State never needed |
 | Rows (`.c-thinking-rows`) | Flex column, 2px gap. Each row's own entrance is a 4px `translateY` + opacity fade, `duration-slow`/`ease-settle`, staggered by its own `animation-delay` |
 | Row — Steps/Coding (`.c-thinking-row`) | Leading `icon-micro` mark (check, spinner, or tool glyph) + primary label (`600` weight, Neutral-9, truncating) + optional secondary text (Neutral-5) or diff counts. Coding rows are real toggle buttons (`aria-pressed`), Neutral-3 selected fill — one step deeper than the Neutral-2 hover, so pressed reads as distinct from hover |
 | Row — Reasoning (`.c-thinking-row.is-prose`) | No leading mark, no truncation — wraps at `line-height: 1.6`, `400` weight, Neutral-7, since this is reasoning being narrated, not a status list |
@@ -5494,6 +5574,47 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.76 — 2026-08-28** — Added **Streaming Text**, [AI Native](#ai-native)'s
+  fifth subcomponent, alphabetically between Stepper and Switch in the
+  flat list this component is otherwise pulled from: the model's own
+  prose, arriving word by word, with a citation landing in position
+  mid-sentence and the message actions/Follow-ups becoming reachable
+  only on settle. Twenty-two new rules supplied directly for this
+  commit — scope (model-generated prose only, never a simulated reveal
+  over content already in hand), begins at first token, ends at settle
+  and can't re-enter the streaming state, word-not-character
+  granularity, a buffer-smoothed ~55ms/word fallback cadence,
+  instant whole-reveal below ~12 words, append-by-default layout with
+  pre-reserved space as the documented exception, no justify/balance,
+  structured content (tables/lists/code) landing whole or by item
+  rather than by word, in-position citations, a genuinely unrendered
+  (not dimmed) action row until settle, Follow-ups only after the
+  actions, a stopped or failed stream keeping its partial text marked
+  rather than discarded, `aria-busy` with a single settle announcement
+  and no live region on the mutating text itself, never touching thread
+  scroll, a one-step reduced-motion reveal, and no loop/replay/re-stream
+  ever. All twenty-two documented under the new **Streaming Text —
+  Rules** heading, plus a **Streaming Text — Content types** table
+  covering Rules 11–14. Loading State's own Rule 6 updated to link here
+  instead of the plain "streaming is the text itself" it shipped with.
+  `components.css` gets the new `.c-streaming*` CSS — reusing [Chat
+  window](#ai-native)'s own `.c-chat-action` buttons verbatim for the
+  action row, [Prompt input bar](#ai-native)'s own caret-blink keyframe
+  for the cursor, Thinking's own fade-in/row-entrance keyframes for the
+  citation chip and Follow-up rows, and Price summary card's `0fr → 1fr`
+  technique for the sources disclosure — no new motion primitives.
+  `preview.html`'s gallery entry sits between Prompt input bar and
+  Thinking (alphabetical, per this component's own slot). It loops
+  automatically for the gallery's own visibility; Rule 22 means a real
+  instance never does — flagged directly in the gallery caption rather
+  than silently diverging. Its Stop button is real, not decorative: it
+  interrupts the sequence mid-stream, the partial text stays and gets
+  marked "Stopped early," and the action row unlocks on what's there,
+  demonstrating Rule 17 live rather than only in prose. Net component
+  count unchanged — subcomponents of AI Native aren't separately
+  counted, same as Chat window/Loading State/Prompt input bar/Thinking
+  before it. `tokens.css` unchanged: every value this component needed
+  already existed.
 - **v0.9.75 — 2026-08-28** — Added **Thinking**, [AI Native](#ai-native)'s
   fourth subcomponent, alphabetically last (between Textarea and Toast
   in the flat list this component is otherwise pulled from): an
