@@ -2194,3 +2194,106 @@
   .c-chat-rail, .c-chat-main{transition:none;}
   .c-chat-rail-scrim{transition:none;}
 }
+
+/* =========================================================
+   Loading State — AI Native category, scoped to Rule 1's own
+   boundary: model generation, tool execution, agent runs only —
+   never a data fetch/upload/page transition (Rotating spinner)
+   or a result with a shape (Skeleton). See DESIGN-SYSTEM.md's own
+   "Loading State" section for the full 13-rule contract this
+   markup alone can't express (the 400ms reveal delay, vanish-at-
+   first-token, the required Stop, the hand-off to Thinking) —
+   this file only owns what's actually CSS: the grid's wavefront/
+   comet motion, the pastel color cycle, and the reduced-motion
+   fallback.
+   Three variants, one shared shell: Drive (square cells), Dots
+   (round cells, identical timing), Orbit (a single comet lapping
+   the grid's 8-cell perimeter, center cell fixed dim). Label and
+   elapsed timer are both static text — no shimmer, no gradient —
+   the grid is the only thing that moves, so a screen reader's
+   `aria-live="polite"` region (on `.c-loading` itself, per Rule 11)
+   only ever announces a real label change, never decoration.
+   `.c-loading-elapsed` carries `aria-hidden="true"` in markup for
+   the same rule — a live region re-announcing a figure every
+   100ms is unusable with a screen reader, and the timer's value is
+   sighted-only information. */
+.c-loading{display:inline-flex; align-items:center; gap:var(--spacing-8); font-family:var(--font-primary);}
+
+.c-loading-grid{display:grid; grid-template-columns:repeat(3, 4px); gap:1.5px; flex:none;}
+.c-loading-cell{width:4px; height:4px; background:var(--color-neutral-9); border-radius:1px; opacity:.15;}
+.c-loading-grid.dots .c-loading-cell{border-radius:50%;}
+.c-loading-cell.is-off{opacity:.07;}
+
+/* Pastel color layer — one flat color at a time (Gold -> Water ->
+   Wood -> Fire -> Earth -> loop), never a spatial gradient; at a 4px
+   cell a moving gradient's own stops blend into each other within a
+   single dot, showing several hues at once instead of one. Shared,
+   synced 5s cycle across every active cell so the whole grid steps
+   through the sequence together, layered under the per-cell opacity
+   pulse via a second `animation` entry — two different properties
+   (background-color, opacity), so they don't fight. */
+.c-loading-grid.drive .c-loading-cell,
+.c-loading-grid.dots .c-loading-cell{animation:c-loading-color-cycle 5s linear infinite, c-loading-pixel-on 650ms var(--ease-standard) infinite;}
+.c-loading-grid.drive .c-loading-cell:nth-child(1),.c-loading-grid.dots .c-loading-cell:nth-child(1){animation-delay:0s, 90ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(2),.c-loading-grid.dots .c-loading-cell:nth-child(2){animation-delay:0s, 180ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(3),.c-loading-grid.dots .c-loading-cell:nth-child(3){animation-delay:0s, 270ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(4),.c-loading-grid.dots .c-loading-cell:nth-child(4){animation-delay:0s, 0ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(5),.c-loading-grid.dots .c-loading-cell:nth-child(5){animation-delay:0s, 90ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(6),.c-loading-grid.dots .c-loading-cell:nth-child(6){animation-delay:0s, 180ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(7),.c-loading-grid.dots .c-loading-cell:nth-child(7){animation-delay:0s, 90ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(8),.c-loading-grid.dots .c-loading-cell:nth-child(8){animation-delay:0s, 180ms;}
+.c-loading-grid.drive .c-loading-cell:nth-child(9),.c-loading-grid.dots .c-loading-cell:nth-child(9){animation-delay:0s, 270ms;}
+
+/* Orbit — a single comet lapping the grid's 8-cell perimeter clockwise
+   from top-left; the center cell (5th) never participates — no color
+   cycle, no pulse, flat Neutral-9 at its fixed .07 "off" opacity. */
+.c-loading-grid.orbit .c-loading-cell:nth-child(5){animation:none;}
+.c-loading-grid.orbit .c-loading-cell:not(:nth-child(5)){animation:c-loading-color-cycle 5s linear infinite, c-loading-pixel-on 950ms var(--ease-standard) infinite;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(1){animation-delay:0s, 0ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(2){animation-delay:0s, 110ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(3){animation-delay:0s, 220ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(4){animation-delay:0s, 770ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(6){animation-delay:0s, 330ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(7){animation-delay:0s, 660ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(8){animation-delay:0s, 550ms;}
+.c-loading-grid.orbit .c-loading-cell:nth-child(9){animation-delay:0s, 440ms;}
+
+@keyframes c-loading-pixel-on{
+  0%,100%{opacity:.15;}
+  50%{opacity:1;}
+}
+
+/* One color holds, then hands off to the next over a short crossfade
+   (the last 4% of each 20% segment) — never more than two colors
+   interpolating at once, and only briefly. */
+@keyframes c-loading-color-cycle{
+  0%,16%{background-color:var(--color-gold-pastel);}
+  20%,36%{background-color:var(--color-water-pastel);}
+  40%,56%{background-color:var(--color-wood-pastel);}
+  60%,76%{background-color:var(--color-fire-pastel);}
+  80%,96%{background-color:var(--color-earth-pastel);}
+  100%{background-color:var(--color-gold-pastel);}
+}
+
+/* Label — the one part of this component that changes meaning, not
+   just state (Rule 4: "Thinking" -> "Reading the export" -> ...), so
+   it stays plain Neutral-9 text with no animation of its own — a
+   shimmer here would be a second motion competing with the grid's,
+   and the phase copy is what's supposed to hold attention, not the
+   treatment carrying it. */
+.c-loading-label{font-size:var(--text-caption-size); font-weight:500; color:var(--color-neutral-9); white-space:nowrap;}
+
+.c-loading-elapsed{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); font-variant-numeric:tabular-nums; flex:none;}
+
+/* Rule 12 — decoration freezes, information doesn't. The grid settles
+   on a flat Gold-pastel frame at each cell's own resting opacity (this
+   system's own "freeze the wash in place" precedent, see AI
+   Recommendation banner); the label was never animated to begin with;
+   the elapsed timer (JS-driven, not CSS) is untouched by this query on
+   purpose — per Rule 5/12 it's real information, and it's the one
+   thing left proving the operation is still running. */
+@media (prefers-reduced-motion:reduce){
+  .c-loading-grid.drive .c-loading-cell,
+  .c-loading-grid.dots .c-loading-cell,
+  .c-loading-grid.orbit .c-loading-cell:not(:nth-child(5)){animation:none; opacity:.15; background-color:var(--color-gold-pastel);}
+}
