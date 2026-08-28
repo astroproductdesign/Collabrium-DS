@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>DRAFT — Thinking (AI Native)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<!-- Real, unmodified tokens/components — nothing about them changes for this draft. -->
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<style>
+/* ============================================================
+   DRAFT PAGE CHROME ONLY — none of this goes into components.css.
+   ============================================================ */
+body{margin:0; padding:var(--spacing-48) var(--spacing-32) var(--spacing-120); background:var(--color-neutral-2); font-family:var(--font-primary); color:var(--color-neutral-9); display:flex; flex-direction:column; align-items:center; gap:var(--spacing-24);}
+.draft-banner{width:100%; max-width:900px; padding:var(--spacing-16) var(--spacing-20); background:rgba(255,164,37,.14); border:1px solid rgba(255,164,37,.38); border-radius:var(--radius-sm); font-size:14px; line-height:1.6; color:#7a4a00;}
+.draft-banner strong{color:var(--color-neutral-9);}
+.page-col{width:100%; max-width:900px; display:flex; flex-direction:column; gap:var(--spacing-24);}
+.page-head h1{font-size:28px; margin:0 0 var(--spacing-8);}
+.page-head p{font-size:14px; line-height:1.6; color:var(--color-neutral-5); margin:0; max-width:640px;}
+.variant-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); padding:var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-16);}
+.variant-head{display:flex; align-items:baseline; justify-content:space-between; gap:var(--spacing-16); flex-wrap:wrap;}
+.variant-head h2{font-size:18px; margin:0;}
+.variant-head-meta{display:flex; align-items:center; gap:var(--spacing-12);}
+.variant-head span{font-size:12px; color:var(--color-neutral-5); font-family:monospace;}
+.variant-stage{padding:var(--spacing-32) var(--spacing-24); background:var(--color-neutral-2); border-radius:var(--radius-sm); display:flex; align-items:flex-start; justify-content:center;}
+.variant-notes{font-size:13px; line-height:1.6; color:var(--color-neutral-5); margin:0;}
+.variant-notes code{background:var(--color-neutral-2); padding:1px 5px; border-radius:4px; font-size:12px; color:var(--color-neutral-9);}
+.replay-btn{flex:none; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:12px; font-weight:700; padding:4px 10px; border-radius:var(--radius-pill); cursor:pointer; display:inline-flex; align-items:center; gap:4px;}
+.replay-btn:hover{background:var(--color-neutral-2);}
+.replay-btn i{font-size:12px;}
+.adapt-list{margin:0; padding-left:18px; font-size:13px; line-height:1.8; color:var(--color-neutral-5);}
+.adapt-list code{background:var(--color-neutral-2); padding:1px 5px; border-radius:4px; font-size:12px; color:var(--color-neutral-9);}
+.adapt-list strong{color:var(--color-neutral-9);}
+
+/* ============================================================
+   NEW COMPONENT — Thinking (AI Native)
+
+   Expandable agent trace: a clickable header (icon + status text +
+   chevron) that opens onto a settling list of trace rows behind a
+   vertical timeline line. Four variants share this same shell —
+   Steps (checklist + spinner), Reasoning (wrapping prose, no icons),
+   Search (linked sources), Coding (tool calls) — differing only in
+   row content and row icon, per the source's own design.
+
+   Sequencing is real, ported from the source's own `useSequence`
+   timing (800/600/1800/2600/1600ms stage gaps), not faked: the trace
+   auto-expands once work starts, reveals rows in two waves, flips
+   the header from "thinking" to "done" once content is complete,
+   then auto-collapses — all while staying manually togglable at any
+   point via the header, exactly like the source. Each demo below has
+   its own Replay control (draft-only — the real component "runs
+   once, settles, and remains expandable," per its own header
+   comment, so replay is needed here purely to reassess the motion
+   without reloading the page).
+
+   Token/icon mapping from the source:
+   - `ink` / `ink-2` / `ink-3` (a 3-tier text scale) → Neutral-9 /
+     Neutral-7 / Neutral-5. Neutral-7 as a real "medium" text tier
+     already exists in this system (Tab's hover text, Prompt bar's
+     model trigger label) — not a new tier invented for this
+     component.
+   - `bg-hover` / `bg-hover-2` → Neutral-2, the same hover fill every
+     ghost control in this system already uses (Button Ghost, Chat's
+     message actions).
+   - `bg-inset` (Coding row's pressed/selected state) → Neutral-3, one
+     step deeper than the Neutral-2 hover, so pressed reads as
+     distinct from hover rather than identical to it.
+   - `font-mono` (row secondary text, diff stats) → dropped, same
+     call as Loading State's elapsed timer: this system ships one
+     type family. Diff stats keep numeral alignment via
+     `font-variant-numeric: tabular-nums` instead.
+   - Hand-drawn SVGs → real Phosphor icons: the 4-point sparkle
+     header mark is `ph-fill ph-sparkle` (this system's one
+     established AI-native mark — Prompt input bar's own mark icon,
+     AI Recommendation banner's icon), the chevron is `ph
+     ph-caret-down` rotating exactly like Dropdown's own chevron
+     (`duration-fast`/`ease-standard`, `rotate(180deg)`), the
+     completed-step check is plain `ph ph-check` — Tier 1 Regular,
+     not `ph-fill ph-check`, which this system already found renders
+     as a boxed checkbox glyph rather than a bare mark (see Stepper's
+     own completed state).
+   - The spinner reuses `c-search-input-spin` verbatim (Search
+     input's own loading spinner keyframe) rather than porting the
+     source's custom border-ring spinner — this system already has
+     exactly one spin technique (rotate a Phosphor glyph,
+     `duration-ambient`, linear), so the completed-step check icon's
+     row swaps to a rotating `ph ph-circle-notch` instead of a new
+     border-arc spinner shape.
+   - Search rows drop the source's 3-color rotating dot badges
+     (accent/orange/green) — this system has no "decorative rotating
+     hue per list item" convention anywhere else, and the color
+     carried no meaning in the source either (purely visual variety).
+     Every row across every variant instead uses the same
+     icon-micro-leading-glyph language: a plain `ph
+     ph-magnifying-glass`-adjacent `ph ph-globe` for Search,
+     `ph-file-text`/`ph-pencil-simple`/`ph-terminal` per action for
+     Coding, `ph-check`/spinner for Steps.
+   - Expand/collapse reuses Price summary card's own `0fr → 1fr`
+     grid-rows technique verbatim, including its exact
+     `duration-base`/`ease-settle` pairing — not SidebarNav's
+     slightly different `duration-slow`/`ease-standard` version of
+     the same idea, since a trace settling into view reads closer to
+     Price summary's "anchored arrival" than a persistent nav
+     structure toggling open.
+   - The header's shimmering "thinking…" text is kept, unlike Loading
+     State's label shimmer (removed last round for competing with the
+     grid's own motion). Different context: nothing else in this
+     component is animating while the trace is collapsed — the
+     shimmer is the *only* visible sign work is still happening, not
+     a second motion layered on an already-moving surface. Worth
+     confirming this reads as the right call once seen live, not
+     assumed identical to the Loading State decision.
+   - Row entrance stagger, the vertical line's height animation, and
+     the outer shell's `min-height` transition are new keyframes/
+     values (the source's own `fade-up`/`fade-in` weren't defined in
+     the snippet shared) — durations kept close to the source's own
+     (120ms row stagger, 500ms line growth, 400ms shell min-height),
+     mapped onto `var(--ease-settle)` throughout for the "settling
+     into place" character this system's Motion section documents.
+   ============================================================ */
+
+.c-thinking{display:flex; flex-direction:column; width:100%; max-width:380px; min-height:0; transition:min-height 400ms var(--ease-settle);}
+.c-thinking.is-active{min-height:176px;}
+
+.c-thinking-header{display:inline-flex; align-items:center; gap:var(--spacing-8); align-self:flex-start; margin:-6px; padding:6px; border:none; background:transparent; border-radius:var(--radius-sm); cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard); font-family:var(--font-primary);}
+.c-thinking-header:hover{background:var(--color-neutral-2);}
+.c-thinking-header:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+
+.c-thinking-mark{font-size:var(--icon-sm); color:var(--color-neutral-7); flex:none;}
+.c-thinking.is-done .c-thinking-mark{color:var(--color-neutral-5);}
+
+.c-thinking-status{position:relative; display:inline-flex; font-size:var(--text-caption-size); font-weight:500; white-space:nowrap;}
+.c-thinking-status .working,
+.c-thinking-status .done{grid-area:1/1; white-space:nowrap;}
+.c-thinking-status .working{background-image:linear-gradient(90deg, var(--color-neutral-3) 35%, var(--color-neutral-9) 50%, var(--color-neutral-3) 65%); background-size:200% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; animation:c-thinking-shimmer 1.4s linear infinite;}
+.c-thinking-status .done{color:var(--color-neutral-7); display:none; animation:c-thinking-fade-in var(--duration-slow) var(--ease-standard) both;}
+.c-thinking.is-done .c-thinking-status .working{display:none;}
+.c-thinking.is-done .c-thinking-status .done{display:inline;}
+@keyframes c-thinking-shimmer{ from{background-position:0% 0;} to{background-position:-200% 0;} }
+@keyframes c-thinking-fade-in{ from{opacity:0;} to{opacity:1;} }
+
+.c-thinking-chevron{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none; transition:transform var(--duration-fast) var(--ease-standard);}
+.c-thinking.is-expanded .c-thinking-chevron{transform:rotate(180deg);}
+
+.c-thinking-trace{display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--duration-base) var(--ease-settle), opacity var(--duration-base) var(--ease-settle); opacity:0;}
+.c-thinking.is-expanded .c-thinking-trace{grid-template-rows:1fr; opacity:1;}
+.c-thinking-trace-inner{overflow:hidden;}
+/* The header icon's content sits flush at this component's own left
+   edge (its padding/negative-margin hit-target trick cancels out to
+   zero net offset — see .c-thinking-header), so its horizontal center
+   is exactly icon-sm/2 from that edge. The line-wrap shares that same
+   left edge (no margin-left of its own), so anchoring the line at
+   left:calc(var(--icon-sm)/2) — not a hand-picked px guess — is what
+   actually guarantees it centers under the icon above it, for every
+   variant, rather than coincidentally lining up. margin-top:spacing-8
+   is the real gap between the icon's bottom edge and the line's own
+   top — previously a -6px fudge with no token behind it.
+   The -1px on left: `ph-fill ph-sparkle` isn't a plain symmetric
+   glyph — it's a big star plus two small accent marks offset toward
+   its upper-right, which pulls the icon's *visual* weight left of its
+   own 16px advance box's mathematical center (measured directly off
+   a rendered screenshot: the glyph's own ink centers within ~0.3px of
+   calc(var(--icon-sm)/2), so the box math isn't wrong — the glyph
+   inside it just isn't symmetric). Nudged 1px left to track that
+   visual center rather than the box's geometric one. If this reads
+   as leaning the other way instead, dial the 1px back down — it's a
+   font-rendering-dependent correction, not a re-derived constant. */
+.c-thinking-line-wrap{position:relative; margin-top:var(--spacing-8); padding-left:var(--spacing-16);}
+.c-thinking-line{position:absolute; left:calc(var(--icon-sm) / 2 - 1px); top:0; width:1px; height:0; background:var(--color-neutral-3); transition:height 500ms var(--ease-settle);}
+.c-thinking-rows{display:flex; flex-direction:column; gap:2px; padding:var(--spacing-4) 0;}
+
+.c-thinking-query{display:flex; align-items:center; gap:var(--spacing-8); min-height:26px; padding:0 var(--spacing-4); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+.c-thinking-query i{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none;}
+.c-thinking-query span{font-size:var(--text-caption-size); color:var(--color-neutral-7);}
+
+.c-thinking-row{display:flex; align-items:center; gap:var(--spacing-8); min-width:0; width:100%; min-height:28px; padding:2px var(--spacing-4); border-radius:6px; border:none; background:transparent; font-family:var(--font-primary); text-align:left; text-decoration:none; cursor:default; animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+a.c-thinking-row,
+button.c-thinking-row{cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard);}
+a.c-thinking-row:hover,
+button.c-thinking-row:hover{background:var(--color-neutral-2);}
+button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
+@keyframes c-thinking-row-in{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+.c-thinking-row-icon{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none;}
+.c-thinking-row-icon.is-spin{animation:c-search-input-spin var(--duration-ambient) linear infinite;}
+.c-thinking-row-primary{min-width:0; flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--text-caption-size); font-weight:600; color:var(--color-neutral-9);}
+.c-thinking-row.is-prose{align-items:flex-start; white-space:normal;}
+.c-thinking-row.is-prose .c-thinking-row-primary{white-space:normal; font-weight:400; line-height:1.6; color:var(--color-neutral-7);}
+.c-thinking-row-secondary{flex:none; font-size:var(--text-footnote-size); color:var(--color-neutral-5);}
+.c-thinking-row-diff{flex:none; font-size:11px; font-variant-numeric:tabular-nums; display:flex; gap:4px;}
+.c-thinking-row-diff .add{color:var(--color-green);}
+.c-thinking-row-diff .del{color:var(--color-red);}
+.c-thinking-more{font-size:var(--text-caption-size); color:var(--color-neutral-5); padding:2px var(--spacing-4); animation:c-thinking-fade-in var(--duration-base) var(--ease-standard) both;}
+
+@media (prefers-reduced-motion:reduce){
+  .c-thinking, .c-thinking-trace, .c-thinking-line, .c-thinking-chevron{transition:none;}
+  .c-thinking-status .working{animation:none; background:none; -webkit-text-fill-color:var(--color-neutral-7); color:var(--color-neutral-7);}
+  .c-thinking-status .done{animation:none;}
+  .c-thinking-row, .c-thinking-query, .c-thinking-more{animation:none;}
+  .c-thinking-row-icon.is-spin{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="draft-banner">
+  <strong>Draft — not committed.</strong> This page loads the real, unmodified <code>tokens.css</code> and <code>components.css</code>. The new Thinking CSS lives only in this file's own &lt;style&gt; block, ready to move into <code>components.css</code>/<code>DESIGN-SYSTEM.md</code> once approved.
+</div>
+
+<div class="page-col">
+  <div class="page-head">
+    <h1>Thinking — AI Native</h1>
+    <p>Expandable agent trace, adapted from the source's four variants — Steps, Reasoning, Search, Coding. Each demo below runs the real timed sequence: it auto-expands once work starts, reveals rows in two waves, flips from "thinking" to "done," then auto-collapses — the same choreography as the source, not a simplified stand-in. Click a header at any point to override it manually. Use Replay to watch it again.</p>
+  </div>
+
+  <!-- STEPS -->
+  <div class="variant-card">
+    <div class="variant-head">
+      <h2>Steps</h2>
+      <div class="variant-head-meta"><span>checklist + spinner</span><button type="button" class="replay-btn js-replay" data-target="steps"><i class="ph ph-arrow-clockwise"></i> Replay</button></div>
+    </div>
+    <div class="variant-stage">
+      <div class="c-thinking js-thinking" id="thinking-steps" data-variant="steps">
+        <button type="button" class="c-thinking-header js-thinking-header">
+          <i class="ph-fill ph-sparkle c-thinking-mark"></i>
+          <span class="c-thinking-status"><span class="working">Thinking</span><span class="done">Thought for 4 seconds</span></span>
+          <i class="ph ph-caret-down c-thinking-chevron"></i>
+        </button>
+        <div class="c-thinking-trace">
+          <div class="c-thinking-trace-inner">
+            <div class="c-thinking-line-wrap">
+              <span class="c-thinking-line js-thinking-line"></span>
+              <div class="c-thinking-rows js-thinking-rows">
+                <div class="c-thinking-row" style="animation-delay:0ms"><i class="ph ph-circle-notch c-thinking-row-icon is-spin js-row-icon"></i><span class="c-thinking-row-primary">Reading account notes</span></div>
+                <div class="c-thinking-row" style="animation-delay:120ms"><i class="ph ph-circle-notch c-thinking-row-icon is-spin js-row-icon"></i><span class="c-thinking-row-primary">Scanning pipeline data</span></div>
+                <div class="c-thinking-row" style="animation-delay:240ms"><i class="ph ph-circle-notch c-thinking-row-icon is-spin js-row-icon"></i><span class="c-thinking-row-primary">Comparing renewal timelines</span><span class="c-thinking-row-secondary">12 accounts</span></div>
+                <div class="c-thinking-row" style="animation-delay:360ms"><i class="ph ph-circle-notch c-thinking-row-icon is-spin js-row-icon"></i><span class="c-thinking-row-primary">Writing the risk summary</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="variant-notes">Each completed row's icon swaps from a spinning <code>ph-circle-notch</code> to a static <code>ph-check</code> as the trace progresses — only the current/last-revealed row spins while <code>is-done</code> hasn't been reached.</p>
+  </div>
+
+  <!-- REASONING -->
+  <div class="variant-card">
+    <div class="variant-head">
+      <h2>Reasoning</h2>
+      <div class="variant-head-meta"><span>wrapping prose</span><button type="button" class="replay-btn js-replay" data-target="reasoning"><i class="ph ph-arrow-clockwise"></i> Replay</button></div>
+    </div>
+    <div class="variant-stage">
+      <div class="c-thinking js-thinking" id="thinking-reasoning" data-variant="reasoning">
+        <button type="button" class="c-thinking-header js-thinking-header">
+          <i class="ph-fill ph-sparkle c-thinking-mark"></i>
+          <span class="c-thinking-status"><span class="working">Thinking</span><span class="done">Thought for 4 seconds</span></span>
+          <i class="ph ph-caret-down c-thinking-chevron"></i>
+        </button>
+        <div class="c-thinking-trace">
+          <div class="c-thinking-trace-inner">
+            <div class="c-thinking-line-wrap">
+              <span class="c-thinking-line js-thinking-line"></span>
+              <div class="c-thinking-rows js-thinking-rows">
+                <div class="c-thinking-row is-prose" style="animation-delay:0ms"><span class="c-thinking-row-primary">Q4 renewal risk concentrates in two accounts with contracts expiring before December.</span></div>
+                <div class="c-thinking-row is-prose" style="animation-delay:120ms"><span class="c-thinking-row-primary">Northwind is the one to flag first — it's already stalled since the Q3 proposal went quiet.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="variant-notes">No icons, no truncation — rows wrap as normal reading copy at <code>line-height:1.6</code>, Neutral-7 rather than the Steps/Coding rows' bolder Neutral-9, since this is reasoning being narrated, not a status list.</p>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="variant-card">
+    <div class="variant-head">
+      <h2>Search</h2>
+      <div class="variant-head-meta"><span>linked sources</span><button type="button" class="replay-btn js-replay" data-target="search"><i class="ph ph-arrow-clockwise"></i> Replay</button></div>
+    </div>
+    <div class="variant-stage">
+      <div class="c-thinking js-thinking" id="thinking-search" data-variant="search">
+        <button type="button" class="c-thinking-header js-thinking-header">
+          <i class="ph-fill ph-sparkle c-thinking-mark"></i>
+          <span class="c-thinking-status"><span class="working">Searching the web</span><span class="done">Searched the web</span></span>
+          <i class="ph ph-caret-down c-thinking-chevron"></i>
+        </button>
+        <div class="c-thinking-trace">
+          <div class="c-thinking-trace-inner">
+            <div class="c-thinking-line-wrap">
+              <span class="c-thinking-line js-thinking-line"></span>
+              <div class="c-thinking-rows js-thinking-rows">
+                <div class="c-thinking-query"><i class="ph ph-magnifying-glass"></i><span>Northwind Retail renewal history</span></div>
+                <a class="c-thinking-row" href="https://northwindretail.com" target="_blank" rel="noreferrer" style="animation-delay:0ms"><i class="ph ph-globe c-thinking-row-icon"></i><span class="c-thinking-row-primary">Northwind Retail</span><span class="c-thinking-row-secondary">northwindretail.com</span></a>
+                <a class="c-thinking-row" href="https://www.crunchbase.com/organization/northwind-retail" target="_blank" rel="noreferrer" style="animation-delay:120ms"><i class="ph ph-globe c-thinking-row-icon"></i><span class="c-thinking-row-primary">Crunchbase</span><span class="c-thinking-row-secondary">crunchbase.com</span></a>
+                <a class="c-thinking-row" href="https://www.linkedin.com/company/northwind-retail" target="_blank" rel="noreferrer" style="animation-delay:240ms"><i class="ph ph-globe c-thinking-row-icon"></i><span class="c-thinking-row-primary">LinkedIn</span><span class="c-thinking-row-secondary">linkedin.com</span></a>
+                <div class="c-thinking-more js-more" hidden>+7 more</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="variant-notes">Rows are real <code>&lt;a&gt;</code> elements (opens in a new tab) — the query line above them uses <code>ph-magnifying-glass</code>, already this system's own search icon (Search input, Filter panel). "+7 more" fades in once every visible row has settled.</p>
+  </div>
+
+  <!-- CODING -->
+  <div class="variant-card">
+    <div class="variant-head">
+      <h2>Coding</h2>
+      <div class="variant-head-meta"><span>tool trace</span><button type="button" class="replay-btn js-replay" data-target="coding"><i class="ph ph-arrow-clockwise"></i> Replay</button></div>
+    </div>
+    <div class="variant-stage">
+      <div class="c-thinking js-thinking" id="thinking-coding" data-variant="coding">
+        <button type="button" class="c-thinking-header js-thinking-header">
+          <i class="ph-fill ph-sparkle c-thinking-mark"></i>
+          <span class="c-thinking-status"><span class="working">Running tools</span><span class="done">Ran 3 tools</span></span>
+          <i class="ph ph-caret-down c-thinking-chevron"></i>
+        </button>
+        <div class="c-thinking-trace">
+          <div class="c-thinking-trace-inner">
+            <div class="c-thinking-line-wrap">
+              <span class="c-thinking-line js-thinking-line"></span>
+              <div class="c-thinking-rows js-thinking-rows">
+                <button type="button" class="c-thinking-row js-selectable" style="animation-delay:0ms"><i class="ph ph-file-text c-thinking-row-icon"></i><span class="c-thinking-row-primary">Read</span><span class="c-thinking-row-secondary">pipeline-config.ts</span></button>
+                <button type="button" class="c-thinking-row js-selectable" style="animation-delay:120ms"><i class="ph ph-pencil-simple c-thinking-row-icon"></i><span class="c-thinking-row-primary">Edit</span><span class="c-thinking-row-secondary">RenewalAlert.tsx</span><span class="c-thinking-row-diff"><span class="add">+74</span><span class="del">−41</span></span></button>
+                <button type="button" class="c-thinking-row js-selectable" style="animation-delay:240ms"><i class="ph ph-terminal c-thinking-row-icon"></i><span class="c-thinking-row-primary">Run</span><span class="c-thinking-row-secondary">npm run notify-am</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="variant-notes">Rows are real toggle buttons (<code>aria-pressed</code>) — click one to select it, Neutral-3 background, one step deeper than the Neutral-2 hover so pressed and hover read as genuinely different states.</p>
+  </div>
+
+  <div class="variant-card">
+    <div class="variant-head"><h2>Adaptation notes</h2></div>
+    <ul class="adapt-list">
+      <li><strong>Sequencing:</strong> real, not simulated — ported from the source's own stage gaps (800/600/1800/2600/1600ms). Trace opens empty, fills in two waves, header flips to "done," then auto-collapses — total run is <strong>~5.8s</strong>, matching the source exactly.</li>
+      <li><strong>Colors:</strong> <code>ink</code>/<code>ink-2</code>/<code>ink-3</code> → Neutral-9/Neutral-7/Neutral-5. <code>bg-hover</code> → Neutral-2. <code>bg-inset</code> (Coding's pressed state) → Neutral-3.</li>
+      <li><strong>Icons:</strong> hand-drawn SVGs replaced with real Phosphor glyphs — <code>ph-fill ph-sparkle</code> (header mark, this system's established AI-native icon), <code>ph-caret-down</code> (chevron, reusing Dropdown's own rotation mechanics), <code>ph-check</code> Tier 1 Regular for completed steps (not <code>ph-fill ph-check</code> — this system already learned that renders boxed, during Stepper's own fix), <code>ph-circle-notch</code> for the active spinner, rotating on the exact same <code>c-search-input-spin</code> keyframe Search input's own spinner already uses.</li>
+      <li><strong>Typography:</strong> no monospace font for filenames/commands/diff stats — same call as Loading State's elapsed timer, this system ships one type family. Diff stats keep alignment via <code>tabular-nums</code>.</li>
+      <li><strong>Search row color-coding dropped:</strong> the source rotates each result through 3 decorative colors (accent/orange/green) with no semantic meaning — this system has no equivalent "rotating hue per list row" convention anywhere else, so every row across every variant instead shares one consistent icon-micro-leading-glyph treatment.</li>
+      <li><strong>Expand/collapse:</strong> reuses Price summary card's own <code>0fr → 1fr</code> grid-rows technique and its exact <code>duration-base</code>/<code>ease-settle</code> pairing, verbatim.</li>
+      <li><strong>Shimmer kept, unlike Loading State's:</strong> the header's "thinking…" text still shimmers while collapsed and working, since it's the only visible sign of activity at that point — nothing else in this component is animating alongside it the way Loading State's label sat next to an already-moving grid. Worth confirming this reads right once seen live rather than assuming it's the same call.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  var STAGES = [800, 600, 1800, 2600, 1600];
+
+  function runSequence(root){
+    var header = root.querySelector('.js-thinking-header');
+    var line = root.querySelector('.js-thinking-line');
+    var rowsWrap = root.querySelector('.js-thinking-rows');
+    var rows = Array.prototype.slice.call(root.querySelectorAll('.c-thinking-row'));
+    var more = root.querySelector('.js-more');
+    var timers = [];
+    var manual = null; // null = follow auto state; true/false = user override
+
+    function autoExpanded(stage){ return stage >= 1 && stage < 4; }
+    function working(stage){ return stage < 3; }
+    function visibleCount(stage){
+      if (stage < 2) return 0;
+      if (stage === 2) return Math.min(2, rows.length);
+      return rows.length;
+    }
+
+    function measureLine(){
+      // rAF so layout has settled after rows/visibility change this frame
+      requestAnimationFrame(function(){
+        var h = rowsWrap.offsetHeight;
+        line.style.height = h ? Math.max(0, h - 2) + 'px' : '0px';
+      });
+    }
+
+    function render(stage){
+      var expanded = manual === null ? autoExpanded(stage) : manual;
+      var isWorking = working(stage);
+      root.classList.toggle('is-expanded', expanded);
+      root.classList.toggle('is-done', !isWorking);
+      root.classList.toggle('is-active', isWorking || expanded);
+
+      var vc = visibleCount(stage);
+      rows.forEach(function(row, i){
+        row.style.display = i < vc ? '' : 'none';
+        var icon = row.querySelector('.js-row-icon');
+        if (icon){
+          var isLastVisible = (i === vc - 1);
+          var showSpin = isWorking && isLastVisible;
+          icon.classList.toggle('is-spin', showSpin);
+          icon.className = icon.className.replace(/ph-(circle-notch|check)/, showSpin ? 'ph-circle-notch' : 'ph-check');
+        }
+      });
+      if (more) more.hidden = !(root.dataset.variant === 'search' && stage >= 3);
+      measureLine();
+    }
+
+    function schedule(stage){
+      render(stage);
+      if (stage >= STAGES.length - 1) return;
+      var t = setTimeout(function(){ schedule(stage + 1); }, STAGES[stage]);
+      timers.push(t);
+    }
+
+    header.addEventListener('click', function(){
+      var currentlyExpanded = root.classList.contains('is-expanded');
+      manual = !currentlyExpanded;
+      root.classList.toggle('is-expanded', manual);
+      root.classList.toggle('is-active', root.classList.contains('is-done') === false || manual);
+      measureLine();
+      header.setAttribute('aria-expanded', String(manual));
+    });
+
+    if (root.dataset.variant === 'coding'){
+      root.querySelectorAll('.js-selectable').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var wasSelected = btn.classList.contains('is-selected');
+          root.querySelectorAll('.js-selectable').forEach(function(b){ b.classList.remove('is-selected'); b.setAttribute('aria-pressed', 'false'); });
+          if (!wasSelected){ btn.classList.add('is-selected'); btn.setAttribute('aria-pressed', 'true'); }
+        });
+      });
+    }
+
+    function start(){
+      timers.forEach(clearTimeout);
+      timers = [];
+      manual = null;
+      schedule(0);
+    }
+    root._thinkingStart = start;
+    start();
+  }
+
+  document.querySelectorAll('.js-thinking').forEach(runSequence);
+
+  document.querySelectorAll('.js-replay').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = document.getElementById('thinking-' + btn.dataset.target);
+      if (target && target._thinkingStart) target._thinkingStart();
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

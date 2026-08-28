@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.73** — 2026-08-27 — Sourced from the Collabrium brand deck
+**v0.9.74** — 2026-08-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -776,16 +776,17 @@ sizes, states, Do/Don't), the same process every component above went
 through.
 
 **One exception to the flat alphabetical list, and it's deliberate:
-[AI Native](#ai-native)'s two subcomponents.** Everything else below is
+[AI Native](#ai-native)'s three subcomponents.** Everything else below is
 one flat A→Z list with no grouping, and [AI Native](#ai-native) itself
 is a real, counted component like any other — it sits first because
 that's already its correct alphabetical position (AI sorts ahead of
-App). The actual exception is its children: **Chat window**
-and **Prompt input bar** are pulled out of their own
+App). The actual exception is its children: **Chat window**,
+**Loading State**, and **Prompt input bar** are pulled out of their own
 alphabetical slots (Chat window would otherwise fall between Chart
-color mapping and Checkbox; Prompt input bar between Progress Bar and
-Radio) and grouped under their parent instead, staying alphabetical
-among themselves. Don't add a second parent/child grouping on this
+color mapping and Checkbox; Loading State between Input field and
+Modal / dialog; Prompt input bar between Progress Bar and Radio) and
+grouped under their parent instead, staying alphabetical among
+themselves. Don't add a second parent/child grouping on this
 precedent without a deliberate spec change — one exception documented
 is a rule; two or three undocumented ones is just an inconsistent list.
 
@@ -828,16 +829,18 @@ is a rule; two or three undocumented ones is just an inconsistent list.
 
 ### AI Native
 
-One component with two subcomponents, listed alphabetically below —
-**Chat window** and **Prompt input bar** — the same "one component,
-several named variants documented in one place" convention
-[Card](#card) already uses for General/Functional/Profile/Hero Card,
-rather than a separate nav entry and comp-block per variant. What
-unifies the two: an AI Native component *is* the AI interaction, not a
-generic control pressed into service for one. Chat window is literally
-the expanded form of Prompt input bar — clicking the bar's Floating
-variant morphs it into the window via a shared FLIP animation (see
-Chat window's own Behavior section, below).
+One component with three subcomponents, listed alphabetically below —
+**Chat window**, **Loading State**, and **Prompt input bar** — the
+same "one component, several named variants documented in one place"
+convention [Card](#card) already uses for General/Functional/Profile/
+Hero Card, rather than a separate nav entry and comp-block per
+variant. What unifies them: an AI Native component *is* the AI
+interaction, not a generic control pressed into service for one. Chat
+window is literally the expanded form of Prompt input bar — clicking
+the bar's Floating variant morphs it into the window via a shared FLIP
+animation (see Chat window's own Behavior section, below). Loading
+State is the pre-result wait state either surface shows while that AI
+interaction is running, before anything has streamed back.
 
 **Chat window.** ⚠️ **Designed from scratch** — no source in either the
 original brand deck or the teammate's build. First reviewed and committed 2026-08-24;
@@ -1053,6 +1056,62 @@ signals ownership rather than context; close the rail drawer on a
 pillar-chip click, which is a filter, not a destination; give an
 absolutely-positioned drawer no fill and let it inherit transparency
 from a desktop layout that never needed one.
+
+**Loading State.** ⚠️ **Designed from scratch** — no source in either
+the original brand deck or the teammate's build.
+
+A pixel-grid loader for long-running AI work — model generation, tool
+execution, agent runs — paired with a live status label and a real
+elapsed timer. Deliberately narrow in scope: this is the only
+component this system uses for a pre-result AI wait, and keeping it
+narrow is what keeps the system at three loading idioms total instead
+of five (see Rule 1, below). Class prefix: `.c-loading*`.
+
+**Loading State — Anatomy.**
+
+| Part | Spec |
+|---|---|
+| Grid | 3×3 grid of 4px cells, 1.5px gap. Each active cell pulses opacity (`.15` dim → `1` bright → `.15`) on its own per-cell delay, creating a wavefront (Drive/Dots) or a lapping comet (Orbit); every active cell also steps through the same synced Gold → Water → Wood → Fire → Earth pastel sequence, one flat color at a time, never a spatial gradient (at 4px a moving gradient's own stops blend together within a single dot) |
+| Label | caption (12px), weight 500, Neutral-9, static — no shimmer, no gradient of its own. Live text, not a fixed string (Rule 4) |
+| Elapsed timer | caption (12px), Neutral-5, `font-variant-numeric: tabular-nums` — no monospace font introduced for the figure; numeral alignment matches Price summary card's line-item costs and Chat's own timestamps instead of a second type family for one component |
+
+**Loading State — Variants.**
+
+| Variant | Cells | Cycle | Read |
+|---|---|---|---|
+| Drive | Square, `1px` corner radius | 650ms | A chevron wavefront driving right; the cycle is shorter than the time the wave takes to cross the grid, so two fronts are always in flight |
+| Dots | Circular | 650ms | Identical timing/wavefront to Drive — only the cell shape changes |
+| Orbit | Square, center cell fixed dim | 950ms | A single comet lapping the grid's 8-cell perimeter clockwise; the center cell never lights up |
+
+**Loading State — Rules.** Thirteen rules, not stylistic preference —
+each one closes off a specific way this pattern has been seen to fail.
+
+- **Rule 1 — AI operations only.** Model generation, tool execution, agent runs. Never data fetches, filter recalculation, uploads, page transitions, or table loads — those take the rotating spinner (sub-second, inside a control) or a skeleton (when the result has a shape). Scoping this component to AI work is what keeps the system at three loading idioms instead of five.
+- **Rule 2 — Appears at 400ms, never before.** Hold the whole component back for 400ms after the operation starts. If the work finishes first, it never renders. A loader shown for 120ms flashes, which reads worse than no feedback. The timer still counts from the true start, so a loader that does appear already reads 0.4s.
+- **Rule 3 — It never expands.** No chevron, no disclosure, no trace, no click target. Revealing what the system is doing is a different component's job — see Rule 13.
+- **Rule 4 — The label is live, not static.** It is a status and it changes as phases change: "Thinking" → "Reading the export" → "Comparing books" → "Drafting." A label set once and left is a spinner with extra steps, and the phase copy is most of this component's value.
+- **Rule 5 — The timer shows from the first frame.** For AI work, elapsed time is a quality signal — readers have learned that a longer wait means a harder problem. Withholding it until some threshold reads as opacity. Compute it from a start timestamp, never by accumulating ticks; a throttled background tab makes an accumulated count wrong by an order of magnitude.
+- **Rule 6 — It vanishes completely at first token.** Not at completion — at the first token. Pre-first-token is this component; streaming is the text itself. It leaves nothing behind: no record, no past-tense label, no residue. A loader still animating beside arriving text is the commonest defect in this pattern.
+- **Rule 7 — One per operation. Never two in a view.** Three of these on one screen is not three transparent operations, it is an architecture problem surfacing as noise. Aggregate to one that names the slowest thing.
+- **Rule 8 — It never blocks.** No overlay, no modal, no page-level use. AI work is in-flow work. If a surface genuinely has to be blocked, this is not the pattern.
+- **Rule 9 — It never appears without a Stop.** AI work is expensive and interruptible. In Chat window the Prompt input bar's Send swaps to stop-generating; in any other container, the Stop is that container's own responsibility — but it must exist. This component's own markup carries no Stop control itself; the rule is a hosting requirement, not a missing anatomy part.
+- **Rule 10 — It occupies the space the result will fill.** Not above it, beside it, or over it. That is what makes the eventual swap read as one thing resolving rather than two elements trading places.
+- **Rule 11 — The label is announced once. The timer is never announced.** `role="status" aria-live="polite"` on the container (`.c-loading`), `aria-hidden="true"` on the timer (`.c-loading-elapsed`). A live region holding a figure that changes every 100ms is unusable with a screen reader.
+- **Rule 12 — Reduced motion freezes the decoration and keeps the information.** Grid still at its resting opacity, color cycle off, label static — timer still ticking. The one moving thing left is the one that proves work is happening.
+- **Rule 13 — Hand off to Thinking, never the reverse.** If the operation begins emitting named steps — two or more of them — and two seconds have elapsed, this component is replaced by the Thinking pattern in place; the header continues uninterrupted. Thinking is never replaced by this. Removing a trace a reader is part-way through is worse than never having shown one. (Thinking is a related, separately-specified pattern — not yet a formally committed section of this document.)
+
+**Do:** hold the component back for the full 400ms before it ever
+renders; drive the label from real phase changes, not a fixed string;
+compute the timer from a start timestamp on every tick, never an
+accumulated counter; give it a Stop somewhere in its hosting surface,
+even when that Stop is Send switching mode rather than a control this
+component owns itself; let it occupy the exact space the eventual
+result will take. **Don't:** show more than one of these in the same
+view — collapse to the single slowest operation instead; let it
+survive past the first streamed token, even for a frame; nest a
+disclosure or trace inside it; block a surface with it, or wrap it in
+a modal; leave it running once named, multi-step progress has been
+visible for two seconds — hand off instead.
 
 **Prompt input bar.** ⚠️ **Designed from scratch** — no source in either the original brand
 deck or the teammate's build. First reviewed and committed 2026-08-24;
@@ -5344,6 +5403,37 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.74 — 2026-08-27** — Added **Loading State**, [AI Native](#ai-native)'s
+  third subcomponent, alphabetically between Chat window and Prompt
+  input bar: a pixel-grid loader for long-running AI work (model
+  generation, tool execution, agent runs), paired with a live status
+  label and a real elapsed timer. Ported from an approved draft
+  (`preview-loadingstate-draft.html`) plus thirteen new behavioral
+  rules supplied directly for this commit — scope (AI operations
+  only), a mandatory 400ms reveal delay, a live/phase-driven label,
+  a timestamp-based (not tick-accumulated) timer, vanish-at-first-
+  token with no residue, one-per-view, non-blocking, a required Stop
+  somewhere in its host surface, occupying the result's own eventual
+  space, `aria-live="polite"`/`aria-hidden` accessibility split
+  between label and timer, a reduced-motion contract that freezes
+  decoration but keeps the timer ticking, and a hand-off to the
+  Thinking pattern once named multi-step progress has run two
+  seconds. All thirteen documented under the new **Loading State —
+  Rules** heading. Three variants shipped in `components.css` — Drive
+  (square cells), Dots (round cells), Orbit (a comet lapping the
+  grid's 8-cell perimeter) — all using the same synced Gold → Water →
+  Wood → Fire → Earth pastel color-cycle worked out across the prior
+  drafting rounds; `preview.html`'s own gallery shows Orbit only, per
+  request — Drive and Dots are fully styled and available, just not
+  demoed live on this page. Net component count unchanged — AI
+  Native's subcomponents aren't separately counted, same precedent as
+  Chat window/Prompt input bar before it and Card's own variants.
+  `tokens.css`: unchanged — every color/spacing/motion value this
+  component uses already existed (the five elemental pastels,
+  `--font-primary`, `--ease-standard`, the caption text tokens); the
+  650ms/950ms/5s per-cell cycle lengths are the component's own tuned
+  literal values, the same precedent as `c-prompt-bar-glow-move`'s 4s.
 
 - **v0.9.73 — 2026-08-27** — New **[Department logos](#department-logos)**
   entry: **CollabMedia**, tied to **Water** (Navy Blue `#1473E6`) — the
