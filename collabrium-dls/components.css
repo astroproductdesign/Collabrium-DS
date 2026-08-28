@@ -2297,3 +2297,106 @@
   .c-loading-grid.dots .c-loading-cell,
   .c-loading-grid.orbit .c-loading-cell:not(:nth-child(5)){animation:none; opacity:.15; background-color:var(--color-gold-pastel);}
 }
+
+/* =========================================================
+   Thinking — AI Native's other pre-result state, for AI work that has
+   started emitting named, orderable steps (Loading State stays the
+   component for an opaque wait with nothing yet to show). See
+   DESIGN-SYSTEM.md's own "Thinking" section for the full 21-rule
+   contract this markup alone can't express (the two-step/two-second
+   gate before it ever renders, auto-open/auto-close with manual
+   override winning permanently, the one-way hand-off from Loading
+   State, the required Stop) — this file only owns the shell, the four
+   variants' row anatomy, and the reduced-motion fallback.
+   Class prefix: .c-thinking*. Four variants — Steps, Reasoning, Search,
+   Coding — share this one shell and differ only in row content, never
+   in the shell around them. */
+.c-thinking{display:flex; flex-direction:column; width:100%; max-width:380px; min-height:0; transition:min-height var(--duration-morph) var(--ease-settle);}
+.c-thinking.is-active{min-height:176px;}
+
+.c-thinking-header{display:inline-flex; align-items:center; gap:var(--spacing-8); align-self:flex-start; margin:-6px; padding:6px; border:none; background:transparent; border-radius:var(--radius-sm); cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard); font-family:var(--font-primary);}
+.c-thinking-header:hover{background:var(--color-neutral-2);}
+.c-thinking-header:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+
+.c-thinking-mark{font-size:var(--icon-sm); color:var(--color-neutral-7); flex:none;}
+.c-thinking.is-done .c-thinking-mark{color:var(--color-neutral-5);}
+
+/* Status crossfades Rule 13's live label into Rule 7's past-tense
+   header rather than swapping text content — both spans share one
+   grid cell so the header never reflows mid-change. The shimmer here
+   is this component's one exception to Loading State's "no shimmer"
+   call: collapsed and mid-run, it's the only visible sign the
+   operation hasn't stalled, since nothing else on the header moves. */
+.c-thinking-status{position:relative; display:inline-flex; font-size:var(--text-caption-size); font-weight:500; white-space:nowrap;}
+.c-thinking-status .working,
+.c-thinking-status .done{grid-area:1/1; white-space:nowrap;}
+.c-thinking-status .working{background-image:linear-gradient(90deg, var(--color-neutral-3) 35%, var(--color-neutral-9) 50%, var(--color-neutral-3) 65%); background-size:200% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; animation:c-thinking-shimmer 1.4s linear infinite;}
+.c-thinking-status .done{color:var(--color-neutral-7); display:none; animation:c-thinking-fade-in var(--duration-slow) var(--ease-standard) both;}
+.c-thinking.is-done .c-thinking-status .working{display:none;}
+.c-thinking.is-done .c-thinking-status .done{display:inline;}
+@keyframes c-thinking-shimmer{ from{background-position:0% 0;} to{background-position:-200% 0;} }
+@keyframes c-thinking-fade-in{ from{opacity:0;} to{opacity:1;} }
+
+.c-thinking-chevron{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none; transition:transform var(--duration-fast) var(--ease-standard);}
+.c-thinking.is-expanded .c-thinking-chevron{transform:rotate(180deg);}
+
+.c-thinking-trace{display:grid; grid-template-rows:0fr; transition:grid-template-rows var(--duration-base) var(--ease-settle), opacity var(--duration-base) var(--ease-settle); opacity:0;}
+.c-thinking.is-expanded .c-thinking-trace{grid-template-rows:1fr; opacity:1;}
+.c-thinking-trace-inner{overflow:hidden;}
+
+/* The header mark sits flush at this component's own left edge (its
+   padding/negative-margin hit-target trick cancels to zero net offset),
+   so its horizontal center is icon-sm/2 from that edge — the timeline
+   line shares that same edge and anchors at exactly that, not a
+   hand-picked px guess, so it centers under the mark for every variant.
+   The -1px tracks ph-fill ph-sparkle's own visual center, which sits
+   left of its advance box's geometric one (the glyph's two small accent
+   marks pull right) — the same correction Loading State's own grid
+   never needed, since this is the only place that glyph sits directly
+   above a line depending on its exact center. Dial it back if a future
+   icon swap reads as leaning the other way; it's a font-rendering
+   correction, not a re-derived constant. */
+.c-thinking-line-wrap{position:relative; margin-top:var(--spacing-8); padding-left:var(--spacing-16);}
+.c-thinking-line{position:absolute; left:calc(var(--icon-sm) / 2 - 1px); top:0; width:1px; height:0; background:var(--color-neutral-3); transition:height var(--duration-reveal) var(--ease-settle);}
+.c-thinking-rows{display:flex; flex-direction:column; gap:2px; padding:var(--spacing-4) 0;}
+
+.c-thinking-query{display:flex; align-items:center; gap:var(--spacing-8); min-height:26px; padding:0 var(--spacing-4); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+.c-thinking-query i{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none;}
+.c-thinking-query span{font-size:var(--text-caption-size); color:var(--color-neutral-7);}
+
+.c-thinking-row{display:flex; align-items:center; gap:var(--spacing-8); min-width:0; width:100%; min-height:28px; padding:2px var(--spacing-4); border-radius:6px; border:none; background:transparent; font-family:var(--font-primary); text-align:left; text-decoration:none; cursor:default; animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+a.c-thinking-row,
+button.c-thinking-row{cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard);}
+a.c-thinking-row:hover,
+button.c-thinking-row:hover{background:var(--color-neutral-2);}
+button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
+@keyframes c-thinking-row-in{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+/* Steps/Coding's completed mark is Tier 1 Regular (ph-check), not
+   ph-fill — this system already found the filled glyph renders as a
+   boxed checkbox rather than a bare mark (see Stepper). The active
+   step's spinner reuses Search input's own c-search-input-spin
+   keyframe verbatim rather than a new border-arc shape — one spin
+   technique, system-wide. */
+.c-thinking-row-icon{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none;}
+.c-thinking-row-icon.is-spin{animation:c-search-input-spin var(--duration-ambient) linear infinite;}
+.c-thinking-row-primary{min-width:0; flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--text-caption-size); font-weight:600; color:var(--color-neutral-9);}
+.c-thinking-row.is-prose{align-items:flex-start; white-space:normal;}
+.c-thinking-row.is-prose .c-thinking-row-primary{white-space:normal; font-weight:400; line-height:1.6; color:var(--color-neutral-7);}
+.c-thinking-row-secondary{flex:none; font-size:var(--text-footnote-size); color:var(--color-neutral-5);}
+.c-thinking-row-diff{flex:none; font-size:11px; font-variant-numeric:tabular-nums; display:flex; gap:4px;}
+.c-thinking-row-diff .add{color:var(--color-green);}
+.c-thinking-row-diff .del{color:var(--color-red);}
+.c-thinking-more{font-size:var(--text-caption-size); color:var(--color-neutral-5); padding:2px var(--spacing-4); animation:c-thinking-fade-in var(--duration-base) var(--ease-standard) both;}
+
+/* Rule 20 — travel drops, sequence stays: the expand/row-stagger/line-
+   growth transitions go, but nothing here touches which rows exist,
+   the spinner on the current step, or the timer — ordering is
+   information, not decoration. */
+@media (prefers-reduced-motion:reduce){
+  .c-thinking, .c-thinking-trace, .c-thinking-line, .c-thinking-chevron{transition:none;}
+  .c-thinking-status .working{animation:none; background:none; -webkit-text-fill-color:var(--color-neutral-7); color:var(--color-neutral-7);}
+  .c-thinking-status .done{animation:none;}
+  .c-thinking-row, .c-thinking-query, .c-thinking-more{animation:none;}
+  .c-thinking-row-icon.is-spin{animation:none;}
+}
