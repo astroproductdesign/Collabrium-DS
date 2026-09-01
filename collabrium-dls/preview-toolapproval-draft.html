@@ -23,12 +23,38 @@
      .chatwindow-frame override that lets the fixed-position modal
      render in flow for review — no .c-chat wrapper needed, the gallery
      itself skips straight to .c-chat-shell). Tool approval mounts as a
-     second, independent instance inside the AI message bubble. */
+     second, independent instance directly above the composer's own
+     Prompt input bar — see the composer markup for why, and the rule
+     below for why it's full-width there. */
   .desktop-stage{width:100%; max-width:1040px;}
   .chatwindow-frame{position:relative; width:100%; height:min(700px, 75vh);}
   .chatwindow-frame .c-chat-shell{position:relative; inset:auto; margin:0; width:100%; height:100%; opacity:1;}
   .chatwindow-frame .c-chat-rail, .chatwindow-frame .c-chat-main{opacity:1;}
-  .chatwindow-frame .c-tool-approval{max-width:400px;}
+  /* Overlay, not a layout participant — floats above the thread on
+     top of the conversation, anchored just above the Prompt input
+     bar, rather than pushing the composer down as a normal-flow
+     sibling. .c-chat-composer-inner is made the positioning context
+     (it's already the exact max-width:760px/margin:0-auto box the
+     Prompt input bar itself renders at, .c-prompt-bar--inline being
+     width:100% of it) so width:100% here matches the bar's width
+     exactly, not a guessed number, while bottom:100% floats it
+     directly above that same box without taking up any of its flow
+     — the thread and composer never reflow when this appears,
+     resizes between questions, or disappears. shadow-3 (Dropdown
+     panel's own floating-surface weight) reads as elevated above the
+     conversation, not sitting flush within it like the card's default
+     shadow-1. */
+  .c-chat-composer-inner{position:relative;}
+  /* Position the mount wrapper, not .c-tool-approval itself — that
+     element is a flex column with overflow:hidden and a JS-measured
+     explicit height (the question-to-question morph); making it the
+     positioned/absolute box directly fought its own height
+     calculation (auto-height-via-bottom on a flex+overflow:hidden
+     box is exactly the kind of two-pass case some engines get wrong).
+     Wrapping keeps the card's own internal layout undisturbed and
+     only the wrapper answers "where on screen". */
+  #taRootChat{position:absolute; z-index:10; bottom:calc(100% + var(--spacing-12)); left:0; width:100%;}
+  .c-chat-composer-inner .c-tool-approval{max-width:none; width:100%; box-shadow:var(--shadow-3);}
 
   /* ============================================================
      DRAFT — Tool approval (AI Native), for review only.
@@ -43,13 +69,15 @@
      ============================================================ */
   .c-tool-approval{position:relative; width:100%; max-width:360px; overflow:hidden; animation:c-thinking-fade-in var(--duration-reveal) var(--ease-reveal) both;}
 
-  /* Head — question + dismiss share a flex row, same as Modal's own
-     header (title + Ghost icon-button close, inline together) rather
-     than floating the button absolute over the text: align-items:
-     center keeps the button's 32px box vertically centered on the
-     question's own line-height, whatever size that heading token is. */
-  .c-tool-approval-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-8); margin-bottom:var(--spacing-16);}
-  .c-tool-approval-dismiss{flex:none; color:var(--color-neutral-5);}
+  /* Head — question on the left; pagination (Prev/Next + step count)
+     and dismiss (×) grouped together in the top-right corner, same
+     row. align-items:flex-start (not center) so a wrapped 2-line
+     question doesn't drag the top-right cluster down with it — it
+     stays pinned to the card's first line. */
+  .c-tool-approval-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
+  .c-tool-approval-topbar{display:flex; align-items:center; gap:2px; flex:none;}
+  .c-tool-approval-topbar .c-pagination-indicator{padding:0 var(--spacing-4);}
+  .c-tool-approval-dismiss{flex:none; margin-left:var(--spacing-4); color:var(--color-neutral-5);}
   .c-tool-approval-dismiss:hover{color:var(--color-neutral-9);}
 
   /* Viewport — height animates to fit whichever question is active
@@ -61,7 +89,7 @@
      "settles, never bounces" motion, fewer moving parts. */
   .c-tool-approval-viewport{overflow:hidden; transition:height var(--duration-morph) var(--ease-morph);}
   .c-tool-approval-body{padding-bottom:2px;}
-  .c-tool-approval-question{margin:0; min-width:0; font-family:var(--font-secondary); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+  .c-tool-approval-question{flex:1; min-width:0; margin:0; font-family:var(--font-secondary); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
   .c-tool-approval-options{display:flex; flex-direction:column; animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
 
   /* Option row — real Radio (.c-radio-circle/.dot) or Checkbox
@@ -107,11 +135,10 @@
   .c-tool-approval-custom .c-field textarea{box-sizing:border-box;}
   .c-tool-approval-custom textarea{animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
 
-  /* Footer — no divider; just .c-card-footer's own spacing-16 margin-
-     top kept for breathing room above the nav/actions row. */
-  .c-tool-approval-footer{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); margin-top:var(--spacing-16);}
-  .c-tool-approval-nav{display:flex; align-items:center; gap:2px;}
-  .c-tool-approval-nav .c-pagination-indicator{display:inline-flex; padding:0 var(--spacing-4);}
+  /* Footer — pagination moved up to the head, so this now holds only
+     Skip/Continue, right-aligned. No divider; just .c-card-footer's
+     own spacing-16 margin-top kept for breathing room above it. */
+  .c-tool-approval-footer{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-12); margin-top:var(--spacing-16);}
   .c-tool-approval-actions{display:flex; align-items:center; gap:var(--spacing-8);}
 
   /* Sent state — real Badge success pill (.c-badge-success) verbatim
@@ -142,6 +169,11 @@
   <div class="draft-stage">
     <div class="draft-label">Tool approval</div>
     <div id="taRoot"></div>
+  </div>
+
+  <div class="draft-stage">
+    <div class="draft-label">Long question (2&ndash;3 lines)</div>
+    <div id="taRootLong"></div>
   </div>
 
   <div class="draft-stage desktop-stage">
@@ -198,7 +230,19 @@
                   <div class="c-chat-bubble">
                     <p>Good news. Before I draft the launch plan, I need a few calls only the team can make — flavors, mix-ins, and first market. Once you answer, I'll turn it into a full plan.</p>
                   </div>
-                  <div id="taRootChat"></div>
+                </div>
+                <!-- Thinking, real markup/classes (Thinking's own header
+                     anatomy: mark + status + chevron), minimal — just
+                     the "working" label, no trace/chevron since there
+                     are no reasoning steps to show here, only a pending
+                     question. Hidden until Tool approval mode is
+                     actually active; toggled from mountToolApproval's
+                     onModeChange callback below. -->
+                <div class="c-thinking" id="taThinking" hidden>
+                  <div class="c-thinking-header">
+                    <i class="ph-fill ph-sparkle c-thinking-mark"></i>
+                    <span class="c-thinking-status"><span class="working">Asking a question&hellip;</span></span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -206,12 +250,19 @@
 
           <div class="c-chat-composer">
             <div class="c-chat-composer-inner">
+              <!-- Tool approval sits directly above the composer, same
+                   760px measure as the Prompt input bar right below it
+                   (both are children of this same max-width:760px,
+                   margin:0-auto container) — not in the thread, since
+                   the reader must resolve it right where they'll type
+                   next, not go find it by scrolling. -->
+              <div id="taRootChat"></div>
               <div class="c-prompt-bar c-prompt-bar--inline is-revealed" role="group" aria-label="Message composer">
                 <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
                 <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
                 <div class="c-prompt-bar-surface">
                   <div class="c-prompt-bar-field">
-                    <input type="text" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" />
+                    <input type="text" id="taComposerInput" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" />
                   </div>
                   <div class="c-prompt-bar-more">
                     <div class="c-prompt-bar-toolbar">
@@ -226,7 +277,7 @@
                           <i class="ph ph-caret-down"></i>
                         </button>
                         <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
-                        <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                        <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" id="taComposerSend" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
                       </div>
                     </div>
                   </div>
@@ -245,15 +296,60 @@
 // window AI bubble (#taRootChat) — same component, two independent
 // instances, each with its own closured state.
 var toolApprovalMountCount = 0;
-function mountToolApproval(root){
+var ICE_CREAM_QUESTIONS = [
+    { q: "How many flavors should we launch?", type: "radio", options: [
+      { label: "Three (core line)", desc: "Focused assortment, lower inventory risk" },
+      { label: "Five (full case)", desc: "Broader shelf presence, more production complexity" },
+      { label: "Just one hero", desc: "Single-flavor marketing push, fastest to launch" }
+    ] },
+    { q: "Which mix-ins should we stock?", type: "radio", options: [
+      { label: "Chocolate chips", desc: "Most requested in taste tests" },
+      { label: "Waffle bits", desc: "Pairs with the vanilla base, higher unit cost" },
+      { label: "Sprinkles", desc: "Lowest cost, strongest kid appeal" }
+    ] },
+    { q: "Which market do we enter first?", type: "radio", options: [
+      { label: "Food trucks", desc: "Fast to pilot, limited daily volume" },
+      { label: "Grocery freezers", desc: "Highest volume, longest retail onboarding" },
+      { label: "Scoop shops", desc: "Best brand storytelling, smallest footprint" }
+    ] }
+];
+
+// A longer, realistic question that actually wraps to 2-3 lines at
+// this card's width/h3 size — checks that the top-right pagination+X
+// cluster stays pinned to the first line (align-items:flex-start on
+// .c-tool-approval-head) instead of drifting down with the wrap.
+var LONG_QUESTIONS = [
+  { q: "Should we pull the Q4 renewals forward, or hold to schedule?", type: "radio", options: [
+    { label: "Pull forward from Q4", desc: "Closes the gap faster, but front-loads next quarter's own risk" },
+    { label: "Hold to original schedule", desc: "No disruption to Q4 planning, gap stays open longer" },
+    { label: "Split — pull forward one", desc: "Partial coverage, keeps one renewal as a Q4 cushion" }
+  ] },
+  { q: "Who should own the outreach?", type: "radio", options: [
+    { label: "Account exec", desc: "Already has the relationship" },
+    { label: "Sales lead", desc: "Signals executive attention" }
+  ] }
+];
+
+function mountToolApproval(root, onModeChange, questions){
   var instanceId = 'ta' + (toolApprovalMountCount++); // keeps ids (e.g. the custom field's label/input pair) unique per instance
-  var QUESTIONS = [
-    { q: "How many flavors should we launch?", type: "radio", options: ["Three (core line)", "Five (full case)", "Just one hero"] },
-    { q: "Which mix-ins should we stock?", type: "radio", options: ["Chocolate chips", "Waffle bits", "Sprinkles"] },
-    { q: "Which market do we enter first?", type: "radio", options: ["Food trucks", "Grocery freezers", "Scoop shops"] }
-  ];
+  var QUESTIONS = questions || ICE_CREAM_QUESTIONS;
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fontsReady = false;
+  document.fonts.ready.then(function(){
+    if (fontsReady) return;
+    fontsReady = true;
+    // The very first render() ran before Source Serif 4 (the question
+    // heading's font) had swapped in from its fallback metrics — that
+    // render measured and locked in whatever height the fallback font
+    // produced, which can be shorter than the real one, clipping the
+    // custom-answer field below it. Once fonts are actually ready,
+    // force one clean re-measure (firstMeasure re-armed so it locks
+    // in with no transition, same as a real first mount) rather than
+    // trusting the pre-font-swap number for the rest of the session.
+    state.firstMeasure = true;
+    render();
+  });
 
   var state = {
     qi: 0,
@@ -271,9 +367,12 @@ function mountToolApproval(root){
   }
 
   function reset(){
-    state.qi = 0; state.answers = {}; state.custom = {}; state.customOpen = {}; state.sent = false; state.open = true; state.firstMeasure = true;
+    state.qi = 0; state.answers = {}; state.custom = {}; state.customOpen = {}; state.open = true; state.sent = false; state.firstMeasure = true;
     render();
   }
+
+  function dismiss(){ state.open = false; render(); }
+  function reopen(){ state.open = true; state.firstMeasure = true; render(); }
 
   function toggle(qi, i){
     var type = QUESTIONS[qi].type;
@@ -311,14 +410,11 @@ function mountToolApproval(root){
   }
 
   function skip(){
-    if (state.qi === QUESTIONS.length - 1){ state.open = false; render(); }
+    if (state.qi === QUESTIONS.length - 1) send();
     else goTo(state.qi + 1);
   }
 
-  function dismiss(){ state.open = false; render(); }
-  function reopen(){ state.open = true; render(); }
-
-  function optionRow(qi, i, label){
+  function optionRow(qi, i, option){
     var type = QUESTIONS[qi].type;
     var picked = state.answers[qi] || [];
     var on = picked.indexOf(i) > -1;
@@ -339,12 +435,21 @@ function mountToolApproval(root){
       if (on){ var ic = document.createElement('i'); ic.className = 'ph ph-check'; glyph.appendChild(ic); }
     }
     row.appendChild(glyph);
+    // .text > .label/.desc is Checkbox/Radio's own real anatomy
+    // (see the Checkbox comp-block's own demo markup) — reused
+    // verbatim rather than inventing a new description slot.
     var text = document.createElement('span');
     text.className = 'text';
     var lbl = document.createElement('span');
     lbl.className = 'label';
-    lbl.textContent = label;
+    lbl.textContent = option.label;
     text.appendChild(lbl);
+    if (option.desc){
+      var desc = document.createElement('span');
+      desc.className = 'desc';
+      desc.textContent = option.desc;
+      text.appendChild(desc);
+    }
     row.appendChild(text);
     return row;
   }
@@ -359,6 +464,7 @@ function mountToolApproval(root){
       reopenBtn.innerHTML = '<i class="ph ph-arrow-square-in"></i> Open approval';
       reopenBtn.addEventListener('click', reopen);
       root.appendChild(reopenBtn);
+      if (onModeChange) onModeChange(false);
       return;
     }
 
@@ -390,6 +496,7 @@ function mountToolApproval(root){
       sentWrap.querySelector('.start-over').addEventListener('click', reset);
       card.appendChild(sentWrap);
       root.appendChild(card);
+      if (onModeChange) onModeChange(false);
       return;
     }
 
@@ -408,15 +515,41 @@ function mountToolApproval(root){
     qEl.className = 'c-tool-approval-question';
     qEl.textContent = question.q;
     head.appendChild(qEl);
-    head.appendChild(makeDismissBtn());
+
+    // Pagination + dismiss, grouped in the top-right corner.
+    var topbar = document.createElement('div');
+    topbar.className = 'c-tool-approval-topbar';
+    var prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className = 'c-btn c-btn-ghost c-btn-icon c-btn-sm';
+    prevBtn.setAttribute('aria-label', 'Previous question');
+    prevBtn.innerHTML = '<i class="ph ph-caret-left"></i>';
+    prevBtn.disabled = qi <= 0;
+    prevBtn.addEventListener('click', function(){ goTo(qi - 1); });
+    topbar.appendChild(prevBtn);
+    var indicator = document.createElement('span');
+    indicator.className = 'c-pagination-indicator';
+    indicator.textContent = (qi + 1) + ' / ' + QUESTIONS.length;
+    topbar.appendChild(indicator);
+    var nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'c-btn c-btn-ghost c-btn-icon c-btn-sm';
+    nextBtn.setAttribute('aria-label', 'Next question');
+    nextBtn.innerHTML = '<i class="ph ph-caret-right"></i>';
+    nextBtn.disabled = qi >= QUESTIONS.length - 1;
+    nextBtn.addEventListener('click', function(){ goTo(qi + 1); });
+    topbar.appendChild(nextBtn);
+    topbar.appendChild(makeDismissBtn());
+    head.appendChild(topbar);
+
     body.appendChild(head);
 
     var optsEl = document.createElement('div');
     optsEl.className = 'c-tool-approval-options';
     optsEl.setAttribute('role', question.type === 'radio' ? 'radiogroup' : 'group');
     optsEl.setAttribute('aria-label', question.q);
-    question.options.forEach(function(label, i){
-      optsEl.appendChild(optionRow(qi, i, label));
+    question.options.forEach(function(option, i){
+      optsEl.appendChild(optionRow(qi, i, option));
     });
     body.appendChild(optsEl);
 
@@ -469,30 +602,6 @@ function mountToolApproval(root){
     var footer = document.createElement('div');
     footer.className = 'c-tool-approval-footer';
 
-    var nav = document.createElement('div');
-    nav.className = 'c-tool-approval-nav';
-    var prevBtn = document.createElement('button');
-    prevBtn.type = 'button';
-    prevBtn.className = 'c-btn c-btn-ghost c-btn-icon c-btn-sm';
-    prevBtn.setAttribute('aria-label', 'Previous question');
-    prevBtn.innerHTML = '<i class="ph ph-caret-left"></i>';
-    prevBtn.disabled = qi <= 0;
-    prevBtn.addEventListener('click', function(){ goTo(qi - 1); });
-    nav.appendChild(prevBtn);
-    var indicator = document.createElement('span');
-    indicator.className = 'c-pagination-indicator';
-    indicator.textContent = (qi + 1) + ' / ' + QUESTIONS.length;
-    nav.appendChild(indicator);
-    var nextBtn = document.createElement('button');
-    nextBtn.type = 'button';
-    nextBtn.className = 'c-btn c-btn-ghost c-btn-icon c-btn-sm';
-    nextBtn.setAttribute('aria-label', 'Next question');
-    nextBtn.innerHTML = '<i class="ph ph-caret-right"></i>';
-    nextBtn.disabled = qi >= QUESTIONS.length - 1;
-    nextBtn.addEventListener('click', function(){ goTo(qi + 1); });
-    nav.appendChild(nextBtn);
-    footer.appendChild(nav);
-
     var actions = document.createElement('div');
     actions.className = 'c-tool-approval-actions';
     var skipBtn = document.createElement('button');
@@ -535,6 +644,8 @@ function mountToolApproval(root){
     } else {
       viewport.style.height = h + 'px';
     }
+
+    if (onModeChange) onModeChange(true);
   }
 
   // Updates only the disabled state of Continue when the custom field
@@ -548,16 +659,44 @@ function mountToolApproval(root){
 }
 
 mountToolApproval(document.getElementById('taRoot'));
-mountToolApproval(document.getElementById('taRootChat'));
+mountToolApproval(document.getElementById('taRootLong'), null, LONG_QUESTIONS);
 
-// A real thread auto-scrolls to the newest message (the same reason
-// Chat window has a "Jump to present" button for when you scroll away
-// from that resting position) — so the Tool approval card that just
-// "arrived" is in view by default, not hidden below the fold.
-requestAnimationFrame(function(){
-  var thread = document.querySelector('.c-chat-thread');
-  if (thread) thread.scrollTop = thread.scrollHeight;
-});
+// Tool approval mode — everything here reacts to the chat-embedded
+// instance's own open/sent state (mountToolApproval's onModeChange
+// callback, called after every render): while a question is actually
+// pending, the composer's Send becomes Stop (this message can be
+// interrupted the same way a streaming one can) with a placeholder
+// that's honest about the composer still accepting free-text replies,
+// and the thread shows Thinking's real "Asking a question…" state
+// instead of looking idle. All of it reverts the moment the reader
+// answers everything, skips to the end, or dismisses the card.
+var thinkingEl = document.getElementById('taThinking');
+var composerSend = document.getElementById('taComposerSend');
+var composerSendIcon = composerSend.querySelector('i');
+var composerInput = document.getElementById('taComposerInput');
+
+function setApprovalMode(active){
+  thinkingEl.hidden = !active;
+  if (active){
+    composerSendIcon.className = 'ph ph-stop';
+    composerSend.setAttribute('aria-label', 'Stop');
+    composerInput.placeholder = 'Or reply directly…';
+  } else {
+    composerSendIcon.className = 'ph ph-arrow-up';
+    composerSend.setAttribute('aria-label', 'Send');
+    composerInput.placeholder = 'Reply to Collabrium…';
+  }
+  // A real thread auto-scrolls to the newest message (the same reason
+  // Chat window has a "Jump to present" button for when you scroll
+  // away from that resting position) — so whatever just changed here
+  // is in view by default, not hidden below the fold.
+  requestAnimationFrame(function(){
+    var thread = document.querySelector('.c-chat-thread');
+    if (thread) thread.scrollTop = thread.scrollHeight;
+  });
+}
+
+mountToolApproval(document.getElementById('taRootChat'), setApprovalMode);
 </script>
 </body>
 </html>
