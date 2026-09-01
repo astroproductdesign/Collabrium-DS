@@ -2508,7 +2508,13 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
    to the card's first line. */
 .c-tool-approval-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
 .c-tool-approval-topbar{display:flex; align-items:center; gap:2px; flex:none;}
-.c-tool-approval-topbar .c-pagination-indicator{padding:0 var(--spacing-4);}
+/* Pagination's own step indicator is display:none by default — it's
+   Pagination's mobile fallback, only shown under its own 767px
+   breakpoint where the numbered button cluster gets hidden. Tool
+   approval has no numbered cluster to fall back from; it's compact-
+   only, always, so the indicator needs forcing visible here regardless
+   of viewport width. */
+.c-tool-approval-topbar .c-pagination-indicator{display:inline-flex; padding:0 var(--spacing-4);}
 .c-tool-approval-dismiss{flex:none; margin-left:var(--spacing-4); color:var(--color-neutral-5);}
 .c-tool-approval-dismiss:hover{color:var(--color-neutral-9);}
 .c-tool-approval-question{flex:1; min-width:0; margin:0; font-family:var(--font-secondary); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
