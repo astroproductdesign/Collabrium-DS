@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.77</title>
+<title>Collabrium design system | v0.9.78</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -364,7 +364,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.77</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.78</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -372,7 +372,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.77</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.78</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -1098,9 +1098,8 @@
             </div>
 
             <div class="swatch-group-label">Streaming Text</div>
-            <p style="margin:0 0 var(--spacing-16);font-size:14px;color:var(--color-neutral-5)">Loops automatically here for the gallery's own visibility — per Rule 22, a real instance never does this: it streams exactly once per message and never restarts, even scrolled out of view and back. Everything below is real: words append one at a time (never a full re-render), the citation lands mid-sentence as a real token (Rule 14), and the action row/Follow-ups are genuinely unrendered — not dimmed — until the last word settles (Rule 15/16). Click Stop mid-stream to see Rule 17: the partial text stays, gets marked, and its action row unlocks on what exists.</p>
             <div style="display:flex; align-items:flex-start; gap:var(--spacing-16); flex-wrap:wrap;">
-              <div class="c-streaming" id="streamingGalleryDemo">
+              <div class="c-streaming" id="streamingGalleryDemo" style="min-height:260px;">
                 <p class="c-streaming-text" id="streamingGalleryText" aria-busy="true"></p>
                 <span class="sr-only" role="status" aria-live="polite" id="streamingGalleryAnnounce"></span>
 
@@ -1148,11 +1147,13 @@
                   <div id="streamingGalleryFollowupsList"></div>
                 </div>
               </div>
-              <button type="button" class="c-btn c-btn-ghost c-btn-sm" id="streamingGalleryStop"><i class="ph ph-stop"></i> Stop</button>
+              <div style="display:flex; flex-direction:column; gap:var(--spacing-8);">
+                <button type="button" class="c-btn c-btn-secondary c-btn-sm" id="streamingGalleryReplay" hidden><i class="ph ph-arrow-clockwise"></i> <span>Start</span></button>
+                <button type="button" class="c-btn c-btn-ghost c-btn-sm" id="streamingGalleryStop"><i class="ph ph-stop"></i> Stop</button>
+              </div>
             </div>
 
             <div class="swatch-group-label">Thinking</div>
-            <p style="margin:0 0 var(--spacing-16);font-size:14px;color:var(--color-neutral-5)">Four variants, one shared shell &mdash; tabs swap which one is showing instead of stacking all four inline. Everything below is real, not static: each panel auto-expands once its first steps arrive, reveals rows in two waves, flips its header from &ldquo;Thinking&rdquo; to a past-tense duration on settle (Rule 7), then auto-collapses (Rule 6) &mdash; click a header at any point to override that manually. Replay restarts whichever variant is showing. Per Rule 17, it never appears without a Stop &mdash; shown here beside the tabs.</p>
 
             <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-16); flex-wrap:wrap; margin-bottom:var(--spacing-16);">
               <div class="c-tabs-scroll-wrap" style="flex:1 1 260px;">
@@ -3476,7 +3477,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.77** — 2026-09-01 — Sourced from the Collabrium brand deck
+**v0.9.78** — 2026-09-01 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -9156,6 +9157,36 @@ rather than maintaining two token sources by hand:
   `tokens.css` unchanged: every value this component needed already
   existed.
 
+- **v0.9.78 — 2026-09-01** — `preview.html` only, no component change.
+  **Streaming Text**'s gallery entry no longer auto-loops after it
+  settles: it still plays once automatically on load (unchanged), but
+  from then on only Start/Replay runs it again — matching Rule 22
+  ("no loop, no replay, no re-stream") more closely than the previous
+  auto-restart-after-a-hold did. A new Start/Replay button sits beside
+  the existing Stop, swapping labels ("Start" → "Replay") and
+  visibility with it: Stop shows while streaming, Replay shows once
+  settled or stopped, never both at once. Separately, the demo's own
+  container now carries a `min-height` (260px, measured directly off
+  its real settled state — text, action row, and Follow-ups, sources
+  closed — not a guess) so the surrounding `#comp-ainative` block and
+  the Thinking section below it no longer shift up and down as the
+  text grows in and the actions/Follow-ups appear; verified via a
+  headless render that a fixed page landmark's position never moves
+  across the full idle → streaming → settled cycle. This is a
+  gallery-only reservation, per Rule 8 — the base `.c-streaming` class
+  in `components.css` still carries no default height, since which
+  amount to reserve is a hosting decision this component doesn't make
+  for every future host. `components.css`/`tokens.css`: unchanged.
+- **v0.9.77 — 2026-09-01** — `preview.html` only, no component change.
+  Removed the page-local caption paragraphs sitting under the
+  **Streaming Text** and **Thinking** swatch-group-labels — the ones
+  explaining what the demo does and pointing at specific rule numbers.
+  Both components' own galleries are otherwise unchanged: same
+  markup, same live behavior, same Stop/Replay controls. The full rule
+  contracts these captions were paraphrasing remain in this document's
+  own **Streaming Text — Rules** and **Thinking — Rules** sections;
+  nothing about that documentation moved or was cut. `components.css`/
+  `tokens.css`: unchanged.
 - **v0.9.76 — 2026-08-28** — Added **Streaming Text**, [AI Native](#ai-native)'s
   fifth subcomponent, alphabetically between Stepper and Switch in the
   flat list this component is otherwise pulled from: the model's own
@@ -14509,20 +14540,19 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
 </script>
 <script>
 (function(){
-  // Streaming Text demo (comp-ainative) — loops automatically for this
-  // gallery's own visibility only; Rule 22 means a real instance never
-  // does. Everything else is genuinely live: words append one at a time
-  // (never a full re-render — see Rule 8/the citation chip's own
-  // entrance, which would otherwise replay on every subsequent word),
-  // the action row/Follow-ups are toggled with the `hidden` attribute
-  // per Rule 15 (not opacity, which would leave them focusable while
-  // invisible), and Stop genuinely interrupts the sequence (Rule 17) —
-  // it isn't the decorative placeholder Loading State/Thinking's own
-  // Stop buttons are, since there's a real client-side sequence here to
-  // actually halt.
+  // Streaming Text demo (comp-ainative) — plays once automatically on
+  // load, then only ever runs again when Start/Replay is clicked; per
+  // Rule 22 a real instance never loops on its own, and this gallery
+  // demo doesn't either. Everything else is genuinely live: words
+  // append one at a time (never a full re-render — see Rule 8/the
+  // citation chip's own entrance, which would otherwise replay on every
+  // subsequent word), the action row/Follow-ups are toggled with the
+  // `hidden` attribute per Rule 15 (not opacity, which would leave them
+  // focusable while invisible), and Stop genuinely interrupts the
+  // sequence (Rule 17) — it isn't the decorative placeholder Loading
+  // State/Thinking's own Stop buttons are, since there's a real
+  // client-side sequence here to actually halt.
   var WORD_MS = 55;
-  var HOLD_MS = 3400;
-  var INTERRUPT_HOLD_MS = 1800;
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var SENTENCE_A = "Northwind Retail's renewal risk is high — the Q3 proposal has stalled for three weeks, and the contract lapses before December.".split(' ');
@@ -14545,6 +14575,7 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
   var followupsList = document.getElementById('streamingGalleryFollowupsList');
   var sourcesTrigger = document.getElementById('streamingGallerySourcesTrigger');
   var stopBtn = document.getElementById('streamingGalleryStop');
+  var replayBtn = document.getElementById('streamingGalleryReplay');
 
   var timer = null;
   var count = 0;
@@ -14598,13 +14629,17 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
   }
 
   // Rule 19 — aria-busy during, a single polite announcement on
-  // settle, no aria-live anywhere on the mutating text itself.
+  // settle, no aria-live anywhere on the mutating text itself. Rule 22
+  // — settling here never schedules another run; Start/Replay is the
+  // only way this plays again.
   function settle(viaInterrupt){
     textEl.setAttribute('aria-busy', 'false');
     noteEl.hidden = !viaInterrupt;
     actionsEl.hidden = false;
     followupsEl.hidden = true;
     stopBtn.hidden = true;
+    replayBtn.hidden = false;
+    replayBtn.querySelector('span').textContent = 'Replay';
     if (viaInterrupt){
       announceEl.textContent = 'Response stopped.';
     } else {
@@ -14621,7 +14656,6 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
     renderText();
     if (done){
       settle(false);
-      timer = setTimeout(restart, HOLD_MS);
       return;
     }
     count++;
@@ -14643,6 +14677,7 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
     root.classList.remove('is-sources-open');
     sourcesTrigger.setAttribute('aria-expanded', 'false');
     stopBtn.hidden = false;
+    replayBtn.hidden = true;
     tick();
   }
 
@@ -14652,8 +14687,9 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
     clearTimeout(timer);
     renderText();
     settle(true);
-    timer = setTimeout(restart, INTERRUPT_HOLD_MS);
   });
+
+  replayBtn.addEventListener('click', restart);
 
   sourcesTrigger.addEventListener('click', function(){
     var open = root.classList.toggle('is-sources-open');

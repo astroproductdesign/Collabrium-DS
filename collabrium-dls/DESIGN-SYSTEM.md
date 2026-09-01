@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.77** — 2026-09-01 — Sourced from the Collabrium brand deck
+**v0.9.78** — 2026-09-01 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -5680,6 +5680,36 @@ rather than maintaining two token sources by hand:
   `tokens.css` unchanged: every value this component needed already
   existed.
 
+- **v0.9.78 — 2026-09-01** — `preview.html` only, no component change.
+  **Streaming Text**'s gallery entry no longer auto-loops after it
+  settles: it still plays once automatically on load (unchanged), but
+  from then on only Start/Replay runs it again — matching Rule 22
+  ("no loop, no replay, no re-stream") more closely than the previous
+  auto-restart-after-a-hold did. A new Start/Replay button sits beside
+  the existing Stop, swapping labels ("Start" → "Replay") and
+  visibility with it: Stop shows while streaming, Replay shows once
+  settled or stopped, never both at once. Separately, the demo's own
+  container now carries a `min-height` (260px, measured directly off
+  its real settled state — text, action row, and Follow-ups, sources
+  closed — not a guess) so the surrounding `#comp-ainative` block and
+  the Thinking section below it no longer shift up and down as the
+  text grows in and the actions/Follow-ups appear; verified via a
+  headless render that a fixed page landmark's position never moves
+  across the full idle → streaming → settled cycle. This is a
+  gallery-only reservation, per Rule 8 — the base `.c-streaming` class
+  in `components.css` still carries no default height, since which
+  amount to reserve is a hosting decision this component doesn't make
+  for every future host. `components.css`/`tokens.css`: unchanged.
+- **v0.9.77 — 2026-09-01** — `preview.html` only, no component change.
+  Removed the page-local caption paragraphs sitting under the
+  **Streaming Text** and **Thinking** swatch-group-labels — the ones
+  explaining what the demo does and pointing at specific rule numbers.
+  Both components' own galleries are otherwise unchanged: same
+  markup, same live behavior, same Stop/Replay controls. The full rule
+  contracts these captions were paraphrasing remain in this document's
+  own **Streaming Text — Rules** and **Thinking — Rules** sections;
+  nothing about that documentation moved or was cut. `components.css`/
+  `tokens.css`: unchanged.
 - **v0.9.76 — 2026-08-28** — Added **Streaming Text**, [AI Native](#ai-native)'s
   fifth subcomponent, alphabetically between Stepper and Switch in the
   flat list this component is otherwise pulled from: the model's own
