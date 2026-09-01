@@ -776,18 +776,19 @@ sizes, states, Do/Don't), the same process every component above went
 through.
 
 **One exception to the flat alphabetical list, and it's deliberate:
-[AI Native](#ai-native)'s five subcomponents.** Everything else below is
+[AI Native](#ai-native)'s six subcomponents.** Everything else below is
 one flat A→Z list with no grouping, and [AI Native](#ai-native) itself
 is a real, counted component like any other — it sits first because
 that's already its correct alphabetical position (AI sorts ahead of
 App). The actual exception is its children: **Chat window**,
-**Loading State**, **Prompt input bar**, **Streaming Text**, and
-**Thinking** are pulled out of their own alphabetical slots (Chat
-window would otherwise fall between Chart color mapping and Checkbox;
-Loading State between Input field and Modal / dialog; Prompt input bar
-between Progress Bar and Radio; Streaming Text between Stepper and
-Switch; Thinking between Textarea and Toast) and grouped under their
-parent instead, staying alphabetical among themselves. Don't add a
+**Loading State**, **Prompt input bar**, **Streaming Text**,
+**Thinking**, and **Tool approval** are pulled out of their own
+alphabetical slots (Chat window would otherwise fall between Chart
+color mapping and Checkbox; Loading State between Input field and
+Modal / dialog; Prompt input bar between Progress Bar and Radio;
+Streaming Text between Stepper and Switch; Thinking between Textarea
+and Toast; Tool approval between Toast and Tooltip) and grouped under
+their parent instead, staying alphabetical among themselves. Don't add a
 second parent/child grouping on this precedent without a deliberate
 spec change — one exception documented is a rule; two or three
 undocumented ones is just an inconsistent list.
@@ -831,10 +832,10 @@ undocumented ones is just an inconsistent list.
 
 ### AI Native
 
-One component with five subcomponents, listed alphabetically below —
+One component with six subcomponents, listed alphabetically below —
 **Chat window**, **Loading State**, **Prompt input bar**, **Streaming
-Text**, and **Thinking** — the same "one component, several named
-variants documented in one place" convention [Card](#card) already
+Text**, **Thinking**, and **Tool approval** — the same "one component,
+several named variants documented in one place" convention [Card](#card) already
 uses for General/Functional/Profile/Hero Card, rather than a separate
 nav entry and comp-block per variant. What unifies them: an AI Native
 component *is* the AI interaction, not a generic control pressed into
@@ -1428,6 +1429,72 @@ completed row reorder, vanish, or lose its mark; auto-close it while
 the reader has it manually pinned open; stack a second instance in the
 same view; hand it back to Loading State once it's shown, even if steps
 stop arriving mid-run.
+
+**Tool approval.** ⚠️ **Designed from scratch** — no source in either
+the original brand deck or the teammate's build.
+
+A one-question-at-a-time card the AI surfaces mid-task when it needs
+the person to make one or more decisions before the task can proceed —
+a provided set of options (single- or multi-select) plus an
+always-available free-text answer, paginated rather than listed all at
+once, collapsing into a compact sent confirmation once every question's
+been answered or skipped through. It reuses Radio/Checkbox's own
+glyphs and text anatomy, the literal Input field/Textarea pair,
+Pagination's compact step indicator, and Badge's success pill
+throughout rather than inventing new controls for any of it. Class
+prefix: `.c-tool-approval*`.
+
+**Tool approval — Anatomy (head, `.c-tool-approval-head`).**
+
+| Part | Spec |
+|---|---|
+| Root (`.c-tool-approval`) | Card shell reused verbatim (`.c-card`), `max-width: 360px`, `overflow: hidden` for the height-morph below |
+| Head (`.c-tool-approval-head`) | Flex row, `align-items: flex-start` — not `center` — so a question wrapping to two or three lines doesn't drag the top-right cluster down with it; it stays pinned to the first line |
+| Question (`.c-tool-approval-question`) | Secondary font, heading-3 size/line-height/weight, Neutral-9 |
+| Topbar (`.c-tool-approval-topbar`) | Prev/Next — Ghost icon-buttons — flanking Pagination's own compact step indicator (`n / total`), plus dismiss, grouped top-right on the question's own row |
+| Dismiss (`.c-tool-approval-dismiss`) | Ghost icon-button, `ph-x`, closes the card without requiring an answer (Rule 9) |
+
+**Tool approval — Anatomy (body & footer).**
+
+| Part | Spec |
+|---|---|
+| Viewport (`.c-tool-approval-viewport`) | Height animates on `duration-morph`/`ease-morph` to fit whichever question is active — a pose change, the same pairing [Prompt input bar](#ai-native)'s own expand/collapse morph uses |
+| Options (`.c-tool-approval-option`) | Real Radio (`.c-radio-circle`/`.dot`) or Checkbox (`.c-checkbox-box`) glyph plus Checkbox's own label/desc text anatomy, reused verbatim. No gap between rows — each row's own `spacing-8` padding is the only rhythm, the same contiguous-menu convention Dropdown's own option list uses |
+| Custom answer (`.c-tool-approval-custom`) | The real Input field default (`.c-field` > label + input) at rest; morphs into the real Textarea (`.c-field` > label + textarea) the instant it's focused, so a longer free-text answer has room to grow. Both are the literal Input field/Textarea markup, not a bespoke field |
+| Footer (`.c-tool-approval-footer`) | Skip (Ghost) + Continue/Send (Primary), right-aligned |
+| Sent state (`.c-tool-approval-sent`) | Real Badge success pill (`.c-badge-success`) plus a plain text "Start over" link, replacing the whole card body once every question's been answered or skipped through |
+
+**Tool approval — Rules.** Fifteen rules, not stylistic preference —
+each one closes off a specific way a mid-task question card has been
+seen to fail.
+
+- **Rule 1 — Scope: a decision point, not a form.** Appears only when the AI needs one or more decisions from the person before it can carry out the requested task. Each question is a discrete point the task is genuinely blocked on — never a general-purpose way to collect input.
+- **Rule 2 — One question visible at a time.** Every other question is reached only through pagination (Prev/Next + the step indicator); they're never rendered together.
+- **Rule 3 — Radio auto-advances, checkbox waits for Continue.** Selecting a single-select option advances to the next question automatically once the choice has had a moment to register. A multi-select question never auto-advances, since more than one selection may still be coming.
+- **Rule 4 — Every question carries a free-text escape hatch.** "Something else…" sits alongside the provided options on every question: an Input field that morphs into a Textarea the instant it's focused, since a written answer may run longer than any option would.
+- **Rule 5 — Provided options and free text are mutually exclusive.** Picking an option clears any typed answer for that question; typing an answer clears any picked option. A question has exactly one answer, never both at once.
+- **Rule 6 — Continue/Send is gated on the active question having an answer.** It stays disabled until one exists. The last question's button reads "Send" rather than "Continue" — it's the one action that submits everything gathered so far, not just that question.
+- **Rule 7 — Skip always moves forward without requiring an answer**, and sends on the last question exactly like Continue would.
+- **Rule 8 — Prev/Next move freely, answered or not.** Reviewing or changing an earlier answer is never blocked by the current question's own state.
+- **Rule 9 — The card is always dismissible.** The × closes it without finishing. This is a clarifying prompt, not an access gate, and its dismiss control is never disabled or hidden to force completion.
+- **Rule 10 — Dismissing never discards progress.** Reopening returns to the exact question left on, with every answer still in place.
+- **Rule 11 — Height morphs between questions; it never snaps.** A question wrapping to three lines, or a custom field morphing from Input to Textarea, both grow the card continuously rather than jump-cutting it.
+- **Rule 12 — Once sent, the questions are gone.** The card collapses to a compact confirmation — a success badge plus "Start over" — never a disabled or read-only copy of the same form.
+- **Rule 13 — Start over is a full reset, not an edit.** It returns to question one with every answer cleared, since the point is a fresh pass, not amending what already went out.
+- **Rule 14 — Never stacked.** One pending Tool approval at a time; a second one waits for the first to be answered, skipped, or dismissed.
+- **Rule 15 — Reduced motion drops the travel, keeps the sequence.** The height-morph and the row-entrance fades go; the same questions, in the same order, still get asked.
+
+**Do:** disable Continue/Send until the active question actually has an
+answer; let Prev/Next move freely regardless of answer state; clear
+the opposing input the moment either a provided option or a typed
+answer is chosen; morph the card's height and the custom field's own
+element change smoothly rather than snapping; collapse to the sent
+confirmation the moment everything's been submitted. **Don't:** force
+an answer by removing or disabling the dismiss control; let a question
+end up with both a picked option and typed text at once; block
+navigation to a question just because it isn't answered yet; leave the
+sent state showing the original questions underneath its badge; stack
+a second instance while one is already pending.
 
 ### App Shell
 
@@ -5573,6 +5640,45 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.77 — 2026-09-01** — Added **Tool approval**, [AI Native](#ai-native)'s
+  sixth subcomponent, alphabetically between Toast and Tooltip in the
+  flat list this component is otherwise pulled from: a one-question-
+  at-a-time card the AI surfaces mid-task when it needs the person to
+  make one or more decisions before the task can proceed — single- or
+  multi-select options plus an always-available free-text answer,
+  paginated rather than listed together, collapsing into a compact
+  sent confirmation once every question's been answered or skipped
+  through. Fifteen new rules supplied directly for this commit — scope
+  (a decision point mid-task, never a general-purpose form), one
+  question visible at a time, radio auto-advancing while checkbox
+  waits for Continue since more than one selection may still be
+  coming, a free-text escape hatch on every question that's mutually
+  exclusive with any picked option, Continue/Send gated on the active
+  question actually having an answer, Skip and Prev/Next both moving
+  regardless of answer state, an always-reachable dismiss (this is a
+  clarifying prompt, not an access gate — never built to force
+  completion), progress surviving a dismiss/reopen cycle, a
+  height-morph between questions rather than a snap, a genuine reset
+  on Start over rather than an edit, never stacking a second instance,
+  and a reduced-motion pass that drops the travel but keeps the
+  sequence. `components.css` gets the new `.c-tool-approval*` CSS —
+  reusing Radio/Checkbox's own glyphs and Checkbox's label/desc text
+  anatomy verbatim for each option row, Pagination's compact step
+  indicator for the topbar, the literal Input field/Textarea markup
+  for the custom-answer field, Badge's success pill for the sent
+  state, and Thinking's own fade-in/row-entrance keyframes for the
+  question, options, and custom field's own arrival — no new motion
+  primitives. `preview.html`'s gallery entry sits last among AI
+  Native's subcomponents (alphabetical, per this component's own
+  slot), right after Thinking, standing alone with a deliberately
+  long, wrapping question so the topbar staying pinned to the first
+  line (`align-items: flex-start`, not `center`) is visible without
+  reading the CSS. Net component count unchanged — subcomponents of AI
+  Native aren't separately counted, same as Chat window/Loading
+  State/Prompt input bar/Thinking/Streaming Text before it.
+  `tokens.css` unchanged: every value this component needed already
+  existed.
 
 - **v0.9.78 — 2026-09-01** — `preview.html` only, no component change.
   **Streaming Text**'s gallery entry no longer auto-loops after it

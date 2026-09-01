@@ -2483,3 +2483,88 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
   .c-streaming-followup{animation:none;}
   .c-streaming-actions, .c-streaming-followups{animation:none;}
 }
+
+/* =========================================================
+   Tool approval — AI Native's sixth subcomponent, a one-question-at-
+   a-time card for the decisions only the person can make before the
+   AI's current task can proceed. See DESIGN-SYSTEM.md's own "Tool
+   approval" section for the full 15-rule contract this markup alone
+   can't express (radio auto-advance vs. checkbox's explicit Continue,
+   options and free text being mutually exclusive, dismiss never being
+   disabled to force completion, progress surviving a dismiss/reopen
+   cycle) — this file only owns the shell, the option row, the custom-
+   answer field, and the sent state.
+   Class prefix: .c-tool-approval*. Reuses Card (.c-card), Radio
+   (.c-radio-circle/.dot), Checkbox (.c-checkbox-box + its label/desc
+   text anatomy), Pagination's compact step indicator, the Input
+   field/Textarea pair, and Badge's success pill verbatim throughout —
+   no new controls invented for any of it. */
+.c-tool-approval{position:relative; width:100%; max-width:360px; overflow:hidden; animation:c-thinking-fade-in var(--duration-reveal) var(--ease-reveal) both;}
+
+/* Head — question on the left; pagination (Prev/Next + step count)
+   and dismiss (×) grouped together in the top-right corner, same row.
+   align-items:flex-start (not center) so a wrapped 2-3 line question
+   doesn't drag the top-right cluster down with it — it stays pinned
+   to the card's first line. */
+.c-tool-approval-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
+.c-tool-approval-topbar{display:flex; align-items:center; gap:2px; flex:none;}
+.c-tool-approval-topbar .c-pagination-indicator{padding:0 var(--spacing-4);}
+.c-tool-approval-dismiss{flex:none; margin-left:var(--spacing-4); color:var(--color-neutral-5);}
+.c-tool-approval-dismiss:hover{color:var(--color-neutral-9);}
+.c-tool-approval-question{flex:1; min-width:0; margin:0; font-family:var(--font-secondary); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+
+/* Viewport — height animates to fit whichever question is active
+   (pose change: duration-morph/ease-morph, the same pairing Prompt
+   input bar's own expand/collapse morph uses). Content crossfades in
+   place (c-thinking-row-in, already used for Thinking's own trace
+   rows) while the viewport height morphs around it. */
+.c-tool-approval-viewport{overflow:hidden; transition:height var(--duration-morph) var(--ease-morph);}
+.c-tool-approval-body{padding-bottom:2px;}
+.c-tool-approval-options{display:flex; flex-direction:column; animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+
+/* Option row — real Radio (.c-radio-circle/.dot) or Checkbox
+   (.c-checkbox-box) glyphs and .c-choice text styles, verbatim. Hover
+   fill reuses Dropdown option's own hover token (Neutral-2). No gap
+   between rows — each row's own spacing-8 padding (16px row-to-row) is
+   the only rhythm, same contiguous-menu convention as Dropdown's own
+   option list. */
+.c-tool-approval-option{border-radius:var(--radius-sm); padding:var(--spacing-8); margin:0 calc(var(--spacing-8) * -1); transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-tool-approval-option:hover{background:var(--color-neutral-2);}
+
+/* Custom answer — the real Input field default (.c-field > label +
+   input) at rest; on focus it morphs into the real Textarea (.c-field
+   > label + textarea), same components/markup as the Input
+   field/Textarea comp-blocks, just at 100% width instead of .c-field's
+   own 220px demo default. The height change is carried by
+   .c-tool-approval-viewport's own height-morph transition. */
+.c-tool-approval-custom{margin-top:var(--spacing-8);}
+.c-tool-approval-custom .c-field{width:100%;}
+/* .c-field input/textarea are content-box by default (Input field's
+   own focus rule depends on that — border grows 1px->2px while padding
+   drops 12px->11px to compensate, so the outer box stays put at a
+   fixed px width). Stretched to a percentage width here, that same
+   padding/border would stack on top of the 100% and overflow past the
+   card's own overflow:hidden — border-box fixes it so width:100% means
+   the real outer edge, without changing how the focus state renders. */
+.c-tool-approval-custom .c-field input,
+.c-tool-approval-custom .c-field textarea{box-sizing:border-box;}
+.c-tool-approval-custom textarea{animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+
+/* Footer — Skip (Ghost) + Continue/Send (Primary), right-aligned. */
+.c-tool-approval-footer{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-12); margin-top:var(--spacing-16);}
+.c-tool-approval-actions{display:flex; align-items:center; gap:var(--spacing-8);}
+
+/* Sent state — real Badge success pill (.c-badge-success) verbatim
+   plus a plain text "Start over" link, replacing the whole card body
+   once every question's been answered or skipped through. */
+.c-tool-approval-sent{display:flex; align-items:center; gap:var(--spacing-12); animation:c-thinking-fade-in var(--duration-reveal) var(--ease-reveal) both;}
+.c-tool-approval-sent .c-badge-success{display:inline-flex; align-items:center; gap:6px;}
+.c-tool-approval-sent .start-over{background:none; border:none; padding:0; font-family:inherit; font-size:var(--text-caption-size); font-weight:500; color:var(--color-neutral-5); cursor:pointer; transition:color var(--duration-fast) var(--ease-standard);}
+.c-tool-approval-sent .start-over:hover{color:var(--color-neutral-9);}
+
+/* Rule 15 — reduced motion drops the height-morph and row-entrance
+   animations; the same questions, in the same order, still get asked. */
+@media (prefers-reduced-motion:reduce){
+  .c-tool-approval,.c-tool-approval-sent,.c-tool-approval-question,.c-tool-approval-options,.c-tool-approval-custom textarea{animation:none;}
+  .c-tool-approval-viewport{transition:none;}
+}
