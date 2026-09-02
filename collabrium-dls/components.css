@@ -2488,25 +2488,29 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
    Tool approval — AI Native's sixth subcomponent, a one-question-at-
    a-time card for the decisions only the person can make before the
    AI's current task can proceed. See DESIGN-SYSTEM.md's own "Tool
-   approval" section for the full 15-rule contract this markup alone
+   approval" section for the full 19-rule contract this markup alone
    can't express (radio auto-advance vs. checkbox's explicit Continue,
    options and free text being mutually exclusive, dismiss never being
-   disabled to force completion, progress surviving a dismiss/reopen
-   cycle) — this file only owns the shell, the option row, the custom-
-   answer field, and the sent state.
+   disabled to force completion, dismiss/Send/Stop all closing the
+   instance the same way, for good) — this file only owns the shell,
+   the option row, and the custom-answer field.
    Class prefix: .c-tool-approval*. Reuses Card (.c-card), Radio
    (.c-radio-circle/.dot), Checkbox (.c-checkbox-box + its label/desc
-   text anatomy), Pagination's compact step indicator, the Input
-   field/Textarea pair, and Badge's success pill verbatim throughout —
-   no new controls invented for any of it. */
+   text anatomy), Pagination's compact step indicator, and the Input
+   field/Textarea pair verbatim throughout — no new controls invented
+   for any of it. */
 .c-tool-approval{position:relative; width:100%; max-width:360px; overflow:hidden; animation:c-thinking-fade-in var(--duration-reveal) var(--ease-reveal) both;}
 
 /* Head — question on the left; pagination (Prev/Next + step count)
    and dismiss (×) grouped together in the top-right corner, same row.
-   align-items:flex-start (not center) so a wrapped 2-3 line question
-   doesn't drag the top-right cluster down with it — it stays pinned
-   to the card's first line. */
-.c-tool-approval-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
+   align-items:center (not flex-start) — at heading-5 the question is
+   single-line far more often than not, and top-aligning made the
+   topbar read as floating above the question's own vertical center
+   rather than sitting with it. A question that still wraps to 2-3
+   lines centers the topbar against the full wrapped block instead of
+   pinning it to the first line, a deliberate trade accepted for the
+   common single-line case. */
+.c-tool-approval-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); margin-bottom:var(--spacing-8);}
 .c-tool-approval-topbar{display:flex; align-items:center; gap:2px; flex:none;}
 /* Pagination's own step indicator is display:none by default — it's
    Pagination's mobile fallback, only shown under its own 767px
@@ -2517,7 +2521,13 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
 .c-tool-approval-topbar .c-pagination-indicator{display:inline-flex; padding:0 var(--spacing-4);}
 .c-tool-approval-dismiss{flex:none; margin-left:var(--spacing-4); color:var(--color-neutral-5);}
 .c-tool-approval-dismiss:hover{color:var(--color-neutral-9);}
-.c-tool-approval-question{flex:1; min-width:0; margin:0; font-family:var(--font-primary); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+/* .c-tool-approval prefixed on this selector isn't decorative — Card's
+   own default p reset (.c-card p, specificity 0,1,1) otherwise beats a
+   bare .c-tool-approval-question (0,1,0) on font-size and color alike,
+   silently downgrading the question to body2 gray. Verified via actual
+   computed styles, not assumed: this was already wrong pre-v0.9.81/82,
+   at heading-3/Secondary too, not something today's changes caused. */
+.c-tool-approval .c-tool-approval-question{flex:1; min-width:0; margin:0; font-family:var(--font-primary); font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
 
 /* Viewport — height animates to fit whichever question is active
    (pose change: duration-morph/ease-morph, the same pairing Prompt
@@ -2556,17 +2566,17 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
 .c-tool-approval-custom .c-field textarea{box-sizing:border-box;}
 .c-tool-approval-custom textarea{animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
 
-/* Footer — Skip (Ghost) + Continue/Send (Primary), right-aligned. */
-.c-tool-approval-footer{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-12); margin-top:var(--spacing-16);}
+/* Footer — Skip (Ghost) + Continue/Send (Primary), right-aligned.
+   margin-top:0, not spacing-16 — Card's own layout (.c-card, display:
+   flex; flex-direction:column; gap:spacing-8) already places spacing-8
+   between its two direct children (.c-tool-approval-viewport and this
+   footer); a margin here would stack on top of that gap rather than
+   replace it. Measures ~10px net (8px gap + .c-tool-approval-body's
+   own 2px padding-bottom, kept for focus-ring clearance under the
+   viewport's overflow:hidden), not an exact 8 — close enough to read
+   as the same rhythm as the head-to-options gap below. */
+.c-tool-approval-footer{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-12); margin-top:0;}
 .c-tool-approval-actions{display:flex; align-items:center; gap:var(--spacing-8);}
-
-/* Sent state — real Badge success pill (.c-badge-success) verbatim
-   plus a plain text "Start over" link, replacing the whole card body
-   once every question's been answered or skipped through. */
-.c-tool-approval-sent{display:flex; align-items:center; gap:var(--spacing-12); animation:c-thinking-fade-in var(--duration-reveal) var(--ease-reveal) both;}
-.c-tool-approval-sent .c-badge-success{display:inline-flex; align-items:center; gap:6px;}
-.c-tool-approval-sent .start-over{background:none; border:none; padding:0; font-family:inherit; font-size:var(--text-caption-size); font-weight:500; color:var(--color-neutral-5); cursor:pointer; transition:color var(--duration-fast) var(--ease-standard);}
-.c-tool-approval-sent .start-over:hover{color:var(--color-neutral-9);}
 
 /* Rules 16/17 — Tool approval is an extension of the Prompt input bar,
    not the thread: it's pinned just above the composer and does not
@@ -2595,12 +2605,32 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
    content (icon class + attribute + input value), not a new visual
    style — the existing Send button and Input field markup already
    carry everything that needs, so no new class here. */
-.c-tool-approval-slot{position:absolute; left:0; right:0; bottom:0; z-index:2; padding:0 var(--spacing-24) var(--spacing-16); pointer-events:none;}
-.c-tool-approval-slot > .c-tool-approval{max-width:760px; margin:0 auto; width:100%; pointer-events:auto;}
+.c-tool-approval-slot{position:absolute; left:0; right:0; top:0; bottom:0; z-index:2; padding:var(--spacing-16) var(--spacing-24) var(--spacing-16); display:flex; align-items:flex-end; pointer-events:none;}
+.c-tool-approval-slot > .c-tool-approval{max-width:760px; margin:0 auto; width:100%; height:auto; max-height:100%; overflow-y:auto; pointer-events:auto;}
+
+/* Rule 19 — the slot also owns the card's own height contract: pinned
+   to both top and bottom of .c-chat-thread-wrap (not just bottom), so
+   its own height is exactly the space between the chat header and the
+   composer — never more. display:flex + align-items:flex-end bottom-
+   anchors the card within that span, the same corner the card already
+   occupied. The card itself gets three more declarations for this:
+   height:auto overrides Card's own base height:100% (.c-card, needed
+   there for other Card variants that fill a grid cell), letting the
+   card size to its actual content instead of always stretching to
+   fill the slot — that stretch was invisible until the slot gained a
+   definite height above, at which point 100% started resolving to a
+   real pixel value rather than computing as auto against an indefinite
+   containing block. max-height:100% + overflow-y:auto is the actual
+   clamp for the rare case content genuinely needs more room than the
+   available space (a long custom answer, expanded to a Textarea, in a
+   short chat window) — the card scrolls internally rather than
+   pushing past the header. overflow-x stays hidden throughout, from
+   the base .c-tool-approval rule above; only overflow-y is overridden
+   here. */
 
 /* Rule 15 — reduced motion drops the height-morph and row-entrance
    animations; the same questions, in the same order, still get asked. */
 @media (prefers-reduced-motion:reduce){
-  .c-tool-approval,.c-tool-approval-sent,.c-tool-approval-question,.c-tool-approval-options,.c-tool-approval-custom textarea{animation:none;}
+  .c-tool-approval,.c-tool-approval-question,.c-tool-approval-options,.c-tool-approval-custom textarea{animation:none;}
   .c-tool-approval-viewport{transition:none;}
 }

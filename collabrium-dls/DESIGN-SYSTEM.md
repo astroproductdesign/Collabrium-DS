@@ -1449,8 +1449,8 @@ prefix: `.c-tool-approval*`.
 | Part | Spec |
 |---|---|
 | Root (`.c-tool-approval`) | Card shell reused verbatim (`.c-card`), `max-width: 360px`, `overflow: hidden` for the height-morph below |
-| Head (`.c-tool-approval-head`) | Flex row, `align-items: flex-start` — not `center` — so a question wrapping to two or three lines doesn't drag the top-right cluster down with it; it stays pinned to the first line |
-| Question (`.c-tool-approval-question`) | Secondary font, heading-3 size/line-height/weight, Neutral-9 |
+| Head (`.c-tool-approval-head`) | Flex row, `align-items: center` — not `flex-start` — so the pagination/dismiss cluster sits with the question's own vertical center rather than pinned above it, matching how often the question is a single line at its current size; a question that wraps to two or three lines centers the cluster against the full wrapped block instead |
+| Question (`.c-tool-approval-question`) | Primary font, heading-5 size/line-height/weight, Neutral-9 |
 | Topbar (`.c-tool-approval-topbar`) | Prev/Next — Ghost icon-buttons — flanking Pagination's own compact step indicator (`n / total`), plus dismiss, grouped top-right on the question's own row. That indicator is Pagination's mobile-only fallback (`display: none` above 767px); forced visible here at every width, since Tool approval never has the numbered cluster to fall back from |
 | Dismiss (`.c-tool-approval-dismiss`) | Ghost icon-button, `ph-x`, closes the card without requiring an answer (Rule 9) |
 
@@ -1462,9 +1462,8 @@ prefix: `.c-tool-approval*`.
 | Options (`.c-tool-approval-option`) | Real Radio (`.c-radio-circle`/`.dot`) or Checkbox (`.c-checkbox-box`) glyph plus Checkbox's own label/desc text anatomy, reused verbatim. No gap between rows — each row's own `spacing-8` padding is the only rhythm, the same contiguous-menu convention Dropdown's own option list uses |
 | Custom answer (`.c-tool-approval-custom`) | The real Input field default (`.c-field` > label + input) at rest; morphs into the real Textarea (`.c-field` > label + textarea) the instant it's focused, so a longer free-text answer has room to grow. Both are the literal Input field/Textarea markup, not a bespoke field |
 | Footer (`.c-tool-approval-footer`) | Skip (Ghost) + Continue/Send (Primary), right-aligned |
-| Sent state (`.c-tool-approval-sent`) | Real Badge success pill (`.c-badge-success`) plus a plain text "Start over" link, replacing the whole card body once every question's been answered or skipped through |
 
-**Tool approval — Rules.** Eighteen rules, not stylistic preference —
+**Tool approval — Rules.** Nineteen rules, not stylistic preference —
 each one closes off a specific way a mid-task question card has been
 seen to fail.
 
@@ -1477,34 +1476,39 @@ seen to fail.
 - **Rule 7 — Skip always moves forward without requiring an answer**, and sends on the last question exactly like Continue would.
 - **Rule 8 — Prev/Next move freely, answered or not.** Reviewing or changing an earlier answer is never blocked by the current question's own state.
 - **Rule 9 — The card is always dismissible.** The × closes it without finishing. This is a clarifying prompt, not an access gate, and its dismiss control is never disabled or hidden to force completion.
-- **Rule 10 — Dismissing never discards progress.** Reopening returns to the exact question left on, with every answer still in place.
+- **Rule 10 — Dismissing closes it for good.** The × ends the instance outright — not a hide, not a suspend. There is no reopen affordance and no preserved progress once dismissed; that's the same terminal outcome Send (Rule 12) and Stop (Rule 18) already reach by their own paths (Rule 13).
 - **Rule 11 — Height morphs between questions; it never snaps.** A question wrapping to three lines, or a custom field morphing from Input to Textarea, both grow the card continuously rather than jump-cutting it.
-- **Rule 12 — Once sent, the questions are gone.** The card collapses to a compact confirmation — a success badge plus "Start over" — never a disabled or read-only copy of the same form.
-- **Rule 13 — Start over is a full reset, not an edit.** It returns to question one with every answer cleared, since the point is a fresh pass, not amending what already went out.
+- **Rule 12 — Once sent, the card is gone.** No confirmation badge lingers and no disabled or read-only copy of the questions remains — sending closes the instance outright, the same way dismissing (Rule 10) and stopping (Rule 18) do (Rule 13).
+- **Rule 13 — Closing is final, however it happens; only a new decision reopens it.** Dismiss, Send, and Stop all reach the same terminal state: the card is gone, not hidden and not resumable, and nothing client-side brings a closed instance back. The only way to see Tool approval again is the AI raising a genuinely new decision point in a later turn — which mounts an entirely new instance, starting at question one with no memory of what was answered, skipped, or typed before.
 - **Rule 14 — Never stacked.** One pending Tool approval at a time; a second one waits for the first to be answered, skipped, or dismissed.
 - **Rule 15 — Reduced motion drops the travel, keeps the sequence.** The height-morph and the row-entrance fades go; the same questions, in the same order, still get asked.
 - **Rule 16 — An extension of the composer, not the thread: pinned above it, scrolled behind.** Tool approval does not scroll with the conversation and it is not laid into the composer's own footer either — it is its own separate floating card, fixed just above where the Prompt input bar begins, while the message thread keeps scrolling normally underneath/behind it. No scrim, no dimming, no blocking: the thread stays fully visible and interactive at all times, and whatever message happens to be scrolled to that position can sit partly behind the card — the same relationship any other fixed piece of chrome (a toolbar, a reply bar) has to the content it floats over.
 - **Rule 17 — Width matches the composer, exactly.** In any host with a Prompt input bar, Tool approval's width matches that composer's own column exactly — full width, not a content-sized cap. The card's own `max-width: 360px` (see Anatomy) is the standalone-context default only; a host composer overrides it.
-- **Rule 18 — The composer changes state while a decision is pending, and Stop means Stop.** For as long as an instance is open and unsent, its host composer's Send swaps to Stop (icon and label alike) and the placeholder becomes "Or reply directly" — the same Send/Stop convention Loading State's own Rule 9 already establishes for active generation, extended here to a second case: a pending decision. Clicking Stop does what Stop always means in this system — it interrupts the AI's underlying task, not merely the card. That makes it a stronger, more final action than the × dismiss already covered by Rule 9: dismissing only hides the card while the task keeps waiting behind it (Rule 10's progress survives a reopen); stopping ends the task itself, so there is nothing left to reopen. The icon and the placeholder both revert the instant the card is sent, dismissed, or the task is stopped. A host with no composer is exempt — same carve-out Loading State's Rule 9 already uses.
+- **Rule 18 — The composer changes state while a decision is pending, and Stop means Stop.** For as long as an instance is open and unsent, its host composer's Send swaps to Stop (icon and label alike) and the placeholder becomes "Or reply directly" — the same Send/Stop convention Loading State's own Rule 9 already establishes for active generation, extended here to a second case: a pending decision. Clicking Stop does what Stop always means in this system — it interrupts the AI's underlying task, not merely the card. That's a different action than the × dismiss (Rule 9/10): dismissing closes the card without touching the task behind it, which keeps running; stopping ends the task itself. Both close the card itself the same way, for good (Rule 13) — the distinction is what happens to the task, not what happens to the card. The icon and the placeholder both revert the instant the card is sent, dismissed, or the task is stopped. A host with no composer is exempt — same carve-out Loading State's Rule 9 already uses.
+- **Rule 19 — Sized to its content, bounded by the chat window.** The card is only ever as tall as the active question actually needs — it does not stretch to fill the available space between the header and the composer just because that space exists. If that content genuinely needs more room than the chat window has (a long custom answer expanded into a Textarea, in a short chat window), the card is capped at the available height and scrolls internally, rather than growing past the header or off the top of the window.
 
 **Do:** disable Continue/Send until the active question actually has an
 answer; let Prev/Next move freely regardless of answer state; clear
 the opposing input the moment either a provided option or a typed
 answer is chosen; morph the card's height and the custom field's own
-element change smoothly rather than snapping; collapse to the sent
-confirmation the moment everything's been submitted; keep it pinned
-above the composer while letting the thread scroll freely behind it;
-match the host composer's own width and swap its Send/placeholder the
-moment a decision is genuinely pending, reverting both the instant it
-resolves. **Don't:** force an answer by removing or disabling the
-dismiss control; let a question end up with both a picked option and
-typed text at once; block navigation to a question just because it
-isn't answered yet; leave the sent state showing the original
-questions underneath its badge; stack a second instance while one is
-already pending; add a scrim or dim/block the thread behind it, or
-lay it into the composer's own footer as if it were part of that
-background; leave the composer's Stop icon or "Or reply directly"
-placeholder stuck once the card has resolved.
+element change smoothly rather than snapping; close the card outright
+the instant it's sent, dismissed, or stopped, with nothing left
+behind; keep it pinned above the composer while letting the thread
+scroll freely behind it; match the host composer's own width and swap
+its Send/placeholder the moment a decision is genuinely pending,
+reverting both the instant it resolves; stay sized to the active
+question's actual content rather than stretching to fill the space
+above the composer. **Don't:** force an answer by removing or
+disabling the dismiss control; let a question end up with both a
+picked option and typed text at once; block navigation to a question
+just because it isn't answered yet; leave any badge, confirmation, or
+reopen affordance behind once the card has closed — however it
+closed; stack a second instance while one is already pending; add a
+scrim or dim/block the thread behind it, or lay it into the composer's
+own footer as if it were part of that background; leave the
+composer's Stop icon or "Or reply directly" placeholder stuck once the
+card has resolved; let it grow past the chat header or off the top of
+the window — clamp and scroll internally instead.
 
 ### App Shell
 
@@ -5650,6 +5654,197 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.88 — 2026-09-02** — Behavior change for **Tool approval**,
+  [AI Native](#ai-native): closing is now uniform and final across all
+  three ways an instance ends. Previously, dismissing (×) hid the card
+  behind a reopen affordance ("Open approval") that restored every
+  answer exactly as left, and sending collapsed the card to a compact
+  confirmation (a success badge plus "Start over") that could restart
+  the same instance from question one. Both of those client-side ways
+  back in are removed. Now, dismiss, Send, and Stop (Rule 18, already
+  final) all reach the identical terminal state: the card simply
+  closes — nothing rendered in its place, no badge, no button, no
+  preserved progress. The only way to see Tool approval again is the
+  AI raising a genuinely new decision point in a later turn, which
+  mounts an entirely new instance starting cold at question one.
+  Rules 10, 12, and 13 are rewritten to describe this — Rule 10
+  (dismiss) and Rule 12 (send) each state their own side of it, and
+  Rule 13 (previously "Start over is a full reset," now moot — there
+  is no more Start over) is repurposed as the rule that ties all three
+  paths to the same outcome. Rule 18's own text is corrected too: it
+  previously contrasted Stop with dismiss by claiming dismiss "only
+  hides the card" while "Rule 10's progress survives a reopen" — no
+  longer true now that dismiss also closes for good, so the
+  distinction Rule 18 draws is narrowed to what it's actually about:
+  Stop interrupts the underlying task, dismiss doesn't, but both close
+  the card itself the same way. `components.css`: the entire
+  `.c-tool-approval-sent*` rule set is removed (the success-badge/
+  Start-over markup it styled no longer exists) — `.c-tool-approval-
+  sent` is also dropped from the reduced-motion selector list, since
+  the class itself is gone. `DESIGN-SYSTEM.md`/`preview.html`: the
+  Anatomy table's "Sent state" row is removed for the same reason;
+  Rules 10/12/13/18 and the Do/Don't paragraph updated as above.
+  `preview.html`'s own interactive gallery demo (`toolApprovalDemo`)
+  is rewritten to match: `state.open`/`state.sent` collapse into a
+  single `state.closed` flag; `dismiss()` and `send()` both just set
+  it and re-render; `reopen()` and `reset()` are deleted along with
+  the "Open approval" button and the sent-confirmation markup they
+  drove; `render()` returns nothing at all once closed, the same
+  pattern the (now-formalized) Stop path already used. `tokens.css`
+  unchanged.
+
+- **v0.9.87 — 2026-09-02** — New rule for **Tool approval**, [AI
+  Native](#ai-native): Rule 19, "Sized to its content, bounded by the
+  chat window." Two related fixes, found and shipped together while
+  verifying the card actually hugs its content in a real 375px mobile
+  iframe. First, `.c-tool-approval-slot` (real components.css, v0.9.79)
+  only ever anchored to the bottom of `.c-chat-thread-wrap`
+  (`bottom: 0`, no `top`) — tall content could in principle grow the
+  card upward past the chat header or off the top of the window
+  entirely. Fixed by also pinning `top: 0`, so the slot spans exactly
+  the space between the header and the composer; `display: flex` +
+  `align-items: flex-end` keeps the card bottom-anchored within that
+  span, same as before. Second, and only visible once the slot above
+  had a definite height to resolve against: Card's own base rule
+  (`.c-card`) sets `height: 100%` unconditionally, needed by other Card
+  variants that fill a grid cell. Harmless while the slot's own height
+  was indefinite (a percentage height against an indefinite containing
+  block computes as `auto`), it stopped being harmless the moment the
+  `top: 0` fix above gave the slot a real pixel height — `height: 100%`
+  then actually resolved, silently stretching the card to fill the
+  entire available space on every render regardless of how little
+  content it held. Short content just left dead space below the
+  footer instead of the card shrinking to fit; opening the custom
+  answer field grew into that already-reserved space rather than
+  genuinely changing size. Fixed with `height: auto` on
+  `.c-tool-approval-slot > .c-tool-approval`, scoped to the slotted
+  instance only — the standalone gallery card isn't hosted inside a
+  height-constrained flex container, so it never had this problem.
+  `max-height: 100%` + `overflow-y: auto` on the same selector is the
+  actual clamp, kept from the `top: 0` fix: if content genuinely needs
+  more room than the available space (a long custom answer, expanded
+  to a Textarea, in a short chat window), the card scrolls internally
+  rather than pushing past the header — `overflow-x` stays `hidden`
+  throughout, from the base `.c-tool-approval` rule. Verified in both
+  directions: short content now visibly shrinks to fit (a card that
+  previously always touched the top of the available space no longer
+  does), and an artificially cramped chat window with the custom
+  Textarea open still stays fully within header/composer bounds and
+  scrolls internally instead of overflowing, with zero console errors.
+  While making this pass, also caught and fixed a real, considerably
+  older sync gap in `preview.html`'s own embedded copy of this
+  section: Rules 16–18 (added to this file in v0.9.79) and their
+  corresponding **Do**/**Don't** clauses had never been ported over —
+  `preview.html`'s copy still read "Fifteen rules" and stopped at Rule
+  15, three commits stale. Caught by direct comparison across both
+  files, not assumed in sync. Fixed alongside adding Rule 19, so
+  `preview.html` now carries all nineteen. `tokens.css` unchanged.
+
+- **v0.9.86 — 2026-09-02** — **Tool approval**'s head row
+  (`.c-tool-approval-head`, [AI Native](#ai-native)) switches from
+  `align-items: flex-start` to `center`, and two of the card's own
+  vertical gaps tighten from `spacing-16` to `spacing-8`. Alignment:
+  at the question's new heading-5 size (v0.9.85), it's single-line far
+  more often than not, and top-aligning the pagination/dismiss cluster
+  against just the first line started reading as the cluster floating
+  above the question's own vertical center rather than sitting with
+  it; centering the two fixes that. A question that still wraps to two
+  or three lines now centers the cluster against the full wrapped
+  block instead of pinning it to the first line — a deliberate trade
+  for the common single-line case, not an oversight. Spacing:
+  head-to-options (`.c-tool-approval-head`'s own `margin-bottom`) moves
+  from `spacing-16` to `spacing-8` directly, a plain block-flow margin
+  since `.c-tool-approval-body` isn't a flex container. Custom-field-
+  to-footer took a different path to the same value: `.c-card` itself
+  is `display: flex; flex-direction: column` with its own
+  `gap: spacing-8` between its two direct children
+  (`.c-tool-approval-viewport` and `.c-tool-approval-footer`) — the
+  footer's own `margin-top: spacing-16` was stacking on top of that
+  gap rather than replacing it, measuring 18px net, not 16. Setting
+  `margin-top: 0` lets Card's own gap alone provide the spacing,
+  measuring ~10px net (8px gap + `.c-tool-approval-body`'s own
+  existing 2px `padding-bottom`, kept unchanged — it exists for focus-
+  ring clearance under the viewport's `overflow: hidden`) — close
+  enough to read as the same rhythm as the head-to-options gap above
+  it. `components.css`: `.c-tool-approval-head`'s `align-items` and
+  `margin-bottom`, `.c-tool-approval-footer`'s `margin-top`.
+  `DESIGN-SYSTEM.md`/`preview.html`: the Anatomy table's Head row now
+  describes the centered alignment and its reasoning; spacing values
+  aren't independently documented there, so no further table change.
+  `tokens.css` unchanged — both values already existed as
+  `--spacing-8`.
+
+- **v0.9.85 — 2026-09-02** — **Tool approval**'s question steps down
+  once more, from heading-4 to heading-5 size/line-height/weight,
+  matching [Permission Prompt](#ai-native)'s own label size exactly
+  (still only a draft, not yet formalized into this file — the
+  reference point this change was measured against, same as v0.9.84).
+  `components.css`: `font-size`/`line-height`/`font-weight` now read
+  the `h5` token trio in place of `h4`; `DESIGN-SYSTEM.md`/
+  `preview.html`: the Anatomy table's Question row now reads
+  "heading-5." `tokens.css` unchanged, `--text-h5-*` already existed.
+  The `.c-tool-approval .c-tool-approval-question` specificity fix from
+  v0.9.82 is untouched — still needed regardless of which heading size
+  the question uses.
+
+- **v0.9.84 — 2026-09-02** — **Tool approval**'s question steps down
+  once more, from heading-3 to heading-4 size/line-height/weight —
+  matching [Permission Prompt](#ai-native)'s own label size exactly
+  (its "Send email on your behalf?" heading, still only a draft, not
+  yet formalized into this file), the reference point this change was
+  measured against. `components.css`: `font-size`/`line-height`/
+  `font-weight` now read the `h4` token trio in place of `h3`;
+  `DESIGN-SYSTEM.md`/`preview.html`: the Anatomy table's Question row
+  now reads "heading-4." `tokens.css` unchanged, `--text-h4-*` already
+  existed. The `.c-tool-approval .c-tool-approval-question` specificity
+  fix from v0.9.82 is untouched — still needed regardless of which
+  heading size the question uses.
+
+- **v0.9.83 — 2026-09-02** — **Tool approval**'s question steps back
+  down to heading-3 size/line-height/weight, reverting v0.9.82's
+  heading-2 change. `components.css`: `font-size`/`line-height`/
+  `font-weight` back to the `h3` token trio; `DESIGN-SYSTEM.md`/
+  `preview.html`: the Anatomy table's Question row back to
+  "heading-3." v0.9.82's other change is kept, not reverted: the
+  selector stays scoped to `.c-tool-approval .c-tool-approval-question`
+  rather than the original bare class, since that was a genuine
+  specificity fix (Card's own `.c-card p` reset otherwise silently wins
+  on font-size/color) unrelated to which heading size is chosen.
+  `tokens.css` unchanged.
+
+- **v0.9.82 — 2026-09-02** — **Tool approval**'s question
+  (`.c-tool-approval-question`, [AI Native](#ai-native)) steps up from
+  heading-3 to heading-2 size/line-height/weight. `components.css`:
+  `font-size`/`line-height`/`font-weight` now read `var(--text-h2-
+  size)`/`var(--text-h2-lh)`/`var(--text-h2-weight)` in place of the
+  `h3` equivalents; `tokens.css` unchanged, `--text-h2-*` already
+  existed. `DESIGN-SYSTEM.md`/`preview.html`: the Question row in Tool
+  approval's own Anatomy table now reads "heading-2" in place of
+  "heading-3." While making this pass, also caught and fixed a real
+  regression from v0.9.81: a subsequent merge (`main` into
+  `mothership-components`) had silently reverted that same Anatomy row
+  in `DESIGN-SYSTEM.md` back to "Secondary font," even though
+  `components.css` and `preview.html`'s own copy of the row both
+  correctly still said Primary — a modify/modify hunk on adjacent
+  table rows that resolved in `main`'s favor for this line specifically.
+  Corrected to Primary font here, alongside the heading-2 change.
+  Also caught, and fixed, a second and considerably older bug while
+  verifying this one with actual computed styles rather than trusting
+  the source: `.c-tool-approval-question`'s own `font-size`/`color`
+  were never actually rendering as specified, at heading-3/Secondary
+  either, since it was first shipped. Root cause: Card's own default
+  paragraph reset, `.c-card p{font-size: var(--text-body2-size); color:
+  var(--color-neutral-5);}`, carries specificity `(0,1,1)` — one class
+  plus one element — while the bare `.c-tool-approval-question`
+  selector was only `(0,1,0)`, so Card's own gray body2 styling was
+  silently winning on those two properties (line-height and font-weight
+  were unaffected, since `.c-card p` doesn't set either). Fixed by
+  scoping the selector to `.c-tool-approval .c-tool-approval-question`
+  (`0,2,0`), which now reliably wins. No anatomy or behavior change —
+  the question was always meant to be its own prominent heading text,
+  never Card's own default paragraph gray; this just makes the CSS
+  actually deliver what Anatomy already documented.
 
 - **v0.9.81 — 2026-09-02** — **Tool approval**'s question
   (`.c-tool-approval-question`, [AI Native](#ai-native)) switches from
