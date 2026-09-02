@@ -2634,3 +2634,118 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
   .c-tool-approval,.c-tool-approval-question,.c-tool-approval-options,.c-tool-approval-custom textarea{animation:none;}
   .c-tool-approval-viewport{transition:none;}
 }
+
+/* =========================================================
+   Permission Prompt — AI Native's seventh subcomponent, a human-in-
+   the-loop card the AI surfaces inline, in its own turn, to ask
+   authorization for a specific, consequential action before it
+   proceeds. See DESIGN-SYSTEM.md's own "Permission Prompt" section
+   for the full 11-rule contract this markup alone can't express
+   (scope, structured-never-raw detail, deny-first escalating
+   commitment, a resolution staying visible as a permanent audit
+   trail — unlike Tool approval's own Rule 13 — and Expired being a
+   session boundary no control reaches directly).
+   Class prefix: .c-permission-prompt*. Reuses Card (.c-card), Badge's
+   status variants (.c-badge-success/-warning/-error/-neutral),
+   Button (.c-btn-ghost/-secondary/-primary), and Thinking's own
+   0fr->1fr grid-rows + opacity expand/collapse technique for the
+   detail block verbatim — no new controls invented for any of it.
+   Two real gaps in the system, not compromises invented for this
+   component specifically: no .c-btn-danger exists, so Deny reuses
+   Table's own established recipe (Ghost + a scoped --color-red
+   override, see .c-permission-prompt-deny below) rather than a new
+   Button variant; no dedicated muted/expired Badge tone exists beyond
+   .c-badge-neutral, so the Expired state uses that. */
+.c-permission-prompt{position:relative; width:100%; max-width:360px; animation:c-thinking-fade-in var(--duration-reveal) var(--ease-reveal) both;}
+
+/* Head — icon, label, risk badge, one row, vertically centered. The
+   risk badge stays pinned to this same top-right corner whether
+   pending or resolved (Rule 5) — .c-permission-prompt-resolved below
+   repeats the same shape rather than inventing a different layout for
+   that state. */
+.c-permission-prompt-head{display:flex; align-items:center; gap:var(--spacing-12); margin-bottom:var(--spacing-12);}
+.c-permission-prompt-icon{flex:none; font-size:var(--icon-md); line-height:1; color:var(--color-neutral-7);}
+/* .c-permission-prompt prefixed on this selector for the same reason
+   Tool approval's own .c-tool-approval-question rule needs it: Card's
+   default p reset (.c-card p, specificity 0,1,1) otherwise beats a
+   bare .c-permission-prompt-label (0,1,0) on font-size and color. */
+.c-permission-prompt .c-permission-prompt-label{flex:1; min-width:0; margin:0; font-family:var(--font-primary); font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+.c-permission-prompt-head .c-badge{flex:none;}
+
+/* Toggle + detail — Thinking's own trace mechanism, verbatim (0fr ->
+   1fr grid-rows + opacity, duration-base/ease-settle). Detail rows are
+   always structured key:value, never raw JSON (Rule 4) — values never
+   truncate or ellipsis, since the point is showing exactly what's
+   being authorized; a long value wraps instead. */
+.c-permission-prompt-toggle{display:inline-flex; align-items:center; gap:4px; margin:0 0 var(--spacing-8); padding:0; border:none; background:transparent; font-family:inherit; font-size:var(--text-caption-size); font-weight:600; color:var(--color-neutral-5); cursor:pointer; transition:color var(--duration-fast) var(--ease-standard);}
+.c-permission-prompt-toggle:hover{color:var(--color-neutral-9);}
+.c-permission-prompt-toggle i{font-size:var(--icon-micro); transition:transform var(--duration-fast) var(--ease-standard);}
+.c-permission-prompt-toggle[aria-expanded="true"] i{transform:rotate(180deg);}
+
+.c-permission-prompt-detail{display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows var(--duration-base) var(--ease-settle), opacity var(--duration-base) var(--ease-settle);}
+.c-permission-prompt-detail.is-expanded{grid-template-rows:1fr; opacity:1;}
+.c-permission-prompt-detail-inner{overflow:hidden;}
+
+.c-permission-prompt-detail-list{display:flex; flex-direction:column; padding:var(--spacing-8) var(--spacing-12); margin-bottom:var(--spacing-8); background:var(--color-neutral-2); border-radius:var(--radius-sm);}
+.c-permission-prompt-detail-row{display:flex; gap:var(--spacing-8); padding:var(--spacing-4) 0; font-size:var(--text-caption-size); line-height:1.5;}
+.c-permission-prompt-detail-row .key{flex:none; width:60px; color:var(--color-neutral-5); font-weight:600;}
+.c-permission-prompt-detail-row .value{flex:1; min-width:0; color:var(--color-neutral-9); word-break:break-word;}
+
+.c-permission-prompt-scope{margin:0 0 var(--spacing-12); font-size:var(--text-caption-size); color:var(--color-neutral-5); line-height:1.5;}
+
+/* Actions — three real Button instances, natural width, right-aligned
+   (never stretched or centered — that's not how Button renders
+   anywhere else in this system), escalating commitment left to right:
+   Deny (Ghost/transparent), Allow once (Secondary/outlined), Allow
+   for session (Primary/solid) — deny-first (Rule 6), same ordering
+   Claude Code's own prompts use. Wraps onto a second line rather than
+   compressing or stretching if the row ever runs out of width. */
+.c-permission-prompt-actions{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8); flex-wrap:wrap;}
+.c-permission-prompt-deny{color:var(--color-red);} /* Table's own bulk-danger recipe: Ghost + a color override, not a Danger button — that variant doesn't exist in this system yet */
+
+/* Resolved — collapses to a compact, still-visible row (Rule 7: it's
+   a permanent audit trail, it never just disappears). Detail stays
+   reachable behind the same toggle, default collapsed now the
+   decision is made. Same "label left, badge pinned top-right" shape
+   the pending head uses (Rule 5) — toggle drops to its own row below,
+   same as pending's, rather than fighting the badge for the right
+   edge of one row. */
+.c-permission-prompt.is-resolved{max-width:360px;}
+.c-permission-prompt-resolved{display:flex; align-items:flex-start; gap:var(--spacing-8); flex-wrap:wrap; margin-bottom:var(--spacing-8); animation:c-thinking-fade-in var(--duration-reveal) var(--ease-reveal) both;}
+.c-permission-prompt-resolved-label{flex:1 1 160px; min-width:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
+.c-permission-prompt-resolved .c-badge{flex:none; margin-top:2px;}
+.c-permission-prompt-resolved-note{margin:0; font-size:var(--text-caption-size); color:var(--color-neutral-5); line-height:1.5;}
+
+/* Rule 9 — inside Chat window, the card fills the conversation column
+   instead of capping at 360px, same rule the AI bubble text itself
+   already follows (.c-chat-msg.is-ai .c-chat-bubble is max-width:
+   100%) — the card reads as part of that turn's own width, not a
+   smaller object dropped into it. Scoped to .c-chat-msg.is-ai so a
+   standalone card elsewhere stays at its own 360px default. */
+.c-chat-msg.is-ai .c-permission-prompt{max-width:none; width:100%;}
+
+/* Rule 10 — mobile restacks the actions by priority, not just by
+   width. Pagination's own 767px breakpoint, reused rather than a new
+   one invented for this component. Card goes full-width; the actions
+   become one full-width button per row, Primary (Allow for session)
+   on top, Secondary (Allow once) beneath it, Deny last — the reverse
+   of desktop's deny-first left-to-right order. DOM/tab order is left
+   exactly as desktop's (still Deny -> Once -> Session): only the
+   visual stacking flips, via `order` on each button, not a markup
+   change, so a keyboard user tabs through the same sequence either
+   way. Desktop is untouched — three Button instances at natural
+   width, one row. */
+@media (max-width:767px){
+  .c-permission-prompt,.c-permission-prompt.is-resolved{max-width:none; width:100%;}
+  .c-permission-prompt-actions{display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .c-permission-prompt-session{order:1; width:100%; justify-content:center;}
+  .c-permission-prompt-once{order:2; width:100%; justify-content:center;}
+  .c-permission-prompt-deny{order:3; width:100%; justify-content:center;}
+}
+
+/* Rule 11 — reduced motion drops the entrance fade and the detail's
+   expand/rotate transitions; the same information stays, same layout. */
+@media (prefers-reduced-motion:reduce){
+  .c-permission-prompt,.c-permission-prompt-resolved{animation:none;}
+  .c-permission-prompt-detail,.c-permission-prompt-toggle i{transition:none;}
+}
