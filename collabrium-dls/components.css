@@ -1914,7 +1914,7 @@
    positioning" — implemented as relative, not literal position:static,
    since the glow layers are absolutely positioned against this element
    and need a positioned ancestor to contain them. */
-.c-prompt-bar--inline{position:relative; left:auto; bottom:auto; width:100%; opacity:1; transition:none;}
+.c-prompt-bar--inline{position:relative; left:auto; right:auto; bottom:auto; width:100%; opacity:1; transition:none;}
 /* .c-prompt-bar.is-revealed (2 classes, components.css) carries its own
    -50%-centering transform for the Floating bar's absolute positioning
    — at equal specificity it was winning over the single-class rule
@@ -2561,6 +2561,36 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
 .c-tool-approval-sent .c-badge-success{display:inline-flex; align-items:center; gap:6px;}
 .c-tool-approval-sent .start-over{background:none; border:none; padding:0; font-family:inherit; font-size:var(--text-caption-size); font-weight:500; color:var(--color-neutral-5); cursor:pointer; transition:color var(--duration-fast) var(--ease-standard);}
 .c-tool-approval-sent .start-over:hover{color:var(--color-neutral-9);}
+
+/* Rules 16/17 — Tool approval is an extension of the Prompt input bar,
+   not the thread: it's pinned just above the composer and does not
+   scroll with the conversation, which continues to scroll normally
+   underneath/behind it — the same relationship a fixed reply bar or
+   toolbar has to the content below it. No scrim, no dimming, no
+   blocking: the thread stays fully interactive at all times, and
+   whatever message happens to be scrolled to that position can sit
+   partly behind the card, same as any other fixed chrome. It's still
+   its own separate floating card — Card's own recipe verbatim, no
+   shadow/border override — not fused with the Prompt input bar itself,
+   just a small gap above it (Rule 17's own width-match is expressed as
+   the identical literal 760px .c-chat-thread-inner/.c-chat-composer-
+   inner both already use, kept as a third instance of that same value
+   rather than a new shared variable, consistent with how .c-chat-foot
+   already repeats it too). .c-chat-thread-wrap is the real component's
+   own existing position:relative ancestor (see its own rule above)
+   that this positions against — no new positioning context needed.
+   A slot element, not a bare selector on .c-chat-thread-wrap itself,
+   so whatever mounts the card owns that slot's own innerHTML without
+   disturbing the thread/composer around it, and pointer-events:none on
+   the slot (re-enabled on the card itself) keeps the slot's own empty
+   padding from stealing clicks meant for the thread beneath it. Scoped
+   to Chat window's own real thread/composer structure, Tool approval's
+   only real host today. Rule 18's Send-becomes-Stop/placeholder swap is
+   content (icon class + attribute + input value), not a new visual
+   style — the existing Send button and Input field markup already
+   carry everything that needs, so no new class here. */
+.c-tool-approval-slot{position:absolute; left:0; right:0; bottom:0; z-index:2; padding:0 var(--spacing-24) var(--spacing-16); pointer-events:none;}
+.c-tool-approval-slot > .c-tool-approval{max-width:760px; margin:0 auto; width:100%; pointer-events:auto;}
 
 /* Rule 15 — reduced motion drops the height-morph and row-entrance
    animations; the same questions, in the same order, still get asked. */

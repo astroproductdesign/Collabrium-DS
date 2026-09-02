@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Draft — Tool approval in Chat window</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  body{margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; gap:var(--spacing-32); padding:var(--spacing-48) var(--spacing-16); background:var(--color-neutral-2); font-family:var(--font-primary); box-sizing:border-box;}
+  .draft-note{max-width:640px; text-align:center; font-size:var(--text-caption-size); color:var(--color-neutral-5); line-height:1.5;}
+  .draft-note b{color:var(--color-neutral-9);}
+  .draft-stage{display:flex; flex-direction:column; align-items:center; gap:var(--spacing-16); width:100%;}
+  .draft-label{font-size:var(--text-label3-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+
+  /* Chat window gallery override, verbatim from preview.html's own
+     pattern (also used in preview-permissionprompt-draft.html) — lets
+     the fixed-position/opacity-0 shell render in flow for review. */
+  .desktop-stage{width:100%; max-width:1040px;}
+  .chatwindow-frame{position:relative; width:100%; height:min(700px, 75vh);}
+  .chatwindow-frame .c-chat-shell{position:relative; inset:auto; margin:0; width:100%; height:100%; opacity:1;}
+  .chatwindow-frame .c-chat-rail, .chatwindow-frame .c-chat-main{opacity:1;}
+
+  /* Rules 16/17/18 (DESIGN-SYSTEM.md's own Tool approval — Rules,
+     v0.9.79) — now real components.css, not a draft-local invention:
+     .c-tool-approval-slot > .c-tool-approval already handles the
+     width-match/positioning (Rule 16/17) verbatim, no page-local CSS
+     needed for it here. Rule 18's Send-becomes-Stop/placeholder swap
+     is content (icon class + attribute + input value), so it's pure
+     JS state-sync below, no CSS of its own either. */
+</style>
+</head>
+<body>
+
+  <div class="draft-note">
+    <b>Draft — for review only.</b> Tool approval is already a real,
+    formalized AI Native component (<code>.c-tool-approval*</code> in
+    components.css, documented in DESIGN-SYSTEM.md) — including, as of
+    v0.9.79, Rules 16&ndash;18 covering exactly what this file
+    demonstrates: it's an extension of the composer, not the thread —
+    pinned just above where the Prompt input bar begins, it does not
+    scroll with the conversation, which keeps scrolling normally
+    underneath/behind it, no scrim, no dimming, nothing blocked (Rule
+    16), as its own separate floating card matching the composer's own
+    width exactly (Rule 17); and while a decision is pending, that
+    composer's Send becomes Stop and its placeholder becomes "Or reply
+    directly" (Rule 18). Stop here is stronger than the &times; dismiss:
+    dismissing keeps the card reopenable (Rule 10), Stop interrupts the
+    underlying task and the card is gone for good — nothing left to
+    reopen. Same interactive behavior as the real gallery demo
+    underneath all of it (radio auto-advance, the custom-answer field
+    morphing into a textarea on focus, Skip / Continue / Send).
+  </div>
+
+  <div class="draft-stage desktop-stage">
+    <div class="draft-label">Desktop — in Chat window</div>
+    <p style="margin:0; max-width:640px; text-align:center; font-size:var(--text-caption-size); color:var(--color-neutral-5); line-height:1.5;">An extension of the composer, not the thread — pinned just above the Prompt input bar, it does not scroll with the conversation. Try scrolling the thread: the card stays put while the messages move behind it, no scrim, nothing dimmed or blocked. Watch the composer too: Send becomes Stop and the placeholder switches to "Or reply directly" while the decision is pending. Real Chat window shell below, shown open, in flow (same page-local override preview.html's own gallery uses).</p>
+    <div class="chatwindow-frame">
+      <div class="c-chat-shell" id="taChatShellDesktop" role="region" aria-labelledby="taChatTitleDesktop">
+        <div class="c-chat-rail">
+          <button type="button" class="c-btn c-btn-secondary c-btn-md c-chat-new"><i class="ph ph-plus"></i> New chat</button>
+          <div class="c-chat-pillars" role="radiogroup" aria-label="Filter by pillar">
+            <span class="c-chat-flabel">Filter by pillar</span>
+            <div class="c-chip-group">
+              <button type="button" class="c-chip c-chip-filter is-active" role="radio" aria-checked="true" tabindex="0">All</button>
+              <button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1">CollabSales</button>
+              <button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1">CollabStudio</button>
+            </div>
+          </div>
+          <div class="c-chat-conversations" role="listbox" aria-label="Conversations">
+            <div class="c-chat-group">
+              <div class="c-chat-conversations-head">Today</div>
+              <button type="button" class="c-chat-conversation is-active" role="option" aria-selected="true">
+                <span class="c-chat-conversation-title">Northwind renewal follow-up</span>
+                <span class="c-chat-conversation-pillar">CollabSales</span>
+              </button>
+              <button type="button" class="c-chat-conversation" role="option" aria-selected="false">
+                <span class="c-chat-conversation-title">Q3 pipeline review</span>
+                <span class="c-chat-conversation-pillar">CollabSales</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="c-chat-rail-scrim"></div>
+
+        <div class="c-chat-main">
+          <div class="c-chat-hd">
+            <div>
+              <h2 id="taChatTitleDesktop">Northwind renewal follow-up</h2>
+              <p>Collabrium assistant &middot; reading this workspace</p>
+            </div>
+            <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm c-chat-rail-toggle" aria-label="Open conversations" aria-expanded="false"><i class="ph ph-sidebar-simple"></i></button>
+          </div>
+
+          <div class="c-chat-thread-wrap">
+            <div class="c-chat-thread">
+              <div class="c-chat-thread-inner">
+                <div class="c-chat-msg is-me">
+                  <div class="c-chat-bubble">What's the plan for the Q4 renewals gap?</div>
+                </div>
+                <div class="c-chat-msg is-ai">
+                  <div class="c-chat-bubble">
+                    <p>I've mapped out a couple of options &mdash; before I go further I need a couple of quick decisions from you.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="c-tool-approval-slot" id="taChatDemoDesktop"></div>
+          </div>
+
+          <div class="c-chat-composer">
+            <div class="c-chat-composer-inner">
+              <div class="c-prompt-bar c-prompt-bar--inline is-revealed" role="group" aria-label="Message composer">
+                <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
+                <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
+                <div class="c-prompt-bar-surface">
+                  <div class="c-prompt-bar-field">
+                    <input type="text" id="taComposerInputDesktop" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" />
+                  </div>
+                  <div class="c-prompt-bar-more">
+                    <div class="c-prompt-bar-toolbar">
+                      <div class="c-prompt-bar-group">
+                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>
+                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>
+                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>
+                      </div>
+                      <div class="c-prompt-bar-group">
+                        <button type="button" class="c-btn c-btn-ghost c-btn-sm"><span>Standard</span><i class="ph ph-caret-down"></i></button>
+                        <button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>
+                        <button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" id="taComposerSendDesktop" aria-label="Send"><i class="ph ph-arrow-up"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="c-chat-foot">AI can make mistakes. Please double-check responses.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="draft-stage">
+    <div class="draft-label">Mobile — in Chat window</div>
+    <p style="margin:0; max-width:480px; text-align:center; font-size:var(--text-caption-size); color:var(--color-neutral-5); line-height:1.5;">Same real Chat window shell, real 375px iframe — Chat window's own rail-collapse is a container query keyed to the shell's own width, not the viewport, so this is its actual mobile behavior (drawer + toggle), not a simulation. Tool approval is pinned just above the composer here too — doesn't scroll with the thread, full width, fully interactive. Try the sidebar icon top-right.</p>
+    <iframe id="taMobileChatFrame" title="Tool approval in Chat window — mobile viewport" style="width:375px; max-width:100%; height:820px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-2);"></iframe>
+  </div>
+
+<script>
+// Tool approval mount function — a near-verbatim port of preview.html's
+// own real toolApprovalDemo IIFE (comp-ainative), generalized to accept
+// any root element (idPrefix derived from root.id, so custom-answer
+// field ids/radio group names stay unique per mount) rather than the
+// hardcoded 'toolApprovalDemo' ids the gallery demo uses, since this
+// file mounts two independent instances (desktop root + the mobile
+// iframe's own document). Same QUESTIONS dataset as the real gallery
+// demo, kept as a function-local const (not a module-level var) so the
+// whole function serializes cleanly via .toString() for injection into
+// the mobile iframe's own document below.
+function mountToolApproval(root, composer){
+  if (!root) return;
+  var QUESTIONS = [
+    { q: "Should we pull the Q4 renewals forward, or hold to schedule?", type: "radio", options: [
+      { label: "Pull forward from Q4", desc: "Closes the gap faster, but front-loads next quarter's own risk" },
+      { label: "Hold to original schedule", desc: "No disruption to Q4 planning, gap stays open longer" },
+      { label: "Split — pull forward one", desc: "Partial coverage, keeps one renewal as a Q4 cushion" }
+    ] },
+    { q: "Who should own the outreach?", type: "radio", options: [
+      { label: "Account exec", desc: "Already has the relationship" },
+      { label: "Sales lead", desc: "Signals executive attention" }
+    ] }
+  ];
+
+  var idPrefix = root.id || 'toolApproval';
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fontsReady = false;
+  document.fonts.ready.then(function(){
+    if (fontsReady) return;
+    fontsReady = true;
+    state.firstMeasure = true;
+    render();
+  });
+
+  var state = { qi: 0, answers: {}, custom: {}, customOpen: {}, open: true, sent: false, stopped: false, firstMeasure: true };
+
+  // Composer state sync — Rule 18 (DESIGN-SYSTEM.md's Tool approval —
+  // Rules, v0.9.79). Only active while a decision is genuinely pending
+  // (open, not yet sent or stopped) — the instant it resolves, the
+  // composer reverts, since nothing is blocking it anymore.
+  var defaultPlaceholder = composer ? composer.input.placeholder : null;
+  function syncComposer(){
+    if (!composer) return;
+    var pending = state.open && !state.sent && !state.stopped;
+    composer.input.placeholder = pending ? 'Or reply directly' : defaultPlaceholder;
+    var icon = composer.sendBtn.querySelector('i');
+    icon.className = pending ? 'ph ph-stop' : 'ph ph-arrow-up';
+    composer.sendBtn.setAttribute('aria-label', pending ? 'Stop' : 'Send');
+  }
+
+  // Stop, wired below onto the composer's own Send button, is
+  // deliberately stronger than dismiss(): Rule 18 says it interrupts
+  // the underlying task, not just the card, so there is nothing left
+  // to reopen — render() below returns nothing at all once stopped,
+  // no "Open approval" affordance, unlike a plain dismiss.
+  function stopTask(){ state.stopped = true; state.open = false; render(); }
+  if (composer && composer.sendBtn){
+    composer.sendBtn.addEventListener('click', function(e){
+      var pending = state.open && !state.sent && !state.stopped;
+      if (pending){ e.preventDefault(); stopTask(); }
+    });
+  }
+
+  function hasAnswer(qi){
+    var picked = state.answers[qi] || [];
+    return picked.length > 0 || Boolean((state.custom[qi] || '').trim());
+  }
+
+  function reset(){
+    state.qi = 0; state.answers = {}; state.custom = {}; state.customOpen = {}; state.open = true; state.sent = false; state.stopped = false; state.firstMeasure = true;
+    render();
+  }
+
+  function dismiss(){ state.open = false; render(); }
+  function reopen(){ state.open = true; state.firstMeasure = true; render(); }
+
+  function toggle(qi, i){
+    var type = QUESTIONS[qi].type;
+    var picked = state.answers[qi] || [];
+    if (type === 'radio'){
+      state.answers[qi] = [i];
+      state.custom[qi] = '';
+      state.customOpen[qi] = false;
+    } else {
+      var idx = picked.indexOf(i);
+      state.answers[qi] = idx > -1 ? picked.filter(function(x){ return x !== i; }) : picked.concat([i]);
+    }
+    render();
+    if (type === 'radio'){
+      window.setTimeout(function(){
+        if (state.qi !== qi) return;
+        advance();
+      }, 480);
+    }
+  }
+
+  function goTo(next){
+    state.qi = Math.min(Math.max(next, 0), QUESTIONS.length - 1);
+    render();
+  }
+
+  function advance(){
+    if (state.qi === QUESTIONS.length - 1) send();
+    else goTo(state.qi + 1);
+  }
+
+  function send(){ state.sent = true; render(); }
+
+  function skip(){
+    if (state.qi === QUESTIONS.length - 1) send();
+    else goTo(state.qi + 1);
+  }
+
+  function optionRow(qi, i, option){
+    var type = QUESTIONS[qi].type;
+    var picked = state.answers[qi] || [];
+    var on = picked.indexOf(i) > -1;
+    var row = document.createElement('label');
+    row.className = 'c-choice c-tool-approval-option';
+    var input = document.createElement('input');
+    input.type = type === 'radio' ? 'radio' : 'checkbox';
+    if (type === 'radio') input.name = idPrefix + '-q' + qi;
+    input.checked = on;
+    input.addEventListener('change', function(){ toggle(qi, i); });
+    row.appendChild(input);
+    var glyph = document.createElement('span');
+    if (type === 'radio'){
+      glyph.className = 'c-radio-circle' + (on ? ' on' : '');
+      if (on){ var dot = document.createElement('span'); dot.className = 'dot'; glyph.appendChild(dot); }
+    } else {
+      glyph.className = 'c-checkbox-box' + (on ? ' on' : '');
+      if (on){ var ic = document.createElement('i'); ic.className = 'ph ph-check'; glyph.appendChild(ic); }
+    }
+    row.appendChild(glyph);
+    var text = document.createElement('span');
+    text.className = 'text';
+    var lbl = document.createElement('span');
+    lbl.className = 'label';
+    lbl.textContent = option.label;
+    text.appendChild(lbl);
+    if (option.desc){
+      var desc = document.createElement('span');
+      desc.className = 'desc';
+      desc.textContent = option.desc;
+      text.appendChild(desc);
+    }
+    row.appendChild(text);
+    return row;
+  }
+
+  function render(){
+    syncComposer();
+    root.innerHTML = '';
+
+    if (state.stopped){
+      return; // Rule 18 — the task is interrupted; nothing left to reopen.
+    }
+
+    if (!state.open){
+      var reopenBtn = document.createElement('button');
+      reopenBtn.type = 'button';
+      reopenBtn.className = 'c-btn c-btn-secondary c-btn-sm';
+      reopenBtn.innerHTML = '<i class="ph ph-arrow-square-in"></i> Open approval';
+      reopenBtn.addEventListener('click', reopen);
+      root.appendChild(reopenBtn);
+      return;
+    }
+
+    var card = document.createElement('div');
+    card.className = 'c-card c-tool-approval';
+
+    function makeDismissBtn(){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'c-btn c-btn-ghost c-btn-icon c-btn-sm c-tool-approval-dismiss';
+      btn.setAttribute('aria-label', 'Dismiss');
+      btn.innerHTML = '<i class="ph ph-x"></i>';
+      btn.addEventListener('click', dismiss);
+      return btn;
+    }
+
+    if (state.sent){
+      var sentHead = document.createElement('div');
+      sentHead.className = 'c-tool-approval-head';
+      sentHead.style.justifyContent = 'flex-end';
+      sentHead.appendChild(makeDismissBtn());
+      card.appendChild(sentHead);
+
+      var sentWrap = document.createElement('div');
+      sentWrap.className = 'c-tool-approval-sent';
+      sentWrap.innerHTML =
+        '<span class="c-badge c-badge-success"><i class="ph-fill ph-check-circle"></i>Answers sent</span>' +
+        '<button type="button" class="start-over">Start over</button>';
+      sentWrap.querySelector('.start-over').addEventListener('click', reset);
+      card.appendChild(sentWrap);
+      root.appendChild(card);
+      return;
+    }
+
+    var viewport = document.createElement('div');
+    viewport.className = 'c-tool-approval-viewport';
+
+    var body = document.createElement('div');
+    body.className = 'c-tool-approval-body';
+
+    var qi = state.qi;
+    var question = QUESTIONS[qi];
+
+    var head = document.createElement('div');
+    head.className = 'c-tool-approval-head';
+    var qEl = document.createElement('p');
+    qEl.className = 'c-tool-approval-question';
+    qEl.textContent = question.q;
+    head.appendChild(qEl);
+
+    var topbar = document.createElement('div');
+    topbar.className = 'c-tool-approval-topbar';
+    var prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className = 'c-btn c-btn-ghost c-btn-icon c-btn-sm';
+    prevBtn.setAttribute('aria-label', 'Previous question');
+    prevBtn.innerHTML = '<i class="ph ph-caret-left"></i>';
+    prevBtn.disabled = qi <= 0;
+    prevBtn.addEventListener('click', function(){ goTo(qi - 1); });
+    topbar.appendChild(prevBtn);
+    var indicator = document.createElement('span');
+    indicator.className = 'c-pagination-indicator';
+    indicator.textContent = (qi + 1) + ' / ' + QUESTIONS.length;
+    topbar.appendChild(indicator);
+    var nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'c-btn c-btn-ghost c-btn-icon c-btn-sm';
+    nextBtn.setAttribute('aria-label', 'Next question');
+    nextBtn.innerHTML = '<i class="ph ph-caret-right"></i>';
+    nextBtn.disabled = qi >= QUESTIONS.length - 1;
+    nextBtn.addEventListener('click', function(){ goTo(qi + 1); });
+    topbar.appendChild(nextBtn);
+    topbar.appendChild(makeDismissBtn());
+    head.appendChild(topbar);
+
+    body.appendChild(head);
+
+    var optsEl = document.createElement('div');
+    optsEl.className = 'c-tool-approval-options';
+    optsEl.setAttribute('role', question.type === 'radio' ? 'radiogroup' : 'group');
+    optsEl.setAttribute('aria-label', question.q);
+    question.options.forEach(function(option, i){
+      optsEl.appendChild(optionRow(qi, i, option));
+    });
+    body.appendChild(optsEl);
+
+    var customRow = document.createElement('div');
+    customRow.className = 'c-tool-approval-custom';
+    var field = document.createElement('div');
+    field.className = 'c-field';
+    var customId = idPrefix + '-custom-' + qi;
+    var fieldLabel = document.createElement('label');
+    fieldLabel.className = 'sr-only';
+    fieldLabel.setAttribute('for', customId);
+    fieldLabel.textContent = 'Custom answer';
+    field.appendChild(fieldLabel);
+
+    var customOpen = Boolean(state.customOpen[qi]);
+    var customEl = document.createElement(customOpen ? 'textarea' : 'input');
+    if (!customOpen) customEl.type = 'text';
+    customEl.id = customId;
+    customEl.placeholder = 'Something else…';
+    customEl.value = state.custom[qi] || '';
+    customEl.addEventListener('input', function(e){
+      state.custom[qi] = e.target.value;
+      if (question.type === 'radio') state.answers[qi] = [];
+      updateFooterOnly();
+    });
+    if (!customOpen){
+      customEl.addEventListener('focus', function(){
+        state.customOpen[qi] = true;
+        state.autofocusCustom = true;
+        render();
+      });
+      customEl.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' && hasAnswer(qi)){ e.preventDefault(); advance(); }
+      });
+    }
+    field.appendChild(customEl);
+    customRow.appendChild(field);
+    body.appendChild(customRow);
+
+    viewport.appendChild(body);
+    card.appendChild(viewport);
+
+    var footer = document.createElement('div');
+    footer.className = 'c-tool-approval-footer';
+
+    var actions = document.createElement('div');
+    actions.className = 'c-tool-approval-actions';
+    var skipBtn = document.createElement('button');
+    skipBtn.type = 'button';
+    skipBtn.className = 'c-btn c-btn-ghost c-btn-sm';
+    skipBtn.textContent = 'Skip';
+    skipBtn.addEventListener('click', skip);
+    actions.appendChild(skipBtn);
+    var lastQ = qi === QUESTIONS.length - 1;
+    var continueBtn = document.createElement('button');
+    continueBtn.type = 'button';
+    continueBtn.className = 'c-btn c-btn-primary c-btn-sm';
+    continueBtn.textContent = lastQ ? 'Send' : 'Continue';
+    continueBtn.disabled = !hasAnswer(qi);
+    continueBtn.addEventListener('click', advance);
+    actions.appendChild(continueBtn);
+    footer.appendChild(actions);
+
+    card.appendChild(footer);
+    root.appendChild(card);
+
+    if (state.autofocusCustom){
+      state.autofocusCustom = false;
+      var ta = customRow.querySelector('textarea');
+      if (ta){ ta.focus(); var len = ta.value.length; ta.setSelectionRange(len, len); }
+    }
+
+    var h = body.offsetHeight;
+    if (state.firstMeasure || reduceMotion){
+      viewport.style.transition = 'none';
+      viewport.style.height = h + 'px';
+      void viewport.offsetHeight;
+      viewport.style.transition = '';
+      state.firstMeasure = false;
+    } else {
+      viewport.style.height = h + 'px';
+    }
+  }
+
+  function updateFooterOnly(){
+    var continueBtn = root.querySelector('.c-tool-approval-actions .c-btn-primary');
+    if (continueBtn) continueBtn.disabled = !hasAnswer(state.qi);
+  }
+
+  render();
+}
+
+mountToolApproval(document.getElementById('taChatDemoDesktop'), {
+  input: document.getElementById('taComposerInputDesktop'),
+  sendBtn: document.getElementById('taComposerSendDesktop')
+});
+
+// Rail toggle — Chat window's own mobile drawer (delegated, shell-
+// relative), ported verbatim from preview-permissionprompt-draft.html
+// so the sidebar icon in the mobile iframe below actually opens/closes
+// the rail, same as the real component.
+function wireChatRailToggle(doc){
+  function closeRailDrawer(shell){
+    if(!shell) return;
+    var rail = shell.querySelector('.c-chat-rail');
+    var scrim = shell.querySelector('.c-chat-rail-scrim');
+    var toggle = shell.querySelector('.c-chat-rail-toggle');
+    if(rail) rail.classList.remove('is-open');
+    if(scrim) scrim.classList.remove('is-open');
+    if(toggle){ toggle.setAttribute('aria-expanded','false'); toggle.setAttribute('aria-label','Open conversations'); }
+    return toggle;
+  }
+  doc.addEventListener('click', function(e){
+    var toggle = e.target.closest('.c-chat-rail-toggle');
+    if(toggle){
+      var shell = toggle.closest('.c-chat-shell');
+      var rail = shell && shell.querySelector('.c-chat-rail');
+      if(!rail) return;
+      var opening = !rail.classList.contains('is-open');
+      if(opening){
+        rail.classList.add('is-open');
+        var scrim = shell.querySelector('.c-chat-rail-scrim');
+        if(scrim) scrim.classList.add('is-open');
+        toggle.setAttribute('aria-expanded','true');
+        toggle.setAttribute('aria-label','Close conversations');
+      } else {
+        closeRailDrawer(shell);
+      }
+      return;
+    }
+    var scrimHit = e.target.closest('.c-chat-rail-scrim');
+    if(scrimHit && scrimHit.classList.contains('is-open')) closeRailDrawer(scrimHit.closest('.c-chat-shell'));
+  });
+}
+
+// Mobile — in Chat window: real 375px iframe, not a simulation — Chat
+// window's rail-collapse is a @container query on the shell's own
+// width, so a true narrow iframe is what actually exercises it. Both
+// mountToolApproval and wireChatRailToggle are serialized via
+// .toString() and injected as inline script text so the iframe's own
+// document gets a fully independent, fully interactive instance (its
+// own font/icon/tokens/components links, its own state) rather than a
+// static copy of the desktop markup.
+(function(){
+  var iframe = document.getElementById('taMobileChatFrame');
+  var css = document.querySelector('style').textContent;
+  var doc = '<!doctype html><html><head><meta charset="utf-8">' +
+    '<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">' +
+    '<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">' +
+    '<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">' +
+    '<link rel="stylesheet" href="tokens.css">' +
+    '<link rel="stylesheet" href="components.css">' +
+    '<style>' + css + '.chatwindow-frame{height:760px;}</style>' +
+    '</head><body style="margin:0; padding:0; background:var(--color-neutral-2); font-family:var(--font-primary); box-sizing:border-box;">' +
+
+    '<div class="chatwindow-frame">' +
+      '<div class="c-chat-shell" id="taChatShellMobile" role="region" aria-labelledby="taChatTitleMobile">' +
+        '<div class="c-chat-rail">' +
+          '<button type="button" class="c-btn c-btn-secondary c-btn-md c-chat-new"><i class="ph ph-plus"></i> New chat</button>' +
+          '<div class="c-chat-pillars" role="radiogroup" aria-label="Filter by pillar">' +
+            '<span class="c-chat-flabel">Filter by pillar</span>' +
+            '<div class="c-chip-group">' +
+              '<button type="button" class="c-chip c-chip-filter is-active" role="radio" aria-checked="true" tabindex="0">All</button>' +
+              '<button type="button" class="c-chip c-chip-filter" role="radio" aria-checked="false" tabindex="-1">CollabSales</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="c-chat-conversations" role="listbox" aria-label="Conversations">' +
+            '<div class="c-chat-group">' +
+              '<div class="c-chat-conversations-head">Today</div>' +
+              '<button type="button" class="c-chat-conversation is-active" role="option" aria-selected="true">' +
+                '<span class="c-chat-conversation-title">Northwind renewal follow-up</span>' +
+                '<span class="c-chat-conversation-pillar">CollabSales</span>' +
+              '</button>' +
+              '<button type="button" class="c-chat-conversation" role="option" aria-selected="false">' +
+                '<span class="c-chat-conversation-title">Q3 pipeline review</span>' +
+                '<span class="c-chat-conversation-pillar">CollabSales</span>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="c-chat-rail-scrim"></div>' +
+
+        '<div class="c-chat-main">' +
+          '<div class="c-chat-hd">' +
+            '<div><h2 id="taChatTitleMobile">Northwind renewal follow-up</h2><p>Collabrium assistant &middot; reading this workspace</p></div>' +
+            '<button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm c-chat-rail-toggle" aria-label="Open conversations" aria-expanded="false"><i class="ph ph-sidebar-simple"></i></button>' +
+          '</div>' +
+
+          '<div class="c-chat-thread-wrap"><div class="c-chat-thread"><div class="c-chat-thread-inner">' +
+            '<div class="c-chat-msg is-me"><div class="c-chat-bubble">What\'s the plan for the Q4 renewals gap?</div></div>' +
+            '<div class="c-chat-msg is-ai">' +
+              '<div class="c-chat-bubble"><p>I\'ve mapped out a couple of options &mdash; before I go further I need a couple of quick decisions from you.</p></div>' +
+            '</div>' +
+          '</div></div>' +
+          '<div class="c-tool-approval-slot" id="taChatDemoMobile"></div>' +
+          '</div>' +
+
+          '<div class="c-chat-composer"><div class="c-chat-composer-inner">' +
+            '<div class="c-prompt-bar c-prompt-bar--inline is-revealed" role="group" aria-label="Message composer">' +
+              '<div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>' +
+              '<div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>' +
+              '<div class="c-prompt-bar-surface">' +
+                '<div class="c-prompt-bar-field"><input type="text" id="taComposerInputMobile" aria-label="Reply to Collabrium" placeholder="Reply to Collabrium&hellip;" /></div>' +
+                '<div class="c-prompt-bar-more"><div class="c-prompt-bar-toolbar">' +
+                  '<div class="c-prompt-bar-group">' +
+                    '<button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Add image"><i class="ph ph-image"></i></button>' +
+                    '<button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Attach file"><i class="ph ph-paperclip"></i></button>' +
+                    '<button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="More options"><i class="ph ph-dots-three"></i></button>' +
+                  '</div>' +
+                  '<div class="c-prompt-bar-group">' +
+                    '<button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm" aria-label="Voice input"><i class="ph ph-microphone"></i></button>' +
+                    '<button type="button" class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-send" id="taComposerSendMobile" aria-label="Send"><i class="ph ph-arrow-up"></i></button>' +
+                  '</div>' +
+                '</div></div>' +
+              '</div>' +
+            '</div>' +
+            '<p class="c-chat-foot">AI can make mistakes. Please double-check responses.</p>' +
+          '</div></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<script>(' + mountToolApproval.toString() + ')(document.getElementById("taChatDemoMobile"), { input: document.getElementById("taComposerInputMobile"), sendBtn: document.getElementById("taComposerSendMobile") });(' + wireChatRailToggle.toString() + ')(document);<' + '/script>' +
+    '</body></html>';
+  iframe.srcdoc = doc;
+})();
+</script>
+</body>
+</html>

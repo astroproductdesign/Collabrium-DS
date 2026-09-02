@@ -100,7 +100,7 @@
      session is Primary/solid) — deny-first, same ordering Claude
      Code's own prompts use. Wraps onto a second line rather than
      compressing or stretching if the row ever runs out of width. */
-  .c-permission-prompt-actions{display:flex; align-items:center; gap:var(--spacing-8); flex-wrap:wrap;}
+  .c-permission-prompt-actions{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8); flex-wrap:wrap;}
   .c-permission-prompt-deny{color:var(--color-red);} /* Table's own bulk-danger recipe: Ghost + a color override, not a Danger button — that variant doesn't exist in this system yet */
 
   /* Resolved states — collapses to a compact, still-visible row (audit
@@ -118,6 +118,14 @@
   .c-permission-prompt-resolved-label{flex:1 1 160px; min-width:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
   .c-permission-prompt-resolved .c-badge{flex:none; margin-top:2px;}
   .c-permission-prompt-resolved-note{margin:0; font-size:var(--text-caption-size); color:var(--color-neutral-5); line-height:1.5;}
+
+  /* Inside Chat window, the card fills the conversation column instead
+     of capping at 360px — same rule the AI bubble text itself already
+     follows (.c-chat-msg.is-ai .c-chat-bubble is max-width:100%), so the
+     card reads as part of that turn's own width, not a smaller object
+     dropped into it. Scoped to .c-chat-msg.is-ai so the standalone
+     gallery cards above stay at their own 360px. */
+  .c-chat-msg.is-ai .c-permission-prompt{max-width:none; width:100%;}
 
   /* Mobile — Pagination's own 767px breakpoint, reused rather than a
      new one invented for this component. Card goes full-width (there's
