@@ -1050,6 +1050,11 @@
               <button type="button" class="c-btn c-btn-ghost c-btn-sm" id="loadingStateDemoStop"><i class="ph ph-stop"></i> Stop</button>
             </div>
 
+            <div class="swatch-group-label">Permission Prompt</div>
+            <div style="display:flex; justify-content:center;">
+              <div id="permissionPromptDemoLow"></div>
+            </div>
+
             <div class="swatch-group-label">Prompt input bar</div>
             <div class="swatch-group-label">Floating bar — Collapsed</div>
             <div class="promptbar-pose-row">
@@ -4596,6 +4601,70 @@ survive past the first streamed token, even for a frame; nest a
 disclosure or trace inside it; block a surface with it, or wrap it in
 a modal; leave it running once named, multi-step progress has been
 visible for two seconds — hand off instead.
+
+**Permission Prompt.** ⚠️ **Designed from scratch** — no source in
+either the original brand deck or the teammate's build.
+
+An AI Native human-in-the-loop card the AI surfaces inline — appended
+directly into its own turn in the thread — to ask authorization for a
+specific, consequential action before it proceeds: reading or writing
+a file, running a command, sending a message on the person's behalf,
+calling an external API. Unlike [Tool approval](#ai-native), which is
+a separate floating card pinned above the composer, Permission Prompt
+is inline: a genuine part of the AI's own message, never an overlay
+and never something that blocks the composer or the rest of the
+thread. It reuses Card, Badge's status-color variants, Button, and
+Thinking's own collapsible-detail technique throughout rather than
+inventing new controls. Class prefix: `.c-permission-prompt*`.
+
+**Permission Prompt — Anatomy (head).**
+
+| Part | Spec |
+|---|---|
+| Root (`.c-permission-prompt`) | Card shell reused verbatim (`.c-card`), `max-width: 360px` standalone default — a host inside Chat window overrides this (Rule 9) |
+| Head (`.c-permission-prompt-head`) | Flex row, `align-items: center` — icon, label, and risk badge share one vertical center |
+| Icon (`.c-permission-prompt-icon`) | Represents the action's own type (a file, a terminal command, an email, an API call), Neutral-7, `icon-md` |
+| Label (`.c-permission-prompt-label`) | Primary font, heading-5 size/line-height/weight, Neutral-9 — the question itself, e.g. "Send email on your behalf?" |
+| Risk badge | Real Badge status variants reused verbatim — Low/Medium/High risk maps to success/warning/error (green/amber/red), no new colors invented. Pinned to the same top-right corner in both the pending and resolved states (Rule 5) |
+
+**Permission Prompt — Anatomy (detail, scope, actions).**
+
+| Part | Spec |
+|---|---|
+| Toggle (`.c-permission-prompt-toggle`) | "What this will do" while pending, "View details" once resolved — expands/collapses the detail block; its chevron rotates 180° when expanded |
+| Detail (`.c-permission-prompt-detail`) | Thinking's own `0fr → 1fr` grid-rows + opacity expand/collapse, verbatim. Structured key:value rows only — never raw JSON (Rule 4). Values never truncate or ellipsis; a long one wraps instead |
+| Scope note (`.c-permission-prompt-scope`) | One caption line distinguishing what "Allow once" covers from what "Allow for session" covers |
+| Actions (`.c-permission-prompt-actions`) | Three real Button instances — Deny (Ghost + a scoped red color override), Allow once (Secondary), Allow for session (Primary) — right-aligned, natural width, one row on desktop (Rule 6) |
+| Resolved state (`.c-permission-prompt-resolved`) | Label (body2) + a status badge (Allowed/Denied/Expired) in the same corner the risk badge occupied. The card stays in the transcript — it never disappears (Rule 7) |
+
+**Permission Prompt — Rules.** Eleven rules, not stylistic preference —
+each one closes off a specific way a human-in-the-loop authorization
+card has been seen to fail.
+
+- **Rule 1 — Scope: authorization for a specific action, not a general confirmation.** Appears only when the AI is about to do something with a real consequence outside the conversation itself — read or write a file, run a command, call an external API or service, send something on the person's behalf. Never used to confirm something that only affects the conversation itself.
+- **Rule 2 — Inline, not a modal.** Appended directly into the AI's own turn in the thread — a genuine part of that message, never an overlay, scrim, or anything that blocks the composer or the rest of the thread.
+- **Rule 3 — The detail defaults open while pending, and stays reachable once resolved.** The person sees exactly what's being authorized before deciding, without an extra click; after a decision, the same toggle still opens it, just collapsed by default now that the decision itself is the headline.
+- **Rule 4 — Every request states exactly what it authorizes — structured, never raw.** The detail block is always key:value rows, never a JSON dump; values are shown in full, never truncated, since the entire point is showing exactly what's being authorized.
+- **Rule 5 — Risk is always visible, pending or resolved, in the same corner.** The badge lives in the same top-right position of the head row in both states, so the eye never has to relearn where to look.
+- **Rule 6 — Three actions, escalating commitment, deny-first.** Left to right on desktop: Deny (Ghost), Allow once (Secondary), Allow for session (Primary) — transparent to outlined to solid, the same visual-weight-as-commitment convention this system already uses, and the same deny-first ordering Claude Code's own prompts use.
+- **Rule 7 — A resolution is permanent, and it stays visible.** Once Denied or Allowed, the card collapses to a compact record but never disappears — it's the audit trail for what was actually authorized. This is a deliberate contrast with [Tool approval](#ai-native)'s own Rule 13: that flow closes outright once resolved, because it's answering questions, not authorizing consequential actions. Reopening or undoing a resolved decision isn't offered; a new request is a new card.
+- **Rule 8 — Expired is a session boundary, not a decision.** A request that goes unanswered before the conversation moves on shows Expired (a neutral badge) — nothing runs, and no control reaches this state directly; only the conversation's own progression does.
+- **Rule 9 — Width matches the host.** `360px` standalone; inside Chat window it fills the full conversation column, the same rule the AI's own message bubble already follows — the card reads as part of that turn, not a smaller object dropped into it.
+- **Rule 10 — Mobile restacks the actions by priority, not just by width.** Under 767px the card goes full-width and the three actions become one full-width button per row, ordered Allow for session (Primary) on top, Allow once (Secondary) beneath it, Deny last — the reverse of desktop's deny-first order. The underlying tab order is left exactly as desktop's (still Deny → Once → Session); only the visual stacking flips.
+- **Rule 11 — Reduced motion drops the entrance and the expand/rotate transitions, keeps the same information.** Same layout, same detail, no travel.
+
+**Do:** show the risk badge in the same corner whether pending or
+resolved; keep the detail block's values complete and unabbreviated;
+escalate visual commitment left to right with Deny first on desktop;
+leave a resolved card visible in the transcript as a record of what
+was decided; fill the host's own width inside Chat window; restack
+the actions to one full-width button per row on mobile, Primary on
+top. **Don't:** overlay the composer or the thread with a scrim;
+collapse a request to raw JSON or truncate a value; let a resolved
+decision disappear from the transcript; offer any control that
+reaches the Expired state directly; stretch or center the desktop
+actions row — natural width, right-aligned, same as Button renders
+everywhere else in this system.
 
 **Prompt input bar.** ⚠️ **Designed from scratch** — no source in either the original brand
 deck or the teammate's build. First reviewed and committed 2026-08-24;
@@ -9131,6 +9200,68 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.90 — 2026-09-02** — `preview.html` only, no component
+  change. **Permission Prompt**'s gallery entry trims from four live
+  examples (Low/Medium/High risk, plus one pre-Expired) down to one —
+  the Low-risk "Read pipeline-config.ts?" example only — and drops the
+  explanatory caption paragraph that sat under its swatch-group-label,
+  the same trim [Streaming Text](#ai-native) and
+  [Thinking](#ai-native)'s own galleries already went through
+  (v0.9.77). `mountPermissionPrompt` itself is unchanged and still
+  accepts any risk tier or initial state; only this file's own mount
+  calls were reduced to the one example. `components.css`/
+  `tokens.css`: unchanged — this is a demo-scope change only, the
+  component's own eleven rules and anatomy are untouched.
+
+- **v0.9.89 — 2026-09-02** — Added **Permission Prompt**, [AI
+  Native](#ai-native)'s seventh subcomponent, alphabetically between
+  Loading State and Prompt input bar in the flat list this component
+  is otherwise pulled from: a human-in-the-loop card the AI surfaces
+  inline, in its own turn, to ask authorization for a specific,
+  consequential action — reading or writing a file, running a
+  command, sending something on the person's behalf, calling an
+  external API — before it proceeds. Formalized from a draft
+  (`preview-permissionprompt-draft.html`, now deleted) built up over
+  several rounds of review: full width inside Chat window's
+  conversation column, right-aligned deny-first actions on desktop,
+  center-aligned icon/label/badge and a heading-5 label matching
+  [Tool approval](#ai-native)'s own size, and — the change that
+  triggered this formalization pass — mobile actions restacking to
+  one full-width button per row, Primary (Allow for session) on top,
+  Secondary (Allow once) beneath it, Deny last, reversing desktop's
+  deny-first order while leaving the underlying tab order untouched.
+  Eleven rules supplied directly for this commit — scope (a specific
+  consequential action, never a general confirmation), inline
+  placement rather than a modal, the detail defaulting open while
+  pending and staying reachable once resolved, structured key:value
+  detail rows that never truncate and are never raw JSON, a risk
+  badge that stays in the same corner pending or resolved, deny-first
+  escalating commitment across the three actions, a resolution that
+  stays visible as a permanent audit trail (a deliberate contrast
+  with Tool approval's own Rule 13 — that flow closes outright on
+  resolution, since it's answering questions rather than authorizing
+  a consequential action), Expired as a session boundary no control
+  reaches directly, width matching the host, the mobile restack
+  described above, and a reduced-motion pass. `components.css` gets
+  the new `.c-permission-prompt*` CSS — reusing Card, Badge's real
+  status variants, Button, and Thinking's own `0fr → 1fr` grid-rows +
+  opacity expand/collapse technique for the detail block, verbatim,
+  no new controls invented. Two real gaps in the system, carried over
+  from the draft rather than resolved here: no `.c-btn-danger` exists,
+  so Deny reuses Table's own established recipe (Ghost + a scoped
+  `--color-red` override) instead of a new Button variant; no
+  dedicated muted/expired Badge tone exists beyond `.c-badge-neutral`,
+  so the Expired state uses that. This file gains a real, interactive
+  gallery entry (`#permissionPromptDemo`) — four live examples
+  (Low/Medium/High risk, plus one already Expired) — its own Chat
+  window instance proving the component as a genuine child of
+  `.c-chat-msg.is-ai`, and a real 375px mobile iframe for both.
+  `tokens.css` unchanged — every value this component needed
+  (`--text-h5-*`, `--icon-md`, `--icon-micro`, `--color-red`, the
+  existing Badge status tokens) already existed. Net component count
+  unchanged — subcomponents of AI Native aren't separately counted,
+  same as every other addition to this category before it.
 
 - **v0.9.88 — 2026-09-02** — Behavior change for **Tool approval**,
   [AI Native](#ai-native): closing is now uniform and final across all
@@ -15114,6 +15245,139 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
       stopBtn.textContent = 'Stopped';
     });
   }
+})();
+</script>
+<script>
+(function(){
+  // Permission Prompt demo (comp-ainative) — ported from the approved
+  // draft, preview-permissionprompt-draft.html. One live, low-risk
+  // example — fully interactive, click Deny/Allow once/Allow for
+  // session and watch it resolve. mountPermissionPrompt itself is
+  // unchanged and still takes any risk tier/state; only the gallery's
+  // own mount call below was trimmed to this single example.
+  function mountPermissionPrompt(root, config){
+    if (!root) return;
+    var state = { status: config.initialState || 'pending', detailOpen: (config.initialState || 'pending') === 'pending' };
+    var riskBadgeClass = { low: 'c-badge-success', medium: 'c-badge-warning', high: 'c-badge-error' }[config.risk];
+
+    function toggleDetail(){ state.detailOpen = !state.detailOpen; render(); }
+    function resolve(status){ state.status = status; state.detailOpen = false; render(); }
+
+    function detailBlock(){
+      var wrap = document.createElement('div');
+      wrap.className = 'c-permission-prompt-detail' + (state.detailOpen ? ' is-expanded' : '');
+      var inner = document.createElement('div');
+      inner.className = 'c-permission-prompt-detail-inner';
+      var list = document.createElement('div');
+      list.className = 'c-permission-prompt-detail-list';
+      config.rows.forEach(function(row){
+        var r = document.createElement('div');
+        r.className = 'c-permission-prompt-detail-row';
+        var k = document.createElement('span'); k.className = 'key'; k.textContent = row.key;
+        var v = document.createElement('span'); v.className = 'value'; v.textContent = row.value;
+        r.appendChild(k); r.appendChild(v);
+        list.appendChild(r);
+      });
+      inner.appendChild(list);
+      wrap.appendChild(inner);
+      return wrap;
+    }
+
+    function toggleBtn(){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'c-permission-prompt-toggle';
+      btn.setAttribute('aria-expanded', String(state.detailOpen));
+      btn.innerHTML = '<span>' + (state.status === 'pending' ? 'What this will do' : 'View details') + '</span><i class="ph ph-caret-down"></i>';
+      btn.addEventListener('click', toggleDetail);
+      return btn;
+    }
+
+    function render(){
+      root.innerHTML = '';
+      var card = document.createElement('div');
+      card.className = 'c-card c-permission-prompt' + (state.status !== 'pending' ? ' is-resolved' : '');
+
+      if (state.status === 'pending'){
+        var head = document.createElement('div');
+        head.className = 'c-permission-prompt-head';
+        head.innerHTML =
+          '<span class="c-permission-prompt-icon"><i class="ph ' + config.icon + '"></i></span>' +
+          '<p class="c-permission-prompt-label">' + config.label + '</p>' +
+          '<span class="c-badge ' + riskBadgeClass + '">' + config.riskLabel + ' risk</span>';
+        card.appendChild(head);
+        card.appendChild(toggleBtn());
+        card.appendChild(detailBlock());
+
+        var scope = document.createElement('p');
+        scope.className = 'c-permission-prompt-scope';
+        scope.textContent = config.scopeNote;
+        card.appendChild(scope);
+
+        var actions = document.createElement('div');
+        actions.className = 'c-permission-prompt-actions';
+
+        var denyBtn = document.createElement('button');
+        denyBtn.type = 'button';
+        denyBtn.className = 'c-btn c-btn-ghost c-btn-sm c-permission-prompt-deny';
+        denyBtn.textContent = 'Deny';
+        denyBtn.addEventListener('click', function(){ resolve('denied'); });
+
+        var onceBtn = document.createElement('button');
+        onceBtn.type = 'button';
+        onceBtn.className = 'c-btn c-btn-secondary c-btn-sm c-permission-prompt-once';
+        onceBtn.textContent = 'Allow once';
+        onceBtn.addEventListener('click', function(){ resolve('allowed'); });
+
+        var sessionBtn = document.createElement('button');
+        sessionBtn.type = 'button';
+        sessionBtn.className = 'c-btn c-btn-primary c-btn-sm c-permission-prompt-session';
+        sessionBtn.textContent = 'Allow for session';
+        sessionBtn.addEventListener('click', function(){ resolve('allowed'); });
+
+        actions.appendChild(denyBtn);
+        actions.appendChild(onceBtn);
+        actions.appendChild(sessionBtn);
+        card.appendChild(actions);
+      } else {
+        var resRow = document.createElement('div');
+        resRow.className = 'c-permission-prompt-resolved';
+        var badgeClass = state.status === 'allowed' ? 'c-badge-success' : state.status === 'denied' ? 'c-badge-error' : 'c-badge-neutral';
+        var badgeIcon = state.status === 'allowed' ? 'ph-fill ph-check-circle' : state.status === 'denied' ? 'ph-fill ph-x-circle' : 'ph-fill ph-clock';
+        var badgeText = state.status === 'allowed' ? 'Allowed' : state.status === 'denied' ? 'Denied' : 'Expired';
+        resRow.innerHTML =
+          '<span class="c-permission-prompt-resolved-label">' + config.label + '</span>' +
+          '<span class="c-badge ' + badgeClass + '"><i class="' + badgeIcon + '"></i>' + badgeText + '</span>';
+        card.appendChild(resRow);
+        card.appendChild(toggleBtn());
+        card.appendChild(detailBlock());
+
+        var noteText = state.status === 'denied' ? config.deniedNote : state.status === 'expired' ? config.expiredNote : null;
+        if (noteText){
+          var note = document.createElement('p');
+          note.className = 'c-permission-prompt-resolved-note';
+          note.textContent = noteText;
+          card.appendChild(note);
+        }
+      }
+
+      root.appendChild(card);
+    }
+
+    render();
+  }
+
+  mountPermissionPrompt(document.getElementById('permissionPromptDemoLow'), {
+    icon: 'ph-file-text',
+    label: 'Read pipeline-config.ts?',
+    risk: 'low', riskLabel: 'Low',
+    rows: [
+      { key: 'File', value: '/workspace/pipeline-config.ts' },
+      { key: 'Access', value: 'Read-only' }
+    ],
+    scopeNote: 'Allow once covers just this file. Allow for session covers every file read for the rest of this conversation.',
+    deniedNote: 'Declined — the assistant will continue without reading this file.'
+  });
 })();
 </script>
 <script>
