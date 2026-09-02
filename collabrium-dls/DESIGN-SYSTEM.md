@@ -1464,7 +1464,7 @@ prefix: `.c-tool-approval*`.
 | Footer (`.c-tool-approval-footer`) | Skip (Ghost) + Continue/Send (Primary), right-aligned |
 | Sent state (`.c-tool-approval-sent`) | Real Badge success pill (`.c-badge-success`) plus a plain text "Start over" link, replacing the whole card body once every question's been answered or skipped through |
 
-**Tool approval — Rules.** Fifteen rules, not stylistic preference —
+**Tool approval — Rules.** Eighteen rules, not stylistic preference —
 each one closes off a specific way a mid-task question card has been
 seen to fail.
 
@@ -1483,18 +1483,28 @@ seen to fail.
 - **Rule 13 — Start over is a full reset, not an edit.** It returns to question one with every answer cleared, since the point is a fresh pass, not amending what already went out.
 - **Rule 14 — Never stacked.** One pending Tool approval at a time; a second one waits for the first to be answered, skipped, or dismissed.
 - **Rule 15 — Reduced motion drops the travel, keeps the sequence.** The height-morph and the row-entrance fades go; the same questions, in the same order, still get asked.
+- **Rule 16 — An extension of the composer, not the thread: pinned above it, scrolled behind.** Tool approval does not scroll with the conversation and it is not laid into the composer's own footer either — it is its own separate floating card, fixed just above where the Prompt input bar begins, while the message thread keeps scrolling normally underneath/behind it. No scrim, no dimming, no blocking: the thread stays fully visible and interactive at all times, and whatever message happens to be scrolled to that position can sit partly behind the card — the same relationship any other fixed piece of chrome (a toolbar, a reply bar) has to the content it floats over.
+- **Rule 17 — Width matches the composer, exactly.** In any host with a Prompt input bar, Tool approval's width matches that composer's own column exactly — full width, not a content-sized cap. The card's own `max-width: 360px` (see Anatomy) is the standalone-context default only; a host composer overrides it.
+- **Rule 18 — The composer changes state while a decision is pending, and Stop means Stop.** For as long as an instance is open and unsent, its host composer's Send swaps to Stop (icon and label alike) and the placeholder becomes "Or reply directly" — the same Send/Stop convention Loading State's own Rule 9 already establishes for active generation, extended here to a second case: a pending decision. Clicking Stop does what Stop always means in this system — it interrupts the AI's underlying task, not merely the card. That makes it a stronger, more final action than the × dismiss already covered by Rule 9: dismissing only hides the card while the task keeps waiting behind it (Rule 10's progress survives a reopen); stopping ends the task itself, so there is nothing left to reopen. The icon and the placeholder both revert the instant the card is sent, dismissed, or the task is stopped. A host with no composer is exempt — same carve-out Loading State's Rule 9 already uses.
 
 **Do:** disable Continue/Send until the active question actually has an
 answer; let Prev/Next move freely regardless of answer state; clear
 the opposing input the moment either a provided option or a typed
 answer is chosen; morph the card's height and the custom field's own
 element change smoothly rather than snapping; collapse to the sent
-confirmation the moment everything's been submitted. **Don't:** force
-an answer by removing or disabling the dismiss control; let a question
-end up with both a picked option and typed text at once; block
-navigation to a question just because it isn't answered yet; leave the
-sent state showing the original questions underneath its badge; stack
-a second instance while one is already pending.
+confirmation the moment everything's been submitted; keep it pinned
+above the composer while letting the thread scroll freely behind it;
+match the host composer's own width and swap its Send/placeholder the
+moment a decision is genuinely pending, reverting both the instant it
+resolves. **Don't:** force an answer by removing or disabling the
+dismiss control; let a question end up with both a picked option and
+typed text at once; block navigation to a question just because it
+isn't answered yet; leave the sent state showing the original
+questions underneath its badge; stack a second instance while one is
+already pending; add a scrim or dim/block the thread behind it, or
+lay it into the composer's own footer as if it were part of that
+background; leave the composer's Stop icon or "Or reply directly"
+placeholder stuck once the card has resolved.
 
 ### App Shell
 
@@ -5640,6 +5650,88 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.81 — 2026-09-02** — **Tool approval**'s question
+  (`.c-tool-approval-question`, [AI Native](#ai-native)) switches from
+  the Secondary font (Source Serif 4) to the Primary font (Mulish).
+  `components.css`: one declaration, `font-family: var(--font-
+  primary)`. `DESIGN-SYSTEM.md`/`preview.html`: the Question row in
+  Tool approval's own Anatomy table (both copies) now reads "Primary
+  font" in place of "Secondary font" — everything else about that row
+  (heading-3 size/line-height/weight, Neutral-9) is unchanged.
+  `tokens.css` unchanged: `--font-primary` already existed, this only
+  changes which token the question references.
+
+- **v0.9.80 — 2026-09-02** — Bug fix, **Prompt input bar**
+  ([AI Native](#ai-native)): the Inline variant (`.c-prompt-bar--inline`,
+  Chat window's own real composer) rendered off-center below a 640px
+  viewport — shifted 16px left of where it should sit. Root cause: the
+  Floating variant's own `@media (max-width:640px)` rule sets
+  `left`/`right`/`width` on the bare `.c-prompt-bar` selector so the
+  Floating bar can span edge-to-edge on a small screen; `.c-prompt-bar
+  --inline` already resets `left`/`bottom`/`width` back for its own
+  in-flow layout, but never reset `right`, so `right: var(--spacing-16)`
+  leaked through unopposed. For a `position: relative` box, an
+  unopposed `right` with `left: auto` resolves per spec to `left:
+  -right` — a real, silent -16px shift, not merely a missed override.
+  Surfaced while verifying **Tool approval**'s new pinned-composer
+  positioning (v0.9.79) in a genuine 375px iframe, which is what
+  actually exercises this media query — most other verification passes
+  in this document's own history used viewport emulation rather than a
+  truly narrow rendering surface, which wouldn't reproduce it. Fix:
+  `.c-prompt-bar--inline` now also resets `right: auto`. Affects every
+  Chat window instance below 640px, not just Tool approval — a shared
+  Prompt input bar defect, not a new rule. `DESIGN-SYSTEM.md`'s own
+  Prompt input bar section needed no text change (the Inline variant's
+  documented behavior was already "resets Floating's own absolute
+  offsets for its own in-flow layout" — the CSS just hadn't fully lived
+  up to that yet). `tokens.css` unchanged.
+
+- **v0.9.79 — 2026-09-02** — Three new rules for **Tool approval**,
+  [AI Native](#ai-native): closing the gap between how the shipped
+  component actually behaved and how it was meant to integrate with a
+  real reply composer. Rule 16 — it is an extension of the composer,
+  not the thread: pinned just above where the Prompt input bar begins,
+  it does not scroll with the conversation, which keeps scrolling
+  normally underneath/behind it, the same relationship any other fixed
+  piece of chrome has to the content it floats over. No scrim, no
+  dimming, no blocking — the thread stays fully interactive, and
+  whatever message happens to be scrolled to that position can sit
+  partly behind the card. It remains its own separate floating card
+  throughout (Card's own recipe verbatim, no shadow/border override,
+  no fusing it into the Prompt input bar itself) — never boxed inside
+  the composer's own opaque footer background, which was this rule's
+  first, since-corrected pass. Rule 17 — its width matches the host
+  composer's own column exactly wherever one exists, overriding the
+  card's own `max-width: 360px`, which is now documented as the
+  standalone-context default rather than a hard ceiling. Rule 18 — the
+  host composer changes state while a decision is pending: Send swaps
+  to Stop (icon and label) and the placeholder becomes "Or reply
+  directly," the same Send/Stop convention Loading State's own Rule 9
+  already establishes for active generation, extended to a second
+  trigger. Stop is deliberately stronger than the existing × dismiss
+  (Rule 9): dismissing only hides the card while the task keeps
+  waiting behind it (Rule 10's progress survives a reopen); Stop
+  interrupts the task itself, leaving nothing to reopen. All three
+  carry the same "no composer, rule doesn't apply" exemption Loading
+  State's Rule 9 already uses, since Tool approval's only real host
+  today is Chat window. `components.css` gains two new rules:
+  `.c-tool-approval-slot` (`position: absolute`, pinned to the bottom
+  of `.c-chat-thread-wrap` — already the real component's own
+  `position: relative` ancestor, no new positioning context needed —
+  `pointer-events: none` so its own empty padding never steals clicks
+  meant for the thread beneath it) and `.c-tool-approval-slot >
+  .c-tool-approval` (`max-width: 760px`, centered, `pointer-events:
+  auto`) — a third literal instance of that same 760px column
+  `.c-chat-thread-inner`/`.c-chat-composer-inner` already use twice
+  each, consistent with how `.c-chat-foot` already repeats it too,
+  rather than a new shared variable. A slot, not a bare selector on
+  `.c-chat-thread-wrap` itself, so whatever mounts the card can own
+  that slot's own innerHTML without disturbing the thread/composer
+  around it. The Send/Stop and placeholder swap is content, not a new
+  visual style — the existing Send button markup already carries
+  everything it needs — so it's documented as a rule, not a new CSS
+  class. `tokens.css` unchanged.
 
 - **v0.9.77 — 2026-09-01** — Added **Tool approval**, [AI Native](#ai-native)'s
   sixth subcomponent, alphabetically between Toast and Tooltip in the
