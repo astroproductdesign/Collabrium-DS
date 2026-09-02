@@ -2511,7 +2511,7 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
 .c-tool-approval-topbar .c-pagination-indicator{padding:0 var(--spacing-4);}
 .c-tool-approval-dismiss{flex:none; margin-left:var(--spacing-4); color:var(--color-neutral-5);}
 .c-tool-approval-dismiss:hover{color:var(--color-neutral-9);}
-.c-tool-approval-question{flex:1; min-width:0; margin:0; font-family:var(--font-secondary); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
+.c-tool-approval-question{flex:1; min-width:0; margin:0; font-family:var(--font-primary); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); animation:c-thinking-row-in var(--duration-slow) var(--ease-settle) both;}
 
 /* Viewport — height animates to fit whichever question is active
    (pose change: duration-morph/ease-morph, the same pairing Prompt

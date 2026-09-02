@@ -1450,7 +1450,7 @@ prefix: `.c-tool-approval*`.
 |---|---|
 | Root (`.c-tool-approval`) | Card shell reused verbatim (`.c-card`), `max-width: 360px`, `overflow: hidden` for the height-morph below |
 | Head (`.c-tool-approval-head`) | Flex row, `align-items: flex-start` — not `center` — so a question wrapping to two or three lines doesn't drag the top-right cluster down with it; it stays pinned to the first line |
-| Question (`.c-tool-approval-question`) | Secondary font, heading-3 size/line-height/weight, Neutral-9 |
+| Question (`.c-tool-approval-question`) | Primary font, heading-3 size/line-height/weight, Neutral-9 |
 | Topbar (`.c-tool-approval-topbar`) | Prev/Next — Ghost icon-buttons — flanking Pagination's own compact step indicator (`n / total`), plus dismiss, grouped top-right on the question's own row |
 | Dismiss (`.c-tool-approval-dismiss`) | Ghost icon-button, `ph-x`, closes the card without requiring an answer (Rule 9) |
 
@@ -5650,6 +5650,17 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.81 — 2026-09-02** — **Tool approval**'s question
+  (`.c-tool-approval-question`, [AI Native](#ai-native)) switches from
+  the Secondary font (Source Serif 4) to the Primary font (Mulish).
+  `components.css`: one declaration, `font-family: var(--font-
+  primary)`. `DESIGN-SYSTEM.md`/`preview.html`: the Question row in
+  Tool approval's own Anatomy table (both copies) now reads "Primary
+  font" in place of "Secondary font" — everything else about that row
+  (heading-3 size/line-height/weight, Neutral-9) is unchanged.
+  `tokens.css` unchanged: `--font-primary` already existed, this only
+  changes which token the question references.
 
 - **v0.9.80 — 2026-09-02** — Bug fix, **Prompt input bar**
   ([AI Native](#ai-native)): the Inline variant (`.c-prompt-bar--inline`,
