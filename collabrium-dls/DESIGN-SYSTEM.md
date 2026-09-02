@@ -2598,6 +2598,12 @@ sequential/diverging color-role assignment): it specs the chrome
 card/KPI container every chart sits in. Still first-pass, not reviewed
 by the brand team, and — like the rest of this document — a spec to
 build against rather than a transcription of any one existing build.
+As of v0.9.91, this spec has a live reference build: `preview.html`'s
+own **Charts** gallery entry renders six of the chart types this
+section and [Chart color mapping](#chart-color-mapping) describe
+(Bar, Doughnut, Line, Scatter, Pie, and a Mixed Bar+Line combo — see
+the Per-chart-type marks table below for Mixed, the one pattern this
+document didn't already have an answer for before that build).
 
 Gridline color follows [Chart color mapping](#chart-color-mapping)'s
 existing "Neutral-3 for gridlines" rule above — carried forward as-is,
@@ -2643,18 +2649,20 @@ not a new value.
 | Radar | 2px | fill wash (~12% wash) | 3px, white border | `suggestedMin`/`suggestedMax` fixed to the 0–10 rating scale, not auto-scaled |
 | Bubble | series color as point border | `-wash` variant of each series color (30% or 15% transparent — see [Chart color mapping](#chart-color-mapping)'s ramp) | radius = third data dimension | 3 series max, all-pairs-validated slots only |
 | Polar area | 2px slice border, white | Same-hue ramp, translucent (30% for saturated rungs, 15% for the two pale tint rungs) | — | translucency is deliberate: lets grid rings show through the whole wedge, not just at the tick spoke |
+| Mixed (Bar + Line) | bar: —; line: 2px | bar: mid, hover → hover; line: none (`fill: false`) | line: 3px radius, 2px white ring border, 5px on hover | Each dataset follows its own row above verbatim — Bar (single-series) and Line (plain) — not a third recipe. Added once two series needed to sit on one canvas rather than two adjacent cards; when the series don't share a scale, add a second Y axis (`position: 'right'`) with the same border-hidden/footnote-token-tick treatment as the primary axis but no gridline of its own — Neutral-3 is only ever drawn once, on the primary (left) axis, so the two scales don't visually compete |
 
 #### Card / KPI / container
 
 | Element | Rule |
 |---|---|
 | Chart card padding | [Card](#card)'s own default (`--spacing-16`) — no override |
-| Chart canvas | `flex: 1 1 auto` + a min-height floor (260px, 300px for `.tall`) — not a fixed height, so it fills whatever a CSS-Grid-stretched card gives it |
+| Chart canvas (`.c-chart-canvas-wrap`) | `flex: 1 1 auto` + a min-height floor (260px, 300px for `.tall`) — not a fixed height, so it fills whatever a CSS-Grid-stretched card gives it |
+| "View as table" table (`.c-chart-table-wrap`) | The identical `flex: 1 1 auto` + min-height floor as the canvas above, so toggling to the table never changes the card's own height — its content is vertically centered in that space rather than pinned to the top, which is what a shorter table (e.g. a 4-slice Pie/Doughnut) would otherwise leave as a dead gap above the button |
 | KPI label | [Stat / KPI card](#stat--kpi-card)'s own `caption` token, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — not a new token set |
 | KPI value | [Stat / KPI card](#stat--kpi-card)'s own `h1` token, Neutral-9 |
 | KPI badge | Reused [Badge & Tag](#badge--tag)'s `.c-badge`/`.c-badge-success`/`.c-badge-error` verbatim, with a local `.kpi-tile .c-badge { align-self: flex-start }` fix — [Stat / KPI card](#stat--kpi-card)'s container is a column flexbox with no `align-items`, which was silently stretching the badge to full card width |
-| "View as table" button | Reuses `.c-btn c-btn-secondary c-btn-sm` verbatim — no bespoke button CSS. Every chart gets one except Bubble (structurally has no accompanying `<table>` at all) |
-| Chart grid | `repeat(3, 1fr)` → 2 cols @1100px → 1 col @640px, `--spacing-16` gap |
+| "View as table" button (`.c-chart-table-btn`) | Reuses `.c-btn c-btn-secondary c-btn-sm` verbatim — no bespoke button CSS. Every chart gets one except Bubble (structurally has no accompanying `<table>` at all) |
+| Chart grid (`.c-chart-grid`) | `repeat(3, 1fr)` → 2 cols @1100px → 1 col @640px, `--spacing-16` gap |
 
 ⚠️ **Known implementation risk, not a doc decision:** an
 implementation may be tempted to style the KPI label/value with
@@ -2677,6 +2685,7 @@ Choose chart type based on what the data communicates, not aesthetics.
 | 3 variables (x, y, size) | Bubble chart |
 | Performance across dimensions | Radar chart (max 6 axes) |
 | Volume by category (non-linear) | Polar area chart |
+| Two related metrics on different scales, over time | Mixed bar + line chart, dual Y-axis |
 | Single headline number | Stat tile — not a chart |
 | Forecast vs actual over time | Multi-series area + line chart with projection zone annotation |
 | Cumulative concentration | Concentration curve (area chart with annotated callouts) |
@@ -5718,6 +5727,48 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.91 — 2026-09-02** — Added **Charts**, a new gallery entry in
+  `preview.html` — the first live build against [Chart chrome &
+  marks](#chart-chrome--marks) and [Chart color mapping](#chart-color-
+  mapping), both of which have been pure documentation, with nothing
+  actually rendered anywhere in this repo, since they were written.
+  Six chart types: Bar, Doughnut, Line, Scatter, Pie, and a new Mixed
+  Bar+Line combo. No existing rule text changed — Bar/Doughnut/Line/
+  Scatter/Pie are built exactly as already specced. Mixed is genuinely
+  new: it wasn't in either the "Chart type selection" or "Per-chart-
+  type marks" table before this entry, so both gain a row for it (see
+  those tables' own text — each dataset follows its own already-
+  documented marks verbatim; the second Y-axis it needs when its two
+  series don't share a scale gets a conservative chrome extension:
+  same border-hidden/footnote-tick treatment as the primary axis, but
+  only one gridline, ever, so the two scales don't visually compete).
+  Chart.js v4 (the library this section already named) loads from CDN
+  in `preview.html`'s own `<head>`, the same pattern this file already
+  uses for fonts/icons. `components.css` gains the layout scaffolding
+  the Card/KPI/container anatomy already specs but had no CSS behind
+  yet: `.c-chart-grid` (the documented `repeat(3,1fr)` → 2 → 1
+  responsive grid), `.c-chart-canvas-wrap` (the `flex:1 1 auto` +
+  260px/300px-`.tall` floor), and `.c-chart-table-wrap` for "View as
+  table" — genuinely wired per card, not just visual, and given the
+  identical flexible footprint the canvas has so toggling to a shorter
+  table never changes the card's own height (a fix made and verified
+  during this build, now folded into that anatomy table's own text).
+  Card, Button, and Table's own embedded variant are reused verbatim
+  throughout, per that section's existing anatomy — no new controls.
+  Two open questions surfaced while building this, deliberately left
+  open rather than decided here: whether a categorical (department-
+  rainbow) Doughnut/Pie should be permitted alongside the documented
+  same-hue-ramp treatment for the ordered/sequential case this build
+  uses; and whether Mixed's dual-axis chrome, written conservatively
+  above, needs a fuller spec once more mixed-chart instances exist.
+  Placement: this entry sits directly above [Chart color
+  mapping](#chart-color-mapping) in both this document's own section
+  order and `preview.html`'s nav/gallery, per direct request — a
+  deliberate exception to this file's own stated convention of strict
+  alphabetical component placement ("Charts" sorts after "Chart color
+  mapping" on a literal string comparison). `tokens.css` unchanged —
+  every value this build needed already existed.
 
 - **v0.9.90 — 2026-09-02** — `preview.html` only, no component
   change. **Permission Prompt**'s gallery entry trims from four live

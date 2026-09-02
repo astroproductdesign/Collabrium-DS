@@ -1266,6 +1266,35 @@
 .c-dp-day.disabled{color:var(--color-neutral-4); cursor:not-allowed;}
 .c-dp-day.disabled:hover{background:transparent;}
 
+/* Charts — the layout scaffolding DESIGN-SYSTEM.md's own "Chart chrome
+   & marks" section already specs (Card/KPI/container anatomy: Chart
+   grid, Chart canvas, "View as table" button) but had never been built
+   against; the chrome/marks themselves (axes, tooltip, legend, per-
+   type marks) are configured directly in each chart's own Chart.js
+   options in preview.html, not here — nothing about a canvas-rendered
+   mark is expressible in CSS. Card (.c-card), its own built-in h4
+   recipe, Button (.c-btn-secondary.c-btn-sm), and Table's embedded
+   variant (.c-table.c-table-embedded, for "View as table") are reused
+   verbatim — no new controls invented, per that section's own anatomy. */
+.c-chart-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--spacing-16);}
+@media (max-width:1100px){ .c-chart-grid{grid-template-columns:repeat(2, 1fr);} }
+@media (max-width:640px){ .c-chart-grid{grid-template-columns:1fr;} }
+
+.c-chart-card h4{margin:0 0 var(--spacing-12);}
+.c-chart-canvas-wrap{position:relative; flex:1 1 auto; min-height:260px;}
+.c-chart-canvas-wrap.tall{min-height:300px;}
+.c-chart-canvas-wrap canvas{position:absolute; inset:0; width:100%!important; height:100%!important;}
+/* "View as table" gets the identical flexible footprint the canvas
+   wrap has (flex:1 1 auto + the 260px floor), so a shorter table
+   (e.g. a 4-slice Pie/Doughnut's own data) doesn't leave a dead gap
+   between the table and the button below it — its content is
+   vertically centered in that space instead of pinned to the top. */
+.c-chart-table-wrap{display:none; flex:1 1 auto; min-height:260px; flex-direction:column; justify-content:center;}
+.c-chart-table-wrap.tall{min-height:300px;}
+.c-chart-card.is-table-view .c-chart-canvas-wrap{display:none;}
+.c-chart-card.is-table-view .c-chart-table-wrap{display:flex;}
+.c-chart-table-btn{align-self:flex-start; margin-top:var(--spacing-12);}
+
 /* Chart color mapping — guideline reference, not a rendered component */
 .c-chartmap-row{display:flex; align-items:center; gap:var(--spacing-8); flex-wrap:wrap; margin-bottom:var(--spacing-16);}
 .c-chartmap-row:last-child{margin-bottom:0;}
