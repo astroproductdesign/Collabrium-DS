@@ -3178,6 +3178,34 @@
                 <span class="c-stat-value">14</span>
                 <span class="c-stat-trend flat"><i class="ph-fill ph-minus"></i>No change</span>
               </div>
+              <div class="c-stat is-negative">
+                <div class="c-stat-top"><span class="c-stat-label">Net margin</span></div>
+                <span class="c-stat-value">-RM14.2k</span>
+                <span class="c-stat-trend down"><i class="ph-fill ph-caret-down"></i>8.6% <span class="period">vs last month</span></span>
+              </div>
+              <div class="c-stat c-stat-secondary">
+                <span class="c-stat-label">Where the month is</span>
+                <span class="c-stat-value">Day 6 <span class="of">of 31</span></span>
+                <div class="c-goal-bar variant-table">
+                  <div class="c-goal-bar-chart" role="img" aria-label="53% of target achieved, day 6 of 31.">
+                    <div class="c-goal-bar-barwrap">
+                      <div class="c-goal-bar-track">
+                        <div class="c-goal-bar-segment" style="left:0%;width:39.75%;background:var(--color-obsidian)"></div>
+                        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+                      </div>
+                      <div class="c-goal-bar-target-line" style="left:75%"></div>
+                    </div>
+                    <div class="c-goal-bar-labels">
+                      <span><b>53%</b>of target achieved</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="c-stat c-stat-secondary">
+                <span class="c-stat-label">Daily run rate needed</span>
+                <span class="c-stat-value">RM144k <span class="of">a day</span></span>
+                <span class="c-stat-desc">To reach target by day 31</span>
+              </div>
             </div>
           </div>
         </div>
@@ -8673,15 +8701,71 @@ doesn't replace it.
 | Footer (optional) | same as Card's Footer sub-part — spacing-16 margin-top, spacing-12 padding-top, 1px Neutral-3 top border, caption/Neutral-5 (e.g. "As of 9:41am") |
 | Sparkline slot (optional) | reserved space below the trend row for a mini inline chart — see Chart color mapping below for how its line/fill should be colored; this spec doesn't define chart rendering itself |
 
-**Variants:** Static (default) and Interactive/clickable (same hover →
-`shadow-2` + focus-visible → `shadow-focus` pattern as Card).
+**Variants:** Static (default), Interactive/clickable (same hover →
+`shadow-2` + focus-visible → `shadow-focus` pattern as Card),
+**Negative value**, and **Secondary**.
+
+**Negative value.** For a metric whose value is below zero — a negative
+margin, a net loss, an over-budget delta.
+
+| Part | Rule |
+|---|---|
+| Border | `border-width-md` (2px) solid Red `#FD3343`, with padding compensated to `calc(spacing-16 - 1px)` so the tile doesn't grow and break grid alignment — the same escalated-border recipe [Card](#card)'s own Selected state uses, in Red rather than Obsidian |
+| Value | Red `#FD3343`. The only part of the card that recolors |
+| Label, icon chip, trend, footer | unchanged. The trend keeps its own Red/Green, which reports **direction of change** — a different signal from the value's sign, and the two can legitimately disagree: a negative value that is improving reads as a Red border with a Green trend, and that's correct |
+| Applied by | the consumer, as an explicit flag. The component can't infer sign from a formatted string like `-RM14.2k`, so whoever renders the card is responsible for keeping the flag in sync with the value |
+
+⚠️ The Red value renders at `h1`/800 (32px). On a dashboard where
+several tiles are negative at once, that is a lot of full-strength Red
+at large size — check a realistic worst-case screen before using this
+in a dense grid.
+
+**Secondary stat/KPI card.** A lighter tile for a *supporting* metric —
+the figure that gives a primary KPI its context (where the month is,
+the run rate needed to hit target, how much of a goal is banked) rather
+than the headline number itself. Same container, same padding, same
+border as the default; only the type steps down.
+
+| Part | Rule |
+|---|---|
+| Container | unchanged from the default card |
+| Label | unchanged — caption/700, `tracking-eyebrow`, uppercase, Neutral-5 |
+| Value | **h4 (20px/28px/800)**, not h1. See the override note below |
+| Unit / denominator (optional) | a trailing `footnote` (12px/16px/400) Neutral-5 run inside the value, baseline-aligned with a 4px gap — either a denominator ("Day 6 **of 31**") or a rate's unit ("RM144k **a day**") |
+| Goal bar (optional) | [Progress-to-Goal Bar](#progress-to-goal-bar)'s **In-table** variant — 8px `radius-pill` rail, target line at its fixed 75%, no label on the bar itself. Inside this card the In-table variant's reserved label band above the rail collapses to the target line's own overhang, since nothing sits there |
+| Achieved label | when the goal bar is present, one `caption` line below the rail putting the rail's shape into words — percentage Neutral-9/700, remainder Neutral-5 (e.g. "**53%** of target achieved"). Not optional: a bare rail states a ratio it never names |
+| Description (optional) | `caption`/400 Neutral-5, no divider and no top border — that's what the Footer sub-part is for |
+| Trend | not used. A supporting metric is context for a comparison, not itself a comparison; if the figure genuinely has a period-over-period delta, it's a primary card |
+
+**Sub-variants:** *with goal bar* and *without*. Without is the card
+plus the type step and nothing else — no CSS of its own. With adds the
+rail and its achieved label.
+
+⚠️ **This variant deliberately overrides the "Value | h1" rule in the
+anatomy table above** — the only sanctioned departure from it besides
+`display` for a hero tile. Two reasons: a compound statistic like "Day
+6 of 31" doesn't hold at 32px, and the step down in size *is* the
+hierarchy — it's what lets a secondary tile sit in the same grid as a
+primary one without competing with it. Stated here explicitly so it
+doesn't read as an oversight and get "corrected" back to h1.
+
+**Do:** pair it with a primary card in the same row — that pairing is
+the whole point of the name, and the h1/h4 contrast is what carries the
+hierarchy. **Do:** always caption a goal rail with its achieved
+percentage. **Don't:** use Secondary just to fit a long number into a
+narrow tile — if the metric is the headline, it stays h1 and the tile
+gets wider. **Don't:** mix Secondary and default sizing *within* a
+metric's own group where all the tiles are peers; the size difference
+asserts a rank that isn't there.
 
 **Do:** show exactly one primary value per card — that's what makes it
 scannable at a glance. **Don't:** stack more than one KPI in a single
 card; that's a table row or a multi-column summary bar, not a stat
 card. **Don't:** color the trend for decoration — only use Green/Red
 when the number is a genuine directional comparison against a stated
-period.
+period. **Don't:** reach for Negative value because a number is merely
+falling — it marks values below zero, not bad news; a declining
+positive number is exactly what the trend row is for.
 
 ### Stepper
 
@@ -9578,6 +9662,59 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.94 — 2026-09-03** — Added a **Secondary** variant to
+  [Stat / KPI card](#stat--kpi-card): a lighter tile for a supporting
+  metric — the figure that gives a primary KPI its context rather than
+  the headline number itself. Container, padding and border are
+  untouched; the statistic steps down from `h1` (32px) to `h4` (20px),
+  and that step *is* the hierarchy — it's what lets a secondary tile
+  share a grid with a primary one without competing with it. Two
+  sub-variants: with [Progress-to-Goal Bar](#progress-to-goal-bar)'s
+  In-table rail (plus a mandatory caption below it naming the achieved
+  percentage — a bare rail states a ratio it never names), and without,
+  which is the type step and nothing else and needs no CSS of its own.
+  Also introduced: an optional trailing `footnote` run inside the value
+  for a denominator or a unit ("Day 6 **of 31**", "RM144k **a day**"),
+  and `.c-stat-desc`, a plain caption description line — left unscoped
+  since any Stat card can use it, and distinct from the existing Footer
+  sub-part, which adds a divider and a top border. Inside this card the
+  In-table rail's reserved label band collapses to the target line's own
+  overhang, since nothing sits above the rail here. **This variant
+  knowingly overrides the component's own "Value | h1" anatomy rule** —
+  the only departure from it besides `display` for a hero tile — and the
+  section says so out loud with the reasoning, so it doesn't read as an
+  oversight and get reverted to h1 by someone rebuilding it. The trend
+  row is deliberately excluded rather than merely optional: a supporting
+  metric is context for a comparison, not itself one, and a figure with
+  a real period-over-period delta belongs in a primary card. No new
+  global tokens — `tokens.css` is unchanged.
+- **v0.9.93 — 2026-09-03** — Added a **Negative value** variant to
+  [Stat / KPI card](#stat--kpi-card), for a metric whose value is below
+  zero: the card border escalates to 2px Red `#FD3343` and the value
+  itself turns Red. Nothing bespoke — the border weight and its 1px
+  padding compensation are [Card](#card)'s own Selected-state recipe
+  (`--border-width-md` + `calc(spacing-16 - 1px)`, so the tile can't
+  grow and knock a KPI grid out of alignment), reused in Red instead of
+  Obsidian, and the Red is the same functional value Badge Danger,
+  Progress Bar's Error state and Input field's error border already
+  carry. Considered and rejected: a 1px border (Search input's
+  `.is-error` weight) — at tile scale, 1px Red against 1px Neutral-3
+  reads as a rendering artifact rather than a signal — and a tinted
+  card background, which gets loud fast in a grid.
+  Deliberately scoped to the border and the value only: the label, icon
+  chip, trend and footer keep their existing treatment. In particular
+  the trend stays on its own Red/Green, because it reports direction of
+  change rather than the value's sign, and the two can legitimately
+  disagree — a negative value that's improving is a Red border with a
+  Green trend, which is correct rather than a conflict. The variant is
+  a consumer-applied flag, not derived: the component can't read a sign
+  off a formatted string like `-RM14.2k`. Flagged in the section, not
+  hidden: the Red value sits at `h1`/800, so a dashboard with several
+  negative tiles at once carries a lot of full-strength Red at 32px and
+  is worth checking against a real worst-case screen. A "don't" line
+  was added alongside it — this marks values below zero, not bad news;
+  a declining positive number is what the trend row is already for.
 
 - **v0.9.92 — 2026-09-03** — Added **[Progress-to-Goal
   Bar](#progress-to-goal-bar)**, a new component: a horizontal stacked
