@@ -1722,7 +1722,7 @@
           </div>
         </div>
         <div class="comp-block" id="comp-charts">
-          <div class="comp-head"><h3>Charts <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; Chart.js v4, per Chart chrome &amp; marks</span></h3></div>
+          <div class="comp-head"><h3>Charts <span style="font-size:11px;font-weight:600;color:var(--color-neutral-5)">&mdash; Chart.js v4 per Chart chrome &amp; marks, plus custom HTML/CSS charts</span></h3></div>
           <div class="comp-demo">
             <div class="swatch-group-label" style="margin-top:0">Chart.js v4</div>
             <p style="margin:0 0 var(--spacing-16);font-size:14px;color:var(--color-neutral-5)">Six chart types — Bar, Doughnut, Line, Scatter, Pie, and a mixed Bar+Line combo. Horizontal bar, Area, Radar, Bubble, and Polar area — the rest of the Per-chart-type marks table — aren't built yet, but follow the same chrome, just with the marks that table already specs for each. Sample data is illustrative only.</p>
@@ -1789,6 +1789,158 @@
               </div>
 
             </div>
+
+            <div class="swatch-group-label">Custom Charts</div>
+
+            <h4 style="margin:0 0 var(--spacing-4);font-size:var(--text-h5-size);font-weight:var(--text-h5-weight)">Progress to Goal Bar</h4>
+
+            <div style="display:flex;flex-wrap:wrap;gap:var(--spacing-24);align-items:flex-start">
+
+              <div style="flex:1 1 360px;min-width:0;max-width:460px">
+                <div class="swatch-group-label" style="margin-top:0">Card variant &mdash; medium</div>
+                <div class="c-goal-bar size-default">
+                  <div class="c-goal-bar-head">
+                    <h3 class="c-goal-bar-title">Progress to Goal</h3>
+                    <div class="c-goal-bar-target">
+                      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+                      <div class="c-goal-bar-target-pct">60% of target</div>
+                    </div>
+                  </div>
+                  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+                    <div class="c-goal-bar-barwrap">
+                      <div class="c-goal-bar-track">
+                        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+                        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+                        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+                        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+                      </div>
+                      <div class="c-goal-bar-target-line" style="left:75%"></div>
+                    </div>
+                    <div class="c-goal-bar-tagrow">
+                      <div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div>
+                    </div>
+                  </div>
+                  <div class="c-goal-bar-legend">
+                    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+                    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+                    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+                  </div>
+                  <hr class="c-goal-bar-divider" />
+                  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+                </div>
+              </div>
+
+              <div style="flex:1 1 360px;min-width:0;max-width:460px">
+                <div class="swatch-group-label" style="margin-top:0">Chart-only variant, inside a Card</div>
+                <div class="c-card">
+                  <span class="c-stat-label">Q3 fundraising</span>
+                  <div class="c-goal-bar variant-chart size-default">
+                    <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+                      <div class="c-goal-bar-barwrap">
+                        <div class="c-goal-bar-track">
+                          <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+                          <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+                          <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+                          <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+                        </div>
+                        <div class="c-goal-bar-target-line" style="left:75%"></div>
+                      </div>
+                      <div class="c-goal-bar-labels">
+                        <span>Total<b>RM 6,000</b></span>
+                        <span>Target<b>RM 10,000</b></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="swatch-group-label">In-table variant</div>
+            <div class="c-card" style="max-width:680px">
+              <span class="c-stat-label">Platform pacing</span>
+              <div style="overflow-x:auto">
+                <table class="c-table c-table-embedded" style="min-width:600px">
+                  <thead>
+                    <tr><th>Platform</th><th style="width:46%">Progress to target</th><th class="num">Booked</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>TV</td>
+                      <td>
+                        <div class="c-goal-bar variant-table">
+                          <div class="c-goal-bar-chart" role="img" aria-label="RM6.6M of RM10.2M target, 65%.">
+                            <div class="c-goal-bar-barwrap">
+                              <span class="c-goal-bar-tablelabel" style="left:75%">RM10.2M</span>
+                              <div class="c-goal-bar-track">
+                                <div class="c-goal-bar-segment" style="left:0%;width:48.53%;background:var(--color-obsidian)"></div>
+                            <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+                              </div>
+                              <div class="c-goal-bar-target-line" style="left:75%"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="num">RM6.6M</td>
+                    </tr>
+                    <tr>
+                      <td>Digital</td>
+                      <td>
+                        <div class="c-goal-bar variant-table">
+                          <div class="c-goal-bar-chart" role="img" aria-label="RM4.6M of RM4.6M target, 100%.">
+                            <div class="c-goal-bar-barwrap">
+                              <span class="c-goal-bar-tablelabel" style="left:75%">RM4.6M</span>
+                              <div class="c-goal-bar-track">
+                                <div class="c-goal-bar-segment" style="left:0%;width:75%;background:var(--color-obsidian)"></div>
+                              </div>
+                              <div class="c-goal-bar-target-line" style="left:75%"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="num">RM4.6M</td>
+                    </tr>
+                    <tr>
+                      <td>Radio</td>
+                      <td>
+                        <div class="c-goal-bar variant-table">
+                          <div class="c-goal-bar-chart" role="img" aria-label="RM1.2M of RM3.4M target, 35%.">
+                            <div class="c-goal-bar-barwrap">
+                              <span class="c-goal-bar-tablelabel" style="left:75%">RM3.4M</span>
+                              <div class="c-goal-bar-track">
+                                <div class="c-goal-bar-segment" style="left:0%;width:26.47%;background:var(--color-obsidian)"></div>
+                            <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+                              </div>
+                              <div class="c-goal-bar-target-line" style="left:75%"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="num">RM1.2M</td>
+                    </tr>
+                    <tr>
+                      <td>Print</td>
+                      <td>
+                        <div class="c-goal-bar variant-table">
+                          <div class="c-goal-bar-chart" role="img" aria-label="RM2.8M of RM2.1M target, 133%.">
+                            <div class="c-goal-bar-barwrap">
+                              <span class="c-goal-bar-tablelabel" style="left:75%">RM2.1M</span>
+                              <div class="c-goal-bar-track">
+                                <div class="c-goal-bar-segment" style="left:0%;width:100%;background:var(--color-obsidian)"></div>
+                              </div>
+                              <div class="c-goal-bar-target-line" style="left:75%"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="num">RM2.8M</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+
           </div>
         </div>
         <div class="comp-block" id="comp-chartmap">
@@ -4374,6 +4526,7 @@ undocumented ones is just an inconsistent list.
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Progress Bar](#progress-bar)
+- [Progress-to-Goal Bar](#progress-to-goal-bar)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -5073,7 +5226,7 @@ prefix: `.c-tool-approval*`.
 | Root (`.c-tool-approval`) | Card shell reused verbatim (`.c-card`), `max-width: 360px`, `overflow: hidden` for the height-morph below |
 | Head (`.c-tool-approval-head`) | Flex row, `align-items: center` — not `flex-start` — so the pagination/dismiss cluster sits with the question's own vertical center rather than pinned above it, matching how often the question is a single line at its current size; a question that wraps to two or three lines centers the cluster against the full wrapped block instead |
 | Question (`.c-tool-approval-question`) | Primary font, heading-5 size/line-height/weight, Neutral-9 |
-| Topbar (`.c-tool-approval-topbar`) | Prev/Next — Ghost icon-buttons — flanking Pagination's own compact step indicator (`n / total`), plus dismiss, grouped top-right on the question's own row |
+| Topbar (`.c-tool-approval-topbar`) | Prev/Next — Ghost icon-buttons — flanking Pagination's own compact step indicator (`n / total`), plus dismiss, grouped top-right on the question's own row. That indicator is Pagination's mobile-only fallback (`display: none` above 767px); forced visible here at every width, since Tool approval never has the numbered cluster to fall back from |
 | Dismiss (`.c-tool-approval-dismiss`) | Ghost icon-button, `ph-x`, closes the card without requiring an answer (Rule 9) |
 
 **Tool approval — Anatomy (body & footer).**
@@ -5127,10 +5280,10 @@ just because it isn't answered yet; leave any badge, confirmation, or
 reopen affordance behind once the card has closed — however it
 closed; stack a second instance while one is already pending; add a
 scrim or dim/block the thread behind it, or lay it into the composer's
-own footer as if it were part of that background; leave the composer's
-Stop icon or "Or reply directly" placeholder stuck once the card has
-resolved; let it grow past the chat header or off the top of the
-window — clamp and scroll internally instead.
+own footer as if it were part of that background; leave the
+composer's Stop icon or "Or reply directly" placeholder stuck once the
+card has resolved; let it grow past the chat header or off the top of
+the window — clamp and scroll internally instead.
 
 ### App Shell
 
@@ -6250,7 +6403,7 @@ Choose chart type based on what the data communicates, not aesthetics.
 | Positive / negative contributions | Diverging horizontal bar chart (bridge/waterfall) |
 | Deal stage pipeline | Weighted pipeline bar component (custom — built in HTML/CSS, not chart library) |
 | 2×2 performance matrix | Scatter chart with quadrant zone backgrounds |
-| Budget / gap breakdown | Segmented bar + detail table (custom component from `components.css`) |
+| Budget / gap breakdown | [Progress-to-Goal Bar](#progress-to-goal-bar) — a custom HTML/CSS segmented bar, not a chart-library chart |
 
 **Do:** pick a chart type from the table above by what the data needs
 to say, not by preference; give every chart the same chrome (no axis
@@ -7742,6 +7895,146 @@ general one — anything past that uses the Neutral-4 overflow color;
 put a label inside a Compact (4px) track or a stacked fill; use a
 department elemental color as a single-fill bar's default — department
 colors classify ownership, not progress.
+
+### Progress-to-Goal Bar
+
+⚠️ **Designed from scratch — no source in either the original brand
+deck or the teammate's build.** Built from this document's own token
+system by reusing [Card](#card)'s container recipe, [Progress
+Bar](#progress-bar)'s stacked-segment and legend conventions, and
+[Chart color mapping](#chart-color-mapping)'s department walk — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A horizontal stacked bar showing contribution toward a goal: category
+segments stack from the left, a vertical line marks the target, and
+when the categories fall short, a dashed outline marks the gap between
+where they end and where the target sits. This is the component
+[Chart type selection](#chart-type-selection) points at for the
+"Budget / gap breakdown" data story — built in HTML/CSS rather than
+the chart library, the same call the Weighted pipeline bar makes.
+
+Distinct from [Progress Bar](#progress-bar): Progress Bar answers "how
+far along is this?" against an implicit 100%. Progress-to-Goal Bar
+answers "how far toward *this* number, and how much is missing?" — the
+target is an explicit, labelled value that sits partway along the
+track, and the space past it is deliberately still drawn. The two share
+track and legend anatomy on purpose; reach for Progress Bar when there
+is no named target and no shortfall worth naming.
+
+**Scale.** `total` = the sum of the category values. The target sits at
+a fixed **75% of track width**, so the full track always represents
+`target ÷ 0.75` — the remaining 25% is headroom, drawn so a bar at
+target doesn't read as a bar that has run out of room. When
+`total < target`, the gap indicator spans `total` → `target` and the
+headroom segment spans `target` → end of track. When `total >= target`,
+there is no gap and no headroom: segments simply continue past the
+target line, and if they exceed the full track the whole scale
+re-bases on `total`, which is the one case the target line moves off
+75%.
+
+**Anatomy**
+
+| Part | Spec |
+|---|---|
+| Container | [Card](#card)'s own recipe, unmodified: Neutral-1 fill, 1px Neutral-3 border, `radius-lg` (20px), `shadow-1`, `spacing-16` padding. Padding does **not** scale with size — only the bar, type and internal gaps do |
+| Heading | the component title, `weight-extrabold`, Neutral-9, letter-spacing 0 — per this document's own "every heading at 800" rule |
+| Target figures (optional) | top-right, on the same row as the heading: raw value over percent-of-target (e.g. "RM 6,000 / 10,000" / "60% of target"). Controlled by `showTarget`; when false the block is omitted and the chart is unaffected |
+| Description (optional) | always its own full-width line beneath the heading row, never a column beside the figures |
+| Track | Neutral-2, full width of its container, per-size corner radius |
+| Category segments | stacked left to right in the order given, no gaps between them; colors per **Category colors**, below |
+| Headroom | Neutral-3 fill from the target point to the end of the track — one step darker than the track, so it reads as "space still on the scale" rather than as empty track. Only when `total < target` |
+| Gap indicator | dashed 2px outline in Red `#FD3343` on the top, bottom and right edges only, no fill, spanning `total` → `target`. Not rendered at Small size or in the In-table variant, and never when there are no categories |
+| Target line | 2px solid Neutral-9, full track height plus a small per-size overhang top and bottom |
+| Target tag | below the line, `Target [value]` — no leading dot, no separator glyph. Centred on the line, sliding inward when it would otherwise cross the container edge (see **Edge collision**) |
+| Legend | one row per category (swatch + label + value) plus a Gap entry; wraps freely. **No Target entry** — the tag under the bar already labels it |
+| Divider + footer (optional) | hairline Neutral-3 rule and one line of small muted text, e.g. explaining the scale |
+
+**Variants**
+
+| Variant | Spec |
+|---|---|
+| Card | the full anatomy above, in its own Card container |
+| Chart | chart area + legend only — no card, border, shadow, padding, heading, divider or footer. For dropping into a tile, cell, or any surface that owns its own container. Never draws a card of its own |
+| In-table | an 8px rail at `radius-pill` for a table cell — Progress Bar's own default track anatomy, reused. No card, no legend, no gap outline; the only label is the target's compact value, above the bar and right-aligned 4px left of the target line. Label space is reserved above the rail and mirrored below it, so the rail sits on the row's centreline while the label still clears the row's top edge — [Table](#table) sets no fixed row height, so the row grows to fit |
+
+**Sizes** — all three apply to the Card and Chart variants; In-table has
+its own fixed metrics.
+
+| Token | Small | Medium | Large |
+|---|---|---|---|
+| Bar height | 16px (`spacing-16`) | 32px (`spacing-32`) | 40px (`spacing-40`) |
+| Bar corner radius | 6px | 8px | 10px |
+| Heading | 13px | 15px | 17px |
+| Description / legend | 11px | 12.5px | 13.5px |
+| Footer | 10.5px | 11.5px | 12.5px |
+| Target tag | 10px | 11px | 12px |
+| Card padding | `spacing-16` at every size |
+
+⚠️ The bar corner radii and the per-size type scale are one-off
+literals — no existing token covers a three-tier bar radius or a
+component with its own size-scaled type ramp. Same class of exception
+as [Progress Bar](#progress-bar)'s own track heights. The bar heights
+are not: all three land on real spacing tokens.
+
+**Small size behaves differently by default**, because at 16px there
+isn't room for the full furniture:
+
+- No legend. In its place, one compact label row directly under the bar — lead value, Gap, Target — space-between, no swatches.
+- Numbers render in short form (`RM10.2M`), compacting only at 1M and above; below that the full comma-separated form is more precise and barely longer.
+- No gap outline, at any shortfall.
+- No target tag — the label row already carries Target.
+
+Both defaults are overridable per instance (`showLegend`, `compact`).
+The trade-off to know: with the legend gone, a Small bar carrying two
+or more categories has no colour-to-label mapping, so the label row
+shows Total rather than per-category values. Small suits single-value
+and simple cases; reach for Medium when the category breakdown itself
+is the point.
+
+**Category colors.** Assigned by walking the department table
+top-to-bottom, exactly as [Chart color mapping](#chart-color-mapping)
+specifies: Fire/Orange, Wood/Salmon Pink, Earth/Green, Water/Navy,
+Gold/Amber. A 6th and 7th category take the Purple/Turquoise reserve;
+an 8th onward takes the Neutral-4 overflow color. A single-value bar
+(one series against a target) is **Obsidian**, not a department color
+— that's [Progress Bar](#progress-bar)'s single-fill default, and a
+department color on a one-segment bar would assert an ownership the
+data doesn't carry. Any category may override with its own color.
+
+**States**
+
+| State | Notes |
+|---|---|
+| Default | shortfall — segments, gap indicator, headroom, target line |
+| At or over target | no gap indicator and no headroom; segments continue past the target line |
+| No categories | track renders empty up to the target with headroom beyond it; no gap indicator regardless of size; the footer (or a placeholder line) says there's no data yet rather than leaving a blank bar. The legend is omitted entirely rather than rendering empty |
+| `showTarget: false` | Card variant only — the corner figures are hidden; the target line, tag and headroom are unaffected |
+| Read-only | no interactive states of its own, same as [Progress Bar](#progress-bar) |
+
+**Responsive**
+
+| Behaviour | Rule |
+|---|---|
+| Bar geometry | entirely proportional — segments, target line, gap and headroom hold their positions at any width; there is no minimum bar width |
+| Heading row | the title wraps to as many lines as it needs so the target figures stay top-right. They only stack once the title's longest word can no longer sit beside them (around 240px of card width) |
+| Compact label row | wraps rather than overflowing. When it can't hold all three on one line, **Gap is the item that gives way** — Total and Target are the two that must survive. Dropped only when doing so actually buys the single line; if the row would wrap either way, Gap stays rather than losing the value for nothing |
+| Edge collision | the target tag stays centred on the target line while there's room and slides just far enough inward when it would cross the container edge, re-checked on resize. A runtime check against available width, not a breakpoint — the same treatment (and the same reasoning) as [Dropdown](#dropdown)'s panel edge collision, since whether it collides depends on how long the formatted value is, not on the viewport |
+| In a table | below 768px, [Table](#table)'s own rule governs: the table keeps its 600px minimum and scrolls horizontally rather than squeezing the bar column. Where sideways scrolling isn't wanted, mark the bar column `priority="low"` so it drops out at ≤768px and the numeric columns carry the data instead |
+
+**Accessibility.** The chart area carries `role="img"` and an
+`aria-label` summarising the values ("6,000 of 10,000 target, 60%"), so
+the bar is never read as decoration or as a pile of empty divs. Legend
+swatches carry the colour-to-label mapping, and the gap's dashed
+outline distinguishes it from the filled segments by treatment as well
+as by colour.
+
+**Do:** use it when there's a named target the reader should see
+against the total, and let the headroom past the target render — that
+space is the point. **Don't:** use it as a plain percentage bar with no
+meaningful target (that's [Progress Bar](#progress-bar)), put a
+category breakdown in a Small bar and expect the categories to be
+identifiable, or add a Target row to the legend — it's already labelled
+once, under the bar.
 
 ### Radio
 
@@ -9286,8 +9579,64 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.92 — 2026-09-03** — Added **[Progress-to-Goal
+  Bar](#progress-to-goal-bar)**, a new component: a horizontal stacked
+  bar showing contribution toward an explicit, labelled target, with a
+  target line at a fixed 75% of track width, headroom drawn past it,
+  and a dashed Red outline marking the shortfall. This is the component
+  [Chart type selection](#chart-type-selection) has pointed at for
+  "Budget / gap breakdown" since that table was written — a custom
+  HTML/CSS segmented bar rather than a chart-library chart, the same
+  call the Weighted pipeline bar row makes. That row previously read
+  "Segmented bar + detail table (custom component from
+  `components.css`)", describing something that didn't exist in
+  `components.css`; it now links the real section.
+  Three variants: **Card**, **Chart** (no card chrome at all), and
+  **In-table** (an 8px `radius-pill` rail for a table cell, reusing
+  Progress Bar's own default track anatomy). Three sizes whose bar
+  heights all land on real spacing tokens — 16/32/40 — so unlike
+  Progress Bar's track heights there's no literal height to excuse;
+  the corner radii and per-size type ramp remain literals, and are
+  flagged as such. Card padding is `spacing-16` at every size, per
+  Card's own default and Chart chrome's "no override" rule.
+  Nothing new was invented where a rule already existed: the container
+  is Card's recipe verbatim, category colors walk [Chart color
+  mapping](#chart-color-mapping)'s department table in its documented
+  order (a single-value bar stays Obsidian, since a department color on
+  a one-segment bar would assert an ownership the data doesn't carry),
+  the gap reuses functional Red `#FD3343` — the same value Progress
+  Bar's Error state and Badge's Danger already use — and the legend
+  swatch geometry follows `.c-progress-legend-swatch`. The legend
+  carries categories and Gap only; Target is labelled once, by the tag
+  under the bar.
+  Small size defaults to no legend, a single compact label row, and
+  short-form numbers (compacting only at 1M and above) — both defaults
+  overridable, with the colour-mapping trade-off documented rather than
+  hidden. Responsive behaviour is specced rather than left to chance:
+  the heading row keeps the target figures top-right by wrapping the
+  title (flex items wrap before they shrink, so the title is based on
+  its `min-content`); the compact label row drops **Gap** first when it
+  can't fit, and only when dropping it actually buys the single line;
+  and the target tag uses a runtime edge-collision check, the same
+  treatment and reasoning as [Dropdown](#dropdown)'s panel, since
+  whether it collides depends on the formatted value's length rather
+  than the viewport. In a table below 768px, [Table](#table)'s own
+  existing rule governs — 600px minimum with horizontal scroll, or
+  `priority="low"` on the bar column.
+  `components.css` gains the full `.c-goal-bar*` block, placed
+  alphabetically between Progress Bar and Prompt input bar; its size
+  metrics are component-scoped custom properties rather than global
+  tokens, the same precedent Prompt input bar's own `--prompt-bar-*`
+  set. **`tokens.css` is unchanged** — the component needed no new
+  global token, and adding component-scoped ones there would break that
+  file's stated contract as a rendering of this document's own token
+  tables. `preview.html` gains a **Custom Charts** subsection inside
+  the existing Charts entry, below Chart.js v4, rather than a new
+  top-level gallery entry — the same single-comp-block convention Card
+  uses for its own variants, so the Components nav list is unchanged.
+
 - **v0.9.91 — 2026-09-02** — Added **Charts**, a new gallery entry in
-  this file — the first live build against [Chart chrome &
+  `preview.html` — the first live build against [Chart chrome &
   marks](#chart-chrome--marks) and [Chart color mapping](#chart-color-
   mapping), both of which have been pure documentation, with nothing
   actually rendered anywhere in this repo, since they were written.
@@ -9302,17 +9651,17 @@ rather than maintaining two token sources by hand:
   same border-hidden/footnote-tick treatment as the primary axis, but
   only one gridline, ever, so the two scales don't visually compete).
   Chart.js v4 (the library this section already named) loads from CDN
-  in this file's own `<head>`, the same pattern already used for
-  fonts/icons. `components.css` gains the layout scaffolding the
-  Card/KPI/container anatomy already specs but had no CSS behind yet:
-  `.c-chart-grid` (the documented `repeat(3,1fr)` → 2 → 1 responsive
-  grid), `.c-chart-canvas-wrap` (the `flex:1 1 auto` + 260px/300px-
-  `.tall` floor), and `.c-chart-table-wrap` for "View as table" —
-  genuinely wired per card, not just visual, and given the identical
-  flexible footprint the canvas has so toggling to a shorter table
-  never changes the card's own height (a fix made and verified during
-  this build, now folded into that anatomy table's own text). Card,
-  Button, and Table's own embedded variant are reused verbatim
+  in `preview.html`'s own `<head>`, the same pattern this file already
+  uses for fonts/icons. `components.css` gains the layout scaffolding
+  the Card/KPI/container anatomy already specs but had no CSS behind
+  yet: `.c-chart-grid` (the documented `repeat(3,1fr)` → 2 → 1
+  responsive grid), `.c-chart-canvas-wrap` (the `flex:1 1 auto` +
+  260px/300px-`.tall` floor), and `.c-chart-table-wrap` for "View as
+  table" — genuinely wired per card, not just visual, and given the
+  identical flexible footprint the canvas has so toggling to a shorter
+  table never changes the card's own height (a fix made and verified
+  during this build, now folded into that anatomy table's own text).
+  Card, Button, and Table's own embedded variant are reused verbatim
   throughout, per that section's existing anatomy — no new controls.
   Two open questions surfaced while building this, deliberately left
   open rather than decided here: whether a categorical (department-
@@ -9322,7 +9671,7 @@ rather than maintaining two token sources by hand:
   above, needs a fuller spec once more mixed-chart instances exist.
   Placement: this entry sits directly above [Chart color
   mapping](#chart-color-mapping) in both this document's own section
-  order and this file's nav/gallery, per direct request — a
+  order and `preview.html`'s nav/gallery, per direct request — a
   deliberate exception to this file's own stated convention of strict
   alphabetical component placement ("Charts" sorts after "Chart color
   mapping" on a literal string comparison). `tokens.css` unchanged —
@@ -9336,7 +9685,7 @@ rather than maintaining two token sources by hand:
   the same trim [Streaming Text](#ai-native) and
   [Thinking](#ai-native)'s own galleries already went through
   (v0.9.77). `mountPermissionPrompt` itself is unchanged and still
-  accepts any risk tier or initial state; only this file's own mount
+  accepts any risk tier or initial state; only the gallery's own mount
   calls were reduced to the one example. `components.css`/
   `tokens.css`: unchanged — this is a demo-scope change only, the
   component's own eleven rules and anatomy are untouched.
@@ -9379,10 +9728,10 @@ rather than maintaining two token sources by hand:
   so Deny reuses Table's own established recipe (Ghost + a scoped
   `--color-red` override) instead of a new Button variant; no
   dedicated muted/expired Badge tone exists beyond `.c-badge-neutral`,
-  so the Expired state uses that. This file gains a real, interactive
-  gallery entry (`#permissionPromptDemo`) — four live examples
-  (Low/Medium/High risk, plus one already Expired) — its own Chat
-  window instance proving the component as a genuine child of
+  so the Expired state uses that. `preview.html` gains a real,
+  interactive gallery entry (`#permissionPromptDemo`) — four
+  live examples (Low/Medium/High risk, plus one already Expired) — its
+  own Chat window instance proving the component as a genuine child of
   `.c-chat-msg.is-ai`, and a real 375px mobile iframe for both.
   `tokens.css` unchanged — every value this component needed
   (`--text-h5-*`, `--icon-md`, `--icon-micro`, `--color-red`, the
@@ -9419,14 +9768,15 @@ rather than maintaining two token sources by hand:
   sent` is also dropped from the reduced-motion selector list, since
   the class itself is gone. `DESIGN-SYSTEM.md`/`preview.html`: the
   Anatomy table's "Sent state" row is removed for the same reason;
-  Rules 10/12/13/18 and the Do/Don't paragraph updated as above. This
-  file's own interactive gallery demo (`toolApprovalDemo`) is
-  rewritten to match: `state.open`/`state.sent` collapse into a single
-  `state.closed` flag; `dismiss()` and `send()` both just set it and
-  re-render; `reopen()` and `reset()` are deleted along with the "Open
-  approval" button and the sent-confirmation markup they drove;
-  `render()` returns nothing at all once closed, the same pattern the
-  (now-formalized) Stop path already used. `tokens.css` unchanged.
+  Rules 10/12/13/18 and the Do/Don't paragraph updated as above.
+  `preview.html`'s own interactive gallery demo (`toolApprovalDemo`)
+  is rewritten to match: `state.open`/`state.sent` collapse into a
+  single `state.closed` flag; `dismiss()` and `send()` both just set
+  it and re-render; `reopen()` and `reset()` are deleted along with
+  the "Open approval" button and the sent-confirmation markup they
+  drove; `render()` returns nothing at all once closed, the same
+  pattern the (now-formalized) Stop path already used. `tokens.css`
+  unchanged.
 
 - **v0.9.87 — 2026-09-02** — New rule for **Tool approval**, [AI
   Native](#ai-native): Rule 19, "Sized to its content, bounded by the
@@ -9467,13 +9817,13 @@ rather than maintaining two token sources by hand:
   Textarea open still stays fully within header/composer bounds and
   scrolls internally instead of overflowing, with zero console errors.
   While making this pass, also caught and fixed a real, considerably
-  older sync gap in this file's own copy of this section: Rules 16–18
-  (added to `DESIGN-SYSTEM.md` in v0.9.79) and their corresponding
-  **Do**/**Don't** clauses had never been ported over here —
+  older sync gap in `preview.html`'s own embedded copy of this
+  section: Rules 16–18 (added to this file in v0.9.79) and their
+  corresponding **Do**/**Don't** clauses had never been ported over —
   `preview.html`'s copy still read "Fifteen rules" and stopped at Rule
   15, three commits stale. Caught by direct comparison across both
-  files, not assumed in sync. Fixed alongside adding Rule 19, so this
-  copy now carries all nineteen. `tokens.css` unchanged.
+  files, not assumed in sync. Fixed alongside adding Rule 19, so
+  `preview.html` now carries all nineteen. `tokens.css` unchanged.
 
 - **v0.9.86 — 2026-09-02** — **Tool approval**'s head row
   (`.c-tool-approval-head`, [AI Native](#ai-native)) switches from
@@ -9590,6 +9940,31 @@ rather than maintaining two token sources by hand:
   (heading-3 size/line-height/weight, Neutral-9) is unchanged.
   `tokens.css` unchanged: `--font-primary` already existed, this only
   changes which token the question references.
+
+- **v0.9.80 — 2026-09-02** — Bug fix, **Prompt input bar**
+  ([AI Native](#ai-native)): the Inline variant (`.c-prompt-bar--inline`,
+  Chat window's own real composer) rendered off-center below a 640px
+  viewport — shifted 16px left of where it should sit. Root cause: the
+  Floating variant's own `@media (max-width:640px)` rule sets
+  `left`/`right`/`width` on the bare `.c-prompt-bar` selector so the
+  Floating bar can span edge-to-edge on a small screen; `.c-prompt-bar
+  --inline` already resets `left`/`bottom`/`width` back for its own
+  in-flow layout, but never reset `right`, so `right: var(--spacing-16)`
+  leaked through unopposed. For a `position: relative` box, an
+  unopposed `right` with `left: auto` resolves per spec to `left:
+  -right` — a real, silent -16px shift, not merely a missed override.
+  Surfaced while verifying **Tool approval**'s new pinned-composer
+  positioning (v0.9.79) in a genuine 375px iframe, which is what
+  actually exercises this media query — most other verification passes
+  in this document's own history used viewport emulation rather than a
+  truly narrow rendering surface, which wouldn't reproduce it. Fix:
+  `.c-prompt-bar--inline` now also resets `right: auto`. Affects every
+  Chat window instance below 640px, not just Tool approval — a shared
+  Prompt input bar defect, not a new rule. `DESIGN-SYSTEM.md`'s own
+  Prompt input bar section needed no text change (the Inline variant's
+  documented behavior was already "resets Floating's own absolute
+  offsets for its own in-flow layout" — the CSS just hadn't fully lived
+  up to that yet). `tokens.css` unchanged.
 
 - **v0.9.79 — 2026-09-02** — Three new rules for **Tool approval**,
   [AI Native](#ai-native): closing the gap between how the shipped
@@ -16496,6 +16871,60 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
   if(composerInputEl) composerInputEl.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){ e.preventDefault(); sendMessage(); }
   });
+})();
+</script>
+
+<script>
+/* Progress-to-Goal Bar — the two runtime behaviors DESIGN-SYSTEM.md's
+   Responsive table specs. Both are measurement-driven rather than
+   breakpoint-driven, because whether they trigger depends on how long the
+   formatted values are, not on the viewport. */
+(function(){
+  /* Target tag edge collision — the tag is centred on the target line, so a
+     long value on a narrow bar pushes its right half past the container
+     edge. Same treatment as Dropdown's panel: nudge it back inside only
+     when it would actually collide. */
+  function clampTargetTags(){
+    document.querySelectorAll('.c-goal-bar-target-tag').forEach(function(tag){
+      var chart = tag.closest('.c-goal-bar-chart');
+      if(!chart) return;
+      tag.style.marginLeft = '';
+      var cb = chart.getBoundingClientRect();
+      var tb = tag.getBoundingClientRect();
+      var overRight = tb.right - cb.right;
+      var overLeft = cb.left - tb.left;
+      if(overRight > 0)     tag.style.marginLeft = (-overRight) + 'px';
+      else if(overLeft > 0) tag.style.marginLeft = overLeft + 'px';
+    });
+  }
+
+  /* Compact label row — Total and Target are the two that must survive, so
+     Gap gives way when all three can't hold one line. Only dropped when
+     doing so actually buys the single line. */
+  function rowIsWrapped(row){
+    var first = null, last = null;
+    Array.prototype.forEach.call(row.children, function(el){
+      if(el.style.display === 'none') return;
+      if(!first) first = el;
+      last = el;
+    });
+    return !!(first && last && last.offsetTop > first.offsetTop);
+  }
+  function fitLabelRows(){
+    document.querySelectorAll('.c-goal-bar-labels').forEach(function(row){
+      var gapItem = row.querySelector('.is-gap');
+      if(!gapItem) return;
+      gapItem.style.display = '';
+      if(!rowIsWrapped(row)) return;
+      gapItem.style.display = 'none';
+      if(rowIsWrapped(row)) gapItem.style.display = '';
+    });
+  }
+
+  function sync(){ fitLabelRows(); clampTargetTags(); }
+  window.addEventListener('resize', sync);
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+  else sync();
 })();
 </script>
 

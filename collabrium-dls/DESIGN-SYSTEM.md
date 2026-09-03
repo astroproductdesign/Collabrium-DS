@@ -816,6 +816,7 @@ undocumented ones is just an inconsistent list.
 - [Pagination](#pagination)
 - [Password field](#password-field)
 - [Progress Bar](#progress-bar)
+- [Progress-to-Goal Bar](#progress-to-goal-bar)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -2692,7 +2693,7 @@ Choose chart type based on what the data communicates, not aesthetics.
 | Positive / negative contributions | Diverging horizontal bar chart (bridge/waterfall) |
 | Deal stage pipeline | Weighted pipeline bar component (custom — built in HTML/CSS, not chart library) |
 | 2×2 performance matrix | Scatter chart with quadrant zone backgrounds |
-| Budget / gap breakdown | Segmented bar + detail table (custom component from `components.css`) |
+| Budget / gap breakdown | [Progress-to-Goal Bar](#progress-to-goal-bar) — a custom HTML/CSS segmented bar, not a chart-library chart |
 
 **Do:** pick a chart type from the table above by what the data needs
 to say, not by preference; give every chart the same chrome (no axis
@@ -4184,6 +4185,146 @@ general one — anything past that uses the Neutral-4 overflow color;
 put a label inside a Compact (4px) track or a stacked fill; use a
 department elemental color as a single-fill bar's default — department
 colors classify ownership, not progress.
+
+### Progress-to-Goal Bar
+
+⚠️ **Designed from scratch — no source in either the original brand
+deck or the teammate's build.** Built from this document's own token
+system by reusing [Card](#card)'s container recipe, [Progress
+Bar](#progress-bar)'s stacked-segment and legend conventions, and
+[Chart color mapping](#chart-color-mapping)'s department walk — not
+transcribed. Treat as a first pass needing real design/brand review.
+
+A horizontal stacked bar showing contribution toward a goal: category
+segments stack from the left, a vertical line marks the target, and
+when the categories fall short, a dashed outline marks the gap between
+where they end and where the target sits. This is the component
+[Chart type selection](#chart-type-selection) points at for the
+"Budget / gap breakdown" data story — built in HTML/CSS rather than
+the chart library, the same call the Weighted pipeline bar makes.
+
+Distinct from [Progress Bar](#progress-bar): Progress Bar answers "how
+far along is this?" against an implicit 100%. Progress-to-Goal Bar
+answers "how far toward *this* number, and how much is missing?" — the
+target is an explicit, labelled value that sits partway along the
+track, and the space past it is deliberately still drawn. The two share
+track and legend anatomy on purpose; reach for Progress Bar when there
+is no named target and no shortfall worth naming.
+
+**Scale.** `total` = the sum of the category values. The target sits at
+a fixed **75% of track width**, so the full track always represents
+`target ÷ 0.75` — the remaining 25% is headroom, drawn so a bar at
+target doesn't read as a bar that has run out of room. When
+`total < target`, the gap indicator spans `total` → `target` and the
+headroom segment spans `target` → end of track. When `total >= target`,
+there is no gap and no headroom: segments simply continue past the
+target line, and if they exceed the full track the whole scale
+re-bases on `total`, which is the one case the target line moves off
+75%.
+
+**Anatomy**
+
+| Part | Spec |
+|---|---|
+| Container | [Card](#card)'s own recipe, unmodified: Neutral-1 fill, 1px Neutral-3 border, `radius-lg` (20px), `shadow-1`, `spacing-16` padding. Padding does **not** scale with size — only the bar, type and internal gaps do |
+| Heading | the component title, `weight-extrabold`, Neutral-9, letter-spacing 0 — per this document's own "every heading at 800" rule |
+| Target figures (optional) | top-right, on the same row as the heading: raw value over percent-of-target (e.g. "RM 6,000 / 10,000" / "60% of target"). Controlled by `showTarget`; when false the block is omitted and the chart is unaffected |
+| Description (optional) | always its own full-width line beneath the heading row, never a column beside the figures |
+| Track | Neutral-2, full width of its container, per-size corner radius |
+| Category segments | stacked left to right in the order given, no gaps between them; colors per **Category colors**, below |
+| Headroom | Neutral-3 fill from the target point to the end of the track — one step darker than the track, so it reads as "space still on the scale" rather than as empty track. Only when `total < target` |
+| Gap indicator | dashed 2px outline in Red `#FD3343` on the top, bottom and right edges only, no fill, spanning `total` → `target`. Not rendered at Small size or in the In-table variant, and never when there are no categories |
+| Target line | 2px solid Neutral-9, full track height plus a small per-size overhang top and bottom |
+| Target tag | below the line, `Target [value]` — no leading dot, no separator glyph. Centred on the line, sliding inward when it would otherwise cross the container edge (see **Edge collision**) |
+| Legend | one row per category (swatch + label + value) plus a Gap entry; wraps freely. **No Target entry** — the tag under the bar already labels it |
+| Divider + footer (optional) | hairline Neutral-3 rule and one line of small muted text, e.g. explaining the scale |
+
+**Variants**
+
+| Variant | Spec |
+|---|---|
+| Card | the full anatomy above, in its own Card container |
+| Chart | chart area + legend only — no card, border, shadow, padding, heading, divider or footer. For dropping into a tile, cell, or any surface that owns its own container. Never draws a card of its own |
+| In-table | an 8px rail at `radius-pill` for a table cell — Progress Bar's own default track anatomy, reused. No card, no legend, no gap outline; the only label is the target's compact value, above the bar and right-aligned 4px left of the target line. Label space is reserved above the rail and mirrored below it, so the rail sits on the row's centreline while the label still clears the row's top edge — [Table](#table) sets no fixed row height, so the row grows to fit |
+
+**Sizes** — all three apply to the Card and Chart variants; In-table has
+its own fixed metrics.
+
+| Token | Small | Medium | Large |
+|---|---|---|---|
+| Bar height | 16px (`spacing-16`) | 32px (`spacing-32`) | 40px (`spacing-40`) |
+| Bar corner radius | 6px | 8px | 10px |
+| Heading | 13px | 15px | 17px |
+| Description / legend | 11px | 12.5px | 13.5px |
+| Footer | 10.5px | 11.5px | 12.5px |
+| Target tag | 10px | 11px | 12px |
+| Card padding | `spacing-16` at every size |
+
+⚠️ The bar corner radii and the per-size type scale are one-off
+literals — no existing token covers a three-tier bar radius or a
+component with its own size-scaled type ramp. Same class of exception
+as [Progress Bar](#progress-bar)'s own track heights. The bar heights
+are not: all three land on real spacing tokens.
+
+**Small size behaves differently by default**, because at 16px there
+isn't room for the full furniture:
+
+- No legend. In its place, one compact label row directly under the bar — lead value, Gap, Target — space-between, no swatches.
+- Numbers render in short form (`RM10.2M`), compacting only at 1M and above; below that the full comma-separated form is more precise and barely longer.
+- No gap outline, at any shortfall.
+- No target tag — the label row already carries Target.
+
+Both defaults are overridable per instance (`showLegend`, `compact`).
+The trade-off to know: with the legend gone, a Small bar carrying two
+or more categories has no colour-to-label mapping, so the label row
+shows Total rather than per-category values. Small suits single-value
+and simple cases; reach for Medium when the category breakdown itself
+is the point.
+
+**Category colors.** Assigned by walking the department table
+top-to-bottom, exactly as [Chart color mapping](#chart-color-mapping)
+specifies: Fire/Orange, Wood/Salmon Pink, Earth/Green, Water/Navy,
+Gold/Amber. A 6th and 7th category take the Purple/Turquoise reserve;
+an 8th onward takes the Neutral-4 overflow color. A single-value bar
+(one series against a target) is **Obsidian**, not a department color
+— that's [Progress Bar](#progress-bar)'s single-fill default, and a
+department color on a one-segment bar would assert an ownership the
+data doesn't carry. Any category may override with its own color.
+
+**States**
+
+| State | Notes |
+|---|---|
+| Default | shortfall — segments, gap indicator, headroom, target line |
+| At or over target | no gap indicator and no headroom; segments continue past the target line |
+| No categories | track renders empty up to the target with headroom beyond it; no gap indicator regardless of size; the footer (or a placeholder line) says there's no data yet rather than leaving a blank bar. The legend is omitted entirely rather than rendering empty |
+| `showTarget: false` | Card variant only — the corner figures are hidden; the target line, tag and headroom are unaffected |
+| Read-only | no interactive states of its own, same as [Progress Bar](#progress-bar) |
+
+**Responsive**
+
+| Behaviour | Rule |
+|---|---|
+| Bar geometry | entirely proportional — segments, target line, gap and headroom hold their positions at any width; there is no minimum bar width |
+| Heading row | the title wraps to as many lines as it needs so the target figures stay top-right. They only stack once the title's longest word can no longer sit beside them (around 240px of card width) |
+| Compact label row | wraps rather than overflowing. When it can't hold all three on one line, **Gap is the item that gives way** — Total and Target are the two that must survive. Dropped only when doing so actually buys the single line; if the row would wrap either way, Gap stays rather than losing the value for nothing |
+| Edge collision | the target tag stays centred on the target line while there's room and slides just far enough inward when it would cross the container edge, re-checked on resize. A runtime check against available width, not a breakpoint — the same treatment (and the same reasoning) as [Dropdown](#dropdown)'s panel edge collision, since whether it collides depends on how long the formatted value is, not on the viewport |
+| In a table | below 768px, [Table](#table)'s own rule governs: the table keeps its 600px minimum and scrolls horizontally rather than squeezing the bar column. Where sideways scrolling isn't wanted, mark the bar column `priority="low"` so it drops out at ≤768px and the numeric columns carry the data instead |
+
+**Accessibility.** The chart area carries `role="img"` and an
+`aria-label` summarising the values ("6,000 of 10,000 target, 60%"), so
+the bar is never read as decoration or as a pile of empty divs. Legend
+swatches carry the colour-to-label mapping, and the gap's dashed
+outline distinguishes it from the filled segments by treatment as well
+as by colour.
+
+**Do:** use it when there's a named target the reader should see
+against the total, and let the headroom past the target render — that
+space is the point. **Don't:** use it as a plain percentage bar with no
+meaningful target (that's [Progress Bar](#progress-bar)), put a
+category breakdown in a Small bar and expect the categories to be
+identifiable, or add a Target row to the legend — it's already labelled
+once, under the bar.
 
 ### Radio
 
@@ -5727,6 +5868,62 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.92 — 2026-09-03** — Added **[Progress-to-Goal
+  Bar](#progress-to-goal-bar)**, a new component: a horizontal stacked
+  bar showing contribution toward an explicit, labelled target, with a
+  target line at a fixed 75% of track width, headroom drawn past it,
+  and a dashed Red outline marking the shortfall. This is the component
+  [Chart type selection](#chart-type-selection) has pointed at for
+  "Budget / gap breakdown" since that table was written — a custom
+  HTML/CSS segmented bar rather than a chart-library chart, the same
+  call the Weighted pipeline bar row makes. That row previously read
+  "Segmented bar + detail table (custom component from
+  `components.css`)", describing something that didn't exist in
+  `components.css`; it now links the real section.
+  Three variants: **Card**, **Chart** (no card chrome at all), and
+  **In-table** (an 8px `radius-pill` rail for a table cell, reusing
+  Progress Bar's own default track anatomy). Three sizes whose bar
+  heights all land on real spacing tokens — 16/32/40 — so unlike
+  Progress Bar's track heights there's no literal height to excuse;
+  the corner radii and per-size type ramp remain literals, and are
+  flagged as such. Card padding is `spacing-16` at every size, per
+  Card's own default and Chart chrome's "no override" rule.
+  Nothing new was invented where a rule already existed: the container
+  is Card's recipe verbatim, category colors walk [Chart color
+  mapping](#chart-color-mapping)'s department table in its documented
+  order (a single-value bar stays Obsidian, since a department color on
+  a one-segment bar would assert an ownership the data doesn't carry),
+  the gap reuses functional Red `#FD3343` — the same value Progress
+  Bar's Error state and Badge's Danger already use — and the legend
+  swatch geometry follows `.c-progress-legend-swatch`. The legend
+  carries categories and Gap only; Target is labelled once, by the tag
+  under the bar.
+  Small size defaults to no legend, a single compact label row, and
+  short-form numbers (compacting only at 1M and above) — both defaults
+  overridable, with the colour-mapping trade-off documented rather than
+  hidden. Responsive behaviour is specced rather than left to chance:
+  the heading row keeps the target figures top-right by wrapping the
+  title (flex items wrap before they shrink, so the title is based on
+  its `min-content`); the compact label row drops **Gap** first when it
+  can't fit, and only when dropping it actually buys the single line;
+  and the target tag uses a runtime edge-collision check, the same
+  treatment and reasoning as [Dropdown](#dropdown)'s panel, since
+  whether it collides depends on the formatted value's length rather
+  than the viewport. In a table below 768px, [Table](#table)'s own
+  existing rule governs — 600px minimum with horizontal scroll, or
+  `priority="low"` on the bar column.
+  `components.css` gains the full `.c-goal-bar*` block, placed
+  alphabetically between Progress Bar and Prompt input bar; its size
+  metrics are component-scoped custom properties rather than global
+  tokens, the same precedent Prompt input bar's own `--prompt-bar-*`
+  set. **`tokens.css` is unchanged** — the component needed no new
+  global token, and adding component-scoped ones there would break that
+  file's stated contract as a rendering of this document's own token
+  tables. `preview.html` gains a **Custom Charts** subsection inside
+  the existing Charts entry, below Chart.js v4, rather than a new
+  top-level gallery entry — the same single-comp-block convention Card
+  uses for its own variants, so the Components nav list is unchanged.
 
 - **v0.9.91 — 2026-09-02** — Added **Charts**, a new gallery entry in
   `preview.html` — the first live build against [Chart chrome &

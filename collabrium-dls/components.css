@@ -1767,6 +1767,102 @@
 .c-progress-legend-swatch{width:8px; height:8px; border-radius:2px; flex:none;}
 
 /* =========================================================
+   Progress-to-Goal Bar — the custom component DESIGN-SYSTEM.md's Chart
+   type selection already pointed at for "Budget / gap breakdown"
+   (segmented bar + detail table), built in HTML/CSS rather than the
+   chart library, same call as the Weighted pipeline bar. Reuses Card's
+   container recipe verbatim (Neutral-1, 1px Neutral-3, radius-lg,
+   shadow-1, spacing-16 padding), Progress Bar's stacked-segment and
+   legend conventions, and Chart color mapping's department walk for
+   category colors. Three variants (card / chart / table) share one
+   chart-area unit; three sizes scale the bar, type and internal gaps
+   but never the card padding.
+
+   Size metrics live as component-scoped custom properties rather than
+   global tokens — same precedent as Prompt input bar's own --prompt-bar-*
+   below. Bar heights land on real spacing tokens (16/32/40); the corner
+   radii (6/8/10) and the per-size type scale are one-off literals, the
+   same class of exception Progress Bar's own track heights already are.
+   ========================================================= */
+.c-goal-bar{font-family:var(--font-primary); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--gb-pad); width:100%; max-width:560px; box-sizing:border-box;}
+.c-goal-bar.size-small{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-16); --gb-bar-h:var(--spacing-16); --gb-bar-radius:6px; --gb-title-size:13px; --gb-desc-size:11px; --gb-legend-size:11px; --gb-footer-size:10.5px; --gb-tag-size:10px; --gb-swatch:8px; --gb-overhang:5px;}
+.c-goal-bar.size-default{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-32); --gb-bar-radius:8px; --gb-title-size:15px; --gb-desc-size:12.5px; --gb-legend-size:12.5px; --gb-footer-size:11.5px; --gb-tag-size:11px; --gb-swatch:10px; --gb-overhang:7px;}
+.c-goal-bar.size-large{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-40); --gb-bar-radius:10px; --gb-title-size:17px; --gb-desc-size:13.5px; --gb-legend-size:13.5px; --gb-footer-size:12.5px; --gb-tag-size:12px; --gb-swatch:12px; --gb-overhang:9px;}
+
+/* Chart-only variant — the same chart area and legend with no card chrome
+   at all, for dropping into a tile, a cell, or any surface that already
+   owns its own container. */
+.c-goal-bar.variant-chart{background:transparent; border:none; box-shadow:none; padding:0; max-width:none;}
+
+/* Head — title and the target figures hold the top row together; the
+   description always takes its own full-width line beneath them. Ordered
+   rather than re-nested, so the DOM keeps its natural reading order
+   (title → description → figures) while the layout puts the figures
+   top-right. flex-basis:min-content on the title is what keeps them on
+   one row at every width: with flex-wrap on, flex items wrap before they
+   shrink, so a content-width basis would push the figures onto their own
+   line as soon as title+figures exceeded the card. Basing the title on
+   its longest word instead lets the title wrap to two lines and the
+   figures stay put; they only stack once even that word can't fit
+   beside them. */
+.c-goal-bar-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px var(--spacing-16); margin-bottom:var(--gb-head-gap);}
+.c-goal-bar-title{order:1; flex:1 1 auto; flex-basis:min-content; margin:0; font-size:var(--gb-title-size); font-weight:var(--weight-extrabold); letter-spacing:0; color:var(--color-neutral-9);}
+.c-goal-bar-desc{order:3; flex:0 0 100%; margin:0; font-size:var(--gb-desc-size); line-height:1.5; font-weight:400; color:var(--color-neutral-5);}
+.c-goal-bar-target{order:2; flex:none; margin-left:auto; text-align:right;}
+.c-goal-bar-target-value{font-size:calc(var(--gb-title-size) + 3px); font-weight:var(--weight-extrabold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums; white-space:nowrap;}
+.c-goal-bar-target-value .of{margin-left:2px; font-size:var(--gb-desc-size); font-weight:600; color:var(--color-neutral-5);}
+.c-goal-bar-target-pct{margin-top:2px; font-size:var(--gb-desc-size); color:var(--color-neutral-5);}
+
+/* Chart area — shared by all three variants. Track is Neutral-2, headroom
+   Neutral-3 (deliberately one step darker, so "space still available up to
+   the end of the scale" reads as present rather than as empty track), and
+   the gap is an unfilled dashed outline in the system's own functional Red,
+   the same value Progress Bar's Error state uses. */
+.c-goal-bar-chart{padding-top:var(--gb-overhang);}
+.c-goal-bar-barwrap{position:relative;}
+.c-goal-bar-track{position:relative; height:var(--gb-bar-h); border-radius:var(--gb-bar-radius); background:var(--color-neutral-2); overflow:hidden;}
+.c-goal-bar-segment{position:absolute; top:0; bottom:0;}
+.c-goal-bar-headroom{position:absolute; top:0; bottom:0; background:var(--color-neutral-3);}
+.c-goal-bar-gap{position:absolute; top:0; bottom:0; box-sizing:border-box; border-top:2px dashed var(--color-red); border-bottom:2px dashed var(--color-red); border-right:2px dashed var(--color-red);}
+.c-goal-bar-target-line{position:absolute; top:calc(-1 * var(--gb-overhang)); bottom:calc(-1 * var(--gb-overhang)); width:2px; background:var(--color-neutral-9); transform:translateX(-1px);}
+.c-goal-bar-tagrow{position:relative; height:calc(var(--gb-tag-size) + 14px); margin-top:8px;}
+.c-goal-bar-target-tag{position:absolute; top:0; transform:translateX(-50%); font-size:var(--gb-tag-size); font-weight:700; color:var(--color-neutral-9); white-space:nowrap;}
+
+/* Legend — categories and Gap only; Target is labelled once, by the tag
+   under the bar. Swatch geometry follows Progress Bar's own
+   .c-progress-legend-swatch (small square, 2px radius), with a dashed
+   outline swatch for Gap so the colour isn't the only signal. */
+.c-goal-bar-legend{display:flex; flex-wrap:wrap; gap:var(--spacing-8) var(--spacing-16);}
+.c-goal-bar-legend-item{display:inline-flex; align-items:center; gap:6px; font-size:var(--gb-legend-size); color:var(--color-neutral-5); white-space:nowrap;}
+.c-goal-bar-legend-item b{margin-right:2px; font-weight:700; color:var(--color-neutral-9);}
+.c-goal-bar-legend-swatch{width:var(--gb-swatch); height:var(--gb-swatch); border-radius:2px; flex:none;}
+.c-goal-bar-legend-swatch.is-gap{background:none; border:1.5px dashed var(--color-red);}
+
+/* Compact label row — the Small size's default in place of the legend: one
+   tight line under the bar, no swatches, short-form numbers. Wraps rather
+   than overflowing, since three nowrap items in a space-between row can
+   neither shrink nor break on their own. */
+.c-goal-bar-labels{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px var(--spacing-8); margin-top:6px; font-size:var(--gb-legend-size); line-height:1.4; color:var(--color-neutral-5);}
+.c-goal-bar-labels > span{white-space:nowrap;}
+.c-goal-bar-labels b{margin-left:3px; font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-goal-bar-labels .is-gap, .c-goal-bar-labels .is-gap b{color:var(--color-red);}
+
+.c-goal-bar-divider{margin:var(--spacing-16) 0 var(--spacing-12); border:none; border-top:1px solid var(--color-neutral-3);}
+.c-goal-bar-footer{margin:0; font-size:var(--gb-footer-size); line-height:1.5; color:var(--color-neutral-5);}
+
+/* In-table variant — an 8px rail for a table cell: no card, no legend, no
+   gap outline (the same call Small makes, with even less room to draw one),
+   just the bar and the target's compact value above it, right-aligned 4px
+   left of the target line. 8px at radius-pill is Progress Bar's own default
+   track anatomy, reused rather than re-specified. Label space is reserved
+   above the rail and mirrored below, so the rail sits on the row's
+   centreline and the label still clears the row's top edge — Table sets no
+   fixed row height, so the row grows to fit. */
+.c-goal-bar.variant-table{--gb-bar-h:8px; --gb-bar-radius:var(--radius-pill); --gb-tag-size:10px; --gb-overhang:3px; --gb-label-space:16px; background:transparent; border:none; box-shadow:none; padding:0; max-width:none;}
+.c-goal-bar.variant-table .c-goal-bar-chart{padding:var(--gb-label-space) 0;}
+.c-goal-bar-tablelabel{position:absolute; bottom:calc(100% + 4px); transform:translateX(-100%); margin-left:-4px; font-size:var(--gb-tag-size); line-height:12px; font-weight:700; color:var(--color-neutral-9); white-space:nowrap; font-variant-numeric:tabular-nums;}
+
+/* =========================================================
    Prompt input bar — AI Native category. Floating bar variant
    (the first of what may become Inline/Docked variants later,
    without renaming anything — hence the plain .c-prompt-bar*
