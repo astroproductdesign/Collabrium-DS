@@ -812,6 +812,7 @@ undocumented ones is just an inconsistent list.
 - [Info Banner](#info-banner)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
+- [Notes](#notes)
 - [PageHeader](#pageheader)
 - [Pagination](#pagination)
 - [Password field](#password-field)
@@ -3901,6 +3902,114 @@ use a modal for anything that isn't a focused, single decision — long
 forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone).
 
+### Notes
+
+⚠️ **Designed from scratch — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by composing [Button](#button), [Tooltip](#tooltip),
+[Table](#table) and Search input's avatar recipe, not transcribed.
+Treat as a first pass needing real design/brand review.
+
+Coloured annotations attached to a single record — a deal row, a person,
+a line item. Up to **four notes per row**.
+
+**One surface, three views.** There is no modal anywhere in this
+component. A hover shows a **peek** (the list); a click opens a
+**panel**, anchored to the row and growing out of the pin it came from.
+The panel shows a 2×2 **grid** at two or more notes, or the note itself
+at exactly one. Reading, editing and writing all happen in that same
+panel.
+
+| Part | Spec |
+|---|---|
+| Pin | 48.94 × 54.83px at one note; each card in a stack is 42 × 48px. `radius-sm` (12px), solid fill, `ph-fill ph-push-pin` glyph at 16px |
+| Stack | 2–4 cards overlapping at a 16px step, so the container is 42 + 16(n−1) — 58px at two, 74px at three, 90px at four. Height is a flat **48px at every count**; 90px is the widest the component ever gets, so a column can be sized for it and never reflow |
+| Tilt | ±3°, alternating direction per card via `nth-child`. Straightens to 0° on hover or keyboard focus |
+| Add button | [Button](#button)'s `.c-icon-btn` with `ph-plus`. Present at **every** count including one — see the note on the wrapper below |
+| Peek (list) | on hover or focus: one row per note, a 28 × 32px pin at 8px radius, note text clamped to **two lines**, then author · date |
+| Panel | 340px wide (`min(340px, 100vw − 24px)`), `radius-lg`, `shadow-3`. A positioned popover, **not** a modal — no scrim, closes on Escape, outside click or scroll |
+| Grid | 2 × 2 of note cards, `radius-sm`, solid fill, note text clamped to **three lines**, caption in `caption`. A lone note spans both columns |
+| Note view | eyebrow + avatar + name on one line, kick (`NOTE · MONTH`), title, note text, date. Actions: delete (icon), **Resolve** (Secondary), **Edit** (Primary) |
+| Note field | edit and new use a bespoke field, deliberately **not** the system's input recipe: no border, no box, sitting directly on the note's own colour at the same size and position the read view puts the text. Its affordances are the caret and a soft ink inset on focus. 280-character limit |
+| Panel colour | the note view takes the note's own colour as a solid fill; the grid view stays neutral white |
+
+**Colour is positional, never chosen.** The nth note on a row takes the
+nth colour in a fixed sequence, so a colour can never repeat on a row
+and the collapsed stack always reads the same way:
+
+| Position | Colour | Fill | Glyph |
+|---|---|---|---|
+| 1 | Orange | `--color-orange` `#FF5825` | `#BE2E00` |
+| 2 | Pink | `--color-salmon-pink` `#FF7A90` | `#C23154` |
+| 3 | Green | `--color-green` `#00C26E` | `#007B52` |
+| 4 | Navy | `--color-navy` `#1473E6` | `#0051AE` |
+
+Because position drives colour, deleting a note re-colours the ones
+after it — delete the pink note of four and green and navy shift up.
+That is the cost of the sequence always holding; the alternative is a
+gap in it. There is no colour picker: with four colours and a cap of
+four, choosing one would be meaningless.
+
+**Four notes is the cap**, enforced in three places rather than one: the
+model refuses a fifth, the row's add button goes `disabled` +
+`aria-disabled` with a plain-English reason and a [Tooltip](#tooltip),
+and the panel's Add button does the same.
+
+**Resolved.** A note is marked settled without being deleted — Resolve
+and Reopen are symmetrical, and delete stays the only destructive
+action. **A resolved note keeps its slot**, so four resolved notes means
+the row is full; Resolve records that something was dealt with, it does
+not free capacity. The treatment differs per view, deliberately:
+
+| View | Resolved |
+|---|---|
+| Pin / stack card | fill drops to a 20% tint of its own colour, glyph becomes `ph-fill ph-check-circle` |
+| Peek (list) | same faded card and tick. **Only the note text** is struck through; the caption keeps author · date and gains `· Resolved by [name]` |
+| Grid card | keeps its **solid fill** so text and strikethrough stay white. Tick glyph, caption replaced by `Resolved by [name]`, only the note text struck |
+| Note view | a `check-circle` banner reading `Resolved by [name] · [date]`, and the Secondary action becomes **Reopen** |
+
+**While a panel is open its pin steps aside** — the panel grew out of it,
+so showing both reads as a duplicate. Hidden with `opacity`, never
+`visibility` or `display`: the pin is the control that opened the panel
+and the one focus returns to, so it has to stay in the layout, the tab
+order and the accessibility tree. The add button beside it is untouched.
+
+**Accessibility.** Every control is a real `<button type="button">` with
+`aria-haspopup="dialog"`; `aria-expanded` is kept in sync on both the pin
+and the add button. All glyphs are `aria-hidden` — meaning lives only in
+the label, which is written out in full ("4 notes on GRABCAR SDN BHD,
+open the stack"; "Resolved note by Wei Lin Tan, 3 Sept 2026. Open it").
+Focus is trapped in the open panel, Escape closes it, and focus returns
+to the pin. Because a re-render replaces the row's cell, any mutation
+re-finds the pin afterwards rather than leaving focus on a detached node.
+
+⚠️ **Recorded contrast decisions, made deliberately and not to be read
+as oversights.** The glyph colours were chosen for tone-on-tone
+appearance and each measures **under the 3:1** WCAG non-text floor
+against its own fill (navy 1.66:1, orange 1.86:1, pink 2.19:1, green
+2.26:1). The glyph carries no unique information — the button's label
+does — so this is a legibility trade rather than a functional one. On
+the note panel, body text is white on the fill (obsidian on green, the
+one fill white cannot sit on): navy measures 4.54:1, orange 3.15:1 and
+pink 2.49:1 against a 4.5:1 bar. On a **resolved grid card** the fill
+lightens to 67% of its colour over white (`#FF7A90` → `#FEA7B5`), where
+white text measures 1.83–2.67:1; obsidian would measure 5.30–7.75:1.
+Revisit these together if the component is ever audited.
+
+⚠️ Two values sit outside existing scales: the pin's 48.94 × 54.83px at
+one note, and the peek pin's 8px radius. Everything else uses tokens —
+`radius-sm` for the pin and grid card, `radius-lg` for the panel,
+`radius-pill` for the avatar.
+
+**Do** keep the add button present at every count including one — the
+wrapper is universal, and the rule is "stack when 2–4", not "wrapper
+when 2–4"; without it whoever writes the first note can never write a
+second. **Do** let the sequence assign colour. **Don't** add a colour
+picker, a fifth colour, or a fifth note. **Don't** reach for a modal for
+any part of this — the panel stays anchored to the row it belongs to,
+which is what keeps a note attached to its record. **Don't** treat
+Resolve as a soft delete: it keeps its slot and its colour on purpose.
+
 ### PageHeader
 
 ⚠️ **Designed from scratch — no source in either the original
@@ -6038,6 +6147,41 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.96 — 2026-09-04** — Added **Notes**: coloured annotations
+  attached to a table or list row, up to four per row. Composition
+  rather than new furniture — [Button](#button)'s `.c-icon-btn` and
+  `.c-btn`, [Tooltip](#tooltip), [Table](#table) and Search input's own
+  32px avatar recipe — with new CSS only for the pins, the peek, the
+  panel and the note field. No new tokens; `tokens.css` is unchanged.
+  **One surface throughout:** a peek on hover, a panel on click, and
+  that same panel for reading, editing and writing. There is no modal
+  anywhere in the component, and the panel is a positioned popover that
+  grows out of the pin it came from, so a note stays visibly attached to
+  its record. A click opens the 2×2 grid at two or more notes and the
+  note itself at exactly one. **Colour is positional, never chosen:**
+  the nth note takes the nth colour (orange, pink, green, navy), so a
+  colour can never repeat on a row and the collapsed stack always reads
+  the same order — which also means deleting a note re-colours the ones
+  after it, the unavoidable cost of the sequence always holding, and
+  makes a colour picker meaningless. **Four is the cap**, enforced in
+  the model, the row's add button and the panel's, which also bounds the
+  component at 90px so a column can be sized for it and never reflow.
+  **Resolve is not a soft delete** — it is symmetrical with Reopen,
+  keeps the note's slot and its colour, and leaves delete as the only
+  destructive action; four resolved notes still means a full row. Its
+  treatment differs per view on purpose, and the section tabulates all
+  four. Two things are written down as deliberate rather than left to be
+  discovered: the pin steps aside while its panel is open (hidden with
+  `opacity`, never `visibility`, because it is the control focus returns
+  to), and the **contrast decisions** — the tone-on-tone glyphs measure
+  1.66–2.26:1 against their own fills, panel body text 2.49–4.54:1, and
+  a resolved grid card's white text 1.83–2.67:1, all chosen for
+  appearance with the reasoning recorded so an audit meets a decision
+  rather than a defect. Class names are unprefixed (`.npin`, `.npanel`,
+  `.np-*`) against this system's usual `c-` convention, matching the
+  consuming app's existing markup; `.ava` is scoped under `.npanel`
+  rather than renamed, being too generic to sit in a global stylesheet.
 
 - **v0.9.95 — 2026-09-04** — Added the **Pacing Card** variant to
   [Card](#card): one metric's progress against a target it's racing a
