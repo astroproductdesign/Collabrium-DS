@@ -331,6 +331,368 @@
 .c-card-profile-followers{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
 
 /* =========================================================
+   Pacing Card — one metric's progress against a target it's racing a
+   deadline to hit. A Card sub-component: container and footer are the
+   base .c-card / .c-card-footer unmodified, the rail is Progress-to-Goal
+   Bar's In-table variant and the status pill is the real Badge, so this
+   block is arrangement only — no new tokens, no re-drawn furniture.
+   Requires all three of target, accumulating actual, and a time
+   boundary; see DESIGN-SYSTEM.md's Card section ("Pacing Card") for the
+   usage gate, the badge rule and why the footer is required here.
+   ========================================================= */
+/* The base card's 8px child gap is too tight once an h4 label, an h3
+   KPI, a rail and a badge stack up; 12px separates the bands without
+   materially growing the tile. */
+.c-card-pacing{gap:var(--spacing-12);}
+.c-card-pacing-label{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); letter-spacing:var(--text-h4-tracking); color:var(--color-neutral-9);}
+.c-card-pacing-kpi{display:flex; align-items:baseline; flex-wrap:wrap; gap:var(--spacing-8);}
+.c-card-pacing-kpi .value{font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); letter-spacing:var(--text-h3-tracking); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-card-pacing-kpi .qualifier{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+/* Minibar. Nothing sits above the rail here, so the In-table variant's
+   reserved label band collapses to the target line's own overhang — the
+   same override the Secondary stat/KPI card needs. The label row also
+   needs a font size, which variant-table never set, having had no legend
+   of its own. Labels are Total flush left / Target flush right, which is
+   .c-goal-bar-labels' own native space-between layout used as-is. */
+.c-card-pacing .c-goal-bar.variant-table{--gb-legend-size:var(--text-caption-size);}
+.c-card-pacing .c-goal-bar.variant-table .c-goal-bar-chart{padding:var(--gb-overhang) 0 0;}
+.c-card-pacing .c-goal-bar-labels{margin-top:6px; line-height:1.4;}
+/* .c-card is a column flexbox with no align-items, so a bare badge
+   stretches to the full card width — the same trap already recorded
+   against the Stat/KPI card's badge. This row contains it. */
+.c-card-pacing-status{display:flex; flex-wrap:wrap; align-items:center; gap:var(--spacing-8);}
+/* Footer is .c-card-footer verbatim; its own 16px margin-top would
+   double-count against this variant's 12px child gap. */
+.c-card-pacing .c-card-footer{margin-top:var(--spacing-4);}
+
+/* =========================================================
+   Notes — coloured annotations attached to a table or list row, up to
+   four per row. One surface throughout: a peek on hover, a panel on
+   click (a 2x2 grid at 2-4 notes, the note itself at 1), and the same
+   panel again for reading, editing and writing. No modal.
+
+   Composition, not new furniture: .c-icon-btn for add and delete,
+   .c-btn for every panel action, .c-tooltip-wrap for the cap tooltip,
+   and Search input's own 32px avatar recipe. See DESIGN-SYSTEM.md's
+   "Notes" section for the colour sequence, the four-note cap, the
+   resolved state, and the recorded contrast decisions.
+
+   Class names are unprefixed (.npin, .npanel, .np-*) rather than this
+   file's usual c- convention — they match the consuming app's existing
+   markup and were kept deliberately. .ava is scoped under .npanel for
+   the same reason it wasn't renamed: too generic to be global.
+   ========================================================= */
+/* Pin colours — solid fill straight from tokens.css, glyph in a darker
+   value of the same hue, as specified.
+   ⚠️ Glyph measured against its own fill: navy 1.66:1, orange 1.86:1,
+   pink 2.19:1, green 2.26:1 — all four under the 3:1 WCAG non-text
+   floor. Recorded in Notes. */
+:root{
+  --pin-fill-0:var(--color-navy);          --pin-ink-0:#0051AE;
+  --pin-fill-1:var(--color-salmon-pink);   --pin-ink-1:#C23154;
+  --pin-fill-2:var(--color-green);         --pin-ink-2:#007B52;
+  --pin-fill-3:var(--color-orange);        --pin-ink-3:#BE2E00;
+  --npin-radius:var(--radius-sm);   /* 12px — a real token, not a one-off */
+  --npin-surface:var(--color-neutral-1);
+  --npin-border:var(--color-neutral-3);
+  /* Ink on a solid pin fill. Deliberately literal rather than
+     var(--color-obsidian): the fills never change between light and
+     dark, so their ink must not either — and the dark block below
+     flips --color-obsidian to near-white, which would erase the text
+     on the green card. */
+  --np-ink-light:#FFFFFF;
+  --np-ink-dark:#2B2B2C;
+}
+
+/* Wrapper — stack mode only (2–4 notes). Single-pin mode renders the
+   button directly, per spec. */
+.ncell{display:inline-flex; align-items:center; gap:4px;}
+
+/* --- Single pin: 1 note --- */
+.npin{
+  width:48.94px; height:54.83px; border-radius:var(--npin-radius);
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--npin-surface); border:none;
+  cursor:pointer; padding:0;
+  transform:rotate(var(--pin-rot,0deg));
+  transition:box-shadow var(--duration-fast) var(--ease-standard),
+             transform var(--duration-fast) var(--ease-standard),
+             background-color var(--duration-fast) var(--ease-standard);
+}
+.npin i{font-size:16px; line-height:1;}
+.npin:hover{box-shadow:var(--shadow-2); transform:rotate(var(--pin-rot,0deg)) translateY(-1px);}
+.npin:focus-visible{outline:none; box-shadow:var(--shadow-focus);}
+
+/* --- Stack: 2–4 notes ---
+   Width is derived, not hardcoded per count: each additional pin adds a
+   16px step to a 26px base, which reproduces the specified 58px at 2
+   and 90px at 4 and gives 74px at 3, which the spec's size table
+   doesn't cover. */
+.npin-stack{
+  position:relative;
+  /* Each stacked card is 42 x 48 and steps 16px, so the container is
+     42 + 16(n-1) = 26 + 16n. That reproduces the specified 58px at two
+     and 90px at four, and gives 74px at three. Height is a flat 48px at
+     every count — the container is exactly one card tall, carrying no
+     surface or border of its own, so the pile IS the component. */
+  width:calc(26px + 16px * var(--n,2)); height:48px;
+  background:none; border:none; cursor:pointer; padding:0;
+}
+.npin-stack:focus-visible{outline:none; box-shadow:var(--shadow-focus); border-radius:var(--npin-radius);}
+.npin-mini{
+  position:absolute; top:0; left:calc(16px * var(--i,0));
+  width:42px; height:48px;
+  border-radius:var(--npin-radius);
+  display:inline-flex; align-items:center; justify-content:center;
+  /* First note (index 0, orange) sits on top; each later one tucks behind. */
+  z-index:calc(9 - var(--i,0));
+  transform:rotate(var(--mini-tilt));
+  transition:transform var(--duration-base) var(--ease-settle);
+}
+.npin-mini i{font-size:16px; line-height:1;}
+/* Alternating tilt — same angle, opposite direction on every second
+   card. Declarative via nth-child rather than per-card inline values,
+   so the zigzag can never drift out of step. */
+.npin-mini{--tilt:3deg;}
+.npin-mini:nth-child(odd){--mini-tilt:var(--tilt);}
+.npin-mini:nth-child(even){--mini-tilt:calc(-1 * var(--tilt));}
+/* Straighten the whole pile on hover or keyboard focus. */
+.npin-stack:hover .npin-mini,
+.npin-stack:focus-visible .npin-mini{transform:rotate(0deg);}
+/* --- Hover peek: the notes as a list, in a default Card ---
+   Fixed-positioned and placed by JS rather than absolutely positioned
+   in the cell, because the table scroller's overflow would clip it.
+   Same portaling approach .c-tooltip-bubble.is-portaled already uses.
+   Presentational only — the accessible path is the button's label and
+   the dialog, so this never traps the pointer. */
+.npeek{
+  position:fixed; z-index:60; width:min(280px, calc(100vw - 24px)); height:auto; min-width:0;
+  display:none; pointer-events:none;
+  opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);
+}
+.npeek.is-open{display:block; opacity:1;}
+/* Static rendering — documentation, print, tests. The peek and panel are
+   fixed-position and hidden until opened; this lays them out in normal
+   flow so they can be shown as specimens. Not used at runtime. */
+.npeek.is-static{position:static; display:block; opacity:1; pointer-events:none;}
+.npanel.is-static{position:static; display:flex; max-height:none; animation:none;}
+.npk-row{display:flex; gap:var(--spacing-8); align-items:flex-start;}
+.npk-row + .npk-row{margin-top:var(--spacing-12);}
+/* The pin note itself at 32px tall, holding the 42:48 card proportion. */
+.npk-sw{flex:none; width:28px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;}
+/* 11px = 16 x (32/48), so the peek's pin is a true scale of the
+   stacked card rather than a smaller card with a full-size glyph. */
+.npk-sw i{font-size:11px; line-height:1;}
+.npk-body{display:flex; flex-direction:column; min-width:0;}
+/* Note text truncates at two lines in the peek — the peek is a glance,
+   the panel is where you read. */
+.npk-t{
+  font-size:var(--text-body2-size); line-height:var(--text-body2-lh);
+  color:var(--color-neutral-9); overflow-wrap:anywhere;
+  display:-webkit-box; -webkit-box-orient:vertical;
+  -webkit-line-clamp:2; line-clamp:2; overflow:hidden;
+}
+/* Only the note text is struck. The caption stays clean — it gains the
+   resolver's name rather than losing legibility. */
+.npk-row.is-resolved .npk-t{text-decoration:line-through;}
+.npk-row.is-resolved .npk-m{text-decoration:none;}
+.npk-m{margin-top:2px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* --- Click: the notes panel. A positioned popover dialog, not a modal —
+   no scrim, and it stays anchored to the row it belongs to. --- */
+.npanel{
+  position:fixed; z-index:70;
+  /* Shrinks rather than overflowing: below ~356px a fixed 340px panel
+     is pushed off the left edge by the placement clamp. */
+  width:min(340px, calc(100vw - 24px));
+  display:none; flex-direction:column; overflow:hidden;
+  background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-3);
+  transform-origin:top left;
+}
+.npanel.is-open{display:flex;}
+.npanel:focus{outline:none;}
+/* Grows out of the pin it was opened from: the --nsw-* values are the
+   measured delta and scale between the pin's box and the panel's. */
+.npanel.is-opening{animation:npanel-in var(--duration-morph) var(--ease-morph);}
+@keyframes npanel-in{
+  from{opacity:0; transform:translate(var(--nsw-dx,0px),var(--nsw-dy,0px)) scale(var(--nsw-sx,.1),var(--nsw-sy,.1));}
+  to{opacity:1; transform:none;}
+}
+@media (prefers-reduced-motion: reduce){
+  .npanel.is-opening{animation:none;}
+}
+/* "Pinned notes", then an end-to-end rule. The border sits on .np-top,
+   which spans the panel's full width, so the divider needs no negative
+   margins to escape the body's padding. */
+.np-top{padding:var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
+.np-eyebrow{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow); color:var(--color-neutral-5);}
+.np-body{padding:var(--spacing-16); overflow-y:auto; display:flex; flex-direction:column;}
+/* NOTES · AUGUST — eyebrow treatment; the month comes from the newest note */
+.np-kick{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow); color:var(--color-neutral-5);}
+.np-title{margin-bottom:var(--spacing-12); font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); letter-spacing:var(--text-h4-tracking); color:var(--color-neutral-9);}
+/* 2 x 2 grid. A lone note spans both columns rather than sitting in a
+   half-width cell with dead space beside it. */
+.np-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:var(--spacing-8);}
+.np-grid > :only-child{grid-column:1 / -1;}
+.np-card{
+  display:flex; flex-direction:column; gap:var(--spacing-8); text-align:left;
+  padding:var(--spacing-12); border-radius:var(--radius-sm);
+  border:none; font-family:inherit; cursor:pointer; color:var(--np-ink-light);
+  transition:filter var(--duration-fast) var(--ease-standard);
+}
+.np-card:hover{filter:brightness(.94);}
+.np-card:focus-visible{outline:none; box-shadow:var(--shadow-focus);}
+/* Solid fill, matching the pin the note belongs to. */
+.np-card{background:var(--pf);}
+.np-card.el-2{color:var(--np-ink-dark);}
+/* Resolved: the fill lightens to 67% of its own colour over white —
+   #FF7A90 lands on #FEA7B5, the value specified — and the same ratio
+   gives the other three. Only the note text is struck; the caption
+   below it is not, because it now carries new information. */
+.np-card.is-resolved{background:color-mix(in srgb, var(--pf) 67%, #ffffff);}
+.np-card.is-resolved:hover{filter:none; background:color-mix(in srgb, var(--pf) 78%, #ffffff);}
+.np-card.is-resolved .np-card-t{text-decoration:line-through;}
+.np-card.is-resolved .np-card-m{text-decoration:none;}
+.np-card.is-resolved .np-card-m i{color:currentColor;}
+/* Caption for both lines; the note text carries the weight, the byline
+   doesn't. Neither is dimmed with opacity — these fills have little
+   contrast headroom to give away (see Notes). */
+.np-card-t{
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh);
+  font-weight:600; overflow-wrap:anywhere;
+  display:-webkit-box; -webkit-box-orient:vertical;
+  -webkit-line-clamp:3; line-clamp:3; overflow:hidden;
+}
+.np-card-m{display:flex; align-items:center; gap:5px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:400;}
+.np-card-m i{flex:none; font-size:12px; line-height:1; color:inherit;}
+/* Actions rail. Primary action right-aligned; a destructive icon
+   button, when present, is pushed to the far left so it can't be hit
+   on the way to the primary. */
+.np-act{display:flex; justify-content:flex-end; align-items:center; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+.np-act .np-del{margin-right:auto;}
+.np-act .np-del i{font-size:24px; line-height:1;}
+.np-act .np-del:hover{background:var(--color-neutral-2); color:var(--color-red);}
+.np-act .np-del:focus-visible{outline:none; box-shadow:var(--shadow-focus);}
+.np-act .c-btn[disabled]{opacity:.38; cursor:not-allowed;}
+.np-act .c-btn[disabled]:hover{background:var(--color-obsidian);}
+
+/* --- Single-note view, in the same panel --- */
+/* Eyebrow, avatar and name all sit on one line. The name takes the
+   remaining space and truncates, so a long one can't push the row to
+   wrap — the eyebrow and avatar never move. */
+.np-top{display:flex; align-items:center; gap:var(--spacing-8);}
+.np-top .np-eyebrow{flex:none; white-space:nowrap;}
+/* Search input's own 32px avatar recipe, reused verbatim rather than a
+   new one. <i> needs font-style reset — it's a text avatar, not an icon. */
+.npanel .ava{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; font-style:normal;}
+.np-top b{flex:1; min-width:0; font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:700; color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* pre-wrap so the line breaks someone typed into a 6-row field survive
+   the save. The clamped previews (peek, grid card) deliberately stay
+   `normal` — a break there would eat one of their two or three lines. */
+.np-text{margin:0 0 var(--spacing-12); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9); overflow-wrap:anywhere; white-space:pre-wrap;}
+.np-by{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* --- Single-note view takes the note's own colour as a solid fill ---
+   Everything inside switches to that fill's ink. No opacity is used to
+   de-emphasise secondary lines: these fills have no contrast to spare
+   (see Notes), so hierarchy comes from size, weight and case only. */
+.npanel.is-tinted{background:var(--np-panel-fill); color:var(--np-panel-ink); border-color:transparent;}
+.npanel.el-0{--np-panel-fill:var(--pin-fill-0); --np-panel-ink:var(--np-ink-light);}
+.npanel.el-1{--np-panel-fill:var(--pin-fill-1); --np-panel-ink:var(--np-ink-light);}
+.npanel.el-2{--np-panel-fill:var(--pin-fill-2); --np-panel-ink:var(--np-ink-dark);}
+.npanel.el-3{--np-panel-fill:var(--pin-fill-3); --np-panel-ink:var(--np-ink-light);}
+.npanel.is-tinted .np-eyebrow,
+.npanel.is-tinted .np-kick,
+.npanel.is-tinted .np-by,
+.npanel.is-tinted .np-top b,
+.npanel.is-tinted .np-title,
+.npanel.is-tinted .np-text{color:var(--np-panel-ink);}
+.npanel.is-tinted .np-top{border-bottom-color:color-mix(in srgb, var(--np-panel-ink) 28%, transparent);}
+.npanel.is-tinted .np-act{border-top-color:color-mix(in srgb, var(--np-panel-ink) 28%, transparent);}
+.npanel.is-tinted .ava{background:color-mix(in srgb, var(--np-panel-ink) 20%, transparent); color:var(--np-panel-ink);}
+.npanel.is-tinted .np-del{color:var(--np-panel-ink);}
+.npanel.is-tinted .np-del:hover{background:color-mix(in srgb, var(--np-panel-ink) 16%, transparent); color:var(--np-panel-ink);}
+/* Secondary is a white button; on pink and green its own Neutral-3
+   border measures under 3:1 against the fill, so on a coloured panel it
+   borrows the ink for its edge. Scoped here, not a change to Button. */
+.npanel.is-tinted .c-btn-secondary{border-color:color-mix(in srgb, var(--np-panel-ink) 45%, transparent);}
+
+/* Resolved banner. The check is Green on a neutral surface, but takes
+   the panel's ink on a coloured one — a green tick on the green fill
+   would vanish. */
+.np-res{display:flex; align-items:center; gap:6px; margin-top:var(--spacing-8); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.np-res i{flex:none; font-size:14px; line-height:1; color:var(--color-green);}
+.np-res b{font-weight:700; color:var(--color-neutral-9);}
+.npanel.is-tinted .np-res,
+.npanel.is-tinted .np-res b,
+.npanel.is-tinted .np-res i{color:var(--np-panel-ink);}
+
+/* --- The note field. Deliberately NOT the system's input/textarea
+   recipe: those are boxes you fill in, and this is the note itself
+   being written on. No border, no box, no surface of its own — it sits
+   directly on the pin's colour at the same size and position the read
+   view puts the text, so Edit changes what you can do, not what you
+   see. Its one affordance is the caret. --- */
+.np-title{display:block;}
+.np-box{
+  display:block; width:100%; min-height:132px; resize:none; padding:0; margin:0;
+  font-family:inherit; font-size:var(--text-body2-size); line-height:var(--text-body2-lh);
+  color:var(--np-panel-ink, var(--color-neutral-9));
+  background:none; border:none; border-radius:0;
+  caret-color:var(--np-panel-ink, var(--color-obsidian));
+}
+.np-box:focus{outline:none;}
+.np-box::placeholder{color:var(--np-panel-ink, var(--color-neutral-5)); opacity:.6;}
+/* Keyboard users get a visible focus treatment the caret alone can't
+   provide — a soft inset of the panel's own ink, not a system ring. */
+.np-box:focus-visible{
+  box-shadow:0 0 0 8px color-mix(in srgb, var(--np-panel-ink) 12%, transparent);
+  border-radius:4px; background:color-mix(in srgb, var(--np-panel-ink) 12%, transparent);
+}
+
+/* Per-index colour: solid fill on the rectangle, darker same-hue glyph. */
+/* Each coloured surface publishes its own fill and ink as --pf/--pi,
+   so states below (resolved, hover) can derive from them instead of
+   repeating four rules each. */
+.el-0{--pf:var(--pin-fill-0); --pi:var(--pin-ink-0);}
+.el-1{--pf:var(--pin-fill-1); --pi:var(--pin-ink-1);}
+.el-2{--pf:var(--pin-fill-2); --pi:var(--pin-ink-2);}
+.el-3{--pf:var(--pin-fill-3); --pi:var(--pin-ink-3);}
+.npin, .npin-mini, .npk-sw{background:var(--pf);}
+.npin i, .npin-mini i, .npk-sw i{color:var(--pi);}
+
+/* --- Resolved. The note recedes rather than disappears: the fill
+   drops to a 20% tint of its own colour and the pin becomes a tick.
+   Note this also *raises* the glyph's contrast — the dark ink was
+   designed against the full-strength fill, and on a pale tint it has
+   far more room. --- */
+.npin.is-resolved, .npin-mini.is-resolved, .npk-sw.is-resolved{
+  background:color-mix(in srgb, var(--pf) 20%, var(--color-neutral-1));
+}
+
+/* While its panel is open the pin steps aside — the panel grew out of
+   it, so showing both reads as a duplicate. Hidden with opacity, not
+   visibility or display: the pin is the control that opened the panel
+   and the one focus returns to, so it has to stay in the layout, in
+   the tab order and in the accessibility tree. The add button beside
+   it is untouched and stays visible. */
+.np-hidden{opacity:0; pointer-events:none;}
+.npin.np-hidden,.npin-stack.np-hidden{transition:opacity var(--duration-fast) var(--ease-standard);}
+
+/* --- Add button. .c-icon-btn is the DS component; only the disabled
+   treatment is added, which .c-icon-btn doesn't define. --- */
+.nadd:focus-visible{outline:none; box-shadow:var(--shadow-focus);}
+.nadd[disabled]{opacity:.38; cursor:not-allowed;}
+.nadd[disabled]:hover{background:transparent;}
+.nadd i{font-size:var(--icon-sm);}
+
+.empty-note{font-size:var(--text-caption-size); color:var(--color-neutral-5); margin:0;}
+
+/* Sitting in a table cell */
+.c-table td .ncell,.c-table td .npin{vertical-align:middle;}
+
+/* =========================================================
    Hero Card — a promotional/insight tile, a Card sub-component.
    Four states: Default, Risk, AI (Dark), Selected. See
    DESIGN-SYSTEM.md's Card section ("Hero Card") for full anatomy,

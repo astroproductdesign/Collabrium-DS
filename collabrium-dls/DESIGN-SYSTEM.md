@@ -812,6 +812,7 @@ undocumented ones is just an inconsistent list.
 - [Info Banner](#info-banner)
 - [Input field](#input-field)
 - [Modal / dialog](#modal--dialog)
+- [Notes](#notes)
 - [PageHeader](#pageheader)
 - [Pagination](#pagination)
 - [Password field](#password-field)
@@ -1995,6 +1996,7 @@ the Modal footer's divider, scaled down.
 - **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
 - **Profile card** — a talent/influencer profile summary tile: identity block (name, demographic meta), a divider, persona badges, then an alphabetically-sorted platform list with a Title-weight follower count per row. Extends the base Card (Title, Description, Footer divider) and reuses Search input's own avatar recipe and Badge & Tag's own grouping/dot recipes rather than inventing new structure — see **Profile card**, below, for the full anatomy.
 - **Hero Card** — a promotional/insight tile: Eyebrow, Heading, Body, a media placeholder, optional Recommendation text, and a CTA, in four states (Default, Risk, AI Dark, Selected). Extends the base Card (Neutral-1, radius-lg, shadow-1) rather than inventing new structure, but is the first Card variant with its own corner ribbon, a dark surface, and a fixed/centered modal state — see **Hero Card**, below, for the full anatomy.
+- **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
 
 **Grid layout.** Every card variant follows one universal layout
 contract when placed in a grid — responsive width, equal-height rows,
@@ -2037,6 +2039,7 @@ grids if that floor would waste space for the narrower variants.
 | Element-accented | 240px | Matches base |
 | USP | 280px | 3 check-bullet points plus a full-width button need more room at minimum width |
 | Price summary card | 280px | Line-item list, RM pricing, and the CTA need more room to stay readable |
+| Pacing Card | 240px | Matches base. The binding constraint is the minibar's label row — "Total …" and "Target …" must share one line, which holds down to 240px for realistic figures; see **Pacing Card — Width** |
 
 Every variant keeps `width: 100%` of its grid cell regardless of its
 min-width floor — a fixed pixel width is never used on any card.
@@ -2587,6 +2590,118 @@ and modal forms. Don't invent new dark-surface tokens off the AI (Dark)
 variant's one-off `rgba(255,255,255,…)` overlay values — they're
 scoped to this component until a second dark-surface component
 actually needs the same values.
+
+**Pacing Card.** One metric's progress against a target it's racing a
+deadline to hit — a channel's booked spend against a monthly budget, a
+flight's delivered impressions against its goal. Extends the base
+[Card](#card) and its Footer unmodified, and reuses
+[Progress-to-Goal Bar](#progress-to-goal-bar) and
+[Badge & Tag](#badge--tag) whole rather than redrawing them: the
+variant is an arrangement, not new furniture.
+
+**Pacing Card — When to use it.** Use one only when the data has **all
+three** of these:
+
+1. A **target / goal value** known in advance — not just a comparison period.
+2. A **current progress value** — booked, spent, completed, delivered; some accumulating actual.
+3. A **time boundary** the progress is racing against — a month, a quarter, a flight, a sprint — so a daily or weekly rate-to-close-the-gap can be calculated.
+
+If any one of the three is missing, use a plain
+[Stat / KPI card](#stat--kpi-card) instead. This is a gate, not a
+preference: the card's footer states a rate to close the gap, and that
+number cannot be computed unless all three hold.
+
+| Instead of a Pacing Card, when… | Use |
+|---|---|
+| No defined target exists — "total signups this week", with no goal | [Stat / KPI card](#stat--kpi-card) |
+| The metric is a snapshot with no time boundary — "current headcount" | [Stat / KPI card](#stat--kpi-card) |
+| You're comparing categories against each other rather than progress to a goal — "TV vs Digital spend" | A comparison/bar chart — see [Choosing a chart type](#choosing-a-chart-type) |
+| The metric has a real trend and needs deltas over time — day-by-day or week-by-week movement | A line chart. Pacing Card deliberately has no trend row |
+
+**Pacing Card — Anatomy.** Five bands, top to bottom.
+
+| Part | Spec |
+|---|---|
+| Container | base Card, unmodified: Neutral-1 fill, 1px Neutral-3 border, `radius-lg`, `shadow-1`, spacing-16 padding. Child gap is spacing-12, not the base card's spacing-8 — five stacked bands need the extra separation |
+| Label | **h4 (20px/28px/800)**, Neutral-9 — the thing being paced (e.g. "TV"). See the override note below |
+| Headline KPI | h3 (22px/30px/800) Neutral-9, tabular figures, with an optional trailing qualifier in `caption` (12px/16px/400) Neutral-5 naming what the figure is (e.g. "forecast"), baseline-aligned, spacing-8 gap |
+| Minibar | [Progress-to-Goal Bar](#progress-to-goal-bar), **In-table** variant: 8px `radius-pill` rail, target line at its fixed 75%, no legend, no gap outline. Nothing sits above the rail here, so that variant's reserved label band collapses to the target line's own overhang |
+| Minibar labels | one row below the rail, both figures named: **Total** flush left, **Target** flush right — descriptor Neutral-5, value Neutral-9/700, the Progress-to-Goal Bar's own label convention. Never an unlabelled pair of numbers |
+| Status | the real [Badge](#badge--tag), stating percent of target achieved. Sits in a flex row, never bare — the Card is a column flexbox with no `align-items`, which silently stretches a bare badge to full card width |
+| Footer | [Card](#card)'s own Footer sub-part verbatim, and **required for this variant** — see below |
+
+**Pacing Card — Badge colour.** Two states, no Warning:
+
+| Attainment | Badge |
+|---|---|
+| Below 100% of target | Danger (Red) |
+| At or above 100% of target | Success (Green) |
+
+The colour is a pure function of the same percentage the badge prints,
+so it can never disagree with the number beside it. Know the
+consequence: the rule reads nothing from the calendar, so a metric
+pacing perfectly on day 2 of 31 still shows Red, and most cards on a
+dashboard are Red for most of a period. That's intended — Red here
+means "target not yet met", not "something is wrong". Don't add a third
+colour to soften it; if the Red is too loud early in a period, drop the
+badge to Neutral until the period is far enough along for "behind" to
+carry meaning.
+
+**Pacing Card — the Footer is required.** Card's Footer is optional
+everywhere else; here it isn't. The time boundary — condition 3 of the
+usage gate — appears nowhere else on the card, so without the footer
+the tile stops showing the one thing that distinguishes it from a
+Stat/KPI card, and the gate that admitted it becomes unobservable.
+Format: the elapsed position in the period, then the rate needed to
+close the gap (e.g. "Day 18 of 31 · RM277k a day to reach target").
+Once the target is met the rate is dropped and the footer states when
+(e.g. "Day 18 of 31 · target met on day 15") — the rate is
+conditional, the time boundary never is.
+
+**Pacing Card — Width.** Follows the universal responsive-width rule
+with the base 240px floor. The binding constraint isn't the container
+but the minibar's label row: "Total …" and "Target …" must share one
+line. At 240px that leaves a 206px content box, which holds both for
+realistic figures — measured at 16px of clearance with the longest form
+the format produces (`Total RM74.6M` / `Target RM114.8M`). Past that
+the row wraps to two lines rather than overflowing, which is
+[Progress-to-Goal Bar](#progress-to-goal-bar)'s own documented label
+behavior, not a failure.
+
+⚠️ Target is **not** anchored beside the target line. An earlier
+revision started the Target label 4px right of the line so it pointed
+at what it named, mirroring the In-table variant's own label above the
+bar. Naming the figures made that impossible: "Target RM10.2M"
+measures 93px, while the space right of the line is 25% of the content
+box — 52px at the 240px floor, 79px even at 350px. It needs a 421px
+card to fit, well past any dashboard tile, so the anchor collided and
+fell back to flush-right at every realistic width. Flush right is what
+the spec says because it's what renders; the label's right edge still
+lands right of the target line at every width.
+
+⚠️ **The Label overrides the base Card's Title rule** — Card's Title is
+h5 (16px/700); Pacing Card's is h4 (20px/800). Deliberate: these tiles
+are read in grids of many channels, and the first act is finding the
+one you want, which a 20px name serves better than a 16px one. It puts
+the Label 2px under the h3 KPI, closer than this system's usual
+label/value separation — acceptable because the labels are short
+proper nouns ("TV", "Radio", "Digital") that read as titles rather than
+competing with the figure. Stated explicitly so it isn't taken for an
+oversight and "corrected" back to h5.
+
+**Do** confirm all three usage conditions before reaching for this
+card, and use a [Stat / KPI card](#stat--kpi-card) when any is missing.
+**Do** always label both minibar figures Total and Target — an
+unlabelled pair of numbers under a rail states a ratio it never names.
+**Do** keep the Footer on every Pacing Card. **Don't** add a trend row
+— a metric with real period-over-period movement belongs in a line
+chart, and the omission is what keeps this card about a deadline rather
+than a direction. **Don't** add a third badge colour. **Don't** rely on
+the minibar's segment colours to carry a category breakdown: the
+In-table variant has no legend, so a multi-category rail shows colours
+nothing on the card names — the labels read the *total*. If the split
+itself is the point, use the Progress-to-Goal Bar's Card variant, which
+has a legend.
 
 ### Chart chrome & marks
 
@@ -3786,6 +3901,114 @@ on the left of it, matching the button order convention above. **Don't:**
 use a modal for anything that isn't a focused, single decision — long
 forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone).
+
+### Notes
+
+⚠️ **Designed from scratch — no source in either the original
+brand deck or the teammate's build.** Built from this document's own
+token system by composing [Button](#button), [Tooltip](#tooltip),
+[Table](#table) and Search input's avatar recipe, not transcribed.
+Treat as a first pass needing real design/brand review.
+
+Coloured annotations attached to a single record — a deal row, a person,
+a line item. Up to **four notes per row**.
+
+**One surface, three views.** There is no modal anywhere in this
+component. A hover shows a **peek** (the list); a click opens a
+**panel**, anchored to the row and growing out of the pin it came from.
+The panel shows a 2×2 **grid** at two or more notes, or the note itself
+at exactly one. Reading, editing and writing all happen in that same
+panel.
+
+| Part | Spec |
+|---|---|
+| Pin | 48.94 × 54.83px at one note; each card in a stack is 42 × 48px. `radius-sm` (12px), solid fill, `ph-fill ph-push-pin` glyph at 16px |
+| Stack | 2–4 cards overlapping at a 16px step, so the container is 42 + 16(n−1) — 58px at two, 74px at three, 90px at four. Height is a flat **48px at every count**; 90px is the widest the component ever gets, so a column can be sized for it and never reflow |
+| Tilt | ±3°, alternating direction per card via `nth-child`. Straightens to 0° on hover or keyboard focus |
+| Add button | [Button](#button)'s `.c-icon-btn` with `ph-plus`. Present at **every** count including one — see the note on the wrapper below |
+| Peek (list) | on hover or focus: one row per note, a 28 × 32px pin at 8px radius, note text clamped to **two lines**, then author · date |
+| Panel | 340px wide (`min(340px, 100vw − 24px)`), `radius-lg`, `shadow-3`. A positioned popover, **not** a modal — no scrim, closes on Escape, outside click or scroll |
+| Grid | 2 × 2 of note cards, `radius-sm`, solid fill, note text clamped to **three lines**, caption in `caption`. A lone note spans both columns |
+| Note view | eyebrow + avatar + name on one line, kick (`NOTE · MONTH`), title, note text, date. Actions: delete (icon), **Resolve** (Secondary), **Edit** (Primary) |
+| Note field | edit and new use a bespoke field, deliberately **not** the system's input recipe: no border, no box, sitting directly on the note's own colour at the same size and position the read view puts the text. Its affordances are the caret and a soft ink inset on focus. 280-character limit |
+| Panel colour | the note view takes the note's own colour as a solid fill; the grid view stays neutral white |
+
+**Colour is positional, never chosen.** The nth note on a row takes the
+nth colour in a fixed sequence, so a colour can never repeat on a row
+and the collapsed stack always reads the same way:
+
+| Position | Colour | Fill | Glyph |
+|---|---|---|---|
+| 1 | Orange | `--color-orange` `#FF5825` | `#BE2E00` |
+| 2 | Pink | `--color-salmon-pink` `#FF7A90` | `#C23154` |
+| 3 | Green | `--color-green` `#00C26E` | `#007B52` |
+| 4 | Navy | `--color-navy` `#1473E6` | `#0051AE` |
+
+Because position drives colour, deleting a note re-colours the ones
+after it — delete the pink note of four and green and navy shift up.
+That is the cost of the sequence always holding; the alternative is a
+gap in it. There is no colour picker: with four colours and a cap of
+four, choosing one would be meaningless.
+
+**Four notes is the cap**, enforced in three places rather than one: the
+model refuses a fifth, the row's add button goes `disabled` +
+`aria-disabled` with a plain-English reason and a [Tooltip](#tooltip),
+and the panel's Add button does the same.
+
+**Resolved.** A note is marked settled without being deleted — Resolve
+and Reopen are symmetrical, and delete stays the only destructive
+action. **A resolved note keeps its slot**, so four resolved notes means
+the row is full; Resolve records that something was dealt with, it does
+not free capacity. The treatment differs per view, deliberately:
+
+| View | Resolved |
+|---|---|
+| Pin / stack card | fill drops to a 20% tint of its own colour, glyph becomes `ph-fill ph-check-circle` |
+| Peek (list) | same faded card and tick. **Only the note text** is struck through; the caption keeps author · date and gains `· Resolved by [name]` |
+| Grid card | keeps its **solid fill** so text and strikethrough stay white. Tick glyph, caption replaced by `Resolved by [name]`, only the note text struck |
+| Note view | a `check-circle` banner reading `Resolved by [name] · [date]`, and the Secondary action becomes **Reopen** |
+
+**While a panel is open its pin steps aside** — the panel grew out of it,
+so showing both reads as a duplicate. Hidden with `opacity`, never
+`visibility` or `display`: the pin is the control that opened the panel
+and the one focus returns to, so it has to stay in the layout, the tab
+order and the accessibility tree. The add button beside it is untouched.
+
+**Accessibility.** Every control is a real `<button type="button">` with
+`aria-haspopup="dialog"`; `aria-expanded` is kept in sync on both the pin
+and the add button. All glyphs are `aria-hidden` — meaning lives only in
+the label, which is written out in full ("4 notes on GRABCAR SDN BHD,
+open the stack"; "Resolved note by Wei Lin Tan, 3 Sept 2026. Open it").
+Focus is trapped in the open panel, Escape closes it, and focus returns
+to the pin. Because a re-render replaces the row's cell, any mutation
+re-finds the pin afterwards rather than leaving focus on a detached node.
+
+⚠️ **Recorded contrast decisions, made deliberately and not to be read
+as oversights.** The glyph colours were chosen for tone-on-tone
+appearance and each measures **under the 3:1** WCAG non-text floor
+against its own fill (navy 1.66:1, orange 1.86:1, pink 2.19:1, green
+2.26:1). The glyph carries no unique information — the button's label
+does — so this is a legibility trade rather than a functional one. On
+the note panel, body text is white on the fill (obsidian on green, the
+one fill white cannot sit on): navy measures 4.54:1, orange 3.15:1 and
+pink 2.49:1 against a 4.5:1 bar. On a **resolved grid card** the fill
+lightens to 67% of its colour over white (`#FF7A90` → `#FEA7B5`), where
+white text measures 1.83–2.67:1; obsidian would measure 5.30–7.75:1.
+Revisit these together if the component is ever audited.
+
+⚠️ Two values sit outside existing scales: the pin's 48.94 × 54.83px at
+one note, and the peek pin's 8px radius. Everything else uses tokens —
+`radius-sm` for the pin and grid card, `radius-lg` for the panel,
+`radius-pill` for the avatar.
+
+**Do** keep the add button present at every count including one — the
+wrapper is universal, and the rule is "stack when 2–4", not "wrapper
+when 2–4"; without it whoever writes the first note can never write a
+second. **Do** let the sequence assign colour. **Don't** add a colour
+picker, a fifth colour, or a fifth note. **Don't** reach for a modal for
+any part of this — the panel stays anchored to the row it belongs to,
+which is what keeps a note attached to its record. **Don't** treat
+Resolve as a soft delete: it keeps its slot and its colour on purpose.
 
 ### PageHeader
 
@@ -5925,6 +6148,78 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.96 — 2026-09-04** — Added **Notes**: coloured annotations
+  attached to a table or list row, up to four per row. Composition
+  rather than new furniture — [Button](#button)'s `.c-icon-btn` and
+  `.c-btn`, [Tooltip](#tooltip), [Table](#table) and Search input's own
+  32px avatar recipe — with new CSS only for the pins, the peek, the
+  panel and the note field. No new tokens; `tokens.css` is unchanged.
+  **One surface throughout:** a peek on hover, a panel on click, and
+  that same panel for reading, editing and writing. There is no modal
+  anywhere in the component, and the panel is a positioned popover that
+  grows out of the pin it came from, so a note stays visibly attached to
+  its record. A click opens the 2×2 grid at two or more notes and the
+  note itself at exactly one. **Colour is positional, never chosen:**
+  the nth note takes the nth colour (orange, pink, green, navy), so a
+  colour can never repeat on a row and the collapsed stack always reads
+  the same order — which also means deleting a note re-colours the ones
+  after it, the unavoidable cost of the sequence always holding, and
+  makes a colour picker meaningless. **Four is the cap**, enforced in
+  the model, the row's add button and the panel's, which also bounds the
+  component at 90px so a column can be sized for it and never reflow.
+  **Resolve is not a soft delete** — it is symmetrical with Reopen,
+  keeps the note's slot and its colour, and leaves delete as the only
+  destructive action; four resolved notes still means a full row. Its
+  treatment differs per view on purpose, and the section tabulates all
+  four. Two things are written down as deliberate rather than left to be
+  discovered: the pin steps aside while its panel is open (hidden with
+  `opacity`, never `visibility`, because it is the control focus returns
+  to), and the **contrast decisions** — the tone-on-tone glyphs measure
+  1.66–2.26:1 against their own fills, panel body text 2.49–4.54:1, and
+  a resolved grid card's white text 1.83–2.67:1, all chosen for
+  appearance with the reasoning recorded so an audit meets a decision
+  rather than a defect. Class names are unprefixed (`.npin`, `.npanel`,
+  `.np-*`) against this system's usual `c-` convention, matching the
+  consuming app's existing markup; `.ava` is scoped under `.npanel`
+  rather than renamed, being too generic to sit in a global stylesheet.
+
+- **v0.9.95 — 2026-09-04** — Added the **Pacing Card** variant to
+  [Card](#card): one metric's progress against a target it's racing a
+  deadline to hit — Label, headline KPI, a
+  [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status
+  [Badge](#badge--tag), and a Footer. Almost entirely composition: the
+  container and Footer are the base Card unmodified, the rail and the
+  badge are existing components used whole, and the variant contributes
+  an arrangement plus ten lines of CSS. No new tokens — `tokens.css` is
+  unchanged. Three things are worth reading before using it. **First,
+  it's gated.** All three of a known target, an accumulating actual,
+  and a time boundary must be present, because the footer states a rate
+  to close the gap and that can't be computed otherwise; a table names
+  what to use instead for each missing case, all of them
+  [Stat / KPI card](#stat--kpi-card) or a chart. **Second, the Footer
+  is required here** although Card's Footer is optional everywhere
+  else: the time boundary appears nowhere else on the tile, so dropping
+  the footer removes the only thing separating this from a Stat/KPI
+  card and makes the usage gate unobservable. The rate is dropped once
+  the target is met; the time boundary never is. **Third, the badge is
+  two states, not three** — Danger below 100% of target, Success at or
+  above, no Warning tier. The colour is a pure function of the
+  percentage printed beside it, so it can never contradict its own
+  number, but it reads nothing from the calendar: a metric pacing
+  perfectly on day 2 of 31 is still Red, and most cards on a dashboard
+  are Red for most of a period. That's intended (Red = "target not yet
+  met", not "something is wrong") and the section says so, with the
+  escape hatch being Neutral early in a period rather than a third
+  colour. Also recorded: the Label overrides base Card's h5 Title at h4
+  — deliberate, since these are scanned in grids of many channels and
+  the labels are short proper nouns that read as titles; and Target is
+  flush right rather than anchored beside the target line, because
+  naming the figures pushed "Target RM10.2M" to 93px against the 52px
+  available at the 240px floor, needing a 421px card to fit. Both are
+  flagged in-section so neither looks like an oversight. The minibar's
+  segment colours deliberately carry no legend, so a multi-category
+  rail is decorative — a Don't line points that case at the
+  Progress-to-Goal Bar's Card variant.
 - **v0.9.94 — 2026-09-03** — Added a **Secondary** variant to
   [Stat / KPI card](#stat--kpi-card): a lighter tile for a supporting
   metric — the figure that gives a primary KPI its context rather than
