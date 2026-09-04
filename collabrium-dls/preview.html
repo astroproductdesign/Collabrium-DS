@@ -1691,6 +1691,51 @@
               </div>
             </div>
 
+            <div class="swatch-group-label">Pacing cards</div>
+            <div class="c-cards">
+              <div class="c-card c-card-pacing">
+                <h4 class="c-card-pacing-label">TV</h4>
+                <div class="c-card-pacing-kpi"><span class="value">RM11.4M</span><span class="qualifier">forecast</span></div>
+                <div class="c-goal-bar variant-table">
+                  <div class="c-goal-bar-chart" role="img" aria-label="RM6.6M booked of a RM10.2M target, 65% to target.">
+                    <div class="c-goal-bar-barwrap">
+                      <div class="c-goal-bar-track">
+                        <div class="c-goal-bar-segment" style="left:0%;width:48.75%;background:var(--color-obsidian)"></div>
+                        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+                      </div>
+                      <div class="c-goal-bar-target-line" style="left:75%"></div>
+                    </div>
+                    <div class="c-goal-bar-labels">
+                      <span class="lbl-total">Total <b>RM6.6M</b></span>
+                      <span class="lbl-target">Target <b>RM10.2M</b></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="c-card-pacing-status"><span class="c-badge c-badge-error">65% to target</span></div>
+                <div class="c-card-footer">Day 18 of 31 &middot; RM277k a day to reach target</div>
+              </div>
+              <div class="c-card c-card-pacing">
+                <h4 class="c-card-pacing-label">Out of home</h4>
+                <div class="c-card-pacing-kpi"><span class="value">RM5.6M</span><span class="qualifier">forecast</span></div>
+                <div class="c-goal-bar variant-table">
+                  <div class="c-goal-bar-chart" role="img" aria-label="RM4.9M booked of a RM4.2M target, 117% to target.">
+                    <div class="c-goal-bar-barwrap">
+                      <div class="c-goal-bar-track">
+                        <div class="c-goal-bar-segment" style="left:0%;width:87.5%;background:var(--color-obsidian)"></div>
+                      </div>
+                      <div class="c-goal-bar-target-line" style="left:75%"></div>
+                    </div>
+                    <div class="c-goal-bar-labels">
+                      <span class="lbl-total">Total <b>RM4.9M</b></span>
+                      <span class="lbl-target">Target <b>RM4.2M</b></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="c-card-pacing-status"><span class="c-badge c-badge-success">117% to target</span></div>
+                <div class="c-card-footer">Day 18 of 31 &middot; target met on day 15</div>
+              </div>
+            </div>
+
             <div class="swatch-group-label">Hero Card</div>
             <div class="herocard-demo-row">
               <div class="c-herocard" style="max-width:320px;">
@@ -5733,6 +5778,7 @@ the Modal footer's divider, scaled down.
 - **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
 - **Profile card** — a talent/influencer profile summary tile: identity block (name, demographic meta), a divider, persona badges, then an alphabetically-sorted platform list with a Title-weight follower count per row. Extends the base Card (Title, Description, Footer divider) and reuses Search input's own avatar recipe and Badge & Tag's own grouping/dot recipes rather than inventing new structure — see **Profile card**, below, for the full anatomy.
 - **Hero Card** — a promotional/insight tile: Eyebrow, Heading, Body, a media placeholder, optional Recommendation text, and a CTA, in four states (Default, Risk, AI Dark, Selected). Extends the base Card (Neutral-1, radius-lg, shadow-1) rather than inventing new structure, but is the first Card variant with its own corner ribbon, a dark surface, and a fixed/centered modal state — see **Hero Card**, below, for the full anatomy.
+- **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
 
 **Grid layout.** Every card variant follows one universal layout
 contract when placed in a grid — responsive width, equal-height rows,
@@ -5775,6 +5821,7 @@ grids if that floor would waste space for the narrower variants.
 | Element-accented | 240px | Matches base |
 | USP | 280px | 3 check-bullet points plus a full-width button need more room at minimum width |
 | Price summary card | 280px | Line-item list, RM pricing, and the CTA need more room to stay readable |
+| Pacing Card | 240px | Matches base. The binding constraint is the minibar's label row — "Total …" and "Target …" must share one line, which holds down to 240px for realistic figures; see **Pacing Card — Width** |
 
 Every variant keeps `width: 100%` of its grid cell regardless of its
 min-width floor — a fixed pixel width is never used on any card.
@@ -6325,6 +6372,118 @@ and modal forms. Don't invent new dark-surface tokens off the AI (Dark)
 variant's one-off `rgba(255,255,255,…)` overlay values — they're
 scoped to this component until a second dark-surface component
 actually needs the same values.
+
+**Pacing Card.** One metric's progress against a target it's racing a
+deadline to hit — a channel's booked spend against a monthly budget, a
+flight's delivered impressions against its goal. Extends the base
+[Card](#card) and its Footer unmodified, and reuses
+[Progress-to-Goal Bar](#progress-to-goal-bar) and
+[Badge & Tag](#badge--tag) whole rather than redrawing them: the
+variant is an arrangement, not new furniture.
+
+**Pacing Card — When to use it.** Use one only when the data has **all
+three** of these:
+
+1. A **target / goal value** known in advance — not just a comparison period.
+2. A **current progress value** — booked, spent, completed, delivered; some accumulating actual.
+3. A **time boundary** the progress is racing against — a month, a quarter, a flight, a sprint — so a daily or weekly rate-to-close-the-gap can be calculated.
+
+If any one of the three is missing, use a plain
+[Stat / KPI card](#stat--kpi-card) instead. This is a gate, not a
+preference: the card's footer states a rate to close the gap, and that
+number cannot be computed unless all three hold.
+
+| Instead of a Pacing Card, when… | Use |
+|---|---|
+| No defined target exists — "total signups this week", with no goal | [Stat / KPI card](#stat--kpi-card) |
+| The metric is a snapshot with no time boundary — "current headcount" | [Stat / KPI card](#stat--kpi-card) |
+| You're comparing categories against each other rather than progress to a goal — "TV vs Digital spend" | A comparison/bar chart — see [Choosing a chart type](#choosing-a-chart-type) |
+| The metric has a real trend and needs deltas over time — day-by-day or week-by-week movement | A line chart. Pacing Card deliberately has no trend row |
+
+**Pacing Card — Anatomy.** Five bands, top to bottom.
+
+| Part | Spec |
+|---|---|
+| Container | base Card, unmodified: Neutral-1 fill, 1px Neutral-3 border, `radius-lg`, `shadow-1`, spacing-16 padding. Child gap is spacing-12, not the base card's spacing-8 — five stacked bands need the extra separation |
+| Label | **h4 (20px/28px/800)**, Neutral-9 — the thing being paced (e.g. "TV"). See the override note below |
+| Headline KPI | h3 (22px/30px/800) Neutral-9, tabular figures, with an optional trailing qualifier in `caption` (12px/16px/400) Neutral-5 naming what the figure is (e.g. "forecast"), baseline-aligned, spacing-8 gap |
+| Minibar | [Progress-to-Goal Bar](#progress-to-goal-bar), **In-table** variant: 8px `radius-pill` rail, target line at its fixed 75%, no legend, no gap outline. Nothing sits above the rail here, so that variant's reserved label band collapses to the target line's own overhang |
+| Minibar labels | one row below the rail, both figures named: **Total** flush left, **Target** flush right — descriptor Neutral-5, value Neutral-9/700, the Progress-to-Goal Bar's own label convention. Never an unlabelled pair of numbers |
+| Status | the real [Badge](#badge--tag), stating percent of target achieved. Sits in a flex row, never bare — the Card is a column flexbox with no `align-items`, which silently stretches a bare badge to full card width |
+| Footer | [Card](#card)'s own Footer sub-part verbatim, and **required for this variant** — see below |
+
+**Pacing Card — Badge colour.** Two states, no Warning:
+
+| Attainment | Badge |
+|---|---|
+| Below 100% of target | Danger (Red) |
+| At or above 100% of target | Success (Green) |
+
+The colour is a pure function of the same percentage the badge prints,
+so it can never disagree with the number beside it. Know the
+consequence: the rule reads nothing from the calendar, so a metric
+pacing perfectly on day 2 of 31 still shows Red, and most cards on a
+dashboard are Red for most of a period. That's intended — Red here
+means "target not yet met", not "something is wrong". Don't add a third
+colour to soften it; if the Red is too loud early in a period, drop the
+badge to Neutral until the period is far enough along for "behind" to
+carry meaning.
+
+**Pacing Card — the Footer is required.** Card's Footer is optional
+everywhere else; here it isn't. The time boundary — condition 3 of the
+usage gate — appears nowhere else on the card, so without the footer
+the tile stops showing the one thing that distinguishes it from a
+Stat/KPI card, and the gate that admitted it becomes unobservable.
+Format: the elapsed position in the period, then the rate needed to
+close the gap (e.g. "Day 18 of 31 · RM277k a day to reach target").
+Once the target is met the rate is dropped and the footer states when
+(e.g. "Day 18 of 31 · target met on day 15") — the rate is
+conditional, the time boundary never is.
+
+**Pacing Card — Width.** Follows the universal responsive-width rule
+with the base 240px floor. The binding constraint isn't the container
+but the minibar's label row: "Total …" and "Target …" must share one
+line. At 240px that leaves a 206px content box, which holds both for
+realistic figures — measured at 16px of clearance with the longest form
+the format produces (`Total RM74.6M` / `Target RM114.8M`). Past that
+the row wraps to two lines rather than overflowing, which is
+[Progress-to-Goal Bar](#progress-to-goal-bar)'s own documented label
+behavior, not a failure.
+
+⚠️ Target is **not** anchored beside the target line. An earlier
+revision started the Target label 4px right of the line so it pointed
+at what it named, mirroring the In-table variant's own label above the
+bar. Naming the figures made that impossible: "Target RM10.2M"
+measures 93px, while the space right of the line is 25% of the content
+box — 52px at the 240px floor, 79px even at 350px. It needs a 421px
+card to fit, well past any dashboard tile, so the anchor collided and
+fell back to flush-right at every realistic width. Flush right is what
+the spec says because it's what renders; the label's right edge still
+lands right of the target line at every width.
+
+⚠️ **The Label overrides the base Card's Title rule** — Card's Title is
+h5 (16px/700); Pacing Card's is h4 (20px/800). Deliberate: these tiles
+are read in grids of many channels, and the first act is finding the
+one you want, which a 20px name serves better than a 16px one. It puts
+the Label 2px under the h3 KPI, closer than this system's usual
+label/value separation — acceptable because the labels are short
+proper nouns ("TV", "Radio", "Digital") that read as titles rather than
+competing with the figure. Stated explicitly so it isn't taken for an
+oversight and "corrected" back to h5.
+
+**Do** confirm all three usage conditions before reaching for this
+card, and use a [Stat / KPI card](#stat--kpi-card) when any is missing.
+**Do** always label both minibar figures Total and Target — an
+unlabelled pair of numbers under a rail states a ratio it never names.
+**Do** keep the Footer on every Pacing Card. **Don't** add a trend row
+— a metric with real period-over-period movement belongs in a line
+chart, and the omission is what keeps this card about a deadline rather
+than a direction. **Don't** add a third badge colour. **Don't** rely on
+the minibar's segment colours to carry a category breakdown: the
+In-table variant has no legend, so a multi-category rail shows colours
+nothing on the card names — the labels read the *total*. If the split
+itself is the point, use the Progress-to-Goal Bar's Card variant, which
+has a legend.
 
 ### Chart chrome & marks
 
@@ -9663,6 +9822,43 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.95 — 2026-09-04** — Added the **Pacing Card** variant to
+  [Card](#card): one metric's progress against a target it's racing a
+  deadline to hit — Label, headline KPI, a
+  [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status
+  [Badge](#badge--tag), and a Footer. Almost entirely composition: the
+  container and Footer are the base Card unmodified, the rail and the
+  badge are existing components used whole, and the variant contributes
+  an arrangement plus ten lines of CSS. No new tokens — `tokens.css` is
+  unchanged. Three things are worth reading before using it. **First,
+  it's gated.** All three of a known target, an accumulating actual,
+  and a time boundary must be present, because the footer states a rate
+  to close the gap and that can't be computed otherwise; a table names
+  what to use instead for each missing case, all of them
+  [Stat / KPI card](#stat--kpi-card) or a chart. **Second, the Footer
+  is required here** although Card's Footer is optional everywhere
+  else: the time boundary appears nowhere else on the tile, so dropping
+  the footer removes the only thing separating this from a Stat/KPI
+  card and makes the usage gate unobservable. The rate is dropped once
+  the target is met; the time boundary never is. **Third, the badge is
+  two states, not three** — Danger below 100% of target, Success at or
+  above, no Warning tier. The colour is a pure function of the
+  percentage printed beside it, so it can never contradict its own
+  number, but it reads nothing from the calendar: a metric pacing
+  perfectly on day 2 of 31 is still Red, and most cards on a dashboard
+  are Red for most of a period. That's intended (Red = "target not yet
+  met", not "something is wrong") and the section says so, with the
+  escape hatch being Neutral early in a period rather than a third
+  colour. Also recorded: the Label overrides base Card's h5 Title at h4
+  — deliberate, since these are scanned in grids of many channels and
+  the labels are short proper nouns that read as titles; and Target is
+  flush right rather than anchored beside the target line, because
+  naming the figures pushed "Target RM10.2M" to 93px against the 52px
+  available at the 240px floor, needing a 421px card to fit. Both are
+  flagged in-section so neither looks like an oversight. The minibar's
+  segment colours deliberately carry no legend, so a multi-category
+  rail is decorative — a Don't line points that case at the
+  Progress-to-Goal Bar's Card variant.
 - **v0.9.94 — 2026-09-03** — Added a **Secondary** variant to
   [Stat / KPI card](#stat--kpi-card): a lighter tile for a supporting
   metric — the figure that gives a primary KPI its context rather than
