@@ -4109,7 +4109,7 @@ is at stake in being unable to act during one.
 | Card (`.c-modal-tutorial`) | Modal's panel recipe as it ships — Neutral-1, `radius-lg`, `shadow-modal` — at `min(340px, 100vw − spacing-32)`, narrower than `.c-modal`'s 400px because a tour step is one short read beside a highlighted thing rather than a centred decision. `padding: spacing-20`, `display: flex; flex-direction: column; gap: spacing-8`. `max-height: calc(100vh − spacing-32)`, unconditionally. `transform-origin: 0 0` — the FLIP depends on it. `role="dialog"`, **`aria-modal="false"`**, `tabindex="-1"`, `aria-labelledby` at the title and `aria-describedby` at the counter and body |
 | Close (`.c-modal-tutorial-close`) | `.c-icon-btn` with `ph-x` — **Tier 1, Regular**, per [Iconography](#iconography) — absolutely positioned at `spacing-8` from the top and right |
 | Counter (`.c-modal-tutorial-kicker`) | `label3` (11/16/700) + `--tracking-eyebrow`, uppercased, Neutral-5 — the eyebrow recipe every kicker in this system uses. `font-variant-numeric: tabular-nums`, so it does not jitter between steps. Reads "*n* of *total*" |
-| Title (`.c-modal-tutorial-title`) | **Always an `<h2>`**, at `h4`'s size — 20/28/800, Neutral-9, `padding-right: spacing-24` to clear the close. **Two lines maximum, and never clamped** — see the caps rule. The element does not vary with the host page's heading depth and does not vary between steps: a tour card is its own surface, opened over whatever happens to be underneath, so a level chosen to fit the page it is covering would change from screen to screen for no reader's benefit. The class carries the size regardless of the element, and `aria-labelledby` is what actually names the dialog |
+| Title (`.c-modal-tutorial-title`) | **`h4` — the element and the type token are the same name.** 20/28/800, Neutral-9, `padding-right: spacing-24` to clear the close. This is Modal's own `.c-modal-head h4` exactly: an `h4` element at h4's size, so "h4" means one thing here and never two. **Two lines maximum, and never clamped** — see the caps rule. Fixed at `h4` in every scenario rather than chosen to suit whatever page the card opens over, so it never varies between steps or screens; `aria-labelledby` is what actually names the dialog, so the level never has to carry that job |
 | Body (`.c-modal-tutorial-body`) | `body2` (14px) at `line-height: 1.6`, Neutral-5. **Four lines maximum, and never clamped.** This is the element that scrolls when a card outgrows its viewport — `min-height: 0; overflow-y: auto` |
 | Actions (`.c-modal-tutorial-actions`) | Modal's own footer order and right alignment — dismissal left of commit — at `spacing-8` between the pair, **without** Modal's divider: at a 340px measure a rule across the card reads as a seam in a note that should feel like one piece |
 
@@ -4245,19 +4245,31 @@ enough to be stacking its own content never has.
     a tour, but it must still be *readable*: the element each step
     describes is the only reason to be pointing at it. `inert` would have
     been the shorter way to lock the page and would have taken that away.
-12. **The counter is part of what gets announced.** "3 of 8" in the
-    corner of the card tells a sighted reader where they are in the
-    tour; wiring it into `aria-describedby` is what tells everyone else.
-    A tour that does not say where you are in it has taken the counter
-    away from exactly the readers who cannot glance at it. **One thing
-    is left to the implementation**: each step's card flying out of its
-    own target is most simply built by replacing the card per step, and
-    screen readers do not reliably re-announce a dialog replaced that
-    way — a reader can be left on a card whose words changed silently.
-    Keeping *one* card and swapping its contents, with the counter in a
-    live region and the entrance re-triggered on that same element, reads
-    reliably and looks identical. Prefer it; the reference implementation
-    of the motion does not depend on which you pick.
+    This is also why the lock needs its click guard on mobile: iOS
+    VoiceOver navigates with its own cursor and passes straight through a
+    focus trap, so a reader *can* reach the target the step is describing
+    — which is intended — and the guard is what stops them activating it
+    by accident.
+12. **Each step announces itself, and it takes two attributes rather
+    than a live region.** First, the counter goes into
+    `aria-describedby` **alongside** the body, so a reader hears
+    "*Welcome to the sales board*, dialog, *1 of 8*, *One page that
+    answers…*". "3 of 8" in the corner of the card tells a sighted
+    reader where they are in the tour; that attribute is what tells
+    everyone else, and without it the position is missing for exactly
+    the readers who cannot glance at it. Second, **focus moves to the
+    card on every step** — the card is a fresh node each step, so focus
+    genuinely moves, and a focus change onto a named dialog is what
+    makes a screen reader read it out at all.
+    **No `aria-live` anywhere on the card.** [Thinking](#thinking)'s
+    Rule 19 and [Task Rows](#task-rows)' Rule 17 both settled this
+    already: in this system a live region is for a discrete event worth
+    interrupting a reader for, not for content they are moving through
+    themselves. A step change is a focus change, and focus is its own
+    announcement — adding a live region on top would say every step
+    twice. Ending the tour returns focus to whatever opened it, which is
+    the same signal closing a modal gives; there is nothing extra to
+    announce.
 13. **Nothing in the card but the counter, a title, a sentence or two,
     and the footer.** No screenshots, no video, no progress dots, no
     "Learn more". A tour stop is a passing note about the thing beside
@@ -6622,11 +6634,37 @@ rather than maintaining two token sources by hand:
   gallery-only rules (a margin between stacked stages, and
   `position: relative` on the card, which ships `position: absolute`
   because in use it is placed against a live target inside its own fixed
-  layer). The title element is fixed at **`<h2>`** in every scenario,
-  carrying `h4`'s size through its class: a tour card is its own surface
-  opened over whatever is underneath it, so a heading level chosen to
-  suit the page being covered would vary from screen to screen for no
-  reader's benefit.
+  layer). The title is an **`h4` element at h4's size** — the same name
+  for both, matching Modal's own `.c-modal-head h4` — and fixed there in
+  every scenario rather than chosen to suit whatever page the card opens
+  over, so it never varies between steps or screens. An intermediate
+  pass had an `h2` element carrying h4's size, which made one token name
+  mean two things; **the element and the type token must be the same
+  name — a heading element's number and the type token it renders at
+  must agree, everywhere.** A full audit of every heading in the gallery
+  against its computed size found two components breaking it, and
+  **both are fixed in this release**: `.c-card h4` rendered h5 and is
+  now `.c-card h5` (with `.c-card-profile-identity h4` moving with it),
+  and `.c-chat-hd h2` rendered h5 and is now `.c-chat-hd h5`. 22
+  elements across [Card](#card)'s variants, the chart cards, the profile
+  cards and [Chat window](#chat-window)'s thread title changed element
+  only — **no computed size, weight or line-height changes anywhere**,
+  since the tokens each rule sets are untouched. Two consequences worth
+  recording. Chat window's thread title is now an `h5` rather than an
+  `h2`, which lowers it in a page's heading outline; its accessible name
+  is unaffected, since the shell's `aria-labelledby` points at the same
+  `id`. And `.c-card-pacing-label` asks for h4's size but has always
+  been overridden to h5 by the `.c-card` descendant rule, so its own
+  `--text-h4-*` declarations are **dead** — the label was converted to
+  `h5` to preserve exactly what it renders today rather than letting a
+  16px label silently become 20px, and whether that rule was meant to
+  win is Card's question to settle. Screen-reader announcement is handled with two
+  attributes and **no live region**, per Thinking's Rule 19 and Task
+  Rows' Rule 17: the counter joins the body in `aria-describedby` so the
+  position is spoken, and focus moving to each step's card is what
+  triggers the announcement. `preview.html`'s specimen carries that
+  markup rather than a stripped-down copy of it, since it is what
+  "Copy markup" hands over.
 
 - **v0.9.97 — 2026-09-07** — Added **Task Rows**, [AI
   Native](#ai-native)'s eighth subcomponent (`.c-tasks*`): the named

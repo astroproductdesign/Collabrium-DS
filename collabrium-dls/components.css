@@ -212,7 +212,7 @@
    spec says it should, not just inside a Card. */
 .icon-chip{display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:var(--radius-sm); background:color-mix(in srgb, var(--color-navy) 12%, transparent); color:var(--color-navy); flex:none;}
 .c-card-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-.c-card h4{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
+.c-card h5{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
 .c-card p{margin:0; font-size:var(--text-body2-size); color:var(--color-neutral-5);}
 .c-card-accent{border-top:3px solid var(--color-salmon-pink);}
 .c-card-interactive:hover{box-shadow:var(--shadow-2); cursor:pointer;}
@@ -286,7 +286,7 @@
 .c-card-price-summary .c-card-footer .c-btn{width:100%; justify-content:center; margin-top:var(--spacing-12);}
 
 /* Profile card — Card variant. Header (Avatar in the icon-chip slot +
-   Name/Age-Gender-Location, both reusing .c-card h4/p verbatim), a
+   Name/Age-Gender-Location, both reusing .c-card h5/p verbatim), a
    divider, Persona badges (real .c-badge pills, sorted alphabetically
    at content level), then the Platform list (icon + name/handle stack
    + Tier badge/Follower count, all vertically centered). Tier badges
@@ -325,7 +325,7 @@
 .c-card-profile-header{display:flex; gap:var(--spacing-12); align-items:flex-start;}
 .c-card-profile-avatar{flex:none; width:36px; height:36px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-weight:700; font-size:var(--text-label2-size);}
 .c-card-profile-identity{flex:1; min-width:0;}
-.c-card-profile-identity h4{margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-profile-identity h5{margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .c-card-profile-identity p{margin:4px 0 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .c-card-profile-divider{margin:var(--spacing-8) 0; border-top:1px solid var(--color-neutral-3);}
 .c-card-profile-personas{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:var(--spacing-4);}
@@ -1004,12 +1004,14 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 .c-modal-tutorial-close{position:absolute; top:var(--spacing-8); right:var(--spacing-8);}
 
 .c-modal-tutorial-kicker{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
-/* Title is always an h2, taking .c-modal-head h4's own SIZE verbatim —
-   h4 (20/28/800). The element is fixed rather than chosen per host page:
-   a tour card is its own surface opened over whatever is underneath, so
-   a level picked to suit the page being covered would vary from screen
-   to screen for no reader's benefit. The class carries the size, so the
-   element and the size are independent.
+/* Title is an h4 element at h4's size — .c-modal-head h4 exactly, both
+   halves of it. The element name and the type token are deliberately
+   the SAME name: an h2 carrying h4's size would make "h4" mean two
+   things in one system, and nobody reading either the markup or the
+   token would know which was meant. Fixed at h4 in every scenario
+   rather than picked to suit whatever page the card opens over, so it
+   never varies between steps or screens; aria-labelledby is what names
+   the dialog, so the level never has to carry that job.
    Note that is what Modal SHIPS; Modal's own section in
    DESIGN-SYSTEM.md says h3, and the two have disagreed since before
    this component existed. This matches the CSS, which is what actually
@@ -2800,7 +2802,7 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 /* ---------------- Right panel ---------------- */
 .c-chat-main{display:flex; flex-direction:column; min-width:0; min-height:0;}
 .c-chat-hd{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-16); padding:var(--spacing-20) var(--spacing-24); border-bottom:1px solid var(--color-neutral-3);}
-.c-chat-hd h2{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:800; letter-spacing:0; color:var(--color-neutral-9);}
+.c-chat-hd h5{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:800; letter-spacing:0; color:var(--color-neutral-9);}
 .c-chat-hd p{margin:var(--spacing-4) 0 0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
 
 /* Wraps the thread so Jump to present has a containing block whose
