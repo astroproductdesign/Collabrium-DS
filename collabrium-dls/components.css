@@ -45,6 +45,15 @@
 .c-btn-ghost:hover{background:var(--color-neutral-2);}
 .c-btn:disabled{background:var(--color-neutral-4); color:var(--color-neutral-1); border-color:var(--color-neutral-3); cursor:not-allowed;}
 .c-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* The `hidden` attribute has to be honoured explicitly here: .c-btn
+   declares its own `display`, and the UA sheet's `[hidden]{display:none}`
+   carries zero specificity, so it loses — a `hidden` button would stay
+   fully visible. Same finding Chat window's own filter mechanism records
+   (it uses a class for exactly this reason), and the same explicit
+   `[hidden]` rule Search input's clear, Filters' tray, Chip and others
+   already carry. Any host toggling a Button with `el.hidden` depends on
+   this line. */
+.c-btn[hidden]{display:none;}
 
 .c-field{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
 .c-field label{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight);}
@@ -3000,6 +3009,152 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
   .c-streaming-sources{transition:none;}
   .c-streaming-followup{animation:none;}
   .c-streaming-actions, .c-streaming-followups{animation:none;}
+}
+
+/* =========================================================
+   Task Rows — AI Native's eighth subcomponent: the named tasks an
+   agent run is working through, each with its own terminal status
+   and its own droppable detail steps. Thinking's sibling one level
+   up — Thinking traces ONE operation and settles into a past-tense
+   header; this is a run of several independent tasks where one can
+   fail while the others succeed. See DESIGN-SYSTEM.md's own "Task
+   Rows" section for the full 18-rule contract this markup alone
+   can't express (the two-task gate, one row open at a time, a
+   failure taking the open slot, the single retry, and above all
+   Rule 9 — a control on the row only where the reader supplies
+   nothing, prose in the conversation wherever they have to supply
+   something, which is why Retry is the only control here).
+
+   Composes with nothing, and that is deliberate: it is the only AI
+   Native subcomponent that needs no other one to function. Three
+   parts are reused verbatim rather than redrawn — .c-step-indicator
+   for the 24px status disc (its upcoming/completed/error states ARE
+   this component's four marks, glyph choice and contrast already
+   reasoned out in Stepper), .c-badge Success/Error/Neutral for the
+   pills, and .c-btn Secondary/sm for Retry. The spin reuses Search
+   input's own c-search-input-spin keyframe — one spin technique,
+   system-wide.
+   Class prefix: .c-tasks* — kept flat rather than .c-task-rows-*,
+   the same call Chat window made against .c-chat-window-*: there is
+   one task list in the system and the longer prefix would buy
+   nothing over a dozen sub-parts. */
+
+/* Root. max-width 440px, not Thinking's 380px: a task row carries
+   four slots across (mark, label, count, pill, chevron) where a
+   Thinking header carries two, and 380px forces the label to
+   ellipsis on realistic copy. --capsules holds a min-height so
+   the response below it doesn't jump as rows arrive — Thinking's
+   Rule 10, same reasoning; --list doesn't need one because its
+   single surface already reserves the box. */
+.c-tasks{display:flex; flex-direction:column; width:100%; max-width:440px; font-family:var(--font-primary);}
+.c-tasks--capsules{gap:var(--spacing-8); min-height:196px;}
+.c-tasks--list{gap:0; align-self:flex-start; overflow:hidden; background:var(--color-neutral-1); border:var(--border-width-sm) solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1);}
+
+/* Row. The radius tightens as it opens — radius-lg (20px) closed,
+   radius-md (16px) open — which is the source's 22→14 move
+   expressed in real tokens: a capsule reads as a pill, an open
+   panel reads as a card. */
+.c-tasks-row{align-self:stretch; overflow:hidden; animation:c-tasks-row-in var(--duration-slow) var(--ease-reveal) both; transition:border-radius var(--duration-base) var(--ease-morph), background-color var(--duration-fast) var(--ease-standard);}
+.c-tasks--capsules .c-tasks-row{background:var(--color-neutral-1); border:var(--border-width-sm) solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1);}
+.c-tasks--capsules .c-tasks-row.is-open{border-radius:var(--radius-md);}
+.c-tasks--list .c-tasks-row{background:transparent; border-radius:0; border-bottom:var(--border-width-sm) solid var(--color-neutral-3);}
+.c-tasks--list .c-tasks-row:last-child{border-bottom:none;}
+.c-tasks-row:hover{background:var(--color-neutral-2);}
+@keyframes c-tasks-row-in{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+/* Head — the whole row is the disclosure control, one <button>.
+   Nothing else interactive lives inside it: a second <button>
+   nested in this one would be invalid HTML, which is the reason
+   Retry lives in the detail region below rather than up here. */
+.c-tasks-head{display:flex; align-items:center; gap:var(--spacing-12); width:100%; min-height:44px; padding:0 var(--spacing-12); border:none; background:transparent; font-family:inherit; text-align:left; cursor:pointer;}
+.c-tasks-head:focus-visible{outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:-2px;}
+
+/* Mark — .c-step-indicator reused verbatim for all four states.
+   The pop-in fires once per state change (the node is replaced on
+   change, so a fresh element restarts it) — scale only, no
+   overshoot: "movement settles, it never bounces." */
+.c-tasks-mark{position:relative; flex:none; display:flex; align-items:center; justify-content:center; width:var(--icon-md); height:var(--icon-md);}
+.c-tasks-mark .c-step-indicator{animation:c-tasks-mark-in var(--duration-base) var(--ease-morph) both;}
+@keyframes c-tasks-mark-in{ from{opacity:0; transform:scale(.62);} to{opacity:1; transform:scale(1);} }
+
+/* Active ring. The source drew an inline SVG circle pair; this is
+   the same 2px track + 28% sweeping arc in pure CSS, so the
+   component ships no SVG and reuses this system's one spin
+   keyframe.  The indicator's own 1px border is suppressed while
+   active so the 2px ring is the only track.
+
+   The z-index is load-bearing, not defensive: the mark's own
+   pop-in leaves transform:scale(1) applied (fill-mode both), a
+   non-none transform makes the indicator a stacking context, and
+   without this the white disc paints straight over the ring and
+   hides it outright. */
+.c-tasks-mark.is-active .c-step-indicator{border-color:transparent;}
+.c-tasks-ring{position:absolute; inset:0; z-index:1; border-radius:var(--radius-pill); border:var(--border-width-md) solid var(--color-neutral-3); pointer-events:none;}
+.c-tasks-ring::after{content:''; position:absolute; inset:calc(-1 * var(--border-width-md)); border-radius:inherit; background:conic-gradient(var(--color-neutral-7) 0 28%, transparent 28%); -webkit-mask:radial-gradient(closest-side, transparent calc(100% - var(--border-width-md)), #000 0); mask:radial-gradient(closest-side, transparent calc(100% - var(--border-width-md)), #000 0); animation:c-search-input-spin var(--duration-ambient) linear infinite;}
+
+.c-tasks-label{min-width:0; flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+.c-tasks-count{flex:none; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+
+/* Pill — the real Badge, Success / Error / Neutral, verbatim.
+   The glyph spins only in Retrying: in the source the Failed pill
+   spun a retry glyph while nothing was retrying, which promises
+   recovery the component wasn't doing. Now the spin means an
+   attempt is genuinely in flight, and Failed carries no glyph. */
+.c-tasks-head .c-badge{flex:none; animation:c-tasks-fade-in var(--duration-base) var(--ease-standard) both;}
+.c-tasks-head .c-badge i{font-size:var(--icon-micro);}
+.c-tasks-head .c-badge i.is-spin{animation:c-search-input-spin var(--duration-ambient) linear infinite;}
+@keyframes c-tasks-fade-in{ from{opacity:0;} to{opacity:1;} }
+
+.c-tasks-chevron{flex:none; display:flex; align-items:center; justify-content:center; width:var(--icon-md); height:var(--icon-md); margin-right:calc(-1 * var(--spacing-4)); color:var(--color-neutral-5); font-size:var(--icon-sm); transition:transform var(--duration-base) var(--ease-standard);}
+.c-tasks-row.is-open .c-tasks-chevron{transform:rotate(180deg);}
+
+/* Detail — 0fr→1fr grid-rows, Thinking's own expand technique
+   verbatim, at the same duration-base / ease-settle pairing. */
+.c-tasks-detail{display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows var(--duration-base) var(--ease-settle), opacity var(--duration-base) var(--ease-settle);}
+.c-tasks-row.is-open .c-tasks-detail{grid-template-rows:1fr; opacity:1;}
+.c-tasks-detail-inner{overflow:hidden;}
+
+/* The 24px first column is the mark column repeated, so the
+   timeline rule lands dead-centre under the disc above it —
+   derived from --icon-md, not a hand-picked offset (Thinking's
+   line does the same off --icon-sm). */
+.c-tasks-steps{display:grid; grid-template-columns:var(--icon-md) minmax(0,1fr); gap:var(--spacing-12); padding:0 var(--spacing-12) var(--spacing-12);}
+.c-tasks-line{width:var(--border-width-sm); height:100%; margin:0 auto; background:var(--color-neutral-3);}
+.c-tasks-step-list{display:flex; flex-direction:column; gap:var(--spacing-4);}
+.c-tasks-step{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); min-height:var(--text-caption-lh);}
+.c-tasks-row.is-open .c-tasks-step{animation:c-tasks-row-in var(--duration-base) var(--ease-settle) both;}
+.c-tasks-step-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-9);}
+.c-tasks-step-meta{flex:none; font-size:var(--text-footnote-size); line-height:var(--text-footnote-lh); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+
+/* Failure block — the reason, and Retry when there is something to
+   retry.  It sits in the step list's own column so the timeline
+   rule runs past it: the failure is the last thing that happened
+   in this task, not a footnote bolted under it.
+
+   The reason is Neutral-5, not red. Red 12px text measures 3.66:1
+   on white and 3.20:1 on Badge Error's own tint — both under the
+   4.5:1 floor for normal text. The red stays where Badge already
+   puts it and the reason reads as the secondary line it is. */
+.c-tasks-fail{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--spacing-8); margin-top:var(--spacing-8); padding-top:var(--spacing-8); border-top:var(--border-width-sm) solid var(--color-neutral-3);}
+.c-tasks-reason{margin:0; min-width:0; flex:1 1 160px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-tasks-fail .c-btn{flex:none; text-decoration:none;}
+.c-tasks-fail .c-btn i{font-size:var(--icon-sm);}
+
+
+/* Overflow summary — Thinking's Rule 11 applied here: a long run
+   shows the first several tasks and closes with a count. */
+.c-tasks-more{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); padding:var(--spacing-8) var(--spacing-12);}
+.c-tasks--capsules .c-tasks-more{padding-left:0;}
+
+/* Travel drops, sequence stays — nothing here changes which rows
+   exist, which one is active, or what any status says. The ring's
+   ARC is kept and only its rotation stops: with the spin gone it
+   is the only thing separating Active from Pending, so it is
+   state, not decoration. */
+@media (prefers-reduced-motion:reduce){
+  .c-tasks-row, .c-tasks-detail, .c-tasks-chevron{transition:none;}
+  .c-tasks-row, .c-tasks-mark .c-step-indicator, .c-tasks-head .c-badge, .c-tasks-row.is-open .c-tasks-step{animation:none;}
+  .c-tasks-ring::after, .c-tasks-head .c-badge i.is-spin{animation:none;}
 }
 
 /* =========================================================

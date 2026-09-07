@@ -776,17 +776,20 @@ sizes, states, Do/Don't), the same process every component above went
 through.
 
 **One exception to the flat alphabetical list, and it's deliberate:
-[AI Native](#ai-native)'s six subcomponents.** Everything else below is
+[AI Native](#ai-native)'s eight subcomponents.** Everything else below is
 one flat A→Z list with no grouping, and [AI Native](#ai-native) itself
 is a real, counted component like any other — it sits first because
 that's already its correct alphabetical position (AI sorts ahead of
 App). The actual exception is its children: **Chat window**,
-**Loading State**, **Prompt input bar**, **Streaming Text**,
-**Thinking**, and **Tool approval** are pulled out of their own
+**Loading State**, **Permission Prompt**, **Prompt input bar**,
+**Streaming Text**, **Task Rows**, **Thinking**, and **Tool approval**
+are pulled out of their own
 alphabetical slots (Chat window would otherwise fall between Chart
 color mapping and Checkbox; Loading State between Input field and
-Modal / dialog; Prompt input bar between Progress Bar and Radio;
-Streaming Text between Stepper and Switch; Thinking between Textarea
+Modal / dialog; Permission Prompt between PageHeader and Progress Bar;
+Prompt input bar between Progress Bar and Radio;
+Streaming Text between Stepper and Switch; Task Rows between Tabs and
+Textarea; Thinking between Textarea
 and Toast; Tool approval between Toast and Tooltip) and grouped under
 their parent instead, staying alphabetical among themselves. Don't add a
 second parent/child grouping on this precedent without a deliberate
@@ -834,9 +837,10 @@ undocumented ones is just an inconsistent list.
 
 ### AI Native
 
-One component with six subcomponents, listed alphabetically below —
-**Chat window**, **Loading State**, **Prompt input bar**, **Streaming
-Text**, **Thinking**, and **Tool approval** — the same "one component,
+One component with eight subcomponents, listed alphabetically below —
+**Chat window**, **Loading State**, **Permission Prompt**, **Prompt
+input bar**, **Streaming Text**, **Task Rows**, **Thinking**, and
+**Tool approval** — the same "one component,
 several named variants documented in one place" convention [Card](#card) already
 uses for General/Functional/Profile/Hero Card, rather than a separate
 nav entry and comp-block per variant. What unifies them: an AI Native
@@ -1407,6 +1411,180 @@ whole; justify or balance streaming text, or let the last word's
 paragraph-below-it push words already read; let this component call
 `scrollIntoView` or otherwise fight the thread's own scroll pin; loop,
 replay, or re-stream a message once it has settled, for any reason.
+
+**Task Rows.** ⚠️ **Designed from scratch** — no source in either the
+original brand deck or the teammate's build. Adapted from a supplied
+React/Tailwind component, with every hardcoded value in that source
+replaced by a token from this document and three of its parts replaced
+by real components from it.
+
+The named tasks an agent run is working through — a short list where
+each row carries its own terminal status, its own count, and its own
+droppable detail steps. This is [Thinking](#ai-native)'s sibling one
+level up, and the boundary is the whole reason both exist: Thinking
+traces **one** operation and settles into a past-tense header
+("Thought for 4 seconds"); Task Rows is a run of **several
+independent tasks**, each with an outcome of its own, where one can
+fail while the others succeed. Class prefix: `.c-tasks*` — kept flat
+rather than `.c-task-rows-*`, the same call [Chat
+window](#ai-native) made against `.c-chat-window-*`: there is one task
+list in the system and the longer prefix would buy nothing over a
+dozen sub-parts.
+
+**It composes with nothing, and that is the point.** Task Rows mounts
+no other component and triggers none — it is the only AI Native
+subcomponent that needs no sibling to function. Everything a failure
+needs from the person is asked for in the conversation instead (Rule
+9), which is why the only control this component renders is Retry.
+What it *reuses* verbatim, rather than redrawing: **[Stepper](#stepper)**'s
+`.c-step-indicator` for the 24px status disc — its existing
+`upcoming`/`completed`/`error` states *are* this component's four
+marks, so the check/x glyph choice and the white-on-fill contrast come
+already reasoned out; **[Badge](#badge--tag)** Success/Error/Neutral for the
+status pills; **[Button](#button)** Secondary/sm for Retry; and [Search
+input](#search-input)'s own `c-search-input-spin` keyframe for every
+rotation — one spin technique, system-wide.
+
+**Task Rows — Anatomy (root & row).**
+
+| Part | Spec |
+|---|---|
+| Root (`.c-tasks`) | Flex column, `width: 100%`, `max-width: 440px`. Wider than Thinking's 380px on purpose: a task row carries five slots across (mark, label, count, pill, chevron) where a Thinking header carries two, and 380px forces the label to ellipsis on realistic copy. Carries the live region (below) as its last child |
+| Capsules root (`.c-tasks--capsules`) | `spacing-8` gap, `min-height: 196px`. The floor is Thinking's Rule 10 applied here — it holds the space the run will fill so the response below doesn't jump as rows arrive |
+| List root (`.c-tasks--list`) | `gap: 0`, `align-self: flex-start`, `overflow: hidden`, Neutral-1 fill, 1px Neutral-3 border, `radius-lg`, `shadow-1`. No `min-height` — the single surface already reserves the box |
+| Row (`.c-tasks-row`) | `overflow: hidden`. Entrance is an 8px `translateY` + opacity fade on `duration-slow`/`ease-reveal`, staggered 80ms per row by its own `animation-delay` |
+| Row — Capsules | Neutral-1 fill, 1px Neutral-3 border, `shadow-1`, and **`radius-lg` (20px) closed tightening to `radius-md` (16px) open**, transitioned on `duration-base`/`ease-morph`. A pose change, so it takes the morph pairing: closed it reads as a capsule, open it reads as a card |
+| Row — List | Transparent fill, `border-radius: 0`, 1px Neutral-3 bottom border, none on the last row |
+| Row hover | Neutral-2, the hover fill Thinking's rows and Chat window's rail already use. Declared **after** both variant blocks — same specificity, so source order decides it |
+| Semantics | `role="list"` wrapper around the rows, `role="listitem"` per row |
+
+**Task Rows — Anatomy (head, `.c-tasks-head`).**
+
+| Part | Spec |
+|---|---|
+| Head | **The whole row is the disclosure control: one `<button>`**, `min-height: 44px`, `spacing-12` padding and gap, `aria-expanded` + `aria-controls`. Nothing else interactive lives inside it — a second `<button>` nested in this one would be invalid HTML, and that is the reason Retry sits in the detail region below rather than up here (Rule 12) |
+| Mark (`.c-tasks-mark`) | A 24px (`icon-md`) slot holding `.c-step-indicator` verbatim: `.upcoming` + the task number for Pending, Active and Retrying; `.completed` (green, `ph-check`) for Completed; `.error` (red, `ph-x`) for Failed. Check and x are **Tier 1, Regular** — Stepper already found this icon set renders the filled pair as a boxed glyph, redundant inside a circle. The indicator pops in on `duration-base`/`ease-morph`, scale only, no overshoot |
+| Active ring (`.c-tasks-ring`) | A 2px Neutral-3 track plus a 28% sweeping arc in Neutral-7, drawn with `conic-gradient` + a `radial-gradient` mask — **no SVG in this component**. Needs `z-index: 1`: the mark's own pop-in leaves `transform: scale(1)` applied, a non-`none` transform makes the indicator a stacking context, and without it the white disc paints straight over the ring. The indicator's own 1px border is suppressed while active so the 2px ring is the only track |
+| Label (`.c-tasks-label`) | label1 (14/20/700), Neutral-9, `flex: 1 1 auto`, single line, truncating. The source's 13px/500 has no rung in this type scale; label1 is the nearest real one and is what a row title takes elsewhere in the system |
+| Count (`.c-tasks-count`) | caption (12px), Neutral-5, `tabular-nums`, never truncating ("12 suppliers", "7 SKUs") |
+| Pill | The real Badge: `.c-badge-success` "Completed", `.c-badge-error` "Failed", `.c-badge-neutral` "Retrying" + a spinning `ph-arrow-clockwise`. Pending and Active carry **no pill**. Failed carries **no glyph** — see Rule 13 |
+| Hidden status (`.sr-only`) | A visually-hidden phrase inside the head so tabbing onto a row reads its whole state in one pass: "Draft supplier emails. Failed. 2 messages. The mail service timed out. Retry available." |
+| Chevron (`.c-tasks-chevron`) | `ph ph-caret-down`, `icon-sm`, Neutral-5, rotating 180° on `.is-open` — identical mechanics to Dropdown's and Thinking's own chevrons. `aria-hidden`, since `aria-expanded` on the head already states it |
+| Live region (`.c-tasks-live`) | One `.sr-only` `role="status" aria-live="polite" aria-atomic="true"`, owned by the root. Polite, not assertive — see Rule 17 |
+
+**Task Rows — Anatomy (detail, `.c-tasks-detail`).**
+
+| Part | Spec |
+|---|---|
+| Detail | `0fr → 1fr` grid-rows + opacity on `duration-base`/`ease-settle` — Thinking's own expand technique verbatim, at the same pairing |
+| Steps grid (`.c-tasks-steps`) | `grid-template-columns: var(--icon-md) minmax(0, 1fr)`, `spacing-12` gap. The 24px first column is the mark column repeated, so the timeline rule lands dead-centre under the disc above it — derived from `icon-md`, not a hand-picked offset, exactly as Thinking's line derives from `icon-sm` |
+| Line (`.c-tasks-line`) | 1px Neutral-3, `height: 100%`, `margin: 0 auto`. Decorative at 1.43:1 — no state depends on it |
+| Step (`.c-tasks-step`) | `space-between`. Label: caption, Neutral-9, truncating. Meta: footnote, Neutral-5, `tabular-nums`. Each step fades up on `duration-base`/`ease-settle`, staggered by `animation-delay` |
+| Step meta typography | **Primary font, not monospace.** The source used `font-mono`; this system ships no mono face and its standing rule is to fall back to the primary font rather than substitute one. Figures still line up via `font-variant-numeric: tabular-nums` |
+| Step text colors | The source paired its own `ink-2` with `ink-3` here. Neutral-4 is this system's `ink-3` equivalent and measures 1.88:1 — it fails outright as text. So the step **label** takes Neutral-9 and its **meta** takes Neutral-5, the same hierarchy the head above already uses, and both clear 4.5:1 |
+| Failure block (`.c-tasks-fail`) | The reason plus Retry, when there is a Retry. Sits inside the step list's own column with a 1px Neutral-3 top border, so the timeline rule runs past it: the failure is the last thing that happened in this task, not a footnote bolted under it |
+| Reason (`.c-tasks-reason`) | caption, **Neutral-5, not red.** Red 12px text measures 3.66:1 on white and 3.20:1 on Badge Error's own tint — both under the 4.5:1 floor. The red stays where Badge already puts it and the reason reads as the secondary line it is |
+| Overflow (`.c-tasks-more`) | caption, Neutral-5 — "+N more", never a full list (Rule 4) |
+
+**Task Rows — Variants.**
+
+| Variant | Root class | Rows are | Use when |
+|---|---|---|---|
+| Capsules | `.c-tasks--capsules` | Each its own white surface, `spacing-8` apart, radius tightening on open | The default. The run floats in an AI response with nothing else boxing it |
+| List | `.c-tasks--list` | One shared surface, divided by 1px hairlines, square-cornered | The run sits inside something that already has a border — a card, a panel, a settled report |
+
+**Task Rows — States (per row).**
+
+| State | Mark | Pill | Detail |
+|---|---|---|---|
+| Pending | `.upcoming` + number | none | The steps, metas unresolved |
+| Active | `.upcoming` + number + sweeping ring | none | The steps, the current one in progress |
+| Retrying | Identical to Active | Badge Neutral, "Retrying" + spinning glyph | The steps, the failing one reading *retrying* |
+| Completed | `.completed`, `ph-check` | Badge Success, "Completed" | The steps, all resolved |
+| Failed | `.error`, `ph-x` | Badge Error, "Failed" | The steps + the reason, and Retry **only** on a transient cause with its attempt unspent |
+
+Retrying deliberately reuses **Active's own disc** rather than taking a
+fifth mark: an attempt in flight is work in progress, and a new mark
+would claim it is a different kind of state than it is.
+
+**Task Rows — Cause → what the row does.** The row's action is decided
+by the *cause* of the failure, never by preference — the same shape as
+Thinking's own Rule 12.
+
+| Cause | Looks like | On the row | Recovered by |
+|---|---|---|---|
+| Transient | A timeout, a rate limit, a dropped connection | A **Retry** button — once, then it is gone | The person, on the row. Retrying needs nothing from them, so a button is the fastest path |
+| Needs something from the person | A file, a decision, a value that lives on another screen | **Nothing.** The reason, and it stops | **The conversation.** [Streaming Text](#ai-native) carries the ask in prose; [Prompt input bar](#ai-native) — which already has Attach file in its toolbar — takes the answer |
+| Unresolvable | Nothing a person can supply | **Nothing.** The reason, and it stops | Nobody. Identical on the row to the case above; only the prose differs, because only the prose can say why |
+
+**The consequence, and it is the best thing about this component: a
+failed row has exactly two looks** — with a Retry, or without one. A
+task blocked on a file, on a decision, on a value in another screen,
+or on nothing anyone can fix all render identically. Everything
+finer-grained lives in the model's own prose below the list, where it
+can be said properly.
+
+**Task Rows — Rules.** Eighteen rules, not stylistic preference — each
+one closes off a specific way a multi-task status list has been seen
+to fail.
+
+- **Rule 1 — AI operations only.** An agent run working through named tasks. Never data loading, never a generic checklist, never a project plan. Same boundary as every AI Native component here, and it holds for the same reason.
+- **Rule 2 — Requires at least two named tasks, each with its own outcome.** One task is not a run — it is a single operation, and that is [Loading State](#ai-native) or [Thinking](#ai-native) depending on whether it has nameable steps. Below two rows this component is a list with nothing to list.
+- **Rule 3 — Chosen over Thinking by the shape of the work, never by preference.** Thinking traces one operation and settles into a past-tense header. Task Rows reports several independent tasks, each with a terminal status of its own, where one can fail while the others succeed. If the work is one operation with ordered steps, it is Thinking — even if the steps are numerous.
+- **Rule 4 — Six visible rows, then a count.** A forty-task run does not produce a forty-row list. Show the first six and close with "+N more". Six is the most that fits the Capsules floor without the list dominating the response it sits in.
+- **Rule 5 — Exactly one row open at a time.** Opening a row closes whatever was open. This keeps the container's height predictable so the response below it never jumps twice, and it is what makes Rule 6 safe.
+- **Rule 6 — A failure opens itself, and takes the open slot.** Whatever was open closes, because a failure outranks a step list. This is the same auto-open/manual-override contract Thinking's Rule 6 sets: the moment the person touches a chevron, their choice overrides the automation permanently for that instance.
+- **Rule 7 — Exactly one task is in progress at a time.** The current task carries the sweeping ring; every task above it carries a terminal mark. Two rings means the list is lying about what is sequential.
+- **Rule 8 — Tasks append. They never reorder, replace, or disappear.** A list that reorders itself destroys its own credibility as a record. A completed task stays visible and stays completed.
+- **Rule 9 — A control on the row only where the person supplies nothing; prose in the conversation wherever they have to supply something.** This is the governing rule and every other decision about failure follows from it. **Retry** is a button, because retrying needs nothing from the person. **Everything else** — a missing file, an unmade decision, a value that lives on another screen — goes to the conversation: the row states what is missing and stops, the model asks for it in prose, and the person answers at the composer. Two reasons this is not a shortcut. First, [Prompt input bar](#ai-native) already has Attach file, so putting a second file affordance on the row would be two ways to do one thing, sitting a few hundred pixels apart, with the person left to guess which. Second, a task blocked on *two* things at once — a file *and* a decision — cannot be expressed by one control per row, and is one sentence of prose.
+- **Rule 10 — One retry per task, enforced as a shape and not a counter.** Retry is reachable only from a Retry button, that button renders only on a transient failure, and every outcome of pressing it leaves the task on a status that renders no button. There is no second press to allow or forbid, and no count that can drift out of sync with what is on screen.
+- **Rule 11 — Never a disabled Retry.** When retrying is impossible or spent, the button is **absent**. A control that offers recovery and then refuses is worse than no control.
+- **Rule 12 — Retry lives in the detail region, and that is structural.** The head is one `<button>` covering the whole row; a second button nested inside it would be invalid HTML. Rule 6's auto-open is what makes this reachable without a click.
+- **Rule 13 — The spin means an attempt is genuinely in flight, and nothing else.** The Failed pill carries no glyph. A spinning retry mark on a row where nothing is retrying promises recovery the component is not performing.
+- **Rule 14 — A recovered task is Completed like any other.** No scar, no "recovered" variant, no attempt count left in the pill. What matters is the outcome; the detail steps hold the history.
+- **Rule 15 — It never blocks, and it never scrolls away from its own result.** No overlay, no modal, no page-level use. It occupies the space the result will fill: the list sits where the response begins and the response appears below it, so nothing moves sideways and nothing is replaced.
+- **Rule 16 — One per run. Never stacked.** Two task lists in one view is two things claiming to be the run.
+- **Rule 17 — It announces failures, a retry the person started, and the run's end. Nothing else.** One polite live region on the root. Thinking's Rule 19 found that announcing every step floods a reader on any long run, and a run of tasks has the same problem — but a task *failing* is exactly the event worth spending attention on, and a retry *they* pressed has to report back. A needs-input failure announces two facts and deliberately not a third: that it failed, and that the ask is in the conversation. It does **not** enumerate what is missing, because the prose says that next and saying it twice in two voices is worse than once. The prose itself is Streaming Text's to announce, not this component's. A task completing mid-run, a detail step landing, a row opening, rows entering, the ring sweeping: all silent.
+- **Rule 18 — Reduced motion drops the travel and keeps the arc.** The row entrance, the step stagger, the radius morph, the chevron rotation and every spin all stop. The ring's **arc stays**: with the rotation gone it is the only thing separating Active from Pending, so it is state, not decoration. Which tasks exist, which one is active, and what every status says are untouched — ordering is information.
+
+**Do:** gate on Rule 2 and Rule 3 together — two-plus named tasks, each
+with its own outcome — before choosing this over Loading State or
+Thinking; keep exactly one task in progress and exactly one row open;
+let a failure take the open slot; cap at six rows and summarize the
+rest; put Retry on transient failures only and let the conversation
+handle everything a person has to supply. **Don't:** render a disabled
+Retry, ever; spin a glyph on a row where nothing is retrying; add a
+second file or answer affordance to the row when the composer already
+has one; let a completed task reorder, vanish, or lose its mark;
+auto-close a row the reader has manually pinned open; stack a second
+list in the same view; announce per task or per step.
+
+⚠️ **Colour: the design system's, and the measured contrast is an
+owned decision.** Every colour here comes from this document —
+`--color-green` and `--color-red` for the discs via
+`.c-step-indicator`, and `.c-badge-success`/`.c-badge-error`
+unmodified for the pills. The source component's own greens, reds and
+tints are discarded rather than matched. Three of the resulting
+pairings sit under the WCAG floor, all of them **pre-existing and
+system-wide**, inherited by reusing the real parts rather than
+introduced here: **Neutral-1 on the green Completed disc measures
+2.35:1**, below even the 3:1 threshold for non-text UI (Stepper's own
+section quotes its red at 3.69:1 but never quoted this one);
+**Badge Success text measures 2.11:1** and **Badge Error text 3.20:1**
+on their own tints. These stand as specified. Recorded rather than
+routed around, because Task Rows makes the green disc far more
+prominent than Stepper ever did, and because the check glyph is the
+only thing distinguishing Completed from Failed for anyone who cannot
+resolve the hue. Everything the component adds itself clears its
+floor: row label 20.0:1, count/step meta/reason 6.90:1, ring arc
+15.9:1, Retrying pill 17.6:1.
+
+⚠️ **Two values kept off-scale, deliberately.** Row `min-height: 44px`
+and root `max-width: 440px` are both literal, not tokens. No component
+in this system tokenises row height, and 440px is a measure derived
+from the row's five slots rather than a reusable step — the same
+standing this document already gives Thinking's own 380px and Tool
+approval's 360px.
 
 **Thinking.** ⚠️ **Designed from scratch** — no source in either the
 original brand deck or the teammate's build.
@@ -6147,6 +6325,117 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.97 — 2026-09-07** — Added **Task Rows**, [AI
+  Native](#ai-native)'s eighth subcomponent (`.c-tasks*`): the named
+  tasks an agent run is working through, each row carrying its own
+  terminal status, count, and droppable detail steps, in **Capsules**
+  (default, one surface per row) and **List** (one shared surface,
+  hairline-divided) variants. Adapted from a supplied React/Tailwind
+  component — every hardcoded value in that source replaced by a token
+  from this document, and three of its parts replaced by real
+  components: `.c-step-indicator` from [Stepper](#stepper) for the
+  24px status disc (its existing `upcoming`/`completed`/`error` states
+  *are* this component's four marks, so the check/x glyph choice and
+  the white-on-fill contrast came already reasoned out),
+  [Badge](#badge--tag) Success/Error/Neutral for the status pills, and
+  [Button](#button) Secondary/sm for Retry. The source's inline SVG
+  spinner ring became a `conic-gradient` + mask ring driven by [Search
+  input](#search-input)'s own `c-search-input-spin` keyframe, so the
+  component ships no SVG and adds no second spin technique. Sits
+  between [Streaming Text](#ai-native) and [Thinking](#ai-native) in
+  the subcomponent list; would otherwise fall between Tabs and
+  Textarea in the flat A→Z list.
+
+  **The governing rule is Rule 9, and it is the one worth reading:** a
+  control on the row only where the person supplies nothing, prose in
+  the conversation wherever they have to supply something. So a
+  *transient* failure — a timeout, a rate limit, a dropped connection
+  — gets a **Retry** button, capped at one attempt and enforced as a
+  shape rather than a counter (Retry renders only on a transient
+  failure, and every outcome of pressing it leaves the task on a
+  status that renders no button, so there is no count to drift). A
+  failure needing *anything* from the person gets **no control**: the
+  row states what is missing and stops, [Streaming
+  Text](#ai-native) carries the ask in prose, and [Prompt input
+  bar](#ai-native) — which already has Attach file in its toolbar —
+  takes the answer. Two reasons that is not a shortcut: a second file
+  affordance on the row would be two ways to do one thing sitting a
+  few hundred pixels apart, and a task blocked on *two* things at once
+  cannot be expressed by one control per row but is one sentence of
+  prose. The consequence is the best thing about the component — **a
+  failed row has exactly two looks, with a Retry or without one**;
+  everything finer-grained lives in the prose.
+
+  An earlier pass had gone the other way, mounting [FileUploader](#fileuploader)
+  inside the row and raising [Tool approval](#ai-native) beside it,
+  with four resolve targets chosen by the shape of the missing input.
+  That was reviewed and **rejected**, and it is recorded here because
+  the reasoning generalises: it duplicated an affordance the composer
+  already had, and it would have made Task Rows the first AI Native
+  subcomponent to mount and trigger others. As shipped, **Task Rows
+  composes with nothing** and is the only subcomponent in this family
+  that needs no sibling to function.
+
+  Also settled: six visible rows then "+N more" (Thinking's Rule 11
+  with an actual number attached, which Thinking itself never got);
+  exactly one row open at a time, with a failure taking the open slot
+  because a failure outranks a step list; Retrying reusing Active's
+  own disc rather than a fifth mark, with the spin now meaning an
+  attempt is genuinely in flight and the Failed pill carrying no glyph
+  (the source spun a retry mark on rows where nothing was retrying);
+  never a disabled Retry, only an absent one; and one polite live
+  region announcing failures, a retry the person started, and the
+  run's end — nothing else. A needs-input failure announces that it
+  failed and that the ask is in the conversation, and deliberately
+  does not enumerate what is missing, since the prose says that next.
+
+  Two type substitutions worth flagging, both forced by this scale:
+  the source's 13px/500 row label became **label1** (14/20/700), since
+  no 13px/500 rung exists and label1 is what a row title takes
+  elsewhere; and its monospace detail meta became the **primary
+  font** with `tabular-nums`, since this system ships no mono face.
+  The source's `ink-3` split two ways — Neutral-5 for anything that is
+  text (Neutral-4 measures 1.88:1 and fails outright) and Neutral-7
+  for the ring's arc, which is not.
+
+  ⚠️ **Colour stands as this document has it, and the measured
+  contrast is recorded as an owned decision rather than routed
+  around.** The discs are `--color-green`/`--color-red` and the pills
+  are `.c-badge-success`/`.c-badge-error` unmodified; the source's own
+  greens, reds and tints are discarded rather than matched. Three
+  resulting pairings sit under the WCAG floor, all **pre-existing and
+  system-wide**: Neutral-1 on the green Completed disc at **2.35:1**
+  (below even the 3:1 non-text threshold — [Stepper](#stepper)'s
+  section quotes its red at 3.69:1 but never quoted this one), Badge
+  Success text at **2.11:1**, and Badge Error text at **3.20:1**. They
+  stand. Flagged in Task Rows' own section because this component
+  makes the green disc far more prominent than Stepper ever did, and
+  because the check glyph is the only thing separating Completed from
+  Failed for anyone who cannot resolve the hue.
+
+  **Also fixed, and pre-existing:** [Button](#button) now carries an
+  explicit `.c-btn[hidden]{display:none}`. `.c-btn` declares its own
+  `display`, and the UA sheet's `[hidden]{display:none}` carries zero
+  specificity — so it lost, and a button toggled with `el.hidden`
+  stayed fully visible. This is the same finding [Chat
+  window](#ai-native)'s own filter mechanism already records (it uses a
+  class for exactly this reason), and the same explicit `[hidden]` rule
+  Search input's clear, Filters' tray and Chip already carry. It was
+  live in the gallery: [Streaming Text](#ai-native)'s demo shows Stop
+  while streaming and Start/Replay once settled, and both had been
+  rendering at once since v0.9.79. Any host toggling a Button with
+  `hidden` depends on this line.
+
+  **Also corrected in this pass, and pre-existing:** [AI
+  Native](#ai-native)'s own roster said "six subcomponents" and omitted
+  **Permission Prompt**, which shipped in v0.9.89 and has had a full
+  section ever since. Both the grouping-exception paragraph and the AI
+  Native intro now read **eight** and list all of them, with Permission
+  Prompt's own would-be alphabetical slot (between PageHeader and
+  Progress Bar) recorded alongside the others. Net component count
+  unchanged — subcomponents of AI Native aren't separately counted,
+  same as every previous addition to this family.
 
 - **v0.9.96 — 2026-09-04** — Added **Notes**: coloured annotations
   attached to a table or list row, up to four per row. Composition
