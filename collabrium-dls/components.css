@@ -359,11 +359,11 @@
 .c-card-pacing-kpi .qualifier{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
 /* Minibar. Nothing sits above the rail here, so the In-table variant's
    reserved label band collapses to the target line's own overhang — the
-   same override the Secondary stat/KPI card needs. The label row also
-   needs a font size, which variant-table never set, having had no legend
-   of its own. Labels are Total flush left / Target flush right, which is
-   .c-goal-bar-labels' own native space-between layout used as-is. */
-.c-card-pacing .c-goal-bar.variant-table{--gb-legend-size:var(--text-caption-size);}
+   same override the Secondary stat/KPI card needs. The label row used to
+   need a font size here too, because variant-table never set one, having
+   had no legend of its own — that is gone: .c-goal-bar-labels now names
+   caption itself. Labels are Total flush left / Target flush right,
+   which is .c-goal-bar-labels' own native space-between layout as-is. */
 .c-card-pacing .c-goal-bar.variant-table .c-goal-bar-chart{padding:var(--gb-overhang) 0 0;}
 .c-card-pacing .c-goal-bar-labels{margin-top:6px; line-height:1.4;}
 /* .c-card is a column flexbox with no align-items, so a bare badge
@@ -1733,9 +1733,8 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 /* Sub-variant A — the Progress-to-Goal Bar's In-table variant inside the
    card. Nothing sits above the rail here, so that variant's reserved 16px
    label band collapses to the target line's own overhang. The label row
-   also needs a font size, which variant-table never set, having had no
-   legend of its own. */
-.c-stat-secondary .c-goal-bar.variant-table{--gb-legend-size:var(--text-caption-size);}
+   used to need a font size here too — that is gone now that
+   .c-goal-bar-labels names caption itself. */
 .c-stat-secondary .c-goal-bar.variant-table .c-goal-bar-chart{padding:var(--gb-overhang) 0 0;}
 .c-stat-secondary .c-goal-bar-labels b{margin-left:0; margin-right:3px;}
 
@@ -2433,10 +2432,24 @@ html.c-modal-tutorial-locked{overflow:hidden;}
    radii (6/8/10) and the per-size type scale are one-off literals, the
    same class of exception Progress Bar's own track heights already are.
    ========================================================= */
-.c-goal-bar{font-family:var(--font-primary); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--gb-pad); width:100%; max-width:560px; box-sizing:border-box;}
-.c-goal-bar.size-small{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-16); --gb-bar-h:var(--spacing-16); --gb-bar-radius:6px; --gb-title-size:13px; --gb-desc-size:11px; --gb-legend-size:11px; --gb-footer-size:10.5px; --gb-tag-size:10px; --gb-swatch:8px; --gb-overhang:5px;}
-.c-goal-bar.size-default{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-32); --gb-bar-radius:8px; --gb-title-size:15px; --gb-desc-size:12.5px; --gb-legend-size:12.5px; --gb-footer-size:11.5px; --gb-tag-size:11px; --gb-swatch:10px; --gb-overhang:7px;}
-.c-goal-bar.size-large{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-40); --gb-bar-radius:10px; --gb-title-size:17px; --gb-desc-size:13.5px; --gb-legend-size:13.5px; --gb-footer-size:12.5px; --gb-tag-size:12px; --gb-swatch:12px; --gb-overhang:9px;}
+/* Size variants control the CHART, and nothing else. Every piece of text
+   in this component takes the same type token at every size — see the
+   ten text rules below, all of which now name a token rather than a
+   per-size literal. What is left ramping is geometry: bar height, corner
+   radius, and the target line's overshoot.
+
+   --gb-pad and --gb-swatch live here rather than in the variants because
+   they no longer differ. Padding was already spacing-16 at all three
+   sizes and was being declared three times; the legend swatch used to
+   ramp 8/10/12px, but it sits inline with legend text that is now one
+   size, so a swatch that changed with the variant would be the only
+   thing in the legend that did. Declaring --gb-pad here also fixes a
+   latent hole: a .c-goal-bar with no size class had an undefined
+   --gb-pad and therefore no padding at all. */
+.c-goal-bar{font-family:var(--font-primary); --gb-pad:var(--spacing-16); --gb-swatch:10px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--gb-pad); width:100%; max-width:560px; box-sizing:border-box;}
+.c-goal-bar.size-small{--gb-head-gap:var(--spacing-16); --gb-bar-h:var(--spacing-16); --gb-bar-radius:6px; --gb-overhang:5px;}
+.c-goal-bar.size-default{--gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-32); --gb-bar-radius:8px; --gb-overhang:7px;}
+.c-goal-bar.size-large{--gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-40); --gb-bar-radius:10px; --gb-overhang:9px;}
 
 /* Chart-only variant — the same chart area and legend with no card chrome
    at all, for dropping into a tile, a cell, or any surface that already
@@ -2454,13 +2467,31 @@ html.c-modal-tutorial-locked{overflow:hidden;}
    its longest word instead lets the title wrap to two lines and the
    figures stay put; they only stack once even that word can't fit
    beside them. */
+/* Head. Two items only — heading, then figure — so there is no ordering
+   to declare: DOM order is the render order. The explicit order:1 /
+   order:2 that used to sit on them existed solely to keep a description
+   at order:3 below both, and went with it. flex-wrap stays: at a narrow
+   measure the figure still drops under the heading rather than crushing
+   it. */
 .c-goal-bar-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px var(--spacing-16); margin-bottom:var(--gb-head-gap);}
-.c-goal-bar-title{order:1; flex:1 1 auto; flex-basis:min-content; margin:0; font-size:var(--gb-title-size); font-weight:var(--weight-extrabold); letter-spacing:0; color:var(--color-neutral-9);}
-.c-goal-bar-desc{order:3; flex:0 0 100%; margin:0; font-size:var(--gb-desc-size); line-height:1.5; font-weight:400; color:var(--color-neutral-5);}
-.c-goal-bar-target{order:2; flex:none; margin-left:auto; text-align:right;}
-.c-goal-bar-target-value{font-size:calc(var(--gb-title-size) + 3px); font-weight:var(--weight-extrabold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums; white-space:nowrap;}
-.c-goal-bar-target-value .of{margin-left:2px; font-size:var(--gb-desc-size); font-weight:600; color:var(--color-neutral-5);}
-.c-goal-bar-target-pct{margin-top:2px; font-size:var(--gb-desc-size); color:var(--color-neutral-5);}
+/* Heading — h5, taken whole. The h5 element and the h5 token are the
+   same name, and the weight comes from the token too (700) rather than
+   the extrabold 800 this rule used to hardcode, so the heading now
+   matches every other h5 in the system, .c-card h5 included. */
+.c-goal-bar-title{flex:1 1 auto; flex-basis:min-content; margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); letter-spacing:var(--text-h5-tracking); color:var(--color-neutral-9);}
+.c-goal-bar-target{flex:none; margin-left:auto; text-align:right;}
+/* Headline figure — h4, the only token already at this rule's own 800
+   weight. It used to be calc(--gb-title-size + 3px), which is why it
+   still ramped 16/18/20px after the heading had stopped. At h4 it stays
+   larger than the h5 heading, which is the relationship the ramp had at
+   every size: the figure is what the card is for. */
+.c-goal-bar-target-value{font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums; white-space:nowrap;}
+/* Figure suffix and sub-label — caption, taken whole. The suffix used
+   to be weight 600, which no token in this system's scale uses; caption
+   is 400, and against a 20px figure the lighter suffix reads as the
+   secondary half of the pair rather than competing with it. */
+.c-goal-bar-target-value .of{margin-left:2px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-goal-bar-target-pct{margin-top:2px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
 
 /* Chart area — shared by all three variants. Track is Neutral-2, headroom
    Neutral-3 (deliberately one step darker, so "space still available up to
@@ -2474,16 +2505,24 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 .c-goal-bar-headroom{position:absolute; top:0; bottom:0; background:var(--color-neutral-3);}
 .c-goal-bar-gap{position:absolute; top:0; bottom:0; box-sizing:border-box; border-top:2px dashed var(--color-red); border-bottom:2px dashed var(--color-red); border-right:2px dashed var(--color-red);}
 .c-goal-bar-target-line{position:absolute; top:calc(-1 * var(--gb-overhang)); bottom:calc(-1 * var(--gb-overhang)); width:2px; background:var(--color-neutral-9); transform:translateX(-1px);}
-.c-goal-bar-tagrow{position:relative; height:calc(var(--gb-tag-size) + 14px); margin-top:8px;}
-.c-goal-bar-target-tag{position:absolute; top:0; transform:translateX(-50%); font-size:var(--gb-tag-size); font-weight:700; color:var(--color-neutral-9); white-space:nowrap;}
+.c-goal-bar-tagrow{position:relative; height:calc(var(--text-label3-size) + 14px); margin-top:8px;}
+/* Target marker — label3, the system's small-bold-marker token, whose
+   700 weight this rule already used. Its 0.04em tracking is new and
+   comes with the token; at 11px it helps rather than hurts, and the tag
+   is centred on the target line so a slightly wider box costs nothing. */
+.c-goal-bar-target-tag{position:absolute; top:0; transform:translateX(-50%); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-9); white-space:nowrap;}
 
 /* Legend — categories and Gap only; Target is labelled once, by the tag
    under the bar. Swatch geometry follows Progress Bar's own
    .c-progress-legend-swatch (small square, 2px radius), with a dashed
    outline swatch for Gap so the colour isn't the only signal. */
 .c-goal-bar-legend{display:flex; flex-wrap:wrap; gap:var(--spacing-8) var(--spacing-16);}
-.c-goal-bar-legend-item{display:inline-flex; align-items:center; gap:6px; font-size:var(--gb-legend-size); color:var(--color-neutral-5); white-space:nowrap;}
-.c-goal-bar-legend-item b{margin-right:2px; font-weight:700; color:var(--color-neutral-9);}
+/* Legend — caption. This is the base agreeing with its own consumers
+   rather than a new choice: Pacing Card and Stat / KPI both already
+   forced --gb-legend-size to --text-caption-size for their own use, and
+   those two overrides are removed below as now-redundant. */
+.c-goal-bar-legend-item{display:inline-flex; align-items:center; gap:6px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); white-space:nowrap;}
+.c-goal-bar-legend-item b{margin-right:2px; font-weight:var(--weight-bold); color:var(--color-neutral-9);}
 .c-goal-bar-legend-swatch{width:var(--gb-swatch); height:var(--gb-swatch); border-radius:2px; flex:none;}
 .c-goal-bar-legend-swatch.is-gap{background:none; border:1.5px dashed var(--color-red);}
 
@@ -2491,13 +2530,19 @@ html.c-modal-tutorial-locked{overflow:hidden;}
    tight line under the bar, no swatches, short-form numbers. Wraps rather
    than overflowing, since three nowrap items in a space-between row can
    neither shrink nor break on their own. */
-.c-goal-bar-labels{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px var(--spacing-8); margin-top:6px; font-size:var(--gb-legend-size); line-height:1.4; color:var(--color-neutral-5);}
+/* Compact label row — caption, following the legend it replaces at
+   size-small and in the In-table variant. Its own 1.4 line-height is
+   kept rather than caption's 16px: this row is deliberately tighter than
+   a legend because it sits directly under the rail. */
+.c-goal-bar-labels{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px var(--spacing-8); margin-top:6px; font-size:var(--text-caption-size); font-weight:var(--text-caption-weight); line-height:1.4; color:var(--color-neutral-5);}
 .c-goal-bar-labels > span{white-space:nowrap;}
-.c-goal-bar-labels b{margin-left:3px; font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-goal-bar-labels b{margin-left:3px; font-weight:var(--weight-bold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
 .c-goal-bar-labels .is-gap, .c-goal-bar-labels .is-gap b{color:var(--color-red);}
 
 .c-goal-bar-divider{margin:var(--spacing-16) 0 var(--spacing-12); border:none; border-top:1px solid var(--color-neutral-3);}
-.c-goal-bar-footer{margin:0; font-size:var(--gb-footer-size); line-height:1.5; color:var(--color-neutral-5);}
+/* Footer — footnote. Same 12/16/400 metrics as caption; footnote is
+   the truer name for a line that annotates the chart above it. */
+.c-goal-bar-footer{margin:0; font-size:var(--text-footnote-size); line-height:var(--text-footnote-lh); font-weight:var(--text-footnote-weight); color:var(--color-neutral-5);}
 
 /* In-table variant — an 8px rail for a table cell: no card, no legend, no
    gap outline (the same call Small makes, with even less room to draw one),
@@ -2507,9 +2552,14 @@ html.c-modal-tutorial-locked{overflow:hidden;}
    above the rail and mirrored below, so the rail sits on the row's
    centreline and the label still clears the row's top edge — Table sets no
    fixed row height, so the row grows to fit. */
-.c-goal-bar.variant-table{--gb-bar-h:8px; --gb-bar-radius:var(--radius-pill); --gb-tag-size:10px; --gb-overhang:3px; --gb-label-space:16px; background:transparent; border:none; box-shadow:none; padding:0; max-width:none;}
+.c-goal-bar.variant-table{--gb-bar-h:8px; --gb-bar-radius:var(--radius-pill); --gb-overhang:3px; --gb-label-space:16px; background:transparent; border:none; box-shadow:none; padding:0; max-width:none;}
 .c-goal-bar.variant-table .c-goal-bar-chart{padding:var(--gb-label-space) 0;}
-.c-goal-bar-tablelabel{position:absolute; bottom:calc(100% + 4px); transform:translateX(-100%); margin-left:-4px; font-size:var(--gb-tag-size); line-height:12px; font-weight:700; color:var(--color-neutral-9); white-space:nowrap; font-variant-numeric:tabular-nums;}
+/* In-table label — label3's size, but keeping its own tight 12px
+   line-height rather than the token's 16px. A Table sets no fixed row
+   height, so four extra pixels here would grow every row that carries a
+   bar. The one deliberate part-adoption in this component, and the
+   reason is the host, not the type. */
+.c-goal-bar-tablelabel{position:absolute; bottom:calc(100% + 4px); transform:translateX(-100%); margin-left:-4px; font-size:var(--text-label3-size); line-height:12px; font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-9); white-space:nowrap; font-variant-numeric:tabular-nums;}
 
 /* =========================================================
    Prompt input bar — AI Native category. Floating bar variant

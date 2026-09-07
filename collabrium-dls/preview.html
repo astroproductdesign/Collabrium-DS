@@ -1867,7 +1867,7 @@
                 <div class="swatch-group-label" style="margin-top:0">Card variant &mdash; medium</div>
                 <div class="c-goal-bar size-default">
                   <div class="c-goal-bar-head">
-                    <h3 class="c-goal-bar-title">Progress to Goal</h3>
+                    <h5 class="c-goal-bar-title">Progress to Goal</h5>
                     <div class="c-goal-bar-target">
                       <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
                       <div class="c-goal-bar-target-pct">60% of target</div>
@@ -8734,7 +8734,6 @@ re-bases on `total`, which is the one case the target line moves off
 | Container | [Card](#card)'s own recipe, unmodified: Neutral-1 fill, 1px Neutral-3 border, `radius-lg` (20px), `shadow-1`, `spacing-16` padding. Padding does **not** scale with size — only the bar, type and internal gaps do |
 | Heading | the component title, `weight-extrabold`, Neutral-9, letter-spacing 0 — per this document's own "every heading at 800" rule |
 | Target figures (optional) | top-right, on the same row as the heading: raw value over percent-of-target (e.g. "RM 6,000 / 10,000" / "60% of target"). Controlled by `showTarget`; when false the block is omitted and the chart is unaffected |
-| Description (optional) | always its own full-width line beneath the heading row, never a column beside the figures |
 | Track | Neutral-2, full width of its container, per-size corner radius |
 | Category segments | stacked left to right in the order given, no gaps between them; colors per **Category colors**, below |
 | Headroom | Neutral-3 fill from the target point to the end of the track — one step darker than the track, so it reads as "space still on the scale" rather than as empty track. Only when `total < target` |
@@ -8752,24 +8751,58 @@ re-bases on `total`, which is the one case the target line moves off
 | Chart | chart area + legend only — no card, border, shadow, padding, heading, divider or footer. For dropping into a tile, cell, or any surface that owns its own container. Never draws a card of its own |
 | In-table | an 8px rail at `radius-pill` for a table cell — Progress Bar's own default track anatomy, reused. No card, no legend, no gap outline; the only label is the target's compact value, above the bar and right-aligned 4px left of the target line. Label space is reserved above the rail and mirrored below it, so the rail sits on the row's centreline while the label still clears the row's top edge — [Table](#table) sets no fixed row height, so the row grows to fit |
 
-**Sizes** — all three apply to the Card and Chart variants; In-table has
-its own fixed metrics.
+**Sizes control the chart, and nothing else.** All three apply to the
+Card and Chart variants; In-table has its own fixed metrics. Every piece
+of text in this component takes the same token at every size — see
+**Typography**, below.
 
-| Token | Small | Medium | Large |
+| Value | Small | Medium | Large |
 |---|---|---|---|
 | Bar height | 16px (`spacing-16`) | 32px (`spacing-32`) | 40px (`spacing-40`) |
 | Bar corner radius | 6px | 8px | 10px |
-| Heading | 13px | 15px | 17px |
-| Description / legend | 11px | 12.5px | 13.5px |
-| Footer | 10.5px | 11.5px | 12.5px |
-| Target tag | 10px | 11px | 12px |
+| Target-line overshoot | 5px | 7px | 9px |
+| Head → chart gap | `spacing-16` | `spacing-24` | `spacing-24` |
 | Card padding | `spacing-16` at every size |
+| Legend swatch | 10px at every size |
 
-⚠️ The bar corner radii and the per-size type scale are one-off
-literals — no existing token covers a three-tier bar radius or a
-component with its own size-scaled type ramp. Same class of exception
-as [Progress Bar](#progress-bar)'s own track heights. The bar heights
-are not: all three land on real spacing tokens.
+**Typography** — nine text elements, each on a whole token: size, line
+height and weight together, not a size borrowed from one and a weight
+from somewhere else. **There is no description.** This component states a
+figure against a target; the sentence explaining why belongs to whatever
+surface the bar sits in — a [Card](#card)'s own description, a
+[PageHeader](#pageheader)'s subtitle — not inside the bar.
+
+| Element | Sample copy | Token |
+|---|---|---|
+| Heading (`.c-goal-bar-title`) | Progress to Goal | **`h5`** — 16/20/700, Neutral-9. An `h5` element, so the element and the token are the same name |
+| Headline figure (`.c-goal-bar-target-value`) | RM 6,000 | **`h4`** — 20/28/800, Neutral-9, `tabular-nums`. Larger than the heading on purpose: the figure is what the card is for |
+| Figure suffix (`.of`) | / 10,000 | **`caption`** — 12/16/400, Neutral-5 |
+| Figure sub-label (`.c-goal-bar-target-pct`) | 60% of target | **`caption`** — 12/16/400, Neutral-5 |
+| Legend (`.c-goal-bar-legend-item`) | Category A  RM 2,000 | **`caption`** — 12/16/400, Neutral-5; the `<b>` value at `weight-bold`, Neutral-9 |
+| Compact label row (`.c-goal-bar-labels`) | Total **RM 6,000** · Gap **RM 4,000** · Target **RM 10,000** | **`caption`** at a tighter **1.4** line height — it sits directly under the rail. Replaces the legend at Small and In-table |
+| Target marker (`.c-goal-bar-target-tag`) | Target RM 10,000 | **`label3`** — 11/16/700 + its 0.04em tracking, Neutral-9 |
+| Footer (`.c-goal-bar-footer`) | Bar extends past target to show headroom. | **`footnote`** — 12/16/400, Neutral-5 |
+| In-table label (`.c-goal-bar-tablelabel`) | RM 6,000 | **`label3`**'s size and weight, but its own **12px** line height — [Table](#table) sets no fixed row height, so the token's 16px would grow every row carrying a bar. The one deliberate part-adoption, and the reason is the host, not the type |
+
+⚠️ **The bar corner radii are the only off-scale literals left** — no
+token covers a three-tier bar radius. Same class of exception as
+[Progress Bar](#progress-bar)'s own track heights. The bar heights are
+not an exception: all three land on real spacing tokens, as do the head
+gap and the padding.
+
+**This component used to carry its own size-scaled type ramp** —
+13/15/17px headings, 11/12.5/13.5px description and legend,
+10.5/11.5/12.5px footer, 10/11/12px target tag, with the headline figure
+derived as `calc(heading + 3px)`. Nine of those fifteen values were not
+tokens at all, four were fractional pixels, and two of the weights (800
+on the heading, 600 on the figure suffix) were not weights this system's
+scale uses. It is gone: the size variants move the chart, and the text
+is tokenised once. Five variables retired with it —
+`--gb-title-size`, `--gb-desc-size`, `--gb-legend-size`,
+`--gb-footer-size`, `--gb-tag-size` — and so did two consumer overrides,
+since [Card](#card)'s Pacing variant and [Stat / KPI](#stat--kpi)'s
+Secondary variant were both already forcing the legend to `caption` for
+their own use, which the base now does itself.
 
 **Small size behaves differently by default**, because at 16px there
 isn't room for the full furniture:
@@ -10430,6 +10463,54 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.99 — 2026-09-07** — **[Progress-to-Goal Bar](#progress-to-goal-bar)'s
+  size variants now control the chart and nothing else.** The component
+  carried its own size-scaled type ramp — 13/15/17px headings,
+  11/12.5/13.5px description and legend (the description has since been
+  removed from the component entirely — see below), 10.5/11.5/12.5px footer,
+  10/11/12px target tag, and a headline figure derived as
+  `calc(heading + 3px)` — of which nine values were not tokens at all,
+  four were fractional pixels, and two weights (800 on the heading, 600
+  on the figure suffix) were weights this system's scale does not use.
+  All ten text elements now take a **whole token**: size, line height and
+  weight together. Heading **`h5`**, headline figure **`h4`** (the only
+  token already at its 800 weight, and it keeps the figure ahead of the
+  heading), figure suffix and sub-label **`caption`**, description
+  **`body2`**, legend and compact label row **`caption`**, target marker
+  **`label3`**, footer **`footnote`**, and the In-table label
+  **`label3`**'s size and weight with its own tight 12px line height
+  kept, because [Table](#table) sets no fixed row height and the token's
+  16px would grow every row carrying a bar. Two consequences worth
+  naming: the **description is now larger than the legend** (14px against
+  12px), inverting the old ramp on the grounds that a sentence should not
+  be set smaller than a row of figures; and the **heading is now 700**
+  rather than a hardcoded 800, so it matches every other `h5` in the
+  system including `.c-card h5`. Five variables retired —
+  `--gb-title-size`, `--gb-desc-size`, `--gb-legend-size`,
+  `--gb-footer-size`, `--gb-tag-size` — along with **two now-redundant
+  consumer overrides**: Card's Pacing variant and Stat / KPI's Secondary
+  variant were both already forcing the legend to `caption`, which the
+  base now does itself. The legend swatch stops ramping (8/10/12px → a
+  flat 10px): it sits inline with legend text that is now one size, and
+  would otherwise have been the only thing in the legend still changing.
+  `--gb-pad` moved to the base, which also closes a latent hole — a
+  `.c-goal-bar` with no size class had an undefined `--gb-pad` and
+  therefore no padding at all. What still ramps: bar height (16/32/40px,
+  all spacing tokens), bar radius (6/8/10px, the one remaining off-scale
+  literal and still an owned exception), the target line's overshoot
+  (5/7/9px) and the head gap.
+
+  **The description is also gone from the anatomy.** `.c-goal-bar-desc`
+  is removed rather than retokenised: this component states a figure
+  against a target, and the sentence explaining why belongs to the
+  surface the bar sits in — a [Card](#card)'s own description, a
+  [PageHeader](#pageheader)'s subtitle — not inside the bar. Nine text
+  elements remain. It took the explicit `order: 1` / `order: 2` on the
+  heading and the figure with it: those existed only to hold a
+  description at `order: 3` beneath both, and with two items left in DOM
+  order they were declaring nothing. No markup in `preview.html` carried
+  a description, so nothing in the gallery changes.
+
 - **v0.9.98 — 2026-09-07** — Added **Tutorial Modal**
   (`.c-modal-tutorial*`), a **variant of [Modal /
   dialog](#modal--dialog)** rather than a component of its own: a
@@ -10529,7 +10610,17 @@ rather than maintaining two token sources by hand:
   `--text-h4-*` declarations are **dead** — the label was converted to
   `h5` to preserve exactly what it renders today rather than letting a
   16px label silently become 20px, and whether that rule was meant to
-  win is Card's question to settle. Screen-reader announcement is handled with two
+  win is Card's question to settle. The audit's third finding is also
+  fixed: [Progress-to-Goal Bar](#progress-to-goal-bar)'s heading was an
+  `h3` rendering at **15px** — not any token at all, but its own
+  three-tier ramp (13/15/17px) — and is now `h5` at 16px in every size,
+  with the element to match. No heading token exists in that range but
+  16, and the element is one element for all three sizes, so keeping
+  three distinct heading sizes would have left a variant rendering at a
+  non-heading token under a heading element. `size-default` is the only
+  size the gallery instantiates and it moves 1px; the ramp's other tiers
+  (description, legend, footer, tag) stand as the documented exception
+  they already were. Screen-reader announcement is handled with two
   attributes and **no live region**, per Thinking's Rule 19 and Task
   Rows' Rule 17: the counter joins the body in `aria-describedby` so the
   position is spoken, and focus moving to each step's card is what

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Draft &mdash; Progress-to-Goal Bar, applied</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<style>
+  body{margin:0; padding:var(--spacing-40); background:var(--color-canvas-warm); font-family:var(--font-primary); color:var(--color-neutral-9);}
+  h1{font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:800; margin:0 0 var(--spacing-8);}
+  .lede{font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-5); max-width:840px; margin:0 0 var(--spacing-40);}
+  section{margin-bottom:var(--spacing-60);}
+  h2{font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:700; margin:0 0 var(--spacing-4);}
+  .note{font-size:var(--text-caption-size); line-height:1.6; color:var(--color-neutral-5); max-width:840px; margin:0 0 var(--spacing-20);}
+  table{border-collapse:collapse; font-size:var(--text-caption-size); width:100%;}
+  th,td{text-align:left; padding:var(--spacing-8) var(--spacing-12); border-bottom:1px solid var(--color-neutral-3); vertical-align:top;}
+  th{font-weight:700; white-space:nowrap; background:var(--color-neutral-2);}
+  td{color:var(--color-neutral-5); line-height:1.5;}
+  td code{font-family:var(--font-primary); font-weight:700; font-size:11px; color:var(--color-neutral-9);}
+  .el{color:var(--color-neutral-9); font-weight:700; white-space:nowrap;}
+  .sample{color:var(--color-neutral-9); max-width:210px;}
+  .rec{white-space:nowrap;}
+  .measure{font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--color-neutral-9);}
+  .measure.was{color:var(--color-neutral-4);}
+  .q{color:var(--color-orange); font-weight:700;}
+  .cards{display:flex; gap:var(--spacing-24); flex-wrap:wrap; align-items:flex-start;}
+  .cards > div{flex:0 1 420px; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .cap{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .cap b{color:var(--color-neutral-9);}
+  .pair{display:flex; gap:var(--spacing-24); flex-wrap:wrap; align-items:flex-start; margin-bottom:var(--spacing-24);}
+  .pair > div{flex:0 1 420px; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
+  /* DRAFT ONLY — restores the retired ramp so the before column exists.
+     Nothing here is in components.css. */
+  .gb-was .c-goal-bar-title{font-size:15px; line-height:normal; font-weight:800; }
+  .gb-was.size-small .c-goal-bar-title{font-size:13px;} .gb-was.size-large .c-goal-bar-title{font-size:17px;}
+  .gb-was .c-goal-bar-target-value{font-size:18px; line-height:normal;}
+  .gb-was.size-small .c-goal-bar-target-value{font-size:16px;} .gb-was.size-large .c-goal-bar-target-value{font-size:20px;}
+  .gb-was .gb-was .c-goal-bar-legend-item, .gb-was .of, .gb-was .c-goal-bar-target-pct{font-size:12.5px; line-height:1.5;}
+  .gb-was.size-small .gb-was.size-small .c-goal-bar-legend-item, .gb-was.size-small .of, .gb-was.size-small .c-goal-bar-target-pct{font-size:11px;}
+  .gb-was.size-large .gb-was.size-large .c-goal-bar-legend-item, .gb-was.size-large .of, .gb-was.size-large .c-goal-bar-target-pct{font-size:13.5px;}
+  .gb-was .of{font-weight:600;}
+  .gb-was .c-goal-bar-target-tag{font-size:11px; letter-spacing:0; line-height:normal;}
+  .gb-was.size-small .c-goal-bar-target-tag{font-size:10px;} .gb-was.size-large .c-goal-bar-target-tag{font-size:12px;}
+  .gb-was .c-goal-bar-footer{font-size:11.5px; line-height:1.5;}
+  .gb-was.size-small .c-goal-bar-footer{font-size:10.5px;} .gb-was.size-large .c-goal-bar-footer{font-size:12.5px;}
+  .gb-was.size-small .c-goal-bar-legend-swatch{width:8px; height:8px;}
+  .gb-was.size-large .c-goal-bar-legend-swatch{width:12px; height:12px;}
+</style></head><body>
+
+<h1>Draft &mdash; Progress-to-Goal Bar, nine text elements, no description</h1>
+<p class="lede">All the token suggestions are now <b>in <code>components.css</code></b>, and the <b>description has been removed from the component</b>, so everything below renders from the shipped stylesheet rather than a draft override &mdash; only the greyed &ldquo;before&rdquo; cards reconstruct the retired ramp. Each token is taken <b>whole</b>: size, line-height and weight, not just the size. <code>size-small</code> / <code>size-default</code> / <code>size-large</code> now change the chart and nothing else.</p>
+
+<section>
+  <h2>1 &mdash; The three sizes, in cards</h2>
+  <p class="note">Every word is identical in all three. The bar is <b>16px</b>, <b>32px</b>, <b>40px</b> high at <b>6</b>, <b>8</b> and <b>10px</b> radius, and the target line&rsquo;s overshoot is <b>5</b>, <b>7</b> and <b>9px</b>. Nothing else differs. The head is now just <b>heading + figure</b> &mdash; no description line.</p>
+  <div class="cards gb-live">
+    <div><span class="cap"><b>Small</b> &mdash; 16px bar</span><div class="c-goal-bar size-small ">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+    <div><span class="cap"><b>Medium</b> &mdash; 32px bar</span><div class="c-goal-bar size-default ">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+    <div><span class="cap"><b>Large</b> &mdash; 40px bar</span><div class="c-goal-bar size-large ">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>2 &mdash; What each element took</h2>
+  <table>
+    <thead><tr><th>Element</th><th>Sample copy</th><th>Token</th><th>Now<br>size/lh/weight</th><th>Was<br>S / M / L</th><th>Note</th></tr></thead>
+    <tbody><tr><td class="el">Heading</td><td class="sample">Progress to Goal</td><td class="rec"><code>h5</code></td><td class="measure">16 / 20 / <b>700</b></td><td class="measure was">13 / 15 / 17px at 800</td><td>Weight taken from the token too, so it matches every other <code>h5</code> in the system, <code>.c-card h5</code> included</td></tr><tr><td class="el">Headline figure</td><td class="sample">RM 6,000</td><td class="rec"><code>h4</code></td><td class="measure">20 / 28 / 800</td><td class="measure was">16 / 18 / 20px at 800</td><td>Was <code>calc(title + 3px)</code>, which is why it still ramped after the heading stopped. h4 is the only token already at 800, and it keeps the figure ahead of the heading</td></tr><tr><td class="el">Figure suffix</td><td class="sample">/ 10,000</td><td class="rec"><code>caption</code></td><td class="measure">12 / 16 / 400</td><td class="measure was">11 / 12.5 / 13.5px at <b>600</b></td><td>600 is a weight no token in the scale uses. At 400 against a 20px figure it reads as the secondary half of the pair</td></tr><tr><td class="el">Figure sub-label</td><td class="sample">60% of target</td><td class="rec"><code>caption</code></td><td class="measure">12 / 16 / 400</td><td class="measure was">11 / 12.5 / 13.5px</td><td>Pairs with the suffix, so it takes the same token</td></tr><tr><td class="el">Legend</td><td class="sample">Category A &nbsp;RM 2,000</td><td class="rec"><code>caption</code></td><td class="measure">12 / 16 / 400</td><td class="measure was">11 / 12.5 / 13.5px</td><td>The base now agrees with its consumers &mdash; Pacing Card and Stat/KPI both already forced caption here, and <b>both overrides are deleted</b> as redundant</td></tr><tr><td class="el">Compact label row</td><td class="sample">Total <b>RM 6,000</b> &nbsp; Gap <b>RM 4,000</b></td><td class="rec"><code>caption</code></td><td class="measure">12 / <b>1.4</b> / 400</td><td class="measure was">11 / 12.5 / 13.5px</td><td>Follows the legend it replaces. Its own tighter 1.4 line-height is kept &mdash; it sits directly under the rail</td></tr><tr><td class="el">Target marker</td><td class="sample">Target RM 10,000</td><td class="rec"><code>label3</code></td><td class="measure">11 / 16 / 700</td><td class="measure was">10 / 11 / 12px at 700</td><td>Weight already matched. The token&rsquo;s <b>0.04em tracking is new</b>; at 11px it helps, and the tag is centred on the line so a wider box costs nothing</td></tr><tr><td class="el">Footer</td><td class="sample">Bar extends past target to show headroom.</td><td class="rec"><code>footnote</code></td><td class="measure">12 / 16 / 400</td><td class="measure was">10.5 / 11.5 / 12.5px</td><td>Same metrics as caption; footnote is the truer name for a line annotating the chart above it</td></tr><tr><td class="el">In-table label</td><td class="sample">RM 6,000</td><td class="rec"><code>label3</code> <span class="q">size only</span></td><td class="measure">11 / <b>12</b> / 700</td><td class="measure was">10px at every size</td><td>The one deliberate part-adoption: label3&rsquo;s 16px line-height would grow every Table row carrying a bar, since Table sets no fixed row height. Kept at 12px</td></tr></tbody>
+  </table>
+</section>
+
+<section>
+  <h2>3 &mdash; Before and after, per size</h2>
+  <p class="note">Left reconstructs the retired ramp; right is what now ships. Same markup either side.</p>
+  <div class="pair">
+    <div><span class="cap">Before &mdash; <b>Medium</b></span><div class="c-goal-bar size-default gb-was">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+    <div><span class="cap">After &mdash; <b>Medium</b></span><div class="c-goal-bar size-default ">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+  </div>
+  <div class="pair">
+    <div><span class="cap">Before &mdash; <b>Small</b></span><div class="c-goal-bar size-small gb-was">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+    <div><span class="cap">After &mdash; <b>Small</b></span><div class="c-goal-bar size-small ">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+  </div>
+  <div class="pair">
+    <div><span class="cap">Before &mdash; <b>Large</b></span><div class="c-goal-bar size-large gb-was">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+    <div><span class="cap">After &mdash; <b>Large</b></span><div class="c-goal-bar size-large ">
+  <div class="c-goal-bar-head">
+    <h5 class="c-goal-bar-title">Progress to Goal</h5>
+    <div class="c-goal-bar-target">
+      <div class="c-goal-bar-target-value">RM 6,000<span class="of">/ 10,000</span></div>
+      <div class="c-goal-bar-target-pct">60% of target</div>
+    </div>
+  </div>
+  <div class="c-goal-bar-chart" role="img" aria-label="RM 6,000 of RM 10,000 target, 60%.">
+    <div class="c-goal-bar-barwrap">
+      <div class="c-goal-bar-track">
+        <div class="c-goal-bar-segment" style="left:0%;width:15%;background:var(--color-orange)"></div>
+        <div class="c-goal-bar-segment" style="left:15%;width:30%;background:var(--color-salmon-pink)"></div>
+        <div class="c-goal-bar-headroom" style="left:75%;width:25%"></div>
+        <div class="c-goal-bar-gap" style="left:45%;width:30%"></div>
+      </div>
+      <div class="c-goal-bar-target-line" style="left:75%"></div>
+    </div>
+    <div class="c-goal-bar-tagrow"><div class="c-goal-bar-target-tag" style="left:75%">Target RM 10,000</div></div>
+  </div>
+  <div class="c-goal-bar-legend">
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-orange)"></span><b>Category A</b>RM 2,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch" style="background:var(--color-salmon-pink)"></span><b>Category B</b>RM 4,000</span>
+    <span class="c-goal-bar-legend-item"><span class="c-goal-bar-legend-swatch is-gap"></span><b>Gap</b>RM 4,000</span>
+  </div>
+  <hr class="c-goal-bar-divider" />
+  <p class="c-goal-bar-footer">Bar extends past target to show headroom.</p>
+</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>4 &mdash; What the size variants control now</h2>
+  <table style="max-width:840px">
+    <thead><tr><th>Value</th><th>Small</th><th>Medium</th><th>Large</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="el">Bar height</td><td class="measure">16px</td><td class="measure">32px</td><td class="measure">40px</td><td>All three are real spacing tokens</td></tr>
+      <tr><td class="el">Bar radius</td><td class="measure">6px</td><td class="measure">8px</td><td class="measure">10px</td><td>Off-scale literals, owned by the existing &#9888; in the spec</td></tr>
+      <tr><td class="el">Target-line overshoot</td><td class="measure">5px</td><td class="measure">7px</td><td class="measure">9px</td><td>A proportion of the bar</td></tr>
+      <tr><td class="el">Head &rarr; chart gap</td><td class="measure">16px</td><td class="measure">24px</td><td class="measure">24px</td><td>Spacing, not type. Both are spacing tokens</td></tr>
+      <tr><td class="el">Card padding</td><td class="measure" colspan="3" style="text-align:left">16px at every size</td><td>Hoisted to the base &mdash; it was declared three times identically, and a bar with no size class had <em>no padding at all</em></td></tr>
+      <tr><td class="el">Legend swatch</td><td class="measure" colspan="3" style="text-align:left">10px at every size</td><td><span class="q">Changed.</span> It used to ramp 8/10/12px, but it sits inline with legend text that is now one size &mdash; it would have been the only thing in the legend still changing</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>5 &mdash; Removed from the anatomy</h2>
+  <p class="note"><code>.c-goal-bar-desc</code> is <b>gone</b>, not retokenised. This component states a figure against a target; the sentence explaining why belongs to the surface the bar sits in &mdash; a Card&rsquo;s own description, a PageHeader&rsquo;s subtitle &mdash; not inside the bar. It took the explicit <code>order:&nbsp;1</code> / <code>order:&nbsp;2</code> on the heading and the figure with it: those existed only to hold a description at <code>order:&nbsp;3</code> beneath both, and with two items left in DOM order they were declaring nothing. <code>flex-wrap</code> stays, so at a narrow measure the figure still drops under the heading rather than crushing it. No markup in <code>preview.html</code> carried a description, so the gallery is unaffected.</p>
+</section>
+
+<section>
+  <h2>6 &mdash; Five variables retired</h2>
+  <p class="note"><code>--gb-title-size</code>, <code>--gb-desc-size</code>, <code>--gb-legend-size</code>, <code>--gb-footer-size</code> and <code>--gb-tag-size</code> are gone entirely &mdash; every reference now names a real token. Two consumer overrides went with them: <code>.c-card-pacing</code> and <code>.c-stat-secondary</code> both forced the legend to caption, which the base now does itself.</p>
+</section>
+
+</body></html>
