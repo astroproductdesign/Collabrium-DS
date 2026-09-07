@@ -212,7 +212,7 @@
    spec says it should, not just inside a Card. */
 .icon-chip{display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:var(--radius-sm); background:color-mix(in srgb, var(--color-navy) 12%, transparent); color:var(--color-navy); flex:none;}
 .c-card-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-.c-card h4{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
+.c-card h5{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
 .c-card p{margin:0; font-size:var(--text-body2-size); color:var(--color-neutral-5);}
 .c-card-accent{border-top:3px solid var(--color-salmon-pink);}
 .c-card-interactive:hover{box-shadow:var(--shadow-2); cursor:pointer;}
@@ -286,7 +286,7 @@
 .c-card-price-summary .c-card-footer .c-btn{width:100%; justify-content:center; margin-top:var(--spacing-12);}
 
 /* Profile card — Card variant. Header (Avatar in the icon-chip slot +
-   Name/Age-Gender-Location, both reusing .c-card h4/p verbatim), a
+   Name/Age-Gender-Location, both reusing .c-card h5/p verbatim), a
    divider, Persona badges (real .c-badge pills, sorted alphabetically
    at content level), then the Platform list (icon + name/handle stack
    + Tier badge/Follower count, all vertically centered). Tier badges
@@ -325,7 +325,7 @@
 .c-card-profile-header{display:flex; gap:var(--spacing-12); align-items:flex-start;}
 .c-card-profile-avatar{flex:none; width:36px; height:36px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-weight:700; font-size:var(--text-label2-size);}
 .c-card-profile-identity{flex:1; min-width:0;}
-.c-card-profile-identity h4{margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-profile-identity h5{margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .c-card-profile-identity p{margin:4px 0 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .c-card-profile-divider{margin:var(--spacing-8) 0; border-top:1px solid var(--color-neutral-3);}
 .c-card-profile-personas{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:var(--spacing-4);}
@@ -359,11 +359,11 @@
 .c-card-pacing-kpi .qualifier{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
 /* Minibar. Nothing sits above the rail here, so the In-table variant's
    reserved label band collapses to the target line's own overhang — the
-   same override the Secondary stat/KPI card needs. The label row also
-   needs a font size, which variant-table never set, having had no legend
-   of its own. Labels are Total flush left / Target flush right, which is
-   .c-goal-bar-labels' own native space-between layout used as-is. */
-.c-card-pacing .c-goal-bar.variant-table{--gb-legend-size:var(--text-caption-size);}
+   same override the Secondary stat/KPI card needs. The label row used to
+   need a font size here too, because variant-table never set one, having
+   had no legend of its own — that is gone: .c-goal-bar-labels now names
+   caption itself. Labels are Total flush left / Target flush right,
+   which is .c-goal-bar-labels' own native space-between layout as-is. */
 .c-card-pacing .c-goal-bar.variant-table .c-goal-bar-chart{padding:var(--gb-overhang) 0 0;}
 .c-card-pacing .c-goal-bar-labels{margin-top:6px; line-height:1.4;}
 /* .c-card is a column flexbox with no align-items, so a bare badge
@@ -892,6 +892,253 @@
 .c-modal-foot{display:flex; justify-content:flex-end; gap:var(--spacing-12); padding:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
 .c-icon-btn{width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); background:transparent; border:none; cursor:pointer;}
 .c-icon-btn:hover{background:var(--color-neutral-2);}
+
+/* Tutorial Modal — a variant of Modal / dialog. A numbered walkthrough
+   that spotlights one part of the surface at a time and explains it in
+   a short card that flies out of whatever it is describing.
+
+   Named for its parent, the way Card's own variants are
+   (.c-card-pacing, .c-card-usp, .c-card-price-*), rather than taking a
+   new top-level prefix — it borrows Modal's panel recipe, Modal's
+   scrim value, Modal's footer order and Button's own .c-icon-btn, and
+   only the geometry and the lock are its own.
+
+   It is the ONE exception to Modal's "no multi-step flows" Don't, and
+   the carve-out in DESIGN-SYSTEM.md names this variant specifically:
+   its steps are reads rather than decisions, it collects no input,
+   commits nothing, and can be abandoned at any point with nothing
+   lost. No other multi-step flow inherits that.
+
+   It is also the first component in this system to lock the page — see
+   the layer comment below for why that takes three guards rather than
+   one. The authoring rules that go with the lock (a step may only
+   point at something rendered and visible, and on a phone at something
+   no taller than the band above the card) are in the spec, because CSS
+   cannot enforce either. */
+
+/* Layer. One fixed root owning the whole tour, so the card and the
+   spotlight share a coordinate space and neither can be clipped by
+   an ancestor's overflow.
+
+   z-index 1100 — ABOVE EVERYTHING. This system has no numeric
+   z-index scale (components.css says so outright), so the number is
+   picked against a survey of what it actually paints: Toast host
+   1000, Command brief's scrim 400, Chat window 95, Modal no z-index
+   at all. 1100 clears the highest of them. Do not swap this for a
+   round number and a plausible comment: an earlier pass sat at 92 and
+   justified it against a Modal z-index of 90 that does not exist, and
+   a reason nobody can check is worse than no reason at all.
+
+   Sitting above Toast is the point, not a side effect: a toast that
+   fires mid-tour is dimmed by the scrim like everything else rather
+   than floating over it looking live while the layer eats its
+   clicks. And a toast that IS the step's target still shows, because
+   the spotlight is a real hole — whatever paints under it comes
+   through, at any z-index below the layer's.
+
+   THE INTERACTION LOCK. While a tour runs, the tutorial card is the
+   only thing on the page that answers to anything. That takes three
+   guards, because no one of them is enough:
+     1. this layer blocks pointer events — stops the mouse;
+     2. a focus trap in the card + a capture-phase click guard —
+        stops the keyboard. The system already warns about needing
+        exactly this: Single select and Multi select's Read-only rows
+        both say "pointer-events: none alone doesn't block a focused
+        element's keyboard activation, a real implementation needs
+        its own guard". This is that guard;
+     3. .c-modal-tutorial-locked on <html> + wheel/touch/scroll-key
+        prevention — stops the page being scrolled. overflow:hidden
+        kills the user's scroll but leaves scrollBy working, which is
+        what lets the tour keep bringing its own targets into view.
+   aria-modal stays FALSE through all of it: the surface behind is
+   unusable, but a screen reader can still read the element the step
+   is describing, which is the only reason to point at it. */
+.c-modal-tutorial-layer{position:fixed; inset:0; z-index:1100; display:none;}
+.c-modal-tutorial-layer.is-open{display:block;}
+
+/* The lock. padding-right is written inline by the script with the
+   scrollbar's measured width — hiding a 15px scrollbar without it
+   shifts the whole page sideways the instant the tour opens. */
+html.c-modal-tutorial-locked{overflow:hidden;}
+
+/* Spotlight. Modal's own --shadow-overlay, pushed out as a 9999px
+   ring so the scrim IS the cut-out — one element, no four-div
+   jigsaw, and the hole animates from step to step. The 2px Obsidian
+   ring is the same "currently engaged" pairing Table row's selected
+   state and FileUploader's drag-over already use. */
+.c-modal-tutorial-spot{position:absolute; border-radius:var(--radius-sm); box-shadow:0 0 0 9999px var(--shadow-overlay); outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:2px; pointer-events:none; transition:top var(--duration-morph) var(--ease-morph), left var(--duration-morph) var(--ease-morph), width var(--duration-morph) var(--ease-morph), height var(--duration-morph) var(--ease-morph), border-radius var(--duration-morph) var(--ease-morph);}
+/* A step with no target dims the whole surface and centres the card:
+   the intro and the sign-off aren't about any one element. */
+.c-modal-tutorial-spot.is-none{inset:0; width:auto; height:auto; border-radius:0; box-shadow:none; outline:none; background:var(--shadow-overlay);}
+
+/* Card. The panel recipe is .c-modal's, taken as it ships — Neutral-1,
+   radius-lg, shadow-modal — at a narrower measure: 340px, not
+   .c-modal's 400px, because a tour step is one short read beside a
+   highlighted thing rather than a centred decision. */
+/* max-height is unconditional, and that is a fix rather than a
+   flourish. It used to live in a @media (max-height:460px) block, so
+   at 1200×620 an over-written card measured 508px against 501px of
+   available height with max-height:none — clipped by the viewport,
+   inside a fixed layer, with no way to scroll to the rest. The one
+   thing this component refuses to do is hide copy, and the safety
+   net was gated shut at every height where it was needed. */
+.c-modal-tutorial{position:absolute; width:min(340px, calc(100vw - var(--spacing-32))); max-height:calc(100vh - var(--spacing-32)); overflow-y:auto; overscroll-behavior:contain; background:var(--color-neutral-1); border-radius:var(--radius-lg); box-shadow:var(--shadow-modal); padding:var(--spacing-20); display:flex; flex-direction:column; gap:var(--spacing-8); transform-origin:0 0;}
+.c-modal-tutorial:focus{outline:none;}
+.c-modal-tutorial:focus-visible{outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:2px;}
+
+/* FLIP entrance — Chat window's own c-chat-fold-open technique, with
+   the supplied --tw-* names mapped onto this component's prefix. The
+   card grows out of the box it is describing, so the relationship
+   between card and target is carried by the motion rather than by an
+   arrow. */
+/* Scale is clamped to 1 in the script: a target wider than the card
+   would otherwise make the first frame LARGER than the last, so the
+   entrance would read as the card shrinking out of the table rather
+   than growing out of it. Always a growth, never a collapse. */
+.c-modal-tutorial.is-opening{animation:c-modal-tutorial-in var(--duration-morph) var(--ease-morph) both;}
+@keyframes c-modal-tutorial-in{
+  from{ opacity:.4; transform:translate(var(--tut-dx,0px), var(--tut-dy,0px)) scale(var(--tut-sx,.2), var(--tut-sy,.2)); }
+  to{ opacity:1; transform:translate(0,0) scale(1,1); }
+}
+
+.c-modal-tutorial-close{position:absolute; top:var(--spacing-8); right:var(--spacing-8);}
+
+.c-modal-tutorial-kicker{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+/* Title is an h4 element at h4's size — .c-modal-head h4 exactly, both
+   halves of it. The element name and the type token are deliberately
+   the SAME name: an h2 carrying h4's size would make "h4" mean two
+   things in one system, and nobody reading either the markup or the
+   token would know which was meant. Fixed at h4 in every scenario
+   rather than picked to suit whatever page the card opens over, so it
+   never varies between steps or screens; aria-labelledby is what names
+   the dialog, so the level never has to carry that job.
+   Note that is what Modal SHIPS; Modal's own section in
+   DESIGN-SYSTEM.md says h3, and the two have disagreed since before
+   this component existed. This matches the CSS, which is what actually
+   renders; the drift is recorded in the spec rather than quietly
+   picked a side on.
+
+   Two lines maximum, and NOT clamped — deliberately. A tour card is
+   the whole surface: there is no row to expand, no tooltip, no "more".
+   Truncating here would lose the explanation with no way to read the
+   rest, which is worse than a card that runs tall. So the cap is an
+   authoring rule the spec states and the app honours, and over-writing
+   grows the card rather than hiding anything. A title needing three
+   lines is a step doing two things — split it. */
+.c-modal-tutorial-title{margin:0; padding-right:var(--spacing-24); overflow-wrap:anywhere; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); letter-spacing:var(--text-h4-tracking); color:var(--color-neutral-9);}
+/* Body is body2 (14/20), not Modal's body1 (16). At a 340px measure
+   body1 runs to five or six lines on realistic copy and the card stops
+   reading as a passing note.
+
+   Four lines maximum, and NOT clamped, for the same reason as the
+   title: nothing in this component can reveal hidden copy, so cutting
+   it would simply lose it. The cap is an authoring rule. Notes can
+   clamp its own card and peek copy because a click there opens the
+   note in full — a tour step has no such second view, so the same
+   technique would be destructive here rather than tidy. */
+/* overflow-wrap:anywhere on both — Notes' own .np-text already uses
+   it for the same reason. An unbroken token has no break opportunity,
+   so a reference code ran the title to 502px and a URL ran the body to
+   580px inside a 340px card, painting straight out of the panel. */
+/* The BODY is the scroll region, not the card — and that is a
+   consequence of the cap above rather than a taste. Scrolling the card
+   would scroll its close button with it, because the x is absolutely
+   positioned inside it, so an over-written step would carry one of the
+   three ways out off the top of its own card. Scrolling the prose
+   instead keeps the counter, the title, the footer and the x all
+   pinned, and it is the prose that over-writing lengthens anyway.
+   min-height:0 is what lets a flex item shrink below its content and
+   scroll; without it the body just refuses to give ground.
+   The card keeps its own overflow as a backstop for the pathological
+   case where the parts that are NOT the body outgrow the viewport by
+   themselves. The body shrinks first, so the backstop only engages on
+   a card the spec already forbids. */
+.c-modal-tutorial-body{margin:0; min-height:0; overflow-y:auto; overscroll-behavior:contain; overflow-wrap:anywhere; font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-5);}
+
+/* Footer keeps Modal's own order — dismissal left of commit — and its
+   own right alignment, at spacing-8 between the pair. It drops Modal's
+   divider: at 340px a rule across the card reads as a seam in a note
+   that should feel like one piece. */
+.c-modal-tutorial-actions{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8); margin-top:var(--spacing-4);}
+
+/* ---------- Responsive ----------------------------------------
+   Docked at 767px and below. That is this system's own breakpoint (Table,
+   Stat/KPI, Pagination and Tool approval all turn at 767px) rather
+   than a fourth one invented here, and the geometry agrees with it:
+   sitting beside a target needs 340 + 12 + 16 + 16 = 384px of room
+   to the side of it, and on a layout narrow enough to be stacking
+   its own content there is never that much. So the card stops
+   chasing the target and takes the bottom of the viewport, full
+   width, while the spotlight alone marks what the step is about.
+
+   The !importants are load-bearing, not lazy: position() writes
+   top/left inline for the anchored case, and inline styles beat a
+   stylesheet rule. Rather than branch the script on a media query
+   it can't see reliably, the docked rule overrides them. */
+@media (max-width:767px){
+  .c-modal-tutorial{
+    position:fixed; width:auto;
+    left:var(--spacing-16) !important; right:var(--spacing-16);
+    top:auto !important;
+    /* Clears the iPhone home indicator. Same env() guard Prompt input
+       bar's own Floating variant already uses. */
+    bottom:calc(var(--spacing-16) + env(safe-area-inset-bottom));
+    /* The base rule's cap, minus the insets this variant sits inside. */
+    max-height:calc(100vh - var(--spacing-32) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+  /* No FLIP when docked: the card is no longer beside the thing it
+     describes, so flying out of it would point nowhere. It rises from
+     the edge it now belongs to instead. */
+  .c-modal-tutorial.is-opening{animation-name:c-modal-tutorial-dock;}
+  @keyframes c-modal-tutorial-dock{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+
+  /* Docked to the TOP instead. The bottom is the default, but the last
+     element on a short page cannot be scrolled out from behind a
+     bottom-docked card — there is no more page to scroll. Rather than
+     leave the step highlighting something hidden, the card moves. This
+     is the mobile counterpart of the desktop placement fallback: the
+     card gives way to the target, never the other way round.
+
+     The `top` needs !important to beat the base docked rule's own
+     `top: auto !important`; `bottom` does not, since this selector is
+     already the more specific of the two. */
+  .c-modal-tutorial.is-docked-top{top:calc(var(--spacing-16) + env(safe-area-inset-top)) !important; bottom:auto;}
+  .c-modal-tutorial.is-docked-top.is-opening{animation-name:c-modal-tutorial-dock-top;}
+  @keyframes c-modal-tutorial-dock-top{ from{opacity:0; transform:translateY(-12px);} to{opacity:1; transform:translateY(0);} }
+}
+
+/* The landscape-phone case this used to be a media query for — a
+   ~360px-tall viewport against a 262px card — is now covered by the
+   base rule's unconditional cap, along with every other height where
+   a card can outgrow its viewport. Nothing left to special-case. */
+
+/* Touch. The footer buttons take a real 44px height rather than a
+   transparent hit-area lift: at spacing-8 apart, two 32px buttons each
+   lifted by 6px would have their hit areas meet, and overlapping touch
+   targets are worse than small ones. The close button is isolated in
+   the corner with nothing to collide with, so it takes the lift and
+   keeps its painted 32px box — the same ::after technique Chat
+   window's own action buttons use. */
+@media (hover:none), (pointer:coarse){
+  .c-modal-tutorial-actions .c-btn{height:44px; padding:0 var(--spacing-16);}
+  /* The close is already position:absolute in the base rule, so the
+     ::after anchors to it directly. 32px + 6px each side = 44px. */
+  .c-modal-tutorial-close::after{content:''; position:absolute; inset:-6px;}
+}
+
+/* Travel drops, sequence stays. The FLIP, the spotlight's move and the
+   card's move all go; which step you are on, what it highlights and
+   what it says are untouched. */
+@media (prefers-reduced-motion:reduce){
+  .c-modal-tutorial-spot{transition:none;}
+  /* All three entrance variants, because the docked ones are declared
+     with higher specificity inside their own media block and would
+     otherwise keep animating with reduced motion on. */
+  .c-modal-tutorial.is-opening,
+  .c-modal-tutorial.is-docked-top.is-opening{animation:c-modal-tutorial-fade var(--duration-fast) var(--ease-standard) both;}
+  @keyframes c-modal-tutorial-fade{ from{opacity:0;} to{opacity:1;} }
+}
+
 
 /* Empty state — anatomy: icon (optional), heading (optional), body, actions
    (optional). Per-gap spacing (not one flat gap): icon->heading spacing-12,
@@ -1486,9 +1733,8 @@
 /* Sub-variant A — the Progress-to-Goal Bar's In-table variant inside the
    card. Nothing sits above the rail here, so that variant's reserved 16px
    label band collapses to the target line's own overhang. The label row
-   also needs a font size, which variant-table never set, having had no
-   legend of its own. */
-.c-stat-secondary .c-goal-bar.variant-table{--gb-legend-size:var(--text-caption-size);}
+   used to need a font size here too — that is gone now that
+   .c-goal-bar-labels names caption itself. */
 .c-stat-secondary .c-goal-bar.variant-table .c-goal-bar-chart{padding:var(--gb-overhang) 0 0;}
 .c-stat-secondary .c-goal-bar-labels b{margin-left:0; margin-right:3px;}
 
@@ -2186,10 +2432,24 @@
    radii (6/8/10) and the per-size type scale are one-off literals, the
    same class of exception Progress Bar's own track heights already are.
    ========================================================= */
-.c-goal-bar{font-family:var(--font-primary); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--gb-pad); width:100%; max-width:560px; box-sizing:border-box;}
-.c-goal-bar.size-small{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-16); --gb-bar-h:var(--spacing-16); --gb-bar-radius:6px; --gb-title-size:13px; --gb-desc-size:11px; --gb-legend-size:11px; --gb-footer-size:10.5px; --gb-tag-size:10px; --gb-swatch:8px; --gb-overhang:5px;}
-.c-goal-bar.size-default{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-32); --gb-bar-radius:8px; --gb-title-size:15px; --gb-desc-size:12.5px; --gb-legend-size:12.5px; --gb-footer-size:11.5px; --gb-tag-size:11px; --gb-swatch:10px; --gb-overhang:7px;}
-.c-goal-bar.size-large{--gb-pad:var(--spacing-16); --gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-40); --gb-bar-radius:10px; --gb-title-size:17px; --gb-desc-size:13.5px; --gb-legend-size:13.5px; --gb-footer-size:12.5px; --gb-tag-size:12px; --gb-swatch:12px; --gb-overhang:9px;}
+/* Size variants control the CHART, and nothing else. Every piece of text
+   in this component takes the same type token at every size — see the
+   ten text rules below, all of which now name a token rather than a
+   per-size literal. What is left ramping is geometry: bar height, corner
+   radius, and the target line's overshoot.
+
+   --gb-pad and --gb-swatch live here rather than in the variants because
+   they no longer differ. Padding was already spacing-16 at all three
+   sizes and was being declared three times; the legend swatch used to
+   ramp 8/10/12px, but it sits inline with legend text that is now one
+   size, so a swatch that changed with the variant would be the only
+   thing in the legend that did. Declaring --gb-pad here also fixes a
+   latent hole: a .c-goal-bar with no size class had an undefined
+   --gb-pad and therefore no padding at all. */
+.c-goal-bar{font-family:var(--font-primary); --gb-pad:var(--spacing-16); --gb-swatch:10px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--gb-pad); width:100%; max-width:560px; box-sizing:border-box;}
+.c-goal-bar.size-small{--gb-head-gap:var(--spacing-16); --gb-bar-h:var(--spacing-16); --gb-bar-radius:6px; --gb-overhang:5px;}
+.c-goal-bar.size-default{--gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-32); --gb-bar-radius:8px; --gb-overhang:7px;}
+.c-goal-bar.size-large{--gb-head-gap:var(--spacing-24); --gb-bar-h:var(--spacing-40); --gb-bar-radius:10px; --gb-overhang:9px;}
 
 /* Chart-only variant — the same chart area and legend with no card chrome
    at all, for dropping into a tile, a cell, or any surface that already
@@ -2207,13 +2467,31 @@
    its longest word instead lets the title wrap to two lines and the
    figures stay put; they only stack once even that word can't fit
    beside them. */
+/* Head. Two items only — heading, then figure — so there is no ordering
+   to declare: DOM order is the render order. The explicit order:1 /
+   order:2 that used to sit on them existed solely to keep a description
+   at order:3 below both, and went with it. flex-wrap stays: at a narrow
+   measure the figure still drops under the heading rather than crushing
+   it. */
 .c-goal-bar-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px var(--spacing-16); margin-bottom:var(--gb-head-gap);}
-.c-goal-bar-title{order:1; flex:1 1 auto; flex-basis:min-content; margin:0; font-size:var(--gb-title-size); font-weight:var(--weight-extrabold); letter-spacing:0; color:var(--color-neutral-9);}
-.c-goal-bar-desc{order:3; flex:0 0 100%; margin:0; font-size:var(--gb-desc-size); line-height:1.5; font-weight:400; color:var(--color-neutral-5);}
-.c-goal-bar-target{order:2; flex:none; margin-left:auto; text-align:right;}
-.c-goal-bar-target-value{font-size:calc(var(--gb-title-size) + 3px); font-weight:var(--weight-extrabold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums; white-space:nowrap;}
-.c-goal-bar-target-value .of{margin-left:2px; font-size:var(--gb-desc-size); font-weight:600; color:var(--color-neutral-5);}
-.c-goal-bar-target-pct{margin-top:2px; font-size:var(--gb-desc-size); color:var(--color-neutral-5);}
+/* Heading — h5, taken whole. The h5 element and the h5 token are the
+   same name, and the weight comes from the token too (700) rather than
+   the extrabold 800 this rule used to hardcode, so the heading now
+   matches every other h5 in the system, .c-card h5 included. */
+.c-goal-bar-title{flex:1 1 auto; flex-basis:min-content; margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); letter-spacing:var(--text-h5-tracking); color:var(--color-neutral-9);}
+.c-goal-bar-target{flex:none; margin-left:auto; text-align:right;}
+/* Headline figure — h4, the only token already at this rule's own 800
+   weight. It used to be calc(--gb-title-size + 3px), which is why it
+   still ramped 16/18/20px after the heading had stopped. At h4 it stays
+   larger than the h5 heading, which is the relationship the ramp had at
+   every size: the figure is what the card is for. */
+.c-goal-bar-target-value{font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums; white-space:nowrap;}
+/* Figure suffix and sub-label — caption, taken whole. The suffix used
+   to be weight 600, which no token in this system's scale uses; caption
+   is 400, and against a 20px figure the lighter suffix reads as the
+   secondary half of the pair rather than competing with it. */
+.c-goal-bar-target-value .of{margin-left:2px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-goal-bar-target-pct{margin-top:2px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
 
 /* Chart area — shared by all three variants. Track is Neutral-2, headroom
    Neutral-3 (deliberately one step darker, so "space still available up to
@@ -2227,16 +2505,24 @@
 .c-goal-bar-headroom{position:absolute; top:0; bottom:0; background:var(--color-neutral-3);}
 .c-goal-bar-gap{position:absolute; top:0; bottom:0; box-sizing:border-box; border-top:2px dashed var(--color-red); border-bottom:2px dashed var(--color-red); border-right:2px dashed var(--color-red);}
 .c-goal-bar-target-line{position:absolute; top:calc(-1 * var(--gb-overhang)); bottom:calc(-1 * var(--gb-overhang)); width:2px; background:var(--color-neutral-9); transform:translateX(-1px);}
-.c-goal-bar-tagrow{position:relative; height:calc(var(--gb-tag-size) + 14px); margin-top:8px;}
-.c-goal-bar-target-tag{position:absolute; top:0; transform:translateX(-50%); font-size:var(--gb-tag-size); font-weight:700; color:var(--color-neutral-9); white-space:nowrap;}
+.c-goal-bar-tagrow{position:relative; height:calc(var(--text-label3-size) + 14px); margin-top:8px;}
+/* Target marker — label3, the system's small-bold-marker token, whose
+   700 weight this rule already used. Its 0.04em tracking is new and
+   comes with the token; at 11px it helps rather than hurts, and the tag
+   is centred on the target line so a slightly wider box costs nothing. */
+.c-goal-bar-target-tag{position:absolute; top:0; transform:translateX(-50%); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-9); white-space:nowrap;}
 
 /* Legend — categories and Gap only; Target is labelled once, by the tag
    under the bar. Swatch geometry follows Progress Bar's own
    .c-progress-legend-swatch (small square, 2px radius), with a dashed
    outline swatch for Gap so the colour isn't the only signal. */
 .c-goal-bar-legend{display:flex; flex-wrap:wrap; gap:var(--spacing-8) var(--spacing-16);}
-.c-goal-bar-legend-item{display:inline-flex; align-items:center; gap:6px; font-size:var(--gb-legend-size); color:var(--color-neutral-5); white-space:nowrap;}
-.c-goal-bar-legend-item b{margin-right:2px; font-weight:700; color:var(--color-neutral-9);}
+/* Legend — caption. This is the base agreeing with its own consumers
+   rather than a new choice: Pacing Card and Stat / KPI both already
+   forced --gb-legend-size to --text-caption-size for their own use, and
+   those two overrides are removed below as now-redundant. */
+.c-goal-bar-legend-item{display:inline-flex; align-items:center; gap:6px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); white-space:nowrap;}
+.c-goal-bar-legend-item b{margin-right:2px; font-weight:var(--weight-bold); color:var(--color-neutral-9);}
 .c-goal-bar-legend-swatch{width:var(--gb-swatch); height:var(--gb-swatch); border-radius:2px; flex:none;}
 .c-goal-bar-legend-swatch.is-gap{background:none; border:1.5px dashed var(--color-red);}
 
@@ -2244,13 +2530,19 @@
    tight line under the bar, no swatches, short-form numbers. Wraps rather
    than overflowing, since three nowrap items in a space-between row can
    neither shrink nor break on their own. */
-.c-goal-bar-labels{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px var(--spacing-8); margin-top:6px; font-size:var(--gb-legend-size); line-height:1.4; color:var(--color-neutral-5);}
+/* Compact label row — caption, following the legend it replaces at
+   size-small and in the In-table variant. Its own 1.4 line-height is
+   kept rather than caption's 16px: this row is deliberately tighter than
+   a legend because it sits directly under the rail. */
+.c-goal-bar-labels{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:2px var(--spacing-8); margin-top:6px; font-size:var(--text-caption-size); font-weight:var(--text-caption-weight); line-height:1.4; color:var(--color-neutral-5);}
 .c-goal-bar-labels > span{white-space:nowrap;}
-.c-goal-bar-labels b{margin-left:3px; font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-goal-bar-labels b{margin-left:3px; font-weight:var(--weight-bold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
 .c-goal-bar-labels .is-gap, .c-goal-bar-labels .is-gap b{color:var(--color-red);}
 
 .c-goal-bar-divider{margin:var(--spacing-16) 0 var(--spacing-12); border:none; border-top:1px solid var(--color-neutral-3);}
-.c-goal-bar-footer{margin:0; font-size:var(--gb-footer-size); line-height:1.5; color:var(--color-neutral-5);}
+/* Footer — footnote. Same 12/16/400 metrics as caption; footnote is
+   the truer name for a line that annotates the chart above it. */
+.c-goal-bar-footer{margin:0; font-size:var(--text-footnote-size); line-height:var(--text-footnote-lh); font-weight:var(--text-footnote-weight); color:var(--color-neutral-5);}
 
 /* In-table variant — an 8px rail for a table cell: no card, no legend, no
    gap outline (the same call Small makes, with even less room to draw one),
@@ -2260,9 +2552,14 @@
    above the rail and mirrored below, so the rail sits on the row's
    centreline and the label still clears the row's top edge — Table sets no
    fixed row height, so the row grows to fit. */
-.c-goal-bar.variant-table{--gb-bar-h:8px; --gb-bar-radius:var(--radius-pill); --gb-tag-size:10px; --gb-overhang:3px; --gb-label-space:16px; background:transparent; border:none; box-shadow:none; padding:0; max-width:none;}
+.c-goal-bar.variant-table{--gb-bar-h:8px; --gb-bar-radius:var(--radius-pill); --gb-overhang:3px; --gb-label-space:16px; background:transparent; border:none; box-shadow:none; padding:0; max-width:none;}
 .c-goal-bar.variant-table .c-goal-bar-chart{padding:var(--gb-label-space) 0;}
-.c-goal-bar-tablelabel{position:absolute; bottom:calc(100% + 4px); transform:translateX(-100%); margin-left:-4px; font-size:var(--gb-tag-size); line-height:12px; font-weight:700; color:var(--color-neutral-9); white-space:nowrap; font-variant-numeric:tabular-nums;}
+/* In-table label — label3's size, but keeping its own tight 12px
+   line-height rather than the token's 16px. A Table sets no fixed row
+   height, so four extra pixels here would grow every row that carries a
+   bar. The one deliberate part-adoption in this component, and the
+   reason is the host, not the type. */
+.c-goal-bar-tablelabel{position:absolute; bottom:calc(100% + 4px); transform:translateX(-100%); margin-left:-4px; font-size:var(--text-label3-size); line-height:12px; font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-9); white-space:nowrap; font-variant-numeric:tabular-nums;}
 
 /* =========================================================
    Prompt input bar — AI Native category. Floating bar variant
@@ -2555,7 +2852,7 @@
 /* ---------------- Right panel ---------------- */
 .c-chat-main{display:flex; flex-direction:column; min-width:0; min-height:0;}
 .c-chat-hd{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-16); padding:var(--spacing-20) var(--spacing-24); border-bottom:1px solid var(--color-neutral-3);}
-.c-chat-hd h2{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:800; letter-spacing:0; color:var(--color-neutral-9);}
+.c-chat-hd h5{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:800; letter-spacing:0; color:var(--color-neutral-9);}
 .c-chat-hd p{margin:var(--spacing-4) 0 0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
 
 /* Wraps the thread so Jump to present has a containing block whose

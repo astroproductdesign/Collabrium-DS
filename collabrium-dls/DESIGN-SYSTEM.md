@@ -4078,7 +4078,240 @@ query; if a form needs to adapt on a narrow screen, change the layout
 on the left of it, matching the button order convention above. **Don't:**
 use a modal for anything that isn't a focused, single decision — long
 forms or multi-step flows need a full page or panel, not a modal (this
-mirrors the deck's own steady, uncluttered tone).
+mirrors the deck's own steady, uncluttered tone). **The one exception is
+the [Tutorial Modal](#tutorial-modal) variant below**, whose numbered
+steps are reads rather than decisions — it collects no input, commits
+nothing, and is abandonable at any point with nothing lost. No other
+multi-step flow inherits this.
+
+#### Tutorial Modal
+
+A numbered walkthrough of a surface. One part of the page is spotlighted
+at a time and explained in a short card that flies out of whatever it is
+describing, and the reader moves through the stops at their own pace.
+It is a **variant of this component**, not a new one: it takes Modal's
+panel recipe, Modal's scrim value, Modal's footer order and
+[Button](#button)'s own `.c-icon-btn` as they ship. Only its geometry and
+its lock are its own.
+
+**It is the one thing in this system that locks the page.** During a tour
+the card is the only element that answers to anything — no scrolling, no
+clicking past the scrim, no tabbing out of the card — because a tour that
+can be half-operated while it runs is worse than no tour. That is also
+what earns it the carve-out above: the steps commit nothing, so nothing
+is at stake in being unable to act during one.
+
+| Part | Spec |
+|---|---|
+| Layer (`.c-modal-tutorial-layer`) | One `position: fixed; inset: 0` root owning the whole tour, so the card and the spotlight share a coordinate space and neither can be clipped by an ancestor's overflow. `z-index: 1100` — **above everything this system paints**; see the stacking table below. Blocks pointer events |
+| Spotlight (`.c-modal-tutorial-spot`) | The scrim *is* the cut-out: `box-shadow: 0 0 0 9999px var(--shadow-overlay)` pushed out from the target's box, so there is one element rather than a four-div jigsaw and the hole animates from step to step. `radius-sm` default, **overridden per step by the target's own corner radius** plus the 6px pad, so a pill button gets a pill ring. `outline: 2px solid` Obsidian at `outline-offset: 2px` — the same "currently engaged" pairing [Table](#table) row's selected state and [FileUploader](#fileuploader)'s drag-over already use. `pointer-events: none`. 6px pad around the target |
+| No-target step (`.is-none`) | Dims the whole surface — no hole, no ring. The intro and the sign-off are not about any one element |
+| Card (`.c-modal-tutorial`) | Modal's panel recipe as it ships — Neutral-1, `radius-lg`, `shadow-modal` — at `min(340px, 100vw − spacing-32)`, narrower than `.c-modal`'s 400px because a tour step is one short read beside a highlighted thing rather than a centred decision. `padding: spacing-20`, `display: flex; flex-direction: column; gap: spacing-8`. `max-height: calc(100vh − spacing-32)`, unconditionally. `transform-origin: 0 0` — the FLIP depends on it. `role="dialog"`, **`aria-modal="false"`**, `tabindex="-1"`, `aria-labelledby` at the title and `aria-describedby` at the counter and body |
+| Close (`.c-modal-tutorial-close`) | `.c-icon-btn` with `ph-x` — **Tier 1, Regular**, per [Iconography](#iconography) — absolutely positioned at `spacing-8` from the top and right |
+| Counter (`.c-modal-tutorial-kicker`) | `label3` (11/16/700) + `--tracking-eyebrow`, uppercased, Neutral-5 — the eyebrow recipe every kicker in this system uses. `font-variant-numeric: tabular-nums`, so it does not jitter between steps. Reads "*n* of *total*" |
+| Title (`.c-modal-tutorial-title`) | **`h4` — the element and the type token are the same name.** 20/28/800, Neutral-9, `padding-right: spacing-24` to clear the close. This is Modal's own `.c-modal-head h4` exactly: an `h4` element at h4's size, so "h4" means one thing here and never two. **Two lines maximum, and never clamped** — see the caps rule. Fixed at `h4` in every scenario rather than chosen to suit whatever page the card opens over, so it never varies between steps or screens; `aria-labelledby` is what actually names the dialog, so the level never has to carry that job |
+| Body (`.c-modal-tutorial-body`) | `body2` (14px) at `line-height: 1.6`, Neutral-5. **Four lines maximum, and never clamped.** This is the element that scrolls when a card outgrows its viewport — `min-height: 0; overflow-y: auto` |
+| Actions (`.c-modal-tutorial-actions`) | Modal's own footer order and right alignment — dismissal left of commit — at `spacing-8` between the pair, **without** Modal's divider: at a 340px measure a rule across the card reads as a seam in a note that should feel like one piece |
+
+**Three shapes, and nothing else.** A step is an intro, a stop, or the
+sign-off:
+
+| State | Card | Spotlight |
+|---|---|---|
+| **Intro** — first step | Counter, title, body. Footer is **Skip the tour** + **Show me**. No Back | Dims the whole surface |
+| **Stop** — any middle step | Counter, title, body. Footer is **Back** + **Next**; the × carries the exit alone | Rings the target and morphs to it from the last one |
+| **Sign-off** — last step | Counter, title, body. Footer is **Back** + **Done**. Done commits nothing | Dims the whole surface again |
+| **Target missing or hidden** | Unchanged — the copy still has something to say, and the step keeps its number | Falls back to the full dim, and warns in the console. It does **not** ring the corner of the screen, and the step is **not** skipped: skipping renumbers the tour |
+| **Docked** — 767px and below | Unchanged. Same copy, same footer, same order | Unchanged, and carrying more weight — it is the only thing left saying which element the step is about |
+| **Copy past its maxima** | The card runs tall, then its body scrolls. Nothing is clipped or truncated | Unchanged |
+| **Reduced motion** | Cross-fades in rather than flying out of the target | Jumps to each target instead of travelling. Sequence, copy and targets untouched |
+
+**Placement is by fit, in a fixed order, never by preference.** A 16px
+gutter is held against every viewport edge, and a 12px gap against the
+target:
+
+| Order | Side | Taken when |
+|---|---|---|
+| 1 | **Below** | The default. The card plus the gap clears the bottom of the viewport with the gutter intact |
+| 2 | **Above** | Below does not fit and the target sits low enough that the card clears the top |
+| 3 | **Right** | Neither vertical side fits — typically a target that is nearly viewport-tall |
+| 4 | **Left** | Right does not fit either |
+| — | **Centred** | No side has room, or the step declares no target at all |
+| — | **Docked** | 767px and below, regardless of fit. See the responsive rules |
+
+**The lock takes three guards, and no one of them is enough:**
+
+| Guard | Stops | Why the others are still needed |
+|---|---|---|
+| The layer blocks pointer events | The mouse. Every click lands on the scrim, and the scrim ends the tour | It does nothing about the keyboard. Six controls behind a scrim will stay in the tab order and stay operable |
+| A **focus trap** in the card, plus a **capture-phase click guard** | The keyboard, and assistive tech. Tab cycles inside the card and cannot leave it; a click on anything outside it is swallowed before the page sees it | The trap alone does not stop a screen reader activating a control it reached in browse mode — that dispatches a real click. This is the guard [Single select](#single-select) and [Multi select](#multi-select) already warn is needed: `pointer-events: none` alone does not block a focused element's keyboard activation |
+| `overflow: hidden` on `<html>`, plus wheel, `touchmove` and scroll-key prevention | Scrolling — wheel, trackpad, Space, Page keys, Home/End, arrows, and the **scrollbar drag**, which no amount of event cancelling can reach | The root lock is the only thing that reaches a scrollbar drag; event prevention is the only thing that stops iOS Safari dragging the page under an `overflow: hidden` root |
+
+Two things the lock deliberately leaves working. **The tour still scrolls
+the page itself** — half its steps point below the fold, so the lock had
+to stop the *reader* scrolling without stopping the *component*.
+`overflow: hidden` does exactly that: no scrollbar, no wheel, no keys,
+and `scrollBy` still works. And **the card's body still scrolls**, so a
+step whose copy outruns the viewport keeps every word reachable. Hiding a
+scrollbar also takes its width out of the viewport, so the lock measures
+that width and replaces it as padding on `<html>` — without it the whole
+page shifts sideways the instant the tour opens, which moves every target
+the spotlight is about to be measured against.
+
+**What a tour can dim.** This system has no numeric z-index scale, so the
+layer's number is set against a survey of what it actually paints, and it
+clears all of it:
+
+| Paints at | What | Under the tour? |
+|---|---|---|
+| **1100** | **Tutorial Modal's layer** | — |
+| 1000 | [Toast](#toast) host | **Yes.** A toast firing mid-tour is dimmed with everything else rather than floating over the scrim looking live while the layer eats its clicks. A toast that *is* the step's target still shows, because the spotlight is a real hole — whatever paints beneath it comes through |
+| 400 | [Command brief](#command-brief)'s scrim | **Yes** |
+| 95 | [Chat window](#chat-window) | **Yes** — so a tour can explain a chat window rather than hide behind one |
+| *none* | Modal / dialog | **Yes.** `.c-modal` declares no z-index at all |
+
+**Motion.** Every move is a pose change, so all of them take
+`--duration-morph` / `--ease-morph`, the pairing [Prompt input
+bar](#prompt-input-bar) and [Chat window](#chat-window) already use for
+exactly that. The entrance is [Chat window](#chat-window)'s own FLIP
+technique — `--tut-dx/dy/sx/sy` set from the target's box, the same shape
+as `.c-chat-shell`'s `--fold-dx/dy` — so the card grows out of the thing
+it describes and the relationship is carried by the motion rather than by
+an arrow. **The scale is clamped at 1**: a target wider than the card
+would otherwise make the first frame *larger* than the last, and the
+entrance would read as the card shrinking out of the table rather than
+growing out of it. Always a growth, never a collapse. Chat window's
+`--fold-dir` `rotateY` is dropped — a tour card that rotates in 3D reads
+as a flourish rather than as a note about the thing beside it.
+
+**Responsive — 767px and below, the card docks.** It leaves the target,
+takes the bottom of the viewport full width inside the 16px gutter, and
+the spotlight alone marks what the step is about. 767px is this system's
+own breakpoint ([Table](#table), [Stat / KPI](#stat--kpi),
+[Pagination](#pagination) and [Tool approval](#tool-approval) all turn
+there), and the geometry agrees: sitting beside a target needs
+340 + 12 + 16 + 16 = **384px** of room to its side, which a layout narrow
+enough to be stacking its own content never has.
+
+| At | Change | Why |
+|---|---|---|
+| ≤767px | The FLIP is replaced by a 12px rise from the bottom edge | The card is no longer beside the thing it describes, so flying out of it would point nowhere |
+| ≤767px | The target is scrolled into the band **above** the card, not the viewport centre | The card owns the bottom of the viewport; centring the target would put it behind the card. The band's height is the card's, so this happens after the card renders |
+| ≤767px | `bottom: calc(spacing-16 + env(safe-area-inset-bottom))` | Clears the home indicator — the same `env()` guard [Prompt input bar](#prompt-input-bar)'s Floating variant uses |
+| ≤767px | A card that would cover its own target **flips to the top edge** (`.is-docked-top`) | The last element on a short page cannot be scrolled out from behind a bottom-docked card — there is no more page to scroll. **The card gives way to the target, never the other way round** |
+| Coarse pointer | Footer buttons take a real **44px** height | Not a transparent hit-area lift: at `spacing-8` apart, two 32px buttons each lifted 6px would have their hit areas *meet*, and overlapping touch targets are worse than small ones. The close button is isolated in its corner, so it keeps its painted 32px box and lifts via the `::after` technique [Chat window](#chat-window) uses |
+
+**Rules.**
+
+1. **A step is a read, never a task.** No input, no commitment, nothing
+   required to continue. This is the whole basis of the carve-out from
+   Modal's Don't, and everything else here follows from it.
+2. **Never auto-advance.** Reads finish at different speeds. The only
+   thing that moves a tour is the reader.
+3. **Never require an action to continue** — no "click this to go on".
+   The page is locked, so there is nothing to click, and a tour that
+   demands one is a task on top of the product.
+4. **Nothing is ever clipped or truncated.** Two lines of title and four
+   of body are **authoring maxima**, not clamps. A tour card is the whole
+   surface: there is no row to expand, no tooltip, no "more", so a clamp
+   here would not tidy the copy, it would lose it, with no way for the
+   reader to know what they had missed. Over-writing makes the card run
+   tall — a signal the author can see and act on — and past the viewport
+   the body scrolls. ([Notes](#notes) can clamp its own cards because a
+   click there opens the note in full; a tour step has no second view.)
+5. **A title needing three lines is a step doing two things.** Split it.
+6. **A step may only point at something rendered and visible.** Not an
+   element on an inactive tab, inside a collapsed panel, or still
+   loading. The component degrades to the centred, unanchored card and
+   warns, but that is a safety net, not a licence.
+7. **On a phone, a step may only point at something no taller than the
+   band above the card** — roughly 150px on a landscape phone. The page
+   is locked, so anything that does not fit cannot be scrolled to. Point
+   the step at the part that matters: the header row, one row, one cell.
+8. **The spotlight follows its target.** If the target moves or resizes
+   mid-step — a figure that finishes loading, a banner that pushes it
+   down — the ring re-measures and travels to it. A ring sitting where
+   the target *was* is worse than no ring.
+9. **Three routes out, all of them final.** The scrim, Escape and the ×
+   all end the tour rather than pausing it — the same relationship
+   Modal's overlay and Chat window's veil have to what they cover.
+   Escape must stop propagating, or a host modal closes along with it.
+10. **The first step spells out the exit in words; later steps do not.**
+    At the moment of deciding whether to spend a minute, the way out has
+    to be as legible as the way in. From step 2 the × carries it alone
+    and the footer belongs to Back and Next — three buttons on a 340px
+    card is one too many.
+11. **`aria-modal` stays `false`.** The surface behind is unusable during
+    a tour, but it must still be *readable*: the element each step
+    describes is the only reason to be pointing at it. `inert` would have
+    been the shorter way to lock the page and would have taken that away.
+    This is also why the lock needs its click guard on mobile: iOS
+    VoiceOver navigates with its own cursor and passes straight through a
+    focus trap, so a reader *can* reach the target the step is describing
+    — which is intended — and the guard is what stops them activating it
+    by accident.
+12. **Each step announces itself, and it takes two attributes rather
+    than a live region.** First, the counter goes into
+    `aria-describedby` **alongside** the body, so a reader hears
+    "*Welcome to the sales board*, dialog, *1 of 8*, *One page that
+    answers…*". "3 of 8" in the corner of the card tells a sighted
+    reader where they are in the tour; that attribute is what tells
+    everyone else, and without it the position is missing for exactly
+    the readers who cannot glance at it. Second, **focus moves to the
+    card on every step** — the card is a fresh node each step, so focus
+    genuinely moves, and a focus change onto a named dialog is what
+    makes a screen reader read it out at all.
+    **No `aria-live` anywhere on the card.** [Thinking](#thinking)'s
+    Rule 19 and [Task Rows](#task-rows)' Rule 17 both settled this
+    already: in this system a live region is for a discrete event worth
+    interrupting a reader for, not for content they are moving through
+    themselves. A step change is a focus change, and focus is its own
+    announcement — adding a live region on top would say every step
+    twice. Ending the tour returns focus to whatever opened it, which is
+    the same signal closing a modal gives; there is nothing extra to
+    announce.
+13. **Nothing in the card but the counter, a title, a sentence or two,
+    and the footer.** No screenshots, no video, no progress dots, no
+    "Learn more". A tour stop is a passing note about the thing beside
+    it; anything richer is documentation, and documentation does not
+    belong on top of the product.
+14. **No arrow or beak.** The card flies out of the thing it describes
+    and the spotlight rings it — the relationship is stated twice
+    already. An arrow would be a third statement of it, and it is the
+    part of a coach mark that breaks first when the card has to flip
+    sides or clamp against a gutter.
+15. **One tour at a time, and never nested.** There is one layer.
+
+**Do:** keep a tour short enough to be worth a minute, and make every
+stop about something the reader can see. **Don't:** use it for one step —
+a single stop is not a tour, and one thing to explain belongs in a
+[Tooltip](#tooltip) or an [Info Banner](#info-banner), both of which
+leave the page usable.
+
+> ⚠️ **A phone cannot always show the whole target, and with the page
+> locked that is now a hard limit rather than a soft one.** Docked, the
+> target is scrolled into the band above the card, and a target taller
+> than that band has its **top** edge aligned there rather than being
+> centred — the reader sees the beginning of what is described and the
+> card covers the tail. Centring would hide both ends. Before the lock a
+> reader could scroll down and look at the rest, badly; now they cannot.
+> Measured at 740×360, a full [Table](#table) is 193px against a 150px
+> band, so **43px of it — about one row — cannot be brought into view at
+> all**. The two [Stat / KPI](#stat--kpi) steps at that viewport lose 5px
+> each. This is the one place where locking the page costs something
+> real, and it is answered by rule 7 rather than by more machinery: a
+> step that has to show something taller than half a landscape phone is
+> pointing at the wrong thing.
+
+> ⚠️ **This variant matches Modal's stylesheet, not Modal's section
+> above, in two places — and the two have disagreed since before this
+> component existed.** The title takes `h4` (20/28/800) because that is
+> what `.c-modal-head h4` ships, while the section above says `h3`. And
+> the card's 340px is set against `.c-modal`'s shipped `max-width: 400px`
+> rather than the "~480px" the section above states. Both are recorded
+> here rather than quietly picked a side on; **the drift is Modal's to
+> resolve**, and whichever way it goes this variant should follow the
+> parent it borrows from.
 
 ### Notes
 
@@ -4630,7 +4863,6 @@ re-bases on `total`, which is the one case the target line moves off
 | Container | [Card](#card)'s own recipe, unmodified: Neutral-1 fill, 1px Neutral-3 border, `radius-lg` (20px), `shadow-1`, `spacing-16` padding. Padding does **not** scale with size — only the bar, type and internal gaps do |
 | Heading | the component title, `weight-extrabold`, Neutral-9, letter-spacing 0 — per this document's own "every heading at 800" rule |
 | Target figures (optional) | top-right, on the same row as the heading: raw value over percent-of-target (e.g. "RM 6,000 / 10,000" / "60% of target"). Controlled by `showTarget`; when false the block is omitted and the chart is unaffected |
-| Description (optional) | always its own full-width line beneath the heading row, never a column beside the figures |
 | Track | Neutral-2, full width of its container, per-size corner radius |
 | Category segments | stacked left to right in the order given, no gaps between them; colors per **Category colors**, below |
 | Headroom | Neutral-3 fill from the target point to the end of the track — one step darker than the track, so it reads as "space still on the scale" rather than as empty track. Only when `total < target` |
@@ -4648,24 +4880,58 @@ re-bases on `total`, which is the one case the target line moves off
 | Chart | chart area + legend only — no card, border, shadow, padding, heading, divider or footer. For dropping into a tile, cell, or any surface that owns its own container. Never draws a card of its own |
 | In-table | an 8px rail at `radius-pill` for a table cell — Progress Bar's own default track anatomy, reused. No card, no legend, no gap outline; the only label is the target's compact value, above the bar and right-aligned 4px left of the target line. Label space is reserved above the rail and mirrored below it, so the rail sits on the row's centreline while the label still clears the row's top edge — [Table](#table) sets no fixed row height, so the row grows to fit |
 
-**Sizes** — all three apply to the Card and Chart variants; In-table has
-its own fixed metrics.
+**Sizes control the chart, and nothing else.** All three apply to the
+Card and Chart variants; In-table has its own fixed metrics. Every piece
+of text in this component takes the same token at every size — see
+**Typography**, below.
 
-| Token | Small | Medium | Large |
+| Value | Small | Medium | Large |
 |---|---|---|---|
 | Bar height | 16px (`spacing-16`) | 32px (`spacing-32`) | 40px (`spacing-40`) |
 | Bar corner radius | 6px | 8px | 10px |
-| Heading | 13px | 15px | 17px |
-| Description / legend | 11px | 12.5px | 13.5px |
-| Footer | 10.5px | 11.5px | 12.5px |
-| Target tag | 10px | 11px | 12px |
+| Target-line overshoot | 5px | 7px | 9px |
+| Head → chart gap | `spacing-16` | `spacing-24` | `spacing-24` |
 | Card padding | `spacing-16` at every size |
+| Legend swatch | 10px at every size |
 
-⚠️ The bar corner radii and the per-size type scale are one-off
-literals — no existing token covers a three-tier bar radius or a
-component with its own size-scaled type ramp. Same class of exception
-as [Progress Bar](#progress-bar)'s own track heights. The bar heights
-are not: all three land on real spacing tokens.
+**Typography** — nine text elements, each on a whole token: size, line
+height and weight together, not a size borrowed from one and a weight
+from somewhere else. **There is no description.** This component states a
+figure against a target; the sentence explaining why belongs to whatever
+surface the bar sits in — a [Card](#card)'s own description, a
+[PageHeader](#pageheader)'s subtitle — not inside the bar.
+
+| Element | Sample copy | Token |
+|---|---|---|
+| Heading (`.c-goal-bar-title`) | Progress to Goal | **`h5`** — 16/20/700, Neutral-9. An `h5` element, so the element and the token are the same name |
+| Headline figure (`.c-goal-bar-target-value`) | RM 6,000 | **`h4`** — 20/28/800, Neutral-9, `tabular-nums`. Larger than the heading on purpose: the figure is what the card is for |
+| Figure suffix (`.of`) | / 10,000 | **`caption`** — 12/16/400, Neutral-5 |
+| Figure sub-label (`.c-goal-bar-target-pct`) | 60% of target | **`caption`** — 12/16/400, Neutral-5 |
+| Legend (`.c-goal-bar-legend-item`) | Category A  RM 2,000 | **`caption`** — 12/16/400, Neutral-5; the `<b>` value at `weight-bold`, Neutral-9 |
+| Compact label row (`.c-goal-bar-labels`) | Total **RM 6,000** · Gap **RM 4,000** · Target **RM 10,000** | **`caption`** at a tighter **1.4** line height — it sits directly under the rail. Replaces the legend at Small and In-table |
+| Target marker (`.c-goal-bar-target-tag`) | Target RM 10,000 | **`label3`** — 11/16/700 + its 0.04em tracking, Neutral-9 |
+| Footer (`.c-goal-bar-footer`) | Bar extends past target to show headroom. | **`footnote`** — 12/16/400, Neutral-5 |
+| In-table label (`.c-goal-bar-tablelabel`) | RM 6,000 | **`label3`**'s size and weight, but its own **12px** line height — [Table](#table) sets no fixed row height, so the token's 16px would grow every row carrying a bar. The one deliberate part-adoption, and the reason is the host, not the type |
+
+⚠️ **The bar corner radii are the only off-scale literals left** — no
+token covers a three-tier bar radius. Same class of exception as
+[Progress Bar](#progress-bar)'s own track heights. The bar heights are
+not an exception: all three land on real spacing tokens, as do the head
+gap and the padding.
+
+**This component used to carry its own size-scaled type ramp** —
+13/15/17px headings, 11/12.5/13.5px description and legend,
+10.5/11.5/12.5px footer, 10/11/12px target tag, with the headline figure
+derived as `calc(heading + 3px)`. Nine of those fifteen values were not
+tokens at all, four were fractional pixels, and two of the weights (800
+on the heading, 600 on the figure suffix) were not weights this system's
+scale uses. It is gone: the size variants move the chart, and the text
+is tokenised once. Five variables retired with it —
+`--gb-title-size`, `--gb-desc-size`, `--gb-legend-size`,
+`--gb-footer-size`, `--gb-tag-size` — and so did two consumer overrides,
+since [Card](#card)'s Pacing variant and [Stat / KPI](#stat--kpi)'s
+Secondary variant were both already forcing the legend to `caption` for
+their own use, which the base now does itself.
 
 **Small size behaves differently by default**, because at 16px there
 isn't room for the full furniture:
@@ -6325,6 +6591,171 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.99 — 2026-09-07** — **[Progress-to-Goal Bar](#progress-to-goal-bar)'s
+  size variants now control the chart and nothing else.** The component
+  carried its own size-scaled type ramp — 13/15/17px headings,
+  11/12.5/13.5px description and legend (the description has since been
+  removed from the component entirely — see below), 10.5/11.5/12.5px footer,
+  10/11/12px target tag, and a headline figure derived as
+  `calc(heading + 3px)` — of which nine values were not tokens at all,
+  four were fractional pixels, and two weights (800 on the heading, 600
+  on the figure suffix) were weights this system's scale does not use.
+  All ten text elements now take a **whole token**: size, line height and
+  weight together. Heading **`h5`**, headline figure **`h4`** (the only
+  token already at its 800 weight, and it keeps the figure ahead of the
+  heading), figure suffix and sub-label **`caption`**, description
+  **`body2`**, legend and compact label row **`caption`**, target marker
+  **`label3`**, footer **`footnote`**, and the In-table label
+  **`label3`**'s size and weight with its own tight 12px line height
+  kept, because [Table](#table) sets no fixed row height and the token's
+  16px would grow every row carrying a bar. Two consequences worth
+  naming: the **description is now larger than the legend** (14px against
+  12px), inverting the old ramp on the grounds that a sentence should not
+  be set smaller than a row of figures; and the **heading is now 700**
+  rather than a hardcoded 800, so it matches every other `h5` in the
+  system including `.c-card h5`. Five variables retired —
+  `--gb-title-size`, `--gb-desc-size`, `--gb-legend-size`,
+  `--gb-footer-size`, `--gb-tag-size` — along with **two now-redundant
+  consumer overrides**: Card's Pacing variant and Stat / KPI's Secondary
+  variant were both already forcing the legend to `caption`, which the
+  base now does itself. The legend swatch stops ramping (8/10/12px → a
+  flat 10px): it sits inline with legend text that is now one size, and
+  would otherwise have been the only thing in the legend still changing.
+  `--gb-pad` moved to the base, which also closes a latent hole — a
+  `.c-goal-bar` with no size class had an undefined `--gb-pad` and
+  therefore no padding at all. What still ramps: bar height (16/32/40px,
+  all spacing tokens), bar radius (6/8/10px, the one remaining off-scale
+  literal and still an owned exception), the target line's overshoot
+  (5/7/9px) and the head gap.
+
+  **The description is also gone from the anatomy.** `.c-goal-bar-desc`
+  is removed rather than retokenised: this component states a figure
+  against a target, and the sentence explaining why belongs to the
+  surface the bar sits in — a [Card](#card)'s own description, a
+  [PageHeader](#pageheader)'s subtitle — not inside the bar. Nine text
+  elements remain. It took the explicit `order: 1` / `order: 2` on the
+  heading and the figure with it: those existed only to hold a
+  description at `order: 3` beneath both, and with two items left in DOM
+  order they were declaring nothing. No markup in `preview.html` carried
+  a description, so nothing in the gallery changes.
+
+- **v0.9.98 — 2026-09-07** — Added **Tutorial Modal**
+  (`.c-modal-tutorial*`), a **variant of [Modal /
+  dialog](#modal--dialog)** rather than a component of its own: a
+  numbered walkthrough that spotlights one part of a surface at a time
+  and explains it in a short card that flies out of whatever it is
+  describing. Adapted from a supplied `.tw-card` snippet — every
+  hardcoded value in that source replaced by a token from this document,
+  and the panel recipe, the close button, the footer buttons and the
+  scrim all taken from existing components as they ship. The entrance is
+  [Chat window](#chat-window)'s own FLIP technique with the source's
+  `--tw-dx/dy/sx/sy` mapped onto this prefix; its `--tw-dir` `rotateY`
+  fold was **dropped** (a tour card that rotates in 3D reads as a
+  flourish rather than as a note about the thing beside it), and the FLIP
+  scale is **clamped at 1** so a target wider than the card produces a
+  growth rather than a collapse. **Modal's "no multi-step flows" Don't
+  gains a carve-out named to this variant specifically** — not a general
+  licence for flows that collect no input — so nothing else can cite it
+  as precedent. It is also **the first component in this system to lock
+  the page**, which takes three guards rather than one: the layer blocks
+  the pointer, a focus trap plus a capture-phase click guard block the
+  keyboard and assistive tech, and `overflow: hidden` on `<html>` plus
+  wheel/`touchmove`/scroll-key prevention block scrolling — while
+  leaving `scrollBy` working, which is what lets the tour keep bringing
+  its own targets into view. `aria-modal` stays **`false`** throughout:
+  the surface behind is unusable but must stay readable, which is why
+  `inert` was **rejected** as the shorter route. `z-index: 1100`, set
+  against a survey of what this system actually paints (Toast 1000,
+  Command brief 400, Chat window 95, Modal none) rather than against the
+  Modal z-index of 90 an earlier pass had cited, **which does not
+  exist**. Eight defects were found in review and fixed before
+  promotion, and they are recorded here because most were failures of a
+  rule the component had already written down: a hidden or zero-size
+  target became a 12×12 spotlight pinhole at −6,−6 rather than degrading
+  (now falls back to the centred, unanchored step and warns); six
+  controls behind the scrim stayed keyboard-operable while the mouse was
+  blocked; arrow keys advanced the tour while a text field had focus;
+  the card's internal-scroll safety net was gated behind
+  `@media (max-height: 460px)`, so at 1200×620 an over-written card
+  measured 508px against 501px of available height with
+  `max-height: none` — clipped, in a fixed layer, contradicting the
+  component's own "nothing is ever hidden" rule (now unconditional); an
+  unbroken token ran the title to 502px and the body to 580px inside a
+  340px card (`overflow-wrap: anywhere`, as [Notes](#notes)' own
+  `.np-text` already uses); ten elements shared one `id`; Escape did not
+  stop propagating, so a host modal would close along with the tour; and
+  a resize across 767px re-placed the card without re-fitting it. The
+  **body** rather than the card is the scroll region, because scrolling
+  the card would carry its absolutely-positioned × off the top and take
+  one of the three exits with it. **Clamping the copy was rejected**
+  twice over: the two-line title and four-line body caps are authoring
+  maxima, never `-webkit-line-clamp`, because a tour card is the whole
+  surface — there is no row to expand and no second view, so a clamp
+  would lose the copy rather than tidy it. Also rejected: an arrow or
+  beak on the card (the FLIP and the ring already state the
+  relationship twice, and a beak is the part of a coach mark that breaks
+  first when the card flips sides), and any cap on step count. One
+  limitation is **accepted and documented rather than engineered
+  around**: with the page locked, a docked target taller than the band
+  above the card cannot be brought fully into view — measured at
+  740×360, 43px of a full [Table](#table), about one row — which rule 7
+  answers as an authoring constraint. Verified across 32 combinations
+  (eight steps × four viewports, in live iframes at real widths so the
+  media queries genuinely fire), asserting the card stays inside its
+  16px gutters, the lock is engaged, and the target's leading edge is on
+  screen and clear of the card: all 32 hold, three of them the
+  tall-target case. Also **pre-existing drift recorded, not fixed**:
+  Modal's section says the panel title is `h3` and its max-width ~480px,
+  while `components.css` ships `.c-modal-head h4` at `h4` and
+  `max-width: 400px` — this variant follows the stylesheet, and the
+  resolution is Modal's to make. In `preview.html`, the intro step is
+  shown as a static specimen directly below the Modal in the **Modal /
+  dialog** block, with no label or prose of its own, plus two
+  gallery-only rules (a margin between stacked stages, and
+  `position: relative` on the card, which ships `position: absolute`
+  because in use it is placed against a live target inside its own fixed
+  layer). The title is an **`h4` element at h4's size** — the same name
+  for both, matching Modal's own `.c-modal-head h4` — and fixed there in
+  every scenario rather than chosen to suit whatever page the card opens
+  over, so it never varies between steps or screens. An intermediate
+  pass had an `h2` element carrying h4's size, which made one token name
+  mean two things; **the element and the type token must be the same
+  name — a heading element's number and the type token it renders at
+  must agree, everywhere.** A full audit of every heading in the gallery
+  against its computed size found two components breaking it, and
+  **both are fixed in this release**: `.c-card h4` rendered h5 and is
+  now `.c-card h5` (with `.c-card-profile-identity h4` moving with it),
+  and `.c-chat-hd h2` rendered h5 and is now `.c-chat-hd h5`. 22
+  elements across [Card](#card)'s variants, the chart cards, the profile
+  cards and [Chat window](#chat-window)'s thread title changed element
+  only — **no computed size, weight or line-height changes anywhere**,
+  since the tokens each rule sets are untouched. Two consequences worth
+  recording. Chat window's thread title is now an `h5` rather than an
+  `h2`, which lowers it in a page's heading outline; its accessible name
+  is unaffected, since the shell's `aria-labelledby` points at the same
+  `id`. And `.c-card-pacing-label` asks for h4's size but has always
+  been overridden to h5 by the `.c-card` descendant rule, so its own
+  `--text-h4-*` declarations are **dead** — the label was converted to
+  `h5` to preserve exactly what it renders today rather than letting a
+  16px label silently become 20px, and whether that rule was meant to
+  win is Card's question to settle. The audit's third finding is also
+  fixed: [Progress-to-Goal Bar](#progress-to-goal-bar)'s heading was an
+  `h3` rendering at **15px** — not any token at all, but its own
+  three-tier ramp (13/15/17px) — and is now `h5` at 16px in every size,
+  with the element to match. No heading token exists in that range but
+  16, and the element is one element for all three sizes, so keeping
+  three distinct heading sizes would have left a variant rendering at a
+  non-heading token under a heading element. `size-default` is the only
+  size the gallery instantiates and it moves 1px; the ramp's other tiers
+  (description, legend, footer, tag) stand as the documented exception
+  they already were. Screen-reader announcement is handled with two
+  attributes and **no live region**, per Thinking's Rule 19 and Task
+  Rows' Rule 17: the counter joins the body in `aria-describedby` so the
+  position is spoken, and focus moving to each step's card is what
+  triggers the announcement. `preview.html`'s specimen carries that
+  markup rather than a stripped-down copy of it, since it is what
+  "Copy markup" hands over.
 
 - **v0.9.97 — 2026-09-07** — Added **Task Rows**, [AI
   Native](#ai-native)'s eighth subcomponent (`.c-tasks*`): the named
