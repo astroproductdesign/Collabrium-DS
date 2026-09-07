@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Draft — Tutorial Modal (Modal / dialog variant)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* ==========================================================
+     DRAFT — Tutorial Modal, proposed as a variant of
+     Modal / dialog. Nothing committed to components.css /
+     DESIGN-SYSTEM.md / preview.html yet.
+
+     Adapted from the supplied `.tw-card` markup. Every hardcoded
+     value in that source is replaced by a tokens.css token, and
+     four things are reused from components.css verbatim rather
+     than redrawn:
+
+       .c-modal        — the panel recipe (Neutral-1, radius-lg,
+                         shadow-modal) and .c-modal-head h4's own
+                         title size, both taken as they ship.
+       .c-icon-btn     — the close affordance, as in the source.
+       .c-btn          — Ghost + Primary in the footer, as in the
+                         source.
+       --shadow-overlay — the scrim value Modal already owns.
+
+     The FLIP entrance is Chat window's own technique verbatim:
+     the source's --tw-dx/dy/sx/sy/dir map one-to-one onto
+     .c-chat-shell's --fold-dx/dy/sx/sy/dir, so this is the same
+     "fly out of the thing you came from" mechanism, not a second
+     one invented for this component.
+     ========================================================= */
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9);
+    font-family:var(--font-primary); padding:var(--spacing-48) var(--spacing-24) var(--spacing-120);
+  }
+  .page-head{max-width:1040px; margin:0 auto var(--spacing-40);}
+  .page-head h1{font-size:var(--text-h2-size); line-height:var(--text-h2-lh); font-weight:var(--text-h2-weight); margin:0 0 var(--spacing-8);}
+  .page-head p{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); margin:0 0 var(--spacing-12); max-width:720px;}
+
+  .gallery{max-width:1040px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-60);}
+  .gallery-section > h2{font-size:var(--text-label1-size); font-weight:700; margin:0 0 var(--spacing-4);}
+  .gallery-section > .note{font-size:var(--text-caption-size); line-height:1.6; color:var(--color-neutral-5); margin:0 0 var(--spacing-20); max-width:700px;}
+  .eyebrow{font-size:var(--text-caption-size); font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow); color:var(--color-neutral-5); margin:0 0 var(--spacing-8);}
+
+  .specimens{display:flex; flex-wrap:wrap; gap:var(--spacing-32) var(--spacing-40); align-items:flex-start;}
+  .specimen{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-8); max-width:100%;}
+  .specimen .cap{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+
+  table.map{border-collapse:collapse; width:100%; font-size:var(--text-caption-size); line-height:var(--text-caption-lh);}
+  table.map th, table.map td{text-align:left; padding:var(--spacing-8) var(--spacing-12); border-bottom:1px solid var(--color-neutral-3); vertical-align:top;}
+  table.map th{font-weight:700; color:var(--color-neutral-9); white-space:nowrap;}
+  table.map td{color:var(--color-neutral-5);}
+  table.map td:first-child{color:var(--color-neutral-9);}
+  table.map.nowrap td:first-child, table.map.nowrap td:nth-child(2){white-space:nowrap;}
+  table.map code{font-family:var(--font-primary); font-weight:700; font-size:11px;}
+  table.map .say{color:var(--color-neutral-9); font-weight:700;}
+  table.map .silent{color:var(--color-neutral-4); font-style:italic;}
+
+  .callouts{max-width:1040px; margin:var(--spacing-60) auto 0; padding-top:var(--spacing-24); border-top:1px solid var(--color-neutral-3);}
+  .callouts h2{font-size:var(--text-label1-size); margin:0 0 var(--spacing-12);}
+  .callouts ol{margin:0; padding-left:var(--spacing-20); display:flex; flex-direction:column; gap:var(--spacing-12);}
+  .callouts li{font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+  .callouts .muted{color:var(--color-neutral-5);}
+  .flag{color:var(--color-orange); font-weight:700;}
+  .settled{color:var(--color-green); font-weight:700;}
+
+  .choice{border:1px solid var(--color-neutral-3); border-left:3px solid var(--color-orange); border-radius:var(--radius-sm); padding:var(--spacing-16); background:var(--color-neutral-1); max-width:700px;}
+  .choice p{margin:0 0 var(--spacing-8); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
+  .choice p:last-child{margin:0; font-size:var(--text-caption-size); line-height:1.6; color:var(--color-neutral-5);}
+
+  /* The mock product surface the tour points at. Real DLS components
+     throughout — a tour can only be reviewed against something to tour. */
+  .app{position:relative; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-24); overflow:hidden;}
+  .app-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-16); margin-bottom:var(--spacing-20);}
+  .app-head h3{margin:0 0 var(--spacing-4); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight);}
+  .app-head p{margin:0; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .app-stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--spacing-16); margin-bottom:var(--spacing-20);}
+  .app-tabs{margin-bottom:var(--spacing-16);}
+  .app-tools{display:flex; align-items:center; gap:var(--spacing-12); margin-bottom:var(--spacing-16); flex-wrap:wrap;}
+  .app-table-wrap{border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); overflow:hidden;}
+
+  /* ==========================================================
+     PROPOSED — Tutorial Modal.  Prefix: .c-modal-tutorial*
+     Named for the parent, the same way Card's own variants are
+     (.c-card-pacing, .c-card-usp, .c-card-price-*), rather than a
+     new top-level prefix.
+     ========================================================= */
+
+  /* Layer. One fixed root owning the whole tour, so the card and the
+     spotlight share a coordinate space and neither can be clipped by
+     an ancestor's overflow. z-index 92 sits above Modal's own panel
+     (90) and below Chat window (95): a tour explains the surface it
+     is over, so it has to be able to point at a modal too.
+
+     It DOES block pointer events, and that is not in tension with
+     aria-modal="false" — the two govern different things. Pointer
+     blocking stops the page being operated mid-tour, which would be
+     chaos. aria-modal governs the accessibility tree, and it stays
+     false so a screen reader can still reach the element the step is
+     describing. Visually and by pointer this is modal; to assistive
+     tech the surface behind is still there. */
+  .c-modal-tutorial-layer{position:fixed; inset:0; z-index:92; display:none;}
+  .c-modal-tutorial-layer.is-open{display:block;}
+
+  /* Spotlight. Modal's own --shadow-overlay, pushed out as a 9999px
+     ring so the scrim IS the cut-out — one element, no four-div
+     jigsaw, and the hole animates from step to step. The 2px Obsidian
+     ring is the same "currently engaged" pairing Table row's selected
+     state and FileUploader's drag-over already use. */
+  .c-modal-tutorial-spot{position:absolute; border-radius:var(--radius-sm); box-shadow:0 0 0 9999px var(--shadow-overlay); outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:2px; pointer-events:none; transition:top var(--duration-morph) var(--ease-morph), left var(--duration-morph) var(--ease-morph), width var(--duration-morph) var(--ease-morph), height var(--duration-morph) var(--ease-morph), border-radius var(--duration-morph) var(--ease-morph);}
+  /* A step with no target dims the whole surface and centres the card:
+     the intro and the sign-off aren't about any one element. */
+  .c-modal-tutorial-spot.is-none{inset:0; width:auto; height:auto; border-radius:0; box-shadow:none; outline:none; background:var(--shadow-overlay);}
+
+  /* Card. The panel recipe is .c-modal's, taken as it ships — Neutral-1,
+     radius-lg, shadow-modal — at a narrower measure: 340px, not
+     .c-modal's 400px, because a tour step is one short read beside a
+     highlighted thing rather than a centred decision. */
+  .c-modal-tutorial{position:absolute; width:min(340px, calc(100vw - var(--spacing-32))); background:var(--color-neutral-1); border-radius:var(--radius-lg); box-shadow:var(--shadow-modal); padding:var(--spacing-20); display:flex; flex-direction:column; gap:var(--spacing-8); transform-origin:0 0;}
+  .c-modal-tutorial:focus{outline:none;}
+  .c-modal-tutorial:focus-visible{outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:2px;}
+
+  /* FLIP entrance — Chat window's own c-chat-fold-open technique, with
+     the supplied --tw-* names mapped onto this component's prefix. The
+     card grows out of the box it is describing, so the relationship
+     between card and target is carried by the motion rather than by an
+     arrow. */
+  /* Scale is clamped to 1 in the script: a target wider than the card
+     would otherwise make the first frame LARGER than the last, so the
+     entrance would read as the card shrinking out of the table rather
+     than growing out of it. Always a growth, never a collapse. */
+  .c-modal-tutorial.is-opening{animation:c-modal-tutorial-in var(--duration-morph) var(--ease-morph) both;}
+  @keyframes c-modal-tutorial-in{
+    from{ opacity:.4; transform:translate(var(--tut-dx,0px), var(--tut-dy,0px)) scale(var(--tut-sx,.2), var(--tut-sy,.2)); }
+    to{ opacity:1; transform:translate(0,0) scale(1,1); }
+  }
+
+  .c-modal-tutorial-close{position:absolute; top:var(--spacing-8); right:var(--spacing-8);}
+
+  .c-modal-tutorial-kicker{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+  /* Title takes .c-modal-head h4's own size verbatim — h4 (20/28/800).
+     Note that is what Modal SHIPS; its section in DESIGN-SYSTEM.md says
+     h3, and the two have disagreed since before this component. Matching
+     the CSS, and flagging the drift.
+
+     Two lines maximum, and NOT clamped — deliberately. A tour card is
+     the whole surface: there is no row to expand, no tooltip, no "more".
+     Truncating here would lose the explanation with no way to read the
+     rest, which is worse than a card that runs tall. So the cap is an
+     authoring rule the spec states and the app honours, and over-writing
+     grows the card rather than hiding anything. A title needing three
+     lines is a step doing two things — split it. */
+  .c-modal-tutorial-title{margin:0; padding-right:var(--spacing-24); font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); letter-spacing:var(--text-h4-tracking); color:var(--color-neutral-9);}
+  /* Body is body2 (14/20), not Modal's body1 (16). At a 340px measure
+     body1 runs to five or six lines on realistic copy and the card stops
+     reading as a passing note.
+
+     Four lines maximum, and NOT clamped, for the same reason as the
+     title: nothing in this component can reveal hidden copy, so cutting
+     it would simply lose it. The cap is an authoring rule. Notes can
+     clamp its own card and peek copy because a click there opens the
+     note in full — a tour step has no such second view, so the same
+     technique would be destructive here rather than tidy. */
+  .c-modal-tutorial-body{margin:0; font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-5);}
+
+  /* Footer keeps Modal's own order — dismissal left of commit — and its
+     own right alignment, at spacing-8 between the pair. It drops Modal's
+     divider: at 340px a rule across the card reads as a seam in a note
+     that should feel like one piece. */
+  .c-modal-tutorial-actions{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8); margin-top:var(--spacing-4);}
+
+  /* ---------- Responsive ----------------------------------------
+     Docked below 768px. That is this system's own breakpoint (Table,
+     Stat/KPI, Pagination and Tool approval all turn at 767px) rather
+     than a fourth one invented here, and the geometry agrees with it:
+     sitting beside a target needs 340 + 12 + 16 + 16 = 384px of room
+     to the side of it, and on a layout narrow enough to be stacking
+     its own content there is never that much. So the card stops
+     chasing the target and takes the bottom of the viewport, full
+     width, while the spotlight alone marks what the step is about.
+
+     The !importants are load-bearing, not lazy: position() writes
+     top/left inline for the anchored case, and inline styles beat a
+     stylesheet rule. Rather than branch the script on a media query
+     it can't see reliably, the docked rule overrides them. */
+  @media (max-width:767px){
+    .c-modal-tutorial{
+      position:fixed; width:auto;
+      left:var(--spacing-16) !important; right:var(--spacing-16);
+      top:auto !important;
+      /* Clears the iPhone home indicator. Same env() guard Prompt input
+         bar's own Floating variant already uses. */
+      bottom:calc(var(--spacing-16) + env(safe-area-inset-bottom));
+    }
+    /* No FLIP when docked: the card is no longer beside the thing it
+       describes, so flying out of it would point nowhere. It rises from
+       the edge it now belongs to instead. */
+    .c-modal-tutorial.is-opening{animation-name:c-modal-tutorial-dock;}
+    @keyframes c-modal-tutorial-dock{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+
+    /* Docked to the TOP instead. The bottom is the default, but the last
+       element on a short page cannot be scrolled out from behind a
+       bottom-docked card — there is no more page to scroll. Rather than
+       leave the step highlighting something hidden, the card moves. This
+       is the mobile counterpart of the desktop placement fallback: the
+       card gives way to the target, never the other way round.
+
+       The `top` needs !important to beat the base docked rule's own
+       `top: auto !important`; `bottom` does not, since this selector is
+       already the more specific of the two. */
+    .c-modal-tutorial.is-docked-top{top:calc(var(--spacing-16) + env(safe-area-inset-top)) !important; bottom:auto;}
+    .c-modal-tutorial.is-docked-top.is-opening{animation-name:c-modal-tutorial-dock-top;}
+    @keyframes c-modal-tutorial-dock-top{ from{opacity:0; transform:translateY(-12px);} to{opacity:1; transform:translateY(0);} }
+  }
+
+  /* A landscape phone is ~360px tall, and a two-line/four-line card is
+     262px of that. The card stays docked and scrolls internally rather
+     than being capped — capping would hide copy, which is the whole
+     thing this component refuses to do (see the caps note). Scrolling
+     keeps every word reachable. */
+  @media (max-height:460px){
+    .c-modal-tutorial{max-height:calc(100vh - var(--spacing-32)); overflow-y:auto; overscroll-behavior:contain;}
+  }
+
+  /* Touch. The footer buttons take a real 44px height rather than a
+     transparent hit-area lift: at spacing-8 apart, two 32px buttons each
+     lifted by 6px would have their hit areas meet, and overlapping touch
+     targets are worse than small ones. The close button is isolated in
+     the corner with nothing to collide with, so it takes the lift and
+     keeps its painted 32px box — the same ::after technique Chat
+     window's own action buttons use. */
+  @media (hover:none), (pointer:coarse){
+    .c-modal-tutorial-actions .c-btn{height:44px; padding:0 var(--spacing-16);}
+    /* The close is already position:absolute in the base rule, so the
+       ::after anchors to it directly. 32px + 6px each side = 44px. */
+    .c-modal-tutorial-close::after{content:''; position:absolute; inset:-6px;}
+  }
+
+  /* Travel drops, sequence stays. The FLIP, the spotlight's move and the
+     card's move all go; which step you are on, what it highlights and
+     what it says are untouched. */
+  @media (prefers-reduced-motion:reduce){
+    .c-modal-tutorial-spot{transition:none;}
+    /* All three entrance variants, because the docked ones are declared
+       with higher specificity inside their own media block and would
+       otherwise keep animating with reduced motion on. */
+    .c-modal-tutorial.is-opening,
+    .c-modal-tutorial.is-docked-top.is-opening{animation:c-modal-tutorial-fade var(--duration-fast) var(--ease-standard) both;}
+    @keyframes c-modal-tutorial-fade{ from{opacity:0;} to{opacity:1;} }
+  }
+
+  /* Embed mode. section 7's iframes load this same file with ?embed=1,
+     so what they show is the real component at a real viewport width with
+     the real media queries firing — not a static picture of a phone. */
+  body.is-embed{padding:var(--spacing-12);}
+  body.is-embed .page-head, body.is-embed .callouts, body.is-embed .gallery-section:not(.is-embed-keep){display:none;}
+  body.is-embed .gallery{gap:0;}
+  body.is-embed .gallery-section > h2, body.is-embed .gallery-section > .note, body.is-embed #startTour{display:none;}
+  body.is-embed .app{padding:var(--spacing-12);}
+
+  /* The mock host stacks its own content below 768px, the way a real
+     product page would — otherwise the phone frames would be showing a
+     desktop layout squeezed, and the tour would look better than it is. */
+  @media (max-width:767px){
+    .app-stats{grid-template-columns:1fr;}
+    .app-head{flex-direction:column;}
+  }
+
+  /* Phone frames */
+  .devices{display:flex; flex-wrap:wrap; gap:var(--spacing-32); align-items:flex-start;}
+  .device{display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .device .cap{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .device .dim{font-size:11px; color:var(--color-neutral-4); font-variant-numeric:tabular-nums;}
+  .device iframe{border:1px solid var(--color-neutral-4); border-radius:var(--radius-md); background:var(--color-canvas-warm); display:block;}
+
+  /* Gallery-only: static specimens need the card in flow, not fixed. */
+  .tut-static .c-modal-tutorial{position:relative; animation:none;}
+  .tut-static{padding:var(--spacing-16); background:var(--color-neutral-2); border-radius:var(--radius-lg);}
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>Draft — Tutorial Modal</h1>
+  <p>Proposed as a variant of <strong>Modal / dialog</strong>: a numbered walkthrough that spotlights one part of the surface at a time and explains it in a short card, flying out of whatever it is describing. Adapted from the supplied <code>.tw-card</code> markup — every hardcoded value is now a <code>tokens.css</code> token, and the panel recipe, the close button, the footer buttons and the scrim are all existing <code>components.css</code> parts reused as they ship. Nothing has been committed to <code>components.css</code>, <code>DESIGN-SYSTEM.md</code> or <code>preview.html</code>.</p>
+  <p><strong>Round 2.</strong> Both buttons now sit right, 8px apart. The title is capped at <strong>two lines</strong> and the body at <strong>four</strong>, and <strong>neither truncates</strong> &mdash; a tour card is the whole surface, so cutting the copy would lose it with nowhere to read the rest. The caps are authoring maxima; over-writing grows the card, which the author can see and fix. No cap on step count. Section&nbsp;3 shows both at the limit, together, and past it. Modal's own &ldquo;no multi-step flows&rdquo; Don&rsquo;t gains a carve-out named to <em>this variant specifically</em>, so nothing else can cite it as precedent (section&nbsp;7). Persistence and cross-surface steps are parked as out of scope &mdash; neither changes the UI.</p>
+</div>
+
+<div class="gallery">
+
+  <!-- ============ 1. LIVE ============ -->
+  <section class="gallery-section">
+    <h2>1 — The tour, running</h2>
+    <p class="note">A mock sales board built from real DLS components, so the tour has something real to point at. Eight stops. <strong>Arrow keys</strong> move, <strong>Escape</strong> ends it, the scrim and the × both end it too. Watch the card fly out of whatever it is describing and the spotlight travel between targets.</p>
+    <button class="c-btn c-btn-primary c-btn-md" id="startTour" type="button"><i class="ph ph-play"></i> Start the tour</button>
+
+    <div class="app" id="app" style="margin-top:var(--spacing-20);">
+      <div class="app-head">
+        <div data-tut="title">
+          <h3>Sales board</h3>
+          <p>Q3 &middot; all departments</p>
+        </div>
+        <button class="c-btn c-btn-primary c-btn-sm" type="button" data-tut="new"><i class="ph ph-plus"></i> New deal</button>
+      </div>
+
+      <div class="app-stats">
+        <div class="c-stat" data-tut="kpi1">
+          <div class="c-stat-top"><span class="c-stat-label">Closed won</span></div>
+          <div class="c-stat-value">RM8.4M</div>
+          <div class="c-stat-trend up"><i class="ph-fill ph-trend-up"></i> 12.4% <span class="period">vs Q2</span></div>
+        </div>
+        <div class="c-stat" data-tut="kpi2">
+          <div class="c-stat-top"><span class="c-stat-label">Pipeline</span></div>
+          <div class="c-stat-value">RM21.6M</div>
+          <div class="c-stat-trend flat"><i class="ph-fill ph-minus"></i> 0.8% <span class="period">vs Q2</span></div>
+        </div>
+        <div class="c-stat" data-tut="kpi3">
+          <div class="c-stat-top"><span class="c-stat-label">At risk</span></div>
+          <div class="c-stat-value">RM3.1M</div>
+          <div class="c-stat-trend down"><i class="ph-fill ph-trend-down"></i> 4.2% <span class="period">vs Q2</span></div>
+        </div>
+      </div>
+
+      <div class="app-tabs" data-tut="tabs">
+        <div class="c-tabs" role="tablist">
+          <button class="c-tab is-active" role="tab" aria-selected="true" type="button">All deals</button>
+          <button class="c-tab" role="tab" aria-selected="false" type="button">Mine</button>
+          <button class="c-tab" role="tab" aria-selected="false" type="button">Closing this month</button>
+        </div>
+      </div>
+
+      <div class="app-tools">
+        <div class="c-search-input" data-tut="search" style="max-width:260px;">
+          <div class="c-search-input-box">
+            <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
+            <input type="text" placeholder="Search deals" aria-label="Search deals" />
+          </div>
+        </div>
+        <button class="c-btn c-btn-secondary c-btn-sm" type="button" data-tut="filters"><i class="ph ph-funnel"></i> Filters</button>
+      </div>
+
+      <div class="app-table-wrap" data-tut="table">
+        <table class="c-table">
+          <thead><tr><th>Deal</th><th>Owner</th><th>Stage</th><th style="text-align:right">Value</th></tr></thead>
+          <tbody>
+            <tr><td>Astro &mdash; Q4 renewal</td><td>Priya N.</td><td><span class="c-badge c-badge-success">Committed</span></td><td style="text-align:right">RM1.2M</td></tr>
+            <tr><td>Maxis bundle</td><td>Wei L.</td><td><span class="c-badge c-badge-warning">Negotiation</span></td><td style="text-align:right">RM840K</td></tr>
+            <tr data-tut="row"><td>Petronas retainer</td><td>Aisyah R.</td><td><span class="c-badge c-badge-error">Stalled</span></td><td style="text-align:right">RM2.4M</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. ANATOMY ============ -->
+  <section class="gallery-section">
+    <h2>2 — The card, static</h2>
+    <p class="note">The three shapes a step takes. Nothing else: a step is an intro, a stop, or the sign-off.</p>
+    <div class="specimens" id="cards"></div>
+  </section>
+
+  <!-- ============ 3. EDGES ============ -->
+  <section class="gallery-section">
+    <h2>3 — Edges</h2>
+    <p class="note">Both maxima &mdash; <strong>two lines of title, four of body</strong> &mdash; at the limit, together, and past it. <strong>Nothing truncates</strong>: a tour card is the whole surface, so there is no row to expand and no tooltip to fall back on, and cutting the copy would simply lose it. Over-writing grows the card instead, which is a signal the author can see and act on rather than information the reader never gets. Then a one-step tour and the docked form the card takes below 768px.</p>
+    <div class="specimens" id="edges"></div>
+  </section>
+
+  <!-- ============ 4. PLACEMENT ============ -->
+  <section class="gallery-section">
+    <h2>4 — Where the card goes</h2>
+    <p class="note">Chosen by fit, never by preference: the card takes the first side of the target with room for it, tested in this order, and falls back to centred if none has room. A 16px gutter is held against every viewport edge.</p>
+    <table class="map nowrap">
+      <thead><tr><th>Order</th><th>Side</th><th>Taken when</th></tr></thead>
+      <tbody id="placebody"></tbody>
+    </table>
+  </section>
+
+  <!-- ============ 5. RESPONSIVE ============ -->
+  <section class="gallery-section">
+    <h2>5 &mdash; Mobile <span class="new">new</span></h2>
+    <p class="note">These are live <code>&lt;iframe&gt;</code>s of this same file at real viewport widths, with the tour already running &mdash; not static pictures of a phone. The media queries below are genuinely firing, and the mock host stacks its own content the way a real product page would, so the tour is being judged against a real mobile layout rather than a squeezed desktop one.</p>
+    <div class="devices" id="devices"></div>
+
+    <div style="margin-top:var(--spacing-40);">
+      <p class="eyebrow">What changes, and why</p>
+      <table class="map nowrap">
+        <thead><tr><th>At</th><th>Change</th><th>Why</th></tr></thead>
+        <tbody id="respbody"></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:var(--spacing-32);">
+      <p class="eyebrow">What deliberately does not change</p>
+      <table class="map">
+        <thead><tr><th>Stays</th><th>Reason</th></tr></thead>
+        <tbody id="respkeep"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 6. TOKEN MAP ============ -->
+  <section class="gallery-section">
+    <h2>6 — What every source value became</h2>
+    <p class="note">The full translation, so the substitutions are reviewable rather than buried in the CSS.</p>
+    <table class="map nowrap">
+      <thead><tr><th>Source</th><th>Became</th><th>Why</th></tr></thead>
+      <tbody id="mapbody"></tbody>
+    </table>
+  </section>
+
+  <!-- ============ 7. THE MODAL RULE ============ -->
+  <section class="gallery-section">
+    <h2>7 — The rule this variant sits against</h2>
+    <div class="choice">
+      <p><strong>Modal / dialog's own Don't:</strong> &ldquo;Don't use a modal for anything that isn't a focused, single decision — long forms or multi-step flows need a full page or panel, not a modal.&rdquo;</p>
+      <p>A numbered tutorial is a multi-step flow. Either the rule gets a sentence, or this variant is quietly breaking the parent it belongs to.</p>
+    </div>
+    <p class="note" style="margin-top:var(--spacing-16);"><strong>Settled &mdash; the carve-out is named to this variant, and to nothing else.</strong> Modal's Don&rsquo;t gains a sentence naming <strong>Tutorial Modal</strong> by name, rather than a general licence for &ldquo;flows that don&rsquo;t collect input&rdquo;: <em>&ldquo;The one exception is the Tutorial Modal variant, whose numbered steps are reads rather than decisions &mdash; it collects no input, commits nothing, and is abandonable at any point with nothing lost. No other multi-step flow inherits this.&rdquo;</em> That keeps the rule doing its job for every other case and stops the next multi-step thing citing this one as precedent.</p>
+
+</section>
+
+</div>
+
+<div class="callouts">
+  <h2>Decisions I made, and the ones I'd like yours on</h2>
+  <ol id="decisions"></ol>
+</div>
+
+<script>
+(function(){
+  /* ==========================================================
+     Pure builders. The live tour and every static specimen go
+     through cardHTML, so nothing in the gallery can drift.
+     ========================================================= */
+
+  function cardHTML(s, opts){
+    opts = opts || {};
+    var back = s.i > 0
+      ? '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-tut-go="back">Back</button>' : '';
+    /* Step 1 says "Skip the tour" in words as well as offering the ×:
+       at the point of deciding whether to spend a minute on this, the
+       out has to be as legible as the way in. From step 2 the × alone
+       carries it and the footer belongs to Back/Next. */
+    var skip = s.i === 0
+      ? '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-tut-go="end">Skip the tour</button>' : '';
+    /* Both buttons sit right, spacing-16 apart — Modal's own footer
+       alignment. No spacer: pushing the dismissal to the far left of a
+       340px card separated the pair by the width of the card. */
+    var next = s.last
+      ? '<button class="c-btn c-btn-primary c-btn-sm" type="button" data-tut-go="end">Done</button>'
+      : '<button class="c-btn c-btn-primary c-btn-sm" type="button" data-tut-go="next">' + (s.i === 0 ? 'Show me' : 'Next') + '</button>';
+    return '<div class="c-modal-tutorial' + (opts.opening ? ' is-opening' : '') + '"'
+         +   ' role="dialog" aria-modal="false" tabindex="-1"'
+         +   ' aria-labelledby="tutTitle" aria-describedby="tutBody">'
+         +   '<button class="c-icon-btn c-modal-tutorial-close" type="button" data-tut-go="end" aria-label="Close the tour"><i class="ph ph-x" aria-hidden="true"></i></button>'
+         +   '<span class="c-modal-tutorial-kicker">' + (s.i + 1) + ' of ' + s.total + '</span>'
+         +   '<h2 class="c-modal-tutorial-title" id="tutTitle">' + s.title + '</h2>'
+         +   '<p class="c-modal-tutorial-body" id="tutBody">' + s.body + '</p>'
+         +   '<div class="c-modal-tutorial-actions">' + skip + back + next + '</div>'
+         + '</div>';
+  }
+
+  /* ==========================================================
+     The tour itself.
+     ========================================================= */
+  var STEPS = [
+    {t:null,        title:'Welcome to the sales board', body:'One page that answers where the quarter stands and what deserves attention next. The next seven stops show you how to move around it, and it takes about a minute.'},
+    {t:'title',     title:'Where you are',             body:'The board is always scoped to one quarter and one set of departments. Everything below reflects that scope.'},
+    {t:'kpi1',      title:'The headline number',       body:'Closed won for the quarter so far, with the change against the previous one. This is the figure the board is built around.'},
+    {t:'kpi3',      title:'What needs you',            body:'Value that has stalled or slipped. Red here is not a warning about the number — it is a prompt to open the deals behind it.'},
+    {t:'tabs',      title:'Narrow the board',          body:'Three saved views. "Closing this month" is the one most people live in during the last fortnight of a quarter.'},
+    {t:'search',    title:'Find one deal',             body:'Search matches the deal name and the owner. It filters the table below rather than taking you somewhere else.'},
+    {t:'table',     title:'The deals themselves',      body:'Sorted by value. The stage badge is the fastest read on the row — committed, negotiating, or stalled.'},
+    {t:null,        title:"That's the tour",           body:'You can reopen it any time from the help menu. Nothing you did here changed the board.'}
+  ];
+  STEPS.forEach(function(s, i){ s.i = i; s.total = STEPS.length; s.last = (i === STEPS.length - 1); });
+
+  var layer = document.createElement('div');
+  layer.className = 'c-modal-tutorial-layer';
+  layer.innerHTML = '<div class="c-modal-tutorial-spot"></div><div class="c-modal-tutorial-host"></div>';
+  document.body.appendChild(layer);
+  var spot = layer.querySelector('.c-modal-tutorial-spot');
+  var host = layer.querySelector('.c-modal-tutorial-host');
+
+  var GUT = 16, GAP = 12, idx = -1, returnFocus = null;
+
+  /* Read from the same breakpoint the stylesheet uses, so the script and
+     the CSS can never disagree about whether the card is docked. */
+  function docked(){ return matchMedia('(max-width:767px)').matches; }
+
+  /* Placement is by fit, in a fixed order, never by preference. */
+  var ORDER = ['bottom','top','right','left'];
+  function place(rect, cw, ch){
+    var vw = innerWidth, vh = innerHeight;
+    for (var k = 0; k < ORDER.length; k++){
+      var side = ORDER[k], top, left;
+      if (side === 'bottom'){ top = rect.bottom + GAP; left = rect.left; }
+      if (side === 'top'){    top = rect.top - GAP - ch; left = rect.left; }
+      if (side === 'right'){  left = rect.right + GAP; top = rect.top; }
+      if (side === 'left'){   left = rect.left - GAP - cw; top = rect.top; }
+      left = Math.max(GUT, Math.min(left, vw - cw - GUT));
+      top  = Math.max(GUT, Math.min(top,  vh - ch - GUT));
+      var fits = (side === 'bottom') ? rect.bottom + GAP + ch <= vh - GUT
+               : (side === 'top')    ? rect.top - GAP - ch >= GUT
+               : (side === 'right')  ? rect.right + GAP + cw <= vw - GUT
+                                     : rect.left - GAP - cw >= GUT;
+      if (fits) return {top:top, left:left, side:side};
+    }
+    return {top:Math.max(GUT,(vh - ch) / 2), left:Math.max(GUT,(vw - cw) / 2), side:'center'};
+  }
+
+  function target(n){
+    var t = STEPS[n].t;
+    return t ? document.querySelector('[data-tut="' + t + '"]') : null;
+  }
+
+  /* Position only — the spotlight's box and the card's top/left. Called
+     on every step AND on every scroll/resize, which is the whole reason
+     it is separate from show(): re-rendering the card on a scroll would
+     re-fire its entrance animation on every frame of the scroll and throw
+     focus out of it each time. */
+  function position(n){
+    var el = target(n), card = host.firstChild;
+    if (!card) return;
+    var cw = card.offsetWidth, ch = card.offsetHeight;
+
+    if (!el){
+      spot.classList.add('is-none');
+      if (docked()) return;
+      card.style.top = ((innerHeight - ch) / 2) + 'px';
+      card.style.left = ((innerWidth - cw) / 2) + 'px';
+      card.style.setProperty('--tut-dx', '0px');
+      card.style.setProperty('--tut-dy', '8px');
+      card.style.setProperty('--tut-sx', '1');
+      card.style.setProperty('--tut-sy', '1');
+      return;
+    }
+
+    spot.classList.remove('is-none');
+    var r = el.getBoundingClientRect(), pad = 6;
+    spot.style.top = (r.top - pad) + 'px';
+    spot.style.left = (r.left - pad) + 'px';
+    spot.style.width = (r.width + pad * 2) + 'px';
+    spot.style.height = (r.height + pad * 2) + 'px';
+
+    /* Docked: the stylesheet owns the card's box entirely, and the FLIP is
+       off, so there is nothing left to compute. Returning here also stops
+       the inline top/left below being written and then having to be
+       fought off with !important on every resize. */
+    if (docked()) return;
+
+    var p = place(r, cw, ch);
+    card.style.top = p.top + 'px';
+    card.style.left = p.left + 'px';
+    /* FLIP: the card's first frame is the target's own box. Same maths and
+       the same custom-property shape as Chat window's fold — but clamped
+       at 1, so a target wider than the card produces a growth rather than
+       a collapse. */
+    card.style.setProperty('--tut-dx', (r.left - p.left) + 'px');
+    card.style.setProperty('--tut-dy', (r.top - p.top) + 'px');
+    card.style.setProperty('--tut-sx', Math.min(1, r.width / cw).toFixed(4));
+    card.style.setProperty('--tut-sy', Math.min(1, r.height / ch).toFixed(4));
+  }
+
+  /* Get the target into the band the reader can actually see.
+
+     Two things this does not do, both deliberate. It does not call
+     scrollIntoView: that walks every scrollable ancestor, and a target
+     inside an `overflow: hidden` wrapper — which any real product layout
+     may have — gets scrolled twice and lands off screen. The window
+     scroll is computed directly instead. And it does not animate: a
+     smooth scroll means measuring a rect that is still moving, so the
+     card would land where the target used to be.
+
+     Heights come from offsetHeight rather than getBoundingClientRect,
+     because the card is mid-entrance here and a transformed box would
+     report its first animation frame, not its resting size. */
+  function fit(el, card){
+    var ch = card.offsetHeight;
+
+    function band(){
+      if (!docked()) return [GUT, innerHeight - GUT];
+      if (card.classList.contains('is-docked-top')) return [GUT + ch + GAP, innerHeight - GUT];
+      return [GUT, innerHeight - GUT - ch - GAP];
+    }
+    function nudge(){
+      var b = band(), r = el.getBoundingClientRect(), d;
+      if (r.height > b[1] - b[0]){
+        /* Taller than the band — a landscape phone against a full table,
+           say. It cannot be shown whole, so align its TOP to the band's
+           top rather than centring it: the reader sees the beginning of
+           the thing being described and the card covers its tail, which
+           is the right way round. Centring would hide both ends. */
+        d = r.top - b[0];
+      } else if (r.top < b[0] || r.bottom > b[1]){
+        d = (r.top + r.height / 2) - (b[0] + b[1]) / 2;
+      } else return;
+      if (Math.abs(d) > 4) scrollBy(0, d);
+    }
+
+    nudge();
+    if (!docked()) return;
+
+    /* Still behind the card? Then the page has run out of scroll — the
+       target is the last thing on it. Flip the card to the top edge and
+       try again against the band below it. */
+    var r2 = el.getBoundingClientRect();
+    if (r2.bottom > innerHeight - GUT - ch - GAP){
+      card.classList.add('is-docked-top');
+      nudge();
+    }
+  }
+
+  function show(n){
+    idx = n;
+    var el = target(n);
+
+    host.innerHTML = cardHTML(STEPS[n], {opening:true});
+    var card = host.firstChild;
+
+    /* Bring the target into the band the reader can actually see, and do
+       it BEFORE placing anything, because the card's position and its
+       whole FLIP entrance are measured from the target's box.
+
+       Two things this does not do, both deliberate. It does not call
+       scrollIntoView: that walks every scrollable ancestor, and a target
+       inside an `overflow: hidden` wrapper — which any real product
+       layout may have — gets scrolled twice and lands off screen. The
+       window scroll is computed directly instead. And it does not
+       animate: a smooth scroll means measuring a rect that is still
+       moving, so the card lands where the target used to be.
+
+       Docked, the band stops where the card starts. Centring the target
+       in the *viewport* would put it behind the card, and the step would
+       be highlighting something the reader cannot see — which is why the
+       band's bottom is the card's top, and why this runs after the card
+       renders. */
+    if (el) fit(el, card);
+
+    position(n);
+    card.focus();
+
+    /* Re-measure once the card's own height can still change. Placement
+       depends on the card's height, and measuring it too early picks the
+       wrong side: before the webfont lands the card is shorter, "below"
+       appears to fit, and then the card grows and hangs off the bottom of
+       the viewport. Two guards rather than one, because they catch
+       different things — fonts.ready for the first paint, and a
+       ResizeObserver for anything that changes the card afterwards. */
+    if (document.fonts && document.fonts.status !== 'loaded'){
+      document.fonts.ready.then(function(){ if (idx === n) position(n); });
+    }
+    if (window.ResizeObserver){
+      var ro = new ResizeObserver(function(){ if (idx === n) position(n); });
+      ro.observe(card);
+    }
+  }
+
+  function open(){
+    returnFocus = document.activeElement;
+    layer.classList.add('is-open');
+    show(0);
+  }
+  function end(){
+    layer.classList.remove('is-open');
+    host.innerHTML = '';
+    idx = -1;
+    if (returnFocus && returnFocus.focus) returnFocus.focus();
+  }
+  function go(d){
+    var n = idx + d;
+    if (n < 0 || n >= STEPS.length) return end();
+    show(n);
+  }
+
+  /* Embed mode: strip the gallery chrome, keep the mock host, and start
+     the tour at the step the query string names. */
+  var EMBED = /[?&]embed=1/.test(location.search);
+  if (EMBED){
+    document.body.classList.add('is-embed');
+    var keep = document.getElementById('startTour').closest('.gallery-section');
+    keep.classList.add('is-embed-keep');
+    var m = location.search.match(/[?&]step=(\d+)/);
+    var at = m ? Math.min(STEPS.length - 1, Math.max(0, parseInt(m[1], 10) - 1)) : 0;
+    addEventListener('load', function(){
+      document.fonts.ready.then(function(){
+        returnFocus = null;
+        layer.classList.add('is-open');
+        show(at);
+      });
+    });
+  }
+
+  document.getElementById('startTour').addEventListener('click', open);
+  layer.addEventListener('click', function(e){
+    var b = e.target.closest('[data-tut-go]');
+    if (b){
+      var a = b.getAttribute('data-tut-go');
+      if (a === 'end') return end();
+      return go(a === 'next' ? 1 : -1);
+    }
+    /* Anything outside the card is the scrim, and the scrim ends the tour
+       — the same relationship Modal's overlay and Chat window's veil have
+       to the surface they cover. Handled here rather than on the spotlight
+       itself, which is pointer-events:none so it can't receive a click. */
+    if (!e.target.closest('.c-modal-tutorial')) end();
+  });
+  document.addEventListener('keydown', function(e){
+    if (idx < 0) return;
+    if (e.key === 'Escape'){ e.preventDefault(); end(); }
+    if (e.key === 'ArrowRight'){ e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft' && idx > 0){ e.preventDefault(); go(-1); }
+  });
+  /* A resize or a scroll invalidates every measurement the card was
+     placed against, so the step re-lays out rather than drifting. */
+  var re;
+  function relayout(){ if (idx >= 0){ clearTimeout(re); re = setTimeout(function(){ position(idx); }, 80); } }
+  addEventListener('resize', relayout);
+  addEventListener('scroll', relayout, {passive:true});
+
+  /* ==========================================================
+     Static gallery
+     ========================================================= */
+  function specimen(cap, html){
+    return '<div class="specimen"><span class="cap">' + cap + '</span><div class="tut-static">' + html + '</div></div>';
+  }
+  function step(i, total, title, body){
+    return {i:i, total:total, title:title, body:body, last:(i === total - 1)};
+  }
+  document.getElementById('cards').innerHTML = [
+    specimen('<strong>Intro</strong> &mdash; step 1. No target, centred, and the skip is spelled out',
+      cardHTML(step(0, 8, 'Welcome to the sales board', 'One page that answers where the quarter stands and what deserves attention next. The next seven stops show you how to move around it, and it takes about a minute.'))),
+    specimen('<strong>A stop</strong> &mdash; anchored, Back and Next, &times; carries the skip',
+      cardHTML(step(2, 8, 'The headline number', 'Closed won for the quarter so far, with the change against the previous one. This is the figure the board is built around.'))),
+    specimen('<strong>Sign-off</strong> &mdash; last step, Done commits nothing',
+      cardHTML(step(7, 8, "That's the tour", 'You can reopen it any time from the help menu. Nothing you did here changed the board.')))
+  ].join('');
+
+  document.getElementById('edges').innerHTML = [
+    specimen('Title at its two-line maximum',
+      cardHTML(step(3, 8, 'Reconciling distributor invoices', 'Two lines is the most a title should take. A third is a step doing two things — split it.'))),
+    specimen('Body at its four-line maximum',
+      cardHTML(step(4, 8, 'Narrow the board', 'Three saved views sit here. "Closing this month" is the one most people live in during the last fortnight of a quarter, when the board is worth stripping back hard.'))),
+    specimen('<strong>Both maxima at once</strong> &mdash; two lines of title over four of body. This is the card a step should never exceed',
+      cardHTML(step(5, 8, 'Reconciling distributor invoices', 'Every invoice is matched to the rate card line by line, and anything that does not reconcile is held back for review rather than posted straight to the ledger.'))),
+    specimen('<strong>Over both maxima</strong> &mdash; nothing is hidden; the card simply runs tall, which is the signal',
+      cardHTML(step(6, 8, 'Reconciling every Q3 distributor invoice against the signed rate card and the amendment schedule', 'Every invoice is matched to the rate card line by line, and anything that does not reconcile is held back rather than posted. The exceptions land in a queue you can work through, and nothing is written until you clear it. There is a longer explanation of how the matching itself works, which does not belong on a tour stop at all.'))),
+    specimen('A one-step tour &mdash; use a Tooltip instead',
+      cardHTML(step(0, 1, 'One thing to know', 'A single stop is not a tour. If there is one thing to explain, it belongs in a Tooltip or an Info Banner.'))),
+    specimen('Docked &mdash; below 768px the card leaves the target and takes the bottom of the viewport',
+      '<div style="width:320px; border:1px dashed var(--color-neutral-4); border-radius:var(--radius-sm); padding:var(--spacing-8);">'
+      + cardHTML(step(2, 8, 'The headline number', 'Closed won for the quarter so far, with the change against the previous one.'))
+      + '</div>')
+  ].join('');
+
+  /* ==========================================================
+     5 — Mobile. Live iframes of this same file, so the media
+     queries are really firing at these widths.
+     ========================================================= */
+  if (!/[?&]embed=1/.test(location.search)){
+    var DEV = [
+      ['iPhone 14 &mdash; portrait', '390 &times; 780', 390, 780, 3],
+      ['Small Android &mdash; portrait', '360 &times; 640', 360, 640, 5],
+      ['Phone &mdash; landscape', '740 &times; 360', 740, 360, 3],
+      ['Tablet &mdash; portrait, above the breakpoint', '820 &times; 700', 820, 700, 3]
+    ];
+    document.getElementById('devices').innerHTML = DEV.map(function(d){
+      return '<div class="device">'
+           +   '<span class="cap">' + d[0] + '</span>'
+           +   '<span class="dim">' + d[1] + '</span>'
+           +   '<iframe src="draft.html?embed=1&step=' + d[4] + '" width="' + d[2] + '" height="' + d[3] + '"'
+           +     ' loading="lazy" title="' + d[0].replace(/&[a-z]+;/g,'') + '"></iframe>'
+           + '</div>';
+    }).join('');
+  }
+
+  /* ==========================================================
+     Tables
+     ========================================================= */
+  function fill(id, rows){
+    document.getElementById(id).innerHTML = rows.map(function(r){
+      return '<tr>' + r.map(function(c){ return '<td>' + c + '</td>'; }).join('') + '</tr>';
+    }).join('');
+  }
+
+  fill('placebody', [
+    ['1', '<strong>Below</strong>', 'The default. Taken whenever the card plus a 12px gap clears the bottom of the viewport with its 16px gutter intact'],
+    ['2', '<strong>Above</strong>', 'Below does not fit, and the target sits low enough that the card clears the top'],
+    ['3', '<strong>Right</strong>', 'Neither vertical side fits &mdash; typically a target that is nearly viewport-tall'],
+    ['4', '<strong>Left</strong>', 'Right does not fit either'],
+    ['&mdash;', '<strong>Centred</strong>', 'No side has room, or the step declares no target at all &mdash; the intro and the sign-off. The spotlight becomes a plain full-surface dim'],
+    ['&mdash;', '<strong>Docked</strong>', 'Below 768px, regardless of fit. There is no room to sit beside anything, so the card takes the bottom edge full width and the spotlight alone marks the target']
+  ]);
+
+  fill('respbody', [
+    ['<strong>&le;767px</strong>', 'The card <strong>docks</strong> to the bottom of the viewport, full width inside a 16px gutter, and stops chasing the target',
+     'Sitting beside a target needs 340 + 12 + 16 + 16 = <strong>384px</strong> of room to its side. A layout narrow enough to be stacking its own content never has that. 767px is this system&rsquo;s own breakpoint (Table, Stat/KPI, Pagination and Tool approval all turn there) rather than a fourth one invented here.'],
+    ['<strong>&le;767px</strong>', 'The FLIP entrance is replaced by a 12px rise from the bottom edge',
+     'The card is no longer beside the thing it describes, so flying out of it would point nowhere. It rises from the edge it now belongs to.'],
+    ['<strong>&le;767px</strong>', 'The target is scrolled into the band <em>above</em> the card, not the viewport centre',
+     'The card owns the bottom of the viewport. Centring the target in the viewport would put it behind the card, and the step would be highlighting something the reader cannot see. The band&rsquo;s height is the card&rsquo;s, so this has to happen after the card renders.'],
+    ['<strong>&le;767px</strong>', '<code>bottom: calc(16px + env(safe-area-inset-bottom))</code>',
+     'Clears the iPhone home indicator. Same <code>env()</code> guard Prompt input bar&rsquo;s own Floating variant already uses.'],
+    ['<strong>&le;767px</strong>', 'The mock host stacks its KPI row and header',
+     'Scaffolding, not the component &mdash; but without it the phone frames would show a squeezed desktop layout and the tour would look better than it is.'],
+    ['<strong>&le;460px tall</strong>', 'The docked card gets <code>max-height: 100vh - 32px</code> and scrolls internally',
+     'A landscape phone is ~360px tall and a two-line/four-line card is 262px of it. Scrolling keeps every word reachable; <em>capping</em> would hide copy, which is the one thing this component refuses to do.'],
+    ['<strong>Coarse pointer</strong>', 'Footer buttons take a real <strong>44px</strong> height',
+     'A real height rather than a transparent hit-area lift: at <code>spacing-8</code> apart, two 32px buttons each lifted 6px would have their hit areas <em>meet</em>, and overlapping touch targets are worse than small ones.'],
+    ['<strong>&le;767px</strong>', 'A card that would sit on top of its own target <strong>flips to the top edge</strong> instead',
+     'The last element on a short page cannot be scrolled out from behind a bottom-docked card &mdash; there is no more page to scroll. So the card moves rather than the step highlighting something hidden. The mobile counterpart of the desktop placement fallback: <strong>the card gives way to the target, never the other way round.</strong>'],
+    ['<strong>Target taller than the band</strong>', 'Its <strong>top</strong> edge is aligned to the band rather than centred',
+     'A landscape phone against a full table cannot show the whole thing. Aligning the top means the reader sees the beginning of what is being described and the card covers its tail; centring would hide both ends.'],
+    ['<strong>Coarse pointer</strong>', 'The close button keeps its painted 32px box and lifts its hit area to 44px',
+     'It is isolated in the corner with nothing to collide with, so the transparent <code>::after</code> at <code>inset: -6px</code> works &mdash; the same technique Chat window&rsquo;s own action buttons use.']
+  ]);
+
+  fill('respkeep', [
+    ['<strong>The spotlight</strong>', 'Unchanged at every width. It is the only thing left saying which element the step is about once the card has stopped sitting beside it, so it carries more weight on mobile, not less.'],
+    ['<strong>Nothing truncates</strong>', 'Same rule as everywhere else. A narrow viewport is exactly where copy is most likely to overflow and exactly where there is least room for a second view to read it in.'],
+    ['<strong>The card&rsquo;s 340px cap</strong>', '<code>min(340px, 100vw - 32px)</code> was already viewport-aware from the start, so the width needs no breakpoint of its own &mdash; only the position does.'],
+    ['<strong>Three routes out</strong>', 'Scrim, Escape and the &times; all still end it. On a phone the scrim tap is the one people reach for, and it is the largest target on the screen.'],
+    ['<strong>Step order and copy</strong>', 'A tour does not get shorter because the screen did. Steps are never dropped or merged at a breakpoint &mdash; the same eight stops, in the same order, saying the same thing.'],
+    ['<strong>Arrow keys</strong>', 'Still bound. Unreachable on a touch-only phone, but harmless there and needed the moment a keyboard is attached.'],
+    ['<strong>Every step reachable</strong>', 'All eight stops were checked at each of the four viewports above &mdash; 32 combinations &mdash; asserting the card stays inside its gutters and the target&rsquo;s leading edge is on screen and clear of the card. All 32 hold. Three of them are the tall-target case, where the tail sits under the card by design.']
+  ]);
+
+  fill('mapbody', [
+    ['<code>.tw-card</code>', '<code>.c-modal-tutorial</code>', 'Named for its parent, the way Card’s own variants are (<code>.c-card-pacing</code>, <code>.c-card-usp</code>) rather than a new top-level prefix.'],
+    ['<code>.tw-x</code>', '<code>.c-modal-tutorial-close</code> on <code>.c-icon-btn</code>', 'The source already used <code>.c-icon-btn</code>; kept verbatim. <code>ph-x</code> is Tier 1 Regular, Iconography’s own documented close affordance.'],
+    ['<code>.tw-k</code> &mdash; &ldquo;1 of 8&rdquo;', '<code>.c-modal-tutorial-kicker</code>', 'label3 (11/16/700) + <code>--tracking-eyebrow</code>, uppercased — the eyebrow recipe every kicker in this system uses. Tabular figures so the counter does not jitter between steps.'],
+    ['<code>.tw-t</code> (<code>h3</code>)', '<code>.c-modal-tutorial-title</code>', 'h4 (20/28/800) — <code>.c-modal-head h4</code>’s own size, taken verbatim. <strong>Two lines maximum, not clamped</strong> — see the caps note in section 3. The element becomes an <code>h2</code>, since a dialog’s title should not depend on the page’s heading depth.'],
+    ['<code>.tw-b</code>', '<code>.c-modal-tutorial-body</code>', 'body2 (14px) at <code>line-height: 1.6</code>, Neutral-5, <strong>four lines maximum, not clamped</strong>. Modal’s own body1 (16px) runs five or six lines at a 340px measure before any cap.'],
+    ['<code>.tw-act</code>', '<code>.c-modal-tutorial-actions</code>', 'Modal’s footer order and right alignment both kept — dismissal left of commit — at <code>--spacing-8</code> between the pair. Without Modal’s divider: at 340px a rule across the card reads as a seam.'],
+    ['<code>--tw-dx</code> / <code>--tw-dy</code>', '<code>--tut-dx</code> / <code>--tut-dy</code>', 'The FLIP translation. Identical in shape to <code>.c-chat-shell</code>’s <code>--fold-dx</code>/<code>--fold-dy</code>, so this is Chat window’s technique rather than a second one.'],
+    ['<code>--tw-sx</code> / <code>--tw-sy</code>', '<code>--tut-sx</code> / <code>--tut-sy</code>', 'The FLIP scale — the target’s size over the card’s, so the first frame is the target’s own box.'],
+    ['<code>--tw-dir</code>', '<span class="silent">dropped</span>', 'Chat window uses it for a <code>rotateY</code> fold. A tour card that rotates in 3D reads as a flourish rather than as a note about the thing beside it, so the entrance is translate + scale only.'],
+    ['<code>is-opening</code>', '<code>is-opening</code>', 'Kept verbatim, and the only state class. Each step is a fresh card flying out of its own target rather than one card sliding between them — the FLIP is the thing that says which element the step is about, so it has to run per step.'],
+    ['inline <code>left</code>/<code>top</code>', 'kept inline', 'Measured per step against the live target, so they cannot be tokens. Every other value is.'],
+    ['<code>aria-modal="true"</code>', '<code>aria-modal="false"</code>', '<strong>Changed deliberately</strong> — see the decisions below. A tour has to let you look at what it is pointing at.'],
+    ['&mdash;', '<code>--shadow-overlay</code>', 'Modal’s own scrim value, pushed out as a 9999px ring on the spotlight so the scrim itself is the cut-out.'],
+    ['&mdash;', '<code>--radius-lg</code>, <code>--shadow-modal</code>', 'The panel recipe, exactly as <code>.c-modal</code> ships it.'],
+    ['&mdash;', '<code>--duration-morph</code> / <code>--ease-morph</code>', 'Every move in this component is a pose change — the card’s entrance, the card’s travel, the spotlight’s travel — so all three take the morph pairing Prompt input bar and Chat window already use for exactly that.']
+  ]);
+
+  /* ==========================================================
+     Decisions
+     ========================================================= */
+  var D = [
+    ['<span class="settled">Settled &mdash;</span> Modal&rsquo;s Don&rsquo;t gains a carve-out named to this variant.', 'Your call, and the narrow version of it: the exception names <strong>Tutorial Modal</strong> specifically rather than licensing multi-step flows in general, so nothing else can cite it as precedent. Section 7 has the wording I would add.'],
+    ['<span class="settled">Settled &mdash;</span> two lines of title, four of body &mdash; and <strong>nothing truncates</strong>.', 'Your question changed my answer, and it was the right question. I had both fields clamped with <code>-webkit-line-clamp</code>. But a tour card <em>is</em> the whole surface: there is no row to expand, no tooltip, no &ldquo;more&rdquo; &mdash; so a clamp here would not tidy the copy, it would <strong>lose</strong> it, and the reader would have no way of knowing what they had missed. Notes can clamp its own cards because a click there opens the note in full; a tour step has no second view, so the same technique is destructive rather than tidy. The caps are now <strong>authoring maxima</strong> the spec states and the app honours: over-writing grows the card, which is a signal the author can see and act on rather than information the reader never gets. Section 3 shows both at the limit, together, and past it. <strong>No cap on step count</strong>, per your earlier call.'],
+    ['<span class="settled">Settled &mdash;</span> both buttons sit right, 8px apart.', 'Modal&rsquo;s own footer alignment, at <code>--spacing-8</code>. An earlier build pushed the dismissal to the far left with a spacer, which on a 340px card separated the pair by the whole width of the card.'],
+    ['<span class="settled">Settled &mdash;</span> the title is h4, not h3.', 'Modal&rsquo;s section in <code>DESIGN-SYSTEM.md</code> says h3; <code>components.css</code> ships <code>.c-modal-head h4</code> at <strong>h4</strong> (20/28/800), and has since before this component. I matched the CSS, which is what actually renders. <span class="flag">Pre-existing drift worth a separate fix</span> &mdash; the doc and the stylesheet also disagree on Modal&rsquo;s max-width (400px shipped, ~480px documented).'],
+    ['<span class="settled">Settled &mdash;</span> no arrow or beak on the card.', 'The card flies out of the thing it describes and the spotlight rings it, so the relationship is stated twice already. An arrow would be a third statement of it, and it is the part of a coach mark that breaks first when the card has to flip sides or clamp against a gutter. <span class="flag">Say if you want one</span> &mdash; it is the most common thing to expect here, so its absence is deliberate rather than an oversight.'],
+    ['<span class="settled">Settled &mdash;</span> step 1 spells out &ldquo;Skip the tour&rdquo;; later steps do not.', 'At the moment of deciding whether to spend a minute, the way out has to be as legible as the way in. From step 2 the &times; carries it alone and the footer belongs to Back and Next &mdash; three buttons on a 340px card is one too many.'],
+    ['<span class="settled">Settled &mdash;</span> three routes out, all final.', 'The scrim, Escape and the &times; all end the tour rather than pausing it &mdash; the same relationship Modal&rsquo;s overlay and Chat window&rsquo;s veil have to what they cover.'],
+    ['<span class="settled">Settled &mdash;</span> placement is by fit, in a fixed order.', 'Below, above, right, left, then centred &mdash; never by preference, and always with a 16px viewport gutter held. Section 4 has the table. Below 768px the card leaves the target entirely and docks to the bottom edge.'],
+    ['<span class="muted">Implemented, not asking again &mdash;</span> <code>aria-modal="false"</code>.', 'Noted as built rather than as a question: <code>true</code> would tell a screen reader the element the step is describing does not exist. The layer still blocks pointer events, so the page cannot be operated mid-tour.'],
+    ['<span class="settled">Settled &mdash;</span> mobile.', 'Section 5, as live iframes at four viewports rather than pictures of phones. Docks at <strong>767px</strong> &mdash; this system&rsquo;s own breakpoint, and the geometry agrees: sitting beside a target needs 384px of side room, which a stacking layout never has. Three bugs came out of testing it, and the third is the one worth keeping: <code>scrollIntoView</code> walked the mock&rsquo;s <code>overflow:hidden</code> ancestor and threw the target off screen (now the window scroll is computed directly); the reduced-motion rule was losing to the more specific docked one, so docked entrances still animated; and <strong>the last element on a short page cannot be scrolled out from behind a bottom-docked card</strong>, so the card now flips to the top edge. All eight steps hold at all four viewports.'], ['<span class="muted">Out of scope for the component &mdash;</span> persistence and cross-surface steps.', 'Both parked, since neither changes the UI. Whether ending early is remembered is the consuming app&rsquo;s state, not the component&rsquo;s. And every stop stays on one surface for this pass &mdash; scroll-into-view only, no driving the product between steps. Worth a sentence each in the spec at promotion so nobody assumes otherwise, and nothing to decide now.']
+  ];
+  document.getElementById('decisions').innerHTML = D.map(function(d){
+    return '<li><strong>' + d[0] + '</strong> <span class="muted">' + d[1] + '</span></li>';
+  }).join('');
+})();
+</script>
+</body>
+</html>
