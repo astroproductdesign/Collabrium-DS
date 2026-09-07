@@ -893,6 +893,251 @@
 .c-icon-btn{width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); background:transparent; border:none; cursor:pointer;}
 .c-icon-btn:hover{background:var(--color-neutral-2);}
 
+/* Tutorial Modal — a variant of Modal / dialog. A numbered walkthrough
+   that spotlights one part of the surface at a time and explains it in
+   a short card that flies out of whatever it is describing.
+
+   Named for its parent, the way Card's own variants are
+   (.c-card-pacing, .c-card-usp, .c-card-price-*), rather than taking a
+   new top-level prefix — it borrows Modal's panel recipe, Modal's
+   scrim value, Modal's footer order and Button's own .c-icon-btn, and
+   only the geometry and the lock are its own.
+
+   It is the ONE exception to Modal's "no multi-step flows" Don't, and
+   the carve-out in DESIGN-SYSTEM.md names this variant specifically:
+   its steps are reads rather than decisions, it collects no input,
+   commits nothing, and can be abandoned at any point with nothing
+   lost. No other multi-step flow inherits that.
+
+   It is also the first component in this system to lock the page — see
+   the layer comment below for why that takes three guards rather than
+   one. The authoring rules that go with the lock (a step may only
+   point at something rendered and visible, and on a phone at something
+   no taller than the band above the card) are in the spec, because CSS
+   cannot enforce either. */
+
+/* Layer. One fixed root owning the whole tour, so the card and the
+   spotlight share a coordinate space and neither can be clipped by
+   an ancestor's overflow.
+
+   z-index 1100 — ABOVE EVERYTHING. This system has no numeric
+   z-index scale (components.css says so outright), so the number is
+   picked against a survey of what it actually paints: Toast host
+   1000, Command brief's scrim 400, Chat window 95, Modal no z-index
+   at all. 1100 clears the highest of them. Do not swap this for a
+   round number and a plausible comment: an earlier pass sat at 92 and
+   justified it against a Modal z-index of 90 that does not exist, and
+   a reason nobody can check is worse than no reason at all.
+
+   Sitting above Toast is the point, not a side effect: a toast that
+   fires mid-tour is dimmed by the scrim like everything else rather
+   than floating over it looking live while the layer eats its
+   clicks. And a toast that IS the step's target still shows, because
+   the spotlight is a real hole — whatever paints under it comes
+   through, at any z-index below the layer's.
+
+   THE INTERACTION LOCK. While a tour runs, the tutorial card is the
+   only thing on the page that answers to anything. That takes three
+   guards, because no one of them is enough:
+     1. this layer blocks pointer events — stops the mouse;
+     2. a focus trap in the card + a capture-phase click guard —
+        stops the keyboard. The system already warns about needing
+        exactly this: Single select and Multi select's Read-only rows
+        both say "pointer-events: none alone doesn't block a focused
+        element's keyboard activation, a real implementation needs
+        its own guard". This is that guard;
+     3. .c-modal-tutorial-locked on <html> + wheel/touch/scroll-key
+        prevention — stops the page being scrolled. overflow:hidden
+        kills the user's scroll but leaves scrollBy working, which is
+        what lets the tour keep bringing its own targets into view.
+   aria-modal stays FALSE through all of it: the surface behind is
+   unusable, but a screen reader can still read the element the step
+   is describing, which is the only reason to point at it. */
+.c-modal-tutorial-layer{position:fixed; inset:0; z-index:1100; display:none;}
+.c-modal-tutorial-layer.is-open{display:block;}
+
+/* The lock. padding-right is written inline by the script with the
+   scrollbar's measured width — hiding a 15px scrollbar without it
+   shifts the whole page sideways the instant the tour opens. */
+html.c-modal-tutorial-locked{overflow:hidden;}
+
+/* Spotlight. Modal's own --shadow-overlay, pushed out as a 9999px
+   ring so the scrim IS the cut-out — one element, no four-div
+   jigsaw, and the hole animates from step to step. The 2px Obsidian
+   ring is the same "currently engaged" pairing Table row's selected
+   state and FileUploader's drag-over already use. */
+.c-modal-tutorial-spot{position:absolute; border-radius:var(--radius-sm); box-shadow:0 0 0 9999px var(--shadow-overlay); outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:2px; pointer-events:none; transition:top var(--duration-morph) var(--ease-morph), left var(--duration-morph) var(--ease-morph), width var(--duration-morph) var(--ease-morph), height var(--duration-morph) var(--ease-morph), border-radius var(--duration-morph) var(--ease-morph);}
+/* A step with no target dims the whole surface and centres the card:
+   the intro and the sign-off aren't about any one element. */
+.c-modal-tutorial-spot.is-none{inset:0; width:auto; height:auto; border-radius:0; box-shadow:none; outline:none; background:var(--shadow-overlay);}
+
+/* Card. The panel recipe is .c-modal's, taken as it ships — Neutral-1,
+   radius-lg, shadow-modal — at a narrower measure: 340px, not
+   .c-modal's 400px, because a tour step is one short read beside a
+   highlighted thing rather than a centred decision. */
+/* max-height is unconditional, and that is a fix rather than a
+   flourish. It used to live in a @media (max-height:460px) block, so
+   at 1200×620 an over-written card measured 508px against 501px of
+   available height with max-height:none — clipped by the viewport,
+   inside a fixed layer, with no way to scroll to the rest. The one
+   thing this component refuses to do is hide copy, and the safety
+   net was gated shut at every height where it was needed. */
+.c-modal-tutorial{position:absolute; width:min(340px, calc(100vw - var(--spacing-32))); max-height:calc(100vh - var(--spacing-32)); overflow-y:auto; overscroll-behavior:contain; background:var(--color-neutral-1); border-radius:var(--radius-lg); box-shadow:var(--shadow-modal); padding:var(--spacing-20); display:flex; flex-direction:column; gap:var(--spacing-8); transform-origin:0 0;}
+.c-modal-tutorial:focus{outline:none;}
+.c-modal-tutorial:focus-visible{outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:2px;}
+
+/* FLIP entrance — Chat window's own c-chat-fold-open technique, with
+   the supplied --tw-* names mapped onto this component's prefix. The
+   card grows out of the box it is describing, so the relationship
+   between card and target is carried by the motion rather than by an
+   arrow. */
+/* Scale is clamped to 1 in the script: a target wider than the card
+   would otherwise make the first frame LARGER than the last, so the
+   entrance would read as the card shrinking out of the table rather
+   than growing out of it. Always a growth, never a collapse. */
+.c-modal-tutorial.is-opening{animation:c-modal-tutorial-in var(--duration-morph) var(--ease-morph) both;}
+@keyframes c-modal-tutorial-in{
+  from{ opacity:.4; transform:translate(var(--tut-dx,0px), var(--tut-dy,0px)) scale(var(--tut-sx,.2), var(--tut-sy,.2)); }
+  to{ opacity:1; transform:translate(0,0) scale(1,1); }
+}
+
+.c-modal-tutorial-close{position:absolute; top:var(--spacing-8); right:var(--spacing-8);}
+
+.c-modal-tutorial-kicker{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+/* Title is always an h2, taking .c-modal-head h4's own SIZE verbatim —
+   h4 (20/28/800). The element is fixed rather than chosen per host page:
+   a tour card is its own surface opened over whatever is underneath, so
+   a level picked to suit the page being covered would vary from screen
+   to screen for no reader's benefit. The class carries the size, so the
+   element and the size are independent.
+   Note that is what Modal SHIPS; Modal's own section in
+   DESIGN-SYSTEM.md says h3, and the two have disagreed since before
+   this component existed. This matches the CSS, which is what actually
+   renders; the drift is recorded in the spec rather than quietly
+   picked a side on.
+
+   Two lines maximum, and NOT clamped — deliberately. A tour card is
+   the whole surface: there is no row to expand, no tooltip, no "more".
+   Truncating here would lose the explanation with no way to read the
+   rest, which is worse than a card that runs tall. So the cap is an
+   authoring rule the spec states and the app honours, and over-writing
+   grows the card rather than hiding anything. A title needing three
+   lines is a step doing two things — split it. */
+.c-modal-tutorial-title{margin:0; padding-right:var(--spacing-24); overflow-wrap:anywhere; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); letter-spacing:var(--text-h4-tracking); color:var(--color-neutral-9);}
+/* Body is body2 (14/20), not Modal's body1 (16). At a 340px measure
+   body1 runs to five or six lines on realistic copy and the card stops
+   reading as a passing note.
+
+   Four lines maximum, and NOT clamped, for the same reason as the
+   title: nothing in this component can reveal hidden copy, so cutting
+   it would simply lose it. The cap is an authoring rule. Notes can
+   clamp its own card and peek copy because a click there opens the
+   note in full — a tour step has no such second view, so the same
+   technique would be destructive here rather than tidy. */
+/* overflow-wrap:anywhere on both — Notes' own .np-text already uses
+   it for the same reason. An unbroken token has no break opportunity,
+   so a reference code ran the title to 502px and a URL ran the body to
+   580px inside a 340px card, painting straight out of the panel. */
+/* The BODY is the scroll region, not the card — and that is a
+   consequence of the cap above rather than a taste. Scrolling the card
+   would scroll its close button with it, because the x is absolutely
+   positioned inside it, so an over-written step would carry one of the
+   three ways out off the top of its own card. Scrolling the prose
+   instead keeps the counter, the title, the footer and the x all
+   pinned, and it is the prose that over-writing lengthens anyway.
+   min-height:0 is what lets a flex item shrink below its content and
+   scroll; without it the body just refuses to give ground.
+   The card keeps its own overflow as a backstop for the pathological
+   case where the parts that are NOT the body outgrow the viewport by
+   themselves. The body shrinks first, so the backstop only engages on
+   a card the spec already forbids. */
+.c-modal-tutorial-body{margin:0; min-height:0; overflow-y:auto; overscroll-behavior:contain; overflow-wrap:anywhere; font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-5);}
+
+/* Footer keeps Modal's own order — dismissal left of commit — and its
+   own right alignment, at spacing-8 between the pair. It drops Modal's
+   divider: at 340px a rule across the card reads as a seam in a note
+   that should feel like one piece. */
+.c-modal-tutorial-actions{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8); margin-top:var(--spacing-4);}
+
+/* ---------- Responsive ----------------------------------------
+   Docked at 767px and below. That is this system's own breakpoint (Table,
+   Stat/KPI, Pagination and Tool approval all turn at 767px) rather
+   than a fourth one invented here, and the geometry agrees with it:
+   sitting beside a target needs 340 + 12 + 16 + 16 = 384px of room
+   to the side of it, and on a layout narrow enough to be stacking
+   its own content there is never that much. So the card stops
+   chasing the target and takes the bottom of the viewport, full
+   width, while the spotlight alone marks what the step is about.
+
+   The !importants are load-bearing, not lazy: position() writes
+   top/left inline for the anchored case, and inline styles beat a
+   stylesheet rule. Rather than branch the script on a media query
+   it can't see reliably, the docked rule overrides them. */
+@media (max-width:767px){
+  .c-modal-tutorial{
+    position:fixed; width:auto;
+    left:var(--spacing-16) !important; right:var(--spacing-16);
+    top:auto !important;
+    /* Clears the iPhone home indicator. Same env() guard Prompt input
+       bar's own Floating variant already uses. */
+    bottom:calc(var(--spacing-16) + env(safe-area-inset-bottom));
+    /* The base rule's cap, minus the insets this variant sits inside. */
+    max-height:calc(100vh - var(--spacing-32) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+  /* No FLIP when docked: the card is no longer beside the thing it
+     describes, so flying out of it would point nowhere. It rises from
+     the edge it now belongs to instead. */
+  .c-modal-tutorial.is-opening{animation-name:c-modal-tutorial-dock;}
+  @keyframes c-modal-tutorial-dock{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+
+  /* Docked to the TOP instead. The bottom is the default, but the last
+     element on a short page cannot be scrolled out from behind a
+     bottom-docked card — there is no more page to scroll. Rather than
+     leave the step highlighting something hidden, the card moves. This
+     is the mobile counterpart of the desktop placement fallback: the
+     card gives way to the target, never the other way round.
+
+     The `top` needs !important to beat the base docked rule's own
+     `top: auto !important`; `bottom` does not, since this selector is
+     already the more specific of the two. */
+  .c-modal-tutorial.is-docked-top{top:calc(var(--spacing-16) + env(safe-area-inset-top)) !important; bottom:auto;}
+  .c-modal-tutorial.is-docked-top.is-opening{animation-name:c-modal-tutorial-dock-top;}
+  @keyframes c-modal-tutorial-dock-top{ from{opacity:0; transform:translateY(-12px);} to{opacity:1; transform:translateY(0);} }
+}
+
+/* The landscape-phone case this used to be a media query for — a
+   ~360px-tall viewport against a 262px card — is now covered by the
+   base rule's unconditional cap, along with every other height where
+   a card can outgrow its viewport. Nothing left to special-case. */
+
+/* Touch. The footer buttons take a real 44px height rather than a
+   transparent hit-area lift: at spacing-8 apart, two 32px buttons each
+   lifted by 6px would have their hit areas meet, and overlapping touch
+   targets are worse than small ones. The close button is isolated in
+   the corner with nothing to collide with, so it takes the lift and
+   keeps its painted 32px box — the same ::after technique Chat
+   window's own action buttons use. */
+@media (hover:none), (pointer:coarse){
+  .c-modal-tutorial-actions .c-btn{height:44px; padding:0 var(--spacing-16);}
+  /* The close is already position:absolute in the base rule, so the
+     ::after anchors to it directly. 32px + 6px each side = 44px. */
+  .c-modal-tutorial-close::after{content:''; position:absolute; inset:-6px;}
+}
+
+/* Travel drops, sequence stays. The FLIP, the spotlight's move and the
+   card's move all go; which step you are on, what it highlights and
+   what it says are untouched. */
+@media (prefers-reduced-motion:reduce){
+  .c-modal-tutorial-spot{transition:none;}
+  /* All three entrance variants, because the docked ones are declared
+     with higher specificity inside their own media block and would
+     otherwise keep animating with reduced motion on. */
+  .c-modal-tutorial.is-opening,
+  .c-modal-tutorial.is-docked-top.is-opening{animation:c-modal-tutorial-fade var(--duration-fast) var(--ease-standard) both;}
+  @keyframes c-modal-tutorial-fade{ from{opacity:0;} to{opacity:1;} }
+}
+
+
 /* Empty state — anatomy: icon (optional), heading (optional), body, actions
    (optional). Per-gap spacing (not one flat gap): icon->heading spacing-12,
    heading->body spacing-4, body->actions spacing-16. Fill:none (renders on
