@@ -242,6 +242,26 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .qblock-media{border-radius:var(--radius-md); overflow:hidden; background:var(--color-neutral-2); display:flex; align-items:center; justify-content:center; min-height:160px; color:var(--color-neutral-5); gap:var(--spacing-8); flex-direction:column;}
 .qblock-media i{font-size:var(--icon-lg);}
 .add-bar{display:flex; flex-wrap:wrap; gap:var(--spacing-8); padding:var(--spacing-16); border:1px dashed var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1);}
+/* The question column and the floating rail. A grid column rather than an
+   overlay: `position:fixed` beside the content would have to be measured
+   against the content region on every resize, and would still sit on top of
+   a question's own controls the moment the viewport narrowed. Giving the
+   rail its own track makes "never obstructs a question" a property of the
+   layout instead of a calculation. */
+.builder-cols{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--spacing-16); align-items:start;}
+/* Sticky, offset below the builder toolbar — which is itself sticky at
+   spacing-16 and ~48px tall, so anything pinned higher lands underneath it. */
+.add-rail{position:sticky; top:calc(var(--spacing-16) + 56px); display:flex; flex-direction:column; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3);}
+.add-rail-label{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); padding-bottom:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3); width:100%; text-align:center;}
+.add-rail .c-btn-icon{width:36px; height:36px;}
+.add-rail .c-btn-icon i{font-size:var(--icon-base);}
+/* The first action is the one people want; it gets the same weight the fixed
+   bar gives it rather than sitting level with the three media types. */
+.add-rail .c-btn-icon:first-of-type{background:var(--color-neutral-2);}
+.add-rail .c-btn-icon:first-of-type:hover{background:var(--color-neutral-3);}
+/* Chip group separator — marks the archive off from the status filters
+   beside it, so "All" is visibly not counting what follows. */
+.chip-sep{flex:none; width:1px; height:20px; margin:0 var(--spacing-4); background:var(--color-neutral-3);}
 
 /* Responses */
 .sum-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--spacing-16);}
@@ -371,15 +391,40 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    so the wrap takes the system's .c-table-scroll-x variant and the table
    declares a real min-width rather than letting every column squash to the
    point where a title wraps four times. */
-#routeBugAdmin .c-table{min-width:1200px;}
-#routeBugAdmin .c-table td:nth-child(5),
-#routeBugAdmin .c-table th:nth-child(5){min-width:300px;}
+#routeBugAdmin .c-table{min-width:1040px;}
+#routeBugAdmin .c-table td:nth-child(4),
+#routeBugAdmin .c-table th:nth-child(4){min-width:230px;}
+/* Attachment count in the Title cell — a control, so it looks like one, but
+   quiet enough that it reads as a suffix to the title rather than competing
+   with it. */
+.shot-count{display:inline-flex; align-items:center; gap:3px; height:20px; padding:0 var(--spacing-4); margin-left:var(--spacing-4); vertical-align:1px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; font-variant-numeric:tabular-nums; cursor:pointer;}
+.shot-count:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.shot-count:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:1px;}
+.shot-count i{font-size:var(--icon-micro);}
 
 /* Record modal — read-only field rows, for the sides of a record the
    viewer cannot edit. */
 .rec-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--spacing-16);}
 .rec-cell{display:flex; flex-direction:column; gap:var(--spacing-4); min-width:0;}
 .rec-cell .v{font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); overflow-wrap:anywhere;}
+
+/* Comment count in the table. A bordered pill rather than a caption, so it
+   reads as a countable thing at a glance, and tinted by whose turn the
+   thread is on so a row that needs someone is visible without reading it. */
+.cmt-pill{display:inline-flex; align-items:center; gap:var(--spacing-4); height:24px; padding:0 var(--spacing-8); border-radius:var(--radius-pill); border:1px solid var(--color-neutral-3); background:var(--color-neutral-2); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:700; font-variant-numeric:tabular-nums;}
+.cmt-pill i{font-size:var(--icon-micro); color:var(--color-neutral-5);}
+.cmt-pill.is-awaiting{background:var(--color-gold-bg); border-color:var(--color-gold-bg-strong);}
+.cmt-pill.is-awaiting i{color:var(--color-amber);}
+.cmt-pill.is-replied{background:var(--color-water-bg); border-color:var(--color-water-bg-strong);}
+.cmt-pill.is-replied i{color:var(--color-navy);}
+/* "Reply received" — the ball is back with the tech team. It takes the same
+   Water (Data) tint the team's own comments do rather than a second amber,
+   which would read as the same alert as "Awaiting response". */
+.c-badge.badge-water{background:var(--color-water-bg); color:var(--color-navy); border-color:var(--color-water-bg-strong);}
+/* Two lines inside one table cell — a name over its pod. align-items keeps
+   an inline-flex child from stretching to the column's full width, which is
+   what a flex column does to one by default. */
+.td-stack{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-4);}
 
 /* Screenshot tiles in the record modal — a grid of real thumbnails, so a
    report with three attachments stays one screen rather than three. */
@@ -394,7 +439,7 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
      of a PDF cannot use a filter, a view switcher or a search box. */
   .app-nav, .c-fab, .c-fab-menu, .c-toast-host, .c-tabs, .toolbar,
   .c-pageheader-actions, .c-modal-layer, .lightbox, .c-chart-table-btn,
-  .c-segctl, .menu-wrap, .c-search-input, .c-chip-group, .add-bar,
+  .c-segctl, .menu-wrap, .c-search-input, .c-chip-group, .add-bar, .add-rail,
   #hubSearchCount, .ai-panel-head .c-btn, .ai-panel-head .c-icon-btn{display:none !important;}
   /* With the switcher and the Export button gone, the row they shared has
      nothing left to space apart. */
@@ -410,6 +455,29 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 @media (max-width:900px){
   .app-nav{display:none;}
   .app-main{padding:var(--spacing-20) var(--spacing-16) var(--spacing-120);}
+}
+
+/* Below this the library and ticket rows have to stop being rows. Their
+   trailing block (badges, counts, priority) is flex:none by design, so on a
+   narrow screen it keeps its full width and the title beside it collapses to
+   one word per line. Wrapping the row and giving both halves the full width
+   is the same content, stacked. */
+/* Below this the content column is too narrow to give up 56px, and the
+   fixed bar at the top of the page is doing the job on its own. */
+@media (max-width:820px){
+  .builder-cols{grid-template-columns:minmax(0,1fr);}
+  .add-rail{display:none;}
+}
+
+@media (max-width:700px){
+  .lib-row, .mine-row{flex-wrap:wrap; gap:var(--spacing-8);}
+  .lib-row > .grow, .mine-row > .grow{flex:1 1 100%;}
+  .mine-side{flex:1 1 100%; flex-wrap:wrap; justify-content:flex-start;}
+  .lib-row-num{flex:1 1 100%; text-align:left;}
+  .lib-row-num b{display:inline; margin-right:var(--spacing-4);}
+  .lib-row > .c-badge{align-self:flex-start;}
+  .mine-side > .ph-caret-right, .lib-row > .ph-caret-right{display:none;}
+  .svc-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -466,6 +534,10 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
             <button class="c-chip c-chip-filter is-active" type="button" data-status="all">All <span class="count" id="cntAll">0</span></button>
             <button class="c-chip c-chip-filter" type="button" data-status="active">Active <span class="count" id="cntActive">0</span></button>
             <button class="c-chip c-chip-filter" type="button" data-status="closed">Closed <span class="count" id="cntClosed">0</span></button>
+            <!-- The archive is a separate place, not a fourth status: All /
+                 Active / Closed all mean "not archived". The rule says so. -->
+            <span class="chip-sep" aria-hidden="true"></span>
+            <button class="c-chip c-chip-filter" type="button" data-status="archived"><i class="ph ph-archive icon" aria-hidden="true"></i>Archive <span class="count" id="cntArchived">0</span></button>
           </div>
           <div class="row tight">
             <!-- Search input's real recipe: the magnifier carries
@@ -507,6 +579,9 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
             <button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" title="More options" aria-label="More options" aria-haspopup="menu" aria-expanded="false" id="kebabBtn"><i class="ph ph-dots-three-vertical" aria-hidden="true"></i></button>
             <div class="kebab-menu" id="kebabMenu" role="menu" hidden>
               <button type="button" role="menuitem" data-kb="copy"><i class="ph ph-copy" aria-hidden="true"></i>Make a copy</button>
+              <!-- Label and icon are set in renderBuilder: the same item both
+                   archives and restores, depending on where the survey is. -->
+              <button type="button" role="menuitem" data-kb="archive"></button>
               <button type="button" role="menuitem" class="danger" data-kb="trash"><i class="ph ph-trash" aria-hidden="true"></i>Move to trash</button>
             </div>
           </span>
@@ -608,6 +683,24 @@ function fmtStamp(d){
     ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
 }
 function relDays(n){ var d = new Date(NOW.getTime() - n * 86400000); return d; }
+function ymd(y, m, d){ return new Date(y, m - 1, d); }
+/* Whole-day arithmetic. Subtracting two timestamps and dividing gives the
+   wrong answer across a DST boundary and whenever the two times of day
+   differ — "closes in 4 days" has to count dates, not elapsed hours. */
+function dayStart(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function daysBetween(a, b){ return Math.round((dayStart(b) - dayStart(a)) / 86400000); }
+function fmtDayMon(d){ return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+/* <input type="date"> only speaks YYYY-MM-DD, and only in local terms —
+   toISOString() would shift the date by the timezone offset. */
+function isoDate(d){
+  if (!d) return '';
+  function p(n){ return String(n).padStart(2, '0'); }
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function parseISODate(v){
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+}
 var NOW = new Date(2026, 8, 8, 10, 30);
 
 /* Screenshot stand-ins. Real bug reports carry real screenshots; this is a
@@ -794,32 +887,80 @@ function buildResponses(qs, n, seed){
 }
 
 var SEED_QS = seedQuestions();
+
+/* Every survey carries a time frame and an archive flag.
+   `starts`/`ends` are whole dates, and `ends: null` is a real, chosen state
+   — an open-ended survey, not a missing value — which is why the library
+   prints "No deadline" rather than leaving the slot blank.
+   `archived` is deliberately separate from `status`: an archived survey
+   keeps whatever it was (active or closed) so restoring it puts it back the
+   way it was, and the library hides it either way. */
 var FORMS = [
-  { id:'f1', title:'Product experience survey — Q3', status:'active',
+  { id:'f1', title:'Product experience survey — Q3', status:'active', archived:false,
     desc:'Ten quick questions about how Collabrium is working for you. Takes about two minutes and everything is anonymous to your pod lead.',
+    starts: ymd(2026, 7, 1), ends: ymd(2026, 9, 30),
     updated: relDays(1), questions: SEED_QS, responses: buildResponses(SEED_QS, 128, 20260908),
     settings:{ sendCopy:true, allowEdit:false, oneResponse:true, progressBar:true,
                confirm:'Thanks for your feedback! We read every response.' } },
-  { id:'f2', title:'Onboarding check-in — week one', status:'active',
-    desc:'For new joiners at the end of their first week.',
+  { id:'f2', title:'Onboarding check-in — week one', status:'active', archived:false,
+    desc:'For new joiners at the end of their first week. Runs continuously — there is always someone in their first week.',
+    starts: ymd(2026, 2, 1), ends: null,
     updated: relDays(4), questions:[], responses:[],
     settings:{ sendCopy:false, allowEdit:true, oneResponse:false, progressBar:true, confirm:'Thanks for your feedback!' } },
-  { id:'f3', title:'CollabMedia planning tool — pilot feedback', status:'active',
+  { id:'f3', title:'CollabMedia planning tool — pilot feedback', status:'active', archived:false,
     desc:'Pilot group only.',
+    starts: ymd(2026, 9, 1), ends: ymd(2026, 9, 12),
     updated: relDays(6), questions:[], responses:[],
     settings:{ sendCopy:true, allowEdit:true, oneResponse:true, progressBar:false, confirm:'Thanks for your feedback!' } },
-  { id:'f4', title:'Reporting refresh — concept test', status:'closed',
-    desc:'Closed 22 August.',
+  { id:'f4', title:'Reporting refresh — concept test', status:'closed', archived:false,
+    desc:'Ran for three weeks alongside the reporting rebuild.',
+    starts: ymd(2026, 8, 4), ends: ymd(2026, 8, 22),
     updated: relDays(17), questions:[], responses:[],
     settings:{ sendCopy:false, allowEdit:false, oneResponse:true, progressBar:true, confirm:'Thanks for your feedback!' } },
-  { id:'f5', title:'Annual tooling review 2025', status:'closed',
-    desc:'Archived.',
+  { id:'f5', title:'Annual tooling review 2025', status:'closed', archived:true,
+    desc:'The 2025 round. Superseded by the Q3 product experience survey.',
+    starts: ymd(2025, 11, 1), ends: ymd(2025, 12, 15),
     updated: relDays(64), questions:[], responses:[],
-    settings:{ sendCopy:true, allowEdit:false, oneResponse:true, progressBar:true, confirm:'Thanks for your feedback!' } }
+    settings:{ sendCopy:true, allowEdit:false, oneResponse:true, progressBar:true, confirm:'Thanks for your feedback!' } },
+  { id:'f6', title:'Remote working pulse — H1 2025', status:'closed', archived:true,
+    desc:'One-off pulse check during the hybrid policy trial.',
+    starts: ymd(2025, 4, 14), ends: ymd(2025, 6, 30),
+    updated: relDays(140), questions:[], responses:[],
+    settings:{ sendCopy:false, allowEdit:false, oneResponse:true, progressBar:false, confirm:'Thanks for your feedback!' } }
 ];
 /* Response counts for the library rows on forms that have no detail built
    out — the library shows a count, the builder shows an empty Responses tab. */
-FORMS[1].count = 12; FORMS[2].count = 31; FORMS[3].count = 87; FORMS[4].count = 204;
+FORMS[1].count = 12; FORMS[2].count = 31; FORMS[3].count = 87; FORMS[4].count = 204; FORMS[5].count = 96;
+
+/* --------------------------------------------------------------------------
+   Time frame, as the library reads it
+   -------------------------------------------------------------------------- */
+function rangeLabel(f){
+  if (!f.starts && !f.ends) return 'No fixed dates';
+  if (!f.ends)   return 'Open since ' + fmtDate(f.starts);
+  if (!f.starts) return 'Until ' + fmtDate(f.ends);
+  /* Drop the repeated year off the start date where both fall in one year —
+     "1 Jul – 30 Sep 2026" says everything "1 Jul 2026 – 30 Sep 2026" does. */
+  return (f.starts.getFullYear() === f.ends.getFullYear() ? fmtDayMon(f.starts) : fmtDate(f.starts)) +
+    ' – ' + fmtDate(f.ends);
+}
+/* Days to close, or null where there is nothing to count down to — the
+   caller needs to tell "no deadline" apart from "closes today". */
+function closesIn(f){ return f.ends ? daysBetween(NOW, f.ends) : null; }
+function deadline(f){
+  var n = closesIn(f);
+  if (n === null)  return { text:'No deadline',  tone:'none', icon:'ph-infinity' };
+  if (n < 0)       return { text:'Ended ' + fmtDate(f.ends), tone:'past', icon:'ph-check-circle' };
+  if (n === 0)     return { text:'Closes today', tone:'soon', icon:'ph-clock-countdown' };
+  if (n === 1)     return { text:'Closes tomorrow', tone:'soon', icon:'ph-clock-countdown' };
+  return { text:'Closes in ' + n + ' days', tone: n <= 7 ? 'soon' : 'open',
+           icon: n <= 7 ? 'ph-clock-countdown' : 'ph-calendar-dots' };
+}
+function deadlinePill(f){
+  var d = deadline(f);
+  return '<span class="c-badge ' + (d.tone === 'soon' ? 'c-badge-warning' : 'c-badge-neutral') + '">' +
+    '<i class="ph ' + d.icon + '" aria-hidden="true"></i>' + esc(d.text) + '</span>';
+}
 
 /* Bug records. Every one carries the full triage set — priority, affected
    services, assignee, resolution notes and its comment thread — because
@@ -896,13 +1037,24 @@ var BUGS = [
       cmt('Arif Zulkifli','team', new Date(2026,8,2,9,10), 'Backfilled the 41 files in the Q3 folder overnight — they should all preview now. Shout if you find one that still spins.')
     ] },
 
-  { id:'b7', at:new Date(2026,7,29,10,15), who:'Rachel Ong', pod:'CollabMedia',      status:'new',
+  /* The reply-received case: the team asked, the reporter answered, and
+     nobody has picked it back up. This is what the ticket looks like when
+     the ball comes back — the row's Status reads "Reply received", its
+     comment pill turns Water, and the "Reply received" chip finds it. */
+  { id:'b7', at:new Date(2026,7,29,10,15), who:'Rachel Ong', pod:'CollabMedia',      status:'progress',
     priority:'p1', services:['Reports & exports','Notifications'], assignee:null, resolution:'',
     title:'Scheduled report email arrives with an empty attachment',
     desc:'The Monday 8am scheduled report lands on time but the attached XLSX has headers and no rows. Running the same report by hand in the app returns 1,400 rows.',
     extra:'Started last Monday. Two people on the distribution list see the same empty file, so it is not a mail-client issue.',
     shots:[shot(108,'Scheduled report email')],
-    comments:[] },
+    comments:[
+      cmt('Divya Menon','team', new Date(2026,7,29,15,40),
+        'Two things would help me pin this down: what date range is set on the scheduled version, and was anything changed on the report itself around last Monday?',
+        true),
+      cmt('Rachel Ong','user', new Date(2026,8,1,9,12),
+        'Range is "last 7 days" on both. Nothing changed on the report as far as I know — though someone did move it into the Q3 folder on the Friday before, if that matters.',
+        false, [shot(112,'Scheduled report settings')])
+    ] },
 
   { id:'b8', at:new Date(2026,7,27,13,22), who:'Hafiz Rahman', pod:'CollabContent',  status:'resolved',
     priority:'p2', services:['Briefs & approvals','Notifications'], assignee:'Divya Menon',
@@ -926,13 +1078,19 @@ var BUGS = [
         true)
     ] },
 
-  { id:'b10', at:new Date(2026,8,5,15,42), who:ME.name, pod:'CollabContent', status:'new',
-    priority:'p3', services:['Search'], assignee:null, resolution:'',
+  { id:'b10', at:new Date(2026,8,5,15,42), who:ME.name, pod:'CollabContent', status:'progress',
+    priority:'p3', services:['Search'], assignee:'Arif Zulkifli', resolution:'',
     title:'Search will not match a brief by its client name',
     desc:'Searching a client name returns nothing, even though the brief has that client set. I have to remember the brief title, which defeats the point.',
     extra:'Client "Seri Mutiara" — 0 results. The brief titled "Raya launch — Seri Mutiara" is right there in the list.',
     shots:[],
-    comments:[] },
+    comments:[
+      cmt('Arif Zulkifli','team', new Date(2026,8,6,10,25),
+        'Client is not in the search index at all right now, so this is a gap rather than a bug in the matching. Before I add it — do you want client name to match on briefs only, or on campaigns and assets too?',
+        true),
+      cmt(ME.name,'user', new Date(2026,8,6,16,3),
+        'Briefs and campaigns both, please. Assets I always get to through the brief anyway.')
+    ] },
 
   { id:'b11', at:new Date(2026,7,31,9,8), who:ME.name, pod:'CollabMedia', status:'resolved',
     priority:'p4', services:['Notifications'], assignee:'Chen Yi Xuan',
@@ -953,16 +1111,59 @@ var BUG_STATUS = {
   'resolved': { label:'Resolved',    badge:'c-badge-success' }
 };
 
-/* Whether the thread is currently waiting on the reporter: the newest
-   comment is a team question and nothing from the reporter follows it.
-   Derived, never stored — a stored flag drifts the moment someone replies. */
-function awaitingReply(b){
+/* Whose turn the thread is on. Derived from the comments themselves, never
+   stored — a stored flag goes stale the moment either side posts, and the
+   whole point of the state is that it is always current.
+     'awaiting' — the newest run of comments is the team's and contains a
+                  question, so the ball is with the reporter.
+     'replied'  — the reporter has answered since that question, so the ball
+                  is back with the team and the ticket needs picking up.
+     null       — nothing outstanding either way. */
+function threadState(b){
   var c = b.comments || [];
-  for (var i = c.length - 1; i >= 0; i--){
-    if (c[i].role === 'user') return false;
-    if (c[i].asks) return true;
+  if (!c.length) return null;
+  var i = c.length - 1;
+  /* Who spoke last decides which way the ball can possibly be facing, so
+     that is the first thing read — never scanned past. Walking back through
+     the whole thread looking for a question instead reports 'replied'
+     forever, because the reporter's answer is still in the history long
+     after the team has picked the ticket back up. */
+  if (c[i].role === 'team'){
+    /* The team spoke last. The reporter owes a reply only if this run of
+       team comments actually asked for one. */
+    for (; i >= 0 && c[i].role === 'team'; i--) if (c[i].asks) return 'awaiting';
+    return null;
   }
-  return false;
+  /* The reporter spoke last. Skip their run, then check whether the team's
+     run immediately before it asked something this answers. */
+  for (; i >= 0 && c[i].role === 'user'; i--) {}
+  for (; i >= 0 && c[i].role === 'team'; i--) if (c[i].asks) return 'replied';
+  return null;
+}
+var THREAD_STATE = {
+  awaiting:{ admin:'Awaiting response',  user:'Response needed', icon:'ph-fill ph-question',           badge:'c-badge-warning' },
+  replied: { admin:'Reply received',    user:'Reply sent',    icon:'ph-fill ph-arrow-bend-up-left',  badge:'badge-water' }
+};
+/* The badge says the same fact from either side of the ticket: the team
+   reads "Awaiting response", the person who filed it reads "Response
+   needed" — the second one is addressed to them, so it names the thing they
+   have to do rather than the state the queue is in. */
+function threadBadge(b, mode){
+  var t = threadState(b);
+  if (!t) return '';
+  var m = THREAD_STATE[t];
+  return '<span class="c-badge ' + m.badge + '"><i class="' + m.icon + '" aria-hidden="true"></i>' +
+    m[mode] + '</span>';
+}
+/* Comments in the table were a 12px counter tucked in after the title, which
+   is invisible in a scan of eleven rows. Own column, own pill, and it takes
+   the thread's colour so a thread that needs someone reads as one. */
+function cmtPill(b){
+  var n = (b.comments || []).length;
+  if (!n) return '<span class="muted">—</span>';
+  var t = threadState(b);
+  return '<span class="cmt-pill' + (t ? ' is-' + t : '') + '">' +
+    '<i class="ph-fill ph-chat-circle" aria-hidden="true"></i>' + n + '</span>';
 }
 /* Last thing that happened on the record, for the reporter's list. */
 function lastActivity(b){
@@ -1155,7 +1356,9 @@ function mark(text, ts){
    "closed" is a thing people type into a search box. */
 function formHaystack(f){
   return f.title + ' ' + f.desc + ' ' +
-    (f.status === 'active' ? 'active open live' : 'closed archived');
+    (f.status === 'active' ? 'active open live' : 'closed ended') + ' ' +
+    (f.archived ? 'archived archive' : '') + ' ' +
+    (f.ends ? rangeLabel(f) : 'no deadline open ended ongoing');
 }
 
 function renderHub(){
@@ -1169,11 +1372,17 @@ function renderHub(){
      whole library. A chip reading "Closed 2" beside a search returning one
      row is the chip contradicting its own filter. */
   var found = FORMS.filter(function(f){ return matchAll(formHaystack(f), ts); });
-  $('#cntAll').textContent = found.length;
-  $('#cntActive').textContent = found.filter(function(f){ return f.status === 'active'; }).length;
-  $('#cntClosed').textContent = found.filter(function(f){ return f.status === 'closed'; }).length;
+  /* Archived surveys are out of the library entirely — they are not part of
+     "All", which is why their count lives on its own chip. */
+  var live = found.filter(function(f){ return !f.archived; });
+  var filed = found.filter(function(f){ return f.archived; });
+  $('#cntAll').textContent = live.length;
+  $('#cntActive').textContent = live.filter(function(f){ return f.status === 'active'; }).length;
+  $('#cntClosed').textContent = live.filter(function(f){ return f.status === 'closed'; }).length;
+  $('#cntArchived').textContent = filed.length;
 
-  var list = found.filter(function(f){
+  var archiveView = state.hubStatus === 'archived';
+  var list = archiveView ? filed : live.filter(function(f){
     return state.hubStatus === 'all' || f.status === state.hubStatus;
   });
 
@@ -1182,7 +1391,10 @@ function renderHub(){
     cnt.hidden = false;
     cnt.textContent = list.length + (list.length === 1 ? ' form matches ' : ' forms match ') +
       '“' + state.hubQuery.trim() + '”' +
-      (state.hubStatus === 'all' ? '' : ' in ' + state.hubStatus + ' forms');
+      (state.hubStatus === 'all' ? '' : ' in ' + (archiveView ? 'the archive' : state.hubStatus + ' forms'));
+  } else if (archiveView){
+    cnt.hidden = false;
+    cnt.textContent = 'Archived surveys are hidden from the library. Open one and choose Restore from archive to bring it back.';
   } else {
     cnt.hidden = true; cnt.textContent = '';
   }
@@ -1193,13 +1405,14 @@ function renderHub(){
       '<i class="ph ph-magnifying-glass" aria-hidden="true"></i>' +
       '<h4>No forms match</h4>' +
       '<p>' + (ts.length ? 'Nothing matching &ldquo;' + esc(state.hubQuery.trim()) + '&rdquo;' +
-                   (state.hubStatus !== 'all' ? ' in ' + state.hubStatus + ' forms' : '') + '.'
+                   (state.hubStatus !== 'all' ? ' in ' + (archiveView ? 'the archive' : state.hubStatus + ' forms') : '') + '.'
+                 : archiveView ? 'Nothing has been archived yet.'
                  : 'There are no ' + state.hubStatus + ' forms yet.') + '</p>' +
       '<div class="c-empty-actions"><button class="c-btn c-btn-secondary c-btn-md" type="button" id="clearHub">Clear filters</button></div>' +
       '</div>';
     $('#clearHub').addEventListener('click', function(){
       state.hubStatus = 'all';
-      $$('.c-chip-filter').forEach(function(c){ c.classList.toggle('is-active', c.dataset.status === 'all'); });
+      syncHubChips();
       clearHubSearch();
     });
     return;
@@ -1212,6 +1425,8 @@ function renderHub(){
 }
 
 function statusBadge(f){
+  if (f.archived) return '<span class="c-badge c-badge-neutral">' +
+    '<i class="ph ph-archive" aria-hidden="true"></i>Archived</span>';
   return '<span class="c-badge ' + (f.status === 'active' ? 'c-badge-success' : 'c-badge-neutral') + '">' +
     (f.status === 'active' ? 'Active' : 'Closed') + '</span>';
 }
@@ -1222,15 +1437,17 @@ function statusBadge(f){
 function hubGrid(list, ts){
   return '<div class="lib-grid">' + list.map(function(f){
     var n = formCount(f);
+    /* Status and countdown sit together at the top; the whole tile is the
+       target, so the old corner arrow was decoration repeating what the
+       hover state and the cursor already say. */
     return '<button class="c-card c-card-interactive lib-card" type="button" data-form="' + f.id + '">' +
-      '<span class="row between" style="align-items:flex-start">' + statusBadge(f) +
-        '<i class="ph ph-arrow-up-right" aria-hidden="true" style="color:var(--color-neutral-4)"></i></span>' +
+      '<span class="tag-row">' + statusBadge(f) + deadlinePill(f) + '</span>' +
       '<span class="lib-card-title">' + mark(f.title, ts) + '</span>' +
       '<span class="lib-card-desc">' + (f.desc ? mark(f.desc, ts) : 'No description yet.') + '</span>' +
       '<span class="lib-card-foot">' +
         '<span><b>' + n.toLocaleString() + '</b> <span class="lib-row-meta">' +
           (n === 1 ? 'response' : 'responses') + '</span></span>' +
-        '<span class="lib-row-meta">Updated ' + fmtDate(f.updated) + '</span>' +
+        '<span class="lib-row-meta">' + esc(rangeLabel(f)) + '</span>' +
       '</span>' +
     '</button>';
   }).join('') + '</div>';
@@ -1242,8 +1459,9 @@ function hubRows(list, ts){
     return '<button class="lib-row" type="button" data-form="' + f.id + '">' +
       '<span class="grow stack sm">' +
         '<span class="lib-row-title">' + mark(f.title, ts) + '</span>' +
-        '<span class="lib-row-meta">Updated ' + fmtDate(f.updated) + '</span>' +
+        '<span class="lib-row-meta">' + esc(rangeLabel(f)) + ' · Updated ' + fmtDate(f.updated) + '</span>' +
       '</span>' +
+      deadlinePill(f) +
       statusBadge(f) +
       '<span class="lib-row-num"><b>' + n.toLocaleString() + '</b>' +
         '<span class="lib-row-meta">' + (n === 1 ? 'response' : 'responses') + '</span></span>' +
@@ -1252,13 +1470,22 @@ function hubRows(list, ts){
   }).join('') + '</div>';
 }
 
+/* The chips live in persistent markup, so anything that changes hubStatus
+   from elsewhere (archiving a survey, clearing filters) has to put them back
+   in step through here rather than assuming a click did it. */
+function syncHubChips(){
+  $$('#routeHub .c-chip-filter').forEach(function(c){
+    c.classList.toggle('is-active', c.dataset.status === state.hubStatus);
+  });
+}
+
 /* Wired once, not per render: #hubViewSeg, the chips and the search box are
    all persistent DOM, so re-binding them inside renderHub would add one
    listener per keystroke. */
-$$('.c-chip-filter').forEach(function(c){
+$$('#routeHub .c-chip-filter').forEach(function(c){
   c.addEventListener('click', function(){
     state.hubStatus = c.dataset.status;
-    $$('.c-chip-filter').forEach(function(x){ x.classList.toggle('is-active', x === c); });
+    syncHubChips();
     renderHub();
   });
 });
@@ -1287,8 +1514,9 @@ $('#hubSearch').addEventListener('keydown', function(e){
 $('#hubSearchClear').addEventListener('click', clearHubSearch);
 
 function newForm(){
-  var f = { id:'f' + (FORMS.length + 1), title:'Untitled survey', status:'closed',
-    desc:'', updated:new Date(NOW), questions:[], responses:[],
+  var f = { id:'f' + (FORMS.length + 1), title:'Untitled survey', status:'closed', archived:false,
+    desc:'', starts:new Date(NOW), ends:null,
+    updated:new Date(NOW), questions:[], responses:[],
     settings:{ sendCopy:false, allowEdit:false, oneResponse:true, progressBar:true,
                confirm:'Thanks for your feedback!' } };
   FORMS.unshift(f);
@@ -1305,9 +1533,19 @@ function renderBuilder(){
   var f = currentForm();
   if (!f){ go('hub'); return; }
   $('#routeBuilder').hidden = false;
-  setHeader(f.title, f.status === 'active' ? 'Active · accepting responses' : 'Not published',
-    '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="backHub"><i class="ph ph-arrow-left"></i>All forms</button>');
+  var d = deadline(f);
+  setHeader(f.title,
+    (f.archived ? 'Archived' : f.status === 'active' ? 'Active · accepting responses' : 'Not published') +
+      ' · ' + d.text,
+    '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="backHub"><i class="ph ph-arrow-left"></i>' +
+      (f.archived ? 'Archive' : 'All forms') + '</button>');
   $('#backHub').addEventListener('click', function(){ go('hub'); });
+
+  /* One menu item, two directions — the survey is either in the archive or
+     it is not, and offering both at once would be offering a no-op. */
+  var arch = $('[data-kb="archive"]');
+  arch.innerHTML = '<i class="ph ' + (f.archived ? 'ph-arrow-counter-clockwise' : 'ph-archive') +
+    '" aria-hidden="true"></i>' + (f.archived ? 'Restore from archive' : 'Archive');
 
   $('#qCount').textContent = f.questions.length;
   $('#rCount').textContent = formCount(f);
@@ -1363,8 +1601,17 @@ $$('#kebabMenu button').forEach(function(b){
     if (b.dataset.kb === 'copy'){
       var c = JSON.parse(JSON.stringify({ questions:f.questions, settings:f.settings }));
       FORMS.unshift({ id:'f' + (FORMS.length + 1), title:f.title + ' (copy)', status:'closed',
-        desc:f.desc, updated:new Date(NOW), questions:c.questions, responses:[], settings:c.settings });
+        archived:false, desc:f.desc, starts:new Date(NOW), ends:null,
+        updated:new Date(NOW), questions:c.questions, responses:[], settings:c.settings });
       go('hub'); toast('Copy created');
+    } else if (b.dataset.kb === 'archive'){
+      f.archived = !f.archived;
+      /* Land in the list the survey just moved into, so the move is visible
+         rather than something that happened off-screen. */
+      state.hubStatus = f.archived ? 'archived' : 'all';
+      syncHubChips();
+      go('hub');
+      toast(f.archived ? 'Moved to the archive' : 'Restored from the archive', 'success');
     } else {
       FORMS = FORMS.filter(function(x){ return x.id !== f.id; });
       go('hub'); toast('Moved to trash');
@@ -1373,6 +1620,33 @@ $$('#kebabMenu button').forEach(function(b){
 });
 
 /* ---------- Tab 1 — Questions ---------- */
+
+/* The block types, declared once. Both the fixed bar and the floating rail
+   read this list, so they can never drift apart. */
+var BLOCKS = [
+  { kind:'question', label:'Add question', icon:'ph-plus-circle' },
+  { kind:'image',    label:'Add image',    icon:'ph-image' },
+  { kind:'video',    label:'Add video',    icon:'ph-video' },
+  { kind:'poll',     label:'Add poll',     icon:'ph-chart-donut' }
+];
+function addBarButtons(){
+  return BLOCKS.map(function(b, i){
+    return '<button class="c-btn ' + (i ? 'c-btn-ghost' : 'c-btn-secondary') +
+      ' c-btn-sm" type="button" data-add="' + b.kind + '">' +
+      '<i class="ph ' + b.icon + '" aria-hidden="true"></i>' + b.label + '</button>';
+  }).join('');
+}
+function addRailButtons(){
+  /* Icon-only, because a rail wide enough for "Add question" would be a
+     second column of the page rather than a control. Button's own icon-only
+     variant carries the accessible name. */
+  return BLOCKS.map(function(b){
+    return '<button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" data-add="' + b.kind + '"' +
+      ' title="' + b.label + '" aria-label="' + b.label + '">' +
+      '<i class="ph ' + b.icon + '" aria-hidden="true"></i></button>';
+  }).join('');
+}
+
 function renderQuestions(f){
   var host = $('#tabQuestions');
   host.innerHTML =
@@ -1382,12 +1656,22 @@ function renderQuestions(f){
       '<label class="c-field field-wide"><span class="eyebrow">Description</span>' +
         '<textarea id="fDesc" rows="2" placeholder="What is this form for?">' + esc(f.desc) + '</textarea></label>' +
     '</div>' +
-    '<div id="qList" class="stack"></div>' +
-    '<div class="add-bar">' +
-      '<button class="c-btn c-btn-secondary c-btn-sm" type="button" data-add="question"><i class="ph ph-plus-circle"></i>Add question</button>' +
-      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-add="image"><i class="ph ph-image"></i>Add image</button>' +
-      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-add="video"><i class="ph ph-video"></i>Add video</button>' +
-      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-add="poll"><i class="ph ph-chart-donut"></i>Add poll</button>' +
+    /* Two copies of the same four actions, on purpose.
+       The bar is fixed in place at the top of the page, because on a new
+       form there are no questions yet for a rail to sit beside — and the
+       first thing anyone does here is add one.
+       The rail then follows the scroll for the rest of the session. It lives
+       in its own grid column rather than floating over the content, so it
+       rides alongside whichever question is in view and can never cover one
+       — an overlay pinned to the viewport edge would sit on top of a
+       question's own type switcher and delete button. */
+    '<div class="add-bar">' + addBarButtons() + '</div>' +
+    '<div class="builder-cols">' +
+      '<div id="qList" class="stack"></div>' +
+      '<div class="add-rail" role="group" aria-label="Add a block">' +
+        '<span class="add-rail-label" aria-hidden="true">Add</span>' +
+        addRailButtons() +
+      '</div>' +
     '</div>';
 
   $('#fTitle').addEventListener('input', function(e){ f.title = e.target.value; $('#phTitle').textContent = e.target.value; });
@@ -2174,6 +2458,30 @@ function renderSettings(f){
       toggle('allowEdit',   'Allow response editing',                   'Responders can come back and change their answers after submitting.') +
       toggle('oneResponse', 'Limit to 1 response per user',             'Requires sign-in. A second attempt reopens their first response.') +
     '</div></div>' +
+    /* Time frame. "No deadline" is a switch rather than an empty date field
+       because leaving a date blank is ambiguous — it reads as unfinished, and
+       an open-ended survey is a decision, not an omission. */
+    '<div class="c-card stack"><h2 class="sect">Time frame</h2>' +
+      '<p class="hint" style="margin:0">When the survey opens and closes. The library counts down to the closing date.</p>' +
+      '<div>' +
+        '<div class="set-row"><span class="t"><b>No deadline</b>' +
+          '<span>Leave the survey open until someone closes it by hand.</span></span>' +
+          '<label class="c-choice switch"><input type="checkbox" id="setNoEnd"' + (f.ends ? '' : ' checked') + ' />' +
+          '<span class="c-switch-track' + (f.ends ? '' : ' on') + '"><span class="c-switch-thumb"></span></span>' +
+          '<span class="sr-only">No deadline</span></label></div>' +
+        '<div class="set-row" style="justify-content:flex-start;gap:var(--spacing-16);flex-wrap:wrap;align-items:flex-start">' +
+          '<div class="c-field" style="width:190px"><label for="setStart">Opens</label>' +
+            '<div class="input-wrap"><input type="date" id="setStart" value="' + isoDate(f.starts) + '" /></div>' +
+            '<span class="c-helper">Leave blank to open immediately.</span></div>' +
+          '<div class="c-field" style="width:190px" id="wrapEnd"><label for="setEnd">Closes</label>' +
+            '<div class="input-wrap"><input type="date" id="setEnd" value="' + isoDate(f.ends) + '"' +
+              (f.ends ? '' : ' disabled') + ' /></div>' +
+            '<span class="c-helper">' + (f.ends ? 'Responses stop at the end of this day.' : 'Off — this survey has no deadline.') + '</span></div>' +
+          '<div class="c-field" style="width:auto"><label>Library shows</label>' +
+            '<span class="tag-row" style="min-height:40px;align-items:center">' + deadlinePill(f) + '</span></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
     '<div class="c-card stack"><h2 class="sect">Presentation</h2><div>' +
       toggle('progressBar', 'Show progress bar', 'Displays how far through the form the responder is.') +
       '<div class="set-row" style="flex-direction:column;align-items:stretch;gap:var(--spacing-8)">' +
@@ -2194,6 +2502,37 @@ function renderSettings(f){
     });
   });
   $('#setConfirm').addEventListener('input', function(e){ s.confirm = e.target.value; });
+
+  $('#setNoEnd').addEventListener('change', function(e){
+    /* Turning the deadline back on needs a date to land on. A filled field
+       the person can correct beats an empty one they have to discover — but
+       it has to be a future date: counting from an opening date months back
+       would set a deadline that has already passed, which reads as the
+       switch having closed the survey. */
+    f.ends = e.target.checked ? null
+      : new Date(Math.max((f.starts || NOW).getTime(), NOW.getTime()) + 30 * 86400000);
+    f.updated = new Date(NOW);
+    renderBuilder();
+  });
+  $('#setStart').addEventListener('change', function(e){
+    f.starts = parseISODate(e.target.value);
+    f.updated = new Date(NOW);
+    renderBuilder();
+  });
+  $('#setEnd').addEventListener('change', function(e){
+    var v = parseISODate(e.target.value);
+    /* A survey that closes before it opens is not a time frame. Say so and
+       keep the previous value rather than storing something impossible. */
+    if (v && f.starts && v < f.starts){
+      $('#wrapEnd').classList.add('c-field-error');
+      $('#wrapEnd .c-helper').textContent = 'The closing date cannot be before the opening date.';
+      e.target.value = isoDate(f.ends);
+      return;
+    }
+    f.ends = v;
+    f.updated = new Date(NOW);
+    renderBuilder();
+  });
 }
 
 /* ==========================================================================
@@ -2500,19 +2839,19 @@ function myBugs(){
 function renderBugMine(){
   $('#routeBugMine').hidden = false;
   var mine = myBugs();
-  var waiting = mine.filter(awaitingReply).length;
+  var waiting = mine.filter(function(b){ return threadState(b) === 'awaiting'; }).length;
   setHeader('Bug Reports', 'Track what you have reported and answer questions from the tech team.',
-    '<button class="c-btn c-btn-primary c-btn-md" type="button" id="toNewBug2"><i class="ph ph-plus"></i>Report a bug</button>');
-  $('#toNewBug2').addEventListener('click', function(){ go('bugNew'); });
+    '<button class="c-btn c-btn-primary c-btn-md" type="button" id="reportBug"><i class="ph ph-plus"></i>Report a bug</button>');
+  $('#reportBug').addEventListener('click', function(){ go('bugNew'); });
 
   $('#routeBugMine').innerHTML =
     bugSegHtml('<span class="hint">' + mine.length + (mine.length === 1 ? ' ticket' : ' tickets') +
       (waiting ? ' · ' + waiting + ' waiting on you' : '') + '</span>') +
     (mine.length
       ? '<div class="lib">' + mine.map(function(b){
-          var ask = awaitingReply(b);
+          var t = threadState(b);
           var n = (b.comments || []).length;
-          return '<button class="mine-row' + (ask ? ' needs-reply' : '') + '" type="button" data-mine="' + b.id + '">' +
+          return '<button class="mine-row' + (t === 'awaiting' ? ' needs-reply' : '') + '" type="button" data-mine="' + b.id + '">' +
             '<span class="grow stack sm">' +
               '<span class="mine-title">' + esc(b.title) + '</span>' +
               '<span class="mine-meta">' +
@@ -2524,7 +2863,7 @@ function renderBugMine(){
               '</span>' +
             '</span>' +
             '<span class="mine-side">' +
-              (ask ? '<span class="c-badge c-badge-warning"><i class="ph-fill ph-question" aria-hidden="true"></i>Reply needed</span>' : '') +
+              threadBadge(b, 'user') +
               prioPill(b.priority, true) +
               '<span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span>' +
               '<i class="ph ph-caret-right" aria-hidden="true" style="color:var(--color-neutral-4)"></i>' +
@@ -2555,8 +2894,8 @@ function renderBugMine(){
 function renderBugAdmin(){
   $('#routeBugAdmin').hidden = false;
   setHeader('Bug Reports', 'Every report submitted across the pods.',
-    '<button class="c-btn c-btn-primary c-btn-md" type="button" id="toNewBug"><i class="ph ph-plus"></i>Report a bug</button>');
-  $('#toNewBug').addEventListener('click', function(){ go('bugNew'); });
+    '<button class="c-btn c-btn-primary c-btn-md" type="button" id="reportBug"><i class="ph ph-plus"></i>Report a bug</button>');
+  $('#reportBug').addEventListener('click', function(){ go('bugNew'); });
 
   var pods = ['all'].concat(PODS.filter(function(p){
     return BUGS.some(function(b){ return b.pod === p; }); }));
@@ -2565,13 +2904,15 @@ function renderBugAdmin(){
     bugSegHtml('') +
     '<div class="row between">' +
       '<div class="row tight">' +
-        '<div class="c-chip-group" role="group" aria-label="Filter by status">' +
-          ['all','new','progress','resolved'].map(function(s){
-            var n = s === 'all' ? BUGS.length : BUGS.filter(function(b){ return b.status === s; }).length;
-            return '<button class="c-chip c-chip-filter' + (state.bugStatus === s ? ' is-active' : '') +
-              '" type="button" data-bs="' + s + '">' + (s === 'all' ? 'All' : BUG_STATUS[s].label) +
-              ' <span class="count">' + n + '</span></button>';
-          }).join('') +
+        /* Two kinds of filter in one group: the ticket's own status, then —
+           past the separator — whose turn the conversation is on. The second
+           pair cuts across the first (an In Progress ticket can be
+           awaiting a response), which is exactly why they are not one
+           list. */
+        '<div class="c-chip-group" role="group" aria-label="Filter reports">' +
+          ['all','new','progress','resolved'].map(bugChip).join('') +
+          '<span class="chip-sep" aria-hidden="true"></span>' +
+          ['awaiting','replied'].map(bugChip).join('') +
         '</div>' +
       '</div>' +
       /* .dd-float — without it the panel is position:static and opening this
@@ -2596,7 +2937,8 @@ function renderBugAdmin(){
     '<div class="c-table-standalone-wrap c-table-scroll-x"><table class="c-table c-table-standalone"><thead><tr>' +
       '<th><button class="c-btn c-btn-ghost c-btn-sm" type="button" id="sortDate" style="margin:calc(-1 * var(--spacing-8)) 0">' +
         'Submitted <i class="ph ph-caret-' + (state.bugSort === 'desc' ? 'down' : 'up') + '"></i></button></th>' +
-      '<th>User</th><th>Pod</th><th>Priority</th><th>Title</th><th>Assigned to</th><th>Status</th><th>Screenshot</th>' +
+      '<th>Reported by</th><th>Priority</th><th>Title</th><th>Assigned to</th>' +
+      '<th>Status</th><th>Comments</th>' +
     '</tr></thead><tbody id="bugRows"></tbody></table></div>';
 
   wireBugSeg($('#routeBugAdmin'), 'admin');
@@ -2624,9 +2966,26 @@ function renderBugAdmin(){
   paintBugRows();
 }
 
+function bugChipLabel(k){
+  if (k === 'all') return 'All';
+  if (THREAD_STATE[k]) return THREAD_STATE[k].admin;
+  return BUG_STATUS[k].label;
+}
+function matchesBugChip(b, k){
+  if (k === 'all') return true;
+  if (THREAD_STATE[k]) return threadState(b) === k;
+  return b.status === k;
+}
+function bugChip(k){
+  var n = BUGS.filter(function(b){ return matchesBugChip(b, k); }).length;
+  return '<button class="c-chip c-chip-filter' + (state.bugStatus === k ? ' is-active' : '') +
+    '" type="button" data-bs="' + k + '">' + esc(bugChipLabel(k)) +
+    ' <span class="count">' + n + '</span></button>';
+}
+
 function filteredBugs(){
   return BUGS.filter(function(b){
-    return (state.bugStatus === 'all' || b.status === state.bugStatus)
+    return matchesBugChip(b, state.bugStatus)
         && (state.bugPod === 'all' || b.pod === state.bugPod);
   }).sort(function(a, b){ return state.bugSort === 'desc' ? b.at - a.at : a.at - b.at; });
 }
@@ -2634,35 +2993,49 @@ function filteredBugs(){
 function paintBugRows(){
   var rows = filteredBugs(), tb = $('#bugRows');
   if (!rows.length){
-    tb.innerHTML = '<tr><td colspan="8"><div class="c-empty is-inline" style="align-items:center;text-align:center;max-width:none">' +
+    tb.innerHTML = '<tr><td colspan="7"><div class="c-empty is-inline" style="align-items:center;text-align:center;max-width:none">' +
       '<i class="ph ph-bug" aria-hidden="true"></i><h4>No reports match</h4>' +
       '<p>Try a different status or pod.</p></div></td></tr>';
     return;
   }
   var ids = rows.map(function(b){ return b.id; });
   tb.innerHTML = rows.map(function(b){
-    var n = (b.comments || []).length;
+    var t = threadState(b);
     return '<tr class="is-interactive is-clickable" data-bug="' + b.id + '" tabindex="0">' +
       '<td style="white-space:nowrap">' + fmtDateTime(b.at) + '</td>' +
-      '<td><span class="row tight" style="flex-wrap:nowrap"><span class="avatar sm">' + esc(initials(b.who)) +
-        '</span><span style="white-space:nowrap">' + esc(b.who) + '</span></span></td>' +
-      '<td>' + esc(b.pod) + '</td>' +
+      /* Pod sits under the name rather than in a column of its own: it is an
+         attribute of the person who filed the report, there is already a Pod
+         filter above the table, and nine columns pushed Status and Comments
+         — the two things this table is read for — off the right edge. */
+      '<td><span class="row tight" style="flex-wrap:nowrap">' +
+        '<span class="avatar sm">' + esc(initials(b.who)) + '</span>' +
+        '<span class="td-stack" style="gap:0">' +
+          '<span style="white-space:nowrap;font-weight:700">' + esc(b.who) + '</span>' +
+          '<span class="hint">' + esc(b.pod) + '</span>' +
+        '</span></span></td>' +
       '<td>' + prioPill(b.priority, true) + '</td>' +
+      /* Attachments likewise: a 52x36 thumbnail column was unreadable as a
+         picture and cost more width than a count. The count still opens the
+         first screenshot, and the record modal shows them all properly. */
       '<td>' + esc(b.title) +
-        (n ? ' <span class="hint" style="white-space:nowrap"><i class="ph ph-chat-circle" aria-hidden="true"></i> ' + n + '</span>' : '') +
-        (awaitingReply(b) ? ' <span class="c-badge c-badge-warning">Awaiting reporter</span>' : '') + '</td>' +
+        (b.shots.length
+          ? ' <button class="shot-count" type="button" data-shot="' + esc(b.shots[0]) + '"' +
+            ' aria-label="' + b.shots.length + ' screenshot' + (b.shots.length === 1 ? '' : 's') + ' — open the first">' +
+            '<i class="ph ph-paperclip" aria-hidden="true"></i>' + b.shots.length + '</button>'
+          : '') + '</td>' +
       '<td style="white-space:nowrap">' + (b.assignee
         ? '<span class="row tight" style="flex-wrap:nowrap"><span class="avatar sm">' + esc(initials(b.assignee)) +
           '</span><span>' + esc(b.assignee) + '</span></span>'
         : '<span class="muted">Unassigned</span>') + '</td>' +
-      '<td><span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span></td>' +
-      '<td>' + (b.shots.length
-        ? '<span class="row tight" style="flex-wrap:nowrap">' +
-            '<button class="thumb thumb-sm" type="button" data-shot="' + esc(b.shots[0]) + '" aria-label="Expand screenshot">' +
-              '<img src="' + b.shots[0] + '" alt="" /></button>' +
-            (b.shots.length > 1 ? '<span class="hint">+' + (b.shots.length - 1) + '</span>' : '') +
-          '</span>'
-        : '<span class="muted">—</span>') + '</td>' +
+      /* Whose turn it is *is* the status here, not a note attached to one —
+         a waiting ticket reads as one badge, the same as every other row.
+         The workflow status is still on the record itself, where it is
+         editable; repeating it under the badge only made the cell two lines
+         tall and gave the column two answers to one question. */
+      '<td>' + (t
+        ? threadBadge(b, 'admin')
+        : '<span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span>') + '</td>' +
+      '<td>' + cmtPill(b) + '</td>' +
     '</tr>';
   }).join('');
 
@@ -2819,7 +3192,9 @@ function paintRecord(){
         '<span class="row tight"><span class="avatar">' + esc(initials(b.who)) + '</span>' +
           '<span class="stack" style="gap:2px"><b style="font-size:var(--text-body2-size)">' + esc(b.who) +
           '</b><span class="hint">' + esc(b.pod) + '</span></span></span>' +
-        (admin ? '' : '<span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span>') +
+        '<span class="tag-row">' + threadBadge(b, admin ? 'admin' : 'user') +
+          (admin ? '' : '<span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span>') +
+        '</span>' +
       '</div>' +
 
       /* Triage set. Editable for the team, stated for the reporter — same
@@ -2839,10 +3214,18 @@ function paintRecord(){
                   '<span class="c-dropdown-row-desc">' + esc(PRIORITIES[k].desc) + '</span></span>' +
                   '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
               }).join(''), 'Incident priority') +
+            /* Dropdown's own media slot in its is-avatar form — initials
+               only, and no description line: a name plus a job title in a
+               four-person list is noise, and the initials are what people
+               already recognise from the table's own Assigned to column. */
             recDropdown('recAssignee', b.assignee || 'Unassigned',
               ['Unassigned'].concat(TECH).map(function(name){
                 var on = (b.assignee || 'Unassigned') === name;
+                var media = name === 'Unassigned'
+                  ? '<i class="ph ph-user-circle-dashed c-dropdown-row-media" aria-hidden="true"></i>'
+                  : '<i class="c-dropdown-row-media is-avatar" aria-hidden="true">' + esc(initials(name)) + '</i>';
                 return '<div class="c-dropdown-row' + (on ? ' selected' : '') + '" role="option" data-as="' + esc(name) + '">' +
+                  media +
                   '<span class="c-dropdown-row-label">' + esc(name) + '</span>' +
                   '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
               }).join(''), 'Assigned to')
