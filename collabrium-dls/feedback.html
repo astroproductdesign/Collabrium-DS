@@ -1,0 +1,3125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Collabrium — Feedback &amp; Bug Reports</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<style>
+/* ==========================================================================
+   CANDIDATE COMPONENTS — not in components.css yet.
+   Four patterns this feature needs that the DLS does not have. Written to
+   house conventions (tokens only, .c- prefix, same commenting style) so that
+   promoting any of them is a copy-paste rather than a rewrite. Everything
+   below the second banner is prototype-only scaffolding and would NOT be
+   promoted.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 1 — Floating action button (.c-fab)
+   Nothing in the system is a persistent, viewport-anchored action. Button's
+   own Primary recipe is reused for fill, text colour and hover; what's new
+   is only the fixed anchoring, the circular 56px box and the attention ring.
+   Sits at z-index 900 — below Toast (1000) so a toast never lands behind it,
+   below Tutorial Modal (1100), above Chat (95) and Command brief (400).
+   -------------------------------------------------------------------------- */
+.c-fab{position:fixed; right:var(--spacing-24); bottom:var(--spacing-24); z-index:900; display:inline-flex; align-items:center; justify-content:center; width:56px; height:56px; padding:0; border:0; border-radius:var(--radius-pill); background:var(--color-obsidian); color:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--icon-md); cursor:pointer; box-shadow:var(--shadow-4); transition:background-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
+.c-fab:hover{background:var(--color-neutral-8); transform:translateY(-1px);}
+.c-fab:active{transform:translateY(0);}
+.c-fab:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:3px;}
+/* Attention ring — one-shot, three pulses then stop, so it nudges on first
+   appearance without becoming ambient motion the user has to tune out. A
+   pseudo-element rather than a box-shadow on the button itself, so the
+   button's own resting elevation is untouched while it runs. */
+.c-fab::after{content:""; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--color-obsidian); opacity:0; pointer-events:none;}
+.c-fab.is-nudging::after{animation:c-fab-pulse var(--duration-ambient) var(--ease-standard) 3;}
+@keyframes c-fab-pulse{
+  0%{transform:scale(1); opacity:.55;}
+  100%{transform:scale(1.45); opacity:0;}
+}
+/* The FAB is decoration the moment motion is off — the ring is the only
+   part that carries no information, so it's the only part suppressed. */
+@media (prefers-reduced-motion: reduce){
+  .c-fab.is-nudging::after{animation:none;}
+  .c-fab:hover{transform:none;}
+}
+/* Menu — a small popover above the button. Reuses the Filters/Dropdown
+   popover convention (radius-md, 1px Neutral-3, shadow-3) rather than a
+   third popover recipe, and opens upward for the same reason SidebarNav's
+   user menu does: the trigger is pinned to the viewport bottom. */
+.c-fab-menu{position:fixed; right:var(--spacing-24); bottom:calc(var(--spacing-24) + 56px + var(--spacing-8)); z-index:900; width:268px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-8); display:flex; flex-direction:column; gap:var(--spacing-4);}
+.c-fab-menu[hidden]{display:none;}
+.c-fab-menu-title{padding:var(--spacing-8) var(--spacing-8) var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-fab-menu-item{display:flex; align-items:flex-start; gap:var(--spacing-12); width:100%; padding:var(--spacing-8) var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; text-align:left; cursor:pointer; font-family:var(--font-primary);}
+.c-fab-menu-item:hover{background:var(--color-neutral-2);}
+.c-fab-menu-item:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+.c-fab-menu-item > i{flex:none; margin-top:2px; font-size:var(--icon-base); color:var(--color-neutral-5);}
+.c-fab-menu-item .t{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.c-fab-menu-item .t b{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:700; color:var(--color-neutral-9);}
+.c-fab-menu-item .t span{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 2 — Record modal (.c-modal-layer + .c-modal.is-record)
+   A centred dialog holding one record out of a list, with prev/next built
+   into its own header so the reader can walk the list without going back
+   to it. Modal is the right component and its head/body/foot classes are
+   reused verbatim — what's new is only (a) a layer to mount and scrim it,
+   which components.css does not ship at all (.c-modal is a bare box), and
+   (b) a size variant, because Modal's own 400px cap is a confirm-dialog
+   width and a record needs a reading width.
+   z-index 950/951: a record view is a modal surface, so it has to clear
+   the FAB (900), which otherwise paints over the dialog's own footer.
+   Still below Toast (1000) and the screenshot lightbox (1050), which both
+   outrank any record view.
+   -------------------------------------------------------------------------- */
+.c-modal-layer{position:fixed; inset:0; z-index:950; display:flex; align-items:center; justify-content:center; padding:var(--spacing-24); background:var(--shadow-overlay); opacity:0; transition:opacity var(--duration-base) var(--ease-standard);}
+.c-modal-layer.is-open{opacity:1;}
+.c-modal-layer[hidden]{display:none;}
+/* Modal's own radius, fill and shadow are inherited from .c-modal; only the
+   box and the internal scroll are new. max-height + a scrolling body rather
+   than a scrolling page, so the head (which carries the pager) and the foot
+   (which carries the actions) stay put while the record scrolls. */
+.c-modal.is-record{position:relative; z-index:951; display:flex; flex-direction:column; width:min(760px, 100%); max-width:none; max-height:100%; transform:translateY(8px) scale(.99); opacity:0; transition:transform var(--duration-base) var(--ease-settle), opacity var(--duration-base) var(--ease-settle);}
+.c-modal-layer.is-open .c-modal.is-record{transform:none; opacity:1;}
+.c-modal.is-record .c-modal-head{flex:none; align-items:flex-start; gap:var(--spacing-12); padding:var(--spacing-20) var(--spacing-24); border-bottom:1px solid var(--color-neutral-3);}
+.c-modal.is-record .c-modal-head h4{overflow-wrap:anywhere;}
+.c-modal.is-record .c-modal-body{flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; display:flex; flex-direction:column; gap:var(--spacing-24); padding:var(--spacing-24);}
+.c-modal.is-record .c-modal-foot{flex:none; padding:var(--spacing-16) var(--spacing-24);}
+/* Pager — the prev/next pair plus its position readout. Lives in the head
+   rather than flanking the dialog: arrows outside the box fall off-screen
+   the moment the viewport is narrower than the modal plus two hit targets. */
+.c-modal-pager{flex:none; display:flex; align-items:center; gap:var(--spacing-4);}
+.c-modal-pager .pos{font-family:var(--font-primary); font-size:var(--text-caption-size); color:var(--color-neutral-5); font-variant-numeric:tabular-nums; white-space:nowrap; padding:0 var(--spacing-4);}
+.c-modal-pager .c-icon-btn:disabled{color:var(--color-neutral-4); cursor:not-allowed;}
+.c-modal-pager .c-icon-btn:disabled:hover{background:transparent;}
+@media (prefers-reduced-motion: reduce){
+  .c-modal-layer, .c-modal.is-record{transition:none;}
+}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 3 — Comment thread (.c-comments)
+   A chronological thread on one record, written to by two sides — the
+   team that owns the record and the person who filed it. Chat window is
+   the closest existing surface but it is a full-screen AI conversation
+   with one human in it; this is a small, embedded, two-party log with no
+   streaming and no assistant.
+   The two sides differ by fill, not by alignment: both columns stay left,
+   because a chronological record read as a transcript is easier to follow
+   in one column than zig-zagged. The team side takes the Water (Data)
+   8% tint — the platform/engineering side is the Water cluster in the
+   5-element mapping, so it owns that content and the tint is a permitted
+   colored background rather than decoration. Every bubble also carries a
+   named role pill, so the colour is never the only thing saying who spoke.
+   -------------------------------------------------------------------------- */
+.c-comments{display:flex; flex-direction:column; gap:var(--spacing-16);}
+.c-comment-list{display:flex; flex-direction:column; gap:var(--spacing-12);}
+.c-comment{display:flex; gap:var(--spacing-12);}
+.c-comment-body{flex:1 1 auto; min-width:0; padding:var(--spacing-12) var(--spacing-16); border-radius:var(--radius-md); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1);}
+.c-comment.is-team .c-comment-body{background:var(--color-water-bg); border-color:var(--color-water-bg-strong);}
+.c-comment-meta{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8); margin-bottom:var(--spacing-4);}
+.c-comment-meta b{font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
+.c-comment-meta time{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+.c-comment-text{margin:0; font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-9); overflow-wrap:anywhere;}
+.c-comment-shots{display:flex; flex-wrap:wrap; gap:var(--spacing-8); margin-top:var(--spacing-8);}
+/* A question waiting on the other side is the one thing in a thread that
+   needs to be findable without reading it, so it gets a rule rather than
+   only a pill. */
+.c-comment.is-asking .c-comment-body{border-left:3px solid var(--color-amber);}
+.c-comment-avatar{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.c-comment.is-team .c-comment-avatar{background:var(--color-navy); color:var(--color-neutral-1);}
+/* Composer — label, textarea, a compact drop zone and the send action.
+   The zone is Uploader's own recipe at a smaller padding, not a new one. */
+.c-comment-form{display:flex; flex-direction:column; gap:var(--spacing-8); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+.c-comment-form .c-uploader-zone{padding:var(--spacing-12);}
+.c-comment-form-foot{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); flex-wrap:wrap;}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 4 — Scale input (.c-scale)
+   A 1-5 / 0-10 linear-scale answer. Radio is the right semantics but its
+   own circle+label stack reads as a vertical list, and Segmented Control is
+   a view switcher, not a form answer. This is a radiogroup rendered as a row
+   of equal-width numbered targets: real <input type="radio">, so keyboard
+   arrow-key navigation and form semantics come free.
+   -------------------------------------------------------------------------- */
+.c-scale{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-scale-track{display:flex; gap:var(--spacing-8); flex-wrap:wrap;}
+.c-scale-opt{position:relative; flex:1 1 0; min-width:40px;}
+.c-scale-opt input{position:absolute; opacity:0; width:0; height:0;}
+.c-scale-opt span{display:flex; align-items:center; justify-content:center; height:40px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-scale-opt:hover span{background:var(--color-neutral-2);}
+.c-scale-opt input:checked + span{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-scale-opt input:focus-visible + span{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-scale-opt input:disabled + span{background:var(--color-neutral-2); color:var(--color-neutral-4); cursor:not-allowed;}
+/* End labels — the numbers alone never say which end is good. */
+.c-scale-ends{display:flex; justify-content:space-between; gap:var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* ==========================================================================
+   PROTOTYPE SCAFFOLDING — layout glue for this demo only. Nothing here is a
+   component and nothing here would be promoted. Every value is a token.
+   ========================================================================== */
+*{box-sizing:border-box;}
+html,body{margin:0; height:100%;}
+/* The UA's own [hidden]{display:none} is a type-selector-strength rule, so
+   any class that sets display — .stack{display:flex} here — silently beats
+   it and a "hidden" panel stays on screen. Toggling .hidden is the whole
+   routing mechanism in this file, so it has to win everywhere. */
+[hidden]{display:none !important;}
+body{background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary);}
+
+.app{display:flex; min-height:100vh;}
+.app-nav{flex:0 0 auto; padding:var(--spacing-16) 0 var(--spacing-16) var(--spacing-16); position:sticky; top:0; height:100vh;}
+.app-nav .c-sidebar{height:100%;}
+.app-main{flex:1 1 auto; min-width:0; padding:var(--spacing-32) var(--spacing-32) var(--spacing-120);}
+.app-inner{max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-24);}
+
+.route[hidden]{display:none;}
+.row{display:flex; align-items:center; gap:var(--spacing-12); flex-wrap:wrap;}
+.row.between{justify-content:space-between;}
+.row.tight{gap:var(--spacing-8);}
+.grow{flex:1 1 auto; min-width:0;}
+.stack{display:flex; flex-direction:column; gap:var(--spacing-16);}
+.stack.sm{gap:var(--spacing-8);}
+.stack.lg{gap:var(--spacing-24);}
+.muted{color:var(--color-neutral-5);}
+.eyebrow{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.hint{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;}
+h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight);}
+
+/* Avatar — Search input's own 32px recipe, reused verbatim rather than a
+   fourth copy (Card profile, SidebarNav user and Search input each already
+   carry one; this is the reason a shared .c-avatar is worth proposing). */
+.avatar{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; font-style:normal;}
+.avatar.sm{width:24px; height:24px; font-size:var(--text-label3-size);}
+.avatar.lg{width:40px; height:40px; font-size:var(--text-label2-size);}
+
+/* Form library rows */
+.lib{display:flex; flex-direction:column; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1); overflow:hidden;}
+.lib-row{display:flex; align-items:center; gap:var(--spacing-16); width:100%; padding:var(--spacing-16) var(--spacing-20); border:0; border-bottom:1px solid var(--color-neutral-3); background:transparent; text-align:left; cursor:pointer; font-family:inherit; transition:background-color var(--duration-fast) var(--ease-standard);}
+.lib-row:last-child{border-bottom:0;}
+.lib-row:hover{background:var(--color-neutral-2);}
+.lib-row:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+.lib-row-title{font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-9);}
+.lib-row-meta{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+.lib-row-num{flex:none; text-align:right; font-variant-numeric:tabular-nums;}
+.lib-row-num b{display:block; font-size:var(--text-body1-size); font-weight:700;}
+
+/* Builder toolbar */
+.toolbar{display:flex; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); position:sticky; top:var(--spacing-16); z-index:30;}
+.toolbar .sep{width:1px; align-self:stretch; margin:0 var(--spacing-4); background:var(--color-neutral-3);}
+.kebab-wrap{position:relative;}
+.kebab-menu{position:absolute; right:0; top:calc(100% + var(--spacing-8)); z-index:40; width:200px; padding:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); display:flex; flex-direction:column; gap:2px;}
+.kebab-menu[hidden]{display:none;}
+.kebab-menu button{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); cursor:pointer; text-align:left;}
+.kebab-menu button:hover{background:var(--color-neutral-2);}
+.kebab-menu button.danger{color:var(--color-red);}
+
+/* Question blocks */
+.qblock{position:relative; display:flex; flex-direction:column; gap:var(--spacing-12); padding:var(--spacing-20); padding-left:var(--spacing-32); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1);}
+.qblock.is-dragging{opacity:.4;}
+.qblock.is-drop-target{box-shadow:inset 0 3px 0 var(--color-obsidian);}
+.qblock.is-drop-target-after{box-shadow:inset 0 -3px 0 var(--color-obsidian);}
+.qgrip{position:absolute; left:var(--spacing-8); top:var(--spacing-20); display:flex; align-items:center; justify-content:center; width:20px; height:24px; border:0; background:transparent; color:var(--color-neutral-4); cursor:grab; padding:0; border-radius:var(--radius-sm);}
+.qgrip:hover{color:var(--color-neutral-9); background:var(--color-neutral-2);}
+.qgrip:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:1px;}
+.qgrip:active{cursor:grabbing;}
+.qblock-head{display:flex; align-items:flex-start; gap:var(--spacing-12);}
+.qblock-num{flex:none; font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5); padding-top:10px; font-variant-numeric:tabular-nums;}
+.qblock-actions{flex:none; display:flex; align-items:center; gap:var(--spacing-4);}
+.qblock-actions .qtype{position:relative; flex:none;}
+.qblock-actions .qtype input{height:32px; width:150px; padding:0 var(--spacing-8); padding-right:28px; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;}
+.qblock-actions .qtype .icon-trailing{right:var(--spacing-8); font-size:var(--icon-micro);}
+.qblock-actions .qtype .c-dropdown-panel{position:absolute; top:calc(100% + var(--spacing-4)); right:0; width:200px; z-index:20; margin-top:0;}
+.qblock-foot{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-16); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+.qblock-media{border-radius:var(--radius-md); overflow:hidden; background:var(--color-neutral-2); display:flex; align-items:center; justify-content:center; min-height:160px; color:var(--color-neutral-5); gap:var(--spacing-8); flex-direction:column;}
+.qblock-media i{font-size:var(--icon-lg);}
+.add-bar{display:flex; flex-wrap:wrap; gap:var(--spacing-8); padding:var(--spacing-16); border:1px dashed var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1);}
+
+/* Responses */
+.sum-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--spacing-16);}
+.resp-list{display:flex; flex-direction:column; gap:var(--spacing-8); max-height:360px; overflow-y:auto; padding-right:var(--spacing-4);}
+.resp-item{padding:var(--spacing-12) var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); font-size:var(--text-body2-size); line-height:1.55;}
+.resp-item .who{display:block; margin-top:var(--spacing-4); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+.indiv-nav{display:flex; align-items:center; gap:var(--spacing-8);}
+.indiv-qa{display:flex; flex-direction:column; gap:var(--spacing-4); padding-bottom:var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
+.indiv-qa:last-child{border-bottom:0; padding-bottom:0;}
+.indiv-qa .q{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+.indiv-qa .a{font-size:var(--text-body2-size); font-weight:500; color:var(--color-neutral-9); overflow-wrap:anywhere;}
+
+/* Settings */
+.set-row{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-24); padding:var(--spacing-16) 0; border-bottom:1px solid var(--color-neutral-3);}
+.set-row:last-child{border-bottom:0;}
+.set-row .t b{display:block; font-size:var(--text-body2-size); font-weight:700;}
+.set-row .t span{display:block; margin-top:2px; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+
+/* Bug report */
+.thumbs{display:flex; flex-wrap:wrap; gap:var(--spacing-8);}
+.thumb{position:relative; width:88px; height:64px; border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); overflow:hidden; background:var(--color-neutral-2); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;}
+.thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+.thumb .x{position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:var(--radius-pill); border:0; background:var(--color-obsidian); color:var(--color-neutral-1); font-size:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;}
+.thumb-sm{width:52px; height:36px;}
+.lightbox{position:fixed; inset:0; z-index:1050; display:flex; align-items:center; justify-content:center; padding:var(--spacing-32); background:var(--shadow-overlay);}
+.lightbox[hidden]{display:none;}
+.lightbox img{max-width:100%; max-height:100%; border-radius:var(--radius-md); box-shadow:var(--shadow-4);}
+
+.field-wide{width:100%; max-width:none;}
+.c-field.field-wide input, .c-field.field-wide textarea{width:100%;}
+.c-uploader.field-wide{max-width:none;}
+
+
+/* Form library — grid view. Card's own Functional grid and Interactive
+   variant, rendered as a <button> so the whole tile is one target (the
+   list view's rows already are). */
+.lib-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:var(--spacing-16);}
+.lib-card{align-items:stretch; text-align:left; font-family:inherit; cursor:pointer; padding:var(--spacing-20); gap:var(--spacing-12);}
+.lib-card:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
+.lib-card-title{font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+.lib-card-desc{flex:1 1 auto; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+.lib-card-foot{display:flex; align-items:baseline; justify-content:space-between; gap:var(--spacing-8); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+.lib-card-foot b{font-size:var(--text-h5-size); font-weight:800; font-variant-numeric:tabular-nums;}
+/* Search hit — a plain background mark, not a brand tint: it marks the
+   matched substring, it doesn't classify the row. */
+.hit{background:var(--color-gold-bg-strong); border-radius:3px; padding:0 1px;}
+
+/* Floating dropdown panel. components.css ships .c-dropdown-panel as
+   position:static, so an open panel reflows whatever sits under it — a
+   filter above a table pushes the table down by the panel's full height.
+   Wherever the trigger sits above content that must not move, the field
+   gets .dd-float and the panel overlays instead. (The question-type
+   switcher solves the same problem with its own scoped rule above, which
+   also fixes the panel's width and right-edge.) */
+.dd-float{position:relative;}
+.dd-float > .c-dropdown-panel{position:absolute; top:calc(100% + var(--spacing-4)); left:0; right:0; z-index:60; margin-top:0;}
+.dd-float.align-right > .c-dropdown-panel{left:auto; right:0; width:220px;}
+
+/* Popover menu on a button — the kebab menu's own recipe, reused for the
+   Responses export menu rather than a second popover. */
+.menu-wrap{position:relative;}
+.menu-pop{position:absolute; right:0; top:calc(100% + var(--spacing-8)); z-index:60; width:248px; padding:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); display:flex; flex-direction:column; gap:2px;}
+.menu-pop[hidden]{display:none;}
+.menu-pop button{display:flex; align-items:flex-start; gap:var(--spacing-8); width:100%; padding:var(--spacing-8) var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; font-family:inherit; text-align:left; cursor:pointer;}
+.menu-pop button:hover{background:var(--color-neutral-2);}
+.menu-pop button:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+.menu-pop button > i{flex:none; margin-top:2px; font-size:var(--icon-base); color:var(--color-neutral-5);}
+.menu-pop .t{display:flex; flex-direction:column; gap:1px; min-width:0;}
+.menu-pop .t b{font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
+.menu-pop .t span{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+
+/* Priority — a severity ramp, so it reads as one measure with a dot per
+   step rather than four unrelated badge colours. Red is the functional
+   token; amber is the same amber Badge's own Warning variant already
+   uses; the bottom two steps are neutrals. The P-number is always in the
+   label, so the dot is reinforcement and never the only signal. */
+.prio{display:inline-flex; align-items:center; gap:var(--spacing-8); white-space:nowrap; font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
+.prio .dot{flex:none; width:8px; height:8px; border-radius:var(--radius-pill); background:var(--color-neutral-4);}
+.prio.p1 .dot{background:var(--color-red);}
+.prio.p2 .dot{background:var(--color-amber);}
+.prio.p3 .dot{background:var(--color-neutral-5);}
+.prio.p4 .dot{background:var(--color-neutral-4);}
+.prio.sm{font-size:var(--text-caption-size);}
+
+/* Affected services — a checkbox set, laid out in columns because ten
+   one-line options in a single stack is a scroll, not a choice. */
+.svc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:var(--spacing-8) var(--spacing-16); padding:var(--spacing-12) var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1);}
+.c-field-error .svc-grid{border:2px solid var(--color-red); padding:11px 15px;}
+.tag-row{display:flex; flex-wrap:wrap; gap:var(--spacing-4);}
+
+/* AI summary panel. Sits where the result will be (Loading State Rule 10)
+   and replaces the wait state in place. Not a brand tint — an AI answer
+   is prose about the content, it doesn't belong to an element. */
+.ai-panel{display:flex; flex-direction:column; gap:var(--spacing-8); padding:var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-canvas-warm-card);}
+.ai-panel-head{display:flex; align-items:center; gap:var(--spacing-8);}
+.ai-panel-head .eyebrow{display:flex; align-items:center; gap:var(--spacing-4);}
+.ai-panel-head .grow{flex:1 1 auto;}
+.ai-take{margin:0; font-size:var(--text-body1-size); line-height:1.6; font-weight:500; color:var(--color-neutral-9);}
+.ai-themes{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:var(--spacing-8);}
+.ai-themes li{display:flex; gap:var(--spacing-8); font-size:var(--text-body2-size); line-height:1.55; color:var(--color-neutral-9);}
+.ai-themes li .n{flex:none; min-width:34px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--color-neutral-5);}
+.ai-themes li q{color:var(--color-neutral-5); font-style:italic;}
+.ai-foot{display:flex; align-items:center; gap:var(--spacing-8); flex-wrap:wrap;}
+.ai-disc{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+
+/* My tickets — the reporter's own list. Same row recipe as the form
+   library, plus a status column and an attention flag. */
+.mine-row{display:flex; align-items:center; gap:var(--spacing-16); width:100%; padding:var(--spacing-16) var(--spacing-20); border:0; border-bottom:1px solid var(--color-neutral-3); background:transparent; text-align:left; cursor:pointer; font-family:inherit; transition:background-color var(--duration-fast) var(--ease-standard);}
+.mine-row:last-child{border-bottom:0;}
+.mine-row:hover{background:var(--color-neutral-2);}
+.mine-row:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+.mine-row.needs-reply{background:var(--color-gold-bg);}
+.mine-row.needs-reply:hover{background:var(--color-gold-bg-strong);}
+.mine-title{font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-9);}
+.mine-meta{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+.mine-side{flex:none; display:flex; align-items:center; gap:var(--spacing-8);}
+
+/* Segmented Control's own .c-seg is flex:1 with basis 0, so every segment
+   gets the same width regardless of its label — and its uppercase transform
+   makes a two-word label ("ALL REPORTS") wrap onto a second line, which
+   changes the control's height. Scoped here rather than patched into
+   components.css, which would need a matching DESIGN-SYSTEM.md + preview.html
+   pass; it is a candidate fix for the component itself. */
+[data-bugseg] .c-seg, #respSeg .c-seg, #hubViewSeg .c-seg{white-space:nowrap;}
+
+/* Bug table — eight columns need more than the content region's own width,
+   so the wrap takes the system's .c-table-scroll-x variant and the table
+   declares a real min-width rather than letting every column squash to the
+   point where a title wraps four times. */
+#routeBugAdmin .c-table{min-width:1200px;}
+#routeBugAdmin .c-table td:nth-child(5),
+#routeBugAdmin .c-table th:nth-child(5){min-width:300px;}
+
+/* Record modal — read-only field rows, for the sides of a record the
+   viewer cannot edit. */
+.rec-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:var(--spacing-16);}
+.rec-cell{display:flex; flex-direction:column; gap:var(--spacing-4); min-width:0;}
+.rec-cell .v{font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); overflow-wrap:anywhere;}
+
+/* Screenshot tiles in the record modal — a grid of real thumbnails, so a
+   report with three attachments stays one screen rather than three. */
+.shot-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:var(--spacing-8);}
+.shot-tile{width:100%; height:auto; aspect-ratio:16/10;}
+
+/* Print — the PDF export route. Chrome's own "Save as PDF" is the only
+   way to a real PDF without shipping a rendering library, so the export
+   prints a purpose-built sheet instead of the app. */
+@media print{
+  /* Everything that is a control rather than content comes out: the reader
+     of a PDF cannot use a filter, a view switcher or a search box. */
+  .app-nav, .c-fab, .c-fab-menu, .c-toast-host, .c-tabs, .toolbar,
+  .c-pageheader-actions, .c-modal-layer, .lightbox, .c-chart-table-btn,
+  .c-segctl, .menu-wrap, .c-search-input, .c-chip-group, .add-bar,
+  #hubSearchCount, .ai-panel-head .c-btn, .ai-panel-head .c-icon-btn{display:none !important;}
+  /* With the switcher and the Export button gone, the row they shared has
+     nothing left to space apart. */
+  .row.between:has(> .c-segctl){display:block;}
+  body{background:#fff;}
+  .app-main{padding:0;}
+  .c-card, .lib, .c-table-standalone-wrap{box-shadow:none; break-inside:avoid;}
+  .resp-list{max-height:none; overflow:visible;}
+  .c-chart-card .c-chart-canvas-wrap{display:none;}
+  .c-chart-card .c-chart-table-wrap{display:flex !important; min-height:0;}
+}
+
+@media (max-width:900px){
+  .app-nav{display:none;}
+  .app-main{padding:var(--spacing-20) var(--spacing-16) var(--spacing-120);}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== Entry point 1 — side navigation ===== -->
+  <div class="app-nav">
+    <nav class="c-sidebar" aria-label="Main">
+      <div class="c-sidebar-header">
+        <span class="c-sidebar-logo"><b style="font-family:var(--font-secondary);font-size:18px;font-weight:600">Collabrium</b></span>
+      </div>
+      <button class="c-sidebar-item" type="button"><i class="ph ph-squares-four" aria-hidden="true"></i><span class="label">Dashboard</span></button>
+      <button class="c-sidebar-item" type="button"><i class="ph ph-briefcase" aria-hidden="true"></i><span class="label">Campaigns</span></button>
+      <button class="c-sidebar-item" type="button"><i class="ph ph-chart-bar" aria-hidden="true"></i><span class="label">Reports</span></button>
+      <div class="c-sidebar-divider"></div>
+      <button class="c-sidebar-item active" id="navFeedback" type="button" data-go="forms"><i class="ph ph-chat-teardrop-text" aria-hidden="true"></i><span class="label">Feedback</span></button>
+      <div class="c-sidebar-footer">
+        <div class="c-sidebar-user">
+          <span class="c-sidebar-user-avatar">AR</span>
+          <span class="c-sidebar-user-text">
+            <span class="c-sidebar-user-name">Aisyah Rahman</span>
+            <span class="c-sidebar-user-role">CollabMedia</span>
+          </span>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <main class="app-main">
+    <div class="app-inner">
+
+      <!-- Section header + sub-tabs, shared by every route -->
+      <header class="c-pageheader" id="pageHeader">
+        <div class="c-pageheader-row">
+          <div class="c-pageheader-text">
+            <h1 id="phTitle">Feedback</h1>
+            <p class="sub" id="phSub">Collect feedback from your team and triage the bugs they report.</p>
+          </div>
+          <div class="c-pageheader-actions" id="phActions"></div>
+        </div>
+      </header>
+
+      <div class="c-tabs" role="tablist" aria-label="Feedback sections" id="sectionTabs">
+        <button class="c-tab active" type="button" role="tab" data-section="forms" aria-selected="true"><i class="ph ph-list-checks" aria-hidden="true"></i>Feedback Forms</button>
+        <button class="c-tab" type="button" role="tab" data-section="bugs" aria-selected="false"><i class="ph ph-bug" aria-hidden="true"></i>Bug Reports</button>
+      </div>
+
+      <!-- ===== Route: Feedback Hub (form library) ===== -->
+      <section class="route stack lg" id="routeHub">
+        <div class="row between">
+          <div class="c-chip-group" role="group" aria-label="Filter by status">
+            <button class="c-chip c-chip-filter is-active" type="button" data-status="all">All <span class="count" id="cntAll">0</span></button>
+            <button class="c-chip c-chip-filter" type="button" data-status="active">Active <span class="count" id="cntActive">0</span></button>
+            <button class="c-chip c-chip-filter" type="button" data-status="closed">Closed <span class="count" id="cntClosed">0</span></button>
+          </div>
+          <div class="row tight">
+            <!-- Search input's real recipe: the magnifier carries
+                 .c-search-input-icon (it is absolutely positioned into the
+                 input's own 36px left padding — without the class it sits in
+                 flex flow and the padding becomes an empty gutter) and the
+                 clear button is part of the component, not an extra. -->
+            <div class="c-search-input">
+              <div class="c-search-input-box" id="hubSearchBox">
+                <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
+                <input type="search" id="hubSearch" placeholder="Search forms" autocomplete="off"
+                       aria-label="Search forms by title, description or status" aria-describedby="hubSearchCount" />
+                <button class="c-search-input-clear" type="button" id="hubSearchClear" aria-label="Clear search" hidden><i class="ph ph-x" aria-hidden="true"></i></button>
+              </div>
+            </div>
+            <div class="c-segctl c-segctl-default" role="tablist" aria-label="Library view" id="hubViewSeg">
+              <span class="c-seg-pill" aria-hidden="true"></span>
+              <button class="c-seg" type="button" role="tab" data-hv="grid" aria-label="Grid view" title="Grid view"><i class="ph ph-squares-four" aria-hidden="true"></i></button>
+              <button class="c-seg" type="button" role="tab" data-hv="list" aria-label="List view" title="List view"><i class="ph ph-rows" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        </div>
+        <p class="hint" id="hubSearchCount" role="status" aria-live="polite" hidden></p>
+        <div id="hubList"></div>
+      </section>
+
+      <!-- ===== Route: Form builder ===== -->
+      <section class="route stack lg" id="routeBuilder" hidden>
+        <div class="toolbar" role="toolbar" aria-label="Form actions">
+          <button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" title="Preview" aria-label="Preview" data-tb="preview"><i class="ph ph-eye" aria-hidden="true"></i></button>
+          <button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" title="Undo" aria-label="Undo" data-tb="undo"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i></button>
+          <button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" title="Redo" aria-label="Redo" data-tb="redo"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i></button>
+          <span class="sep" aria-hidden="true"></span>
+          <button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" title="Copy shareable link" aria-label="Copy shareable link" data-tb="link"><i class="ph ph-link" aria-hidden="true"></i></button>
+          <button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" title="Add users" aria-label="Add users" data-tb="users"><i class="ph ph-user-plus" aria-hidden="true"></i></button>
+          <span class="grow"></span>
+          <button class="c-btn c-btn-primary c-btn-sm" type="button" data-tb="publish"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Publish</button>
+          <span class="kebab-wrap">
+            <button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" title="More options" aria-label="More options" aria-haspopup="menu" aria-expanded="false" id="kebabBtn"><i class="ph ph-dots-three-vertical" aria-hidden="true"></i></button>
+            <div class="kebab-menu" id="kebabMenu" role="menu" hidden>
+              <button type="button" role="menuitem" data-kb="copy"><i class="ph ph-copy" aria-hidden="true"></i>Make a copy</button>
+              <button type="button" role="menuitem" class="danger" data-kb="trash"><i class="ph ph-trash" aria-hidden="true"></i>Move to trash</button>
+            </div>
+          </span>
+        </div>
+
+        <div class="c-tabs" role="tablist" aria-label="Form builder" id="builderTabs">
+          <button class="c-tab active" type="button" role="tab" data-btab="questions" aria-selected="true">Questions <span class="count" id="qCount">0</span></button>
+          <button class="c-tab" type="button" role="tab" data-btab="responses" aria-selected="false">Responses <span class="count" id="rCount">0</span></button>
+          <button class="c-tab" type="button" role="tab" data-btab="settings" aria-selected="false">Settings</button>
+        </div>
+
+        <div id="tabQuestions" class="stack lg"></div>
+        <div id="tabResponses" class="stack lg" hidden></div>
+        <div id="tabSettings" class="stack lg" hidden></div>
+      </section>
+
+      <!-- ===== Route: Bug report — user view ===== -->
+      <section class="route stack lg" id="routeBugNew" hidden></section>
+
+      <!-- ===== Route: Bug report — reporter's own tickets ===== -->
+      <section class="route stack lg" id="routeBugMine" hidden></section>
+
+      <!-- ===== Route: Bug report — admin view ===== -->
+      <section class="route stack lg" id="routeBugAdmin" hidden></section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ===== Entry point 2 — floating action button ===== -->
+<button class="c-fab" id="fab" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Give feedback">
+  <i class="ph ph-chat-teardrop-dots" aria-hidden="true"></i>
+</button>
+<div class="c-fab-menu" id="fabMenu" role="menu" aria-label="Give feedback" hidden>
+  <p class="c-fab-menu-title">Tell us how it's going</p>
+  <button class="c-fab-menu-item" type="button" role="menuitem" data-fab="forms">
+    <i class="ph ph-chat-teardrop-text" aria-hidden="true"></i>
+    <span class="t"><b>Share feedback</b><span>Answer a short form about your experience</span></span>
+  </button>
+  <button class="c-fab-menu-item" type="button" role="menuitem" data-fab="bug">
+    <i class="ph ph-bug" aria-hidden="true"></i>
+    <span class="t"><b>Report a bug</b><span>Something broken? Send it with a screenshot</span></span>
+  </button>
+</div>
+
+<!-- Record modal (one bug report, with its own pager) -->
+<div class="c-modal-layer" id="recLayer" hidden>
+  <div class="c-modal is-record" id="rec" role="dialog" aria-modal="true" aria-labelledby="recTitle"></div>
+</div>
+
+<!-- Screenshot lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot" hidden><img id="lightboxImg" alt="" /></div>
+
+<!-- Toast host -->
+<div class="c-toast-host" id="toastHost" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+var $  = function(s, r){ return (r||document).querySelector(s); };
+var $$ = function(s, r){ return [].slice.call((r||document).querySelectorAll(s)); };
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function initials(name){ return name.split(/\s+/).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase(); }
+
+/* Deterministic PRNG — the mock response set must be identical on every
+   load, otherwise the Summary charts and the Individual view disagree
+   between reloads and the numbers stop being checkable. */
+function rng(seed){ var s = seed >>> 0; return function(){
+  s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function pick(rand, arr){ return arr[Math.floor(rand() * arr.length)]; }
+/* Weighted integer in [lo,hi], skewed toward `centre` — real satisfaction
+   data clusters, it isn't uniform, and a uniform mock makes every chart
+   look flat and identical. */
+function skewed(rand, lo, hi, centre){
+  var a = rand(), b = rand(), t = (a + b) / 2;
+  var span = hi - lo;
+  var v = Math.round(lo + t * span + (centre - (lo + hi) / 2) * 0.6);
+  return Math.max(lo, Math.min(hi, v));
+}
+
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(d){ return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+function fmtDateTime(d){
+  var h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
+  var ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
+  return d.getDate() + ' ' + MONTHS[d.getMonth()] + ', ' + h + ':' + m + ap;
+}
+/* Sortable, unambiguous timestamp for exported data. fmtDateTime is tuned
+   for reading on screen and drops the year, which is wrong in a spreadsheet
+   column Excel is going to parse and sort. */
+function fmtStamp(d){
+  function p(n){ return String(n).padStart(2, '0'); }
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) +
+    ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function relDays(n){ var d = new Date(NOW.getTime() - n * 86400000); return d; }
+var NOW = new Date(2026, 8, 8, 10, 30);
+
+/* Screenshot stand-ins. Real bug reports carry real screenshots; this is a
+   file:// prototype with no network, so each one is a generated SVG data
+   URI of a plausible app frame rather than an external image that would
+   silently 404. */
+function shot(seed, caption){
+  var r = rng(seed);
+  var bars = '';
+  for (var i = 0; i < 5; i++){
+    var w = 40 + Math.floor(r() * 120);
+    bars += '<rect x="16" y="' + (56 + i * 18) + '" width="' + w + '" height="8" rx="4" fill="#E0E0E0"/>';
+  }
+  var accent = pick(r, ['#FF5825','#1473E6','#00C26E','#FFA425','#FF7A90']);
+  var svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200">' +
+    '<rect width="320" height="200" fill="#FAFAFA"/>' +
+    '<rect width="320" height="28" fill="#F0F0F0"/>' +
+    '<circle cx="14" cy="14" r="4" fill="#FD3343"/><circle cx="28" cy="14" r="4" fill="#FFA425"/><circle cx="42" cy="14" r="4" fill="#00C26E"/>' +
+    '<rect x="0" y="28" width="72" height="172" fill="#F0F0F0"/>' +
+    '<rect x="12" y="40" width="48" height="6" rx="3" fill="#E0E0E0"/>' +
+    '<rect x="12" y="54" width="40" height="6" rx="3" fill="#E0E0E0"/>' +
+    '<rect x="88" y="40" width="140" height="10" rx="5" fill="#BDBDBD"/>' +
+    '<g transform="translate(72,0)">' + bars + '</g>' +
+    '<rect x="232" y="150" width="72" height="26" rx="12" fill="' + accent + '"/>' +
+    '<text x="88" y="192" font-family="sans-serif" font-size="9" fill="#9E9E9E">' + esc(caption) + '</text>' +
+    '</svg>';
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+function toast(msg, tone){
+  var host = $('#toastHost');
+  var t = document.createElement('div');
+  t.className = 'c-toast is-message-only';
+  t.innerHTML = '<i class="ph ' + (tone === 'success' ? 'ph-check-circle' : 'ph-info') +
+    '" aria-hidden="true" style="font-size:var(--icon-base);color:var(--color-' +
+    (tone === 'success' ? 'green' : 'neutral-5') + ')"></i>' +
+    '<div class="body"><p class="message">' + esc(msg) + '</p></div>';
+  host.appendChild(t);
+  setTimeout(function(){ t.style.opacity = '0'; setTimeout(function(){ t.remove(); }, 300); }, 2600);
+}
+
+/* Close every open Dropdown panel under `root` (the document by default),
+   restoring the field's open class and the trigger's aria-expanded. Used by
+   the document-level click handler and by any trigger that has to close its
+   siblings before opening itself. */
+function closeDropdowns(root){
+  $$('.c-dropdown-panel', root).forEach(function(p){
+    if (p.hidden) return;
+    p.hidden = true;
+    var field = p.closest('.c-dropdown-field');
+    if (!field) return;
+    field.classList.remove('open');
+    var trig = field.querySelector('.c-dropdown-input');
+    if (trig) trig.setAttribute('aria-expanded', 'false');
+  });
+}
+
+/* ==========================================================================
+   Data
+   ========================================================================== */
+var PODS = ['CollabSales','CollabMedia','CollabContent','CollabInfluence','CollabStudio'];
+var ME = { name:'Aisyah Rahman', pods:['CollabMedia','CollabContent'] };
+
+var PEOPLE = ['Jason Lim','Nurul Kamal','Tan Wei Ming','Priya Nair','Daniel Wong','Siti Aminah',
+  'Marcus Tan','Farah Idris','Kelvin Cheah','Rachel Ong','Hafiz Rahman','Yee Ling Chong'];
+
+var TECH = ['Wei Sheng Loh','Divya Menon','Arif Zulkifli','Chen Yi Xuan'];
+
+/* Incident priority — a four-step severity ramp. Each step carries what it
+   actually means, because "High" on its own is a word the reporter and the
+   person triaging will read differently every time. */
+var PRIORITIES = {
+  p1:{ short:'P1', name:'Critical', desc:'Work is stopped and there is no workaround' },
+  p2:{ short:'P2', name:'High',     desc:'A core task is broken; the workaround costs real time' },
+  p3:{ short:'P3', name:'Medium',   desc:'Something is wrong but the work still gets done' },
+  p4:{ short:'P4', name:'Low',      desc:'Cosmetic, or an annoyance worth logging' }
+};
+var PRIO_ORDER = ['p1','p2','p3','p4'];
+function prioLabel(k){ return PRIORITIES[k].short + ' — ' + PRIORITIES[k].name; }
+function prioPill(k, sm){
+  return '<span class="prio ' + k + (sm ? ' sm' : '') + '"><span class="dot" aria-hidden="true"></span>' +
+    esc(prioLabel(k)) + '</span>';
+}
+
+/* Affected services — the surfaces a report can be filed against. A fixed
+   list rather than free text, because this is the field that routes the
+   ticket; a typo in it is a ticket nobody owns. */
+var SERVICES = ['Dashboards','Reports & exports','Campaigns','Briefs & approvals','Asset library',
+  'Quotes & billing','Notifications','Search','Sign-in & access','Integrations'];
+
+var TYPES = {
+  short:  { label:'Short text',            icon:'ph-text-aa' },
+  long:   { label:'Long text',             icon:'ph-text-align-left' },
+  single: { label:'Multiple choice',       icon:'ph-radio-button' },
+  multi:  { label:'Checkboxes',            icon:'ph-check-square' },
+  scale:  { label:'Linear scale',          icon:'ph-sliders-horizontal' },
+  yesno:  { label:'Yes / No',              icon:'ph-toggle-left' }
+};
+
+/* The seed form — the 10 questions from the brief, verbatim. Q6 carries the
+   "if no, why not?" follow-up as its own dependent open-text question, since
+   a Yes/No answer and a free-text answer can't share one response field. */
+function seedQuestions(){
+  return [
+    { id:'q1',  type:'scale', title:'How easy was it to complete what you came here to do?', required:true, min:1, max:5, lo:'Very difficult', hi:'Very easy' },
+    { id:'q2',  type:'scale', title:'How easy was it to find what you were looking for?', required:true, min:1, max:5, lo:'Very difficult', hi:'Very easy' },
+    { id:'q3',  type:'scale', title:'How would you rate the look and feel?', required:true, min:1, max:5, lo:'Poor', hi:'Excellent' },
+    { id:'q4',  type:'yesno', title:'Did the site/app feel fast and responsive?', required:true },
+    { id:'q5',  type:'scale', title:'Was the information clear and easy to understand?', required:true, min:1, max:5, lo:'Not at all', hi:'Completely' },
+    { id:'q6',  type:'yesno', title:'Were you able to complete your task/goal today?', required:true },
+    { id:'q6b', type:'long',  title:'If no, why not?', required:false, dependsOn:'q6', dependsValue:'No', placeholder:'Tell us what got in the way' },
+    { id:'q7',  type:'scale', title:'How satisfied are you with your experience overall?', required:true, min:1, max:5, lo:'Very dissatisfied', hi:'Very satisfied' },
+    { id:'q8',  type:'scale', title:'How likely are you to recommend this to a colleague?', required:true, min:0, max:10, lo:'Not at all likely', hi:'Extremely likely' },
+    { id:'q9',  type:'long',  title:'What was the most frustrating part of your experience?', required:false, placeholder:'Optional' },
+    { id:'q10', type:'long',  title:"What's one thing we could improve?", required:false, placeholder:'Optional' }
+  ];
+}
+
+var FRUSTRATIONS = [
+  'Having to re-apply the same filters every time I come back to the dashboard.',
+  'The export takes so long I usually give up and screenshot the table instead.',
+  'I can never remember which pod owns which report, and nothing on the page tells me.',
+  'Search only matches the start of a title, so I have to know the exact name already.',
+  'Too many clicks to get from a campaign to the numbers for that campaign.',
+  'It logged me out mid-form and I lost everything I had typed.',
+  'The date picker defaults to this month and I almost always want last month.',
+  'Nothing tells me a report is still refreshing, so I read stale numbers for ten minutes.',
+  'Column widths reset every single time.',
+  'On my laptop screen the table scrolls sideways and I lose the first column.'
+];
+var IMPROVEMENTS = [
+  'Remember my last filter set per report.',
+  'A proper bulk export — one click, all pods, one file.',
+  'Let me pin the four reports I actually use to the top.',
+  'Keyboard shortcuts for the things I do twenty times a day.',
+  'Show me who else is looking at the same campaign right now.',
+  'Autosave drafts. Please.',
+  'Make the mobile view usable — I approve things from my phone.',
+  'One clear "last updated" timestamp on every dashboard.',
+  'Fuzzy search that copes with a typo.',
+  'Let me duplicate a report instead of rebuilding it from scratch.',
+  'Dark mode would genuinely help on late shifts.'
+];
+
+/* Response set — 128 responses against the seed form, generated once from a
+   fixed seed so Summary and Individual always agree. */
+function buildResponses(qs, n, seed){
+  var r = rng(seed), out = [];
+  for (var i = 0; i < n; i++){
+    var completed = r() > 0.13;              /* ~87% completion */
+    var a = {};
+    var mood = r();                          /* one respondent-level mood drives every answer */
+    var centre = mood > 0.72 ? 4.4 : mood > 0.30 ? 3.6 : 2.4;
+    qs.forEach(function(q){
+      if (q.type === 'scale'){
+        a[q.id] = q.max === 10
+          ? skewed(r, 0, 10, Math.round(centre * 2))
+          : skewed(r, q.min, q.max, Math.round(centre));
+      } else if (q.type === 'yesno'){
+        var pYes = q.id === 'q4' ? 0.68 : 0.79;
+        a[q.id] = (mood * 0.5 + r() * 0.5) < pYes ? 'Yes' : 'No';
+      } else if (q.type === 'long'){
+        if (q.dependsOn && a[q.dependsOn] !== q.dependsValue) { a[q.id] = null; return; }
+        var p = q.id === 'q6b' ? 0.85 : (q.id === 'q9' ? 0.42 : 0.38);
+        a[q.id] = r() < p
+          ? pick(r, q.id === 'q10' ? IMPROVEMENTS : FRUSTRATIONS)
+          : null;
+      }
+    });
+    if (!completed){ a['q8'] = null; a['q9'] = null; a['q10'] = null; }
+    out.push({
+      id: 'r' + (i + 1),
+      who: pick(r, PEOPLE),
+      pod: pick(r, PODS),
+      at: new Date(NOW.getTime() - Math.floor(r() * 19 * 86400000)),
+      seconds: Math.round(60 + r() * 240),
+      complete: completed,
+      answers: a
+    });
+  }
+  out.sort(function(x, y){ return y.at - x.at; });
+  return out;
+}
+
+var SEED_QS = seedQuestions();
+var FORMS = [
+  { id:'f1', title:'Product experience survey — Q3', status:'active',
+    desc:'Ten quick questions about how Collabrium is working for you. Takes about two minutes and everything is anonymous to your pod lead.',
+    updated: relDays(1), questions: SEED_QS, responses: buildResponses(SEED_QS, 128, 20260908),
+    settings:{ sendCopy:true, allowEdit:false, oneResponse:true, progressBar:true,
+               confirm:'Thanks for your feedback! We read every response.' } },
+  { id:'f2', title:'Onboarding check-in — week one', status:'active',
+    desc:'For new joiners at the end of their first week.',
+    updated: relDays(4), questions:[], responses:[],
+    settings:{ sendCopy:false, allowEdit:true, oneResponse:false, progressBar:true, confirm:'Thanks for your feedback!' } },
+  { id:'f3', title:'CollabMedia planning tool — pilot feedback', status:'active',
+    desc:'Pilot group only.',
+    updated: relDays(6), questions:[], responses:[],
+    settings:{ sendCopy:true, allowEdit:true, oneResponse:true, progressBar:false, confirm:'Thanks for your feedback!' } },
+  { id:'f4', title:'Reporting refresh — concept test', status:'closed',
+    desc:'Closed 22 August.',
+    updated: relDays(17), questions:[], responses:[],
+    settings:{ sendCopy:false, allowEdit:false, oneResponse:true, progressBar:true, confirm:'Thanks for your feedback!' } },
+  { id:'f5', title:'Annual tooling review 2025', status:'closed',
+    desc:'Archived.',
+    updated: relDays(64), questions:[], responses:[],
+    settings:{ sendCopy:true, allowEdit:false, oneResponse:true, progressBar:true, confirm:'Thanks for your feedback!' } }
+];
+/* Response counts for the library rows on forms that have no detail built
+   out — the library shows a count, the builder shows an empty Responses tab. */
+FORMS[1].count = 12; FORMS[2].count = 31; FORMS[3].count = 87; FORMS[4].count = 204;
+
+/* Bug records. Every one carries the full triage set — priority, affected
+   services, assignee, resolution notes and its comment thread — because
+   both sides read the same record: the reporter sees it in My tickets, the
+   tech team sees it in All reports, and there is no second shape for it.
+   Three are filed by ME so the reporter-side view has real content, and one
+   of those ends on an unanswered question so the reply flow is reachable. */
+function cmt(who, role, at, body, asks, shots){
+  return { id:'c' + (cmt.n = (cmt.n || 0) + 1), who:who, role:role, at:at,
+           body:body, asks:!!asks, shots:shots || [] };
+}
+
+var BUGS = [
+  { id:'b1', at:new Date(2026,8,8,9,12),  who:'Jason Lim',    pod:'CollabSales',     status:'new',
+    priority:'p2', services:['Reports & exports'], assignee:null, resolution:'',
+    title:'Export button unresponsive on Safari',
+    desc:'Clicking Export on the pipeline report does nothing on Safari 17.6. No spinner, no download, no error. The same report exports fine in Chrome on the same machine.',
+    extra:'Steps: open Pipeline > Q3 > Export > CSV. macOS 15.1, Safari 17.6. Happens every time, tried after a hard refresh and in a private window.',
+    shots:[shot(101,'Pipeline Q3 — export'), shot(102,'Safari console')],
+    comments:[] },
+
+  { id:'b2', at:new Date(2026,8,7,16,48), who:'Nurul Kamal',  pod:'CollabMedia',     status:'progress',
+    priority:'p2', services:['Dashboards'], assignee:'Divya Menon',
+    resolution:'Filter state is held in component memory only. Moving it to the URL query string so a reload and the 5-minute auto-refresh both restore it. Behind a flag on staging.',
+    title:'Dashboard filter resets on refresh',
+    desc:'Any filter I set on the media dashboard is gone the moment the page reloads, including the automatic refresh every 5 minutes. So the dashboard is effectively unfiltered whenever I look away.',
+    extra:'Set pod = CollabMedia and date = last month, wait for the auto-refresh, both are back to defaults. Chrome 129, Windows 11.',
+    shots:[shot(103,'Media dashboard')],
+    comments:[
+      cmt('Divya Menon','team', new Date(2026,8,7,17,30), 'Reproduced. The filter never leaves component memory, so anything that remounts the page loses it. Working on moving it into the URL.'),
+      cmt('Nurul Kamal','user', new Date(2026,8,8,8,5),   'Thanks — is the auto-refresh the same fix, or separate? That one hurts more than the manual reload.'),
+      cmt('Divya Menon','team', new Date(2026,8,8,9,40),  'Same fix. The auto-refresh remounts the page, so once the state lives in the URL both paths restore it.')
+    ] },
+
+  { id:'b3', at:new Date(2026,8,6,11,3),  who:'Priya Nair',   pod:'CollabContent',   status:'progress',
+    priority:'p1', services:['Briefs & approvals','Asset library'], assignee:'Wei Sheng Loh',
+    resolution:'Confirmed the upload proxy caps bodies at 10MB and returns 413, which the client swallows. Raising the cap to 50MB and surfacing the error. Fix is in review.',
+    title:'Brief attachments over 10MB fail silently',
+    desc:'Uploading a deck larger than about 10MB shows the progress bar completing, then the file simply is not there when the brief is saved. No error is shown at any point.',
+    extra:'Reproduced with three different PDFs between 11MB and 24MB. Under 10MB is fine.',
+    shots:[shot(104,'Brief editor')],
+    comments:[
+      cmt('Wei Sheng Loh','team', new Date(2026,8,6,12,15), 'Raised to P1 — losing a file with no error shown is data loss as far as the person uploading is concerned. Cause found, fix in review.')
+    ] },
+
+  { id:'b4', at:new Date(2026,8,4,14,27), who:'Marcus Tan',   pod:'CollabSales',     status:'resolved',
+    priority:'p2', services:['Quotes & billing'], assignee:'Chen Yi Xuan',
+    resolution:'Line items were rounded to 2dp before summing. Now summed at full precision and rounded once, on display. Shipped in 4.18.2; deal #48122 re-totals correctly.',
+    title:'Quote totals off by one cent on multi-currency deals',
+    desc:'A deal with both MYR and SGD line items totals one cent low. Looks like each line is rounded before the sum instead of after.',
+    extra:'Deal #48122. Sum of the line items by hand is 45,880.34; the quote shows 45,880.33.',
+    shots:[shot(105,'Quote #48122')],
+    comments:[
+      cmt('Chen Yi Xuan','team', new Date(2026,8,5,10,20), 'You read it exactly right — each line was rounded before the sum. Fixed and shipped in 4.18.2.'),
+      cmt('Marcus Tan','user',   new Date(2026,8,5,11,2),  'Confirmed on my end, #48122 totals correctly now. Thanks.')
+    ] },
+
+  { id:'b5', at:new Date(2026,8,3,8,55),  who:'Farah Idris',  pod:'CollabInfluence', status:'new',
+    priority:'p3', services:['Search'], assignee:null, resolution:'',
+    title:'Creator search returns no results for names with accents',
+    desc:'Searching for a creator whose name has an accent returns nothing unless I type it without the accent. Copy-pasting the exact name from their profile also returns nothing.',
+    extra:'Try "Zoë Tan" — 0 results. "Zoe Tan" finds her. Chrome 129, macOS.',
+    shots:[],
+    comments:[] },
+
+  { id:'b6', at:new Date(2026,8,1,17,40), who:'Kelvin Cheah', pod:'CollabStudio',    status:'resolved',
+    priority:'p3', services:['Asset library'], assignee:'Arif Zulkifli',
+    resolution:'The preview worker had no MOV decoder, so it queued the job forever instead of failing. Decoder added and the queue now times out and reports. All 41 affected files re-processed.',
+    title:'Asset preview stuck on spinner for MOV files',
+    desc:'MOV renders never preview — the spinner runs indefinitely. Download works and the file itself is fine, so it looks like a preview-only problem.',
+    extra:'MP4 and MKV preview normally. Roughly 40 MOV files affected in the Q3 studio folder.',
+    shots:[shot(106,'Asset library'), shot(107,'Preview pane')],
+    comments:[
+      cmt('Arif Zulkifli','team', new Date(2026,8,2,9,10), 'Backfilled the 41 files in the Q3 folder overnight — they should all preview now. Shout if you find one that still spins.')
+    ] },
+
+  { id:'b7', at:new Date(2026,7,29,10,15), who:'Rachel Ong', pod:'CollabMedia',      status:'new',
+    priority:'p1', services:['Reports & exports','Notifications'], assignee:null, resolution:'',
+    title:'Scheduled report email arrives with an empty attachment',
+    desc:'The Monday 8am scheduled report lands on time but the attached XLSX has headers and no rows. Running the same report by hand in the app returns 1,400 rows.',
+    extra:'Started last Monday. Two people on the distribution list see the same empty file, so it is not a mail-client issue.',
+    shots:[shot(108,'Scheduled report email')],
+    comments:[] },
+
+  { id:'b8', at:new Date(2026,7,27,13,22), who:'Hafiz Rahman', pod:'CollabContent',  status:'resolved',
+    priority:'p2', services:['Briefs & approvals','Notifications'], assignee:'Divya Menon',
+    resolution:'The email linked to /briefs/current, which resolves against the session rather than the notification. Links are now absolute to the brief id. Shipped 1 September.',
+    title:'Approval notification links to the wrong brief',
+    desc:'The link in the approval email opens whichever brief I most recently viewed, not the one the email is about. Approved the wrong item twice before noticing.',
+    extra:'Both times the email subject was correct and only the link target was wrong.',
+    shots:[shot(109,'Approval email'), shot(110,'Brief opened')],
+    comments:[] },
+
+  /* ---- Filed by the signed-in reporter, so My tickets is not an empty state ---- */
+  { id:'b9', at:new Date(2026,8,8,8,20),  who:ME.name, pod:'CollabMedia', status:'progress',
+    priority:'p2', services:['Campaigns','Dashboards'], assignee:'Wei Sheng Loh', resolution:'',
+    title:'Campaign spend column blank for campaigns created this week',
+    desc:'Any campaign created after Monday shows an empty Spend column in the campaign list, even though the campaign itself has spend recorded on its own page.',
+    extra:'Affects 6 of my campaigns. Older ones are fine. Chrome 129, macOS 15.1.',
+    shots:[shot(111,'Campaign list — spend blank')],
+    comments:[
+      cmt('Wei Sheng Loh','team', new Date(2026,8,8,9,5),
+        'Thanks for the screenshot. Two quick questions so I can narrow this down: are the six campaigns all in CollabMedia, or spread across pods? And does the Spend figure appear if you export the same list to CSV?',
+        true)
+    ] },
+
+  { id:'b10', at:new Date(2026,8,5,15,42), who:ME.name, pod:'CollabContent', status:'new',
+    priority:'p3', services:['Search'], assignee:null, resolution:'',
+    title:'Search will not match a brief by its client name',
+    desc:'Searching a client name returns nothing, even though the brief has that client set. I have to remember the brief title, which defeats the point.',
+    extra:'Client "Seri Mutiara" — 0 results. The brief titled "Raya launch — Seri Mutiara" is right there in the list.',
+    shots:[],
+    comments:[] },
+
+  { id:'b11', at:new Date(2026,7,31,9,8), who:ME.name, pod:'CollabMedia', status:'resolved',
+    priority:'p4', services:['Notifications'], assignee:'Chen Yi Xuan',
+    resolution:'Digest was built from UTC day boundaries, so anything after 8am MYT landed in the next day\'s email. Now built per-recipient timezone. Shipped 2 September.',
+    title:'Daily digest email shows yesterday\'s date in the subject line',
+    desc:'The subject says the wrong day. The content is right, but I keep filing the email under the wrong date.',
+    extra:'Cosmetic, but it happens every morning.',
+    shots:[],
+    comments:[
+      cmt('Chen Yi Xuan','team', new Date(2026,7,31,14,30), 'Good catch — the digest was built on UTC day boundaries. Fixed for MYT and everywhere else.'),
+      cmt(ME.name,'user',        new Date(2026,8,2,8,15),   'Subject line is correct this morning. Thanks!')
+    ] }
+];
+
+var BUG_STATUS = {
+  'new':      { label:'New',         badge:'c-badge-warning' },
+  'progress': { label:'In Progress', badge:'c-badge-neutral' },
+  'resolved': { label:'Resolved',    badge:'c-badge-success' }
+};
+
+/* Whether the thread is currently waiting on the reporter: the newest
+   comment is a team question and nothing from the reporter follows it.
+   Derived, never stored — a stored flag drifts the moment someone replies. */
+function awaitingReply(b){
+  var c = b.comments || [];
+  for (var i = c.length - 1; i >= 0; i--){
+    if (c[i].role === 'user') return false;
+    if (c[i].asks) return true;
+  }
+  return false;
+}
+/* Last thing that happened on the record, for the reporter's list. */
+function lastActivity(b){
+  var c = b.comments || [];
+  return c.length ? c[c.length - 1].at : b.at;
+}
+
+/* ==========================================================================
+   Chart chrome — copied verbatim out of preview.html's own Charts build, as
+   SKILL.md instructs, rather than re-derived. Every value reads off a
+   computed custom property; nothing here hardcodes a token.
+   ========================================================================== */
+var css = getComputedStyle(document.documentElement);
+var tok = function(n){ return css.getPropertyValue(n).trim(); };
+var footnoteFont = { family: tok('--font-primary'), size: 12, weight: '400' };
+var label2Font   = { family: tok('--font-primary'), size: 13, weight: '700' };
+var label3Font   = { family: tok('--font-primary'), size: 11, weight: '700' };
+var captionFont  = { family: tok('--font-primary'), size: 12, weight: '400' };
+var neutral1 = tok('--color-neutral-1'), neutral3 = tok('--color-neutral-3');
+var neutral5 = tok('--color-neutral-5'), neutral9 = tok('--color-neutral-9');
+var NAVY = tok('--color-navy'), ORANGE = tok('--color-orange'), GREEN = tok('--color-green');
+var AMBER = tok('--color-amber'), SALMON = tok('--color-salmon-pink');
+
+function baseAxes(){
+  return {
+    x: { border:{display:false}, grid:{display:false}, ticks:{font:footnoteFont, color:neutral5} },
+    y: { border:{display:false}, grid:{color:neutral3}, ticks:{font:footnoteFont, color:neutral5} }
+  };
+}
+var tooltip = { backgroundColor:neutral1, borderColor:neutral3, borderWidth:1, cornerRadius:8,
+  padding:10, titleFont:label2Font, titleColor:neutral9, bodyFont:label3Font, bodyColor:neutral5,
+  displayColors:false };
+function legend(){
+  return { position:'bottom', align:'start',
+    labels:{ font:captionFont, color:neutral5, usePointStyle:true, boxWidth:10, boxHeight:10, padding:16 } };
+}
+var CHARTS = [];
+function destroyCharts(){ CHARTS.forEach(function(c){ c.destroy(); }); CHARTS = []; }
+
+/* "View as table" is mandatory on every chart — Chart chrome & marks. */
+function chartCard(id, title, sub, rows, headers, tall){
+  return '<div class="c-card c-chart-card" data-chart-card="' + id + '">' +
+    '<h5>' + esc(title) + '</h5>' +
+    (sub ? '<p class="hint" style="margin:calc(-1 * var(--spacing-8)) 0 var(--spacing-12)">' + esc(sub) + '</p>' : '') +
+    '<div class="c-chart-canvas-wrap' + (tall ? ' tall' : '') + '"><canvas id="' + id + '"></canvas></div>' +
+    '<div class="c-chart-table-wrap' + (tall ? ' tall' : '') + '">' +
+      '<table class="c-table c-table-embedded"><thead><tr>' +
+        headers.map(function(h, i){ return '<th' + (i ? ' class="num"' : '') + '>' + esc(h) + '</th>'; }).join('') +
+      '</tr></thead><tbody>' +
+        rows.map(function(r){ return '<tr>' + r.map(function(c, i){
+          return '<td' + (i ? ' class="num"' : '') + '>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') +
+      '</tbody></table>' +
+    '</div>' +
+    '<button class="c-btn c-btn-ghost c-btn-sm c-chart-table-btn" type="button"><i class="ph ph-table"></i> View as table</button>' +
+  '</div>';
+}
+function wireTableToggles(root){
+  $$('.c-chart-table-btn', root).forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var card = btn.closest('.c-chart-card');
+      var showing = card.classList.toggle('is-table-view');
+      btn.innerHTML = showing ? '<i class="ph ph-chart-bar"></i> View as chart'
+                              : '<i class="ph ph-table"></i> View as table';
+    });
+  });
+}
+
+/* ==========================================================================
+   Router
+   ========================================================================== */
+var state = { section:'forms', route:'hub', formId:null, btab:'questions',
+              respView:'summary', respIndex:0,
+              hubStatus:'all', hubQuery:'', hubView:'grid',
+              bugStatus:'all', bugPod:'all', bugSort:'desc',
+              /* Which list the record modal is paging through, and where in
+                 it — the pager walks the view the reader opened the record
+                 from, so it has to be captured at open time. */
+              recIds:[], recIndex:0, recMode:'user' };
+
+function go(route, opts){
+  opts = opts || {};
+  destroyCharts();
+  state.route = route;
+  if (opts.formId !== undefined) state.formId = opts.formId;
+  state.section = (route === 'hub' || route === 'builder') ? 'forms' : 'bugs';
+  render();
+  window.scrollTo(0, 0);
+}
+
+/* The three bug routes render their whole body on entry, so the one being
+   left has nothing worth keeping — and leaving it in the document means
+   every document-wide lookup (and every duplicate id) can still reach it. */
+var DYNAMIC_ROUTES = { bugNew:'#routeBugNew', bugMine:'#routeBugMine', bugAdmin:'#routeBugAdmin' };
+
+function render(){
+  ['#routeHub','#routeBuilder','#routeBugNew','#routeBugMine','#routeBugAdmin'].forEach(function(s){ $(s).hidden = true; });
+  Object.keys(DYNAMIC_ROUTES).forEach(function(r){
+    if (r !== state.route) $(DYNAMIC_ROUTES[r]).innerHTML = '';
+  });
+  $$('#sectionTabs .c-tab').forEach(function(t){
+    var on = t.dataset.section === state.section;
+    t.classList.toggle('active', on); t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  $('#phActions').innerHTML = '';
+
+  if (state.route === 'hub')            renderHub();
+  else if (state.route === 'builder')   renderBuilder();
+  else if (state.route === 'bugNew')    renderBugNew();
+  else if (state.route === 'bugMine')   renderBugMine();
+  else if (state.route === 'bugAdmin')  renderBugAdmin();
+}
+
+function setHeader(title, sub, actionsHtml){
+  $('#phTitle').textContent = title;
+  $('#phSub').textContent = sub;
+  $('#phActions').innerHTML = actionsHtml || '';
+}
+
+$$('#sectionTabs .c-tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    /* The bugs section lands on the reporter's own tickets, not the blank
+       report form: the common case for someone opening this tab is checking
+       what happened to what they already sent, and Report a bug is one
+       primary CTA away in the page header. */
+    go(t.dataset.section === 'forms' ? 'hub' : 'bugMine');
+  });
+});
+$('#navFeedback').addEventListener('click', function(){ go('hub'); });
+
+/* ==========================================================================
+   Feedback Hub
+   ========================================================================== */
+function formCount(f){ return f.responses.length || f.count || 0; }
+
+/* --------------------------------------------------------------------------
+   Search
+   Character-aligned case/diacritic fold. Every output character records the
+   index of the original character it came from, so a match found in the
+   folded string can be mapped back onto the real text for highlighting.
+   A plain `.normalize('NFD').replace(...)` cannot do that: a precomposed
+   "ë" folds 1→1 but an already-decomposed "e"+U+0308 folds 2→1, so indices
+   drift by an unpredictable amount and the highlight lands on the wrong
+   letters.
+   -------------------------------------------------------------------------- */
+function fold(text){
+  text = String(text);
+  var out = '', map = [];
+  for (var i = 0; i < text.length; i++){
+    var c = text[i].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    for (var j = 0; j < c.length; j++){ out += c[j]; map.push(i); }
+  }
+  map.push(text.length);
+  return { s:out, map:map };
+}
+/* Terms, not one string. The old search matched the whole query as a single
+   substring of the title alone, so "Q3 product" found nothing in "Product
+   experience survey — Q3", and no query at all could reach a description. */
+function terms(q){ return fold(q).s.split(/\s+/).filter(Boolean); }
+function matchAll(haystack, ts){
+  var h = fold(haystack).s;
+  return ts.every(function(t){ return h.indexOf(t) !== -1; });
+}
+/* Mark the matched runs, so a row that came back on a description or a
+   status word says why rather than looking like a false positive. */
+function mark(text, ts){
+  text = String(text);
+  if (!ts.length) return esc(text);
+  var f = fold(text), hits = [];
+  ts.forEach(function(t){
+    var from = 0, i;
+    while ((i = f.s.indexOf(t, from)) !== -1){ hits.push([i, i + t.length]); from = i + t.length; }
+  });
+  if (!hits.length) return esc(text);
+  hits.sort(function(a, b){ return a[0] - b[0]; });
+  var merged = [hits[0].slice()];
+  hits.slice(1).forEach(function(h){
+    var last = merged[merged.length - 1];
+    if (h[0] <= last[1]) last[1] = Math.max(last[1], h[1]);
+    else merged.push(h.slice());
+  });
+  var out = '', at = 0;
+  merged.forEach(function(h){
+    var a = f.map[h[0]], b = f.map[h[1]];
+    out += esc(text.slice(at, a)) + '<mark class="hit">' + esc(text.slice(a, b)) + '</mark>';
+    at = b;
+  });
+  return out + esc(text.slice(at));
+}
+/* What a form is searchable by. Status words are in here on purpose —
+   "closed" is a thing people type into a search box. */
+function formHaystack(f){
+  return f.title + ' ' + f.desc + ' ' +
+    (f.status === 'active' ? 'active open live' : 'closed archived');
+}
+
+function renderHub(){
+  $('#routeHub').hidden = false;
+  setHeader('Feedback', 'Collect feedback from your team and triage the bugs they report.',
+    '<button class="c-btn c-btn-primary c-btn-md" type="button" id="newFormBtn"><i class="ph ph-plus"></i>New survey</button>');
+  $('#newFormBtn').addEventListener('click', newForm);
+
+  var ts = terms(state.hubQuery);
+  /* Chip counts count what the current query can actually reach, not the
+     whole library. A chip reading "Closed 2" beside a search returning one
+     row is the chip contradicting its own filter. */
+  var found = FORMS.filter(function(f){ return matchAll(formHaystack(f), ts); });
+  $('#cntAll').textContent = found.length;
+  $('#cntActive').textContent = found.filter(function(f){ return f.status === 'active'; }).length;
+  $('#cntClosed').textContent = found.filter(function(f){ return f.status === 'closed'; }).length;
+
+  var list = found.filter(function(f){
+    return state.hubStatus === 'all' || f.status === state.hubStatus;
+  });
+
+  var cnt = $('#hubSearchCount');
+  if (ts.length){
+    cnt.hidden = false;
+    cnt.textContent = list.length + (list.length === 1 ? ' form matches ' : ' forms match ') +
+      '“' + state.hubQuery.trim() + '”' +
+      (state.hubStatus === 'all' ? '' : ' in ' + state.hubStatus + ' forms');
+  } else {
+    cnt.hidden = true; cnt.textContent = '';
+  }
+
+  var host = $('#hubList');
+  if (!list.length){
+    host.innerHTML = '<div class="c-empty is-section">' +
+      '<i class="ph ph-magnifying-glass" aria-hidden="true"></i>' +
+      '<h4>No forms match</h4>' +
+      '<p>' + (ts.length ? 'Nothing matching &ldquo;' + esc(state.hubQuery.trim()) + '&rdquo;' +
+                   (state.hubStatus !== 'all' ? ' in ' + state.hubStatus + ' forms' : '') + '.'
+                 : 'There are no ' + state.hubStatus + ' forms yet.') + '</p>' +
+      '<div class="c-empty-actions"><button class="c-btn c-btn-secondary c-btn-md" type="button" id="clearHub">Clear filters</button></div>' +
+      '</div>';
+    $('#clearHub').addEventListener('click', function(){
+      state.hubStatus = 'all';
+      $$('.c-chip-filter').forEach(function(c){ c.classList.toggle('is-active', c.dataset.status === 'all'); });
+      clearHubSearch();
+    });
+    return;
+  }
+
+  host.innerHTML = state.hubView === 'grid' ? hubGrid(list, ts) : hubRows(list, ts);
+  $$('[data-form]', host).forEach(function(b){
+    b.addEventListener('click', function(){ go('builder', { formId:b.dataset.form }); });
+  });
+}
+
+function statusBadge(f){
+  return '<span class="c-badge ' + (f.status === 'active' ? 'c-badge-success' : 'c-badge-neutral') + '">' +
+    (f.status === 'active' ? 'Active' : 'Closed') + '</span>';
+}
+
+/* Grid — Card's Functional grid and its Interactive variant, rendered as a
+   <button> so the whole tile is the target, matching what the list rows
+   already do. */
+function hubGrid(list, ts){
+  return '<div class="lib-grid">' + list.map(function(f){
+    var n = formCount(f);
+    return '<button class="c-card c-card-interactive lib-card" type="button" data-form="' + f.id + '">' +
+      '<span class="row between" style="align-items:flex-start">' + statusBadge(f) +
+        '<i class="ph ph-arrow-up-right" aria-hidden="true" style="color:var(--color-neutral-4)"></i></span>' +
+      '<span class="lib-card-title">' + mark(f.title, ts) + '</span>' +
+      '<span class="lib-card-desc">' + (f.desc ? mark(f.desc, ts) : 'No description yet.') + '</span>' +
+      '<span class="lib-card-foot">' +
+        '<span><b>' + n.toLocaleString() + '</b> <span class="lib-row-meta">' +
+          (n === 1 ? 'response' : 'responses') + '</span></span>' +
+        '<span class="lib-row-meta">Updated ' + fmtDate(f.updated) + '</span>' +
+      '</span>' +
+    '</button>';
+  }).join('') + '</div>';
+}
+
+function hubRows(list, ts){
+  return '<div class="lib">' + list.map(function(f){
+    var n = formCount(f);
+    return '<button class="lib-row" type="button" data-form="' + f.id + '">' +
+      '<span class="grow stack sm">' +
+        '<span class="lib-row-title">' + mark(f.title, ts) + '</span>' +
+        '<span class="lib-row-meta">Updated ' + fmtDate(f.updated) + '</span>' +
+      '</span>' +
+      statusBadge(f) +
+      '<span class="lib-row-num"><b>' + n.toLocaleString() + '</b>' +
+        '<span class="lib-row-meta">' + (n === 1 ? 'response' : 'responses') + '</span></span>' +
+      '<i class="ph ph-caret-right" aria-hidden="true" style="color:var(--color-neutral-4)"></i>' +
+    '</button>';
+  }).join('') + '</div>';
+}
+
+/* Wired once, not per render: #hubViewSeg, the chips and the search box are
+   all persistent DOM, so re-binding them inside renderHub would add one
+   listener per keystroke. */
+$$('.c-chip-filter').forEach(function(c){
+  c.addEventListener('click', function(){
+    state.hubStatus = c.dataset.status;
+    $$('.c-chip-filter').forEach(function(x){ x.classList.toggle('is-active', x === c); });
+    renderHub();
+  });
+});
+wireSeg($('#hubViewSeg'), state.hubView === 'grid' ? 0 : 1, function(i){
+  state.hubView = i ? 'list' : 'grid';
+  renderHub();
+});
+
+function clearHubSearch(){
+  state.hubQuery = '';
+  $('#hubSearch').value = '';
+  $('#hubSearchClear').hidden = true;
+  renderHub();
+  $('#hubSearch').focus();
+}
+$('#hubSearch').addEventListener('input', function(e){
+  state.hubQuery = e.target.value;
+  $('#hubSearchClear').hidden = !e.target.value;
+  renderHub();
+});
+$('#hubSearch').addEventListener('keydown', function(e){
+  /* Escape clears the field rather than falling through to the global
+     handler, which would otherwise close a layer the reader never opened. */
+  if (e.key === 'Escape' && $('#hubSearch').value){ e.stopPropagation(); clearHubSearch(); }
+});
+$('#hubSearchClear').addEventListener('click', clearHubSearch);
+
+function newForm(){
+  var f = { id:'f' + (FORMS.length + 1), title:'Untitled survey', status:'closed',
+    desc:'', updated:new Date(NOW), questions:[], responses:[],
+    settings:{ sendCopy:false, allowEdit:false, oneResponse:true, progressBar:true,
+               confirm:'Thanks for your feedback!' } };
+  FORMS.unshift(f);
+  go('builder', { formId:f.id });
+  toast('New survey created');
+}
+
+/* ==========================================================================
+   Form builder
+   ========================================================================== */
+function currentForm(){ return FORMS.filter(function(f){ return f.id === state.formId; })[0]; }
+
+function renderBuilder(){
+  var f = currentForm();
+  if (!f){ go('hub'); return; }
+  $('#routeBuilder').hidden = false;
+  setHeader(f.title, f.status === 'active' ? 'Active · accepting responses' : 'Not published',
+    '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="backHub"><i class="ph ph-arrow-left"></i>All forms</button>');
+  $('#backHub').addEventListener('click', function(){ go('hub'); });
+
+  $('#qCount').textContent = f.questions.length;
+  $('#rCount').textContent = formCount(f);
+  $$('#builderTabs .c-tab').forEach(function(t){
+    var on = t.dataset.btab === state.btab;
+    t.classList.toggle('active', on); t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  $('#tabQuestions').hidden = state.btab !== 'questions';
+  $('#tabResponses').hidden = state.btab !== 'responses';
+  $('#tabSettings').hidden  = state.btab !== 'settings';
+
+  if (state.btab === 'questions')      renderQuestions(f);
+  else if (state.btab === 'responses') renderResponses(f);
+  else                                 renderSettings(f);
+}
+
+$$('#builderTabs .c-tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    destroyCharts(); state.btab = t.dataset.btab; state.respIndex = 0; renderBuilder();
+  });
+});
+
+/* Toolbar */
+$$('.toolbar [data-tb]').forEach(function(b){
+  b.addEventListener('click', function(){
+    var f = currentForm(), a = b.dataset.tb;
+    if (a === 'publish'){ f.status = 'active'; f.updated = new Date(NOW); renderBuilder(); toast('Form published — it is now accepting responses', 'success'); }
+    else if (a === 'link'){ toast('Shareable link copied to clipboard', 'success'); }
+    else if (a === 'preview'){ toast('Preview opens the form as a responder sees it'); }
+    else if (a === 'users'){ toast('Add users — manage responders and editors'); }
+    else if (a === 'undo'){ toast('Nothing to undo'); }
+    else if (a === 'redo'){ toast('Nothing to redo'); }
+  });
+});
+$('#kebabBtn').addEventListener('click', function(e){
+  e.stopPropagation();
+  var m = $('#kebabMenu'), open = m.hidden;
+  m.hidden = !open; $('#kebabBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+/* One document-level handler closes every popover in the prototype. Adding a
+   listener per render leaks one handler per navigation.
+   Panels are found by class, not held in a registry: a registry has to be
+   re-synced by every route re-render, and a stale entry in it points at a
+   node that is no longer in the document. */
+document.addEventListener('click', function(){
+  $('#kebabMenu').hidden = true; $('#kebabBtn').setAttribute('aria-expanded','false');
+  closeMenus();
+  closeDropdowns();
+});
+$$('#kebabMenu button').forEach(function(b){
+  b.addEventListener('click', function(){
+    var f = currentForm();
+    if (b.dataset.kb === 'copy'){
+      var c = JSON.parse(JSON.stringify({ questions:f.questions, settings:f.settings }));
+      FORMS.unshift({ id:'f' + (FORMS.length + 1), title:f.title + ' (copy)', status:'closed',
+        desc:f.desc, updated:new Date(NOW), questions:c.questions, responses:[], settings:c.settings });
+      go('hub'); toast('Copy created');
+    } else {
+      FORMS = FORMS.filter(function(x){ return x.id !== f.id; });
+      go('hub'); toast('Moved to trash');
+    }
+  });
+});
+
+/* ---------- Tab 1 — Questions ---------- */
+function renderQuestions(f){
+  var host = $('#tabQuestions');
+  host.innerHTML =
+    '<div class="c-card stack">' +
+      '<label class="c-field field-wide"><span class="eyebrow">Form title</span>' +
+        '<div class="input-wrap"><input type="text" id="fTitle" value="' + esc(f.title) + '" /></div></label>' +
+      '<label class="c-field field-wide"><span class="eyebrow">Description</span>' +
+        '<textarea id="fDesc" rows="2" placeholder="What is this form for?">' + esc(f.desc) + '</textarea></label>' +
+    '</div>' +
+    '<div id="qList" class="stack"></div>' +
+    '<div class="add-bar">' +
+      '<button class="c-btn c-btn-secondary c-btn-sm" type="button" data-add="question"><i class="ph ph-plus-circle"></i>Add question</button>' +
+      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-add="image"><i class="ph ph-image"></i>Add image</button>' +
+      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-add="video"><i class="ph ph-video"></i>Add video</button>' +
+      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-add="poll"><i class="ph ph-chart-donut"></i>Add poll</button>' +
+    '</div>';
+
+  $('#fTitle').addEventListener('input', function(e){ f.title = e.target.value; $('#phTitle').textContent = e.target.value; });
+  $('#fDesc').addEventListener('input', function(e){ f.desc = e.target.value; });
+  $$('[data-add]', host).forEach(function(b){
+    b.addEventListener('click', function(){ addBlock(f, b.dataset.add); });
+  });
+  paintQuestions(f);
+}
+
+function paintQuestions(f){
+  var list = $('#qList');
+  if (!f.questions.length){
+    list.innerHTML = '<div class="c-empty is-section">' +
+      '<i class="ph ph-list-plus" aria-hidden="true"></i><h4>No questions yet</h4>' +
+      '<p>Add your first question below. You can reorder blocks by dragging the handle, or with the keyboard.</p></div>';
+    $('#qCount').textContent = 0;
+    return;
+  }
+  var n = 0;
+  list.innerHTML = f.questions.map(function(q, i){
+    var body;
+    if (q.type === 'media'){
+      body = '<div class="qblock-media"><i class="ph ' + (q.media === 'video' ? 'ph-video' : 'ph-image') +
+             '" aria-hidden="true"></i><span class="hint">' +
+             (q.media === 'video' ? 'Embedded video' : 'Embedded image') + '</span></div>';
+    } else {
+      n++;
+      body = questionPreview(q);
+    }
+    var isMedia = q.type === 'media';
+    return '<div class="qblock" draggable="true" data-q="' + q.id + '" data-idx="' + i + '">' +
+      '<button class="qgrip" type="button" aria-label="Reorder: ' + esc(q.title || 'block') +
+        '. Press up or down arrow to move." data-grip="' + i + '"><i class="ph ph-dots-six-vertical" aria-hidden="true"></i></button>' +
+      '<div class="qblock-head">' +
+        (isMedia ? '' : '<span class="qblock-num">' + n + '</span>') +
+        '<div class="grow stack sm">' +
+          '<input class="c-dropdown-input" style="border:0;padding:0;height:auto;font-size:var(--text-body1-size);font-weight:700;font-family:inherit;color:var(--color-neutral-9);background:transparent;caret-color:auto;cursor:text;width:100%" value="' + esc(q.title) + '" data-title="' + q.id + '" aria-label="Question text" />' +
+          (q.dependsOn ? '<span class="hint"><i class="ph ph-arrow-elbow-down-right" aria-hidden="true"></i> Shown when &ldquo;' + esc(q.dependsValue) + '&rdquo; is selected above</span>' : '') +
+        '</div>' +
+        '<div class="qblock-actions">' +
+          (isMedia ? '' : typeSwitcher(q)) +
+          '<button class="c-icon-btn" type="button" title="Duplicate" aria-label="Duplicate" data-dup="' + i + '"><i class="ph ph-copy" aria-hidden="true"></i></button>' +
+          '<button class="c-icon-btn" type="button" title="Delete" aria-label="Delete" data-del="' + i + '"><i class="ph ph-trash" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>' +
+      body +
+      (isMedia ? '' :
+      '<div class="qblock-foot">' +
+        '<label class="c-choice switch"><input type="checkbox" data-req="' + i + '"' + (q.required ? ' checked' : '') + ' />' +
+          '<span class="c-switch-track' + (q.required ? ' on' : '') + '"><span class="c-switch-thumb"></span></span>' +
+          '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">Required</span></span></label>' +
+      '</div>') +
+    '</div>';
+  }).join('');
+  $('#qCount').textContent = n;
+  wireQuestionBlocks(f);
+}
+
+/* Question type switcher — Dropdown's Single select, Borderless, wired for
+   real. The type badge used to be display-only, which made four of the six
+   documented question types unreachable from the builder. */
+function typeSwitcher(q){
+  return '<span class="c-field c-dropdown-field style-borderless qtype" style="width:auto">' +
+    '<span class="input-wrap has-trailing-icon">' +
+      '<input type="text" class="c-dropdown-input" readonly value="' + TYPES[q.type].label + '"' +
+        ' data-typetrigger="' + q.id + '" aria-label="Question type" aria-haspopup="listbox" aria-expanded="false" />' +
+      '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+    '</span>' +
+    '<span class="c-dropdown-panel" data-typepanel="' + q.id + '" hidden><span class="c-dropdown-list">' +
+      Object.keys(TYPES).map(function(k){
+        return '<span class="c-dropdown-row' + (k === q.type ? ' selected' : '') + '" role="option" data-settype="' + k + '">' +
+          '<i class="ph ' + TYPES[k].icon + ' c-dropdown-row-media"></i>' +
+          '<span class="c-dropdown-row-label">' + TYPES[k].label + '</span>' +
+          '<i class="ph ph-check c-dropdown-row-check"></i></span>';
+      }).join('') +
+    '</span></span>' +
+  '</span>';
+}
+
+/* Changing type rewrites only the props that type owns, so switching away
+   and back doesn't silently keep a stale scale range or option list. */
+function setType(q, t){
+  q.type = t;
+  if (t === 'scale'){
+    if (q.min == null){ q.min = 1; q.max = 5; q.lo = 'Not at all'; q.hi = 'Very much'; }
+  } else { delete q.min; delete q.max; delete q.lo; delete q.hi; }
+  if (t === 'single' || t === 'multi'){
+    if (!q.options) q.options = ['Option 1','Option 2','Option 3'];
+  } else { delete q.options; }
+}
+
+function questionPreview(q){
+  if (q.type === 'short')  return '<div class="c-field field-wide"><div class="input-wrap"><input type="text" placeholder="' + esc(q.placeholder || 'Short answer') + '" disabled /></div></div>';
+  if (q.type === 'long')   return '<div class="c-field field-wide"><textarea rows="2" placeholder="' + esc(q.placeholder || 'Long answer') + '" disabled></textarea></div>';
+  if (q.type === 'yesno')  return '<div class="row tight">' +
+      ['Yes','No'].map(function(o){ return '<label class="c-choice"><input type="radio" name="p-' + q.id + '" disabled />' +
+        '<span class="c-radio-circle"><span class="dot"></span></span><span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + o + '</span></span></label>'; }).join('') + '</div>';
+  if (q.type === 'scale'){
+    var opts = '';
+    for (var v = q.min; v <= q.max; v++)
+      opts += '<label class="c-scale-opt"><input type="radio" name="p-' + q.id + '" disabled /><span>' + v + '</span></label>';
+    return '<div class="c-scale"><div class="c-scale-track">' + opts + '</div>' +
+      '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
+  }
+  if (q.type === 'single' || q.type === 'multi'){
+    return '<div class="stack sm">' + (q.options || ['Option 1','Option 2','Option 3']).map(function(o){
+      return q.type === 'single'
+        ? '<label class="c-choice"><input type="radio" name="p-' + q.id + '" disabled /><span class="c-radio-circle"><span class="dot"></span></span><span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(o) + '</span></span></label>'
+        : '<label class="c-choice"><input type="checkbox" disabled /><span class="c-checkbox-box"></span><span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(o) + '</span></span></label>';
+    }).join('') + '</div>';
+  }
+  return '';
+}
+
+/* Reorder — real drag-and-drop, with arrow keys on the grip as the
+   accessible equivalent. A drag-only reorder is unusable by keyboard and
+   unreliable on touch, so both paths write through the same move(). */
+var dragFrom = null;
+function move(f, from, to){
+  if (to < 0 || to >= f.questions.length || from === to) return;
+  var it = f.questions.splice(from, 1)[0];
+  f.questions.splice(to, 0, it);
+  f.updated = new Date(NOW);
+  paintQuestions(f);
+  var grip = $('[data-grip="' + to + '"]');
+  if (grip) grip.focus();
+}
+
+function wireQuestionBlocks(f){
+  $$('#qList .qblock').forEach(function(block){
+    var i = +block.dataset.idx;
+    block.addEventListener('dragstart', function(e){
+      dragFrom = i; block.classList.add('is-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', String(i)); } catch (err) {}
+    });
+    block.addEventListener('dragend', function(){
+      dragFrom = null;
+      $$('#qList .qblock').forEach(function(b){
+        b.classList.remove('is-dragging','is-drop-target','is-drop-target-after');
+      });
+    });
+    block.addEventListener('dragover', function(e){
+      if (dragFrom === null || dragFrom === i) return;
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      block.classList.toggle('is-drop-target', i < dragFrom);
+      block.classList.toggle('is-drop-target-after', i > dragFrom);
+    });
+    block.addEventListener('dragleave', function(){
+      block.classList.remove('is-drop-target','is-drop-target-after');
+    });
+    block.addEventListener('drop', function(e){
+      e.preventDefault();
+      if (dragFrom !== null && dragFrom !== i) move(f, dragFrom, i);
+      dragFrom = null;
+    });
+  });
+  $$('#qList .qgrip').forEach(function(g){
+    g.addEventListener('keydown', function(e){
+      var i = +g.dataset.grip;
+      if (e.key === 'ArrowUp'){ e.preventDefault(); move(f, i, i - 1); }
+      if (e.key === 'ArrowDown'){ e.preventDefault(); move(f, i, i + 1); }
+    });
+  });
+  $$('#qList [data-dup]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var i = +b.dataset.dup;
+      var copy = JSON.parse(JSON.stringify(f.questions[i]));
+      copy.id = 'q' + Date.now() + Math.floor(Math.random() * 1000);
+      delete copy.dependsOn; delete copy.dependsValue;
+      f.questions.splice(i + 1, 0, copy);
+      paintQuestions(f); toast('Question duplicated');
+    });
+  });
+  $$('#qList [data-del]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var i = +b.dataset.del, q = f.questions[i];
+      /* A dependent follow-up cannot outlive its parent. */
+      f.questions = f.questions.filter(function(x, j){
+        return j !== i && x.dependsOn !== q.id;
+      });
+      paintQuestions(f); toast('Question deleted');
+    });
+  });
+  $$('#qList [data-req]').forEach(function(c){
+    c.addEventListener('change', function(){
+      f.questions[+c.dataset.req].required = c.checked;
+      c.nextElementSibling.classList.toggle('on', c.checked);
+    });
+  });
+  $$('#qList [data-typetrigger]').forEach(function(trig){
+    var id = trig.dataset.typetrigger;
+    var panel = $('[data-typepanel="' + id + '"]');
+    var field = trig.closest('.c-dropdown-field');
+    trig.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = panel.hidden;
+      closeDropdowns($('#qList'));
+      panel.hidden = !open;
+      field.classList.toggle('open', open);
+      trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    $$('[data-settype]', panel).forEach(function(row){
+      row.addEventListener('click', function(){
+        var q = f.questions.filter(function(x){ return x.id === id; })[0];
+        if (!q) return;
+        setType(q, row.dataset.settype);
+        f.updated = new Date(NOW);
+        paintQuestions(f);
+        toast('Changed to ' + TYPES[q.type].label);
+      });
+    });
+  });
+  $$('#qList [data-title]').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var q = f.questions.filter(function(x){ return x.id === inp.dataset.title; })[0];
+      if (q) q.title = inp.value;
+    });
+  });
+}
+
+function addBlock(f, kind){
+  var id = 'q' + Date.now() + Math.floor(Math.random() * 1000);
+  if (kind === 'image' || kind === 'video'){
+    f.questions.push({ id:id, type:'media', media:kind, title:kind === 'video' ? 'Video' : 'Image' });
+  } else if (kind === 'poll'){
+    f.questions.push({ id:id, type:'single', title:'Quick poll — which would you rather have first?',
+      required:false, options:['Saved filters','Bulk export','Dark mode'] });
+  } else {
+    f.questions.push({ id:id, type:'short', title:'Untitled question', required:false });
+  }
+  f.updated = new Date(NOW);
+  paintQuestions(f);
+  var blocks = $$('#qList .qblock');
+  if (blocks.length){
+    blocks[blocks.length - 1].scrollIntoView({ block:'nearest' });
+    var t = $('[data-title]', blocks[blocks.length - 1]);
+    if (t) { t.focus(); t.select(); }
+  }
+}
+
+/* ---------- Tab 2 — Responses ---------- */
+function answered(f, q){ return f.responses.filter(function(r){ return r.answers[q.id] != null; }); }
+
+function renderResponses(f){
+  var host = $('#tabResponses');
+  destroyCharts();
+
+  if (!f.responses.length){
+    host.innerHTML = '<div class="c-empty is-section">' +
+      '<i class="ph ph-tray" aria-hidden="true"></i><h4>No responses yet</h4>' +
+      '<p>' + (f.status === 'active'
+        ? 'This form is live. Responses will appear here as they come in.'
+        : 'Publish the form to start collecting responses.') + '</p></div>';
+    return;
+  }
+
+  var total = f.responses.length;
+  var complete = f.responses.filter(function(r){ return r.complete; }).length;
+  var avgSec = Math.round(f.responses.reduce(function(s, r){ return s + r.seconds; }, 0) / total);
+
+  host.innerHTML =
+    '<div class="sum-grid">' +
+      statCard('Total responses', total.toLocaleString(), 'ph-users-three') +
+      statCard('Completion rate', Math.round(complete / total * 100) + '%', 'ph-check-circle',
+               complete + ' of ' + total + ' finished every question') +
+      statCard('Average time', Math.floor(avgSec / 60) + 'm ' + (avgSec % 60) + 's', 'ph-timer') +
+    '</div>' +
+    '<div class="row between">' +
+      '<div class="c-segctl c-segctl-default" role="tablist" aria-label="Response view" id="respSeg">' +
+        '<span class="c-seg-pill" aria-hidden="true"></span>' +
+        '<button class="c-seg" type="button" role="tab" data-rv="summary">Summary</button>' +
+        '<button class="c-seg" type="button" role="tab" data-rv="individual">Individual</button>' +
+      '</div>' +
+      '<div class="row tight">' +
+        '<span class="hint" id="respMeta"></span>' +
+        '<span class="menu-wrap">' +
+          '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="expBtn" aria-haspopup="menu" aria-expanded="false">' +
+            '<i class="ph ph-download-simple" aria-hidden="true"></i>Export' +
+            '<i class="ph ph-caret-down" aria-hidden="true" style="font-size:var(--icon-micro)"></i></button>' +
+          '<div class="menu-pop" id="expMenu" role="menu" aria-label="Export responses" hidden>' +
+            '<button type="button" role="menuitem" data-exp="xls"><i class="ph ph-file-xls" aria-hidden="true"></i>' +
+              '<span class="t"><b>Excel spreadsheet</b><span>One row per response, one column per question</span></span></button>' +
+            '<button type="button" role="menuitem" data-exp="pdf"><i class="ph ph-file-pdf" aria-hidden="true"></i>' +
+              '<span class="t"><b>PDF report</b><span>This summary, print-ready — charts as tables</span></span></button>' +
+          '</div>' +
+        '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div id="respBody" class="stack lg"></div>';
+
+  wireSeg($('#respSeg'), state.respView === 'summary' ? 0 : 1, function(i){
+    destroyCharts(); state.respView = i ? 'individual' : 'summary'; paintRespBody(f);
+  });
+
+  var expBtn = $('#expBtn'), expMenu = $('#expMenu');
+  expBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = expMenu.hidden;
+    closeMenus();
+    expMenu.hidden = !open;
+    expBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  expMenu.addEventListener('click', function(e){ e.stopPropagation(); });
+  $$('[data-exp]', expMenu).forEach(function(b){
+    b.addEventListener('click', function(){
+      closeMenus();
+      if (b.dataset.exp === 'xls') exportSheet(f); else exportPdf();
+    });
+  });
+
+  paintRespBody(f);
+}
+
+/* Every .menu-pop in the prototype closes through here, so the document
+   handler and each trigger share one path rather than each knowing about
+   the others. */
+function closeMenus(){
+  $$('.menu-pop').forEach(function(m){
+    m.hidden = true;
+    var trig = m.parentNode.querySelector('[aria-haspopup="menu"]');
+    if (trig) trig.setAttribute('aria-expanded', 'false');
+  });
+}
+
+function statCard(label, value, icon, sub){
+  return '<div class="c-card stack sm">' +
+    '<span class="eyebrow"><i class="ph ' + icon + '" aria-hidden="true"></i> ' + esc(label) + '</span>' +
+    '<span style="font-size:var(--text-h3-size);line-height:var(--text-h3-lh);font-weight:var(--text-h3-weight);font-variant-numeric:tabular-nums">' + esc(value) + '</span>' +
+    (sub ? '<span class="hint">' + esc(sub) + '</span>' : '') +
+  '</div>';
+}
+
+/* Segmented Control's pill is positioned in JS from the track — same
+   mechanic preview.html uses, not a second implementation. */
+function wireSeg(track, activeIdx, onChange){
+  var segs = $$('.c-seg', track), pill = $('.c-seg-pill', track);
+  function place(i){
+    var s = segs[i];
+    pill.style.width = s.offsetWidth + 'px';
+    pill.style.height = s.offsetHeight + 'px';
+    pill.style.transform = 'translate(' + (s.offsetLeft - track.clientLeft) + 'px,' + (s.offsetTop - track.clientTop) + 'px)';
+    segs.forEach(function(x, j){
+      x.setAttribute('aria-selected', j === i ? 'true' : 'false');
+      x.style.color = j === i ? 'var(--color-neutral-9)' : '';
+      x.style.fontWeight = j === i ? '700' : '';
+    });
+  }
+  segs.forEach(function(s, i){
+    s.addEventListener('click', function(){ track.dataset.active = i; place(i); onChange(i); });
+  });
+  place(activeIdx);
+  var onResize = function(){ if (document.contains(track)) place(+track.dataset.active || activeIdx); else window.removeEventListener('resize', onResize); };
+  window.addEventListener('resize', onResize);
+}
+
+function paintRespBody(f){
+  var host = $('#respBody');
+  if (state.respView === 'individual'){ paintIndividual(f, host); return; }
+  $('#respMeta').textContent = 'Aggregated across ' + f.responses.length + ' responses';
+
+  var html = '', charts = [];
+  f.questions.forEach(function(q){
+    if (q.type === 'media') return;
+    var rows = answered(f, q);
+    var id = 'ch-' + q.id;
+
+    if (q.type === 'scale'){
+      var buckets = [], labels = [];
+      for (var v = q.min; v <= q.max; v++){ labels.push(String(v)); buckets.push(0); }
+      rows.forEach(function(r){ buckets[r.answers[q.id] - q.min]++; });
+      var avg = rows.reduce(function(s, r){ return s + r.answers[q.id]; }, 0) / (rows.length || 1);
+      html += chartCard(id, q.title,
+        'Average ' + avg.toFixed(2) + ' out of ' + q.max + ' · ' + rows.length + ' answers',
+        labels.map(function(l, i){ return [l, buckets[i], pct(buckets[i], rows.length)]; }),
+        ['Score','Responses','Share']);
+      charts.push({ id:id, kind:'scale', labels:labels, data:buckets, q:q });
+
+    } else if (q.type === 'yesno'){
+      var yes = rows.filter(function(r){ return r.answers[q.id] === 'Yes'; }).length;
+      var no = rows.length - yes;
+      html += chartCard(id, q.title, pct(yes, rows.length) + ' answered Yes · ' + rows.length + ' answers',
+        [['Yes', yes, pct(yes, rows.length)], ['No', no, pct(no, rows.length)]],
+        ['Answer','Responses','Share']);
+      charts.push({ id:id, kind:'yesno', data:[yes, no], q:q });
+
+    } else if (q.type === 'single' || q.type === 'multi'){
+      var opts = q.options || [], counts = opts.map(function(){ return 0; });
+      rows.forEach(function(r){
+        var a = r.answers[q.id];
+        (Array.isArray(a) ? a : [a]).forEach(function(v){
+          var i = opts.indexOf(v); if (i > -1) counts[i]++;
+        });
+      });
+      html += chartCard(id, q.title, rows.length + ' answers',
+        opts.map(function(o, i){ return [o, counts[i], pct(counts[i], rows.length)]; }),
+        ['Option','Responses','Share']);
+      charts.push({ id:id, kind:q.type, labels:opts, data:counts, q:q });
+
+    } else {
+      /* Open text — a list, not a chart, with its own search and its own
+         Summarise with AI action. The action is offered only where there is
+         something to summarise; under three answers the list *is* the
+         summary. */
+      html += '<div class="c-card stack">' +
+        '<div class="row between"><h5 style="margin:0">' + esc(q.title) + '</h5>' +
+        '<span class="row tight">' +
+          '<span class="hint">' + rows.length + ' answers</span>' +
+          (rows.length >= 3
+            ? '<button class="c-btn c-btn-secondary c-btn-sm" type="button" data-ai="' + q.id + '">' +
+                '<i class="ph-fill ph-sparkle" aria-hidden="true"></i>Summarise with AI</button>'
+            : '') +
+        '</span></div>' +
+        '<div data-aislot="' + q.id + '"></div>' +
+        '<div class="c-search-input" style="max-width:none"><div class="c-search-input-box">' +
+          '<i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>' +
+          '<input type="search" placeholder="Search answers" aria-label="Search answers to: ' + esc(q.title) + '" data-tsearch="' + q.id + '" />' +
+        '</div></div>' +
+        '<div class="resp-list" data-tlist="' + q.id + '">' +
+          rows.map(function(r){
+            return '<div class="resp-item" data-text="' + esc(String(r.answers[q.id]).toLowerCase()) + '">' +
+              esc(r.answers[q.id]) + '<span class="who">' + esc(r.who) + ' · ' + esc(r.pod) + ' · ' + fmtDate(r.at) + '</span></div>';
+          }).join('') +
+        '</div>' +
+        '<p class="hint" data-tempty="' + q.id + '" hidden>No answers match that search.</p>' +
+      '</div>';
+    }
+  });
+
+  host.innerHTML = html;
+  wireTableToggles(host);
+  charts.forEach(drawChart);
+
+  $$('[data-ai]', host).forEach(function(btn){
+    btn.addEventListener('click', function(){ summarise(f, btn.dataset.ai, btn); });
+  });
+
+  $$('[data-tsearch]', host).forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var v = inp.value.trim().toLowerCase();
+      var list = $('[data-tlist="' + inp.dataset.tsearch + '"]', host);
+      var shown = 0;
+      $$('.resp-item', list).forEach(function(it){
+        var hit = !v || it.dataset.text.indexOf(v) !== -1;
+        it.hidden = !hit; if (hit) shown++;
+      });
+      $('[data-tempty="' + inp.dataset.tsearch + '"]', host).hidden = shown > 0;
+    });
+  });
+}
+function pct(n, d){ return d ? Math.round(n / d * 100) + '%' : '0%'; }
+
+/* Marks follow Chart chrome & marks: bars round 4px on the outer end only,
+   24px max thickness, one Neutral-3 gridline on the value axis. Colour is
+   sequential (one hue off the owning element) wherever the categories are
+   points on one measure, and categorical only where they are genuinely
+   different things. */
+function drawChart(c){
+  var ctx = document.getElementById(c.id);
+  if (!ctx) return;
+  var cfg;
+
+  if (c.kind === 'scale'){
+    /* A 1-5 or 0-10 scale is one measure, so the bars are one colour, not a
+       rainbow — the number under each bar already distinguishes them. */
+    cfg = { type:'bar',
+      data:{ labels:c.labels, datasets:[{ data:c.data, backgroundColor:NAVY,
+        hoverBackgroundColor:mix(NAVY, neutral9, 0.15), borderRadius:{topLeft:4,topRight:4},
+        borderSkipped:'bottom', maxBarThickness:24 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:tooltip },
+        scales:{ x:baseAxes().x, y:Object.assign(baseAxes().y, { beginAtZero:true, ticks:Object.assign({}, baseAxes().y.ticks, { precision:0 }) }) } } };
+
+  } else if (c.kind === 'yesno'){
+    /* Two mutually exclusive outcomes — categorical, and only two, so a
+       donut reads faster than a pair of bars. */
+    cfg = { type:'doughnut',
+      data:{ labels:['Yes','No'], datasets:[{ data:c.data, backgroundColor:[GREEN, neutral3],
+        borderColor:neutral1, borderWidth:2 }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'62%',
+        plugins:{ legend:legend(), tooltip:tooltip } } };
+
+  } else if (c.kind === 'multi'){
+    /* Multi-select: horizontal bars ranked by frequency, per the brief. */
+    var order = c.data.map(function(v, i){ return i; })
+                      .sort(function(a, b){ return c.data[b] - c.data[a]; });
+    cfg = { type:'bar',
+      data:{ labels:order.map(function(i){ return c.labels[i]; }),
+        datasets:[{ data:order.map(function(i){ return c.data[i]; }), backgroundColor:NAVY,
+          hoverBackgroundColor:mix(NAVY, neutral9, 0.15),
+          borderRadius:{topRight:4,bottomRight:4}, borderSkipped:'left', maxBarThickness:24 }] },
+      options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:tooltip },
+        scales:{ x:Object.assign(baseAxes().y, { beginAtZero:true }), y:baseAxes().x } } };
+
+  } else {
+    /* Single-select: genuinely different options, so the categorical ramp —
+       the department table order from Chart color mapping. */
+    var palette = [ORANGE, SALMON, GREEN, NAVY, AMBER];
+    cfg = { type:'doughnut',
+      data:{ labels:c.labels, datasets:[{ data:c.data,
+        backgroundColor:c.labels.map(function(_, i){ return palette[i % palette.length]; }),
+        borderColor:neutral1, borderWidth:2 }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'62%',
+        plugins:{ legend:legend(), tooltip:tooltip } } };
+  }
+  CHARTS.push(new Chart(ctx, cfg));
+}
+function mix(a, b, amt){
+  function rgb(h){ h = h.replace('#',''); if (h.length === 3) h = h.split('').map(function(c){return c+c;}).join('');
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)]; }
+  var A = rgb(a), B = rgb(b);
+  return 'rgb(' + A.map(function(v, i){ return Math.round(v + (B[i] - v) * amt); }).join(',') + ')';
+}
+
+/* ==========================================================================
+   Response export — Excel and PDF
+   Both produce a real file rather than a toast: a spreadsheet the browser
+   downloads, and the browser's own print-to-PDF driven by the @media print
+   sheet at the top of this file. Neither needs a library.
+   ========================================================================== */
+function csvCell(v){
+  if (v == null) return '';
+  var s = String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function download(name, mime, text){
+  var blob = new Blob([text], { type:mime });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+function slug(s){
+  return fold(s).s.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'export';
+}
+/* CSV with a UTF-8 BOM and CRLF endings — that pair is what makes Excel
+   open the file directly, in the right encoding, with accented names
+   intact. A genuine .xlsx would mean shipping a zip writer and a
+   spreadsheet-XML builder for one button. */
+function exportSheet(f){
+  var qs = f.questions.filter(function(q){ return q.type !== 'media'; });
+  var head = ['Response ID','Submitted','Respondent','Pod','Complete','Seconds on form']
+    .concat(qs.map(function(q){ return q.title; }));
+  var lines = [head.map(csvCell).join(',')];
+  f.responses.forEach(function(r){
+    var row = [r.id, fmtStamp(r.at), r.who, r.pod, r.complete ? 'Yes' : 'No', r.seconds];
+    qs.forEach(function(q){
+      var a = r.answers[q.id];
+      row.push(a == null ? '' : (Array.isArray(a) ? a.join('; ') : a));
+    });
+    lines.push(row.map(csvCell).join(','));
+  });
+  download(slug(f.title) + '-responses.csv', 'text/csv;charset=utf-8', '\ufeff' + lines.join('\r\n'));
+  toast(f.responses.length.toLocaleString() + ' responses exported', 'success');
+}
+function exportPdf(){
+  toast('Opening the print dialog — choose “Save as PDF”');
+  /* Let the toast paint before the dialog blocks the main thread. */
+  setTimeout(function(){ window.print(); }, 450);
+}
+
+/* ==========================================================================
+   Summarise with AI — free-text answers only
+   The wait state is AI Native's Loading State, by its own rules: held back
+   400ms before it renders at all (Rule 2), a live label driven by real
+   phase changes rather than one fixed string (Rule 4), a timer computed
+   from a start timestamp on every tick rather than an accumulated counter
+   (Rule 5), a Stop in the hosting surface (Rule 9), one run per operation
+   (Rule 7), and mounted in the slot the answer will fill so the swap reads
+   as one thing resolving (Rule 10).
+   The answer then renders whole, which is also a rule rather than a
+   shortcut: Streaming Text's Rule 2 forbids animating a reveal over content
+   already in hand, and here the summary is computed locally from the
+   answers listed below it. Against a real model, this is the point where
+   the first token would arrive and Streaming Text would take over.
+   ========================================================================== */
+
+/* Theme buckets. Deterministic and local — it groups answers by keyword
+   set, counts each group and quotes the longest answer in it. This is the
+   stand-in for the model call, and it is what makes the panel's content
+   real rather than placeholder prose. */
+/* Ordered most-specific first, because the first bucket a keyword hits wins.
+   "I can never remember which pod owns which report" is about ownership, not
+   about filters, and it only lands in the right bucket if the ownership keys
+   are tested before the generic "filter"/"remember" ones. */
+var THEMES = [
+  { name:'Hard to tell who owns what',                keys:['owns which','who else','same campaign'] },
+  { name:'Search does not find things',               keys:['search','fuzzy','typo','exact name'] },
+  { name:'Exports and scheduled reporting',           keys:['export','screenshot the table','bulk','one file'] },
+  { name:'Work is lost, or the numbers look stale',   keys:['logged me out','lost everything','autosave','draft','still refreshing','stale','last updated'] },
+  { name:'Too many steps for routine work',           keys:['clicks','shortcut','twenty times','rebuilding','duplicate a report'] },
+  { name:'Filters and view state are not remembered', keys:['filter','column widths','defaults to','pin the'] },
+  { name:'Cramped on smaller screens',                keys:['laptop','mobile','phone','scrolls sideways','first column'] }
+];
+function longest(arr){
+  return arr.slice().sort(function(a, b){ return b.length - a.length; })[0];
+}
+function themeAnswers(rows, qid){
+  var texts = rows.map(function(r){ return String(r.answers[qid]); });
+  var buckets = THEMES.map(function(t){ return { name:t.name, hits:[] }; });
+  var other = [];
+  texts.forEach(function(txt){
+    var h = fold(txt).s, placed = false;
+    THEMES.forEach(function(t, i){
+      if (placed) return;
+      var hit = t.keys.some(function(k){ return h.indexOf(k) !== -1; });
+      if (hit){ buckets[i].hits.push(txt); placed = true; }
+    });
+    if (!placed) other.push(txt);
+  });
+  var out = buckets.filter(function(b){ return b.hits.length; })
+                   .sort(function(a, b){ return b.hits.length - a.hits.length; });
+  var top = out.slice(0, 5);
+  var spare = out.slice(5).reduce(function(n, b){ return n + b.hits.length; }, 0) + other.length;
+  return { total:texts.length, themes:top, spare:spare, other:other };
+}
+
+var aiRuns = {};
+
+function aiSummaryHtml(qid, res, secs){
+  var covered = res.total - res.spare;
+  var top = res.themes[0];
+  var take = top
+    ? covered + ' of ' + res.total + ' answers fall into ' + res.themes.length +
+      ' recurring ' + (res.themes.length === 1 ? 'theme' : 'themes') + '. The largest — ' +
+      top.name.charAt(0).toLowerCase() + top.name.slice(1) + ' — accounts for ' +
+      top.hits.length + ' of them.'
+    : 'No theme repeats across these ' + res.total + ' answers; each one raises something different.';
+  return '<div class="ai-panel">' +
+    '<div class="ai-panel-head">' +
+      '<span class="eyebrow"><i class="ph-fill ph-sparkle" aria-hidden="true"></i> AI summary</span>' +
+      '<span class="grow"></span>' +
+      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-airedo="' + qid + '"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Redo</button>' +
+      '<button class="c-icon-btn" type="button" data-aiclose="' + qid + '" aria-label="Dismiss summary"><i class="ph ph-x" aria-hidden="true"></i></button>' +
+    '</div>' +
+    '<p class="ai-take">' + esc(take) + '</p>' +
+    (res.themes.length
+      ? '<ul class="ai-themes">' + res.themes.map(function(t){
+          return '<li><span class="n">' + t.hits.length + '&times;</span>' +
+            '<span><b>' + esc(t.name) + '</b> &mdash; <q>' + esc(longest(t.hits)) + '</q></span></li>';
+        }).join('') +
+        (res.spare ? '<li><span class="n">' + res.spare + '&times;</span>' +
+          '<span class="muted">Smaller and one-off themes, nothing repeating.</span></li>' : '') +
+      '</ul>'
+      : '') +
+    '<p class="ai-disc">Generated from ' + res.total + ' free-text answers in ' + secs +
+      's. Read it against the answers below before quoting it.</p>' +
+  '</div>';
+}
+
+function summarise(f, qid, btn){
+  var slot = $('[data-aislot="' + qid + '"]');
+  if (!slot || aiRuns[qid]) return;                 /* Rule 7 — one per operation */
+  var q = f.questions.filter(function(x){ return x.id === qid; })[0];
+  if (!q) return;
+  var rows = answered(f, q);
+  var t0 = Date.now();
+  var run = { stopped:false, timers:[], tick:null };
+  aiRuns[qid] = run;
+  if (btn) btn.disabled = true;
+
+  function clear(){
+    run.timers.forEach(clearTimeout);
+    if (run.tick) clearInterval(run.tick);
+    delete aiRuns[qid];
+  }
+  function stop(){
+    run.stopped = true; clear();
+    slot.innerHTML = '';
+    if (btn) btn.disabled = false;
+    toast('Summary stopped');
+  }
+
+  var PHASES = [[900, 'Grouping recurring themes'], [1750, 'Drafting the summary']];
+  var DONE = 2500;
+
+  /* Rule 2 — nothing renders for the first 400ms. If the work finished
+     inside that window the loader would never have appeared at all. */
+  run.timers.push(setTimeout(function(){
+    if (run.stopped) return;
+    slot.innerHTML =
+      '<div class="ai-panel">' +
+        '<div class="c-loading" role="status" aria-live="polite">' +
+          '<span class="c-loading-grid orbit" aria-hidden="true">' +
+            '<span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>' +
+            '<span class="c-loading-cell"></span><span class="c-loading-cell is-off"></span><span class="c-loading-cell"></span>' +
+            '<span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>' +
+          '</span>' +
+          '<span class="c-loading-label" data-ailabel>Reading ' + rows.length + ' answers</span>' +
+          '<span class="c-loading-elapsed" aria-hidden="true" data-aitime>0.0s</span>' +
+        '</div>' +
+        '<div class="ai-foot"><button class="c-btn c-btn-ghost c-btn-sm" type="button" data-aistop><i class="ph ph-stop-circle" aria-hidden="true"></i>Stop</button></div>' +
+      '</div>';
+    $('[data-aistop]', slot).addEventListener('click', stop);
+    /* Rule 5 — read off the start timestamp every tick, never accumulate;
+       a throttled tab makes an accumulated count wrong by an order of
+       magnitude. */
+    run.tick = setInterval(function(){
+      var el = $('[data-aitime]', slot);
+      if (el) el.textContent = ((Date.now() - t0) / 1000).toFixed(1) + 's';
+    }, 100);
+    /* Rule 4 — the label is a live status, not a fixed string. */
+    PHASES.forEach(function(p){
+      run.timers.push(setTimeout(function(){
+        var el = $('[data-ailabel]', slot);
+        if (el) el.textContent = p[1];
+      }, p[0] - 400));
+    });
+  }, 400));
+
+  run.timers.push(setTimeout(function(){
+    if (run.stopped) return;
+    var secs = ((Date.now() - t0) / 1000).toFixed(1);
+    clear();
+    slot.innerHTML = aiSummaryHtml(qid, themeAnswers(rows, qid), secs);
+    if (btn) btn.disabled = false;
+    $('[data-aiclose]', slot).addEventListener('click', function(){ slot.innerHTML = ''; });
+    $('[data-airedo]', slot).addEventListener('click', function(){
+      slot.innerHTML = ''; summarise(f, qid, btn);
+    });
+  }, DONE));
+}
+
+/* Individual view — one respondent at a time. */
+function paintIndividual(f, host){
+  var i = Math.max(0, Math.min(state.respIndex, f.responses.length - 1));
+  state.respIndex = i;
+  var r = f.responses[i];
+  $('#respMeta').textContent = 'Response ' + (i + 1) + ' of ' + f.responses.length;
+
+  host.innerHTML =
+    '<div class="c-card stack">' +
+      '<div class="row between">' +
+        '<div class="row tight">' +
+          '<span class="avatar">' + esc(initials(r.who)) + '</span>' +
+          '<span class="stack" style="gap:2px">' +
+            '<b style="font-size:var(--text-body2-size)">' + esc(r.who) + '</b>' +
+            '<span class="hint">' + esc(r.pod) + ' · ' + fmtDateTime(r.at) + ' · ' +
+              Math.floor(r.seconds / 60) + 'm ' + (r.seconds % 60) + 's</span>' +
+          '</span>' +
+        '</div>' +
+        '<div class="indiv-nav">' +
+          '<span class="c-badge ' + (r.complete ? 'c-badge-success' : 'c-badge-warning') + '">' +
+            (r.complete ? 'Complete' : 'Partial') + '</span>' +
+          '<button class="c-icon-btn" type="button" id="prevResp" aria-label="Previous response"' +
+            (i === 0 ? ' disabled' : '') + '><i class="ph ph-caret-left" aria-hidden="true"></i></button>' +
+          '<button class="c-icon-btn" type="button" id="nextResp" aria-label="Next response"' +
+            (i === f.responses.length - 1 ? ' disabled' : '') + '><i class="ph ph-caret-right" aria-hidden="true"></i></button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="stack">' +
+        f.questions.filter(function(q){ return q.type !== 'media'; }).map(function(q){
+          var a = r.answers[q.id];
+          var shown = a == null
+            ? '<span class="muted" style="font-style:italic">No answer</span>'
+            : esc(Array.isArray(a) ? a.join(', ') : String(a)) +
+              (q.type === 'scale' ? ' <span class="muted">/ ' + q.max + '</span>' : '');
+          return '<div class="indiv-qa"><span class="q">' + esc(q.title) + '</span>' +
+                 '<span class="a">' + shown + '</span></div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+
+  var p = $('#prevResp'), n = $('#nextResp');
+  if (p) p.addEventListener('click', function(){ state.respIndex--; paintIndividual(f, host); });
+  if (n) n.addEventListener('click', function(){ state.respIndex++; paintIndividual(f, host); });
+}
+
+/* ---------- Tab 3 — Settings ---------- */
+function renderSettings(f){
+  var s = f.settings;
+  function toggle(key, title, desc){
+    return '<div class="set-row"><span class="t"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span>' +
+      '<label class="c-choice switch"><input type="checkbox" data-set="' + key + '"' + (s[key] ? ' checked' : '') + ' />' +
+      '<span class="c-switch-track' + (s[key] ? ' on' : '') + '"><span class="c-switch-thumb"></span></span>' +
+      '<span class="sr-only">' + esc(title) + '</span></label></div>';
+  }
+  $('#tabSettings').innerHTML =
+    '<div class="c-card stack"><h2 class="sect">General</h2><div>' +
+      toggle('sendCopy',    'Send responders a copy of their response', 'Emails each person a receipt of what they submitted.') +
+      toggle('allowEdit',   'Allow response editing',                   'Responders can come back and change their answers after submitting.') +
+      toggle('oneResponse', 'Limit to 1 response per user',             'Requires sign-in. A second attempt reopens their first response.') +
+    '</div></div>' +
+    '<div class="c-card stack"><h2 class="sect">Presentation</h2><div>' +
+      toggle('progressBar', 'Show progress bar', 'Displays how far through the form the responder is.') +
+      '<div class="set-row" style="flex-direction:column;align-items:stretch;gap:var(--spacing-8)">' +
+        '<span class="t"><b>After submission</b><span>The confirmation message shown once the form is submitted.</span></span>' +
+        '<div class="c-field field-wide"><textarea id="setConfirm" rows="2" placeholder="Thanks for your feedback!">' + esc(s.confirm) + '</textarea>' +
+        '<span class="c-helper">Shown on the confirmation screen. Keep it short.</span></div>' +
+      '</div>' +
+    '</div></div>' +
+    (s.progressBar ? '<div class="c-card stack sm"><span class="eyebrow">Preview</span>' +
+      '<div class="c-progress-track size-default"><div class="c-progress-fill" style="width:40%"></div></div>' +
+      '<span class="hint">Question 4 of 10</span></div>' : '');
+
+  $$('[data-set]').forEach(function(c){
+    c.addEventListener('change', function(){
+      s[c.dataset.set] = c.checked;
+      c.nextElementSibling.classList.toggle('on', c.checked);
+      if (c.dataset.set === 'progressBar') renderSettings(f);
+    });
+  });
+  $('#setConfirm').addEventListener('input', function(e){ s.confirm = e.target.value; });
+}
+
+/* ==========================================================================
+   Bug report — user view
+   ========================================================================== */
+var draftShots = [];
+/* Draft state for the fields that survive a re-render of the form (the
+   priority and services blocks repaint on every change, so their values
+   cannot live in the DOM). */
+var draftBug = { priority:'p3', services:[] };
+
+/* Shared view switcher for the two bug list surfaces. Both are the same
+   records read by different people, so this is a view switch, not
+   navigation — Segmented Control, not tabs. */
+function bugSegHtml(metaHtml){
+  /* Addressed by attribute, not id: this markup is rendered into two
+     different route sections and both stay in the document, so an id here
+     would be a duplicate and every lookup would resolve to whichever copy
+     came first — which is the hidden one, half the time. */
+  return '<div class="row between">' +
+    '<div class="c-segctl c-segctl-default" role="tablist" aria-label="Bug report view" data-bugseg>' +
+      '<span class="c-seg-pill" aria-hidden="true"></span>' +
+      '<button class="c-seg" type="button" role="tab" data-bv="mine">My tickets</button>' +
+      '<button class="c-seg" type="button" role="tab" data-bv="admin">All reports</button>' +
+    '</div>' +
+    (metaHtml || '') +
+  '</div>';
+}
+function wireBugSeg(root, active){
+  wireSeg($('[data-bugseg]', root), active === 'mine' ? 0 : 1, function(i){
+    go(i ? 'bugAdmin' : 'bugMine');
+  });
+}
+
+/* Incident priority — Dropdown Single select with a description line, so
+   each step says what it means rather than leaving "High" to be read four
+   different ways by four people. The severity dot rides inside the .prio
+   pill in the label, not in the row's own media slot: Dropdown's media slot
+   is documented as deliberately having no colour-dot modifier. */
+function prioFieldHtml(){
+  return '<div class="c-field field-wide c-dropdown-field dd-float" id="wrapPrio">' +
+    '<label for="bugPrio">Incident priority <span class="required-mark" aria-hidden="true">*</span></label>' +
+    '<div class="input-wrap has-trailing-icon">' +
+      '<input type="text" id="bugPrio" class="c-dropdown-input" readonly value="' + esc(prioLabel(draftBug.priority)) + '"' +
+        ' aria-haspopup="listbox" aria-expanded="false" />' +
+      '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+    '</div>' +
+    '<div class="c-dropdown-panel" id="prioPanel" hidden><div class="c-dropdown-list">' +
+      PRIO_ORDER.map(function(k){
+        return '<div class="c-dropdown-row has-desc' + (draftBug.priority === k ? ' selected' : '') +
+          '" role="option" data-prio="' + k + '">' +
+          '<span class="c-dropdown-row-text">' +
+            '<span class="c-dropdown-row-label">' + prioPill(k) + '</span>' +
+            '<span class="c-dropdown-row-desc">' + esc(PRIORITIES[k].desc) + '</span>' +
+          '</span>' +
+          '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+      }).join('') +
+    '</div></div>' +
+    '<span class="c-helper">' + esc(PRIORITIES[draftBug.priority].desc) + '</span>' +
+  '</div>';
+}
+
+/* Affected services — a fixed checkbox set, not free text, because this is
+   the field that routes the ticket and a typo in it is a ticket nobody
+   owns. Laid out in columns: ten one-line options in a single stack is a
+   scroll, not a choice. */
+function svcFieldHtml(){
+  return '<div class="c-field field-wide" id="wrapSvc">' +
+    '<label id="svcLabel">Affected services <span class="required-mark" aria-hidden="true">*</span></label>' +
+    '<div class="svc-grid" role="group" aria-labelledby="svcLabel">' +
+      SERVICES.map(function(sv, i){
+        var on = draftBug.services.indexOf(sv) > -1;
+        return '<label class="c-choice"><input type="checkbox" data-svc="' + i + '"' + (on ? ' checked' : '') + ' />' +
+          '<span class="c-checkbox-box' + (on ? ' on' : '') + '">' + (on ? '<i class="ph ph-check" aria-hidden="true"></i>' : '') + '</span>' +
+          '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(sv) + '</span></span></label>';
+      }).join('') +
+    '</div>' +
+    '<span class="c-helper">Pick every part of Collabrium this affects. Choose at least one.</span>' +
+  '</div>';
+}
+
+function renderBugNew(){
+  $('#routeBugNew').hidden = false;
+  setHeader('Report a bug', 'One report, one problem. The more specific you are, the faster it gets picked up.',
+    '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="toMine"><i class="ph ph-arrow-left"></i>My tickets</button>');
+  $('#toMine').addEventListener('click', function(){ go('bugMine'); });
+
+  var podField = ME.pods.length > 1
+    ? '<div class="c-field field-wide c-dropdown-field"><label for="bugPod">Collabrium Pod</label>' +
+      '<div class="input-wrap has-trailing-icon">' +
+        '<input type="text" id="bugPod" class="c-dropdown-input" value="' + esc(ME.pods[0]) + '" readonly />' +
+        '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+      '</div><span class="c-helper">You belong to more than one pod — pick the one this affects.</span></div>'
+    : '<div class="c-field field-wide"><label>Collabrium Pod</label>' +
+      '<div class="input-wrap"><input type="text" value="' + esc(ME.pods[0]) + '" readonly disabled /></div>' +
+      '<span class="c-helper">From your profile.</span></div>';
+
+  /* The form is a single reading column, centred in the content region —
+     margin:0 auto on a capped card, not left-set against a 1100px shell.
+     A one-column form set to one side of a wide page reads as an unfinished
+     two-column layout. */
+  $('#routeBugNew').innerHTML =
+    '<div class="c-card stack lg" style="max-width:720px;margin:0 auto">' +
+      '<div class="stack sm"><h2 class="sect">Report a bug</h2>' +
+        '<p class="hint">Fixed template — every field here is something the tech team needs to reproduce it.</p></div>' +
+
+      '<div class="stack sm">' +
+        '<span class="eyebrow">Reported by</span>' +
+        '<div class="row tight">' +
+          '<span class="avatar lg">' + esc(initials(ME.name)) + '</span>' +
+          '<span class="stack" style="gap:2px">' +
+            '<b style="font-size:var(--text-body2-size)">' + esc(ME.name) + '</b>' +
+            '<span class="hint">From your session · not editable</span>' +
+          '</span>' +
+        '</div>' +
+      '</div>' +
+
+      podField +
+
+      '<div class="c-field field-wide" id="wrapTitle"><label for="bugTitle">Title <span class="required-mark" aria-hidden="true">*</span></label>' +
+        '<div class="input-wrap"><input type="text" id="bugTitle" placeholder="e.g. Export button unresponsive on Safari" required /></div>' +
+        '<span class="c-helper">One line. What is broken, and where.</span></div>' +
+
+      '<div class="c-field field-wide" id="wrapDesc"><label for="bugDesc">Description <span class="required-mark" aria-hidden="true">*</span></label>' +
+        '<textarea id="bugDesc" rows="4" placeholder="What happened, and what you expected to happen instead." required></textarea></div>' +
+
+      '<div id="prioSlot">' + prioFieldHtml() + '</div>' +
+      '<div id="svcSlot">' + svcFieldHtml() + '</div>' +
+
+      '<div class="stack sm">' +
+        '<span class="eyebrow">Screenshot</span>' +
+        '<div class="c-uploader field-wide">' +
+          '<div class="c-uploader-zone" id="dropZone" tabindex="0" role="button" aria-label="Add screenshots — drag and drop, or press Enter to browse">' +
+            '<i class="ph ph-image" aria-hidden="true"></i>' +
+            '<span class="c-uploader-label">Drag screenshots here, or click to browse</span>' +
+            '<span class="c-uploader-hint">PNG, JPG or GIF · multiple files welcome</span>' +
+          '</div>' +
+          '<div class="thumbs" id="shotThumbs"></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="c-field field-wide"><label for="bugExtra">Additional information</label>' +
+        '<textarea id="bugExtra" rows="3" placeholder="Steps to reproduce, browser and device, how often it happens."></textarea>' +
+        '<span class="c-helper">Optional, but it is usually what makes a bug reproducible.</span></div>' +
+
+      '<div class="row" style="justify-content:flex-end">' +
+        '<button class="c-btn c-btn-primary c-btn-md" type="button" id="bugSubmit"><i class="ph ph-paper-plane-tilt"></i>Submit</button>' +
+      '</div>' +
+    '</div>';
+
+  paintThumbs();
+  wireDropZone();
+  wirePrio();
+  wireSvc();
+  $('#bugSubmit').addEventListener('click', submitBug);
+}
+
+function wirePrio(){
+  var trig = $('#bugPrio'), panel = $('#prioPanel');
+  if (!trig) return;
+  var field = trig.closest('.c-dropdown-field');
+  trig.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = panel.hidden;
+    panel.hidden = !open;
+    field.classList.toggle('open', open);
+    trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  $$('[data-prio]', panel).forEach(function(r){
+    r.addEventListener('click', function(){
+      draftBug.priority = r.dataset.prio;
+      $('#prioSlot').innerHTML = prioFieldHtml();
+      wirePrio();
+    });
+  });
+}
+
+function wireSvc(){
+  $$('[data-svc]').forEach(function(c){
+    c.addEventListener('change', function(){
+      var sv = SERVICES[+c.dataset.svc];
+      var at = draftBug.services.indexOf(sv);
+      if (c.checked && at === -1) draftBug.services.push(sv);
+      else if (!c.checked && at > -1) draftBug.services.splice(at, 1);
+      /* Repaint only the box, not the grid — repainting the grid on every
+         tick would move focus off the checkbox the person just used. */
+      var box = c.nextElementSibling;
+      box.classList.toggle('on', c.checked);
+      box.innerHTML = c.checked ? '<i class="ph ph-check" aria-hidden="true"></i>' : '';
+      if (draftBug.services.length) $('#wrapSvc').classList.remove('c-field-error');
+    });
+  });
+}
+
+function paintThumbs(){
+  var host = $('#shotThumbs');
+  if (!host) return;
+  host.innerHTML = draftShots.map(function(s, i){
+    return '<span class="thumb"><img src="' + s.url + '" alt="' + esc(s.name) + '" />' +
+      '<button class="x" type="button" data-rm="' + i + '" aria-label="Remove ' + esc(s.name) + '">' +
+      '<i class="ph ph-x" aria-hidden="true"></i></button></span>';
+  }).join('');
+  $$('[data-rm]', host).forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.stopPropagation(); draftShots.splice(+b.dataset.rm, 1); paintThumbs();
+    });
+  });
+}
+
+/* One drop-zone wiring, used by both the bug form's Screenshot zone and the
+   comment composer's attachment zone: click, keyboard and drag-and-drop all
+   funnel into the same accept(). The file input lives inside the zone rather
+   than on <body>, so a re-rendered zone takes its input with it instead of
+   leaving one orphan per render. */
+function wireZone(zone, onImage){
+  if (!zone) return;
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*'; input.multiple = true; input.style.display = 'none';
+  zone.appendChild(input);
+
+  function accept(files){
+    [].slice.call(files).filter(function(f){ return /^image\//.test(f.type); }).forEach(function(f){
+      var rd = new FileReader();
+      rd.onload = function(){ onImage({ name:f.name, url:rd.result }); };
+      rd.readAsDataURL(f);
+    });
+  }
+  zone.addEventListener('click', function(e){ if (e.target !== input) input.click(); });
+  zone.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); input.click(); }
+  });
+  input.addEventListener('change', function(){ accept(input.files); input.value = ''; });
+  ['dragenter','dragover'].forEach(function(ev){
+    zone.addEventListener(ev, function(e){ e.preventDefault(); zone.classList.add('dragover'); });
+  });
+  ['dragleave','drop'].forEach(function(ev){
+    zone.addEventListener(ev, function(e){ e.preventDefault(); zone.classList.remove('dragover'); });
+  });
+  zone.addEventListener('drop', function(e){ accept(e.dataTransfer.files); });
+}
+function wireDropZone(){
+  wireZone($('#dropZone'), function(img){ draftShots.push(img); paintThumbs(); });
+}
+
+
+function submitBug(){
+  var t = $('#bugTitle'), d = $('#bugDesc'), ok = true, firstBad = null;
+
+  function fail(wrapSel, msg){
+    ok = false;
+    var wrap = $(wrapSel);
+    wrap.classList.add('c-field-error');
+    var h = $('.c-helper', wrap);
+    if (h) h.textContent = msg;
+    else wrap.insertAdjacentHTML('beforeend', '<span class="c-helper">' + esc(msg) + '</span>');
+    if (!firstBad) firstBad = wrap;
+  }
+
+  [[t, '#wrapTitle'], [d, '#wrapDesc']].forEach(function(pair){
+    var bad = !pair[0].value.trim();
+    $(pair[1]).classList.toggle('c-field-error', bad);
+    if (bad) fail(pair[1], 'This field is required.');
+  });
+  /* Affected services is required for the same reason it is a fixed list
+     rather than free text: it is what routes the report. A ticket with no
+     service on it is a ticket with no owner. */
+  if (!draftBug.services.length) fail('#wrapSvc', 'Choose at least one affected service.');
+
+  if (!ok){
+    var focusTarget = firstBad === $('#wrapSvc') ? $('[data-svc]') : $('input, textarea', firstBad);
+    if (focusTarget) focusTarget.focus();
+    toast('Fill in the required fields before submitting');
+    return;
+  }
+
+  BUGS.unshift({ id:'b' + (BUGS.length + 1), at:new Date(NOW), who:ME.name,
+    pod:($('#bugPod') ? $('#bugPod').value : ME.pods[0]), status:'new',
+    priority:draftBug.priority, services:draftBug.services.slice(),
+    assignee:null, resolution:'',
+    title:t.value.trim(), desc:d.value.trim(), extra:$('#bugExtra').value.trim(),
+    shots:draftShots.map(function(s){ return s.url; }),
+    comments:[] });
+  draftShots = [];
+  draftBug = { priority:'p3', services:[] };
+  /* Land on the reporter's own list, where the ticket they just filed is
+     the top row — not on the admin table, which is not their view. */
+  go('bugMine');
+  toast('Bug report submitted', 'success');
+}
+
+/* ==========================================================================
+   Bug report — the reporter's own tickets
+   Same records as the admin table, read by the person who filed them: no
+   triage controls, but every field the team has set on the ticket, the full
+   comment thread, and a reply box. A ticket whose thread ends on an
+   unanswered question from the team is flagged here, because answering it
+   is the one thing only the reporter can do.
+   ========================================================================== */
+function myBugs(){
+  return BUGS.filter(function(b){ return b.who === ME.name; })
+             .sort(function(a, b){ return lastActivity(b) - lastActivity(a); });
+}
+
+function renderBugMine(){
+  $('#routeBugMine').hidden = false;
+  var mine = myBugs();
+  var waiting = mine.filter(awaitingReply).length;
+  setHeader('Bug Reports', 'Track what you have reported and answer questions from the tech team.',
+    '<button class="c-btn c-btn-primary c-btn-md" type="button" id="toNewBug2"><i class="ph ph-plus"></i>Report a bug</button>');
+  $('#toNewBug2').addEventListener('click', function(){ go('bugNew'); });
+
+  $('#routeBugMine').innerHTML =
+    bugSegHtml('<span class="hint">' + mine.length + (mine.length === 1 ? ' ticket' : ' tickets') +
+      (waiting ? ' · ' + waiting + ' waiting on you' : '') + '</span>') +
+    (mine.length
+      ? '<div class="lib">' + mine.map(function(b){
+          var ask = awaitingReply(b);
+          var n = (b.comments || []).length;
+          return '<button class="mine-row' + (ask ? ' needs-reply' : '') + '" type="button" data-mine="' + b.id + '">' +
+            '<span class="grow stack sm">' +
+              '<span class="mine-title">' + esc(b.title) + '</span>' +
+              '<span class="mine-meta">' +
+                '<span>' + esc(b.pod) + '</span><span aria-hidden="true">·</span>' +
+                '<span>Reported ' + fmtDate(b.at) + '</span>' +
+                (b.assignee ? '<span aria-hidden="true">·</span><span>' + esc(b.assignee) + '</span>'
+                            : '<span aria-hidden="true">·</span><span>Not assigned yet</span>') +
+                (n ? '<span aria-hidden="true">·</span><span><i class="ph ph-chat-circle" aria-hidden="true"></i> ' + n + '</span>' : '') +
+              '</span>' +
+            '</span>' +
+            '<span class="mine-side">' +
+              (ask ? '<span class="c-badge c-badge-warning"><i class="ph-fill ph-question" aria-hidden="true"></i>Reply needed</span>' : '') +
+              prioPill(b.priority, true) +
+              '<span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span>' +
+              '<i class="ph ph-caret-right" aria-hidden="true" style="color:var(--color-neutral-4)"></i>' +
+            '</span>' +
+          '</button>';
+        }).join('') + '</div>'
+      : '<div class="c-empty is-section">' +
+          '<i class="ph ph-bug" aria-hidden="true"></i><h4>You have not reported anything yet</h4>' +
+          '<p>When something breaks, send it here with a screenshot and the tech team picks it up from this same record.</p>' +
+          '<div class="c-empty-actions"><button class="c-btn c-btn-primary c-btn-md" type="button" id="emptyNewBug">' +
+            '<i class="ph ph-plus"></i>Report a bug</button></div>' +
+        '</div>');
+
+  wireBugSeg($('#routeBugMine'), 'mine');
+  if ($('#emptyNewBug')) $('#emptyNewBug').addEventListener('click', function(){ go('bugNew'); });
+
+  var ids = mine.map(function(b){ return b.id; });
+  $$('[data-mine]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      openRecord(ids, ids.indexOf(btn.dataset.mine), 'user');
+    });
+  });
+}
+
+/* ==========================================================================
+   Bug report — admin view
+   ========================================================================== */
+function renderBugAdmin(){
+  $('#routeBugAdmin').hidden = false;
+  setHeader('Bug Reports', 'Every report submitted across the pods.',
+    '<button class="c-btn c-btn-primary c-btn-md" type="button" id="toNewBug"><i class="ph ph-plus"></i>Report a bug</button>');
+  $('#toNewBug').addEventListener('click', function(){ go('bugNew'); });
+
+  var pods = ['all'].concat(PODS.filter(function(p){
+    return BUGS.some(function(b){ return b.pod === p; }); }));
+
+  $('#routeBugAdmin').innerHTML =
+    bugSegHtml('') +
+    '<div class="row between">' +
+      '<div class="row tight">' +
+        '<div class="c-chip-group" role="group" aria-label="Filter by status">' +
+          ['all','new','progress','resolved'].map(function(s){
+            var n = s === 'all' ? BUGS.length : BUGS.filter(function(b){ return b.status === s; }).length;
+            return '<button class="c-chip c-chip-filter' + (state.bugStatus === s ? ' is-active' : '') +
+              '" type="button" data-bs="' + s + '">' + (s === 'all' ? 'All' : BUG_STATUS[s].label) +
+              ' <span class="count">' + n + '</span></button>';
+          }).join('') +
+        '</div>' +
+      '</div>' +
+      /* .dd-float — without it the panel is position:static and opening this
+         filter pushes the entire table down by the panel's own height, which
+         is the one thing a filter sitting above a table must not do. */
+      '<div class="c-field c-dropdown-field dd-float" style="width:200px">' +
+        '<div class="input-wrap has-trailing-icon">' +
+          '<input type="text" class="c-dropdown-input" id="podTrigger" readonly value="' +
+            (state.bugPod === 'all' ? 'All pods' : esc(state.bugPod)) + '" aria-label="Filter by pod"' +
+            ' aria-haspopup="listbox" aria-expanded="false" />' +
+          '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+        '</div>' +
+        '<div class="c-dropdown-panel" id="podPanel" hidden><div class="c-dropdown-list">' +
+          pods.map(function(p){
+            return '<div class="c-dropdown-row' + (state.bugPod === p ? ' selected' : '') + '" role="option" data-pod="' + esc(p) + '">' +
+              '<span class="c-dropdown-row-label">' + (p === 'all' ? 'All pods' : esc(p)) + '</span>' +
+              '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+          }).join('') +
+        '</div></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="c-table-standalone-wrap c-table-scroll-x"><table class="c-table c-table-standalone"><thead><tr>' +
+      '<th><button class="c-btn c-btn-ghost c-btn-sm" type="button" id="sortDate" style="margin:calc(-1 * var(--spacing-8)) 0">' +
+        'Submitted <i class="ph ph-caret-' + (state.bugSort === 'desc' ? 'down' : 'up') + '"></i></button></th>' +
+      '<th>User</th><th>Pod</th><th>Priority</th><th>Title</th><th>Assigned to</th><th>Status</th><th>Screenshot</th>' +
+    '</tr></thead><tbody id="bugRows"></tbody></table></div>';
+
+  wireBugSeg($('#routeBugAdmin'), 'admin');
+
+  $$('[data-bs]').forEach(function(c){
+    c.addEventListener('click', function(){ state.bugStatus = c.dataset.bs; renderBugAdmin(); });
+  });
+  $('#sortDate').addEventListener('click', function(){
+    state.bugSort = state.bugSort === 'desc' ? 'asc' : 'desc'; renderBugAdmin();
+  });
+
+  /* Pod filter — Dropdown's Single select, wired for real. */
+  var trig = $('#podTrigger'), panel = $('#podPanel'), field = trig.closest('.c-dropdown-field');
+  trig.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = panel.hidden;
+    panel.hidden = !open;
+    field.classList.toggle('open', open);
+    trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  $$('[data-pod]', panel).forEach(function(r){
+    r.addEventListener('click', function(){ state.bugPod = r.dataset.pod; renderBugAdmin(); });
+  });
+
+  paintBugRows();
+}
+
+function filteredBugs(){
+  return BUGS.filter(function(b){
+    return (state.bugStatus === 'all' || b.status === state.bugStatus)
+        && (state.bugPod === 'all' || b.pod === state.bugPod);
+  }).sort(function(a, b){ return state.bugSort === 'desc' ? b.at - a.at : a.at - b.at; });
+}
+
+function paintBugRows(){
+  var rows = filteredBugs(), tb = $('#bugRows');
+  if (!rows.length){
+    tb.innerHTML = '<tr><td colspan="8"><div class="c-empty is-inline" style="align-items:center;text-align:center;max-width:none">' +
+      '<i class="ph ph-bug" aria-hidden="true"></i><h4>No reports match</h4>' +
+      '<p>Try a different status or pod.</p></div></td></tr>';
+    return;
+  }
+  var ids = rows.map(function(b){ return b.id; });
+  tb.innerHTML = rows.map(function(b){
+    var n = (b.comments || []).length;
+    return '<tr class="is-interactive is-clickable" data-bug="' + b.id + '" tabindex="0">' +
+      '<td style="white-space:nowrap">' + fmtDateTime(b.at) + '</td>' +
+      '<td><span class="row tight" style="flex-wrap:nowrap"><span class="avatar sm">' + esc(initials(b.who)) +
+        '</span><span style="white-space:nowrap">' + esc(b.who) + '</span></span></td>' +
+      '<td>' + esc(b.pod) + '</td>' +
+      '<td>' + prioPill(b.priority, true) + '</td>' +
+      '<td>' + esc(b.title) +
+        (n ? ' <span class="hint" style="white-space:nowrap"><i class="ph ph-chat-circle" aria-hidden="true"></i> ' + n + '</span>' : '') +
+        (awaitingReply(b) ? ' <span class="c-badge c-badge-warning">Awaiting reporter</span>' : '') + '</td>' +
+      '<td style="white-space:nowrap">' + (b.assignee
+        ? '<span class="row tight" style="flex-wrap:nowrap"><span class="avatar sm">' + esc(initials(b.assignee)) +
+          '</span><span>' + esc(b.assignee) + '</span></span>'
+        : '<span class="muted">Unassigned</span>') + '</td>' +
+      '<td><span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span></td>' +
+      '<td>' + (b.shots.length
+        ? '<span class="row tight" style="flex-wrap:nowrap">' +
+            '<button class="thumb thumb-sm" type="button" data-shot="' + esc(b.shots[0]) + '" aria-label="Expand screenshot">' +
+              '<img src="' + b.shots[0] + '" alt="" /></button>' +
+            (b.shots.length > 1 ? '<span class="hint">+' + (b.shots.length - 1) + '</span>' : '') +
+          '</span>'
+        : '<span class="muted">—</span>') + '</td>' +
+    '</tr>';
+  }).join('');
+
+  $$('#bugRows tr[data-bug]').forEach(function(tr){
+    function open(){ openRecord(ids, ids.indexOf(tr.dataset.bug), 'admin'); }
+    tr.addEventListener('click', function(e){
+      if (e.target.closest('[data-shot]')) return;
+      open();
+    });
+    tr.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); }
+    });
+  });
+  $$('#bugRows [data-shot]').forEach(function(b){
+    b.addEventListener('click', function(e){ e.stopPropagation(); openLightbox(b.dataset.shot); });
+  });
+}
+
+/* ==========================================================================
+   Record modal — one bug report, either side of it
+   Centred rather than a right-edge drawer, and paged from its own header:
+   triage is reading several reports in a row, so the arrows have to be
+   part of the record view instead of a trip back to the list. The pager
+   walks the list the reader opened the record from — the filtered, sorted
+   admin table, or the reporter's own tickets — which is why the id list is
+   captured at open time rather than recomputed here.
+   ========================================================================== */
+var recLastFocus = null;
+var recShots = [];                  /* attachments on the reply being typed */
+
+function currentRecord(){
+  var id = state.recIds[state.recIndex];
+  return BUGS.filter(function(b){ return b.id === id; })[0];
+}
+function recordOpen(){ return !$('#recLayer').hidden; }
+
+function openRecord(ids, index, mode){
+  if (index < 0 || !ids.length) return;
+  state.recIds = ids.slice();
+  state.recIndex = index;
+  state.recMode = mode;
+  recShots = [];
+  recLastFocus = document.activeElement;
+  var layer = $('#recLayer');
+  layer.hidden = false;
+  paintRecord();
+  /* Force a reflow so the browser has a "closed" frame to transition FROM.
+     requestAnimationFrame looks equivalent but isn't — it doesn't fire
+     reliably in a throttled or headless tab, and the dialog then appears
+     with no animation or, worse, at its pre-transition offset. */
+  void layer.offsetWidth;
+  layer.classList.add('is-open');
+  var c = $('#recClose');
+  if (c) c.focus();
+}
+
+function closeRecord(){
+  var layer = $('#recLayer');
+  layer.classList.remove('is-open');
+  setTimeout(function(){ layer.hidden = true; $('#rec').innerHTML = ''; }, 240);
+  recShots = [];
+  if (recLastFocus && recLastFocus.focus) recLastFocus.focus();
+}
+
+function recStep(d){
+  var i = state.recIndex + d;
+  if (i < 0 || i >= state.recIds.length) return;
+  state.recIndex = i;
+  recShots = [];
+  paintRecord();
+  /* Keep the arrow under the pointer usable: if stepping disabled the one
+     just pressed, hand focus to the close button rather than losing it to
+     the body, which would take the arrow keys with it. */
+  var btn = $(d > 0 ? '#recNext' : '#recPrev');
+  if (btn && !btn.disabled) btn.focus();
+  else { var c = $('#recClose'); if (c) c.focus(); }
+}
+
+function refreshBehind(){
+  if (state.route === 'bugAdmin') renderBugAdmin();
+  else if (state.route === 'bugMine') renderBugMine();
+}
+
+/* Read-only cell, for the sides of a record this viewer does not own. */
+function recCell(label, valueHtml){
+  return '<div class="rec-cell"><span class="eyebrow">' + esc(label) + '</span>' +
+    '<span class="v">' + valueHtml + '</span></div>';
+}
+/* Single-select dropdown, floating so opening one does not push the rest of
+   the record down inside a scrolling modal body. */
+function recDropdown(id, value, rows, label){
+  return '<div class="c-field c-dropdown-field dd-float" style="width:100%">' +
+    '<label for="' + id + '">' + esc(label) + '</label>' +
+    '<div class="input-wrap has-trailing-icon">' +
+      '<input type="text" class="c-dropdown-input" id="' + id + '" readonly value="' + esc(value) + '"' +
+        ' aria-haspopup="listbox" aria-expanded="false" />' +
+      '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+    '</div>' +
+    '<div class="c-dropdown-panel" data-panelfor="' + id + '" hidden><div class="c-dropdown-list">' +
+      rows + '</div></div>' +
+  '</div>';
+}
+
+function commentHtml(c){
+  return '<div class="c-comment' + (c.role === 'team' ? ' is-team' : '') +
+      (c.asks ? ' is-asking' : '') + '">' +
+    '<span class="c-comment-avatar" aria-hidden="true">' + esc(initials(c.who)) + '</span>' +
+    '<div class="c-comment-body">' +
+      '<div class="c-comment-meta">' +
+        '<b>' + esc(c.who) + '</b>' +
+        '<span class="c-badge ' + (c.role === 'team' ? 'c-badge-neutral' : 'c-badge-selected') + '">' +
+          (c.role === 'team' ? 'Tech team' : 'Reporter') + '</span>' +
+        (c.asks ? '<span class="c-badge c-badge-warning"><i class="ph-fill ph-question" aria-hidden="true"></i>Question</span>' : '') +
+        '<time>' + fmtDateTime(c.at) + '</time>' +
+      '</div>' +
+      '<p class="c-comment-text">' + esc(c.body) + '</p>' +
+      (c.shots.length
+        ? '<div class="c-comment-shots">' + c.shots.map(function(u){
+            return '<button class="thumb" type="button" data-shot="' + esc(u) + '" aria-label="Expand attachment">' +
+              '<img src="' + u + '" alt="" /></button>';
+          }).join('') + '</div>'
+        : '') +
+    '</div>' +
+  '</div>';
+}
+
+function paintRecord(){
+  var b = currentRecord();
+  if (!b){ closeRecord(); return; }
+  var admin = state.recMode === 'admin';
+  var i = state.recIndex, n = state.recIds.length;
+  var them = b.who.split(/\s+/)[0];
+
+  $('#rec').innerHTML =
+    '<div class="c-modal-head">' +
+      '<div class="stack sm" style="min-width:0">' +
+        '<span class="eyebrow">' + esc(b.pod) + ' · ' + fmtDateTime(b.at) + '</span>' +
+        '<h4 id="recTitle">' + esc(b.title) + '</h4>' +
+      '</div>' +
+      '<div class="row tight" style="flex-wrap:nowrap">' +
+        '<div class="c-modal-pager">' +
+          '<button class="c-icon-btn" type="button" id="recPrev" aria-label="Previous report"' +
+            (i === 0 ? ' disabled' : '') + '><i class="ph ph-caret-left" aria-hidden="true"></i></button>' +
+          '<span class="pos">' + (i + 1) + ' of ' + n + '</span>' +
+          '<button class="c-icon-btn" type="button" id="recNext" aria-label="Next report"' +
+            (i === n - 1 ? ' disabled' : '') + '><i class="ph ph-caret-right" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<button class="c-icon-btn" type="button" id="recClose" aria-label="Close"><i class="ph ph-x" aria-hidden="true"></i></button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="c-modal-body">' +
+      '<div class="row between">' +
+        '<span class="row tight"><span class="avatar">' + esc(initials(b.who)) + '</span>' +
+          '<span class="stack" style="gap:2px"><b style="font-size:var(--text-body2-size)">' + esc(b.who) +
+          '</b><span class="hint">' + esc(b.pod) + '</span></span></span>' +
+        (admin ? '' : '<span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span>') +
+      '</div>' +
+
+      /* Triage set. Editable for the team, stated for the reporter — same
+         record, same fields, one of them read-only. */
+      '<div class="rec-grid">' +
+        (admin
+          ? recDropdown('recStatus', BUG_STATUS[b.status].label,
+              Object.keys(BUG_STATUS).map(function(k){
+                return '<div class="c-dropdown-row' + (b.status === k ? ' selected' : '') + '" role="option" data-st="' + k + '">' +
+                  '<span class="c-dropdown-row-label">' + BUG_STATUS[k].label + '</span>' +
+                  '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+              }).join(''), 'Status') +
+            recDropdown('recPrio', prioLabel(b.priority),
+              PRIO_ORDER.map(function(k){
+                return '<div class="c-dropdown-row has-desc' + (b.priority === k ? ' selected' : '') + '" role="option" data-pr="' + k + '">' +
+                  '<span class="c-dropdown-row-text"><span class="c-dropdown-row-label">' + prioPill(k) + '</span>' +
+                  '<span class="c-dropdown-row-desc">' + esc(PRIORITIES[k].desc) + '</span></span>' +
+                  '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+              }).join(''), 'Incident priority') +
+            recDropdown('recAssignee', b.assignee || 'Unassigned',
+              ['Unassigned'].concat(TECH).map(function(name){
+                var on = (b.assignee || 'Unassigned') === name;
+                return '<div class="c-dropdown-row' + (on ? ' selected' : '') + '" role="option" data-as="' + esc(name) + '">' +
+                  '<span class="c-dropdown-row-label">' + esc(name) + '</span>' +
+                  '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+              }).join(''), 'Assigned to')
+          : recCell('Incident priority', prioPill(b.priority)) +
+            recCell('Assigned to', b.assignee ? esc(b.assignee) : '<span class="muted">Not assigned yet</span>')) +
+        recCell('Affected services', '<span class="tag-row">' +
+          (b.services.length
+            ? b.services.map(function(sv){ return '<span class="c-badge c-badge-neutral">' + esc(sv) + '</span>'; }).join('')
+            : '<span class="muted">None recorded</span>') + '</span>') +
+      '</div>' +
+
+      '<div class="stack sm"><span class="eyebrow">Description</span>' +
+        '<p style="margin:0;font-size:var(--text-body2-size);line-height:1.6">' + esc(b.desc) + '</p></div>' +
+      (b.extra ? '<div class="stack sm"><span class="eyebrow">Additional information</span>' +
+        '<p style="margin:0;font-size:var(--text-body2-size);line-height:1.6;color:var(--color-neutral-5)">' + esc(b.extra) + '</p></div>' : '') +
+
+      '<div class="stack sm"><span class="eyebrow">Screenshots</span>' +
+        (b.shots.length
+          ? '<div class="shot-grid">' + b.shots.map(function(u, k){
+              return '<button class="thumb shot-tile" type="button" data-shot="' + esc(u) + '"' +
+                ' aria-label="Expand screenshot ' + (k + 1) + ' of ' + b.shots.length + '"><img src="' + u + '" alt="" /></button>';
+            }).join('') + '</div>' +
+            '<span class="hint">Click a screenshot to open it full size.</span>'
+          : '<p class="hint" style="margin:0">None attached.</p>') +
+      '</div>' +
+
+      /* Resolution — the team's own record of what was done. Written here,
+         read by the reporter in the same place, so a fix never has to be
+         explained twice. */
+      '<div class="stack sm"><span class="eyebrow">Resolution</span>' +
+        (admin
+          ? '<div class="c-field field-wide"><textarea id="recResolution" rows="4" placeholder="What you found, what you changed, and where it shipped.">' + esc(b.resolution || '') + '</textarea>' +
+            '<span class="c-helper">Visible to ' + esc(them) + ' as well — write it for them, not only for the next engineer.</span></div>'
+          : (b.resolution
+              ? '<p style="margin:0;font-size:var(--text-body2-size);line-height:1.6">' + esc(b.resolution) + '</p>'
+              : '<p class="hint" style="margin:0">Nothing documented yet. The tech team will fill this in as they work on it.</p>')) +
+      '</div>' +
+
+      '<div class="c-comments"><span class="eyebrow">Comments' +
+        ((b.comments || []).length ? ' (' + b.comments.length + ')' : '') + '</span>' +
+        ((b.comments || []).length
+          ? '<div class="c-comment-list">' + b.comments.map(commentHtml).join('') + '</div>'
+          : '<p class="hint" style="margin:0">No comments yet.' +
+            (admin ? ' Ask ' + esc(them) + ' anything you need to reproduce it.' : '') + '</p>') +
+        '<div class="c-comment-form">' +
+          '<div class="c-field field-wide"><label for="recReply">Your reply</label>' +
+            '<textarea id="recReply" rows="3" placeholder="' +
+              (admin ? 'Answer, or ask ' + esc(them) + ' for what you still need…'
+                     : 'Answer the tech team, or add anything new you have noticed…') + '"></textarea></div>' +
+          '<div class="c-uploader-zone" id="recZone" tabindex="0" role="button" aria-label="Attach screenshots to your reply">' +
+            '<i class="ph ph-paperclip" aria-hidden="true"></i>' +
+            '<span class="c-uploader-hint">Attach a screenshot — drag and drop, or click to browse</span>' +
+          '</div>' +
+          '<div class="thumbs" id="recThumbs"></div>' +
+          '<div class="c-comment-form-foot">' +
+            (admin
+              ? '<label class="c-choice switch"><input type="checkbox" id="recAsks" />' +
+                '<span class="c-switch-track"><span class="c-switch-thumb"></span></span>' +
+                '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">Mark as a question for ' + esc(them) + '</span>' +
+                '<span class="desc">Flags the ticket as waiting on their reply</span></span></label>'
+              : '<span class="hint">Visible to the tech team on this ticket.</span>') +
+            '<button class="c-btn c-btn-primary c-btn-md" type="button" id="recSend"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Send</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="c-modal-foot">' +
+      '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="recClose2">Close</button>' +
+      (admin
+        ? '<button class="c-btn c-btn-primary c-btn-md" type="button" id="recResolve"' +
+          (b.status === 'resolved' ? ' disabled' : '') + '>Mark resolved</button>'
+        : '') +
+    '</div>';
+
+  wireRecord(b, admin);
+}
+
+function wireRecord(b, admin){
+  var rec = $('#rec');
+
+  $('#recClose').addEventListener('click', closeRecord);
+  $('#recClose2').addEventListener('click', closeRecord);
+  $('#recPrev').addEventListener('click', function(){ recStep(-1); });
+  $('#recNext').addEventListener('click', function(){ recStep(1); });
+
+  $$('[data-shot]', rec).forEach(function(x){
+    x.addEventListener('click', function(){ openLightbox(x.dataset.shot); });
+  });
+
+  /* Every dropdown in the record shares one trigger wiring; which field it
+     writes to is decided by the row attribute, not by a per-field handler. */
+  $$('.c-dropdown-input', rec).forEach(function(trig){
+    var panel = $('[data-panelfor="' + trig.id + '"]', rec);
+    if (!panel) return;
+    var field = trig.closest('.c-dropdown-field');
+    trig.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = panel.hidden;
+      closeDropdowns(rec);
+      panel.hidden = !open;
+      field.classList.toggle('open', open);
+      trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+  $$('[data-st]', rec).forEach(function(r){
+    r.addEventListener('click', function(){
+      b.status = r.dataset.st; paintRecord(); refreshBehind();
+      toast('Status set to ' + BUG_STATUS[b.status].label);
+    });
+  });
+  $$('[data-pr]', rec).forEach(function(r){
+    r.addEventListener('click', function(){
+      b.priority = r.dataset.pr; paintRecord(); refreshBehind();
+      toast('Priority set to ' + prioLabel(b.priority));
+    });
+  });
+  $$('[data-as]', rec).forEach(function(r){
+    r.addEventListener('click', function(){
+      b.assignee = r.dataset.as === 'Unassigned' ? null : r.dataset.as;
+      paintRecord(); refreshBehind();
+      toast(b.assignee ? 'Assigned to ' + b.assignee : 'Unassigned');
+    });
+  });
+
+  if (admin){
+    $('#recResolution').addEventListener('input', function(e){ b.resolution = e.target.value; });
+    $('#recResolve').addEventListener('click', function(){
+      b.status = 'resolved'; paintRecord(); refreshBehind(); toast('Marked resolved', 'success');
+    });
+  }
+
+  /* Reply composer */
+  paintRecThumbs();
+  wireZone($('#recZone'), function(img){ recShots.push(img); paintRecThumbs(); });
+  $('#recSend').addEventListener('click', function(){
+    var ta = $('#recReply'), body = ta.value.trim();
+    if (!body){
+      ta.closest('.c-field').classList.add('c-field-error');
+      ta.focus(); toast('Write something before sending'); return;
+    }
+    var asks = admin && $('#recAsks').checked;
+    b.comments = (b.comments || []).concat([
+      cmt(admin ? (b.assignee || TECH[0]) : ME.name, admin ? 'team' : 'user',
+          new Date(NOW), body, asks, recShots.map(function(s){ return s.url; }))
+    ]);
+    recShots = [];
+    paintRecord();
+    refreshBehind();
+    /* The newest comment is at the bottom of a chronological thread, so
+       scroll it into view — the reader's own reply landing off-screen reads
+       as the send having failed. */
+    var list = $('.c-comment-list .c-comment:last-child', $('#rec'));
+    if (list) list.scrollIntoView({ block:'nearest' });
+    toast(asks ? 'Question sent to ' + b.who.split(/\s+/)[0] : 'Comment posted', 'success');
+  });
+}
+
+function paintRecThumbs(){
+  var host = $('#recThumbs');
+  if (!host) return;
+  host.innerHTML = recShots.map(function(s, i){
+    return '<span class="thumb"><img src="' + s.url + '" alt="' + esc(s.name) + '" />' +
+      '<button class="x" type="button" data-recrm="' + i + '" aria-label="Remove ' + esc(s.name) + '">' +
+      '<i class="ph ph-x" aria-hidden="true"></i></button></span>';
+  }).join('');
+  $$('[data-recrm]', host).forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation(); recShots.splice(+btn.dataset.recrm, 1); paintRecThumbs();
+    });
+  });
+}
+
+/* The layer closes only on its own background, never on a click that
+   started inside the dialog. */
+$('#recLayer').addEventListener('click', function(e){
+  if (e.target === this) closeRecord();
+});
+
+/* Lightbox */
+function openLightbox(src){
+  $('#lightboxImg').src = src;
+  $('#lightbox').hidden = false;
+}
+$('#lightbox').addEventListener('click', function(){ $('#lightbox').hidden = true; });
+
+/* Escape closes the topmost layer; the arrows page the record, but only
+   when the reader is not typing — a left arrow inside the reply box has to
+   move the caret. */
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape'){
+    if (!$('#lightbox').hidden){ $('#lightbox').hidden = true; return; }
+    if (recordOpen()){ closeRecord(); return; }
+    if (!$('#fabMenu').hidden){ closeFabMenu(); }
+    return;
+  }
+  if (!recordOpen()) return;
+  var t = e.target, typing = t && (t.tagName === 'TEXTAREA' ||
+    (t.tagName === 'INPUT' && !t.readOnly) || t.isContentEditable);
+  if (typing) return;
+  if (e.key === 'ArrowLeft'){ e.preventDefault(); recStep(-1); }
+  if (e.key === 'ArrowRight'){ e.preventDefault(); recStep(1); }
+});
+
+/* ==========================================================================
+   Entry point 2 — floating action button
+   ========================================================================== */
+var fab = $('#fab'), fabMenu = $('#fabMenu');
+
+function openFabMenu(){
+  fabMenu.hidden = false;
+  fab.setAttribute('aria-expanded', 'true');
+  fab.classList.remove('is-nudging');
+  $('.c-fab-menu-item', fabMenu).focus();
+}
+function closeFabMenu(){
+  fabMenu.hidden = true;
+  fab.setAttribute('aria-expanded', 'false');
+  fab.focus();
+}
+fab.addEventListener('click', function(e){
+  e.stopPropagation();
+  fabMenu.hidden ? openFabMenu() : closeFabMenu();
+});
+fabMenu.addEventListener('click', function(e){ e.stopPropagation(); });
+document.addEventListener('click', function(){
+  if (!fabMenu.hidden){ fabMenu.hidden = true; fab.setAttribute('aria-expanded','false'); }
+});
+$$('[data-fab]').forEach(function(b){
+  b.addEventListener('click', function(){
+    fabMenu.hidden = true; fab.setAttribute('aria-expanded','false');
+    if (b.dataset.fab === 'bug') go('bugNew');
+    else go('builder', { formId:'f1' });
+  });
+});
+
+/* First-appearance nudge: three pulses, plus the tooltip, then it settles
+   down and never does it again for this user. Stored per-browser, so a
+   demo reload shows it again only after clearing site data — and a storage
+   failure (private window, blocked site data) degrades to simply not
+   nudging rather than throwing. */
+(function nudge(){
+  var seen = false;
+  try { seen = localStorage.getItem('collabrium.fab.seen') === '1'; } catch (e) {}
+  if (seen) return;
+  setTimeout(function(){
+    fab.classList.add('is-nudging');
+    var tip = document.createElement('span');
+    tip.className = 'c-tooltip-bubble is-portaled is-visible';
+    tip.textContent = 'Got feedback? Start here';
+    tip.style.right = 'calc(var(--spacing-24) + 68px)';
+    tip.style.bottom = 'calc(var(--spacing-24) + 14px)';
+    tip.style.left = 'auto';
+    tip.style.zIndex = '900';
+    document.body.appendChild(tip);
+    setTimeout(function(){
+      tip.classList.remove('is-visible');
+      setTimeout(function(){ tip.remove(); }, 300);
+      fab.classList.remove('is-nudging');
+    }, 4200);
+    try { localStorage.setItem('collabrium.fab.seen', '1'); } catch (e) {}
+  }, 900);
+})();
+
+/* ==========================================================================
+   Boot
+   ========================================================================== */
+render();
+
+/* Demo affordance only — lets a reviewer replay the FAB nudge without
+   digging through devtools. Not part of the feature. */
+window.replayFabNudge = function(){
+  try { localStorage.removeItem('collabrium.fab.seen'); } catch (e) {}
+  location.reload();
+};
+
+})();
+</script>
+</body>
+</html>
