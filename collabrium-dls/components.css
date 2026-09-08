@@ -2085,6 +2085,118 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 .c-dropdown-multi-footer .clear:hover{background:var(--color-neutral-2);}
 .c-dropdown-multi-footer .done{background:var(--color-obsidian); color:var(--color-neutral-1);}
 .c-dropdown-multi-footer .done:hover{background:var(--color-neutral-8);}
+/* Disabled footer buttons — the Loading state renders the footer inert,
+   and the native :disabled attribute alone changes nothing here, so an
+   inert Clear/Done looked identical to a live one. Opacity + cursor,
+   matching .c-choice.disabled's own treatment rather than a new one. */
+.c-dropdown-multi-footer button:disabled{opacity:.5; cursor:not-allowed;}
+.c-dropdown-multi-footer .clear:disabled:hover{background:transparent;}
+.c-dropdown-multi-footer .done:disabled:hover{background:var(--color-obsidian);}
+
+/* Dropdown Option — content slots, shared by BOTH variants' own row
+   sub-component (a row is a row; the only difference between them is the
+   checkbox, which is already handled above). The row keeps its existing
+   box, padding and hover chrome unchanged — what these add is a leading
+   media slot, an optional second text line, and a trailing meta string,
+   each independently optional. Precedent, not invention: Search input's
+   own User Search row is already avatar + name + role, Department
+   switcher lists a thumbnail per department, and Prompt bar's model
+   switcher pairs a name with a one-line descriptor — three components
+   that each had to build their own row because Dropdown's was a bare
+   string. There is deliberately no colour-dot modifier here: element
+   ownership belongs to ElementBadge and Tag, which already own it. */
+.c-dropdown-row-media,
+.c-dropdown-option-media{flex:none; display:flex; align-items:center; justify-content:center; width:20px; font-size:var(--icon-base); color:var(--color-neutral-5);}
+/* Search input's own 32px avatar recipe, scaled to the row's 24px and
+   reused rather than re-derived. font-style reset because it's a text
+   avatar sitting in an <i>, not an icon — the same reset Card's own
+   Profile card avatar needs for the same reason. */
+.c-dropdown-row-media.is-avatar,
+.c-dropdown-option-media.is-avatar{width:24px; height:24px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-label3-size); font-weight:700; font-style:normal;}
+/* With a leading media slot the row has three children, and .c-dropdown-row's
+   own justify-content:space-between would strand the label in the middle.
+   The label takes the free space instead — which changes nothing for a
+   plain two-child row, where space-between was already doing that job. */
+.c-dropdown-row > .c-dropdown-row-label,
+.c-dropdown-option > .c-dropdown-option-label{flex:1 1 auto; min-width:0;}
+.c-dropdown-row-text,
+.c-dropdown-option-text{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px;}
+.c-dropdown-row-text .c-dropdown-row-label,
+.c-dropdown-option-text .c-dropdown-option-label{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* font-weight is declared here, not inherited, on purpose: .c-dropdown-option
+   is a <label>, and Input Field's own `.c-field label` rule sets label1/700
+   on every <label> inside a field. A panel rendered standalone in a gallery
+   card looks correct without this; the same panel inside a real trigger
+   renders its descriptions bold. Measured, not theorised. */
+.c-dropdown-row-desc,
+.c-dropdown-option-desc{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-dropdown-row-meta,
+.c-dropdown-option-meta{flex:none; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-dropdown-row.disabled .c-dropdown-row-desc,
+.c-dropdown-row.disabled .c-dropdown-row-meta,
+.c-dropdown-option.disabled .c-dropdown-option-desc,
+.c-dropdown-option.disabled .c-dropdown-option-meta{color:var(--color-neutral-4);}
+
+/* Dropdown Option — description line (.has-desc). The slots themselves are
+   above; this is only the two-line row's own alignment. Checkbox's 2px
+   nudge is tuned for .c-choice, where the box sits beside a label that can
+   run to several lines and has to align to the first of them; a Dropdown
+   Option row is centred, so that nudge just pushes the box 1-2px low —
+   invisible on a 34px row, visible on a 52px one. Reset here rather than
+   in Checkbox, which isn't wrong for its own component. */
+.c-dropdown-option .c-checkbox-box{margin-top:0;}
+/* A description makes the row two lines, and the leading media, the check,
+   the checkbox and the meta all stay optically on the LABEL rather than
+   floating between the two lines, which is where align-items:center would
+   put them. The avatar is the exception — at 24px it's taller than the
+   label's own line box, so it centres on the pair instead. */
+.c-dropdown-row.has-desc,
+.c-dropdown-option.has-desc{align-items:flex-start;}
+.c-dropdown-row.has-desc > .c-dropdown-row-media,
+.c-dropdown-row.has-desc > .c-dropdown-row-check,
+.c-dropdown-row.has-desc > .c-dropdown-row-meta,
+.c-dropdown-option.has-desc > .c-dropdown-option-media,
+.c-dropdown-option.has-desc > .c-dropdown-option-meta,
+.c-dropdown-option.has-desc > .c-checkbox-box{margin-top:1px;}
+.c-dropdown-row.has-desc > .c-dropdown-row-media.is-avatar,
+.c-dropdown-option.has-desc > .c-dropdown-option-media.is-avatar{margin-top:0;}
+
+/* Panel — Empty state, both variants. Empty State's own Search/Filter-level
+   variant already names "autocomplete dropdown" as one of its cases, so
+   this is that variant compressed to popover scale, not a second
+   empty-state family. Multiple select's footer stays rendered alongside it:
+   Clear and Done are still valid actions on a selection the filter is
+   merely hiding. */
+.c-dropdown-empty{display:flex; flex-direction:column; align-items:center; text-align:center; gap:var(--spacing-4); padding:var(--spacing-24) var(--spacing-16);}
+.c-dropdown-empty > i{font-size:var(--icon-md); color:var(--color-neutral-4);}
+.c-dropdown-empty-title{font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
+.c-dropdown-empty-hint{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* Panel — Loading state, both variants. No rule of its own on purpose:
+   Search input's .c-search-input-loading / .c-search-input-spinner is
+   reused verbatim in the markup rather than copied into a second, drifting
+   recipe. See DESIGN-SYSTEM.md's own note on the naming. */
+
+/* Searchable (.is-searchable), both variants. The trigger's own input
+   becomes genuinely editable rather than a display surface, so the caret
+   has to come back: .c-dropdown-input / .c-dropdown-multi-input both set
+   caret-color:transparent so a readonly box doesn't look typeable, which
+   silently defeated Multiple select's Searchable Behaviour — it dropped
+   `readonly` but nothing restored the cursor. */
+.c-dropdown-field.is-searchable .input-wrap,
+.c-dropdown-multi-field.is-searchable .input-wrap{cursor:text;}
+.c-dropdown-field.is-searchable .c-dropdown-input,
+.c-dropdown-multi-field.is-searchable .c-dropdown-multi-input{caret-color:auto; cursor:text;}
+
+/* Panel — Drop-up (.is-above). Set by the same runtime available-space
+   check Filters' own panel already documents, never by a breakpoint. In a
+   real implementation the panel is positioned against the trigger; in this
+   file both panels sit in normal flow inside .c-field's column flexbox, so
+   order:-1 is what moves one above its trigger. Note the rendered gap is
+   spacing-8 plus .c-field's own spacing-4 gap in BOTH directions, so
+   flipping never changes the distance. */
+.c-dropdown-panel.is-above,
+.c-dropdown-multi-panel.is-above{order:-1; margin-top:0; margin-bottom:var(--spacing-8);}
 
 /* Stepper — designed not transcribed
    Horizontal: .c-step is pinned to width:24px — exactly the

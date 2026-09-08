@@ -3299,10 +3299,17 @@ are `radius-sm`, matching Input Field itself:
   summarizes the count ("3 selected") rather than listing chips, and
   stays open across picks (the former MultiSelect).
 
+Both variants carry a **Searchable** Behaviour, a shared **Dropdown
+Option** row anatomy (leading media, an optional description line, a
+trailing meta string), the same **Empty** and **Loading** panel states,
+one **placement** rule, and one **keyboard/ARIA contract** — all
+documented once, below the per-variant sections, because they are the
+same in both and must not drift into two recipes.
+
 | Part | Spec |
 |---|---|
 | Field label (optional) | caption, weight 700, Neutral-9, spacing-4 below it — literally Input Field's own `<label>` for both variants |
-| Panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill, spacing-8 below the trigger, **always exactly the trigger's own rendered width, with no floor** (both sit in the same parent and share one `width: 100%` rule with no `min-width`, so a wider/narrower trigger drags the panel with it automatically — an earlier `min-width: 240px` floor was removed after it made the panel run wider than a trigger narrower than 240px, breaking the exact-match guarantee it was meant to be documenting) — true for both variants, in every Style. The panel keeps its own `radius-md`/popover recipe regardless of the trigger's `radius-sm` — the two aren't tied together |
+| Panel | `radius-md` (16px), 1px Neutral-3 border, `shadow-3`, Neutral-1 fill, spacing-8 below the trigger, **always exactly the trigger's own rendered width, with no floor** (both sit in the same parent and share one `width: 100%` rule with no `min-width`, so a wider/narrower trigger drags the panel with it automatically — an earlier `min-width: 240px` floor was removed after it made the panel run wider than a trigger narrower than 240px, breaking the exact-match guarantee it was meant to be documenting) — true for both variants, in every Style. The panel keeps its own `radius-md`/popover recipe regardless of the trigger's `radius-sm` — the two aren't tied together. Opens below the trigger by default and flips above it on a collision — see **Panel — placement**, below, including a measured note on the real 12px gap |
 
 **Single select — Container.** The trigger box is [Input
 Field](#input-field)'s own container, reused as-is, not recreated:
@@ -3345,6 +3352,14 @@ Multiple select's own Style axis uses.
 | Disabled | Input Field's own `:disabled` recipe (Neutral-2 fill, Neutral-5 text) — flattens Borderless's own resting chrome to this one muted look, same rationale as Multiple select's Disabled |
 | Read-only | the trigger stops opening the panel (its click target is inert, chevron hidden) while still showing its current value — `pointer-events: none` alone doesn't block a focused element's keyboard activation, a real implementation needs its own guard |
 | Error | Input Field's own `.c-field-error` recipe (2px Red border, padding compensated to 11px, its `.c-helper` turns Red) — reused verbatim, the same recipe Multiple select's Error uses, not a bespoke error-text element |
+
+**Single select — Behaviour.** Two interaction modes; the closed
+trigger is identical in both:
+
+| Behaviour | Spec |
+|---|---|
+| Standard | the trigger is a display surface only (`readonly`, no caret); clicking anywhere on it opens the panel |
+| Searchable | the trigger's own input becomes editable (its `readonly` attribute is dropped, `.is-searchable` restores the caret) — typing filters the list live. The long-list case is at its worst in Single select, not Multiple: a forty-item department picker is exactly what Searchable exists for, and picking one thing from many is the more common job of the two. Filtering to nothing lands on the panel's **Empty** state, below — never on a bare panel |
 
 **Single select — Dropdown Option** — the row sub-component inside
 Single select's panel (Multiple select has its own, documented below —
@@ -3403,7 +3418,7 @@ placeholder) — the difference only shows once the panel is Open:
 |---|---|
 | Standard | plain checkbox list, grouped, Clear/Done footer below |
 | With Select All | adds a pinned **Select All** row (see Dropdown Option below) above the list, separated by a divider |
-| Searchable | the trigger's own input becomes editable (its `readonly` attribute is dropped) instead of just a display surface — typing filters the list live; this is the one Behaviour where Input Field's container is genuinely, not just visually, an input |
+| Searchable | the trigger's own input becomes editable (its `readonly` attribute is dropped, `.is-searchable` restores the caret) instead of just a display surface — typing filters the list live; this is the one Behaviour where Input Field's container is genuinely, not just visually, an input. Filtering to nothing lands on the panel's **Empty** state, below. Identical in every respect to Single select's own Searchable, above — one mechanism, two variants |
 
 **Footer** (Multiple select only) — Ghost "Clear" + Primary "Done",
 space-between, `spacing-8` gap, 1px Neutral-3 top border, `spacing-12`
@@ -3432,15 +3447,156 @@ clears every option, and it shows Indeterminate whenever the list is
 partially checked. It's a checkbox row, not a plain button — that's
 the only way it can show Indeterminate at all.
 
+**Dropdown Option — content slots.** Three optional slots, shared by
+**both** variants' own Dropdown Option row above — a row is a row, and
+the only structural difference between the two is Multiple select's
+checkbox. Each is independently optional; a row can carry any, all, or
+none of them, and the row's own box, padding and hover chrome are
+unchanged by any of them. Precedent rather than invention: [Search
+input](#search-input)'s User Search row is already avatar + name +
+role, [Department switcher](#logo) lists a thumbnail per department,
+and [Prompt input bar](#prompt-input-bar)'s model switcher pairs a model name with
+a one-line descriptor — three components that each had to build their
+own row because Dropdown's was a bare string.
+
+| Slot | Spec |
+|---|---|
+| Leading media (`.c-dropdown-row-media` / `.c-dropdown-option-media`) | 20px box, `icon-base`, Neutral-5 — a Phosphor icon (**Tier 1, Regular**, per [Iconography](#iconography)). `.is-avatar` swaps it to a 24px Neutral-2/Neutral-9 initials circle — [Search input](#search-input)'s own 32px avatar recipe scaled to row height, reused rather than re-derived. **There is deliberately no colour-dot modifier**: element ownership belongs to [ElementBadge](#elementbadge) and [Tag](#badge--tag), which already own that job, and a third way to say "this is a Water thing" is one too many |
+| Description (`.c-dropdown-row-desc` / `.c-dropdown-option-desc`) | second line under the label, caption/400/Neutral-5, wrapped with the label in a `.c-dropdown-row-text` / `.c-dropdown-option-text` column. See the five rules below — this slot has more of them than the other two combined, because it is the one that changes row height |
+| Trailing meta (`.c-dropdown-row-meta` / `.c-dropdown-option-meta`) | caption/400/Neutral-5, `flex: none`, sits inboard of Single select's check glyph. A count, a date, a short status — never a [Tag](#badge--tag) or [Badge](#badge--tag), which would make the row's trailing edge compete with its leading one |
+
+Both the label and the description truncate with an ellipsis
+**independently**, each on its own line with its own free space, so
+neither ever pushes the check, the checkbox or the meta out of
+position. Disabled drops the description and the meta to Neutral-4
+alongside the label.
+
+⚠️ **`font-weight` on the description and meta is declared, not
+inherited, and must stay that way.** `.c-dropdown-option` is a
+`<label>`, and Input Field's own `.c-field label` rule sets
+label1/700 on every `<label>` inside a field — so a panel rendered
+standalone in a gallery card looks correct while the same panel inside
+a real trigger renders its descriptions **bold**. Measured, not
+theorised; it is the reason the gallery shows at least one specimen of
+this inside a live trigger rather than only as a floating panel.
+
+**Dropdown Option — description rules.** The description slot is
+available to both variants and in every Style, and carries five rules:
+
+| Rule | Why |
+|---|---|
+| All rows or none | The description is a property of the **list**, not of a row. A list where some rows carry one and some don't reads as ragged — the rows without look like they're missing data rather than like they have none. If one option needs a description, write one for every option |
+| Exactly one line | `white-space: nowrap` plus ellipsis, never wrapping. A description that wraps turns a menu into a document, and makes row height depend on content — so the list stops being scannable and keyboard arrowing stops moving a predictable distance |
+| Never load-bearing | The description can never be the only thing separating two options. Type-ahead matches the label and screen readers lead with it, so two rows both labeled "Marketing" are two identical rows however different their descriptions are |
+| caption / 400 / Neutral-5, always | One treatment, no exceptions — not a [Tag](#badge--tag), not a [Badge](#badge--tag), not a second colour, not the owning element's colour. The row already carries meaning in its media slot and its label; a third emphasis level would compete with both |
+| Identical in both Styles | Style (Outlined/Borderless) is a **trigger-only** axis. The panel, its rows, their descriptions and Multiple select's footer are the same in both, and no Style-specific panel rule may be added — that is what keeps this one recipe instead of two |
+
+**Measured cost:** a row with a description is **52px**, in both
+variants and both Styles. A one-line row is 34px bare, or 36px once a
+leading icon sets the line box — so the panel's own 320px `max-height`
+goes from 9 or 8 visible rows down to **6**. That is the real price of
+this slot, and it is why the first rule is "all rows or none" rather
+than "add one where it helps".
+
+**Panel — Empty state.** Both variants. [Empty State](#empty-state)'s
+own Search/Filter-level variant already names "autocomplete dropdown"
+as one of its cases, so this is that variant compressed to popover
+scale, not a second empty-state family: a centred `icon-md` Neutral-4
+glyph, a body2/700/Neutral-9 title, and a caption/400/Neutral-5 hint,
+in `spacing-24`/`spacing-16` padding.
+
+| Case | Spec |
+|---|---|
+| No results for a query | Searchable only. Title names the query back ("No brands match “zzz”"); hint suggests the recovery ("Check the spelling or try a shorter term"). `magnifying-glass` glyph |
+| Nothing to choose from yet | The option list is legitimately empty before any typing. Title states it plainly ("No campaigns yet"); hint says what would change that. `tray` glyph |
+
+Multiple select's Clear/Done footer **stays rendered** in both cases —
+Clear and Done are still valid actions on a selection the filter is
+merely hiding, and removing the footer would strand whatever is
+already ticked.
+
+**Panel — Loading state.** Both variants, for any option list fed by a
+request. Reuses [Search input](#search-input)'s own Loading recipe
+**verbatim** — `.c-search-input-loading` / `.c-search-input-spinner`,
+the `spinner-gap` glyph rotated by `duration-ambient` linear — rather
+than a second, drifting copy. Multiple select's footer stays rendered
+and inert while loading, for the same reason it stays for Empty — its
+buttons take a real `disabled` attribute plus the opacity/cursor
+treatment [Checkbox](#checkbox)'s own disabled row already uses, since
+the bare attribute changes nothing visually on its own.
+
+⚠️ **Known naming wart:** a class named `.c-search-input-spinner`
+inside a Dropdown is honest about the shared recipe but reads wrong in
+markup. Three components now run the same 360° rotation from three
+separately-declared keyframes ([Search input](#search-input), [Chat
+window](#chat-window)'s read-aloud, and this) — the right fix is to hoist one
+shared `.c-spinner` and point all three at it. Deliberately deferred,
+recorded here so it isn't rediscovered as a surprise.
+
+**Panel — placement.** One rule, borrowed from
+[Filters](#filters)'s own panel rather than invented: a **runtime check
+against available space, not a breakpoint**.
+
+| Axis | Default | Collision behaviour |
+|---|---|---|
+| Vertical | `spacing-8` below the trigger | Flip to `spacing-8` **above** (`.is-above`) when the panel's own height exceeds the space below it and more space exists above. Never split the difference — a panel is either fully below or fully above. The chevron needs no change: `.open`'s existing 180° rotation means *open*, not *which direction the panel went*, so a drop-up inherits it unmodified |
+| Horizontal | Flush to the trigger's left edge | Not applicable while the panel is pinned to the trigger's exact width, which is this component's own standing guarantee — the panel cannot overhang an edge the trigger doesn't already overhang. Recorded so it reads as a decision rather than an omission, and so it is understood to depend on that width guarantee holding |
+| Neither fits | — | Stay below and let the panel's own `max-height` (320px) take over, so the list scrolls internally rather than the page growing. Never shrink the panel below roughly three visible rows — under that, a scrolling list stops reading as a list |
+| Re-check on | — | Resize, orientation change, and scroll of any ancestor while the panel is open. A panel that opened upward and now has room below **stays where it is** until it closes — re-flipping under a live cursor is worse than a suboptimal position |
+
+⚠️ **Measured discrepancy:** the rendered gap between trigger and
+panel is **12px**, not the `spacing-8` (8px) stated above and in the
+Part table — in Single select, Multiple select and every Style alike.
+`.c-field` is a column flexbox with its own `gap: spacing-4`, which
+stacks on the panel's `margin-top: spacing-8`. The drop-up measures
+12px too, so at least flipping never changes the distance. Left as-is
+rather than silently corrected in one direction: either the number
+should become 12px or the panel's margin should drop to `spacing-4`,
+and that is a visual decision, not a documentation one.
+
+**Keyboard.** Neither invented nor optional: [Department
+switcher](#logo) documents this contract in full for its own listbox
+and [SidebarNav](#sidebarnav)'s user menu documents the
+`menu`/`menuitem` adaptation of it — both for panels that are,
+structurally, this component. Written down here so the component that
+should own it does.
+
+| Key | Single select | Multiple select |
+|---|---|---|
+| Space / Enter (closed) | Opens the panel; focus moves to the selected option, or the first option if none is selected | same |
+| ↓ / ↑ | Move between options, skipping Disabled rows. Does not wrap — stopping at the ends is what tells you the list has ends | same |
+| Home / End | First / last enabled option | same |
+| Enter / Space (open) | Selects and **closes**; focus returns to the trigger | Toggles the focused checkbox and **stays open**; focus stays on the row |
+| Escape | Closes without committing; focus returns to the trigger. In Searchable, a first Escape clears the query and a second closes | same |
+| Tab (open) | Closes, keeping the current value, and moves on | Moves into the footer — Clear, then Done — then out. The footer is reachable, so the panel is never a keyboard trap |
+| Typing (not Searchable) | Type-ahead: jumps to the first option starting with the typed characters, buffer resetting after ~1s | same |
+
+**ARIA.**
+
+| Element | Roles and attributes |
+|---|---|
+| Trigger | `role="combobox"`, `aria-expanded`, `aria-controls` pointing at the panel, `aria-haspopup="listbox"`. Labeled by Input Field's own `<label>` — not an `aria-label` duplicating it |
+| Panel list | `role="listbox"`; `aria-multiselectable="true"` on Multiple select only |
+| Option row | `role="option"` + `aria-selected`. Multiple select's checkbox is the **visual**, `aria-selected` is the state — don't also expose the input as a second checkbox to the accessibility tree |
+| Option row with a description | Still a single `role="option"`; label and description are announced together as its accessible name. Never mark the description `aria-hidden` to shorten the announcement — if it isn't worth hearing, it isn't worth showing |
+| Group | `role="group"` with `aria-labelledby` pointing at the group label — otherwise the label is announced as one more option |
+| Focus | `aria-activedescendant` on the trigger while the panel is open, so DOM focus never leaves the trigger and a Searchable query keeps receiving keystrokes |
+| Empty & Loading | The panel carries `aria-live="polite"` so "No brands match" and the end of loading are announced — a silent panel is the failure mode screen-reader users actually hit |
+| Read-only | `aria-readonly="true"` **plus a real guard on the activation handler**. `pointer-events: none` alone doesn't stop keyboard activation — this component's own Don't already says so, and this is the row that makes it actionable |
+
 **Variants:** Single select — Outlined/Borderless Style ×
-Default/Hover/Open/Filled/Disabled/Read-only/Error State, plus
-its own Dropdown Option row sub-component (Default/Hover/
-Selected/Disabled). Multiple select — Outlined/Borderless Style
-× Default/Hover/Open/Filled/Disabled/Read-only/Error State ×
+Default/Hover/Open/Filled/Disabled/Read-only/Error State ×
+Standard/Searchable Behaviour, plus its own Dropdown Option row
+sub-component (Default/Hover/Selected/Disabled). Multiple select —
+Outlined/Borderless Style ×
+Default/Hover/Open/Filled/Disabled/Read-only/Error State ×
 Standard/With Select All/Searchable Behaviour (Behaviour only visibly
 differs when Open), plus its own Dropdown Option row sub-component
 (Default/Hover/Selected/Indeterminate/Disabled) and the pinned
-Select All row.
+Select All row. Shared by both variants, not multiplied through either
+axis: the Dropdown Option content slots (leading media ± description ±
+trailing meta), the panel's Empty and Loading states, its placement
+including `.is-above`, and one keyboard/ARIA contract.
 
 **Standing note:** if you're looking for **Select**, it's now the
 **Single select** variant of this component (see above) — its trigger
@@ -3466,11 +3622,20 @@ Multiple select's footer Clear empty the selection while leaving the
 menu open (so more options can be picked), and let Done close the menu
 without touching the selection — they're deliberately different
 scopes; give Select All a real checkbox, never a plain button, since
-Indeterminate is a checkbox-only concept. **Don't:** rely on
+Indeterminate is a checkbox-only concept; give every row in a list a
+description or none of them; keep both variants' Searchable, Empty,
+Loading, placement and keyboard behaviour literally the same, since
+they're documented once for both. **Don't:** rely on
 `pointer-events: none` alone to make either variant's Read-only
 non-interactive — it doesn't stop keyboard activation, only the mouse;
 give the Select All row its own remove or clear control — that's the
-footer Clear's job, Select All only toggles the list's own checkboxes.
+footer Clear's job, Select All only toggles the list's own checkboxes;
+let a description wrap to a second line, or carry meaning the label
+doesn't already carry; add a colour-dot media modifier for element
+ownership — that's [ElementBadge](#elementbadge)'s and [Tag](#badge--tag)'s
+job; add a Style-specific panel rule, since Outlined and Borderless
+differ only in the trigger; leave a Searchable panel bare when the
+filter matches nothing — that's what the Empty state is for.
 
 ### ElementBadge
 
@@ -6595,6 +6760,66 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.101 — 2026-09-08** — [Dropdown](#dropdown) gains six additions
+  and one bug fix, all of them selected from a proposal draft rather than
+  invented wholesale, and most of them closing a gap another component
+  had already been working around by hand. **Dropdown Option gains three
+  content slots** — a leading media slot (icon, or `.is-avatar` for a
+  24px initials circle reusing [Search input](#search-input)'s own avatar
+  recipe), an optional description line, and a trailing meta string —
+  shared by **both** variants' row sub-component, because a row is a row.
+  [Search input](#search-input), [Department switcher](#logo) and
+  [Prompt input bar](#prompt-input-bar) had each built their own row for want of
+  this. There is deliberately **no colour-dot modifier**: element
+  ownership stays with [ElementBadge](#elementbadge) and [Tag](#badge--tag).
+  **The description line** is documented with five rules of its own — all
+  rows or none, exactly one line, never load-bearing, caption/400/
+  Neutral-5 always, and identical in both Styles — plus its measured
+  cost: a described row is 52px against 34px bare or 36px with a leading
+  icon, so the panel's 320px cap shows 6 rows instead of 9 or 8. That
+  measurement is why the first rule is "all rows or none" rather than
+  "add one where it helps". **Searchable is now a Behaviour on Single
+  select too**, not only Multiple select — the long-list case is at its
+  worst there — and the same change **fixes an existing bug in Multiple
+  select's own Searchable**, which dropped `readonly` to make the trigger
+  editable but left `caret-color: transparent` in place, so typing into
+  it gave a genuinely editable field with an invisible cursor. **The
+  panel gains Empty and Loading states**: Empty is [Empty
+  State](#empty-state)'s own Search/Filter-level variant — which already
+  names "autocomplete dropdown" as its case — compressed to popover
+  scale, in two shapes (no results for a query, and nothing to choose
+  from yet); Loading reuses [Search input](#search-input)'s spinner
+  recipe verbatim with no new CSS. Multiple select's Clear/Done footer
+  stays rendered through both, since Clear and Done remain valid on a
+  selection the filter is merely hiding. **Placement is specified**,
+  borrowed from [Filters](#filters)'s own panel rather than invented — a
+  runtime available-space check, never a breakpoint — with a `.is-above`
+  drop-up, an explicit "not applicable" for the horizontal axis (the
+  panel is pinned to the trigger's width, so it can't overhang an edge
+  the trigger doesn't), and a no-re-flip-while-open rule. **A keyboard
+  and ARIA contract** is written down for the first time; it is not new
+  invention but the contract [Department switcher](#logo) and
+  [SidebarNav](#sidebarnav)'s user menu already document for panels that
+  are structurally this component, with the one real difference between
+  the variants made explicit — Single select closes on pick, Multiple
+  select doesn't. Three ⚠️ notes ride along, all measured rather than
+  reasoned: the description and meta must declare `font-weight` rather
+  than inherit it, because `.c-dropdown-option` is a `<label>` and Input
+  Field's own `.c-field label` rule renders descriptions **bold** inside
+  a real trigger while a standalone gallery panel looks fine; the panel's
+  rendered gap is **12px**, not the documented `spacing-8`, because
+  `.c-field`'s own `gap: spacing-4` stacks on the panel's `margin-top`
+  (true in both directions, so flipping never changes it) — recorded
+  rather than silently corrected, since which way to fix it is a visual
+  decision; and reusing `.c-search-input-spinner` inside a Dropdown reads
+  wrong in markup, with three components now running the same rotation
+  from three separately-declared keyframes and one shared `.c-spinner`
+  the right eventual fix. Three further proposals from the same draft —
+  a `size-sm` trigger, group labels for Single select, and a clearable
+  Single select — were reviewed and **not** adopted; [Pagination](#pagination)
+  accordingly keeps its own hand-written caption override on the
+  Dropdown triggers it reuses.
 
 - **v0.9.100 — 2026-09-08** — Four fixes to
   [Chart chrome & marks](#chart-chrome--marks), all of them gaps a real
