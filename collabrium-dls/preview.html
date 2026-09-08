@@ -6778,8 +6778,8 @@ not a new value.
 
 | Element | Rule |
 |---|---|
-| X-axis | No border, no gridlines |
-| Y-axis | No border; only gridline on the chart, color Neutral-3, hairline |
+| Category axis | No border, no gridlines. On a vertical chart this is X; on a horizontal bar it is Y — **read these two rows by role, not by letter**. An earlier wording named X and Y directly, which silently assumed every chart was vertical and left horizontal bars ambiguous |
+| Value axis | No border; the **only** gridline on the chart, color Neutral-3, hairline. X on a horizontal bar, Y on a vertical one |
 | Axis tick labels (X & Y) | `footnote` token (`--text-footnote-*`: 12px / 16px lh / 400 weight), Neutral-5 |
 | Axis titles (when present, e.g. Bubble/Scatter) | `label2` token (`--text-label2-*`: 13px / 18px lh / 700), Neutral-5 |
 | Tooltip surface | Neutral-1 bg, 1px Neutral-3 border, `cornerRadius: 8` (literal — no matching radius token exists), `padding: 10` (literal) |
@@ -6814,6 +6814,8 @@ not a new value.
 | Radar | 2px | fill wash (~12% wash) | 3px, white border | `suggestedMin`/`suggestedMax` fixed to the 0–10 rating scale, not auto-scaled |
 | Bubble | series color as point border | `-wash` variant of each series color (30% or 15% transparent — see [Chart color mapping](#chart-color-mapping)'s ramp) | radius = third data dimension | 3 series max, all-pairs-validated slots only |
 | Polar area | 2px slice border, white | Same-hue ramp, translucent (30% for saturated rungs, 15% for the two pale tint rungs) | — | translucency is deliberate: lets grid rings show through the whole wedge, not just at the tick spoke |
+| **Sparkline** | 2px | none, or the ≤12% wash off its own colour | none, except optionally the final point at 3px | **A glance, not an instrument.** No axes, no gridlines, no legend, no tooltip, no "View as table" — it is the only chart type besides Bubble exempt from that button, because it has no standalone data to tabulate: it annotates a figure that is already on screen. `tension: 0.3` as Line (plain). Takes the colour of the element that owns the metric. Lives in [Stat / KPI card](#stat--kpi-card)'s reserved sparkline slot rather than a chart card, so it inherits no chart chrome at all |
+| **Stacked bar** (horizontal or vertical) | — | each segment its own colour, per the rule below | — | **Corner radius is the outer end of the stack only.** The 4px top-only rule above is written for a single bar; applied to every segment of a stack it notches the joints and the bar stops reading as one thing. Round the **last non-zero segment's outer end** — computed per bar, since which segment is last changes with the data — and leave every internal join square. Thickness comes from the same `--spacing-20`/`--spacing-24` caps as any other bar. **The stack must sum to the figure it is labelled with**: if the segments don't account for the whole, draw the remainder in Neutral-3 rather than leaving it off, which is [Progress-to-Goal Bar](#progress-to-goal-bar)'s own headroom role reused. **Colour depends on what the segments are** — genuinely different categories walk the department table per [Chart color mapping](#chart-color-mapping); parts of *one* measure (two time windows, say) are **sequential**, so they take a single-hue ramp off the owning element and never two hue families. ⚠️ A sequential ramp cannot clear 3:1 at every step — measured on the Water ramp, Navy is 4.54:1 against the card but 2.41:1 against `water-pastel`, which is itself 1.89:1 against the card. Segments are therefore identified by the legend, the tooltip, and the mandatory table view, never by colour alone |
 | Mixed (Bar + Line) | bar: —; line: 2px | bar: mid, hover → hover; line: none (`fill: false`) | line: 3px radius, 2px white ring border, 5px on hover | Each dataset follows its own row above verbatim — Bar (single-series) and Line (plain) — not a third recipe. Added once two series needed to sit on one canvas rather than two adjacent cards; when the series don't share a scale, add a second Y axis (`position: 'right'`) with the same border-hidden/footnote-token-tick treatment as the primary axis but no gridline of its own — Neutral-3 is only ever drawn once, on the primary (left) axis, so the two scales don't visually compete |
 
 #### Card / KPI / container
@@ -6826,7 +6828,7 @@ not a new value.
 | KPI label | [Stat / KPI card](#stat--kpi-card)'s own `caption` token, weight 700, `tracking-eyebrow`, uppercase, Neutral-5 — not a new token set |
 | KPI value | [Stat / KPI card](#stat--kpi-card)'s own `h1` token, Neutral-9 |
 | KPI badge | Reused [Badge & Tag](#badge--tag)'s `.c-badge`/`.c-badge-success`/`.c-badge-error` verbatim, with a local `.kpi-tile .c-badge { align-self: flex-start }` fix — [Stat / KPI card](#stat--kpi-card)'s container is a column flexbox with no `align-items`, which was silently stretching the badge to full card width |
-| "View as table" button (`.c-chart-table-btn`) | Reuses `.c-btn c-btn-secondary c-btn-sm` verbatim — no bespoke button CSS. Every chart gets one except Bubble (structurally has no accompanying `<table>` at all) |
+| "View as table" button (`.c-chart-table-btn`) | Reuses `.c-btn c-btn-secondary c-btn-sm` verbatim — no bespoke button CSS. Every chart gets one except **Bubble** (structurally has no accompanying `<table>` at all) and **Sparkline** (it annotates a figure already on screen; there is no standalone data to tabulate) |
 | Chart grid (`.c-chart-grid`) | `repeat(3, 1fr)` → 2 cols @1100px → 1 col @640px, `--spacing-16` gap |
 
 ⚠️ **Known implementation risk, not a doc decision:** an
@@ -6843,6 +6845,7 @@ Choose chart type based on what the data communicates, not aesthetics.
 | Data story | Use this chart |
 |---|---|
 | Compare values across categories | Horizontal bar chart |
+| Parts within a total, compared across categories | Stacked bar chart — and the stack must sum to the total it is labelled with |
 | Change over time | Line chart |
 | Cumulative volume over time | Area chart (fill ≤ 12% opacity) |
 | Part of a whole | Doughnut chart (max 5 segments) |
@@ -6852,6 +6855,7 @@ Choose chart type based on what the data communicates, not aesthetics.
 | Volume by category (non-linear) | Polar area chart |
 | Two related metrics on different scales, over time | Mixed bar + line chart, dual Y-axis |
 | Single headline number | Stat tile — not a chart |
+| The shape of a trend beside a headline number | Sparkline in [Stat / KPI card](#stat--kpi-card)'s own slot — never a full chart card |
 | Forecast vs actual over time | Multi-series area + line chart with projection zone annotation |
 | Cumulative concentration | Concentration curve (area chart with annotated callouts) |
 | Positive / negative contributions | Diverging horizontal bar chart (bridge/waterfall) |
@@ -9499,7 +9503,7 @@ doesn't replace it.
 | Trend color | Green = positive change, Red = negative change, Neutral-5 = flat/no comparison available — reuses the exact Badge success/danger hues, not new colors |
 | Icon chip (optional) | top-right or top-left, same 36×36 `radius-sm` chip at 12% element tint as Card's icon-chip pattern — marks which department the metric belongs to; **Tier 2, Fill** (a department indicator) |
 | Footer (optional) | same as Card's Footer sub-part — spacing-16 margin-top, spacing-12 padding-top, 1px Neutral-3 top border, caption/Neutral-5 (e.g. "As of 9:41am") |
-| Sparkline slot (optional) | reserved space below the trend row for a mini inline chart — see Chart color mapping below for how its line/fill should be colored; this spec doesn't define chart rendering itself |
+| Sparkline slot (optional) | reserved space below the trend row for a mini inline chart. Rendering **is** specified — see **Sparkline** in [Chart chrome & marks](#chart-chrome--marks)' per-chart-type table: 2px line, `tension: 0.3`, no axes, no gridlines, no legend, no tooltip and no "View as table", coloured by the element that owns the metric. [Chart color mapping](#chart-color-mapping) covers the colour role |
 
 **Variants:** Static (default), Interactive/clickable (same hover →
 `shadow-2` + focus-visible → `shadow-focus` pattern as Card),
@@ -10462,6 +10466,43 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.100 — 2026-09-08** — Four fixes to
+  [Chart chrome & marks](#chart-chrome--marks), all of them gaps a real
+  build walked into rather than review findings. **Axis rules are now
+  stated by role, not by letter**: the chrome table's `X-axis` / `Y-axis`
+  rows become **Category axis** / **Value axis**, because the old wording
+  silently assumed a vertical chart and left a horizontal bar with no
+  answer to where its one Neutral-3 gridline belongs (the value axis —
+  X on a horizontal bar, Y on a vertical one). **Stacked bar** is
+  specified for the first time, in both the type-selection and
+  per-chart-type tables: the 4px top-only radius is written for a single
+  bar and notches the joints if applied to every segment, so a stack
+  rounds the **outer end of its last non-zero segment only**, computed
+  per bar since which segment is last changes with the data; the stack
+  **must sum to the figure it is labelled with**, drawing any remainder
+  in Neutral-3 — [Progress-to-Goal Bar](#progress-to-goal-bar)'s headroom
+  role reused; and segment colour depends on what the segments *are* —
+  distinct categories walk the department table, while parts of one
+  measure (two time windows, say) are **sequential** and take a
+  single-hue ramp off the owning element rather than two hue families. A
+  ⚠️ records that a sequential ramp cannot clear 3:1 at every step
+  (measured on Water: Navy 4.54:1 against the card, 2.41:1 against
+  `water-pastel`, which is itself 1.89:1), so segments are identified by
+  legend, tooltip and the mandatory table view, never colour alone.
+  **Sparkline** is specified for the first time — [Stat / KPI
+  card](#stat--kpi-card) has reserved a slot for one since it was
+  written while explicitly declining to define its rendering, and that
+  sentence now points at a real recipe: 2px line, `tension: 0.3`, no
+  axes, gridlines, legend or tooltip, coloured by the element that owns
+  the metric. It becomes the **second exemption from "View as table"**
+  after Bubble, on the grounds that it annotates a figure already on
+  screen and has no standalone data to tabulate. `SKILL.md` gains a line
+  naming Chart.js as the charting library with its CDN tag and the
+  gallery's reference build, which the cheat sheet had never mentioned —
+  an agent reading only `SKILL.md` had no way to know charts were
+  already solved here. `components.css` and `tokens.css`: unchanged —
+  all four are documentation.
 
 - **v0.9.99 — 2026-09-07** — **[Progress-to-Goal Bar](#progress-to-goal-bar)'s
   size variants now control the chart and nothing else.** The component

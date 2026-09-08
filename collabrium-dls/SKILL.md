@@ -56,6 +56,8 @@ have no source in either the brand deck or the teammate's build, so
 treat them as more provisional than everything transcribed above them —
 a first design pass, not yet reviewed.
 
+**Charts are already solved: Chart.js v4.** Load it with the same pinned CDN tag `preview.html` uses — `<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js">` — and copy the shared chrome out of `preview.html`'s own Charts build (`baseAxes()`, one `tooltip` object, one `legend()`), which reads every value off computed CSS custom properties rather than hardcoding tokens. Don't reach for a second charting library; DESIGN-SYSTEM.md's **Chart chrome & marks** and **Chart color mapping** sections carry the axis, tooltip, legend, marks and colour-role rules, including which chart type to pick for which data story.
+
 **Standing rule:** any change to this skill's files (preview.html,
 logo.html, logo-lockups/, tokens.css, components.css, SVG/, fonts/, new
 components) must be reflected back into `DESIGN-SYSTEM.md` in the same
