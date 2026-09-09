@@ -179,10 +179,53 @@
 .c-scale-ends{display:flex; justify-content:space-between; gap:var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
 
 /* --------------------------------------------------------------------------
-   CANDIDATE 5 — Rating table (.c-matrix)
+   CANDIDATE 5 — Star rating (.c-stars)
+   A one-tap satisfaction answer. It is a radiogroup like .c-scale — real
+   <input type="radio">, so arrow keys and form semantics come free — but it
+   fills cumulatively: picking 4 marks four stars, where a scale marks one
+   number. That cumulative read is the whole reason people use stars, and it
+   is why this is not a .c-scale variant with a different glyph.
+   The filled star is Obsidian, not gold: this system's elemental colours
+   carry meaning (the 5-element mapping) and a rating is not one of them,
+   while Obsidian is already what "the value is here" looks like on the
+   scale's own selected circle and the slider's track fill.
+   -------------------------------------------------------------------------- */
+.c-stars{display:flex; align-items:center; gap:var(--spacing-4);}
+.c-star{position:relative; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; cursor:pointer; color:var(--color-neutral-4); transition:color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
+.c-star input{position:absolute; opacity:0; width:0; height:0;}
+.c-star i{font-size:var(--icon-md);}
+.c-star:hover{color:var(--color-neutral-5);}
+.c-star.on{color:var(--color-obsidian);}
+.c-star.on:hover{color:var(--color-obsidian);}
+.c-star input:focus-visible + i{outline:2px solid var(--color-obsidian); outline-offset:3px; border-radius:var(--radius-sm);}
+.c-star input:disabled + i{color:var(--color-neutral-4);}
+.c-star.on input:disabled + i{color:var(--color-neutral-5);}
+/* The number beside the stars, for anyone who would rather read it than
+   count filled shapes — and the only part a screen reader needs. */
+.c-stars-value{margin-left:var(--spacing-8); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 6 — Ranking (.c-rank)
+   Put these in order, highest first. Drag is the obvious gesture and the
+   wrong only-gesture: it is unusable by keyboard and unreliable on touch,
+   which is the same conclusion this file's own question reorder came to, so
+   the buttons are the mechanism rather than the fallback. Each row carries
+   its current position, because the answer being given is the order and a
+   list with no numbers on it makes the reader count.
+   -------------------------------------------------------------------------- */
+.c-rank{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-rank-item{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+.c-rank-pos{flex:none; display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:var(--radius-pill); background:var(--color-neutral-2); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-rank-label{flex:1 1 auto; min-width:0; font-family:var(--font-primary); font-size:var(--text-body2-size); color:var(--color-neutral-9);}
+.c-rank-btns{flex:none; display:flex; align-items:center; gap:var(--spacing-4);}
+.c-rank-btns .c-icon-btn:disabled{color:var(--color-neutral-4); cursor:not-allowed;}
+.c-rank-btns .c-icon-btn:disabled:hover{background:transparent;}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 7 — Rating table (.c-matrix)
    One rating scale asked of several things at once: a row per subject, a
    column per rating, one radio group per row. Asking it as four separate
-   Multiple choice questions repeats the same five labels four times and
+   Single choice questions repeats the same five labels four times and
    loses the comparison the grid exists to make.
    Composed rather than invented: the frame is Table's own anatomy verbatim
    (header row in label3/uppercase/Neutral-5 — the Embedded variant, since
@@ -346,7 +389,12 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .lib-table .menu-pop{position:fixed; top:auto; right:auto;}
 
 /* Builder toolbar */
-.toolbar{display:flex; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); position:sticky; top:var(--spacing-16); z-index:30;}
+/* Sits below the survey's title and stays there: it belongs to the header
+   block above it, and a bar that detaches and rides the scroll over the
+   questions is a second thing to look at while editing one. Publish and the
+   share actions are not per-scroll-position decisions — the per-question
+   controls are on the questions, and Save has its own pinned bar. */
+.toolbar{display:flex; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1);}
 .toolbar .sep{width:1px; align-self:stretch; margin:0 var(--spacing-4); background:var(--color-neutral-3);}
 .kebab-wrap{position:relative;}
 .kebab-menu{position:absolute; right:0; top:calc(100% + var(--spacing-8)); z-index:40; width:200px; padding:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); display:flex; flex-direction:column; gap:2px;}
@@ -376,10 +424,40 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .qblock-actions .qtype input{height:32px; width:150px; padding:0 var(--spacing-8); padding-right:28px; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;}
 .qblock-actions .qtype .icon-trailing{right:var(--spacing-8); font-size:var(--icon-micro);}
 .qblock-actions .qtype .c-dropdown-panel{position:absolute; top:calc(100% + var(--spacing-4)); right:0; width:200px; z-index:20; margin-top:0;}
-.qblock-foot{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-16); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+/* The footer's rule runs the full width of the card, edge to edge through
+   the block's own padding — Modal's footer convention. Inset, at the same
+   1px Neutral-3 as a table row's border-bottom and the same 12px rhythm, it
+   read as one more row of the rating table with its radios missing: five
+   rules down the card, the last one labelled "Required". A rule that
+   touches both edges cannot be a row. */
+.qblock-foot{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-16);
+  margin:var(--spacing-4) calc(var(--spacing-20) * -1) 0 calc(var(--spacing-32) * -1);
+  padding:var(--spacing-12) var(--spacing-20) 0 var(--spacing-32);
+  border-top:1px solid var(--color-neutral-3);}
 .qblock-media{border-radius:var(--radius-md); overflow:hidden; background:var(--color-neutral-2); display:flex; align-items:center; justify-content:center; min-height:160px; color:var(--color-neutral-5); gap:var(--spacing-8); flex-direction:column;}
 .qblock-media i{font-size:var(--icon-lg);}
-.add-bar{display:flex; flex-wrap:wrap; gap:var(--spacing-8); padding:var(--spacing-16); border:1px dashed var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1);}
+/* The editor's own header gap. Every other route wants App Shell's 48px
+   between the page header and the content, but here the next thing down is
+   the survey's toolbar — the Publish button belongs to the title above it,
+   and a section-sized gap read as two separate screens. Selected through
+   :has() because the header is App Shell's, a sibling of the routes, so
+   nothing inside the route can reach it. */
+.c-shell-content:has(#routeBuilder:not([hidden])) .c-pageheader{margin-bottom:var(--spacing-16);}
+
+/* Add block — one control strip that hugs its own content, rather than a
+   full-width dashed panel wedged between the survey's title and its first
+   question. It sits after the list because that is where a new block lands,
+   and it keeps "Add question" labelled: it is the one almost every visit
+   here is for, and the other five read fine as icons with their names on
+   hover and to a screen reader. */
+/* max-content rather than shrink-to-fit: a wrapping flex container left to
+   size itself can balance its rows instead of taking its one-line width, so
+   the width is stated and max-width:100% is what makes it wrap — on a
+   narrow screen only. The buttons don't shrink, for the same reason. */
+.add-bar{display:inline-flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-4); align-self:flex-start; width:max-content; max-width:100%; padding:var(--spacing-8); border:1px dashed var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1);}
+.add-bar > *{flex:none;}
+.add-bar-sep{flex:none; width:1px; align-self:stretch; margin:0 var(--spacing-4); background:var(--color-neutral-3);}
+.add-bar .c-btn-icon{width:32px;}
 /* The question column and the floating rail. A grid column rather than an
    overlay: `position:fixed` beside the content would have to be measured
    against the content region on every resize, and would still sit on top of
@@ -387,9 +465,10 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    rail its own track makes "never obstructs a question" a property of the
    layout instead of a calculation. */
 .builder-cols{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--spacing-16); align-items:start;}
-/* Sticky, offset below the builder toolbar — which is itself sticky at
-   spacing-16 and ~48px tall, so anything pinned higher lands underneath it. */
-.add-rail{position:sticky; top:calc(var(--spacing-16) + 56px); display:flex; flex-direction:column; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); box-shadow:var(--shadow-3);}
+/* Sticky at the content region's own top inset. It used to be offset a
+   further 56px to clear the toolbar, which was sticky above it — the
+   toolbar scrolls away now, so the rail takes the top on its own. */
+.add-rail{position:sticky; top:var(--spacing-16); display:flex; flex-direction:column; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); box-shadow:var(--shadow-3);}
 .add-rail .c-btn-icon{width:36px; height:36px;}
 .add-rail .c-btn-icon i{font-size:var(--icon-base);}
 .add-rail .c-btn-icon:hover{background:var(--color-neutral-3);}
@@ -621,17 +700,33 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 /* Two words in an uppercase caption inside a track that sizes to content:
    "Thank you" wraps and takes the whole switch to two lines with it. */
 .prev-pages .c-seg{white-space:nowrap;}
-/* Progress sticks to the top of the scrolling body, which is the only place
-   a progress bar earns its keep — one parked at the top of a long form
-   scrolls away before it has anything to report. */
-.prev-progress{position:sticky; top:0; z-index:5; display:flex; flex-direction:column; gap:var(--spacing-8);
+/* Sits at the top of the form and stays there. It reports on the whole
+   form, so it belongs with the form's own heading rather than riding the
+   scroll over the questions — and inside a modal the reader can see how far
+   down the body they are from the scrollbar anyway. Full-bleed across the
+   body's padding so it reads as the page's own progress, not a card's. */
+.prev-progress{display:flex; flex-direction:column; gap:var(--spacing-8);
   margin:0 calc(var(--spacing-24) * -1); padding:var(--spacing-8) var(--spacing-24) var(--spacing-12);
   background:var(--color-canvas-warm);}
 .prev-head{border-top:4px solid var(--color-obsidian);}
+/* Submit sits where the reader's eye lands at the end of a form: the same
+   end of the row as the modal's own footer actions, directly under the last
+   question's own controls. */
+.prev-submit{justify-content:flex-end;}
 .prev-title{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9); overflow-wrap:anywhere;}
 .prev-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); white-space:pre-wrap;}
 .prev-q-title{display:block; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
 .prev-req{color:var(--color-red); margin-left:var(--spacing-4);}
+/* Leading the legend rather than trailing a title: the marker comes first
+   there, so the space goes on the other side. */
+.prev-req.lead{margin-left:0; margin-right:var(--spacing-4);}
+/* The legend is a key to the asterisks above it, not a third line of the
+   description — Card's own Footer sub-part (hairline above, caption,
+   Neutral-5) gives it that job. Restated at this specificity because
+   .c-card p (0,1,1) sets body2 and beats .c-card-footer (0,1,0) — the trap
+   components.css documents twice for exactly this reason. */
+.prev-head > .c-card-footer{margin:var(--spacing-8) 0 0; padding-top:var(--spacing-12);
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
 /* Slider's own optional static value label — caption/Neutral-9, right
    aligned above the rail's end. It is used instead of the drag tooltip
    (the component documents the two as mutually exclusive) because a survey
@@ -1195,10 +1290,17 @@ var SERVICES = ['Dashboards','Reports & exports','Campaigns','Briefs & approvals
 var TYPES = {
   short:  { label:'Short text',            icon:'ph-text-aa' },
   long:   { label:'Long text',             icon:'ph-text-align-left' },
-  single: { label:'Multiple choice',       icon:'ph-radio-button' },
-  multi:  { label:'Checkboxes',            icon:'ph-check-square' },
+  /* Named for the answer, not the control: "Multiple choice" traditionally
+     means pick one of several, which is the opposite of what it reads as,
+     and "Checkboxes" names the widget rather than what it does. One answer
+     is Single choice, several is Multiple choice; the radio and checkbox
+     glyphs still say which control each one uses. */
+  single: { label:'Single choice',         icon:'ph-radio-button' },
+  multi:  { label:'Multiple choice',       icon:'ph-check-square' },
   scale:  { label:'Linear scale',          icon:'ph-sliders-horizontal' },
   slider: { label:'Slider',                icon:'ph-faders-horizontal' },
+  stars:  { label:'Star rating',           icon:'ph-star' },
+  rank:   { label:'Ranking',               icon:'ph-list-numbers' },
   matrix: { label:'Rating table',          icon:'ph-table' },
   yesno:  { label:'Yes / No',              icon:'ph-toggle-left' }
 };
@@ -2353,32 +2455,52 @@ $$('#kebabMenu button').forEach(function(b){
 
 /* The block types, declared once. Both the fixed bar and the floating rail
    read this list, so they can never drift apart. */
-/* What the bar and the rail can add. The question kinds come first and the
-   two media blocks last, because a poll, a rating table and a slider are
-   all questions — only image and video are not. Each one lands as a real
-   question of that type rather than an empty block to retype: the type
-   switcher on the block can still change it afterwards, but the point of a
-   named Add button is that the thing it adds is already the thing. */
+/* What the bar and the rail can add. Each one lands as a real question of
+   that type rather than an empty block to retype: the type switcher on the
+   block can still change it afterwards, but the point of a named Add button
+   is that the thing it adds is already the thing.
+   Order is Add question, then everything else alphabetically — the same
+   ordering the type dropdown uses, so the icons in the strip and the rail
+   sit in the order the dropdown lists them in. Add question keeps the top
+   because it is the labelled primary and the one almost every visit is
+   for; it is the only fixed position, and it is fixed by kind rather than
+   by where it happens to be written below. */
 var BLOCKS = [
-  { kind:'question', label:'Add question',     icon:'ph-plus-circle' },
-  { kind:'matrix',   label:'Add rating table', icon:'ph-table' },
-  { kind:'slider',   label:'Add slider',       icon:'ph-faders-horizontal' },
-  { kind:'poll',     label:'Add poll',         icon:'ph-chart-donut' },
-  { kind:'image',    label:'Add image',        icon:'ph-image' },
-  { kind:'video',    label:'Add video',        icon:'ph-video' }
+  { kind:'question', label:'Add question',        icon:'ph-plus-circle' },
+  { kind:'single',   label:'Add single choice',   icon:'ph-radio-button' },
+  { kind:'multi',    label:'Add multiple choice', icon:'ph-check-square' },
+  { kind:'matrix',   label:'Add rating table',    icon:'ph-table' },
+  { kind:'stars',    label:'Add star rating',     icon:'ph-star' },
+  { kind:'rank',     label:'Add ranking',         icon:'ph-list-numbers' },
+  { kind:'slider',   label:'Add slider',          icon:'ph-faders-horizontal' },
+  { kind:'poll',     label:'Add poll',            icon:'ph-chart-donut' },
+  { kind:'image',    label:'Add image',           icon:'ph-image' },
+  { kind:'video',    label:'Add video',           icon:'ph-video' }
 ];
+function blockOrder(){
+  var pinned = BLOCKS.filter(function(b){ return b.kind === 'question'; });
+  return pinned.concat(BLOCKS.filter(function(b){ return b.kind !== 'question'; })
+    .sort(function(a, b){ return a.label.localeCompare(b.label); }));
+}
 function addBarButtons(){
-  return BLOCKS.map(function(b, i){
-    return '<button class="c-btn ' + (i ? 'c-btn-ghost' : 'c-btn-secondary') +
-      ' c-btn-sm" type="button" data-add="' + b.kind + '">' +
-      '<i class="ph ' + b.icon + '" aria-hidden="true"></i>' + b.label + '</button>';
+  return blockOrder().map(function(b, i){
+    /* The first one carries its label; the rest are Button's own icon-only
+       variant, which supplies the accessible name from aria-label. Six
+       labelled buttons in a row came to 900px of controls for something
+       that is one decision. */
+    if (!i) return '<button class="c-btn c-btn-secondary c-btn-sm" type="button" data-add="' + b.kind + '">' +
+      '<i class="ph ' + b.icon + '" aria-hidden="true"></i>' + b.label + '</button>' +
+      '<span class="add-bar-sep" aria-hidden="true"></span>';
+    return '<button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" data-add="' + b.kind + '"' +
+      ' title="' + b.label + '" aria-label="' + b.label + '">' +
+      '<i class="ph ' + b.icon + '" aria-hidden="true"></i></button>';
   }).join('');
 }
 function addRailButtons(){
   /* Icon-only, because a rail wide enough for "Add question" would be a
      second column of the page rather than a control. Button's own icon-only
      variant carries the accessible name. */
-  return BLOCKS.map(function(b){
+  return blockOrder().map(function(b){
     return '<button class="c-btn c-btn-ghost c-btn-sm c-btn-icon" type="button" data-add="' + b.kind + '"' +
       ' title="' + b.label + '" aria-label="' + b.label + '">' +
       '<i class="ph ' + b.icon + '" aria-hidden="true"></i></button>';
@@ -2436,22 +2558,22 @@ function renderQuestions(form){
       '<label class="c-field field-wide"><span class="eyebrow">Description</span>' +
         '<textarea id="fDesc" rows="2" placeholder="What is this form for?">' + esc(f.desc) + '</textarea></label>' +
     '</div>' +
-    /* Two copies of the same four actions, on purpose.
-       The bar is fixed in place at the top of the page, because on a new
-       form there are no questions yet for a rail to sit beside — and the
-       first thing anyone does here is add one.
-       The rail then follows the scroll for the rest of the session. It lives
-       in its own grid column rather than floating over the content, so it
+    /* Two copies of the same six actions, on purpose.
+       The bar sits after the list, where the block it adds lands, and it is
+       the only one of the two that survives a narrow screen (the rail is
+       hidden below 820px, where the content column cannot spare 56px).
+       The rail follows the scroll for the rest of the session. It lives in
+       its own grid column rather than floating over the content, so it
        rides alongside whichever question is in view and can never cover one
        — an overlay pinned to the viewport edge would sit on top of a
        question's own type switcher and delete button. */
-    '<div class="add-bar">' + addBarButtons() + '</div>' +
     '<div class="builder-cols">' +
       '<div id="qList" class="stack"></div>' +
       '<div class="add-rail" role="group" aria-label="Add a block">' +
         addRailButtons() +
       '</div>' +
     '</div>' +
+    '<div class="add-bar" role="group" aria-label="Add a block">' + addBarButtons() + '</div>' +
 
     '<div class="set-save' + (dirty ? ' is-dirty' : '') + '">' +
       '<span class="set-save-state">' + saveStateHtml(dirty) + '</span>' +
@@ -2537,6 +2659,12 @@ function paintQuestions(f){
   refreshQSave();
 }
 
+function typeKeys(){
+  return Object.keys(TYPES).sort(function(a, b){
+    return TYPES[a].label.localeCompare(TYPES[b].label);
+  });
+}
+
 /* Question type switcher — Dropdown's Single select, Borderless, wired for
    real. The type badge used to be display-only, which made four of the six
    documented question types unreachable from the builder. */
@@ -2548,7 +2676,13 @@ function typeSwitcher(q){
       '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
     '</span>' +
     '<span class="c-dropdown-panel" data-typepanel="' + q.id + '" hidden><span class="c-dropdown-list">' +
-      Object.keys(TYPES).map(function(k){
+      /* Alphabetical by label, sorted at render rather than by the order the
+         object happens to be written in — ten types have no inherent
+         sequence, and a new one added to TYPES lands in its right place on
+         its own instead of at the bottom. Same habit as the system's other
+         orderless lists (persona badges, the platform list on Profile
+         card), which are documented as alphabetical too. */
+      typeKeys().map(function(k){
         return '<span class="c-dropdown-row' + (k === q.type ? ' selected' : '') + '" role="option" data-settype="' + k + '">' +
           '<i class="ph ' + TYPES[k].icon + ' c-dropdown-row-media"></i>' +
           '<span class="c-dropdown-row-label">' + TYPES[k].label + '</span>' +
@@ -2572,7 +2706,15 @@ function setType(q, t){
   } else if (t === 'slider'){
     if (q.min == null){ q.min = 0; q.max = 100; q.lo = 'Not at all'; q.hi = 'Completely'; }
     if (q.step == null) q.step = 1;
+  } else if (t === 'stars'){
+    /* Stars reuse max as the count — five is the number people read as a
+       star rating without being told the scale. */
+    if (q.max == null || q.max > 10) q.max = 5;
+    delete q.min; delete q.lo; delete q.hi; delete q.step;
   } else { delete q.min; delete q.max; delete q.lo; delete q.hi; delete q.step; }
+  if (t === 'rank'){
+    if (!q.items) q.items = ['First option','Second option','Third option'];
+  } else { delete q.items; }
   if (t === 'single' || t === 'multi'){
     if (!q.options) q.options = ['Option 1','Option 2','Option 3'];
   } else { delete q.options; }
@@ -2587,6 +2729,42 @@ function setType(q, t){
    the same functions — anything else that has to show a question the way a
    responder sees it. Passing the answers in rather than reading a global is
    what lets the builder render the same grid with nothing selected. */
+function starsHtml(q, o){
+  o = o || {};
+  var max = q.max || 5, v = +(o.value || 0), out = '';
+  for (var n = 1; n <= max; n++){
+    var on = n <= v;
+    out += '<label class="c-star' + (on ? ' on' : '') + '">' +
+      '<input type="radio" name="' + o.name + '"' + (o.disabled ? ' disabled' : '') +
+        (o.attr ? ' ' + o.attr + '="' + q.id + '" data-pqval="' + n + '"' : '') +
+        (n === v ? ' checked' : '') + ' />' +
+      '<i class="ph' + (on ? '-fill' : '') + ' ph-star" aria-hidden="true"></i>' +
+      '<span class="sr-only">' + n + (n === 1 ? ' star' : ' stars') + ' out of ' + max + '</span>' +
+    '</label>';
+  }
+  return '<div class="c-stars">' + out +
+    (v ? '<span class="c-stars-value">' + v + ' of ' + max + '</span>' : '') + '</div>';
+}
+function rankBtnHtml(q, o, i, dir, off, label){
+  return '<button class="c-icon-btn" type="button"' + (o.disabled || off ? ' disabled' : '') +
+    (o.attr ? ' ' + o.attr + '="' + q.id + '" data-rankfrom="' + i + '" data-rankdir="' + dir + '"' : '') +
+    ' aria-label="Move ' + esc(label) + ' ' + (dir < 0 ? 'up' : 'down') + '">' +
+    '<i class="ph ' + (dir < 0 ? 'ph-caret-up' : 'ph-caret-down') + '" aria-hidden="true"></i></button>';
+}
+function rankHtml(q, o){
+  o = o || {};
+  var items = o.order && o.order.length ? o.order : (q.items || []);
+  return '<div class="c-rank">' + items.map(function(it, i){
+    return '<div class="c-rank-item">' +
+      '<span class="c-rank-pos">' + (i + 1) + '</span>' +
+      '<span class="c-rank-label">' + esc(it) + '</span>' +
+      '<span class="c-rank-btns">' +
+        rankBtnHtml(q, o, i, -1, i === 0, it) +
+        rankBtnHtml(q, o, i, 1, i === items.length - 1, it) +
+      '</span>' +
+    '</div>';
+  }).join('') + '</div>';
+}
 function matrixHtml(q, o){
   o = o || {};
   var ans = o.answers || {}, rows = q.rows || [], cols = q.cols || [];
@@ -2663,6 +2841,8 @@ function questionPreview(q){
       '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
   }
   if (q.type === 'slider') return sliderHtml(q, { disabled:true });
+  if (q.type === 'stars')   return starsHtml(q, { name:'p-' + q.id, disabled:true });
+  if (q.type === 'rank')    return rankHtml(q, { disabled:true });
   if (q.type === 'matrix')  return matrixHtml(q, { name:'p-' + q.id, disabled:true });
   if (q.type === 'single' || q.type === 'multi'){
     return '<div class="stack sm">' + (q.options || ['Option 1','Option 2','Option 3']).map(function(o){
@@ -2790,7 +2970,8 @@ function addBlock(f, kind){
   } else if (kind === 'poll'){
     f.questions.push({ id:id, type:'single', title:'Quick poll — which would you rather have first?',
       required:false, options:['Saved filters','Bulk export','Dark mode'] });
-  } else if (kind === 'matrix' || kind === 'slider'){
+  } else if (kind === 'matrix' || kind === 'slider' || kind === 'stars' ||
+             kind === 'rank' || kind === 'single' || kind === 'multi'){
     /* Built through setType so the starting rows, ratings and range are
        defined in exactly one place — the same defaults the type switcher
        hands out when an existing question is changed to one of these. */
@@ -4931,6 +5112,13 @@ function prevField(q){
   }
   if (q.type === 'slider')
     return sliderHtml(q, { value: prevAns[q.id], attr:'data-pqsl' });
+  /* Stars ride the same data-pqpick wiring every other single-answer control
+     uses — the cumulative fill is a property of how it renders, not of how
+     the answer is stored. */
+  if (q.type === 'stars')
+    return starsHtml(q, { name:'pv-' + q.id, value: prevAns[q.id], attr:'data-pqpick' });
+  if (q.type === 'rank')
+    return rankHtml(q, { order: prevAns[q.id], attr:'data-pqrank' });
   if (q.type === 'matrix')
     return matrixHtml(q, { name:'pv-' + q.id, answers: prevAns[q.id] || {}, attr:'data-pqmx',
                            missingRows: prevMissing.indexOf(q.id) > -1
@@ -4960,7 +5148,7 @@ function prevFormHtml(f, asks, done){
     '<div class="c-card prev-head stack sm">' +
       '<h3 class="prev-title">' + esc(f.title) + '</h3>' +
       (f.desc ? '<p class="prev-desc">' + esc(f.desc) + '</p>' : '') +
-      (anyRequired ? '<p class="hint"><span class="prev-req">*</span> Required</p>' : '') +
+      (anyRequired ? '<p class="c-card-footer"><span class="prev-req lead">*</span>Required</p>' : '') +
     '</div>' +
     prevVisible(f).map(function(q){
       if (q.type === 'media') return '<div class="c-card prev-q">' + prevField(q) + '</div>';
@@ -4974,7 +5162,7 @@ function prevFormHtml(f, asks, done){
           'This question is required</span>' : '') +
       '</div>';
     }).join('') +
-    '<div class="row"><button class="c-btn c-btn-primary c-btn-md" type="button" id="prevSubmit">Submit</button></div>';
+    '<div class="row prev-submit"><button class="c-btn c-btn-primary c-btn-md" type="button" id="prevSubmit">Submit</button></div>';
 }
 
 /* The confirmation screen. It is built out of the settings rather than
@@ -5147,6 +5335,28 @@ function wirePreview(f){
       tr.classList.remove('is-missing');
       clearPrevMiss(f, id);
       refreshPrevProgress(f);
+    });
+  });
+
+  /* Reordering is a click, not typing, so it repaints — and focus goes back
+     onto the same button on the row that just moved, which is now one place
+     up or down the list. */
+  $$('[data-pqrank]', root).forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.dataset.pqrank, from = +btn.dataset.rankfrom, dir = +btn.dataset.rankdir;
+      var q = f.questions.filter(function(x){ return x.id === id; })[0];
+      if (!q) return;
+      var order = (prevAns[id] || (q.items || [])).slice();
+      var to = from + dir;
+      if (to < 0 || to >= order.length) return;
+      order.splice(to, 0, order.splice(from, 1)[0]);
+      prevAns[id] = order;
+      prevMissing = prevMissing.filter(function(x){ return x !== id; });
+      paintPreview(f);
+      var back = $$('[data-pqrank]', $('#prev')).filter(function(n){
+        return n.dataset.pqrank === id && +n.dataset.rankfrom === to && +n.dataset.rankdir === dir;
+      })[0];
+      if (back && !back.disabled) back.focus();
     });
   });
 
