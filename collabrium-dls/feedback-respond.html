@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Collabrium — Responding to a feedback form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<style>
+/* ==========================================================================
+   CANDIDATE COMPONENTS — not in components.css yet.
+   Two patterns this flow needs that the DLS does not have. Written to house
+   conventions (tokens only, .c- prefix, same commenting style) so promoting
+   either is a copy-paste rather than a rewrite. Everything below the second
+   banner is prototype-only scaffolding and would NOT be promoted.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 1 — Scale input (.c-scale)
+   Carried over verbatim from feedback.html, where it was first proposed: a
+   1-5 / 0-10 linear-scale answer. Radio is the right semantics but its own
+   circle+label stack reads as a vertical list, and Segmented Control is a
+   view switcher, not a form answer. This is a radiogroup rendered as a row
+   of equal-width numbered targets: real <input type="radio">, so keyboard
+   arrow-key navigation and form semantics come free.
+   Two prototypes needing the identical thing is the argument for promoting
+   it rather than copying it a third time.
+   -------------------------------------------------------------------------- */
+.c-scale{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-scale-track{display:flex; gap:var(--spacing-8); flex-wrap:wrap;}
+.c-scale-opt{position:relative; flex:1 1 0; min-width:40px;}
+.c-scale-opt input{position:absolute; opacity:0; width:0; height:0;}
+.c-scale-opt span{display:flex; align-items:center; justify-content:center; height:44px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-scale-opt:hover span{background:var(--color-neutral-2);}
+.c-scale-opt input:checked + span{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-scale-opt input:focus-visible + span{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* End labels — the numbers alone never say which end is good. */
+.c-scale-ends{display:flex; justify-content:space-between; gap:var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 2 — Notification panel (.c-notify)
+   The list behind the bell. Dropdown's own panel is the closest thing the
+   system ships, but that is a listbox of single-line options with a
+   selected state — these rows are two lines of prose with a timestamp, an
+   unread state and sometimes an action, and picking one is navigation
+   rather than selection. Toast is the other neighbour and is the opposite
+   thing: transient, uninvited, one at a time.
+   Unread is marked by a dot as well as by weight, so it survives being read
+   in greyscale, and the panel keeps Dropdown's own surface recipe
+   (Neutral-1, Neutral-3 hairline, radius-md, shadow-3) rather than
+   inventing a second popover look.
+   -------------------------------------------------------------------------- */
+.c-notify{position:absolute; top:calc(100% + var(--spacing-8)); right:0; z-index:60; width:380px; max-width:calc(100vw - var(--spacing-32)); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); overflow:hidden;}
+.c-notify[hidden]{display:none;}
+.c-notify-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
+.c-notify-head h4{margin:0; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
+.c-notify-list{max-height:420px; overflow-y:auto;}
+.c-notify-item{display:flex; gap:var(--spacing-12); width:100%; padding:var(--spacing-12) var(--spacing-16); border:0; border-bottom:1px solid var(--color-neutral-3); background:transparent; text-align:left; font-family:inherit; cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-notify-item:last-child{border-bottom:0;}
+.c-notify-item:hover{background:var(--color-neutral-2);}
+.c-notify-item:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+.c-notify-item.is-unread{background:var(--color-water-bg);}
+.c-notify-item.is-unread:hover{background:var(--color-water-bg-strong);}
+.c-notify-icon{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; background:var(--color-neutral-2); color:var(--color-neutral-9); font-size:var(--icon-sm);}
+.c-notify-text{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px;}
+.c-notify-text b{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:700; color:var(--color-neutral-9);}
+.c-notify-text span{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-notify-text time{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+/* The dot is the second, non-typographic signal for unread. Sized to the
+   micro icon so it lines up with the first line of the row's text. */
+.c-notify-dot{flex:none; width:8px; height:8px; margin-top:7px; border-radius:var(--radius-pill); background:var(--color-navy);}
+.c-notify-foot{padding:var(--spacing-8); border-top:1px solid var(--color-neutral-3); text-align:center;}
+
+/* ==========================================================================
+   PROTOTYPE SCAFFOLDING — layout glue and the two non-Collabrium surfaces
+   this flow has to pass through (an email client, a public form page).
+   Nothing here is a component and nothing here would be promoted.
+   ========================================================================== */
+*{box-sizing:border-box;}
+html,body{margin:0; min-height:100%;}
+/* The UA's own [hidden]{display:none} is type-selector strength, so any
+   class that sets display beats it. Every step in this flow is toggled by
+   [hidden], so it has to win everywhere. */
+[hidden]{display:none !important;}
+body{background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-body2-size);}
+.grow{flex:1 1 auto; min-width:0;}
+.row{display:flex; align-items:center; gap:var(--spacing-12); flex-wrap:wrap;}
+.row.tight{gap:var(--spacing-8);}
+.row.between{justify-content:space-between;}
+.stack{display:flex; flex-direction:column; gap:var(--spacing-16);}
+.stack.sm{gap:var(--spacing-8);}
+.stack.lg{gap:var(--spacing-24);}
+.hint{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+p.hint{margin:0;}
+.eyebrow{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;}
+
+/* --------------------------------------------------------------------------
+   The prototype bar. Deliberately not built out of the product's own
+   components and deliberately dark: it is the harness, not the thing being
+   tested, and anyone looking at this needs to be able to tell at a glance
+   which pixels are the design and which are the remote control.
+   -------------------------------------------------------------------------- */
+.harness{position:sticky; top:0; z-index:120; display:flex; flex-direction:column; gap:var(--spacing-12); padding:var(--spacing-12) var(--spacing-24); background:var(--color-neutral-9); color:var(--color-neutral-1);}
+.harness-row{display:flex; align-items:center; gap:var(--spacing-16); flex-wrap:wrap;}
+.harness .eyebrow{color:rgba(255,255,255,.55);}
+.harness-steps{display:flex; align-items:center; gap:var(--spacing-8); flex-wrap:wrap;}
+.hstep{display:inline-flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-4) var(--spacing-12) var(--spacing-4) var(--spacing-4); border:1px solid rgba(255,255,255,.18); border-radius:var(--radius-pill); background:transparent; color:rgba(255,255,255,.6); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.hstep:hover{background:rgba(255,255,255,.10); color:var(--color-neutral-1);}
+.hstep:focus-visible{outline:2px solid var(--color-neutral-1); outline-offset:2px;}
+.hstep.is-on{background:var(--color-neutral-1); color:var(--color-neutral-9); border-color:var(--color-neutral-1);}
+.hstep .n{display:flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:var(--radius-pill); background:rgba(255,255,255,.14); font-variant-numeric:tabular-nums;}
+.hstep.is-on .n{background:var(--color-neutral-9); color:var(--color-neutral-1);}
+.hstep .dash{width:16px; height:1px; background:rgba(255,255,255,.25);}
+.hsep{width:1px; height:24px; background:rgba(255,255,255,.18);}
+/* Entry switcher — same idea as Segmented Control, restated in the harness's
+   own palette rather than dropping a product component into the chrome. */
+.hseg{display:inline-flex; padding:3px; border-radius:var(--radius-pill); background:rgba(255,255,255,.10);}
+.hseg button{display:inline-flex; align-items:center; gap:var(--spacing-4); height:28px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-pill); background:transparent; color:rgba(255,255,255,.65); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;}
+.hseg button:hover{color:var(--color-neutral-1);}
+.hseg button:focus-visible{outline:2px solid var(--color-neutral-1); outline-offset:2px;}
+.hseg button.is-on{background:var(--color-neutral-1); color:var(--color-neutral-9);}
+.hbtn{display:inline-flex; align-items:center; gap:var(--spacing-4); height:32px; padding:0 var(--spacing-12); border:1px solid rgba(255,255,255,.24); border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-1); font-family:inherit; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;}
+.hbtn:hover{background:rgba(255,255,255,.12);}
+.hbtn:focus-visible{outline:2px solid var(--color-neutral-1); outline-offset:2px;}
+
+.stage{padding:var(--spacing-32) var(--spacing-24) var(--spacing-120);}
+
+/* --------------------------------------------------------------------------
+   Step 1a — the email. Not a Collabrium surface: an inbox is somebody
+   else's product, so the frame is deliberately plain grey chrome and only
+   the message inside it is designed. The body is set in the secondary
+   serif, which is what the system reserves for reading matter.
+   -------------------------------------------------------------------------- */
+.mail{max-width:680px; margin:0 auto; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1); box-shadow:var(--shadow-2); overflow:hidden;}
+.mail-chrome{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-2); border-bottom:1px solid var(--color-neutral-3);}
+.mail-dot{width:10px; height:10px; border-radius:var(--radius-pill); background:var(--color-neutral-4);}
+.mail-chrome .what{margin-left:var(--spacing-8); font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
+.mail-head{padding:var(--spacing-24) var(--spacing-24) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
+.mail-subject{margin:0 0 var(--spacing-16); font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9);}
+.mail-from{display:flex; align-items:center; gap:var(--spacing-12);}
+.mail-avatar{flex:none; width:40px; height:40px; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; background:var(--color-obsidian); color:var(--color-neutral-1); font-family:var(--font-secondary); font-size:18px; font-weight:600;}
+.mail-body{padding:var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-16); font-family:var(--font-secondary); font-size:16px; line-height:1.65; color:var(--color-neutral-9);}
+.mail-body p{margin:0;}
+.mail-facts{display:flex; flex-wrap:wrap; gap:var(--spacing-8);}
+.mail-foot{padding:var(--spacing-16) var(--spacing-24); border-top:1px solid var(--color-neutral-3); background:var(--color-neutral-2);}
+
+/* Step 1b / 1c — App Shell, so the in-app entry points are seen where they
+   actually live. .c-shell / .c-sidebar-shell / .c-shell-main /
+   .c-shell-content and SidebarNav all come from components.css; the only
+   things set here are the height (components.css ships a 480px gallery
+   height) and the framing border, because inside this harness the shell is
+   a panel on a page rather than the page itself. */
+.c-shell{height:calc(100vh - 230px); min-height:560px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow:hidden;}
+.topbar{position:relative; display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8); padding:var(--spacing-16) var(--page-gutter) 0;}
+.bell-wrap{position:relative;}
+/* Unread count on the bell. Badge is a text pill and this is a numeric
+   overlay on a control, which is a different job. */
+.bell-count{position:absolute; top:-2px; right:-2px; min-width:18px; height:18px; padding:0 5px; border-radius:var(--radius-pill); background:var(--color-red); color:var(--color-neutral-1); font-size:10px; font-weight:700; line-height:18px; text-align:center; font-variant-numeric:tabular-nums; pointer-events:none;}
+/* Gap is spacing-24, not section-gap: components.css already puts a
+   section-gap margin under .c-shell .c-pageheader, and both together
+   stacked to 96px of nothing under the greeting. */
+.c-shell-content{display:flex; flex-direction:column; gap:var(--spacing-24); padding-top:var(--spacing-24);}
+.dash-cols{display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:var(--spacing-16); align-items:start;}
+.ghost-card{border:1px dashed var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1); padding:var(--spacing-20); display:flex; flex-direction:column; gap:var(--spacing-12);}
+.ghost-line{height:10px; border-radius:var(--radius-pill); background:var(--color-neutral-2);}
+
+/* --------------------------------------------------------------------------
+   Step 2 — the form itself. A public page rather than an app route: the
+   person answering may not be signed in and has no business seeing the
+   navigation, so the only chrome is a name bar saying who is asking.
+   -------------------------------------------------------------------------- */
+.pub{min-height:100vh;}
+.pub-bar{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-16) var(--spacing-24); background:var(--color-neutral-1); border-bottom:1px solid var(--color-neutral-3);}
+.pub-inner{max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-16); padding:var(--spacing-24) 0 var(--spacing-60);}
+.form-head{border-top:4px solid var(--color-obsidian);}
+.form-title{margin:0; font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); overflow-wrap:anywhere;}
+.form-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); white-space:pre-wrap;}
+.q-title{display:block; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
+.req{color:var(--color-red); margin-left:var(--spacing-4);}
+/* A missed required answer marks the whole card. The controls underneath are
+   radio rows and scale tracks — there is no single field border to redden,
+   and reddening every radio in a group reads as ten errors, not one. */
+.q-card.is-missing{border-color:var(--color-red);}
+.q-miss{display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-red);}
+.q-miss i{font-size:var(--icon-sm);}
+/* Progress sticks to the top of the page, under the name bar, which is the
+   only place a progress bar earns its keep on a long form. */
+.pub-progress{position:sticky; top:0; z-index:10; display:flex; flex-direction:column; gap:var(--spacing-8); margin:0 calc(var(--spacing-24) * -1); padding:var(--spacing-12) var(--spacing-24); background:var(--color-canvas-warm);}
+.pub-foot{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); flex-wrap:wrap;}
+
+/* Step 3 — confirmation. */
+.done-card{align-items:flex-start; text-align:left;}
+.done-icon{font-size:44px; color:var(--color-green); line-height:1;}
+.done-facts{display:flex; flex-wrap:wrap; gap:var(--spacing-8); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3); width:100%;}
+
+@media (max-width:820px){
+  .dash-cols{grid-template-columns:minmax(0,1fr);}
+}
+@media (max-width:700px){
+  .stage{padding:var(--spacing-16) var(--spacing-12) var(--spacing-60);}
+  .harness{padding:var(--spacing-12);}
+  .pub-inner{padding-left:var(--spacing-12); padding-right:var(--spacing-12);}
+  .pub-progress{margin:0 calc(var(--spacing-12) * -1); padding-left:var(--spacing-12); padding-right:var(--spacing-12);}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== The harness. Not part of the experience being tested. ===== -->
+<div class="harness" id="harness">
+  <div class="harness-row">
+    <span class="eyebrow"><i class="ph-fill ph-flow-arrow" aria-hidden="true"></i> Responder flow</span>
+    <div class="harness-steps" id="hSteps" role="group" aria-label="Jump to a step"></div>
+    <span class="grow"></span>
+    <div class="hseg" id="hEntry" role="group" aria-label="Entry point"></div>
+    <span class="hsep" aria-hidden="true"></span>
+    <button class="hbtn" type="button" id="hReset"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Restart</button>
+  </div>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<!-- Toast host -->
+<div class="c-toast-host" id="toastHost" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+var $  = function(s, r){ return (r || document).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
+  return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+
+/* Fixed "now", so every relative date in the prototype agrees with itself
+   however long the page has been open. */
+var NOW = new Date(2026, 8, 9, 10, 30);
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(d){ return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+function daysBetween(a, b){
+  function day(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  return Math.round((day(b) - day(a)) / 86400000);
+}
+
+/* ==========================================================================
+   The survey being answered — the same ten questions, the same dependent
+   follow-up and the same settings as the one built in feedback.html, so the
+   two prototypes describe one product rather than two.
+   ========================================================================== */
+var SURVEY = {
+  title: 'Product experience survey — Q3',
+  desc:  'Ten quick questions about how Collabrium is working for you. Takes about two minutes and everything is anonymous to your pod lead.',
+  /* The person asking is not the person answering — the responder is ME
+     below. Sending yourself a survey reads as a bug in the prototype. */
+  from:  'Nurul Kamal',
+  fromRole: 'Pod lead, CollabMedia',
+  ends:  new Date(2026, 8, 30),
+  settings: { progressBar:true, sendCopy:true, allowEdit:true, oneResponse:true,
+              confirm:'Thanks for your feedback! We read every response.' },
+  questions: [
+    { id:'q1',  type:'scale', title:'How easy was it to complete what you came here to do?', required:true, min:1, max:5, lo:'Very difficult', hi:'Very easy' },
+    { id:'q2',  type:'scale', title:'How easy was it to find what you were looking for?', required:true, min:1, max:5, lo:'Very difficult', hi:'Very easy' },
+    { id:'q3',  type:'scale', title:'How would you rate the look and feel?', required:true, min:1, max:5, lo:'Poor', hi:'Excellent' },
+    { id:'q4',  type:'yesno', title:'Did the site/app feel fast and responsive?', required:true },
+    { id:'q5',  type:'scale', title:'Was the information clear and easy to understand?', required:true, min:1, max:5, lo:'Not at all', hi:'Completely' },
+    { id:'q6',  type:'yesno', title:'Were you able to complete your task/goal today?', required:true },
+    { id:'q6b', type:'long',  title:'If no, why not?', required:false, dependsOn:'q6', dependsValue:'No', placeholder:'Tell us what got in the way' },
+    { id:'q7',  type:'scale', title:'How satisfied are you with your experience overall?', required:true, min:1, max:5, lo:'Very dissatisfied', hi:'Very satisfied' },
+    { id:'q8',  type:'scale', title:'How likely are you to recommend this to a colleague?', required:true, min:0, max:10, lo:'Not at all likely', hi:'Extremely likely' },
+    { id:'q9',  type:'long',  title:'What was the most frustrating part of your experience?', required:false, placeholder:'Optional' },
+    { id:'q10', type:'long',  title:"What's one thing we could improve?", required:false, placeholder:'Optional' }
+  ]
+};
+var ME = { name:'Aisyah Rahman', initials:'AR', pod:'CollabMedia', email:'aisyah.rahman@astro.com.my' };
+
+/* ==========================================================================
+   Flow state
+   ========================================================================== */
+var STEPS = [
+  { n:1, label:'Invitation' },
+  { n:2, label:'The form' },
+  { n:3, label:'Confirmation' }
+];
+var ENTRIES = [
+  { k:'email',  label:'Email',        icon:'ph-envelope-simple' },
+  { k:'notify', label:'Notification', icon:'ph-bell' },
+  { k:'dash',   label:'Dashboard',    icon:'ph-squares-four' }
+];
+var state = {
+  entry: 'email',
+  step: 1,
+  ans: {},          /* question id -> answer */
+  missing: [],      /* required questions the last submit caught */
+  bellOpen: false,
+  unread: 3,
+  openedAt: null,   /* when the form was first opened, for the real duration */
+  seconds: 0
+};
+
+/* ==========================================================================
+   Toast — Toast's own message-only recipe.
+   ========================================================================== */
+function toast(msg, tone){
+  var host = $('#toastHost');
+  var t = document.createElement('div');
+  t.className = 'c-toast is-message-only is-entering';
+  t.setAttribute('role', 'status');
+  t.innerHTML =
+    '<i class="ph-fill ' + (tone === 'success' ? 'ph-check-circle' : 'ph-info') +
+      ' tone ' + (tone === 'success' ? 'tone-success' : 'tone-neutral') + '" aria-hidden="true"></i>' +
+    '<div class="body"><div class="message">' + esc(msg) + '</div></div>';
+  host.appendChild(t);
+  void t.offsetWidth;
+  t.classList.remove('is-entering');
+  setTimeout(function(){
+    t.classList.add('is-exiting');
+    setTimeout(function(){ t.remove(); }, 260);
+  }, 2600);
+}
+
+/* ==========================================================================
+   Answers — visibility, completeness, validation
+   ========================================================================== */
+/* A dependent question does not exist for the responder until the answer it
+   hangs off has been given. */
+function visible(){
+  return SURVEY.questions.filter(function(q){
+    return !q.dependsOn || state.ans[q.dependsOn] === q.dependsValue;
+  });
+}
+function has(q){
+  var v = state.ans[q.id];
+  if (v == null) return false;
+  return Array.isArray(v) ? v.length > 0 : String(v).trim() !== '';
+}
+function answeredCount(){ return visible().filter(has).length; }
+
+/* ==========================================================================
+   Step 1 — the three ways the invitation arrives
+   ========================================================================== */
+function closesLine(){
+  var left = daysBetween(NOW, SURVEY.ends);
+  return 'Closes ' + fmtDate(SURVEY.ends) + ' · ' + left + ' days left';
+}
+
+function emailHtml(){
+  return '<div class="mail">' +
+    '<div class="mail-chrome">' +
+      '<span class="mail-dot" aria-hidden="true"></span>' +
+      '<span class="mail-dot" aria-hidden="true"></span>' +
+      '<span class="mail-dot" aria-hidden="true"></span>' +
+      '<span class="what">Inbox — ' + esc(ME.email) + '</span>' +
+    '</div>' +
+    '<div class="mail-head">' +
+      '<h1 class="mail-subject">Two minutes on how Collabrium is working for you</h1>' +
+      '<div class="mail-from">' +
+        '<span class="mail-avatar" aria-hidden="true">C</span>' +
+        '<span class="grow">' +
+          '<span style="display:block;font-size:var(--text-body2-size);font-weight:700">Collabrium ' +
+            '<span style="font-weight:400;color:var(--color-neutral-5)">&lt;no-reply@collabrium.app&gt;</span></span>' +
+          '<span class="hint">to me · 9 Sep 2026, 8:02am</span>' +
+        '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="mail-body">' +
+      '<p>Hi ' + esc(ME.name.split(' ')[0]) + ',</p>' +
+      '<p>' + esc(SURVEY.from) + ' has invited you to answer <b>' + esc(SURVEY.title) + '</b>.</p>' +
+      '<p>' + esc(SURVEY.desc) + '</p>' +
+      '<div class="mail-facts">' +
+        '<span class="c-badge c-badge-neutral"><i class="ph ph-clock" aria-hidden="true"></i>About 2 minutes</span>' +
+        '<span class="c-badge c-badge-warning"><i class="ph ph-calendar-blank" aria-hidden="true"></i>' + esc(closesLine()) + '</span>' +
+      '</div>' +
+      '<div><button class="c-btn c-btn-primary c-btn-lg" type="button" data-open="email">' +
+        'Start the survey<i class="ph ph-arrow-right" aria-hidden="true"></i></button></div>' +
+      '<p style="font-size:14px;color:var(--color-neutral-5)">Your answers are anonymous to your pod lead. ' +
+        'If the button does not work, the link is also in your Collabrium notifications.</p>' +
+    '</div>' +
+    '<div class="mail-foot">' +
+      '<p class="hint">You are receiving this because you use Collabrium at ' + esc(ME.pod) +
+        '. <a href="#" onclick="return false" style="color:var(--color-navy)">Manage notification preferences</a>.</p>' +
+    '</div>' +
+  '</div>';
+}
+
+/* SidebarNav, as the component documents it: .c-sidebar-shell wrapping the
+   rail and its collapse toggle, the real logo (live lockup expanded, element
+   coin collapsed), section labels one level deep, Fill icons per
+   Iconography, and .c-sidebar-hover-text on every row for the collapsed
+   hover label. */
+function sidebarHtml(active){
+  function item(icon, label, on){
+    return '<button class="c-sidebar-item' + (on ? ' active' : '') + '" type="button"' +
+      (on ? ' aria-current="page"' : '') + '>' +
+      '<i class="ph-fill ' + icon + '" aria-hidden="true"></i>' +
+      '<span class="label">' + label + '</span>' +
+      '<span class="c-sidebar-hover-text">' + label + '</span></button>';
+  }
+  return '<div class="c-sidebar-shell">' +
+    '<nav class="c-sidebar" id="mainNav" aria-label="Main">' +
+      '<div class="c-sidebar-header">' +
+        '<span class="c-sidebar-logo">' +
+          '<span class="c-sidebar-logo-live-wrap"><iframe src="logo.html" title="Collabrium" scrolling="no"></iframe></span>' +
+        '</span>' +
+        '<img class="c-sidebar-logo-collapsed" src="SVG/coin.svg" alt="Collabrium" />' +
+      '</div>' +
+      '<div class="c-sidebar-section">Overview</div>' +
+      item('ph-house',      'Dashboard', active === 'dash') +
+      item('ph-briefcase',  'Campaigns', active === 'notify') +
+      item('ph-chart-bar',  'Reports',   false) +
+      '<div class="c-sidebar-section">Workspace</div>' +
+      item('ph-chat-teardrop-text', 'Feedback', false) +
+      '<div class="c-sidebar-footer">' +
+        '<button class="c-sidebar-user" type="button" aria-label="' + esc(ME.name) + ', ' + esc(ME.pod) + '">' +
+          '<span class="c-sidebar-user-avatar">' + esc(ME.initials) + '</span>' +
+          '<span class="c-sidebar-user-text">' +
+            '<span class="c-sidebar-user-name">' + esc(ME.name) + '</span>' +
+            '<span class="c-sidebar-user-role">' + esc(ME.pod) + '</span>' +
+          '</span>' +
+          '<span class="c-sidebar-hover-text">' + esc(ME.name) + ' &middot; ' + esc(ME.pod) + '</span>' +
+        '</button>' +
+      '</div>' +
+    '</nav>' +
+    '<button class="c-sidebar-toggle" id="navToggle" type="button" aria-label="Collapse sidebar" aria-controls="mainNav">' +
+      '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+        '<rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>' +
+        '<line x1="9" y1="3.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.4"/>' +
+        '<path id="navToggleArrow" d="M13.5 7 11 10l2.5 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</svg>' +
+    '</button>' +
+  '</div>';
+}
+
+var OTHER_NOTIFS = [
+  { icon:'ph-check-circle', title:'Your bug report was resolved',
+    body:'Asset preview stuck on spinner for MOV files — fixed and shipped.', when:'Yesterday' },
+  { icon:'ph-user-plus', title:'Priya Nair shared a report with you',
+    body:'Q3 spend by pod — you have view access.', when:'2 days ago' }
+];
+
+function topbarHtml(){
+  return '<div class="topbar">' +
+    '<span class="bell-wrap">' +
+      '<button class="c-icon-btn" type="button" id="bell" aria-haspopup="true" aria-expanded="' +
+        (state.bellOpen ? 'true' : 'false') + '" aria-label="Notifications' +
+        (state.unread ? ', ' + state.unread + ' unread' : '') + '">' +
+        '<i class="ph ph-bell" aria-hidden="true"></i></button>' +
+      (state.unread ? '<span class="bell-count" aria-hidden="true">' + state.unread + '</span>' : '') +
+      '<div class="c-notify" id="notifyPanel" role="dialog" aria-label="Notifications"' +
+        (state.bellOpen ? '' : ' hidden') + '>' +
+        '<div class="c-notify-head"><h4>Notifications</h4>' +
+          '<button class="c-btn c-btn-ghost c-btn-sm" type="button" id="markRead">Mark all read</button></div>' +
+        '<div class="c-notify-list">' +
+          '<button class="c-notify-item' + (state.unread ? ' is-unread' : '') + '" type="button" data-open="notify">' +
+            (state.unread ? '<span class="c-notify-dot" aria-hidden="true"></span>' : '') +
+            '<span class="c-notify-icon"><i class="ph-fill ph-chat-teardrop-text" aria-hidden="true"></i></span>' +
+            '<span class="c-notify-text">' +
+              '<b>' + esc(SURVEY.from) + ' asked for your feedback</b>' +
+              '<span>' + esc(SURVEY.title) + ' — about 2 minutes. ' + esc(closesLine()) + '.</span>' +
+              '<time>8:02am</time>' +
+            '</span></button>' +
+          OTHER_NOTIFS.map(function(n){
+            return '<button class="c-notify-item" type="button">' +
+              '<span class="c-notify-icon"><i class="ph ' + n.icon + '" aria-hidden="true"></i></span>' +
+              '<span class="c-notify-text"><b>' + esc(n.title) + '</b><span>' + esc(n.body) + '</span>' +
+              '<time>' + esc(n.when) + '</time></span></button>';
+          }).join('') +
+        '</div>' +
+        '<div class="c-notify-foot"><button class="c-btn c-btn-ghost c-btn-sm" type="button">See all notifications</button></div>' +
+      '</div>' +
+    '</span>' +
+  '</div>';
+}
+
+function ghostCard(lines){
+  var out = '';
+  for (var i = 0; i < lines; i++)
+    out += '<span class="ghost-line" style="width:' + (100 - i * 12) + '%"></span>';
+  return out;
+}
+
+function inviteCardHtml(){
+  /* Hero card, which is exactly what it is for: one thing on the dashboard
+     asking to be acted on, with its own call to action. */
+  return '<div class="c-herocard">' +
+    '<span class="c-herocard-eyebrow">Feedback</span>' +
+    '<h3 class="c-herocard-heading">' + esc(SURVEY.title) + '</h3>' +
+    '<p class="c-herocard-body">' + esc(SURVEY.desc) + '</p>' +
+    '<span class="c-herocard-recommendation"><i class="ph ph-clock" aria-hidden="true"></i> About 2 minutes · ' +
+      esc(closesLine()) + '</span>' +
+    '<button class="c-btn c-btn-primary c-btn-md c-herocard-cta" type="button" data-open="dash">' +
+      'Start the survey<i class="ph ph-arrow-right" aria-hidden="true"></i></button>' +
+  '</div>';
+}
+
+function appHtml(which){
+  var body;
+  if (which === 'dash'){
+    body =
+      '<header class="c-pageheader"><div class="c-pageheader-row"><div class="c-pageheader-text">' +
+        '<h1>Good morning, ' + esc(ME.name.split(' ')[0]) + '</h1>' +
+        '<p class="sub">Tuesday, 9 September 2026 · ' + esc(ME.pod) + '</p>' +
+      '</div></div></header>' +
+      '<div class="c-stats">' +
+        stat('Active campaigns', '12', 'up', '+2', 'vs last month') +
+        stat('Briefs awaiting you', '3', 'flat', '0', 'vs last week') +
+        stat('Reports refreshed', '48', 'up', '+9', 'this week') +
+      '</div>' +
+      '<div class="dash-cols">' +
+        '<div class="ghost-card" aria-hidden="true"><span class="eyebrow">Campaign performance</span>' +
+          ghostCard(5) + '</div>' +
+        '<div class="stack">' + inviteCardHtml() +
+          '<div class="ghost-card" aria-hidden="true"><span class="eyebrow">Upcoming</span>' + ghostCard(3) + '</div>' +
+        '</div>' +
+      '</div>';
+  } else {
+    body =
+      '<header class="c-pageheader"><div class="c-pageheader-row"><div class="c-pageheader-text">' +
+        '<h1>Campaigns</h1><p class="sub">Everything running across your pod.</p>' +
+      '</div></div></header>' +
+      '<div class="ghost-card" aria-hidden="true">' + ghostCard(6) + '</div>' +
+      '<div class="ghost-card" aria-hidden="true">' + ghostCard(4) + '</div>';
+  }
+  return '<div class="c-shell">' + sidebarHtml(which) +
+    '<div class="c-shell-main">' + topbarHtml() +
+      '<div class="c-shell-content">' + body + '</div>' +
+    '</div>' +
+    '<div class="c-sidebar-hover-label" id="navHoverLabel" role="tooltip"></div>' +
+  '</div>';
+}
+
+function stat(label, value, dir, delta, period){
+  var icon = dir === 'up' ? 'ph-trend-up' : dir === 'down' ? 'ph-trend-down' : 'ph-minus';
+  return '<div class="c-stat"><div class="c-stat-top"><span class="c-stat-label">' + esc(label) + '</span></div>' +
+    '<span class="c-stat-value">' + esc(value) + '</span>' +
+    '<span class="c-stat-trend ' + dir + '"><i class="ph ' + icon + '" aria-hidden="true"></i>' + esc(delta) +
+      ' <span class="period">' + esc(period) + '</span></span></div>';
+}
+
+/* ==========================================================================
+   Step 2 — the form
+   ========================================================================== */
+function choiceRow(q, label, value, kind){
+  var multi = kind === 'multi';
+  var on = multi ? (state.ans[q.id] || []).indexOf(value) > -1 : state.ans[q.id] === value;
+  return '<label class="c-choice">' +
+    '<input type="' + (multi ? 'checkbox' : 'radio') + '" name="a-' + q.id + '"' +
+      ' data-pick="' + q.id + '" data-val="' + esc(value) + '"' + (on ? ' checked' : '') + ' />' +
+    (multi
+      ? '<span class="c-checkbox-box' + (on ? ' on' : '') + '">' +
+          (on ? '<i class="ph ph-check" aria-hidden="true"></i>' : '') + '</span>'
+      : '<span class="c-radio-circle' + (on ? ' on' : '') + '">' +
+          (on ? '<span class="dot"></span>' : '') + '</span>') +
+    '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(label) + '</span></span>' +
+  '</label>';
+}
+
+function fieldHtml(q){
+  var v = state.ans[q.id];
+  if (q.type === 'short')
+    return '<div class="c-field field-wide"><div class="input-wrap">' +
+      '<input type="text" data-text="' + q.id + '" value="' + esc(v || '') + '" placeholder="' +
+      esc(q.placeholder || 'Your answer') + '" /></div></div>';
+  if (q.type === 'long')
+    return '<div class="c-field field-wide"><textarea rows="3" data-text="' + q.id + '" placeholder="' +
+      esc(q.placeholder || 'Your answer') + '">' + esc(v || '') + '</textarea></div>';
+  if (q.type === 'yesno')
+    return '<div class="row tight">' + ['Yes','No'].map(function(o){
+      return choiceRow(q, o, o, 'single'); }).join('') + '</div>';
+  if (q.type === 'scale'){
+    var opts = '';
+    for (var n = q.min; n <= q.max; n++){
+      var on = state.ans[q.id] === String(n);
+      opts += '<label class="c-scale-opt"><input type="radio" name="a-' + q.id + '"' +
+        ' data-pick="' + q.id + '" data-val="' + n + '"' + (on ? ' checked' : '') + ' />' +
+        '<span>' + n + '</span></label>';
+    }
+    return '<div class="c-scale"><div class="c-scale-track">' + opts + '</div>' +
+      '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
+  }
+  if (q.type === 'single' || q.type === 'multi')
+    return '<div class="stack sm">' + (q.options || []).map(function(o){
+      return choiceRow(q, o, o, q.type); }).join('') + '</div>';
+  return '';
+}
+
+function formHtml(){
+  var vis = visible(), done = answeredCount();
+  var pct = vis.length ? Math.round(done / vis.length * 100) : 0;
+  var num = 0;
+
+  return '<div class="pub">' +
+    '<div class="pub-bar">' +
+      '<span style="font-family:var(--font-secondary);font-size:18px;font-weight:600">Collabrium</span>' +
+      '<span class="grow"></span>' +
+      '<span class="hint">Signed in as ' + esc(ME.name) + '</span>' +
+    '</div>' +
+    '<div class="pub-inner">' +
+      (SURVEY.settings.progressBar
+        ? '<div class="pub-progress">' +
+            '<div class="c-progress-track size-default"><div class="c-progress-fill" style="width:' + pct + '%"></div></div>' +
+            '<span class="hint">' + done + ' of ' + vis.length + ' answered</span>' +
+          '</div>'
+        : '') +
+      '<div class="c-card form-head stack sm">' +
+        '<h1 class="form-title">' + esc(SURVEY.title) + '</h1>' +
+        '<p class="form-desc">' + esc(SURVEY.desc) + '</p>' +
+        '<p class="hint"><span class="req">*</span> Required</p>' +
+      '</div>' +
+      vis.map(function(q){
+        num++;
+        var miss = state.missing.indexOf(q.id) > -1;
+        return '<div class="c-card q-card stack sm' + (miss ? ' is-missing' : '') + '" data-q="' + q.id + '">' +
+          '<span class="q-title">' + num + '. ' + esc(q.title) +
+            (q.required ? '<span class="req" aria-hidden="true">*</span><span class="sr-only"> (required)</span>' : '') +
+          '</span>' +
+          fieldHtml(q) +
+          (miss ? '<span class="q-miss" role="alert"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i>' +
+            'This question is required</span>' : '') +
+        '</div>';
+      }).join('') +
+      '<div class="pub-foot">' +
+        '<button class="c-btn c-btn-primary c-btn-lg" type="button" id="submit">Submit</button>' +
+        '<button class="c-btn c-btn-ghost c-btn-md" type="button" id="clearAll">Clear form</button>' +
+      '</div>' +
+      '<p class="hint">Sent by ' + esc(SURVEY.from) + ' · ' + esc(SURVEY.fromRole) +
+        '. Your answers are anonymous to your pod lead. Never enter a password in a Collabrium form.</p>' +
+    '</div>' +
+  '</div>';
+}
+
+function submit(){
+  state.missing = visible().filter(function(q){ return q.required && !has(q); })
+                           .map(function(q){ return q.id; });
+  if (state.missing.length){
+    render();
+    var el = $('[data-q="' + state.missing[0] + '"]');
+    if (el) el.scrollIntoView({ block:'center' });
+    toast(state.missing.length === 1
+      ? '1 required question still needs an answer'
+      : state.missing.length + ' required questions still need an answer');
+    return;
+  }
+  /* A real duration, measured from when the form was opened — not a number
+     picked to look plausible. */
+  state.seconds = state.openedAt ? Math.max(1, Math.round((Date.now() - state.openedAt) / 1000)) : 0;
+  state.step = 3;
+  render();
+  window.scrollTo(0, 0);
+}
+
+/* ==========================================================================
+   Step 3 — confirmation
+   ========================================================================== */
+function mmss(s){
+  var m = Math.floor(s / 60);
+  return m ? m + ' min ' + (s % 60) + ' s' : s + ' s';
+}
+function doneHtml(){
+  var s = SURVEY.settings, vis = visible();
+  return '<div class="pub">' +
+    '<div class="pub-bar">' +
+      '<span style="font-family:var(--font-secondary);font-size:18px;font-weight:600">Collabrium</span>' +
+    '</div>' +
+    '<div class="pub-inner">' +
+      '<div class="c-card done-card stack">' +
+        '<i class="ph-fill ph-check-circle done-icon" aria-hidden="true"></i>' +
+        '<h1 class="form-title">Your answers are in.</h1>' +
+        '<p class="form-desc">' + esc(s.confirm) + '</p>' +
+        (s.sendCopy
+          ? '<p class="hint"><i class="ph ph-envelope-simple" aria-hidden="true"></i> ' +
+            'A copy of your response has been emailed to ' + esc(ME.email) + '.</p>'
+          : '') +
+        '<div class="done-facts">' +
+          '<span class="c-badge c-badge-neutral"><i class="ph ph-list-checks" aria-hidden="true"></i>' +
+            answeredCount() + ' of ' + vis.length + ' answered</span>' +
+          '<span class="c-badge c-badge-neutral"><i class="ph ph-clock" aria-hidden="true"></i>' +
+            esc(mmss(state.seconds)) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="row tight">' +
+        (s.allowEdit
+          ? '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="editAgain">' +
+            '<i class="ph ph-pencil-simple" aria-hidden="true"></i>Edit your response</button>'
+          : '') +
+        (s.oneResponse ? '' :
+          '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="again">Submit another response</button>') +
+        '<button class="c-btn c-btn-primary c-btn-md" type="button" id="backToApp">' +
+          'Back to Collabrium<i class="ph ph-arrow-right" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<p class="hint">' + (s.oneResponse
+        ? (s.allowEdit
+            ? 'One response per person — coming back to this link reopens your answers.'
+            : 'One response per person — this link will not take another submission from you.')
+        : 'You can answer this survey more than once.') + '</p>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ==========================================================================
+   Render
+   ========================================================================== */
+function paintHarness(){
+  $('#hSteps').innerHTML = STEPS.map(function(s, i){
+    return (i ? '<span class="dash" aria-hidden="true"></span>' : '') +
+      '<button class="hstep' + (state.step === s.n ? ' is-on' : '') + '" type="button" data-step="' + s.n + '"' +
+      ' aria-current="' + (state.step === s.n ? 'step' : 'false') + '">' +
+      '<span class="n">' + s.n + '</span>' + esc(s.label) + '</button>';
+  }).join('');
+
+  $('#hEntry').innerHTML = ENTRIES.map(function(e){
+    return '<button class="' + (state.entry === e.k ? 'is-on' : '') + '" type="button" data-entry="' + e.k + '"' +
+      ' aria-pressed="' + (state.entry === e.k ? 'true' : 'false') + '">' +
+      '<i class="ph ' + e.icon + '" aria-hidden="true"></i>' + esc(e.label) + '</button>';
+  }).join('');
+}
+
+function stageHtml(){
+  if (state.step === 3) return doneHtml();
+  if (state.step === 2) return formHtml();
+  if (state.entry === 'email') return emailHtml();
+  return appHtml(state.entry === 'dash' ? 'dash' : 'notify');
+}
+
+function openForm(){
+  state.step = 2;
+  state.bellOpen = false;
+  state.unread = 0;
+  if (!state.openedAt) state.openedAt = Date.now();
+  render();
+  window.scrollTo(0, 0);
+}
+
+function render(){
+  paintHarness();
+  $('#stage').innerHTML = stageHtml();
+  wire();
+}
+
+function wire(){
+  var root = $('#stage');
+
+  /* ---- step 1: every entry point's CTA lands in the same place ---- */
+  $$('[data-open]', root).forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      openForm();
+    });
+  });
+  /* SidebarNav's collapse and its collapsed hover label, same recipe as
+     everywhere else the rail is used — the entry points are being judged in
+     a working shell, not a picture of one. */
+  var nav = $('#mainNav', root), navToggle = $('#navToggle', root);
+  if (nav && navToggle){
+    /* Below 768px the rail floats over the content with no scrim, so the
+       component specifies it loads collapsed. The stage re-renders on every
+       step, so this is applied on wiring rather than once at boot. */
+    if (window.matchMedia('(max-width: 768px)').matches){
+      nav.classList.add('is-collapsed');
+      navToggle.setAttribute('aria-label', 'Expand sidebar');
+      $('#navToggleArrow', root).setAttribute('d', 'M11.5 7 14 10l-2.5 3');
+    }
+    navToggle.addEventListener('click', function(e){
+      e.stopPropagation();
+      var collapsing = !nav.classList.contains('is-collapsed');
+      nav.classList.toggle('is-collapsed');
+      navToggle.setAttribute('aria-label', collapsing ? 'Expand sidebar' : 'Collapse sidebar');
+      $('#navToggleArrow', root).setAttribute('d', collapsing ? 'M11.5 7 14 10l-2.5 3' : 'M13.5 7 11 10l2.5 3');
+    });
+    var hover = $('#navHoverLabel', root);
+    function showLabel(item){
+      var src = $('.c-sidebar-hover-text', item);
+      if (!src || !nav.classList.contains('is-collapsed')) return;
+      var anchor = $('i', item) || $('.c-sidebar-user-avatar', item);
+      if (!anchor) return;
+      var r = anchor.getBoundingClientRect();
+      hover.textContent = src.textContent;
+      hover.style.left = (r.right + 8) + 'px';
+      hover.style.top = (r.top + r.height / 2) + 'px';
+      hover.style.transform = 'translateY(-50%)';
+      hover.classList.add('is-visible');
+    }
+    nav.addEventListener('mouseover', function(e){
+      var it = e.target.closest('.c-sidebar-item, .c-sidebar-user');
+      if (it && !it.contains(e.relatedTarget)) showLabel(it);
+    });
+    nav.addEventListener('mouseout', function(e){
+      var it = e.target.closest('.c-sidebar-item, .c-sidebar-user');
+      if (it && !it.contains(e.relatedTarget)) hover.classList.remove('is-visible');
+    });
+    nav.addEventListener('focusin', function(e){
+      var it = e.target.closest('.c-sidebar-item, .c-sidebar-user');
+      if (it) showLabel(it);
+    });
+    nav.addEventListener('focusout', function(){ hover.classList.remove('is-visible'); });
+  }
+
+  var bell = $('#bell', root);
+  if (bell){
+    bell.addEventListener('click', function(e){
+      e.stopPropagation();
+      state.bellOpen = !state.bellOpen;
+      render();
+    });
+    $('#notifyPanel', root).addEventListener('click', function(e){ e.stopPropagation(); });
+    $('#markRead', root).addEventListener('click', function(e){
+      e.stopPropagation(); state.unread = 0; render(); toast('All notifications marked read');
+    });
+  }
+
+  /* ---- step 2 ---- */
+  $$('[data-text]', root).forEach(function(el){
+    el.addEventListener('input', function(){
+      state.ans[el.dataset.text] = el.value;
+      refreshProgress();
+    });
+  });
+  /* Picking an answer repaints: it can reveal or retract the dependent
+     question, and it clears that question's own required flag. Focus goes
+     back on the control that was used, since the node it was on is gone. */
+  $$('[data-pick]', root).forEach(function(el){
+    el.addEventListener('change', function(){
+      var id = el.dataset.pick, v = el.dataset.val;
+      if (el.type === 'checkbox'){
+        var arr = state.ans[id] || [], at = arr.indexOf(v);
+        if (el.checked && at === -1) arr.push(v);
+        else if (!el.checked && at > -1) arr.splice(at, 1);
+        state.ans[id] = arr;
+      } else {
+        state.ans[id] = v;
+        SURVEY.questions.forEach(function(q){
+          if (q.dependsOn === id && v !== q.dependsValue) delete state.ans[q.id];
+        });
+      }
+      state.missing = state.missing.filter(function(x){ return x !== id; });
+      render();
+      var back = $$('[data-pick]', $('#stage')).filter(function(n){
+        return n.dataset.pick === id && n.dataset.val === v;
+      })[0];
+      if (back) back.focus();
+    });
+  });
+  if ($('#submit', root)) $('#submit').addEventListener('click', submit);
+  if ($('#clearAll', root)) $('#clearAll').addEventListener('click', function(){
+    state.ans = {}; state.missing = [];
+    render(); toast('Form cleared');
+  });
+
+  /* ---- step 3 ---- */
+  if ($('#editAgain', root)) $('#editAgain').addEventListener('click', function(){
+    state.step = 2; render(); window.scrollTo(0, 0);
+  });
+  if ($('#again', root)) $('#again').addEventListener('click', function(){
+    state.ans = {}; state.missing = []; state.step = 2; state.openedAt = Date.now();
+    render(); window.scrollTo(0, 0);
+  });
+  if ($('#backToApp', root)) $('#backToApp').addEventListener('click', function(){
+    reset('dash'); toast('Back in Collabrium');
+  });
+}
+
+/* Typing patches the progress bar in place — a repaint on every keystroke
+   would take the caret out of the field being typed into. */
+function refreshProgress(){
+  var bar = $('.pub-progress');
+  if (!bar) return;
+  var vis = visible(), done = answeredCount();
+  $('.c-progress-fill', bar).style.width = (vis.length ? Math.round(done / vis.length * 100) : 0) + '%';
+  $('.hint', bar).textContent = done + ' of ' + vis.length + ' answered';
+}
+
+function reset(entry){
+  state.entry = entry || state.entry;
+  state.step = 1;
+  state.ans = {};
+  state.missing = [];
+  /* Arriving by notification means arriving with the panel open — that is
+     the moment being tested, not the click that opens the bell. */
+  state.bellOpen = state.entry === 'notify';
+  state.unread = 3;
+  state.openedAt = null;
+  state.seconds = 0;
+  render();
+  window.scrollTo(0, 0);
+}
+
+/* ---- harness ---- */
+$('#hSteps').addEventListener('click', function(e){
+  var b = e.target.closest('[data-step]');
+  if (!b) return;
+  e.stopPropagation();
+  var n = +b.dataset.step;
+  if (n === 2 && !state.openedAt) state.openedAt = Date.now();
+  state.step = n;
+  render();
+  window.scrollTo(0, 0);
+});
+/* Switching entry point restarts the flow into that entry rather than being
+   locked out once the form is open — the whole point of the harness is
+   being able to jump straight to the surface you want to look at. */
+$('#hEntry').addEventListener('click', function(e){
+  var b = e.target.closest('[data-entry]');
+  if (!b) return;
+  e.stopPropagation();
+  reset(b.dataset.entry);
+});
+$('#hReset').addEventListener('click', function(e){
+  e.stopPropagation(); reset(state.entry); toast('Flow restarted');
+});
+
+/* One document handler closes the notification panel, rather than one added
+   per render — that leaks a handler every time the stage repaints. */
+document.addEventListener('click', function(){
+  if (state.bellOpen){ state.bellOpen = false; render(); }
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && state.bellOpen){ state.bellOpen = false; render(); }
+});
+
+render();
+
+})();
+</script>
+</body>
+</html>

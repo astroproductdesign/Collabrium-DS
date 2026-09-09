@@ -57,7 +57,16 @@
    user menu does: the trigger is pinned to the viewport bottom. */
 .c-fab-menu{position:fixed; right:var(--spacing-24); bottom:calc(var(--spacing-24) + 56px + var(--spacing-8)); z-index:900; width:268px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-8); display:flex; flex-direction:column; gap:var(--spacing-4);}
 .c-fab-menu[hidden]{display:none;}
-.c-fab-menu-title{padding:var(--spacing-8) var(--spacing-8) var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+/* margin:0 because this is a <p>, and every component in this system zeroes
+   its own paragraph margins for the same reason (Card, Empty state and the
+   rest all declare it): the UA's 1em top and bottom was adding 11px above
+   the title and 11px under it, so the card's top inset read 20px against a
+   9px bottom one and the gap to the first item was 15px against a 4px gap
+   between the items.
+   padding-left matches the menu item's own 12px rather than the card's 8px,
+   so the label starts on the same vertical as the icons below it — a
+   section header that sits 4px inside its own rows reads as misaligned. */
+.c-fab-menu-title{margin:0; padding:var(--spacing-8) var(--spacing-12) var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
 .c-fab-menu-item{display:flex; align-items:flex-start; gap:var(--spacing-12); width:100%; padding:var(--spacing-8) var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; text-align:left; cursor:pointer; font-family:var(--font-primary);}
 .c-fab-menu-item:hover{background:var(--color-neutral-2);}
 .c-fab-menu-item:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
@@ -116,23 +125,25 @@
    in one column than zig-zagged. The team side takes the Water (Data)
    8% tint — the platform/engineering side is the Water cluster in the
    5-element mapping, so it owns that content and the tint is a permitted
-   colored background rather than decoration. Every bubble also carries a
-   named role pill, so the colour is never the only thing saying who spoke.
+   colored background rather than decoration. The colour is never the only
+   thing saying who spoke: every bubble is signed with the person's name,
+   which is the answer anyone reading a two-party thread actually wants —
+   a role pill on every line only repeated what the tint already said.
    -------------------------------------------------------------------------- */
 .c-comments{display:flex; flex-direction:column; gap:var(--spacing-16);}
 .c-comment-list{display:flex; flex-direction:column; gap:var(--spacing-12);}
 .c-comment{display:flex; gap:var(--spacing-12);}
 .c-comment-body{flex:1 1 auto; min-width:0; padding:var(--spacing-12) var(--spacing-16); border-radius:var(--radius-md); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1);}
-.c-comment.is-team .c-comment-body{background:var(--color-water-bg); border-color:var(--color-water-bg-strong);}
+/* The team's side is a tint block, not an outlined card: the fill already
+   draws the shape, and an outline in the same hue over the top of it only
+   makes the edge muddier. The reporter's side keeps its neutral border,
+   which is what tells the two apart at a glance. */
+.c-comment.is-team .c-comment-body{background:var(--color-water-bg); border-color:transparent;}
 .c-comment-meta{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8); margin-bottom:var(--spacing-4);}
 .c-comment-meta b{font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
 .c-comment-meta time{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
 .c-comment-text{margin:0; font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-9); overflow-wrap:anywhere;}
 .c-comment-shots{display:flex; flex-wrap:wrap; gap:var(--spacing-8); margin-top:var(--spacing-8);}
-/* A question waiting on the other side is the one thing in a thread that
-   needs to be findable without reading it, so it gets a rule rather than
-   only a pill. */
-.c-comment.is-asking .c-comment-body{border-left:3px solid var(--color-amber);}
 .c-comment-avatar{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; background:var(--color-neutral-2); color:var(--color-neutral-9);}
 .c-comment.is-team .c-comment-avatar{background:var(--color-navy); color:var(--color-neutral-1);}
 /* Composer — label, textarea, a compact drop zone and the send action.
@@ -174,11 +185,50 @@ html,body{margin:0; height:100%;}
 [hidden]{display:none !important;}
 body{background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary);}
 
-.app{display:flex; min-height:100vh;}
-.app-nav{flex:0 0 auto; padding:var(--spacing-16) 0 var(--spacing-16) var(--spacing-16); position:sticky; top:0; height:100vh;}
-.app-nav .c-sidebar{height:100%;}
-.app-main{flex:1 1 auto; min-width:0; padding:var(--spacing-32) var(--spacing-32) var(--spacing-120);}
-.app-inner{max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-24);}
+/* App Shell, as documented — .c-shell / .c-sidebar-shell / .c-shell-main /
+   .c-shell-content out of components.css, with SidebarNav unmodified inside
+   it. The only thing set here is the height: components.css ships
+   .c-shell{height:480px} because its own home is a bounded gallery mockup,
+   and a real page is the viewport. Everything else — the 16px inset, the
+   rail stretching to calc(100dvh - 32px), page-gutter, the section gap
+   under Page header — comes from the component.
+   The content region owns the scroll, which is what makes the rail stay put
+   without a second position:sticky of this prototype's own. */
+.c-shell{height:100dvh;}
+/* One piece of SidebarNav's own documented collapsed behaviour that
+   components.css does not ship yet. Implemented here rather than left
+   broken, scoped to this prototype, and it belongs in the component:
+   a trailing Badge goes the way the label and the trailing count already
+   do. Left visible, "Soon" hangs out past the 72px rail. */
+.c-sidebar.is-collapsed .c-sidebar-item .c-badge{display:none;}
+/* Landing — two entry cards. Card's own Interactive variant does the
+   surface, hover and focus; the only new thing is the two-up grid and the
+   icon disc, which is Elemental badge's chip at a larger size. */
+.entry-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:var(--spacing-24);}
+.entry-card{align-items:flex-start; text-align:left; font-family:inherit; cursor:pointer; padding:var(--spacing-24); gap:var(--spacing-16);}
+.entry-icon{display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:var(--radius-md); font-size:var(--icon-lg); flex:none; background:var(--color-neutral-2); color:var(--color-neutral-9);}
+/* Bug Reports takes the Water (Data) tint, which is the same tint this file
+   already gives the tech team's own side of a comment thread — the
+   platform/engineering cluster in the 5-element mapping owns that content,
+   here as there. Feedback Forms stays neutral: it is the section's own
+   subject, not a department, and inventing a second element for it would be
+   using the mapping as decoration. */
+.entry-icon.is-water{background:var(--color-water-bg); color:var(--color-navy);}
+.entry-title{font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9);}
+.entry-desc{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+/* The numbers under each card are the reason to pick one over the other, so
+   they get the whole width and a rule above them rather than being a third
+   line of body copy. */
+.entry-facts{display:flex; flex-wrap:wrap; gap:var(--spacing-24); width:100%; padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+.entry-fact{display:flex; flex-direction:column; gap:2px;}
+.entry-fact b{font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); font-variant-numeric:tabular-nums; color:var(--color-neutral-9);}
+.entry-fact span{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.entry-go{display:inline-flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
+.entry-card:hover .entry-go i{transform:translateX(2px);}
+.entry-go i{transition:transform var(--duration-fast) var(--ease-standard);}
+
+/* The routes are the content region's own single child, stacked. */
+.c-shell-content > .route{display:flex; flex-direction:column;}
 
 .route[hidden]{display:none;}
 .row{display:flex; align-items:center; gap:var(--spacing-12); flex-wrap:wrap;}
@@ -191,6 +241,11 @@ body{background:var(--color-canvas-warm); color:var(--color-neutral-9); font-fam
 .muted{color:var(--color-neutral-5);}
 .eyebrow{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
 .hint{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+/* Same UA-margin trap as the FAB card's title: a bare <p class="hint"> picks
+   up 1em top and bottom and adds a phantom 12px to whatever stack it is in.
+   Several .hint paragraphs already carry an inline margin:0 to work around
+   it one at a time; this makes that the rule and leaves those redundant. */
+p.hint{margin:0;}
 .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;}
 h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight);}
 
@@ -202,11 +257,21 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .avatar.lg{width:40px; height:40px; font-size:var(--text-label2-size);}
 
 /* Form library rows */
-.lib{display:flex; flex-direction:column; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1); overflow:hidden;}
-.lib-row{display:flex; align-items:center; gap:var(--spacing-16); width:100%; padding:var(--spacing-16) var(--spacing-20); border:0; border-bottom:1px solid var(--color-neutral-3); background:transparent; text-align:left; cursor:pointer; font-family:inherit; transition:background-color var(--duration-fast) var(--ease-standard);}
-.lib-row:last-child{border-bottom:0;}
+/* No overflow:hidden — a row's own menu has to be able to hang past the
+   bottom edge. The corners the clip used to handle are rounded on the first
+   and last rows instead, so a hover fill still stops at the card's shape. */
+.lib{display:flex; flex-direction:column; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1);}
+/* The row is a container, not a control: it holds the open target and a menu,
+   and a button cannot contain a button. The open target keeps the row's whole
+   padded area, so a click anywhere but the menu opens the survey. */
+.lib-row{display:flex; align-items:center; width:100%; border-bottom:1px solid var(--color-neutral-3); background:transparent; transition:background-color var(--duration-fast) var(--ease-standard);}
+.lib-row:first-child{border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+.lib-row:last-child{border-bottom:0; border-radius:0 0 var(--radius-lg) var(--radius-lg);}
+.lib-row:only-child{border-radius:var(--radius-lg);}
 .lib-row:hover{background:var(--color-neutral-2);}
-.lib-row:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+.lib-row-hit{display:flex; align-items:center; gap:var(--spacing-16); flex:1 1 auto; min-width:0; padding:var(--spacing-16) var(--spacing-20); border:0; background:transparent; text-align:left; cursor:pointer; font-family:inherit; color:inherit;}
+.lib-row-hit:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+.lib-row > .menu-wrap{flex:none; padding-right:var(--spacing-12);}
 .lib-row-title{font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-9);}
 .lib-row-meta{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
 .lib-row-num{flex:none; text-align:right; font-variant-numeric:tabular-nums;}
@@ -232,7 +297,12 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .qgrip:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:1px;}
 .qgrip:active{cursor:grabbing;}
 .qblock-head{display:flex; align-items:flex-start; gap:var(--spacing-12);}
-.qblock-num{flex:none; font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5); padding-top:10px; font-variant-numeric:tabular-nums;}
+/* The number and the question text sit on the same line box rather than
+   being nudged into place: both are given body1's line-height, so their
+   glyphs centre on the same axis whatever either one's own font size is.
+   The old padding-top:10px was measured against one rendering of the input
+   and left the number 7.5px low. */
+.qblock-num{flex:none; font-size:var(--text-caption-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
 .qblock-actions{flex:none; display:flex; align-items:center; gap:var(--spacing-4);}
 .qblock-actions .qtype{position:relative; flex:none;}
 .qblock-actions .qtype input{height:32px; width:150px; padding:0 var(--spacing-8); padding-right:28px; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;}
@@ -251,14 +321,14 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .builder-cols{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--spacing-16); align-items:start;}
 /* Sticky, offset below the builder toolbar — which is itself sticky at
    spacing-16 and ~48px tall, so anything pinned higher lands underneath it. */
-.add-rail{position:sticky; top:calc(var(--spacing-16) + 56px); display:flex; flex-direction:column; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3);}
-.add-rail-label{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); padding-bottom:var(--spacing-4); border-bottom:1px solid var(--color-neutral-3); width:100%; text-align:center;}
+.add-rail{position:sticky; top:calc(var(--spacing-16) + 56px); display:flex; flex-direction:column; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); box-shadow:var(--shadow-3);}
 .add-rail .c-btn-icon{width:36px; height:36px;}
 .add-rail .c-btn-icon i{font-size:var(--icon-base);}
-/* The first action is the one people want; it gets the same weight the fixed
-   bar gives it rather than sitting level with the three media types. */
-.add-rail .c-btn-icon:first-of-type{background:var(--color-neutral-2);}
-.add-rail .c-btn-icon:first-of-type:hover{background:var(--color-neutral-3);}
+.add-rail .c-btn-icon:hover{background:var(--color-neutral-3);}
+/* Add question is the one people came for. On a grey bar the emphasis runs
+   the other way round — the raised chip is the white one. */
+.add-rail .c-btn-icon:first-of-type{background:var(--color-neutral-1); box-shadow:var(--shadow-1);}
+.add-rail .c-btn-icon:first-of-type:hover{background:var(--color-neutral-1); box-shadow:var(--shadow-2);}
 /* Chip group separator — marks the archive off from the status filters
    beside it, so "All" is visibly not counting what follows. */
 .chip-sep{flex:none; width:1px; height:20px; margin:0 var(--spacing-4); background:var(--color-neutral-3);}
@@ -299,6 +369,14 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    variant, rendered as a <button> so the whole tile is one target (the
    list view's rows already are). */
 .lib-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:var(--spacing-16);}
+/* The tile is a button, and a button cannot contain a button, so the menu
+   is a sibling laid over the card's top-right corner rather than a child of
+   it. The badge row reserves that corner so a long countdown pill can never
+   slide underneath the trigger. */
+.lib-card-wrap{position:relative; display:flex;}
+.lib-card-wrap > .lib-card{flex:1 1 auto; min-width:0;}
+.lib-card-wrap > .menu-wrap{position:absolute; top:var(--spacing-16); right:var(--spacing-12); z-index:2;}
+.lib-card .tag-row{padding-right:var(--spacing-24);}
 .lib-card{align-items:stretch; text-align:left; font-family:inherit; cursor:pointer; padding:var(--spacing-20); gap:var(--spacing-12);}
 .lib-card:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
 .lib-card-title{font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
@@ -325,6 +403,16 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .menu-wrap{position:relative;}
 .menu-pop{position:absolute; right:0; top:calc(100% + var(--spacing-8)); z-index:60; width:248px; padding:var(--spacing-8); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); display:flex; flex-direction:column; gap:2px;}
 .menu-pop[hidden]{display:none;}
+/* Flat variant — the three form-level actions, in the same compact list the
+   builder's own kebab uses. It keeps the .menu-pop class so the one document
+   handler that closes every popover in this file still owns it. */
+.menu-pop.is-flat{width:216px;}
+/* Eight actions need grouping or they read as one undifferentiated list:
+   open it, send it, manage it, destroy it. */
+.menu-pop-sep{height:1px; margin:var(--spacing-4) 0; background:var(--color-neutral-3);}
+.menu-pop.is-flat button{align-items:center; font-size:var(--text-body2-size); color:var(--color-neutral-9);}
+.menu-pop.is-flat button > i{margin-top:0;}
+.menu-pop.is-flat button.danger{color:var(--color-red);}
 .menu-pop button{display:flex; align-items:flex-start; gap:var(--spacing-8); width:100%; padding:var(--spacing-8) var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; font-family:inherit; text-align:left; cursor:pointer;}
 .menu-pop button:hover{background:var(--color-neutral-2);}
 .menu-pop button:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
@@ -350,7 +438,14 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    one-line options in a single stack is a scroll, not a choice. */
 .svc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:var(--spacing-8) var(--spacing-16); padding:var(--spacing-12) var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1);}
 .c-field-error .svc-grid{border:2px solid var(--color-red); padding:11px 15px;}
+/* Other spans the grid and sits behind a rule — it is an escape hatch from
+   the list above, not an eleventh item in it. */
+.svc-grid .svc-other{grid-column:1 / -1; margin-top:var(--spacing-4); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
 .tag-row{display:flex; flex-wrap:wrap; gap:var(--spacing-4);}
+/* An "Other" service is a sentence the reporter wrote rather than a label
+   off a list, so tags in this row are allowed to wrap. Badge keeps its own
+   nowrap everywhere else. */
+.tag-row .c-badge{white-space:normal; text-align:left;}
 
 /* AI summary panel. Sits where the result will be (Loading State Rule 10)
    and replaces the wait state in place. Not a brand tint — an AI answer
@@ -365,19 +460,40 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .ai-themes li .n{flex:none; min-width:34px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--color-neutral-5);}
 .ai-themes li q{color:var(--color-neutral-5); font-style:italic;}
 .ai-foot{display:flex; align-items:center; gap:var(--spacing-8); flex-wrap:wrap;}
+/* The survey panel's leading column holds averages and signed scores, not
+   just counts, so it needs more room than the per-question "12×". */
+.ai-panel.is-survey .ai-themes li .n{min-width:50px;}
+/* An empty slot is still a flex child, so its parent's gap lands on both
+   sides of nothing — 24px of dead space above the results until someone
+   presses the button. */
+#surveyAiSlot:empty, [data-aislot]:empty{display:none;}
 .ai-disc{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
 
 /* My tickets — the reporter's own list. Same row recipe as the form
    library, plus a status column and an attention flag. */
-.mine-row{display:flex; align-items:center; gap:var(--spacing-16); width:100%; padding:var(--spacing-16) var(--spacing-20); border:0; border-bottom:1px solid var(--color-neutral-3); background:transparent; text-align:left; cursor:pointer; font-family:inherit; transition:background-color var(--duration-fast) var(--ease-standard);}
-.mine-row:last-child{border-bottom:0;}
-.mine-row:hover{background:var(--color-neutral-2);}
-.mine-row:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
-.mine-row.needs-reply{background:var(--color-gold-bg);}
-.mine-row.needs-reply:hover{background:var(--color-gold-bg-strong);}
 .mine-title{font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-9);}
 .mine-meta{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-.mine-side{flex:none; display:flex; align-items:center; gap:var(--spacing-8);}
+/* A ticket waiting on the reporter keeps its tint as a table row. Written
+   with a higher-specificity selector than Table's own row hover so the tint
+   survives the pointer being over it. */
+#routeBugMine .c-table tbody tr.needs-reply{background:var(--color-gold-bg);}
+#routeBugMine .c-table tbody tr.needs-reply:hover{background:var(--color-gold-bg-strong);}
+/* The three trailing columns are read as one set — what the ticket needs,
+   how bad it is, where it stands — so they sit 16px apart and 16px in from
+   the table's right edge, rather than taking Table's own 32px column
+   gutter. Widths are fixed so the header labels stay over their own values
+   and the Ticket column absorbs the rest. */
+#routeBugMine .c-table th:nth-child(n+2),
+#routeBugMine .c-table td:nth-child(n+2){padding-left:var(--spacing-8); padding-right:var(--spacing-8);}
+#routeBugMine .c-table th:last-child,
+#routeBugMine .c-table td:last-child{padding-right:var(--spacing-16);}
+#routeBugMine .c-table th:nth-child(2),
+#routeBugMine .c-table td:nth-child(2){width:170px;}
+#routeBugMine .c-table th:nth-child(3),
+#routeBugMine .c-table td:nth-child(3){width:110px;}
+#routeBugMine .c-table th:nth-child(4),
+#routeBugMine .c-table td:nth-child(4){width:130px;}
+#routeBugMine .c-table{min-width:720px;}
 
 /* Segmented Control's own .c-seg is flex:1 with basis 0, so every segment
    gets the same width regardless of its label — and its uppercase transform
@@ -392,15 +508,17 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    declares a real min-width rather than letting every column squash to the
    point where a title wraps four times. */
 #routeBugAdmin .c-table{min-width:1040px;}
-#routeBugAdmin .c-table td:nth-child(4),
-#routeBugAdmin .c-table th:nth-child(4){min-width:230px;}
-/* Attachment count in the Title cell — a control, so it looks like one, but
-   quiet enough that it reads as a suffix to the title rather than competing
-   with it. */
-.shot-count{display:inline-flex; align-items:center; gap:3px; height:20px; padding:0 var(--spacing-4); margin-left:var(--spacing-4); vertical-align:1px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; font-variant-numeric:tabular-nums; cursor:pointer;}
-.shot-count:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
-.shot-count:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:1px;}
-.shot-count i{font-size:var(--icon-micro);}
+#routeBugAdmin .c-table td:nth-child(5),
+#routeBugAdmin .c-table th:nth-child(5){min-width:190px;}
+/* Eight columns at 16px gutters overflow a 1098px content area by ~113px,
+   which puts Comments — a column this table is specifically read for —
+   off the right edge. 12px gutters and the shorter priority code buy the
+   Pod column its width back without a scrollbar. */
+#routeBugAdmin .c-table th,
+#routeBugAdmin .c-table td{padding-left:var(--spacing-12); padding-right:var(--spacing-12);}
+/* Sortable headers are focusable (the component specifies Enter/Space to
+   cycle) but components.css ships no focus ring for them. */
+.c-table-sort-th:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
 
 /* Record modal — read-only field rows, for the sides of a record the
    viewer cannot edit. */
@@ -408,15 +526,90 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .rec-cell{display:flex; flex-direction:column; gap:var(--spacing-4); min-width:0;}
 .rec-cell .v{font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); overflow-wrap:anywhere;}
 
+/* Share modal. Reuses the record modal's box and internal scroll; only the
+   width differs, because a share dialog is a form, not a record. */
+.c-modal.is-share{width:min(560px, 100%);}
+.c-modal.is-share .c-modal-head{align-items:center;}
+.share-add{display:flex; align-items:flex-end; gap:var(--spacing-8);}
+.share-add .grow{flex:1 1 auto; min-width:0;}
+.share-people{display:flex; flex-direction:column; gap:var(--spacing-4);}
+.share-person{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) 0;}
+.share-person b{font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
+.share-access{display:flex; flex-direction:column; gap:var(--spacing-4);}
+.share-access-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) 0;}
+/* The two access rows get a mark each so they are scannable as a pair. Both
+   are neutral: general access is a permission, not a department. */
+.share-access-icon{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-size:var(--icon-sm);}
+/* Preview modal — the responder's own view of the form. Wider than Share
+   because what it holds is a page, not a dialog, and its body swaps the
+   modal's white for the app canvas so the questions read as cards on a
+   page instead of a list inside a box. */
+.c-modal.is-preview{width:min(720px, 100%);}
+.c-modal.is-preview .c-modal-body{gap:var(--spacing-16); background:var(--color-canvas-warm);}
+.c-modal.is-preview .c-modal-foot{gap:var(--spacing-8);}
+/* Progress sticks to the top of the scrolling body, which is the only place
+   a progress bar earns its keep — one parked at the top of a long form
+   scrolls away before it has anything to report. */
+.prev-progress{position:sticky; top:0; z-index:5; display:flex; flex-direction:column; gap:var(--spacing-8);
+  margin:0 calc(var(--spacing-24) * -1); padding:var(--spacing-8) var(--spacing-24) var(--spacing-12);
+  background:var(--color-canvas-warm);}
+.prev-head{border-top:4px solid var(--color-obsidian);}
+.prev-title{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9); overflow-wrap:anywhere;}
+.prev-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); white-space:pre-wrap;}
+.prev-q-title{display:block; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
+.prev-req{color:var(--color-red); margin-left:var(--spacing-4);}
+/* A missed required answer marks the whole card. The controls underneath are
+   radio rows and scale tracks — there is no single field border to redden,
+   and reddening every radio in a group would read as ten errors, not one. */
+.prev-q.is-missing{border-color:var(--color-red);}
+.prev-miss{display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-red);}
+.prev-miss i{font-size:var(--icon-sm);}
+.prev-done{align-items:flex-start;}
+.prev-done-icon{font-size:32px; color:var(--color-green);}
+.prev-note{display:flex; align-items:center; gap:var(--spacing-4);}
+
+/* Multiple select ships its panel position:static like the single one, so
+   it needs the same float when it sits above other content. */
+.dd-float > .c-dropdown-multi-panel{position:absolute; top:calc(100% + var(--spacing-4)); left:0; right:0; z-index:60; margin-top:0;}
+.c-dropdown-multi-panel[hidden]{display:none;}
+/* Select All's count belongs at the right end of the row, not beside the
+   label: the label is the action and the count is a fact about it. Left
+   inline, the desc slot's flex:1 squeezes "Select All" onto two lines. */
+.c-dropdown-option.select-all .c-dropdown-option-label{white-space:nowrap;}
+.c-dropdown-option.select-all .c-dropdown-option-desc{flex:none; margin-left:auto;}
+
+/* Date picker — the component ships no positioning (its panel is in normal
+   flow), so the float and the full-width trigger live here. Everything else
+   is .c-dp-* from components.css. */
+.c-dp{position:relative; width:100%;}
+.c-dp-trigger{width:100%; justify-content:flex-start; cursor:pointer;}
+.c-dp-trigger:hover:not(:disabled){background:var(--color-neutral-2);}
+.c-dp-trigger:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-dp-trigger:disabled{background:var(--color-neutral-2); color:var(--color-neutral-4); cursor:not-allowed;}
+.c-dp-trigger:disabled i{color:var(--color-neutral-4);}
+.c-dp-value.is-empty{color:var(--color-neutral-5);}
+.c-dp > .c-dp-panel{position:absolute; top:calc(100% + var(--spacing-8)); left:0; z-index:60;}
+.c-dp > .c-dp-panel.is-above{top:auto; bottom:calc(100% + var(--spacing-8));}
+.c-dp-panel[hidden]{display:none;}
+/* Footer, borrowed from the documented range-mode one, for the single field
+   that is allowed to be empty. */
+.c-dp-foot{display:flex; justify-content:flex-end; margin-top:var(--spacing-12); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+
+/* Settings save bar. Sticky at the foot of the viewport rather than parked
+   at the end of the page: Settings is three cards tall, and a Save the
+   reader has to scroll back down to find is a Save that gets missed. */
+.set-save{position:sticky; bottom:var(--spacing-16); z-index:40; display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-12) var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); box-shadow:var(--shadow-3);}
+.set-save.is-dirty{border-color:var(--color-obsidian);}
+.set-save-state{display:inline-flex; align-items:center; gap:var(--spacing-8); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-5);}
+.set-save-state i{font-size:var(--icon-sm);}
+.set-save.is-dirty .set-save-state{color:var(--color-neutral-9);}
+.set-save.is-dirty .set-save-state i{font-size:10px; color:var(--color-amber);}
+
 /* Comment count in the table. A bordered pill rather than a caption, so it
    reads as a countable thing at a glance, and tinted by whose turn the
    thread is on so a row that needs someone is visible without reading it. */
 .cmt-pill{display:inline-flex; align-items:center; gap:var(--spacing-4); height:24px; padding:0 var(--spacing-8); border-radius:var(--radius-pill); border:1px solid var(--color-neutral-3); background:var(--color-neutral-2); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:700; font-variant-numeric:tabular-nums;}
 .cmt-pill i{font-size:var(--icon-micro); color:var(--color-neutral-5);}
-.cmt-pill.is-awaiting{background:var(--color-gold-bg); border-color:var(--color-gold-bg-strong);}
-.cmt-pill.is-awaiting i{color:var(--color-amber);}
-.cmt-pill.is-replied{background:var(--color-water-bg); border-color:var(--color-water-bg-strong);}
-.cmt-pill.is-replied i{color:var(--color-navy);}
 /* "Reply received" — the ball is back with the tech team. It takes the same
    Water (Data) tint the team's own comments do rather than a second amber,
    which would read as the same alert as "Awaiting response". */
@@ -437,25 +630,24 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 @media print{
   /* Everything that is a control rather than content comes out: the reader
      of a PDF cannot use a filter, a view switcher or a search box. */
-  .app-nav, .c-fab, .c-fab-menu, .c-toast-host, .c-tabs, .toolbar,
-  .c-pageheader-actions, .c-modal-layer, .lightbox, .c-chart-table-btn,
-  .c-segctl, .menu-wrap, .c-search-input, .c-chip-group, .add-bar, .add-rail,
+  .c-sidebar-shell, .c-fab, .c-fab-menu, .c-toast-host, .c-tabs, .toolbar,
+  .c-pageheader-actions, .c-back-button-row, .c-modal-layer, .lightbox, .c-chart-table-btn,
+  .c-segctl, .menu-wrap, .c-search-input, .c-chip-group, .add-bar, .add-rail, .set-save,
   #hubSearchCount, .ai-panel-head .c-btn, .ai-panel-head .c-icon-btn{display:none !important;}
   /* With the switcher and the Export button gone, the row they shared has
      nothing left to space apart. */
   .row.between:has(> .c-segctl){display:block;}
   body{background:#fff;}
-  .app-main{padding:0;}
+  /* The scrolling content region has to become plain flow, or print takes
+     one viewport's worth of it and stops. */
+  .c-shell, .c-shell-main, .c-shell-content{height:auto; overflow:visible; padding:0;}
   .c-card, .lib, .c-table-standalone-wrap{box-shadow:none; break-inside:avoid;}
   .resp-list{max-height:none; overflow:visible;}
   .c-chart-card .c-chart-canvas-wrap{display:none;}
   .c-chart-card .c-chart-table-wrap{display:flex !important; min-height:0;}
 }
 
-@media (max-width:900px){
-  .app-nav{display:none;}
-  .app-main{padding:var(--spacing-20) var(--spacing-16) var(--spacing-120);}
-}
+
 
 /* Below this the library and ticket rows have to stop being rows. Their
    trailing block (badges, counts, priority) is flex:none by design, so on a
@@ -470,48 +662,99 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 }
 
 @media (max-width:700px){
-  .lib-row, .mine-row{flex-wrap:wrap; gap:var(--spacing-8);}
-  .lib-row > .grow, .mine-row > .grow{flex:1 1 100%;}
-  .mine-side{flex:1 1 100%; flex-wrap:wrap; justify-content:flex-start;}
+  .lib-row-hit{flex-wrap:wrap; gap:var(--spacing-8);}
+  .lib-row-hit > .grow{flex:1 1 100%;}
   .lib-row-num{flex:1 1 100%; text-align:left;}
   .lib-row-num b{display:inline; margin-right:var(--spacing-4);}
-  .lib-row > .c-badge{align-self:flex-start;}
-  .mine-side > .ph-caret-right, .lib-row > .ph-caret-right{display:none;}
+  .lib-row-hit > .c-badge{align-self:flex-start;}
   .svc-grid{grid-template-columns:1fr;}
+  /* Preview's footer carries a sentence and two buttons. Side by side at
+     this width all three wrap; the sentence takes its own line instead and
+     the buttons split what is left. */
+  .c-modal.is-preview .c-modal-foot{flex-wrap:wrap;}
+  .c-modal.is-preview .c-modal-foot .hint{flex:1 1 100%;}
+  .c-modal.is-preview .c-modal-foot .c-btn{flex:1 1 0; min-width:0;}
 }
 </style>
 </head>
 <body>
 
-<div class="app">
+<div class="c-shell">
 
-  <!-- ===== Entry point 1 — side navigation ===== -->
-  <div class="app-nav">
-    <nav class="c-sidebar" aria-label="Main">
+  <!-- ===== Entry point 1 — SidebarNav, as the component documents it =====
+       .c-sidebar-shell wraps the rail and its collapse toggle, because the
+       toggle sits outside .c-sidebar's own clip. Header carries the real
+       logo (the live lockup expanded, the element coin collapsed — both
+       always in the markup, swapped by CSS off .is-collapsed). Section
+       labels group the items one level deep. Icons are Fill, which is what
+       Iconography specifies for a sidebar nav item. Every item and the
+       user account carry .c-sidebar-hover-text, the source the collapsed
+       hover label reads from. -->
+  <div class="c-sidebar-shell">
+    <nav class="c-sidebar" id="mainNav" aria-label="Main">
       <div class="c-sidebar-header">
-        <span class="c-sidebar-logo"><b style="font-family:var(--font-secondary);font-size:18px;font-weight:600">Collabrium</b></span>
+        <span class="c-sidebar-logo">
+          <span class="c-sidebar-logo-live-wrap"><iframe src="logo.html" title="Collabrium" scrolling="no"></iframe></span>
+        </span>
+        <img class="c-sidebar-logo-collapsed" src="SVG/coin.svg" alt="Collabrium" />
       </div>
-      <button class="c-sidebar-item" type="button"><i class="ph ph-squares-four" aria-hidden="true"></i><span class="label">Dashboard</span></button>
-      <button class="c-sidebar-item" type="button"><i class="ph ph-briefcase" aria-hidden="true"></i><span class="label">Campaigns</span></button>
-      <button class="c-sidebar-item" type="button"><i class="ph ph-chart-bar" aria-hidden="true"></i><span class="label">Reports</span></button>
-      <div class="c-sidebar-divider"></div>
-      <button class="c-sidebar-item active" id="navFeedback" type="button" data-go="forms"><i class="ph ph-chat-teardrop-text" aria-hidden="true"></i><span class="label">Feedback</span></button>
+
+      <div class="c-sidebar-section">Overview</div>
+      <button class="c-sidebar-item" type="button"><i class="ph-fill ph-house" aria-hidden="true"></i><span class="label">Dashboard</span><span class="c-sidebar-hover-text">Dashboard</span></button>
+      <button class="c-sidebar-item" type="button"><i class="ph-fill ph-briefcase" aria-hidden="true"></i><span class="label">Campaigns</span><span class="c-sidebar-hover-text">Campaigns</span></button>
+      <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar" aria-hidden="true"></i><span class="label">Reports</span><span class="c-sidebar-hover-text">Reports</span></button>
+
+      <div class="c-sidebar-section">Workspace</div>
+      <button class="c-sidebar-item active" id="navFeedback" type="button" data-go="forms" aria-current="page"><i class="ph-fill ph-chat-teardrop-text" aria-hidden="true"></i><span class="label">Feedback</span><span class="c-sidebar-hover-text">Feedback</span></button>
+      <button class="c-sidebar-item soon" type="button" disabled aria-disabled="true"><i class="ph-fill ph-users-three" aria-hidden="true"></i><span class="label">Team</span><span class="c-badge c-badge-neutral">Soon</span><span class="c-sidebar-hover-text">Team</span></button>
+
       <div class="c-sidebar-footer">
-        <div class="c-sidebar-user">
+        <button class="c-sidebar-user" id="navUser" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Aisyah Rahman, CollabMedia">
           <span class="c-sidebar-user-avatar">AR</span>
           <span class="c-sidebar-user-text">
             <span class="c-sidebar-user-name">Aisyah Rahman</span>
             <span class="c-sidebar-user-role">CollabMedia</span>
           </span>
-        </div>
+          <span class="c-sidebar-hover-text">Aisyah Rahman &middot; CollabMedia</span>
+        </button>
       </div>
     </nav>
+
+    <div class="c-user-menu" id="navUserMenu" role="menu" aria-label="Account menu" hidden>
+      <button class="c-user-menu-item" type="button" role="menuitem"><i class="ph-fill ph-gear" aria-hidden="true"></i>Settings</button>
+      <hr class="c-user-menu-divider" />
+      <button class="c-user-menu-item" type="button" role="menuitem"><i class="ph-fill ph-sign-out" aria-hidden="true"></i>Log out</button>
+    </div>
+
+    <!-- Remix's sidebar-fold glyph, drawn inline: Phosphor has no equivalent,
+         which is the documented case for the Remix fallback. -->
+    <button class="c-sidebar-toggle" id="navToggle" type="button" aria-label="Collapse sidebar" aria-controls="mainNav">
+      <svg id="navToggleIcon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="9" y1="3.5" x2="9" y2="16.5" stroke="currentColor" stroke-width="1.4"/>
+        <path id="navToggleArrow" d="M13.5 7 11 10l2.5 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
 
-  <main class="app-main">
-    <div class="app-inner">
+  <!-- Collapsed-rail hover label — one shared element, per the component's
+       own "Collapsed — hover label" row. -->
+  <div class="c-sidebar-hover-label" id="navHoverLabel" role="tooltip"></div>
 
-      <!-- Section header + sub-tabs, shared by every route -->
+  <main class="c-shell-main">
+    <div class="c-shell-content" id="shellContent">
+
+      <!-- Back button — the documented Level-2+ affordance, and what
+           replaced the sub-tabs: the two subsections are siblings under the
+           landing page now, not two tabs of one screen, so getting between
+           them is going back up rather than across. Its label is always the
+           parent screen's own name, never "Back". -->
+      <div class="c-back-button-row" id="backRow" hidden>
+        <button class="c-back-button" type="button" id="backBtn">
+          <i class="ph ph-arrow-left" aria-hidden="true"></i><span id="backLabel"></span>
+        </button>
+      </div>
+
       <header class="c-pageheader" id="pageHeader">
         <div class="c-pageheader-row">
           <div class="c-pageheader-text">
@@ -522,10 +765,14 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
         </div>
       </header>
 
-      <div class="c-tabs" role="tablist" aria-label="Feedback sections" id="sectionTabs">
-        <button class="c-tab active" type="button" role="tab" data-section="forms" aria-selected="true"><i class="ph ph-list-checks" aria-hidden="true"></i>Feedback Forms</button>
-        <button class="c-tab" type="button" role="tab" data-section="bugs" aria-selected="false"><i class="ph ph-bug" aria-hidden="true"></i>Bug Reports</button>
-      </div>
+      <!-- ===== Route: Landing — the two things this section is =====
+           Two entry cards rather than dropping straight into one of the two
+           subsections, because the section has two audiences: someone here
+           to run a survey and someone here about a bug. Landing on one of
+           them made the other look like a tab of the first. -->
+      <section class="route stack lg" id="routeLanding" hidden>
+        <div class="entry-grid" id="entryGrid"></div>
+      </section>
 
       <!-- ===== Route: Feedback Hub (form library) ===== -->
       <section class="route stack lg" id="routeHub">
@@ -582,7 +829,7 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
               <!-- Label and icon are set in renderBuilder: the same item both
                    archives and restores, depending on where the survey is. -->
               <button type="button" role="menuitem" data-kb="archive"></button>
-              <button type="button" role="menuitem" class="danger" data-kb="trash"><i class="ph ph-trash" aria-hidden="true"></i>Move to trash</button>
+              <button type="button" role="menuitem" class="danger" data-kb="trash"><i class="ph ph-trash" aria-hidden="true"></i>Delete</button>
             </div>
           </span>
         </div>
@@ -625,6 +872,16 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
     <i class="ph ph-bug" aria-hidden="true"></i>
     <span class="t"><b>Report a bug</b><span>Something broken? Send it with a screenshot</span></span>
   </button>
+</div>
+
+<!-- Preview modal (the form as a responder sees it) -->
+<div class="c-modal-layer" id="prevLayer" hidden>
+  <div class="c-modal is-record is-preview" id="prev" role="dialog" aria-modal="true" aria-labelledby="prevTitle"></div>
+</div>
+
+<!-- Share modal (Add users) -->
+<div class="c-modal-layer" id="shareLayer" hidden>
+  <div class="c-modal is-record is-share" id="share" role="dialog" aria-modal="true" aria-labelledby="shareTitle"></div>
 </div>
 
 <!-- Record modal (one bug report, with its own pager) -->
@@ -731,16 +988,34 @@ function shot(seed, caption){
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
+/* Toast, built to the component's own recipe rather than a lookalike.
+   Three things were off before:
+   - the icon carried no `tone` class, so it missed the 2px optical offset
+     that lands it on the first line of text, and set its size and colour
+     from inline styles instead of the component's tokens;
+   - it was `ph` (Regular) where Iconography puts status icons on Fill;
+   - the message was a bare <p>, whose 1em UA margin pushed the text 16px
+     below the icon and made a one-line toast 80px tall. Toast's own markup
+     uses a <div> here, which is why the component never had to defend
+     against it. */
 function toast(msg, tone){
   var host = $('#toastHost');
   var t = document.createElement('div');
-  t.className = 'c-toast is-message-only';
-  t.innerHTML = '<i class="ph ' + (tone === 'success' ? 'ph-check-circle' : 'ph-info') +
-    '" aria-hidden="true" style="font-size:var(--icon-base);color:var(--color-' +
-    (tone === 'success' ? 'green' : 'neutral-5') + ')"></i>' +
-    '<div class="body"><p class="message">' + esc(msg) + '</p></div>';
+  t.className = 'c-toast is-message-only is-entering';
+  t.setAttribute('role', 'status');
+  t.innerHTML =
+    '<i class="ph-fill ' + (tone === 'success' ? 'ph-check-circle' : 'ph-info') +
+      ' tone ' + (tone === 'success' ? 'tone-success' : 'tone-neutral') + '" aria-hidden="true"></i>' +
+    '<div class="body"><div class="message">' + esc(msg) + '</div></div>';
   host.appendChild(t);
-  setTimeout(function(){ t.style.opacity = '0'; setTimeout(function(){ t.remove(); }, 300); }, 2600);
+  /* Reflow before dropping .is-entering, so the browser has a frame to
+     transition from — the same reason the record modal forces one. */
+  void t.offsetWidth;
+  t.classList.remove('is-entering');
+  setTimeout(function(){
+    t.classList.add('is-exiting');
+    setTimeout(function(){ t.remove(); }, 260);
+  }, 2600);
 }
 
 /* Close every open Dropdown panel under `root` (the document by default),
@@ -755,6 +1030,15 @@ function closeDropdowns(root){
     if (!field) return;
     field.classList.remove('open');
     var trig = field.querySelector('.c-dropdown-input');
+    if (trig) trig.setAttribute('aria-expanded', 'false');
+  });
+  /* Date picker panels close the same way and through the same handler —
+     they are the other popover in this file that has to shut when the
+     reader clicks anywhere else. */
+  $$('.c-dp-panel', root).forEach(function(p){
+    if (p.hidden) return;
+    p.hidden = true;
+    var trig = p.parentNode.querySelector('[data-dptrigger]');
     if (trig) trig.setAttribute('aria-expanded', 'false');
   });
 }
@@ -781,9 +1065,17 @@ var PRIORITIES = {
 };
 var PRIO_ORDER = ['p1','p2','p3','p4'];
 function prioLabel(k){ return PRIORITIES[k].short + ' — ' + PRIORITIES[k].name; }
+/* Two shapes. Anywhere a priority is being chosen or read on its own it
+   spells itself out — "P2 — High". In a table it is the code and the dot,
+   with the name still on the cell for hover and for screen readers: eight
+   columns do not have room for a word that P1..P4 already says, and the
+   record modal spells it out the moment a row is opened. */
 function prioPill(k, sm){
-  return '<span class="prio ' + k + (sm ? ' sm' : '') + '"><span class="dot" aria-hidden="true"></span>' +
-    esc(prioLabel(k)) + '</span>';
+  return '<span class="prio ' + k + (sm ? ' sm' : '') + '"' +
+    (sm ? ' title="' + esc(prioLabel(k)) + '"' : '') + '>' +
+    '<span class="dot" aria-hidden="true"></span>' +
+    (sm ? PRIORITIES[k].short + '<span class="sr-only"> — ' + esc(PRIORITIES[k].name) + '</span>'
+        : esc(prioLabel(k))) + '</span>';
 }
 
 /* Affected services — the surfaces a report can be filed against. A fixed
@@ -968,9 +1260,9 @@ function deadlinePill(f){
    tech team sees it in All reports, and there is no second shape for it.
    Three are filed by ME so the reporter-side view has real content, and one
    of those ends on an unanswered question so the reply flow is reachable. */
-function cmt(who, role, at, body, asks, shots){
+function cmt(who, role, at, body, shots){
   return { id:'c' + (cmt.n = (cmt.n || 0) + 1), who:who, role:role, at:at,
-           body:body, asks:!!asks, shots:shots || [] };
+           body:body, shots:shots || [] };
 }
 
 var BUGS = [
@@ -1049,11 +1341,10 @@ var BUGS = [
     shots:[shot(108,'Scheduled report email')],
     comments:[
       cmt('Divya Menon','team', new Date(2026,7,29,15,40),
-        'Two things would help me pin this down: what date range is set on the scheduled version, and was anything changed on the report itself around last Monday?',
-        true),
+        'Two things would help me pin this down: what date range is set on the scheduled version, and was anything changed on the report itself around last Monday?'),
       cmt('Rachel Ong','user', new Date(2026,8,1,9,12),
         'Range is "last 7 days" on both. Nothing changed on the report as far as I know — though someone did move it into the Q3 folder on the Friday before, if that matters.',
-        false, [shot(112,'Scheduled report settings')])
+        [shot(112,'Scheduled report settings')])
     ] },
 
   { id:'b8', at:new Date(2026,7,27,13,22), who:'Hafiz Rahman', pod:'CollabContent',  status:'resolved',
@@ -1074,8 +1365,7 @@ var BUGS = [
     shots:[shot(111,'Campaign list — spend blank')],
     comments:[
       cmt('Wei Sheng Loh','team', new Date(2026,8,8,9,5),
-        'Thanks for the screenshot. Two quick questions so I can narrow this down: are the six campaigns all in CollabMedia, or spread across pods? And does the Spend figure appear if you export the same list to CSV?',
-        true)
+        'Thanks for the screenshot. Two quick questions so I can narrow this down: are the six campaigns all in CollabMedia, or spread across pods? And does the Spend figure appear if you export the same list to CSV?')
     ] },
 
   { id:'b10', at:new Date(2026,8,5,15,42), who:ME.name, pod:'CollabContent', status:'progress',
@@ -1086,8 +1376,7 @@ var BUGS = [
     shots:[],
     comments:[
       cmt('Arif Zulkifli','team', new Date(2026,8,6,10,25),
-        'Client is not in the search index at all right now, so this is a gap rather than a bug in the matching. Before I add it — do you want client name to match on briefs only, or on campaigns and assets too?',
-        true),
+        'Client is not in the search index at all right now, so this is a gap rather than a bug in the matching. Before I add it — do you want client name to match on briefs only, or on campaigns and assets too?'),
       cmt(ME.name,'user', new Date(2026,8,6,16,3),
         'Briefs and campaigns both, please. Assets I always get to through the brief anyway.')
     ] },
@@ -1114,31 +1403,20 @@ var BUG_STATUS = {
 /* Whose turn the thread is on. Derived from the comments themselves, never
    stored — a stored flag goes stale the moment either side posts, and the
    whole point of the state is that it is always current.
-     'awaiting' — the newest run of comments is the team's and contains a
-                  question, so the ball is with the reporter.
-     'replied'  — the reporter has answered since that question, so the ball
-                  is back with the team and the ticket needs picking up.
-     null       — nothing outstanding either way. */
+     'awaiting' — the team spoke last, so the ball is with the reporter.
+     'replied'  — the reporter spoke last, so the ball is back with the team
+                  and the ticket needs picking up.
+     null       — nobody has said anything yet, or the ticket is closed.
+   Who spoke last is the whole rule. There is no separate "this one is a
+   question" flag: every comment reaches the other side and every comment
+   is worth reading, so marking some of them as the ones that count meant
+   an unflagged reply sat in a thread nobody was told to look at.
+   A resolved ticket is not waiting on anybody, so it drops out of the
+   handover entirely and the Status column goes back to saying Resolved. */
 function threadState(b){
   var c = b.comments || [];
-  if (!c.length) return null;
-  var i = c.length - 1;
-  /* Who spoke last decides which way the ball can possibly be facing, so
-     that is the first thing read — never scanned past. Walking back through
-     the whole thread looking for a question instead reports 'replied'
-     forever, because the reporter's answer is still in the history long
-     after the team has picked the ticket back up. */
-  if (c[i].role === 'team'){
-    /* The team spoke last. The reporter owes a reply only if this run of
-       team comments actually asked for one. */
-    for (; i >= 0 && c[i].role === 'team'; i--) if (c[i].asks) return 'awaiting';
-    return null;
-  }
-  /* The reporter spoke last. Skip their run, then check whether the team's
-     run immediately before it asked something this answers. */
-  for (; i >= 0 && c[i].role === 'user'; i--) {}
-  for (; i >= 0 && c[i].role === 'team'; i--) if (c[i].asks) return 'replied';
-  return null;
+  if (!c.length || b.status === 'resolved') return null;
+  return c[c.length - 1].role === 'team' ? 'awaiting' : 'replied';
 }
 var THREAD_STATE = {
   awaiting:{ admin:'Awaiting response',  user:'Response needed', icon:'ph-fill ph-question',           badge:'c-badge-warning' },
@@ -1156,13 +1434,14 @@ function threadBadge(b, mode){
     m[mode] + '</span>';
 }
 /* Comments in the table were a 12px counter tucked in after the title, which
-   is invisible in a scan of eleven rows. Own column, own pill, and it takes
-   the thread's colour so a thread that needs someone reads as one. */
+   is invisible in a scan of eleven rows. Own column, own pill — and neutral,
+   because it answers "how much conversation is on this ticket", not "whose
+   turn is it". The Status column next to it already carries the turn, and
+   tinting both made one fact look like two. */
 function cmtPill(b){
   var n = (b.comments || []).length;
   if (!n) return '<span class="muted">—</span>';
-  var t = threadState(b);
-  return '<span class="cmt-pill' + (t ? ' is-' + t : '') + '">' +
+  return '<span class="cmt-pill">' +
     '<i class="ph-fill ph-chat-circle" aria-hidden="true"></i>' + n + '</span>';
 }
 /* Last thing that happened on the record, for the reporter's list. */
@@ -1234,10 +1513,10 @@ function wireTableToggles(root){
 /* ==========================================================================
    Router
    ========================================================================== */
-var state = { section:'forms', route:'hub', formId:null, btab:'questions',
+var state = { route:'landing', formId:null, btab:'questions',
               respView:'summary', respIndex:0,
               hubStatus:'all', hubQuery:'', hubView:'grid',
-              bugStatus:'all', bugPod:'all', bugSort:'desc',
+              bugStatus:'all', bugPod:'all', bugSortCol:'date', bugSortDir:-1,
               /* Which list the record modal is paging through, and where in
                  it — the pager walks the view the reader opened the record
                  from, so it has to be captured at open time. */
@@ -1248,9 +1527,11 @@ function go(route, opts){
   destroyCharts();
   state.route = route;
   if (opts.formId !== undefined) state.formId = opts.formId;
-  state.section = (route === 'hub' || route === 'builder') ? 'forms' : 'bugs';
   render();
-  window.scrollTo(0, 0);
+  /* The content region owns the scroll now that this page uses App Shell,
+     so window.scrollTo has nothing to move. */
+  var c = $('#shellContent');
+  if (c) c.scrollTop = 0;
 }
 
 /* The three bug routes render their whole body on entry, so the one being
@@ -1259,39 +1540,100 @@ function go(route, opts){
 var DYNAMIC_ROUTES = { bugNew:'#routeBugNew', bugMine:'#routeBugMine', bugAdmin:'#routeBugAdmin' };
 
 function render(){
-  ['#routeHub','#routeBuilder','#routeBugNew','#routeBugMine','#routeBugAdmin'].forEach(function(s){ $(s).hidden = true; });
+  ['#routeLanding','#routeHub','#routeBuilder','#routeBugNew','#routeBugMine','#routeBugAdmin']
+    .forEach(function(s){ $(s).hidden = true; });
   Object.keys(DYNAMIC_ROUTES).forEach(function(r){
     if (r !== state.route) $(DYNAMIC_ROUTES[r]).innerHTML = '';
   });
-  $$('#sectionTabs .c-tab').forEach(function(t){
-    var on = t.dataset.section === state.section;
-    t.classList.toggle('active', on); t.setAttribute('aria-selected', on ? 'true' : 'false');
-  });
+  /* The FAB is for someone who wants to say something, anywhere in the
+     product. Inside the form builder it is the wrong offer twice over: the
+     page is already about writing a feedback form, and the button floats
+     over the add rail and the save bar. */
+  $('#fab').hidden = state.route === 'builder';
+  if (state.route === 'builder'){ $('#fabMenu').hidden = true; $('#fab').setAttribute('aria-expanded','false'); }
   $('#phActions').innerHTML = '';
 
-  if (state.route === 'hub')            renderHub();
+  if (state.route === 'landing')        renderLanding();
+  else if (state.route === 'hub')       renderHub();
   else if (state.route === 'builder')   renderBuilder();
   else if (state.route === 'bugNew')    renderBugNew();
   else if (state.route === 'bugMine')   renderBugMine();
   else if (state.route === 'bugAdmin')  renderBugAdmin();
 }
 
+/* Every render sets its own header, so the Back button is cleared here and
+   opted into by the routes that have a parent — a stale Back pointing at the
+   previous screen's parent is worse than none. */
 function setHeader(title, sub, actionsHtml){
   $('#phTitle').textContent = title;
   $('#phSub').textContent = sub;
   $('#phActions').innerHTML = actionsHtml || '';
+  $('#backRow').hidden = true;
+}
+var backTo = null;
+function setBack(label, route, opts){
+  backTo = { route:route, opts:opts || {} };
+  $('#backLabel').textContent = label;
+  $('#backBtn').setAttribute('aria-label', 'Back to ' + label);
+  $('#backRow').hidden = false;
+}
+$('#backBtn').addEventListener('click', function(){
+  if (backTo) go(backTo.route, backTo.opts);
+});
+$('#navFeedback').addEventListener('click', function(){ go('landing'); });
+
+/* ==========================================================================
+   Landing — the two doors into this section
+   Each card carries the two numbers that decide which one you want, read
+   from the same data the subsections render, so they cannot disagree with
+   what is behind them.
+   ========================================================================== */
+function entryCard(id, icon, tint, title, desc, facts, go){
+  return '<button class="c-card c-card-interactive entry-card" type="button" data-entry="' + id + '">' +
+    '<span class="entry-icon ' + tint + '" aria-hidden="true"><i class="ph-fill ' + icon + '"></i></span>' +
+    '<span class="stack sm" style="align-items:flex-start">' +
+      '<span class="entry-title">' + esc(title) + '</span>' +
+      '<span class="entry-desc">' + esc(desc) + '</span>' +
+    '</span>' +
+    '<span class="entry-facts">' +
+      facts.map(function(f){
+        return '<span class="entry-fact"><b>' + esc(String(f[0])) + '</b><span>' + esc(f[1]) + '</span></span>';
+      }).join('') +
+    '</span>' +
+    '<span class="entry-go">' + esc(go) +
+      '<i class="ph ph-arrow-right" aria-hidden="true"></i></span>' +
+  '</button>';
 }
 
-$$('#sectionTabs .c-tab').forEach(function(t){
-  t.addEventListener('click', function(){
-    /* The bugs section lands on the reporter's own tickets, not the blank
-       report form: the common case for someone opening this tab is checking
-       what happened to what they already sent, and Report a bug is one
-       primary CTA away in the page header. */
-    go(t.dataset.section === 'forms' ? 'hub' : 'bugMine');
+function renderLanding(){
+  $('#routeLanding').hidden = false;
+  setHeader('Feedback', 'Ask your team how it is going, and hear about it when something breaks.');
+
+  var live = FORMS.filter(function(f){ return !f.archived && f.status === 'active'; }).length;
+  var responses = FORMS.reduce(function(n, f){ return n + formCount(f); }, 0);
+  var open = BUGS.filter(function(b){ return b.status !== 'resolved'; }).length;
+  var mineWaiting = BUGS.filter(function(b){
+    return b.who === ME.name && threadState(b) === 'awaiting';
+  }).length;
+
+  $('#entryGrid').innerHTML =
+    entryCard('forms', 'ph-list-checks', '', 'Feedback Forms',
+      'Build a survey, send it out, and read what comes back.',
+      [[live, live === 1 ? 'live survey' : 'live surveys'],
+       [responses.toLocaleString(), 'responses collected']],
+      'Open the library') +
+    entryCard('bugs', 'ph-bug', 'is-water', 'Bug Reports',
+      'Report something broken, or work through what the pods have sent in.',
+      [[open, open === 1 ? 'open report' : 'open reports'],
+       [mineWaiting, 'waiting on you']],
+      'Open reports');
+
+  $$('[data-entry]', $('#entryGrid')).forEach(function(b){
+    b.addEventListener('click', function(){
+      go(b.dataset.entry === 'forms' ? 'hub' : 'bugMine');
+    });
   });
-});
-$('#navFeedback').addEventListener('click', function(){ go('hub'); });
+}
 
 /* ==========================================================================
    Feedback Hub
@@ -1363,8 +1705,9 @@ function formHaystack(f){
 
 function renderHub(){
   $('#routeHub').hidden = false;
-  setHeader('Feedback', 'Collect feedback from your team and triage the bugs they report.',
+  setHeader('Feedback Forms', 'Every survey your pod is running, and everything that has come back.',
     '<button class="c-btn c-btn-primary c-btn-md" type="button" id="newFormBtn"><i class="ph ph-plus"></i>New survey</button>');
+  setBack('Feedback', 'landing');
   $('#newFormBtn').addEventListener('click', newForm);
 
   var ts = terms(state.hubQuery);
@@ -1422,6 +1765,24 @@ function renderHub(){
   $$('[data-form]', host).forEach(function(b){
     b.addEventListener('click', function(){ go('builder', { formId:b.dataset.form }); });
   });
+  $$('[data-libmenu]', host).forEach(function(btn){
+    var pop = btn.nextElementSibling;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();                       /* never opens the survey */
+      var open = pop.hidden;
+      closeMenus();
+      pop.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    pop.addEventListener('click', function(e){ e.stopPropagation(); });
+    $$('[data-rowkb]', pop).forEach(function(item){
+      item.addEventListener('click', function(){
+        closeMenus();
+        formAction(FORMS.filter(function(x){ return x.id === btn.dataset.libmenu; })[0],
+                   item.dataset.rowkb);
+      });
+    });
+  });
 }
 
 function statusBadge(f){
@@ -1440,33 +1801,74 @@ function hubGrid(list, ts){
     /* Status and countdown sit together at the top; the whole tile is the
        target, so the old corner arrow was decoration repeating what the
        hover state and the cursor already say. */
-    return '<button class="c-card c-card-interactive lib-card" type="button" data-form="' + f.id + '">' +
-      '<span class="tag-row">' + statusBadge(f) + deadlinePill(f) + '</span>' +
-      '<span class="lib-card-title">' + mark(f.title, ts) + '</span>' +
-      '<span class="lib-card-desc">' + (f.desc ? mark(f.desc, ts) : 'No description yet.') + '</span>' +
-      '<span class="lib-card-foot">' +
-        '<span><b>' + n.toLocaleString() + '</b> <span class="lib-row-meta">' +
-          (n === 1 ? 'response' : 'responses') + '</span></span>' +
-        '<span class="lib-row-meta">' + esc(rangeLabel(f)) + '</span>' +
-      '</span>' +
-    '</button>';
+    return '<div class="lib-card-wrap">' +
+      '<button class="c-card c-card-interactive lib-card" type="button" data-form="' + f.id + '">' +
+        '<span class="tag-row">' + statusBadge(f) + deadlinePill(f) + '</span>' +
+        '<span class="lib-card-title">' + mark(f.title, ts) + '</span>' +
+        '<span class="lib-card-desc">' + (f.desc ? mark(f.desc, ts) : 'No description yet.') + '</span>' +
+        '<span class="lib-card-foot">' +
+          '<span><b>' + n.toLocaleString() + '</b> <span class="lib-row-meta">' +
+            (n === 1 ? 'response' : 'responses') + '</span></span>' +
+          '<span class="lib-row-meta">' + esc(rangeLabel(f)) + '</span>' +
+        '</span>' +
+      '</button>' +
+      formMenu(f) +
+    '</div>';
   }).join('') + '</div>';
+}
+
+/* Everything a survey can be done to without opening it, written once and
+   rendered identically on a grid tile and a list row. Grouped in the order
+   the work happens: get into it, get it out to people, look after it, and
+   the destructive one on its own at the bottom. */
+function formMenuItem(kb, icon, label, cls){
+  return '<button type="button" role="menuitem"' + (cls ? ' class="' + cls + '"' : '') +
+    ' data-rowkb="' + kb + '"><i class="ph ' + icon + '" aria-hidden="true"></i>' + label + '</button>';
+}
+function formMenuItems(f){
+  return formMenuItem('edit',    'ph-pencil-simple',    'Edit survey') +
+    formMenuItem('preview', 'ph-eye',              'Preview survey') +
+    formMenuItem('analyse', 'ph-chart-bar',        'Analyse results') +
+    '<span class="menu-pop-sep" aria-hidden="true"></span>' +
+    formMenuItem('send',    'ph-paper-plane-tilt', 'Send survey') +
+    formMenuItem('share',   'ph-user-plus',        'Share') +
+    '<span class="menu-pop-sep" aria-hidden="true"></span>' +
+    formMenuItem('copy',    'ph-copy',             'Make a copy') +
+    formMenuItem('archive', f.archived ? 'ph-arrow-counter-clockwise' : 'ph-archive',
+                            f.archived ? 'Restore from archive' : 'Archive') +
+    '<span class="menu-pop-sep" aria-hidden="true"></span>' +
+    formMenuItem('trash',   'ph-trash',            'Delete', 'danger');
+}
+/* Trigger plus panel, so a tile and a row cannot drift apart. */
+function formMenu(f){
+  return '<span class="menu-wrap">' +
+    '<button class="c-icon-btn" type="button" data-libmenu="' + f.id + '"' +
+      ' aria-haspopup="menu" aria-expanded="false" aria-label="More options for ' + esc(f.title) + '">' +
+      '<i class="ph ph-dots-three-vertical" aria-hidden="true"></i></button>' +
+    '<div class="menu-pop is-flat" role="menu" aria-label="' + esc(f.title) + '" hidden>' +
+      formMenuItems(f) + '</div>' +
+  '</span>';
 }
 
 function hubRows(list, ts){
   return '<div class="lib">' + list.map(function(f){
     var n = formCount(f);
-    return '<button class="lib-row" type="button" data-form="' + f.id + '">' +
-      '<span class="grow stack sm">' +
-        '<span class="lib-row-title">' + mark(f.title, ts) + '</span>' +
-        '<span class="lib-row-meta">' + esc(rangeLabel(f)) + ' · Updated ' + fmtDate(f.updated) + '</span>' +
-      '</span>' +
-      deadlinePill(f) +
-      statusBadge(f) +
-      '<span class="lib-row-num"><b>' + n.toLocaleString() + '</b>' +
-        '<span class="lib-row-meta">' + (n === 1 ? 'response' : 'responses') + '</span></span>' +
-      '<i class="ph ph-caret-right" aria-hidden="true" style="color:var(--color-neutral-4)"></i>' +
-    '</button>';
+    /* The chevron is gone: it pointed at something the whole row already
+       does, and the row's right edge is better spent on the actions that
+       were otherwise only reachable from inside the survey. */
+    return '<div class="lib-row">' +
+      '<button class="lib-row-hit" type="button" data-form="' + f.id + '">' +
+        '<span class="grow stack sm">' +
+          '<span class="lib-row-title">' + mark(f.title, ts) + '</span>' +
+          '<span class="lib-row-meta">' + esc(rangeLabel(f)) + ' · Updated ' + fmtDate(f.updated) + '</span>' +
+        '</span>' +
+        deadlinePill(f) +
+        statusBadge(f) +
+        '<span class="lib-row-num"><b>' + n.toLocaleString() + '</b>' +
+          '<span class="lib-row-meta">' + (n === 1 ? 'response' : 'responses') + '</span></span>' +
+      '</button>' +
+      formMenu(f) +
+    '</div>';
   }).join('') + '</div>';
 }
 
@@ -1536,10 +1938,8 @@ function renderBuilder(){
   var d = deadline(f);
   setHeader(f.title,
     (f.archived ? 'Archived' : f.status === 'active' ? 'Active · accepting responses' : 'Not published') +
-      ' · ' + d.text,
-    '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="backHub"><i class="ph ph-arrow-left"></i>' +
-      (f.archived ? 'Archive' : 'All forms') + '</button>');
-  $('#backHub').addEventListener('click', function(){ go('hub'); });
+      ' · ' + d.text);
+  setBack(f.archived ? 'Archive' : 'Feedback Forms', 'hub');
 
   /* One menu item, two directions — the survey is either in the archive or
      it is not, and offering both at once would be offering a no-op. */
@@ -1574,8 +1974,8 @@ $$('.toolbar [data-tb]').forEach(function(b){
     var f = currentForm(), a = b.dataset.tb;
     if (a === 'publish'){ f.status = 'active'; f.updated = new Date(NOW); renderBuilder(); toast('Form published — it is now accepting responses', 'success'); }
     else if (a === 'link'){ toast('Shareable link copied to clipboard', 'success'); }
-    else if (a === 'preview'){ toast('Preview opens the form as a responder sees it'); }
-    else if (a === 'users'){ toast('Add users — manage responders and editors'); }
+    else if (a === 'preview'){ openPreview(f); }
+    else if (a === 'users'){ openShare(f); }
     else if (a === 'undo'){ toast('Nothing to undo'); }
     else if (a === 'redo'){ toast('Nothing to redo'); }
   });
@@ -1595,28 +1995,51 @@ document.addEventListener('click', function(){
   closeMenus();
   closeDropdowns();
 });
-$$('#kebabMenu button').forEach(function(b){
-  b.addEventListener('click', function(){
-    var f = currentForm();
-    if (b.dataset.kb === 'copy'){
-      var c = JSON.parse(JSON.stringify({ questions:f.questions, settings:f.settings }));
-      FORMS.unshift({ id:'f' + (FORMS.length + 1), title:f.title + ' (copy)', status:'closed',
-        archived:false, desc:f.desc, starts:new Date(NOW), ends:null,
-        updated:new Date(NOW), questions:c.questions, responses:[], settings:c.settings });
-      go('hub'); toast('Copy created');
-    } else if (b.dataset.kb === 'archive'){
-      f.archived = !f.archived;
-      /* Land in the list the survey just moved into, so the move is visible
-         rather than something that happened off-screen. */
-      state.hubStatus = f.archived ? 'archived' : 'all';
-      syncHubChips();
-      go('hub');
-      toast(f.archived ? 'Moved to the archive' : 'Restored from the archive', 'success');
+/* Every form-level action, in one place. The builder's kebab and every
+   library menu call this, so the same action cannot mean two slightly
+   different things depending on where it was pressed. */
+function formAction(f, kb){
+  if (!f) return;
+  /* The three that open the survey land on the tab that does the job, so
+     "Analyse results" is one click rather than one click and a tab. */
+  if (kb === 'edit' || kb === 'analyse'){
+    state.btab = kb === 'analyse' ? 'responses' : 'questions';
+    state.respIndex = 0;
+    go('builder', { formId:f.id });
+  } else if (kb === 'preview'){
+    go('builder', { formId:f.id });
+    openPreview(f);
+  } else if (kb === 'share'){
+    openShare(f);
+  } else if (kb === 'send'){
+    /* Sending a survey nobody can answer is the one mistake worth catching
+       here — a draft link opens for editors and dead-ends for everyone else. */
+    if (f.status !== 'active'){
+      toast('Publish this survey before sending it — a draft cannot take responses');
     } else {
-      FORMS = FORMS.filter(function(x){ return x.id !== f.id; });
-      go('hub'); toast('Moved to trash');
+      toast('Responder link copied — paste it wherever you are sending it', 'success');
     }
-  });
+  } else if (kb === 'copy'){
+    var c = JSON.parse(JSON.stringify({ questions:f.questions, settings:f.settings }));
+    FORMS.unshift({ id:'f' + (FORMS.length + 1), title:f.title + ' (copy)', status:'closed',
+      archived:false, desc:f.desc, starts:new Date(NOW), ends:null,
+      updated:new Date(NOW), questions:c.questions, responses:[], settings:c.settings });
+    go('hub'); toast('Copy created');
+  } else if (kb === 'archive'){
+    f.archived = !f.archived;
+    /* Land in the list the survey just moved into, so the move is visible
+       rather than something that happened off-screen. */
+    state.hubStatus = f.archived ? 'archived' : 'all';
+    syncHubChips();
+    go('hub');
+    toast(f.archived ? 'Moved to the archive' : 'Restored from the archive', 'success');
+  } else {
+    FORMS = FORMS.filter(function(x){ return x.id !== f.id; });
+    go('hub'); toast('Survey deleted');
+  }
+}
+$$('#kebabMenu button').forEach(function(b){
+  b.addEventListener('click', function(){ formAction(currentForm(), b.dataset.kb); });
 });
 
 /* ---------- Tab 1 — Questions ---------- */
@@ -1647,8 +2070,50 @@ function addRailButtons(){
   }).join('');
 }
 
-function renderQuestions(f){
+/* Questions are staged the same way Settings are. Everything on this tab —
+   the title, the description, adding, deleting, reordering, retyping — is
+   written to a draft of the form, and nothing reaches the survey until
+   Save. Live edits on a published survey change what responders are looking
+   at mid-answer, which is not something anyone should do by typing.
+   The draft is keyed by form id, so switching surveys cannot carry edits
+   from one into another. */
+var qDraft = null;
+function qDraftFor(f){
+  if (!qDraft || qDraft.id !== f.id){
+    qDraft = { id:f.id, title:f.title, desc:f.desc,
+               questions: JSON.parse(JSON.stringify(f.questions)) };
+  }
+  return qDraft;
+}
+function qDirty(f){
+  var d = qDraftFor(f);
+  return d.title !== f.title || d.desc !== f.desc ||
+         JSON.stringify(d.questions) !== JSON.stringify(f.questions);
+}
+/* Patched in place, never re-rendered: a repaint on every keystroke would
+   take the caret out of whichever question is being typed into. Scoped to
+   the tab because Settings keeps its own .set-save in the document while
+   hidden, and an unscoped lookup finds whichever comes first in the DOM. */
+function refreshQSave(){
+  var bar = $('#tabQuestions .set-save');
+  if (!bar) return;
+  var dirty = qDirty(currentForm());
+  bar.classList.toggle('is-dirty', dirty);
+  $('.set-save-state', bar).innerHTML = saveStateHtml(dirty);
+  $('#qSave').disabled = !dirty;
+  $('#qDiscard').disabled = !dirty;
+}
+/* Anything staged anywhere in the builder. Preview reads it to say whether
+   what it is showing is what responders would currently get. */
+function builderDirty(f){
+  return (!!settingsDraft && settingsDraft.id === f.id && settingsDirty(f)) ||
+         (!!qDraft && qDraft.id === f.id && qDirty(f));
+}
+
+function renderQuestions(form){
   var host = $('#tabQuestions');
+  var f = qDraftFor(form);
+  var dirty = qDirty(form);
   host.innerHTML =
     '<div class="c-card stack">' +
       '<label class="c-field field-wide"><span class="eyebrow">Form title</span>' +
@@ -1669,16 +2134,42 @@ function renderQuestions(f){
     '<div class="builder-cols">' +
       '<div id="qList" class="stack"></div>' +
       '<div class="add-rail" role="group" aria-label="Add a block">' +
-        '<span class="add-rail-label" aria-hidden="true">Add</span>' +
         addRailButtons() +
       '</div>' +
+    '</div>' +
+
+    '<div class="set-save' + (dirty ? ' is-dirty' : '') + '">' +
+      '<span class="set-save-state">' + saveStateHtml(dirty) + '</span>' +
+      '<span class="grow"></span>' +
+      '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="qDiscard"' + (dirty ? '' : ' disabled') + '>Discard</button>' +
+      '<button class="c-btn c-btn-primary c-btn-md" type="button" id="qSave"' + (dirty ? '' : ' disabled') + '>' +
+        '<i class="ph ph-floppy-disk" aria-hidden="true"></i>Save form</button>' +
     '</div>';
 
-  $('#fTitle').addEventListener('input', function(e){ f.title = e.target.value; $('#phTitle').textContent = e.target.value; });
-  $('#fDesc').addEventListener('input', function(e){ f.desc = e.target.value; });
+  /* The page header keeps saying the survey's saved name. It used to track
+     this field keystroke by keystroke, which now would have the page titled
+     something that does not exist yet; Save re-renders the header. */
+  $('#fTitle').addEventListener('input', function(e){ f.title = e.target.value; refreshQSave(); });
+  $('#fDesc').addEventListener('input', function(e){ f.desc = e.target.value; refreshQSave(); });
   $$('[data-add]', host).forEach(function(b){
     b.addEventListener('click', function(){ addBlock(f, b.dataset.add); });
   });
+
+  $('#qSave').addEventListener('click', function(){
+    form.title = f.title;
+    form.desc  = f.desc;
+    form.questions = JSON.parse(JSON.stringify(f.questions));
+    form.updated = new Date(NOW);
+    qDraft = null;
+    renderBuilder();
+    toast('Form saved', 'success');
+  });
+  $('#qDiscard').addEventListener('click', function(){
+    qDraft = null;
+    renderBuilder();
+    toast('Changes discarded');
+  });
+
   paintQuestions(f);
 }
 
@@ -1689,6 +2180,7 @@ function paintQuestions(f){
       '<i class="ph ph-list-plus" aria-hidden="true"></i><h4>No questions yet</h4>' +
       '<p>Add your first question below. You can reorder blocks by dragging the handle, or with the keyboard.</p></div>';
     $('#qCount').textContent = 0;
+    refreshQSave();
     return;
   }
   var n = 0;
@@ -1709,7 +2201,7 @@ function paintQuestions(f){
       '<div class="qblock-head">' +
         (isMedia ? '' : '<span class="qblock-num">' + n + '</span>') +
         '<div class="grow stack sm">' +
-          '<input class="c-dropdown-input" style="border:0;padding:0;height:auto;font-size:var(--text-body1-size);font-weight:700;font-family:inherit;color:var(--color-neutral-9);background:transparent;caret-color:auto;cursor:text;width:100%" value="' + esc(q.title) + '" data-title="' + q.id + '" aria-label="Question text" />' +
+          '<input class="c-dropdown-input" style="border:0;padding:0;height:auto;font-size:var(--text-body1-size);line-height:var(--text-body1-lh);font-weight:700;font-family:inherit;color:var(--color-neutral-9);background:transparent;caret-color:auto;cursor:text;width:100%" value="' + esc(q.title) + '" data-title="' + q.id + '" aria-label="Question text" />' +
           (q.dependsOn ? '<span class="hint"><i class="ph ph-arrow-elbow-down-right" aria-hidden="true"></i> Shown when &ldquo;' + esc(q.dependsValue) + '&rdquo; is selected above</span>' : '') +
         '</div>' +
         '<div class="qblock-actions">' +
@@ -1729,6 +2221,7 @@ function paintQuestions(f){
   }).join('');
   $('#qCount').textContent = n;
   wireQuestionBlocks(f);
+  refreshQSave();
 }
 
 /* Question type switcher — Dropdown's Single select, Borderless, wired for
@@ -1861,6 +2354,7 @@ function wireQuestionBlocks(f){
     c.addEventListener('change', function(){
       f.questions[+c.dataset.req].required = c.checked;
       c.nextElementSibling.classList.toggle('on', c.checked);
+      refreshQSave();
     });
   });
   $$('#qList [data-typetrigger]').forEach(function(trig){
@@ -1890,6 +2384,7 @@ function wireQuestionBlocks(f){
     inp.addEventListener('input', function(){
       var q = f.questions.filter(function(x){ return x.id === inp.dataset.title; })[0];
       if (q) q.title = inp.value;
+      refreshQSave();
     });
   });
 }
@@ -1949,6 +2444,15 @@ function renderResponses(f){
       '</div>' +
       '<div class="row tight">' +
         '<span class="hint" id="respMeta"></span>' +
+        /* Survey-wide, as opposed to the per-question button on each
+           free-text card below. Gated the same way and for the same reason:
+           under five responses there is nothing to summarise that reading
+           the responses would not tell you faster. */
+        (f.responses.length >= 5
+          ? '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="surveyAiBtn"' +
+            ' aria-label="Summarise all responses with AI">' +
+            '<i class="ph-fill ph-sparkle" aria-hidden="true"></i>Summarise with AI</button>'
+          : '') +
         '<span class="menu-wrap">' +
           '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="expBtn" aria-haspopup="menu" aria-expanded="false">' +
             '<i class="ph ph-download-simple" aria-hidden="true"></i>Export' +
@@ -1962,11 +2466,19 @@ function renderResponses(f){
         '</span>' +
       '</div>' +
     '</div>' +
+    /* Above the per-question cards and outside #respBody, so switching
+       between Summary and Individual leaves the survey-wide summary standing
+       — it describes the whole set either way. */
+    '<div id="surveyAiSlot"></div>' +
     '<div id="respBody" class="stack lg"></div>';
 
   wireSeg($('#respSeg'), state.respView === 'summary' ? 0 : 1, function(i){
     destroyCharts(); state.respView = i ? 'individual' : 'summary'; paintRespBody(f);
   });
+
+  if ($('#surveyAiBtn')){
+    $('#surveyAiBtn').addEventListener('click', function(){ summariseSurvey(f, $('#surveyAiBtn')); });
+  }
 
   var expBtn = $('#expBtn'), expMenu = $('#expMenu');
   expBtn.addEventListener('click', function(e){
@@ -2273,7 +2785,11 @@ function longest(arr){
   return arr.slice().sort(function(a, b){ return b.length - a.length; })[0];
 }
 function themeAnswers(rows, qid){
-  var texts = rows.map(function(r){ return String(r.answers[qid]); });
+  return themeTexts(rows.map(function(r){ return String(r.answers[qid]); }));
+}
+/* The bucketing itself takes a pool of strings, so it can be run over one
+   question's answers or over every open-text answer in the survey at once. */
+function themeTexts(texts){
   var buckets = THEMES.map(function(t){ return { name:t.name, hits:[] }; });
   var other = [];
   texts.forEach(function(txt){
@@ -2325,21 +2841,36 @@ function aiSummaryHtml(qid, res, secs){
   '</div>';
 }
 
-function summarise(f, qid, btn){
-  var slot = $('[data-aislot="' + qid + '"]');
-  if (!slot || aiRuns[qid]) return;                 /* Rule 7 — one per operation */
-  var q = f.questions.filter(function(x){ return x.id === qid; })[0];
-  if (!q) return;
-  var rows = answered(f, q);
+/* One runner behind both scopes of summary — a single free-text question,
+   and the survey as a whole. Everything the two share is the part the rules
+   govern (the 400ms hold, the live label, the timestamp-driven timer, the
+   Stop, one run per key); all that differs is the phase copy and what gets
+   rendered at the end. */
+function aiLoadingHtml(label){
+  return '<div class="ai-panel">' +
+    '<div class="c-loading" role="status" aria-live="polite">' +
+      '<span class="c-loading-grid orbit" aria-hidden="true">' +
+        '<span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>' +
+        '<span class="c-loading-cell"></span><span class="c-loading-cell is-off"></span><span class="c-loading-cell"></span>' +
+        '<span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>' +
+      '</span>' +
+      '<span class="c-loading-label" data-ailabel>' + esc(label) + '</span>' +
+      '<span class="c-loading-elapsed" aria-hidden="true" data-aitime>0.0s</span>' +
+    '</div>' +
+    '<div class="ai-foot"><button class="c-btn c-btn-ghost c-btn-sm" type="button" data-aistop><i class="ph ph-stop-circle" aria-hidden="true"></i>Stop</button></div>' +
+  '</div>';
+}
+function runAi(key, slot, btn, spec){
+  if (!slot || aiRuns[key]) return;                 /* Rule 7 — one per operation */
   var t0 = Date.now();
   var run = { stopped:false, timers:[], tick:null };
-  aiRuns[qid] = run;
+  aiRuns[key] = run;
   if (btn) btn.disabled = true;
 
   function clear(){
     run.timers.forEach(clearTimeout);
     if (run.tick) clearInterval(run.tick);
-    delete aiRuns[qid];
+    delete aiRuns[key];
   }
   function stop(){
     run.stopped = true; clear();
@@ -2348,26 +2879,11 @@ function summarise(f, qid, btn){
     toast('Summary stopped');
   }
 
-  var PHASES = [[900, 'Grouping recurring themes'], [1750, 'Drafting the summary']];
-  var DONE = 2500;
-
   /* Rule 2 — nothing renders for the first 400ms. If the work finished
      inside that window the loader would never have appeared at all. */
   run.timers.push(setTimeout(function(){
     if (run.stopped) return;
-    slot.innerHTML =
-      '<div class="ai-panel">' +
-        '<div class="c-loading" role="status" aria-live="polite">' +
-          '<span class="c-loading-grid orbit" aria-hidden="true">' +
-            '<span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>' +
-            '<span class="c-loading-cell"></span><span class="c-loading-cell is-off"></span><span class="c-loading-cell"></span>' +
-            '<span class="c-loading-cell"></span><span class="c-loading-cell"></span><span class="c-loading-cell"></span>' +
-          '</span>' +
-          '<span class="c-loading-label" data-ailabel>Reading ' + rows.length + ' answers</span>' +
-          '<span class="c-loading-elapsed" aria-hidden="true" data-aitime>0.0s</span>' +
-        '</div>' +
-        '<div class="ai-foot"><button class="c-btn c-btn-ghost c-btn-sm" type="button" data-aistop><i class="ph ph-stop-circle" aria-hidden="true"></i>Stop</button></div>' +
-      '</div>';
+    slot.innerHTML = aiLoadingHtml(spec.phases[0][1]);
     $('[data-aistop]', slot).addEventListener('click', stop);
     /* Rule 5 — read off the start timestamp every tick, never accumulate;
        a throttled tab makes an accumulated count wrong by an order of
@@ -2377,7 +2893,7 @@ function summarise(f, qid, btn){
       if (el) el.textContent = ((Date.now() - t0) / 1000).toFixed(1) + 's';
     }, 100);
     /* Rule 4 — the label is a live status, not a fixed string. */
-    PHASES.forEach(function(p){
+    spec.phases.slice(1).forEach(function(p){
       run.timers.push(setTimeout(function(){
         var el = $('[data-ailabel]', slot);
         if (el) el.textContent = p[1];
@@ -2389,13 +2905,171 @@ function summarise(f, qid, btn){
     if (run.stopped) return;
     var secs = ((Date.now() - t0) / 1000).toFixed(1);
     clear();
-    slot.innerHTML = aiSummaryHtml(qid, themeAnswers(rows, qid), secs);
+    slot.innerHTML = spec.render(secs);
     if (btn) btn.disabled = false;
     $('[data-aiclose]', slot).addEventListener('click', function(){ slot.innerHTML = ''; });
     $('[data-airedo]', slot).addEventListener('click', function(){
-      slot.innerHTML = ''; summarise(f, qid, btn);
+      slot.innerHTML = ''; spec.rerun();
     });
-  }, DONE));
+  }, spec.done));
+}
+
+/* --------------------------------------------------------------------------
+   Whole-survey analysis
+   Reads the same answers the charts below are drawn from, so the panel can
+   never disagree with them. Scales are compared on a normalised 0-1 position
+   in their own range, because a 3.4 on a 1-5 and a 3.4 on a 0-10 are not the
+   same answer and ranking them raw would put every 0-10 question last.
+   -------------------------------------------------------------------------- */
+function analyseSurvey(f){
+  var qs = f.questions.filter(function(q){ return q.type !== 'media'; });
+  var scales = [], yesno = [], choice = [], texts = [], nps = null;
+
+  qs.forEach(function(q){
+    var rows = answered(f, q);
+    if (!rows.length) return;
+
+    if (q.type === 'scale'){
+      var avg = rows.reduce(function(a, r){ return a + r.answers[q.id]; }, 0) / rows.length;
+      /* A 0-10 question is the recommendation question by convention, so it
+         is read the way one is — promoters minus detractors — and it is kept
+         out of the strongest/weakest ranking entirely. It measures a
+         different thing from the rated questions, and leaving it in produced
+         a panel that called it the strongest question two lines above
+         reporting its score as negative. */
+      if (q.min === 0 && q.max === 10){
+        var pro = rows.filter(function(r){ return r.answers[q.id] >= 9; }).length;
+        var det = rows.filter(function(r){ return r.answers[q.id] <= 6; }).length;
+        var proPct = Math.round(pro / rows.length * 100), detPct = Math.round(det / rows.length * 100);
+        nps = { q:q, score:proPct - detPct, proPct:proPct, detPct:detPct, n:rows.length };
+      } else {
+        scales.push({ q:q, avg:avg, norm:(avg - q.min) / (q.max - q.min), n:rows.length });
+      }
+
+    } else if (q.type === 'yesno'){
+      var yes = rows.filter(function(r){ return r.answers[q.id] === 'Yes'; }).length;
+      yesno.push({ q:q, pct:Math.round(yes / rows.length * 100), n:rows.length });
+
+    } else if (q.type === 'single' || q.type === 'multi'){
+      var opts = q.options || [], counts = opts.map(function(){ return 0; });
+      rows.forEach(function(r){
+        var a = r.answers[q.id];
+        (Array.isArray(a) ? a : [a]).forEach(function(v){
+          var i = opts.indexOf(v); if (i > -1) counts[i]++;
+        });
+      });
+      if (opts.length){
+        var top = 0;
+        counts.forEach(function(c, i){ if (c > counts[top]) top = i; });
+        choice.push({ q:q, top:opts[top], pct:Math.round(counts[top] / rows.length * 100), n:rows.length });
+      }
+
+    } else {
+      rows.forEach(function(r){ texts.push(String(r.answers[q.id])); });
+    }
+  });
+
+  scales.sort(function(a, b){ return b.norm - a.norm; });
+  yesno.sort(function(a, b){ return a.pct - b.pct; });
+  choice.sort(function(a, b){ return b.pct - a.pct; });
+
+  /* Every open-text answer pooled rather than summarised question by
+     question: a theme that turns up under two different questions is a
+     stronger signal than one that turns up under one, and the per-question
+     panels already cover them separately. */
+  return {
+    total:f.responses.length,
+    complete:f.responses.filter(function(r){ return r.complete; }).length,
+    questions:qs.length,
+    scales:scales, yesno:yesno, choice:choice, nps:nps,
+    themes:themeTexts(texts), textCount:texts.length
+  };
+}
+
+function aiSurveyHtml(res, secs){
+  var pct = Math.round(res.complete / res.total * 100);
+  var meanNorm = res.scales.length
+    ? res.scales.reduce(function(a, x){ return a + x.norm; }, 0) / res.scales.length : null;
+  var mood = meanNorm === null ? '' : meanNorm >= 0.7 ? 'positive' : meanNorm >= 0.5 ? 'lukewarm' : 'poor';
+
+  var take = res.total.toLocaleString() + ' responses across ' + res.questions +
+    ' questions, ' + pct + '% of them complete.' +
+    (meanNorm === null ? ''
+      : ' The ' + res.scales.length + ' rated questions sit ' + Math.round(meanNorm * 100) +
+        '% of the way up their scales — a ' + mood + ' read overall.');
+
+  var lines = [];
+  if (res.scales.length > 1){
+    var best = res.scales[0], worst = res.scales[res.scales.length - 1];
+    lines.push([worst.avg.toFixed(2), 'Weakest rated question',
+      '&ldquo;' + esc(worst.q.title) + '&rdquo;, out of ' + worst.q.max + ', on ' + worst.n + ' answers.']);
+    lines.push([best.avg.toFixed(2), 'Strongest rated question',
+      '&ldquo;' + esc(best.q.title) + '&rdquo;, out of ' + best.q.max + '.']);
+  }
+  if (res.nps){
+    lines.push([(res.nps.score > 0 ? '+' : '') + res.nps.score, 'Recommendation',
+      res.nps.proPct + '% scored 9 or 10 against ' + res.nps.detPct + '% at 6 or below.']);
+  }
+  if (res.yesno.length){
+    lines.push([res.yesno[0].pct + '%', 'Lowest agreement',
+      'answered Yes to &ldquo;' + esc(res.yesno[0].q.title) + '&rdquo;.']);
+  }
+  if (res.choice.length){
+    lines.push([res.choice[0].pct + '%', 'Most-picked option',
+      '&ldquo;' + esc(res.choice[0].top) + '&rdquo; on &ldquo;' + esc(res.choice[0].q.title) + '&rdquo;.']);
+  }
+  if (res.themes.themes.length){
+    var t = res.themes.themes[0];
+    lines.push([t.hits.length + '&times;', 'Top theme in the free text',
+      esc(t.name.charAt(0).toLowerCase() + t.name.slice(1)) + ' — the most repeated of ' +
+      res.themes.themes.length + ' themes across ' + res.textCount + ' written answers.']);
+  }
+
+  return '<div class="ai-panel is-survey">' +
+    '<div class="ai-panel-head">' +
+      '<span class="eyebrow"><i class="ph-fill ph-sparkle" aria-hidden="true"></i> AI summary &middot; whole survey</span>' +
+      '<span class="grow"></span>' +
+      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-airedo><i class="ph ph-arrow-clockwise" aria-hidden="true"></i>Redo</button>' +
+      '<button class="c-icon-btn" type="button" data-aiclose aria-label="Dismiss summary"><i class="ph ph-x" aria-hidden="true"></i></button>' +
+    '</div>' +
+    '<p class="ai-take">' + esc(take) + '</p>' +
+    (lines.length
+      ? '<ul class="ai-themes">' + lines.map(function(l){
+          return '<li><span class="n">' + l[0] + '</span><span><b>' + l[1] + '</b> &mdash; ' + l[2] + '</span></li>';
+        }).join('') + '</ul>'
+      : '') +
+    '<p class="ai-disc">Generated from ' + res.total.toLocaleString() + ' responses in ' + secs +
+      's. Read it against the charts below before quoting it.</p>' +
+  '</div>';
+}
+
+function summariseSurvey(f, btn){
+  var slot = $('#surveyAiSlot');
+  if (!slot) return;
+  runAi('survey', slot, btn, {
+    phases: [[0, 'Reading ' + f.responses.length.toLocaleString() + ' responses'],
+             [900, 'Comparing questions'],
+             [1900, 'Grouping the written answers'],
+             [2900, 'Drafting the summary']],
+    done: 3600,
+    render: function(secs){ return aiSurveyHtml(analyseSurvey(f), secs); },
+    rerun: function(){ summariseSurvey(f, btn); }
+  });
+}
+
+function summarise(f, qid, btn){
+  var slot = $('[data-aislot="' + qid + '"]');
+  var q = f.questions.filter(function(x){ return x.id === qid; })[0];
+  if (!slot || !q) return;
+  var rows = answered(f, q);
+  runAi(qid, slot, btn, {
+    phases: [[0, 'Reading ' + rows.length + ' answers'],
+             [900, 'Grouping recurring themes'],
+             [1750, 'Drafting the summary']],
+    done: 2500,
+    render: function(secs){ return aiSummaryHtml(qid, themeAnswers(rows, qid), secs); },
+    rerun: function(){ summarise(f, qid, btn); }
+  });
 }
 
 /* Individual view — one respondent at a time. */
@@ -2443,95 +3117,329 @@ function paintIndividual(f, host){
   if (n) n.addEventListener('click', function(){ state.respIndex++; paintIndividual(f, host); });
 }
 
-/* ---------- Tab 3 — Settings ---------- */
+/* --------------------------------------------------------------------------
+   Date picker — the DLS component, wired for real
+   components.css ships the trigger, the panel and every day state, but no
+   behaviour and no positioning: like Dropdown's own panel, .c-dp-panel sits
+   in normal flow, so left alone it pushes the rest of Settings down the page
+   when it opens. This adds the month arithmetic, the open/close, and floats
+   the panel. Everything visual comes from the component.
+   -------------------------------------------------------------------------- */
+var dpView = {};                       /* which month each picker is showing */
+
+function sameDay(a, b){
+  return !!a && !!b && a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+function dpGridHtml(id, value, min){
+  var view = dpView[id];
+  var y = view.getFullYear(), m = view.getMonth();
+  var lead = new Date(y, m, 1).getDay();
+  var days = new Date(y, m + 1, 0).getDate();
+  var prevDays = new Date(y, m, 0).getDate();
+  var cells = '';
+  /* Days either side of the month are shown and unusable rather than left
+     blank — the spec's "disabled / outside month" state — so the grid keeps
+     its shape and the weekday columns stay honest. */
+  for (var i = lead - 1; i >= 0; i--){
+    cells += '<button class="c-dp-day disabled" type="button" disabled tabindex="-1">' + (prevDays - i) + '</button>';
+  }
+  for (var d = 1; d <= days; d++){
+    var dt = new Date(y, m, d);
+    var off = min && dt < dayStart(min);
+    cells += '<button class="c-dp-day' + (off ? ' disabled' : '') +
+      (sameDay(dt, NOW) ? ' today' : '') + (sameDay(dt, value) ? ' selected' : '') +
+      '" type="button"' + (off ? ' disabled' : '') + ' data-dpday="' + isoDate(dt) + '"' +
+      ' aria-label="' + esc(fmtDate(dt)) + '">' + d + '</button>';
+  }
+  var trail = (7 - ((lead + days) % 7)) % 7;
+  for (var k = 1; k <= trail; k++){
+    cells += '<button class="c-dp-day disabled" type="button" disabled tabindex="-1">' + k + '</button>';
+  }
+  return '<div class="c-dp-header">' +
+      '<button class="c-icon-btn" type="button" data-dpnav="-1" aria-label="Previous month"><i class="ph ph-caret-left" aria-hidden="true"></i></button>' +
+      '<h5>' + MONTHS[m] + ' ' + y + '</h5>' +
+      '<button class="c-icon-btn" type="button" data-dpnav="1" aria-label="Next month"><i class="ph ph-caret-right" aria-hidden="true"></i></button>' +
+    '</div>' +
+    '<div class="c-dp-grid">' +
+      ['S','M','T','W','T','F','S'].map(function(w){ return '<span class="c-dp-weekday">' + w + '</span>'; }).join('') +
+      cells +
+    '</div>';
+}
+function dpHtml(id, value, opts){
+  opts = opts || {};
+  if (!dpView[id]){
+    dpView[id] = value ? new Date(value.getFullYear(), value.getMonth(), 1)
+                       : new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+  }
+  return '<div class="c-dp" data-dp="' + id + '"' + (opts.disabled ? ' data-dpdisabled' : '') + '>' +
+    '<button class="c-dp-trigger" type="button" data-dptrigger' + (opts.disabled ? ' disabled' : '') +
+      ' aria-haspopup="dialog" aria-expanded="false">' +
+      '<i class="ph-fill ph-calendar" aria-hidden="true"></i>' +
+      '<span class="c-dp-value' + (value ? '' : ' is-empty') + '">' +
+        (value ? esc(fmtDate(value)) : esc(opts.placeholder || 'Pick a date')) + '</span>' +
+    '</button>' +
+    '<div class="c-dp-panel" data-dppanel hidden>' + dpGridHtml(id, value, opts.min) +
+      (opts.clearable
+        /* The documented footer is range-mode only. It is extended to single
+           mode for the one field that is legitimately allowed to be empty —
+           without it there is no way back to "opens immediately" once a date
+           has been picked. */
+        ? '<div class="c-dp-foot"><button class="c-btn c-btn-ghost c-btn-sm" type="button" data-dpclear>Clear date</button></div>'
+        : '') +
+    '</div>' +
+  '</div>';
+}
+/* One wiring for every picker on the page. `onPick` receives a Date or null. */
+function wireDp(id, getValue, opts, onPick){
+  var root = $('[data-dp="' + id + '"]');
+  if (!root) return;
+  var trig = $('[data-dptrigger]', root), panel = $('[data-dppanel]', root);
+  if (trig.disabled) return;
+
+  function repaint(){
+    panel.innerHTML = dpGridHtml(id, getValue(), opts.min) + (opts.clearable
+      ? '<div class="c-dp-foot"><button class="c-btn c-btn-ghost c-btn-sm" type="button" data-dpclear>Clear date</button></div>'
+      : '');
+    bindPanel();
+  }
+  function bindPanel(){
+    $$('[data-dpnav]', panel).forEach(function(b){
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        dpView[id] = new Date(dpView[id].getFullYear(), dpView[id].getMonth() + (+b.dataset.dpnav), 1);
+        repaint();
+      });
+    });
+    $$('[data-dpday]', panel).forEach(function(b){
+      b.addEventListener('click', function(){ onPick(parseISODate(b.dataset.dpday)); });
+    });
+    var clr = $('[data-dpclear]', panel);
+    if (clr) clr.addEventListener('click', function(){ onPick(null); });
+  }
+  bindPanel();
+
+  trig.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = panel.hidden;
+    closeDropdowns();
+    if (open){
+      /* Always open on the month the current value is in, not wherever the
+         reader last browsed to and abandoned. */
+      var v = getValue();
+      dpView[id] = v ? new Date(v.getFullYear(), v.getMonth(), 1)
+                     : new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+      repaint();
+    }
+    panel.hidden = !open;
+    trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open){
+      /* Flip above the trigger when a full calendar will not fit below it —
+         the same `is-above` convention Dropdown's own panel uses. Measured
+         after the panel is visible, because a hidden element has no height. */
+      panel.classList.remove('is-above');
+      var box = panel.getBoundingClientRect();
+      if (box.bottom > window.innerHeight - 8 &&
+          trig.getBoundingClientRect().top > box.height + 16){
+        panel.classList.add('is-above');
+      }
+    }
+  });
+  panel.addEventListener('click', function(e){ e.stopPropagation(); });
+}
+
+/* ---------- Tab 3 — Settings ----------
+   Settings are staged, not written straight through. Every control below
+   writes to a draft, and nothing reaches the survey until Save settings is
+   pressed — which is what makes a Save button mean anything. The draft is
+   keyed by form id so switching surveys never carries edits across, and
+   unsaved edits survive a trip to another tab and back rather than being
+   silently dropped. */
+var settingsDraft = null;
+
+function draftFor(f){
+  if (!settingsDraft || settingsDraft.id !== f.id){
+    settingsDraft = {
+      id: f.id,
+      settings: JSON.parse(JSON.stringify(f.settings)),
+      starts: f.starts ? new Date(f.starts) : null,
+      ends: f.ends ? new Date(f.ends) : null,
+      confirmLocked: true
+    };
+  }
+  return settingsDraft;
+}
+function settingsDirty(f){
+  var d = draftFor(f);
+  if (JSON.stringify(d.settings) !== JSON.stringify(f.settings)) return true;
+  return isoDate(d.starts) !== isoDate(f.starts) || isoDate(d.ends) !== isoDate(f.ends);
+}
+
+function saveStateHtml(dirty){
+  return dirty ? '<i class="ph-fill ph-circle" aria-hidden="true"></i>Unsaved changes'
+               : '<i class="ph ph-check-circle" aria-hidden="true"></i>All changes saved';
+}
+/* Update the save bar in place. Typing in the confirmation message cannot
+   re-render the tab — that would take focus out of the textarea on every
+   keystroke — so the one thing on screen that has to react to it is patched
+   directly instead. */
+function refreshSaveBar(f){
+  var bar = $('#tabSettings .set-save');
+  if (!bar) return;
+  var dirty = settingsDirty(f);
+  bar.classList.toggle('is-dirty', dirty);
+  $('.set-save-state', bar).innerHTML = saveStateHtml(dirty);
+  $('#setSave').disabled = !dirty;
+  $('#setDiscard').disabled = !dirty;
+}
+
 function renderSettings(f){
-  var s = f.settings;
+  var d = draftFor(f), s = d.settings;
+  var dirty = settingsDirty(f);
+
   function toggle(key, title, desc){
     return '<div class="set-row"><span class="t"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span>' +
       '<label class="c-choice switch"><input type="checkbox" data-set="' + key + '"' + (s[key] ? ' checked' : '') + ' />' +
       '<span class="c-switch-track' + (s[key] ? ' on' : '') + '"><span class="c-switch-thumb"></span></span>' +
       '<span class="sr-only">' + esc(title) + '</span></label></div>';
   }
+
   $('#tabSettings').innerHTML =
     '<div class="c-card stack"><h2 class="sect">General</h2><div>' +
       toggle('sendCopy',    'Send responders a copy of their response', 'Emails each person a receipt of what they submitted.') +
       toggle('allowEdit',   'Allow response editing',                   'Responders can come back and change their answers after submitting.') +
       toggle('oneResponse', 'Limit to 1 response per user',             'Requires sign-in. A second attempt reopens their first response.') +
     '</div></div>' +
+
     /* Time frame. "No deadline" is a switch rather than an empty date field
        because leaving a date blank is ambiguous — it reads as unfinished, and
        an open-ended survey is a decision, not an omission. */
     '<div class="c-card stack"><h2 class="sect">Time frame</h2>' +
-      '<p class="hint" style="margin:0">When the survey opens and closes. The library counts down to the closing date.</p>' +
+      '<p class="hint">When the survey opens and closes. The library counts down to the closing date.</p>' +
       '<div>' +
         '<div class="set-row"><span class="t"><b>No deadline</b>' +
           '<span>Leave the survey open until someone closes it by hand.</span></span>' +
-          '<label class="c-choice switch"><input type="checkbox" id="setNoEnd"' + (f.ends ? '' : ' checked') + ' />' +
-          '<span class="c-switch-track' + (f.ends ? '' : ' on') + '"><span class="c-switch-thumb"></span></span>' +
+          '<label class="c-choice switch"><input type="checkbox" id="setNoEnd"' + (d.ends ? '' : ' checked') + ' />' +
+          '<span class="c-switch-track' + (d.ends ? '' : ' on') + '"><span class="c-switch-thumb"></span></span>' +
           '<span class="sr-only">No deadline</span></label></div>' +
         '<div class="set-row" style="justify-content:flex-start;gap:var(--spacing-16);flex-wrap:wrap;align-items:flex-start">' +
-          '<div class="c-field" style="width:190px"><label for="setStart">Opens</label>' +
-            '<div class="input-wrap"><input type="date" id="setStart" value="' + isoDate(f.starts) + '" /></div>' +
-            '<span class="c-helper">Leave blank to open immediately.</span></div>' +
-          '<div class="c-field" style="width:190px" id="wrapEnd"><label for="setEnd">Closes</label>' +
-            '<div class="input-wrap"><input type="date" id="setEnd" value="' + isoDate(f.ends) + '"' +
-              (f.ends ? '' : ' disabled') + ' /></div>' +
-            '<span class="c-helper">' + (f.ends ? 'Responses stop at the end of this day.' : 'Off — this survey has no deadline.') + '</span></div>' +
-          '<div class="c-field" style="width:auto"><label>Library shows</label>' +
-            '<span class="tag-row" style="min-height:40px;align-items:center">' + deadlinePill(f) + '</span></div>' +
+          '<div class="c-field" style="width:200px"><label id="lblStart">Opens</label>' +
+            dpHtml('dpStart', d.starts, { placeholder:'Opens immediately', clearable:true }) +
+            '<span class="c-helper">Clear it to open immediately.</span></div>' +
+          '<div class="c-field" style="width:200px" id="wrapEnd"><label id="lblEnd">Closes</label>' +
+            dpHtml('dpEnd', d.ends, { placeholder:'No deadline', min:d.starts, disabled:!d.ends }) +
+            '<span class="c-helper">' + (d.ends ? 'Responses stop at the end of this day.' : 'Off — this survey has no deadline.') + '</span></div>' +
+          '<div class="c-field" style="width:auto"><label>Library will show</label>' +
+            '<span class="tag-row" style="min-height:40px;align-items:center">' +
+              deadlinePill({ ends:d.ends }) + '</span></div>' +
         '</div>' +
       '</div>' +
     '</div>' +
+
     '<div class="c-card stack"><h2 class="sect">Presentation</h2><div>' +
       toggle('progressBar', 'Show progress bar', 'Displays how far through the form the responder is.') +
       '<div class="set-row" style="flex-direction:column;align-items:stretch;gap:var(--spacing-8)">' +
-        '<span class="t"><b>After submission</b><span>The confirmation message shown once the form is submitted.</span></span>' +
-        '<div class="c-field field-wide"><textarea id="setConfirm" rows="2" placeholder="Thanks for your feedback!">' + esc(s.confirm) + '</textarea>' +
-        '<span class="c-helper">Shown on the confirmation screen. Keep it short.</span></div>' +
+        '<div class="row between" style="align-items:flex-start">' +
+          '<span class="t"><b>After submission</b><span>The confirmation message shown once the form is submitted.</span></span>' +
+          /* Locked behind Edit: this is the one free-text setting, it is the
+             last thing a responder sees, and a stray keystroke in an always-
+             open textarea changes it without anyone noticing. */
+          (d.confirmLocked
+            ? '<button class="c-btn c-btn-secondary c-btn-sm" type="button" id="setConfirmEdit"><i class="ph ph-pencil-simple" aria-hidden="true"></i>Edit</button>'
+            : '<button class="c-btn c-btn-primary c-btn-sm" type="button" id="setConfirmSave"><i class="ph ph-check" aria-hidden="true"></i>Save</button>') +
+        '</div>' +
+        '<div class="c-field field-wide"><textarea id="setConfirm" rows="2" placeholder="Thanks for your feedback!"' +
+          (d.confirmLocked ? ' readonly' : '') + '>' + esc(s.confirm) + '</textarea>' +
+        '<span class="c-helper">' + (d.confirmLocked
+          ? 'Locked. Press Edit to change it.'
+          : 'Editing. Press Save to lock it again — it is kept either way until you save the page.') + '</span></div>' +
       '</div>' +
-    '</div></div>' +
+    '</div>' +
+
     (s.progressBar ? '<div class="c-card stack sm"><span class="eyebrow">Preview</span>' +
       '<div class="c-progress-track size-default"><div class="c-progress-fill" style="width:40%"></div></div>' +
-      '<span class="hint">Question 4 of 10</span></div>' : '');
+      '<span class="hint">Question 4 of 10</span></div>' : '') +
 
+    /* One save for the page, pinned to the bottom of the viewport while the
+       page scrolls: a Save that scrolls out of sight is a Save nobody
+       presses. It states whether there is anything to save rather than
+       offering an action that would do nothing. */
+    '<div class="set-save' + (dirty ? ' is-dirty' : '') + '">' +
+      '<span class="set-save-state">' + saveStateHtml(dirty) + '</span>' +
+      '<span class="grow"></span>' +
+      '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="setDiscard"' + (dirty ? '' : ' disabled') + '>Discard</button>' +
+      '<button class="c-btn c-btn-primary c-btn-md" type="button" id="setSave"' + (dirty ? '' : ' disabled') + '>' +
+        '<i class="ph ph-floppy-disk" aria-hidden="true"></i>Save settings</button>' +
+    '</div>';
+
+  /* ---- toggles ---- */
   $$('[data-set]').forEach(function(c){
     c.addEventListener('change', function(){
       s[c.dataset.set] = c.checked;
-      c.nextElementSibling.classList.toggle('on', c.checked);
-      if (c.dataset.set === 'progressBar') renderSettings(f);
+      renderSettings(f);
     });
   });
-  $('#setConfirm').addEventListener('input', function(e){ s.confirm = e.target.value; });
 
+  /* ---- confirmation message ---- */
+  $('#setConfirm').addEventListener('input', function(e){
+    s.confirm = e.target.value;
+    refreshSaveBar(f);
+  });
+  if ($('#setConfirmEdit')){
+    $('#setConfirmEdit').addEventListener('click', function(){
+      d.confirmLocked = false;
+      renderSettings(f);
+      var ta = $('#setConfirm');
+      ta.focus();
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+    });
+  }
+  if ($('#setConfirmSave')){
+    $('#setConfirmSave').addEventListener('click', function(){
+      d.confirmLocked = true;
+      renderSettings(f);
+      toast('Message updated — save the page to publish it');
+    });
+  }
+
+  /* ---- time frame ---- */
   $('#setNoEnd').addEventListener('change', function(e){
     /* Turning the deadline back on needs a date to land on. A filled field
        the person can correct beats an empty one they have to discover — but
        it has to be a future date: counting from an opening date months back
        would set a deadline that has already passed, which reads as the
        switch having closed the survey. */
-    f.ends = e.target.checked ? null
-      : new Date(Math.max((f.starts || NOW).getTime(), NOW.getTime()) + 30 * 86400000);
-    f.updated = new Date(NOW);
-    renderBuilder();
+    d.ends = e.target.checked ? null
+      : new Date(Math.max((d.starts || NOW).getTime(), NOW.getTime()) + 30 * 86400000);
+    renderSettings(f);
   });
-  $('#setStart').addEventListener('change', function(e){
-    f.starts = parseISODate(e.target.value);
+  wireDp('dpStart', function(){ return d.starts; },
+    { placeholder:'Opens immediately', clearable:true }, function(v){
+      d.starts = v;
+      /* An opening date after the closing one is not a time frame either. */
+      if (d.ends && v && d.ends < v) d.ends = new Date(v);
+      renderSettings(f);
+    });
+  wireDp('dpEnd', function(){ return d.ends; },
+    { placeholder:'No deadline', min:d.starts }, function(v){
+      d.ends = v;
+      renderSettings(f);
+    });
+
+  /* ---- page save ---- */
+  $('#setSave').addEventListener('click', function(){
+    f.settings = JSON.parse(JSON.stringify(d.settings));
+    f.starts = d.starts ? new Date(d.starts) : null;
+    f.ends = d.ends ? new Date(d.ends) : null;
     f.updated = new Date(NOW);
+    d.confirmLocked = true;
     renderBuilder();
+    toast('Settings saved', 'success');
   });
-  $('#setEnd').addEventListener('change', function(e){
-    var v = parseISODate(e.target.value);
-    /* A survey that closes before it opens is not a time frame. Say so and
-       keep the previous value rather than storing something impossible. */
-    if (v && f.starts && v < f.starts){
-      $('#wrapEnd').classList.add('c-field-error');
-      $('#wrapEnd .c-helper').textContent = 'The closing date cannot be before the opening date.';
-      e.target.value = isoDate(f.ends);
-      return;
-    }
-    f.ends = v;
-    f.updated = new Date(NOW);
-    renderBuilder();
+  $('#setDiscard').addEventListener('click', function(){
+    settingsDraft = null;
+    renderSettings(f);
+    toast('Changes discarded');
   });
 }
 
@@ -2542,7 +3450,7 @@ var draftShots = [];
 /* Draft state for the fields that survive a re-render of the form (the
    priority and services blocks repaint on every change, so their values
    cannot live in the DOM). */
-var draftBug = { priority:'p3', services:[] };
+var draftBug = { priority:'p3', services:[], otherOn:false, other:'' };
 
 /* Shared view switcher for the two bug list surfaces. Both are the same
    records read by different people, so this is a view switch, not
@@ -2599,26 +3507,43 @@ function prioFieldHtml(){
    the field that routes the ticket and a typo in it is a ticket nobody
    owns. Laid out in columns: ten one-line options in a single stack is a
    scroll, not a choice. */
+function svcBox(on){
+  return '<span class="c-checkbox-box' + (on ? ' on' : '') + '">' +
+    (on ? '<i class="ph ph-check" aria-hidden="true"></i>' : '') + '</span>';
+}
 function svcFieldHtml(){
+  var oth = draftBug.otherOn;
   return '<div class="c-field field-wide" id="wrapSvc">' +
     '<label id="svcLabel">Affected services <span class="required-mark" aria-hidden="true">*</span></label>' +
     '<div class="svc-grid" role="group" aria-labelledby="svcLabel">' +
       SERVICES.map(function(sv, i){
         var on = draftBug.services.indexOf(sv) > -1;
         return '<label class="c-choice"><input type="checkbox" data-svc="' + i + '"' + (on ? ' checked' : '') + ' />' +
-          '<span class="c-checkbox-box' + (on ? ' on' : '') + '">' + (on ? '<i class="ph ph-check" aria-hidden="true"></i>' : '') + '</span>' +
+          svcBox(on) +
           '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(sv) + '</span></span></label>';
       }).join('') +
+      /* Other sits last, on its own line, behind a rule: a fixed list that
+         routes tickets still has to have somewhere for the thing it does not
+         cover to go, and this is the only option here that asks a question
+         back rather than just being ticked. */
+      '<label class="c-choice svc-other"><input type="checkbox" id="svcOther"' + (oth ? ' checked' : '') + ' />' +
+        svcBox(oth) +
+        '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">Other — not in this list</span></span></label>' +
     '</div>' +
     '<span class="c-helper">Pick every part of Collabrium this affects. Choose at least one.</span>' +
+  '</div>' +
+  '<div class="c-field field-wide" id="wrapOther"' + (oth ? '' : ' hidden') + '>' +
+    '<label for="svcOtherText">Which service is affected? <span class="required-mark" aria-hidden="true">*</span></label>' +
+    '<textarea id="svcOtherText" rows="2" placeholder="Name the part of Collabrium this affects, and where you were when it broke.">' +
+      esc(draftBug.other) + '</textarea>' +
+    '<span class="c-helper">It is not in the list above, so describe it — this is what the report gets routed on.</span>' +
   '</div>';
 }
 
 function renderBugNew(){
   $('#routeBugNew').hidden = false;
-  setHeader('Report a bug', 'One report, one problem. The more specific you are, the faster it gets picked up.',
-    '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="toMine"><i class="ph ph-arrow-left"></i>My tickets</button>');
-  $('#toMine').addEventListener('click', function(){ go('bugMine'); });
+  setHeader('Report a bug', 'One report, one problem. The more specific you are, the faster it gets picked up.');
+  setBack('Bug Reports', 'bugMine');
 
   var podField = ME.pods.length > 1
     ? '<div class="c-field field-wide c-dropdown-field"><label for="bugPod">Collabrium Pod</label>' +
@@ -2660,7 +3585,7 @@ function renderBugNew(){
         '<textarea id="bugDesc" rows="4" placeholder="What happened, and what you expected to happen instead." required></textarea></div>' +
 
       '<div id="prioSlot">' + prioFieldHtml() + '</div>' +
-      '<div id="svcSlot">' + svcFieldHtml() + '</div>' +
+      '<div id="svcSlot" class="stack lg">' + svcFieldHtml() + '</div>' +
 
       '<div class="stack sm">' +
         '<span class="eyebrow">Screenshot</span>' +
@@ -2710,6 +3635,17 @@ function wirePrio(){
   });
 }
 
+/* Repaint only the box that changed, never the grid — repainting the grid on
+   every tick would move focus off the checkbox the person just used, and
+   would tear down the Other textarea while they were typing in it. */
+function paintSvcBox(input){
+  var box = input.nextElementSibling;
+  box.classList.toggle('on', input.checked);
+  box.innerHTML = input.checked ? '<i class="ph ph-check" aria-hidden="true"></i>' : '';
+}
+function svcChosen(){
+  return draftBug.services.length + (draftBug.otherOn && draftBug.other.trim() ? 1 : 0);
+}
 function wireSvc(){
   $$('[data-svc]').forEach(function(c){
     c.addEventListener('change', function(){
@@ -2717,13 +3653,35 @@ function wireSvc(){
       var at = draftBug.services.indexOf(sv);
       if (c.checked && at === -1) draftBug.services.push(sv);
       else if (!c.checked && at > -1) draftBug.services.splice(at, 1);
-      /* Repaint only the box, not the grid — repainting the grid on every
-         tick would move focus off the checkbox the person just used. */
-      var box = c.nextElementSibling;
-      box.classList.toggle('on', c.checked);
-      box.innerHTML = c.checked ? '<i class="ph ph-check" aria-hidden="true"></i>' : '';
-      if (draftBug.services.length) $('#wrapSvc').classList.remove('c-field-error');
+      paintSvcBox(c);
+      if (svcChosen()) $('#wrapSvc').classList.remove('c-field-error');
     });
+  });
+
+  var other = $('#svcOther');
+  other.addEventListener('change', function(){
+    draftBug.otherOn = other.checked;
+    paintSvcBox(other);
+    /* Show or hide the description rather than re-rendering the field, so
+       the box the person is about to type into can take focus straight
+       away. Unticking clears what was typed: a hidden required field
+       holding text nobody can see is how a form blocks on nothing. */
+    $('#wrapOther').hidden = !other.checked;
+    if (other.checked){
+      $('#svcOtherText').focus();
+    } else {
+      draftBug.other = '';
+      $('#svcOtherText').value = '';
+      $('#wrapOther').classList.remove('c-field-error');
+    }
+    if (svcChosen()) $('#wrapSvc').classList.remove('c-field-error');
+  });
+  $('#svcOtherText').addEventListener('input', function(e){
+    draftBug.other = e.target.value;
+    if (e.target.value.trim()){
+      $('#wrapOther').classList.remove('c-field-error');
+      $('#wrapSvc').classList.remove('c-field-error');
+    }
   });
 }
 
@@ -2799,7 +3757,12 @@ function submitBug(){
   /* Affected services is required for the same reason it is a fixed list
      rather than free text: it is what routes the report. A ticket with no
      service on it is a ticket with no owner. */
-  if (!draftBug.services.length) fail('#wrapSvc', 'Choose at least one affected service.');
+  if (!svcChosen()) fail('#wrapSvc', 'Choose at least one affected service.');
+  /* Other ticked and nothing written is worse than Other not ticked: it
+     claims a service the report never names. */
+  if (draftBug.otherOn && !draftBug.other.trim()){
+    fail('#wrapOther', 'Describe the service, or untick Other.');
+  }
 
   if (!ok){
     var focusTarget = firstBad === $('#wrapSvc') ? $('[data-svc]') : $('input, textarea', firstBad);
@@ -2810,13 +3773,17 @@ function submitBug(){
 
   BUGS.unshift({ id:'b' + (BUGS.length + 1), at:new Date(NOW), who:ME.name,
     pod:($('#bugPod') ? $('#bugPod').value : ME.pods[0]), status:'new',
-    priority:draftBug.priority, services:draftBug.services.slice(),
+    priority:draftBug.priority,
+    /* The described service joins the list as a service, prefixed so the
+       team can see it came from Other rather than the fixed set. */
+    services:draftBug.services.concat(
+      draftBug.otherOn && draftBug.other.trim() ? ['Other — ' + draftBug.other.trim()] : []),
     assignee:null, resolution:'',
     title:t.value.trim(), desc:d.value.trim(), extra:$('#bugExtra').value.trim(),
     shots:draftShots.map(function(s){ return s.url; }),
     comments:[] });
   draftShots = [];
-  draftBug = { priority:'p3', services:[] };
+  draftBug = { priority:'p3', services:[], otherOn:false, other:'' };
   /* Land on the reporter's own list, where the ticket they just filed is
      the top row — not on the admin table, which is not their view. */
   go('bugMine');
@@ -2842,34 +3809,43 @@ function renderBugMine(){
   var waiting = mine.filter(function(b){ return threadState(b) === 'awaiting'; }).length;
   setHeader('Bug Reports', 'Track what you have reported and answer questions from the tech team.',
     '<button class="c-btn c-btn-primary c-btn-md" type="button" id="reportBug"><i class="ph ph-plus"></i>Report a bug</button>');
+  setBack('Feedback', 'landing');
   $('#reportBug').addEventListener('click', function(){ go('bugNew'); });
 
   $('#routeBugMine').innerHTML =
     bugSegHtml('<span class="hint">' + mine.length + (mine.length === 1 ? ' ticket' : ' tickets') +
       (waiting ? ' · ' + waiting + ' waiting on you' : '') + '</span>') +
+    /* A real Table rather than a list of rows: the three trailing values are
+       columns of the same kind read down the page, and columns of the same
+       kind need headers saying what they are. Same component and the same
+       clickable-row behaviour as All reports, so the two views of one record
+       set read the same way. */
     (mine.length
-      ? '<div class="lib">' + mine.map(function(b){
+      ? '<div class="c-table-standalone-wrap c-table-scroll-x">' +
+        '<table class="c-table c-table-standalone"><thead><tr>' +
+          '<th>Ticket</th><th>Response</th><th>Priority</th><th>Status</th>' +
+        '</tr></thead><tbody>' +
+        mine.map(function(b){
           var t = threadState(b);
           var n = (b.comments || []).length;
-          return '<button class="mine-row' + (t === 'awaiting' ? ' needs-reply' : '') + '" type="button" data-mine="' + b.id + '">' +
-            '<span class="grow stack sm">' +
+          return '<tr class="is-interactive is-clickable' + (t === 'awaiting' ? ' needs-reply' : '') +
+              '" data-mine="' + b.id + '" tabindex="0">' +
+            '<td><span class="td-stack" style="gap:2px">' +
               '<span class="mine-title">' + esc(b.title) + '</span>' +
               '<span class="mine-meta">' +
                 '<span>' + esc(b.pod) + '</span><span aria-hidden="true">·</span>' +
                 '<span>Reported ' + fmtDate(b.at) + '</span>' +
-                (b.assignee ? '<span aria-hidden="true">·</span><span>' + esc(b.assignee) + '</span>'
-                            : '<span aria-hidden="true">·</span><span>Not assigned yet</span>') +
+                '<span aria-hidden="true">·</span>' +
+                '<span>' + (b.assignee ? esc(b.assignee) : 'Not assigned yet') + '</span>' +
                 (n ? '<span aria-hidden="true">·</span><span><i class="ph ph-chat-circle" aria-hidden="true"></i> ' + n + '</span>' : '') +
               '</span>' +
-            '</span>' +
-            '<span class="mine-side">' +
-              threadBadge(b, 'user') +
-              prioPill(b.priority, true) +
-              '<span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span>' +
-              '<i class="ph ph-caret-right" aria-hidden="true" style="color:var(--color-neutral-4)"></i>' +
-            '</span>' +
-          '</button>';
-        }).join('') + '</div>'
+            '</span></td>' +
+            '<td>' + (threadBadge(b, 'user') || '<span class="muted">—</span>') + '</td>' +
+            '<td>' + prioPill(b.priority, true) + '</td>' +
+            '<td><span class="c-badge ' + BUG_STATUS[b.status].badge + '">' + BUG_STATUS[b.status].label + '</span></td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table></div>'
       : '<div class="c-empty is-section">' +
           '<i class="ph ph-bug" aria-hidden="true"></i><h4>You have not reported anything yet</h4>' +
           '<p>When something breaks, send it here with a screenshot and the tech team picks it up from this same record.</p>' +
@@ -2881,9 +3857,11 @@ function renderBugMine(){
   if ($('#emptyNewBug')) $('#emptyNewBug').addEventListener('click', function(){ go('bugNew'); });
 
   var ids = mine.map(function(b){ return b.id; });
-  $$('[data-mine]').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      openRecord(ids, ids.indexOf(btn.dataset.mine), 'user');
+  $$('[data-mine]').forEach(function(tr){
+    function open(){ openRecord(ids, ids.indexOf(tr.dataset.mine), 'user'); }
+    tr.addEventListener('click', open);
+    tr.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); }
     });
   });
 }
@@ -2895,6 +3873,7 @@ function renderBugAdmin(){
   $('#routeBugAdmin').hidden = false;
   setHeader('Bug Reports', 'Every report submitted across the pods.',
     '<button class="c-btn c-btn-primary c-btn-md" type="button" id="reportBug"><i class="ph ph-plus"></i>Report a bug</button>');
+  setBack('Feedback', 'landing');
   $('#reportBug').addEventListener('click', function(){ go('bugNew'); });
 
   var pods = ['all'].concat(PODS.filter(function(p){
@@ -2935,10 +3914,7 @@ function renderBugAdmin(){
       '</div>' +
     '</div>' +
     '<div class="c-table-standalone-wrap c-table-scroll-x"><table class="c-table c-table-standalone"><thead><tr>' +
-      '<th><button class="c-btn c-btn-ghost c-btn-sm" type="button" id="sortDate" style="margin:calc(-1 * var(--spacing-8)) 0">' +
-        'Submitted <i class="ph ph-caret-' + (state.bugSort === 'desc' ? 'down' : 'up') + '"></i></button></th>' +
-      '<th>Reported by</th><th>Priority</th><th>Title</th><th>Assigned to</th>' +
-      '<th>Status</th><th>Comments</th>' +
+      BUG_COLS.map(bugSortTh).join('') +
     '</tr></thead><tbody id="bugRows"></tbody></table></div>';
 
   wireBugSeg($('#routeBugAdmin'), 'admin');
@@ -2946,8 +3922,22 @@ function renderBugAdmin(){
   $$('[data-bs]').forEach(function(c){
     c.addEventListener('click', function(){ state.bugStatus = c.dataset.bs; renderBugAdmin(); });
   });
-  $('#sortDate').addEventListener('click', function(){
-    state.bugSort = state.bugSort === 'desc' ? 'asc' : 'desc'; renderBugAdmin();
+  /* Unsorted -> ascending -> descending -> unsorted, and picking a new
+     column clears the old one. Enter and Space do what the click does. */
+  $$('[data-bugcol]', $('#routeBugAdmin')).forEach(function(th){
+    function cycle(){
+      var k = th.dataset.bugcol;
+      if (state.bugSortCol !== k){ state.bugSortCol = k; state.bugSortDir = 1; }
+      else if (state.bugSortDir === 1){ state.bugSortDir = -1; }
+      else { state.bugSortCol = null; }
+      renderBugAdmin();
+      var back = $('[data-bugcol="' + k + '"]', $('#routeBugAdmin'));
+      if (back) back.focus();
+    }
+    th.addEventListener('click', cycle);
+    th.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cycle(); }
+    });
   });
 
   /* Pod filter — Dropdown's Single select, wired for real. */
@@ -2983,17 +3973,60 @@ function bugChip(k){
     ' <span class="count">' + n + '</span></button>';
 }
 
+/* Sorting — Table's own documented behaviour: every eligible column sortable,
+   one active sort at a time, cycling unsorted -> ascending -> descending.
+   The old Submitted control was a ghost button in the header cell, which is
+   a second recipe for something the component already specifies.
+   Each column declares what it sorts on rather than sorting the rendered
+   cell: Priority reads P1..P4 as 1..4, so ascending is most urgent first,
+   and Status reads the handover before the workflow state, because that is
+   what the cell actually shows. */
+var BUG_COLS = [
+  { key:'date',     label:'Submitted',   num:true,  val:function(b){ return b.at.getTime(); } },
+  { key:'who',      label:'Reported by', num:false, val:function(b){ return b.who; } },
+  { key:'pod',      label:'Pod',         num:false, val:function(b){ return b.pod; } },
+  { key:'priority', label:'Priority',    num:true,  val:function(b){ return PRIO_ORDER.indexOf(b.priority); } },
+  { key:'title',    label:'Title',       num:false, val:function(b){ return b.title; } },
+  { key:'assignee', label:'Assigned to', num:false, val:function(b){ return b.assignee || '\uffff'; } },
+  { key:'status',   label:'Status',      num:true,  val:function(b){
+      var t = threadState(b);
+      if (t === 'awaiting') return 0;
+      if (t === 'replied')  return 1;
+      return { 'new':2, 'progress':3, 'resolved':4 }[b.status];
+    } },
+  { key:'comments', label:'Comments',    num:true,  val:function(b){ return (b.comments || []).length; } }
+];
+function bugCol(key){
+  return BUG_COLS.filter(function(c){ return c.key === key; })[0];
+}
+function bugSortTh(c){
+  var on = state.bugSortCol === c.key;
+  var icon = !on ? 'ph-arrows-down-up' : (state.bugSortDir === 1 ? 'ph-arrow-up' : 'ph-arrow-down');
+  return '<th class="c-table-sort-th' + (on ? ' is-sorted' : '') + '" data-bugcol="' + c.key + '"' +
+    ' tabindex="0" role="columnheader" aria-sort="' +
+    (on ? (state.bugSortDir === 1 ? 'ascending' : 'descending') : 'none') + '">' +
+    esc(c.label) + '<i class="ph ' + icon + ' c-table-sort-icon" aria-hidden="true"></i></th>';
+}
+
 function filteredBugs(){
-  return BUGS.filter(function(b){
+  var list = BUGS.filter(function(b){
     return matchesBugChip(b, state.bugStatus)
         && (state.bugPod === 'all' || b.pod === state.bugPod);
-  }).sort(function(a, b){ return state.bugSort === 'desc' ? b.at - a.at : a.at - b.at; });
+  });
+  var c = bugCol(state.bugSortCol);
+  if (!c) return list;                       /* unsorted — the order they were filed in */
+  var dir = state.bugSortDir;
+  return list.sort(function(x, y){
+    var a = c.val(x), b = c.val(y);
+    if (c.num) return (a - b) * dir;
+    return String(a).localeCompare(String(b)) * dir;
+  });
 }
 
 function paintBugRows(){
   var rows = filteredBugs(), tb = $('#bugRows');
   if (!rows.length){
-    tb.innerHTML = '<tr><td colspan="7"><div class="c-empty is-inline" style="align-items:center;text-align:center;max-width:none">' +
+    tb.innerHTML = '<tr><td colspan="8"><div class="c-empty is-inline" style="align-items:center;text-align:center;max-width:none">' +
       '<i class="ph ph-bug" aria-hidden="true"></i><h4>No reports match</h4>' +
       '<p>Try a different status or pod.</p></div></td></tr>';
     return;
@@ -3003,29 +4036,19 @@ function paintBugRows(){
     var t = threadState(b);
     return '<tr class="is-interactive is-clickable" data-bug="' + b.id + '" tabindex="0">' +
       '<td style="white-space:nowrap">' + fmtDateTime(b.at) + '</td>' +
-      /* Pod sits under the name rather than in a column of its own: it is an
-         attribute of the person who filed the report, there is already a Pod
-         filter above the table, and nine columns pushed Status and Comments
-         — the two things this table is read for — off the right edge. */
-      '<td><span class="row tight" style="flex-wrap:nowrap">' +
-        '<span class="avatar sm">' + esc(initials(b.who)) + '</span>' +
-        '<span class="td-stack" style="gap:0">' +
-          '<span style="white-space:nowrap;font-weight:700">' + esc(b.who) + '</span>' +
-          '<span class="hint">' + esc(b.pod) + '</span>' +
-        '</span></span></td>' +
+      /* Name and pod are two columns, and neither carries an avatar. A
+         32px disc per row is 11 discs down the page saying nothing the name
+         does not already say, and it cost the width that the pod column
+         now uses. Both columns sort. */
+      '<td style="white-space:nowrap;font-weight:700">' + esc(b.who) + '</td>' +
+      '<td style="white-space:nowrap">' + esc(b.pod) + '</td>' +
       '<td>' + prioPill(b.priority, true) + '</td>' +
-      /* Attachments likewise: a 52x36 thumbnail column was unreadable as a
-         picture and cost more width than a count. The count still opens the
-         first screenshot, and the record modal shows them all properly. */
-      '<td>' + esc(b.title) +
-        (b.shots.length
-          ? ' <button class="shot-count" type="button" data-shot="' + esc(b.shots[0]) + '"' +
-            ' aria-label="' + b.shots.length + ' screenshot' + (b.shots.length === 1 ? '' : 's') + ' — open the first">' +
-            '<i class="ph ph-paperclip" aria-hidden="true"></i>' + b.shots.length + '</button>'
-          : '') + '</td>' +
+      /* Title only. Attachments are a detail of the report, not something
+         triage sorts or scans on, and the record modal shows them all
+         properly the moment the row is opened. */
+      '<td>' + esc(b.title) + '</td>' +
       '<td style="white-space:nowrap">' + (b.assignee
-        ? '<span class="row tight" style="flex-wrap:nowrap"><span class="avatar sm">' + esc(initials(b.assignee)) +
-          '</span><span>' + esc(b.assignee) + '</span></span>'
+        ? esc(b.assignee)
         : '<span class="muted">Unassigned</span>') + '</td>' +
       /* Whose turn it is *is* the status here, not a note attached to one —
          a waiting ticket reads as one badge, the same as every other row.
@@ -3041,18 +4064,652 @@ function paintBugRows(){
 
   $$('#bugRows tr[data-bug]').forEach(function(tr){
     function open(){ openRecord(ids, ids.indexOf(tr.dataset.bug), 'admin'); }
-    tr.addEventListener('click', function(e){
-      if (e.target.closest('[data-shot]')) return;
-      open();
-    });
+    tr.addEventListener('click', open);
     tr.addEventListener('keydown', function(e){
       if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); }
     });
   });
-  $$('#bugRows [data-shot]').forEach(function(b){
-    b.addEventListener('click', function(e){ e.stopPropagation(); openLightbox(b.dataset.shot); });
+}
+
+/* ==========================================================================
+   Share modal — Add users
+   Built entirely out of components: Modal for the dialog, Dropdown's
+   Multiple select for the people picker, Dropdown's Single select for every
+   role and access control, and Banner for the publish notice. The only new
+   things are the layer it mounts in and the access-row layout.
+   ========================================================================== */
+var ROLES = { editor:'Editor', responder:'Responder' };
+var EDITOR_ACCESS = {
+  restricted:{ label:'Restricted', desc:'Only the people listed above can open the builder' },
+  link:      { label:'Anyone with the link', desc:'Anyone inside Collabrium with the link can edit' }
+};
+var RESPONDER_ACCESS = {
+  link:  { label:'Anyone with the link', desc:'Anyone with the link can answer the survey' },
+  none:  { label:'Remove link', desc:'The share link stops working; only invited responders can answer' }
+};
+
+/* Who a survey can be shared with, and who it is already shared with. Seeded
+   per form on first open so the modal has real content to show. */
+function shareStateFor(f){
+  if (!f.share){
+    f.share = {
+      people: [
+        { name:ME.name, role:'owner' },
+        { name:'Nurul Kamal', role:'editor' },
+        { name:'Priya Nair',  role:'responder' }
+      ],
+      editorAccess: 'restricted',
+      responderAccess: 'link',
+      picked: [],
+      pickRole: 'responder'
+    };
+  }
+  return f.share;
+}
+function shareCandidates(f){
+  var have = shareStateFor(f).people.map(function(p){ return p.name; });
+  return PEOPLE.concat(TECH).filter(function(n){ return have.indexOf(n) === -1; })
+               .sort(function(a, b){ return a.localeCompare(b); });
+}
+
+function openShare(f){
+  var layer = $('#shareLayer');
+  shareLastFocus = document.activeElement;
+  layer.hidden = false;
+  paintShare(f);
+  void layer.offsetWidth;
+  layer.classList.add('is-open');
+  var c = $('#shareClose');
+  if (c) c.focus();
+}
+var shareLastFocus = null;
+function closeShare(){
+  var layer = $('#shareLayer');
+  layer.classList.remove('is-open');
+  setTimeout(function(){ layer.hidden = true; $('#share').innerHTML = ''; }, 240);
+  if (shareLastFocus && shareLastFocus.focus) shareLastFocus.focus();
+}
+function shareOpen(){ return !$('#shareLayer').hidden; }
+
+/* Single select, in the shape this modal needs: a labelled trigger over a
+   floating panel of plain rows. No descriptions in the panel — the row the
+   reader lands on already has its description on the page, under "Editor
+   view" / "Responder view", and it updates with the selection. Printing the
+   same sentence twice makes the picker a wall of text to scan through for
+   two options. */
+function accessSelect(id, map, current, label){
+  return '<div class="c-field c-dropdown-field dd-float align-right" style="width:230px">' +
+    '<div class="input-wrap has-trailing-icon">' +
+      '<input type="text" class="c-dropdown-input" id="' + id + '" readonly value="' + esc(map[current].label) + '"' +
+        ' aria-label="' + esc(label) + '" aria-haspopup="listbox" aria-expanded="false" />' +
+      '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+    '</div>' +
+    '<div class="c-dropdown-panel" data-panelfor="' + id + '" hidden><div class="c-dropdown-list">' +
+      Object.keys(map).map(function(k){
+        return '<div class="c-dropdown-row' + (current === k ? ' selected' : '') + '" role="option" data-' + id + '="' + k + '">' +
+          '<span class="c-dropdown-row-label">' + esc(map[k].label) + '</span>' +
+          '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+      }).join('') +
+    '</div></div>' +
+  '</div>';
+}
+
+function paintShare(f){
+  var sh = shareStateFor(f);
+  var cands = shareCandidates(f);
+  var allPicked = cands.length > 0 && sh.picked.length >= cands.length;
+  /* Owner first, then everyone else in the order they were added — the
+     person who owns the survey is the one fact in this list that cannot be
+     changed here, so it is stated once, at the top. */
+  var people = sh.people.slice().sort(function(a, b){
+    return (a.role === 'owner' ? 0 : 1) - (b.role === 'owner' ? 0 : 1);
+  });
+
+  $('#share').innerHTML =
+    '<div class="c-modal-head">' +
+      '<h4 id="shareTitle">Share &ldquo;' + esc(f.title) + '&rdquo;</h4>' +
+      '<button class="c-icon-btn" type="button" id="shareClose" aria-label="Close"><i class="ph ph-x" aria-hidden="true"></i></button>' +
+    '</div>' +
+
+    '<div class="c-modal-body">' +
+      /* Add row: who, then as what. Multiple select for the people because
+         inviting one person at a time is the common case done badly. */
+      '<div class="share-add">' +
+        '<div class="c-field c-dropdown-multi-field dd-float grow" style="width:auto">' +
+          '<div class="input-wrap has-trailing-icon">' +
+            '<input type="text" class="c-dropdown-multi-input" id="shareWho" readonly' +
+              ' placeholder="Add people" value="' +
+              (sh.picked.length ? sh.picked.length + ' selected' : '') + '"' +
+              ' aria-label="Add people" aria-haspopup="listbox" aria-expanded="false" />' +
+            '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-multi-chevron"></i></span>' +
+          '</div>' +
+          '<div class="c-dropdown-multi-panel" id="shareWhoPanel" hidden>' +
+            '<div class="c-dropdown-multi-list">' +
+              (cands.length
+                /* Select All — Multiple select's own documented behaviour,
+                   pinned above the list behind a divider. Opening a survey
+                   to the whole platform is one tick, not one per person, and
+                   it is a real checkbox so it can sit at Indeterminate while
+                   the list is partly ticked. */
+                ? '<label class="c-dropdown-option select-all">' +
+                    '<input type="checkbox" id="sharePickAll"' + (allPicked ? ' checked' : '') + ' />' +
+                    '<span class="c-checkbox-box' + (sh.picked.length ? ' on' : '') + '">' +
+                      (allPicked ? '<i class="ph ph-check" aria-hidden="true"></i>'
+                        : sh.picked.length ? '<i class="ph ph-minus" aria-hidden="true"></i>' : '') + '</span>' +
+                    '<span class="c-dropdown-option-label">Select All</span>' +
+                    '<span class="c-dropdown-option-desc">' + cands.length + ' people</span>' +
+                  '</label>' +
+                  '<div class="c-dropdown-multi-divider"></div>' +
+                  cands.map(function(n){
+                    var on = sh.picked.indexOf(n) > -1;
+                    return '<label class="c-dropdown-option"><input type="checkbox" data-sharepick="' + esc(n) + '"' + (on ? ' checked' : '') + ' />' +
+                      '<span class="c-checkbox-box' + (on ? ' on' : '') + '">' + (on ? '<i class="ph ph-check" aria-hidden="true"></i>' : '') + '</span>' +
+                      '<i class="c-dropdown-option-media is-avatar" aria-hidden="true">' + esc(initials(n)) + '</i>' +
+                      '<span class="c-dropdown-option-label">' + esc(n) + '</span></label>';
+                  }).join('')
+                : '<div class="c-dropdown-empty"><i class="ph ph-users" aria-hidden="true"></i>' +
+                  '<span>Everyone already has access.</span></div>') +
+            '</div>' +
+            '<div class="c-dropdown-multi-footer">' +
+              '<button type="button" class="clear" data-shareclear>Clear</button>' +
+              '<button type="button" class="done" data-sharedone>Done</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="c-field c-dropdown-field dd-float align-right" style="width:150px">' +
+          '<div class="input-wrap has-trailing-icon">' +
+            '<input type="text" class="c-dropdown-input" id="shareRole" readonly value="' + ROLES[sh.pickRole] + '"' +
+              ' aria-label="Role for the people being added" aria-haspopup="listbox" aria-expanded="false" />' +
+            '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+          '</div>' +
+          '<div class="c-dropdown-panel" data-panelfor="shareRole" hidden><div class="c-dropdown-list">' +
+            Object.keys(ROLES).map(function(k){
+              return '<div class="c-dropdown-row' + (sh.pickRole === k ? ' selected' : '') + '" role="option" data-pickrole="' + k + '">' +
+                '<span class="c-dropdown-row-label">' + ROLES[k] + '</span>' +
+                '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+            }).join('') +
+          '</div></div>' +
+        '</div>' +
+        '<button class="c-btn c-btn-primary c-btn-md" type="button" id="shareInvite"' +
+          (sh.picked.length ? '' : ' disabled') + '>Invite</button>' +
+      '</div>' +
+
+      '<div class="stack sm">' +
+        '<span class="eyebrow">People with access</span>' +
+        '<div class="share-people">' +
+          people.map(function(p){
+            return '<div class="share-person">' +
+              '<span class="avatar">' + esc(initials(p.name)) + '</span>' +
+              '<span class="td-stack" style="gap:0;flex:1 1 auto;min-width:0">' +
+                '<b>' + esc(p.name) + (p.name === ME.name ? ' <span class="hint">(you)</span>' : '') + '</b>' +
+                (p.role === 'owner' ? '<span class="hint">Owner &middot; created this survey</span>' : '') +
+              '</span>' +
+              (p.role === 'owner'
+                ? '<span class="c-badge c-badge-neutral">Owner</span>'
+                : '<div class="c-field c-dropdown-field dd-float align-right" style="width:150px">' +
+                    '<div class="input-wrap has-trailing-icon">' +
+                      '<input type="text" class="c-dropdown-input" id="role-' + esc(slug(p.name)) + '" readonly value="' + ROLES[p.role] + '"' +
+                        ' aria-label="Role for ' + esc(p.name) + '" aria-haspopup="listbox" aria-expanded="false" />' +
+                      '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+                    '</div>' +
+                    '<div class="c-dropdown-panel" data-panelfor="role-' + esc(slug(p.name)) + '" hidden><div class="c-dropdown-list">' +
+                      Object.keys(ROLES).map(function(k){
+                        return '<div class="c-dropdown-row' + (p.role === k ? ' selected' : '') + '" role="option"' +
+                          ' data-setrole="' + k + '" data-person="' + esc(p.name) + '">' +
+                          '<span class="c-dropdown-row-label">' + ROLES[k] + '</span>' +
+                          '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+                      }).join('') +
+                      '<div class="c-dropdown-row" role="option" data-removeperson="' + esc(p.name) + '">' +
+                        '<span class="c-dropdown-row-label" style="color:var(--color-red)">Remove access</span></div>' +
+                    '</div></div>' +
+                  '</div>') +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="stack sm">' +
+        '<span class="eyebrow">General access</span>' +
+        '<div class="share-access">' +
+          '<div class="share-access-row">' +
+            '<span class="share-access-icon" aria-hidden="true"><i class="ph-fill ph-pencil-simple-line"></i></span>' +
+            '<span class="td-stack" style="gap:0;flex:1 1 auto;min-width:0">' +
+              '<b>Editor view</b>' +
+              '<span class="hint">' + esc(EDITOR_ACCESS[sh.editorAccess].desc) + '</span></span>' +
+            accessSelect('editorAccess', EDITOR_ACCESS, sh.editorAccess, 'Editor view access') +
+          '</div>' +
+          '<div class="share-access-row">' +
+            '<span class="share-access-icon" aria-hidden="true"><i class="ph-fill ph-chat-teardrop-text"></i></span>' +
+            '<span class="td-stack" style="gap:0;flex:1 1 auto;min-width:0">' +
+              '<b>Responder view</b>' +
+              '<span class="hint">' + esc(RESPONDER_ACCESS[sh.responderAccess].desc) + '</span></span>' +
+            accessSelect('responderAccess', RESPONDER_ACCESS, sh.responderAccess, 'Responder view access') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      /* The one thing every access setting here depends on. Shown only while
+         it is true — a banner that is always there stops being read. */
+      (f.status === 'active'
+        ? ''
+        : '<div class="c-banner c-banner-info" role="status">' +
+            '<i class="ph-fill ph-info icon" aria-hidden="true"></i>' +
+            '<div class="body"><p class="message">Publish the form to accept responses. Until then these links open for editors only.</p></div>' +
+          '</div>') +
+    '</div>' +
+
+    '<div class="c-modal-foot">' +
+      '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="shareCopy"><i class="ph ph-link" aria-hidden="true"></i>Copy link</button>' +
+      '<button class="c-btn c-btn-primary c-btn-md" type="button" id="shareDone">Done</button>' +
+    '</div>';
+
+  wireShare(f, sh);
+}
+
+function wireShare(f, sh){
+  var root = $('#share');
+  $('#shareClose').addEventListener('click', closeShare);
+  $('#shareDone').addEventListener('click', closeShare);
+  $('#shareCopy').addEventListener('click', function(){
+    toast(sh.responderAccess === 'none'
+      ? 'Link copied — but the responder link is currently switched off'
+      : 'Shareable link copied to clipboard', 'success');
+  });
+
+  /* Every single-select in the modal opens the same way; which value it
+     writes is decided by the row's own attribute. */
+  $$('.c-dropdown-input, .c-dropdown-multi-input', root).forEach(function(trig){
+    var panel = trig.id === 'shareWho' ? $('#shareWhoPanel') : $('[data-panelfor="' + trig.id + '"]', root);
+    if (!panel) return;
+    var field = trig.closest('.c-dropdown-field, .c-dropdown-multi-field');
+    trig.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = panel.hidden;
+      closeDropdowns(root);
+      panel.hidden = !open;
+      field.classList.toggle('open', open);
+      trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    panel.addEventListener('click', function(e){ e.stopPropagation(); });
+  });
+
+  /* People picker — repaint only the row that changed, so the panel stays
+     open and in place while several people are ticked in a row. */
+  var cands = shareCandidates(f);
+  function paintPickBox(box, on, glyph){
+    box.classList.toggle('on', on);
+    box.innerHTML = on ? '<i class="ph ' + glyph + '" aria-hidden="true"></i>' : '';
+  }
+  function refreshPickAll(){
+    var all = $('#sharePickAll', root);
+    if (!all) return;
+    var every = cands.length > 0 && sh.picked.length >= cands.length;
+    all.checked = every;
+    paintPickBox(all.nextElementSibling, sh.picked.length > 0, every ? 'ph-check' : 'ph-minus');
+  }
+  $$('[data-sharepick]', root).forEach(function(c){
+    c.addEventListener('change', function(){
+      var n = c.dataset.sharepick, at = sh.picked.indexOf(n);
+      if (c.checked && at === -1) sh.picked.push(n);
+      else if (!c.checked && at > -1) sh.picked.splice(at, 1);
+      paintPickBox(c.nextElementSibling, c.checked, 'ph-check');
+      refreshPickAll();
+      $('#shareWho').value = sh.picked.length ? sh.picked.length + ' selected' : '';
+      $('#shareInvite').disabled = !sh.picked.length;
+    });
+  });
+  /* Select All writes every candidate at once, then repaints the rows the
+     same way — in place, so the panel does not shut under the pointer. */
+  if ($('#sharePickAll', root)){
+    $('#sharePickAll', root).addEventListener('change', function(){
+      var on = this.checked;
+      sh.picked = on ? cands.slice() : [];
+      $$('[data-sharepick]', root).forEach(function(c){
+        c.checked = on;
+        paintPickBox(c.nextElementSibling, on, 'ph-check');
+      });
+      refreshPickAll();
+      $('#shareWho').value = sh.picked.length ? sh.picked.length + ' selected' : '';
+      $('#shareInvite').disabled = !sh.picked.length;
+    });
+  }
+  if ($('[data-shareclear]')){
+    $('[data-shareclear]').addEventListener('click', function(){ sh.picked = []; paintShare(f); });
+    $('[data-sharedone]').addEventListener('click', function(){
+      $('#shareWhoPanel').hidden = true;
+      $('#shareWho').closest('.c-dropdown-multi-field').classList.remove('open');
+    });
+  }
+  $$('[data-pickrole]', root).forEach(function(r){
+    r.addEventListener('click', function(){ sh.pickRole = r.dataset.pickrole; paintShare(f); });
+  });
+  $('#shareInvite').addEventListener('click', function(){
+    var n = sh.picked.length;
+    sh.picked.forEach(function(name){ sh.people.push({ name:name, role:sh.pickRole }); });
+    sh.picked = [];
+    paintShare(f);
+    toast(n + (n === 1 ? ' person' : ' people') + ' added as ' +
+      ROLES[sh.pickRole].toLowerCase() + (n === 1 ? '' : 's'), 'success');
+  });
+
+  /* Per-person role, and removal */
+  $$('[data-setrole]', root).forEach(function(r){
+    r.addEventListener('click', function(){
+      var p = sh.people.filter(function(x){ return x.name === r.dataset.person; })[0];
+      if (p) p.role = r.dataset.setrole;
+      paintShare(f);
+    });
+  });
+  $$('[data-removeperson]', root).forEach(function(r){
+    r.addEventListener('click', function(){
+      sh.people = sh.people.filter(function(x){ return x.name !== r.dataset.removeperson; });
+      paintShare(f);
+      toast('Access removed');
+    });
+  });
+
+  /* General access */
+  $$('[data-editorAccess]', root).forEach(function(r){
+    r.addEventListener('click', function(){ sh.editorAccess = r.getAttribute('data-editorAccess'); paintShare(f); });
+  });
+  $$('[data-responderAccess]', root).forEach(function(r){
+    r.addEventListener('click', function(){
+      sh.responderAccess = r.getAttribute('data-responderAccess');
+      paintShare(f);
+      if (sh.responderAccess === 'none') toast('Responder link switched off');
+    });
   });
 }
+
+$('#shareLayer').addEventListener('click', function(e){
+  if (e.target === this) closeShare();
+});
+
+/* ==========================================================================
+   Preview modal — the form as a responder sees it
+   The Questions tab renders every block with its controls disabled, which is
+   right for editing and useless for checking: a dead form cannot show a
+   dependent question appearing, a required answer being caught, or the
+   confirmation screen every responder actually ends on. So the preview is
+   the real form — live inputs, live logic, the saved settings applied — with
+   nothing recorded at the end of it.
+   ========================================================================== */
+var prevLastFocus = null;
+var prevAns = {};          /* answers typed into the preview, question id -> value */
+var prevMissing = [];      /* required questions the last submit caught */
+var prevDone = false;      /* showing the confirmation screen */
+
+function previewOpen(){ return !$('#prevLayer').hidden; }
+function resetPreview(){ prevAns = {}; prevMissing = []; prevDone = false; }
+
+function openPreview(f){
+  resetPreview();
+  prevLastFocus = document.activeElement;
+  var layer = $('#prevLayer');
+  layer.hidden = false;
+  paintPreview(f);
+  void layer.offsetWidth;
+  layer.classList.add('is-open');
+  var c = $('#prevClose');
+  if (c) c.focus();
+}
+function closePreview(){
+  var layer = $('#prevLayer');
+  layer.classList.remove('is-open');
+  setTimeout(function(){ layer.hidden = true; $('#prev').innerHTML = ''; }, 240);
+  if (prevLastFocus && prevLastFocus.focus) prevLastFocus.focus();
+}
+
+/* A dependent question does not exist for a responder until the answer it
+   hangs off has been given — the one thing the builder's flat list can
+   never show, because there it is always on screen. */
+function prevVisible(f){
+  return f.questions.filter(function(q){
+    return !q.dependsOn || prevAns[q.dependsOn] === q.dependsValue;
+  });
+}
+function prevAsks(f){
+  return prevVisible(f).filter(function(q){ return q.type !== 'media'; });
+}
+function prevHas(q){
+  var v = prevAns[q.id];
+  if (v == null) return false;
+  return Array.isArray(v) ? v.length > 0 : String(v).trim() !== '';
+}
+
+/* Choice rows reuse Radio and Checkbox verbatim. Both glyphs are class-
+   driven in this system, so the .on state is written here rather than left
+   to :checked — same as every other choice row in the file. */
+function prevChoice(q, label, value, kind){
+  var multi = kind === 'multi';
+  var on = multi ? (prevAns[q.id] || []).indexOf(value) > -1 : prevAns[q.id] === value;
+  return '<label class="c-choice">' +
+    '<input type="' + (multi ? 'checkbox' : 'radio') + '" name="pv-' + q.id + '"' +
+      ' data-pqpick="' + q.id + '" data-pqval="' + esc(value) + '"' + (on ? ' checked' : '') + ' />' +
+    (multi
+      ? '<span class="c-checkbox-box' + (on ? ' on' : '') + '">' +
+          (on ? '<i class="ph ph-check" aria-hidden="true"></i>' : '') + '</span>'
+      : '<span class="c-radio-circle' + (on ? ' on' : '') + '">' +
+          (on ? '<span class="dot"></span>' : '') + '</span>') +
+    '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(label) + '</span></span>' +
+  '</label>';
+}
+
+function prevField(q){
+  var v = prevAns[q.id];
+  if (q.type === 'media')
+    return '<div class="qblock-media"><i class="ph ' + (q.media === 'video' ? 'ph-video' : 'ph-image') +
+      '" aria-hidden="true"></i><span class="hint">' +
+      (q.media === 'video' ? 'Embedded video' : 'Embedded image') + '</span></div>';
+  if (q.type === 'short')
+    return '<div class="c-field field-wide"><div class="input-wrap">' +
+      '<input type="text" data-pqtext="' + q.id + '" value="' + esc(v || '') + '" placeholder="' +
+      esc(q.placeholder || 'Your answer') + '" /></div></div>';
+  if (q.type === 'long')
+    return '<div class="c-field field-wide"><textarea rows="3" data-pqtext="' + q.id + '" placeholder="' +
+      esc(q.placeholder || 'Your answer') + '">' + esc(v || '') + '</textarea></div>';
+  if (q.type === 'yesno')
+    return '<div class="row tight">' + ['Yes','No'].map(function(o){
+      return prevChoice(q, o, o, 'single'); }).join('') + '</div>';
+  if (q.type === 'scale'){
+    var opts = '';
+    for (var n = q.min; n <= q.max; n++){
+      var on = prevAns[q.id] === String(n);
+      opts += '<label class="c-scale-opt"><input type="radio" name="pv-' + q.id + '"' +
+        ' data-pqpick="' + q.id + '" data-pqval="' + n + '"' + (on ? ' checked' : '') + ' />' +
+        '<span>' + n + '</span></label>';
+    }
+    return '<div class="c-scale"><div class="c-scale-track">' + opts + '</div>' +
+      '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
+  }
+  if (q.type === 'single' || q.type === 'multi')
+    return '<div class="stack sm">' + (q.options || []).map(function(o){
+      return prevChoice(q, o, o, q.type); }).join('') + '</div>';
+  return '';
+}
+
+function prevFormHtml(f, asks, done){
+  if (!f.questions.length)
+    return '<div class="c-empty is-section"><i class="ph ph-note-blank" aria-hidden="true"></i>' +
+      '<h4>Nothing to preview yet</h4>' +
+      '<p>Add a question on the Questions tab and it will appear here exactly as a responder sees it.</p></div>';
+
+  var pct = asks.length ? Math.round(done / asks.length * 100) : 0;
+  var anyRequired = f.questions.some(function(q){ return q.required; });
+  var num = 0;
+
+  return (f.settings.progressBar
+      ? '<div class="prev-progress">' +
+          '<div class="c-progress-track size-default"><div class="c-progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<span class="hint">' + done + ' of ' + asks.length + ' answered</span>' +
+        '</div>'
+      : '') +
+    '<div class="c-card prev-head stack sm">' +
+      '<h3 class="prev-title">' + esc(f.title) + '</h3>' +
+      (f.desc ? '<p class="prev-desc">' + esc(f.desc) + '</p>' : '') +
+      (anyRequired ? '<p class="hint"><span class="prev-req">*</span> Required</p>' : '') +
+    '</div>' +
+    prevVisible(f).map(function(q){
+      if (q.type === 'media') return '<div class="c-card prev-q">' + prevField(q) + '</div>';
+      num++;
+      var miss = prevMissing.indexOf(q.id) > -1;
+      return '<div class="c-card prev-q stack sm' + (miss ? ' is-missing' : '') + '" data-pq="' + q.id + '">' +
+        '<span class="prev-q-title">' + num + '. ' + esc(q.title) +
+          (q.required ? '<span class="prev-req" aria-hidden="true">*</span><span class="sr-only"> (required)</span>' : '') + '</span>' +
+        prevField(q) +
+        (miss ? '<span class="prev-miss" role="alert"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i>' +
+          'This question is required</span>' : '') +
+      '</div>';
+    }).join('') +
+    '<div class="row"><button class="c-btn c-btn-primary c-btn-md" type="button" id="prevSubmit">Submit</button></div>';
+}
+
+/* The confirmation screen. It is built out of the settings rather than
+   hard-coded, because three of the four settings on that tab have no other
+   visible effect anywhere — this is the only place anyone can see what
+   "send a copy" or "allow editing" actually does. */
+function prevThanksHtml(f){
+  var s = f.settings;
+  return '<div class="c-card prev-done stack">' +
+    '<i class="ph-fill ph-check-circle prev-done-icon" aria-hidden="true"></i>' +
+    '<h3 class="prev-title">' + esc(f.title) + '</h3>' +
+    '<p class="prev-desc">' + esc(s.confirm || 'Thanks for your feedback!') + '</p>' +
+    (s.sendCopy
+      ? '<p class="hint prev-note"><i class="ph ph-envelope-simple" aria-hidden="true"></i>' +
+        'A copy of your response has been emailed to you.</p>' : '') +
+    (s.allowEdit || !s.oneResponse
+      ? '<div class="row tight">' +
+          (s.allowEdit ? '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="prevEdit">' +
+            '<i class="ph ph-pencil-simple" aria-hidden="true"></i>Edit your response</button>' : '') +
+          (s.oneResponse ? '' : '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="prevAgain">' +
+            'Submit another response</button>') +
+        '</div>'
+      : '') +
+    (s.oneResponse
+      ? '<p class="hint">' + (s.allowEdit
+          ? 'One response per person — coming back to this link reopens your answers.'
+          : 'One response per person — this link will not take another submission from you.') + '</p>'
+      : '') +
+  '</div>';
+}
+
+function paintPreview(f){
+  var asks = prevAsks(f);
+  var done = asks.filter(prevHas).length;
+
+  $('#prev').innerHTML =
+    '<div class="c-modal-head">' +
+      '<span class="grow td-stack" style="gap:var(--spacing-4)">' +
+        '<span class="eyebrow"><i class="ph-fill ph-eye" aria-hidden="true"></i> Responder view</span>' +
+        '<h4 id="prevTitle">Preview</h4>' +
+      '</span>' +
+      statusBadge(f) +
+      '<button class="c-icon-btn" type="button" id="prevClose" aria-label="Close preview">' +
+        '<i class="ph ph-x" aria-hidden="true"></i></button>' +
+    '</div>' +
+
+    '<div class="c-modal-body">' +
+      (prevDone ? prevThanksHtml(f) : prevFormHtml(f, asks, done)) +
+    '</div>' +
+
+    '<div class="c-modal-foot">' +
+      /* Two things worth saying at the foot, and only one of them at a time:
+         that nothing here is recorded, or — the more urgent one — that what
+         is on screen is not what responders would currently get. */
+      /* settingsDirty() would build a draft for whichever form it is asked
+         about, discarding one held for another. Preview can be opened from
+         the library, so it only asks when a draft for this form exists. */
+      '<span class="hint grow">' + (builderDirty(f)
+        ? 'This survey has unsaved changes. The preview shows the saved version.'
+        : 'Preview only — nothing entered here is recorded.') + '</span>' +
+      (prevDone || !f.questions.length ? ''
+        : '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="prevReset">Clear answers</button>') +
+      '<button class="c-btn c-btn-primary c-btn-md" type="button" id="prevCloseBtn">Close preview</button>' +
+    '</div>';
+
+  wirePreview(f);
+}
+
+/* Typing patches the progress bar in place. A repaint on every keystroke
+   would take the caret out of the field — the same reason the Settings save
+   bar is patched rather than re-rendered. */
+function refreshPrevProgress(f){
+  var bar = $('.prev-progress');
+  if (!bar) return;
+  var asks = prevAsks(f), done = asks.filter(prevHas).length;
+  $('.c-progress-fill', bar).style.width = (asks.length ? Math.round(done / asks.length * 100) : 0) + '%';
+  $('.hint', bar).textContent = done + ' of ' + asks.length + ' answered';
+}
+
+function prevSubmit(f){
+  prevMissing = prevAsks(f).filter(function(q){ return q.required && !prevHas(q); })
+                           .map(function(q){ return q.id; });
+  if (prevMissing.length){
+    paintPreview(f);
+    var el = $('[data-pq="' + prevMissing[0] + '"]');
+    if (el) el.scrollIntoView({ block:'center' });
+    toast(prevMissing.length === 1
+      ? '1 required question still needs an answer'
+      : prevMissing.length + ' required questions still need an answer');
+    return;
+  }
+  prevDone = true;
+  paintPreview(f);
+  $('#prev .c-modal-body').scrollTop = 0;
+}
+
+function wirePreview(f){
+  var root = $('#prev');
+  $('#prevClose').addEventListener('click', closePreview);
+  $('#prevCloseBtn').addEventListener('click', closePreview);
+  if ($('#prevReset', root)) $('#prevReset').addEventListener('click', function(){
+    resetPreview(); paintPreview(f); toast('Preview answers cleared');
+  });
+  if ($('#prevSubmit', root)) $('#prevSubmit').addEventListener('click', function(){ prevSubmit(f); });
+  if ($('#prevEdit', root))   $('#prevEdit').addEventListener('click', function(){ prevDone = false; paintPreview(f); });
+  if ($('#prevAgain', root))  $('#prevAgain').addEventListener('click', function(){ resetPreview(); paintPreview(f); });
+
+  $$('[data-pqtext]', root).forEach(function(el){
+    el.addEventListener('input', function(){
+      prevAns[el.dataset.pqtext] = el.value;
+      refreshPrevProgress(f);
+    });
+  });
+
+  /* Picking an answer does repaint: it can reveal or retract a dependent
+     question, and it clears that question's own required flag. Focus is put
+     back on the control that was just used, since the node it was on is
+     gone. */
+  $$('[data-pqpick]', root).forEach(function(el){
+    el.addEventListener('change', function(){
+      var id = el.dataset.pqpick, v = el.dataset.pqval;
+      if (el.type === 'checkbox'){
+        var arr = prevAns[id] || [], at = arr.indexOf(v);
+        if (el.checked && at === -1) arr.push(v);
+        else if (!el.checked && at > -1) arr.splice(at, 1);
+        prevAns[id] = arr;
+      } else {
+        prevAns[id] = v;
+        /* A dependent question whose trigger just moved is no longer being
+           asked. Its answer goes with it — otherwise it reappears filled in
+           if the responder switches back. */
+        f.questions.forEach(function(q){
+          if (q.dependsOn === id && v !== q.dependsValue) delete prevAns[q.id];
+        });
+      }
+      prevMissing = prevMissing.filter(function(x){ return x !== id; });
+      paintPreview(f);
+      var back = $$('[data-pqpick]', $('#prev')).filter(function(n){
+        return n.dataset.pqpick === id && n.dataset.pqval === v;
+      })[0];
+      if (back) back.focus();
+    });
+  });
+}
+
+$('#prevLayer').addEventListener('click', function(e){
+  if (e.target === this) closePreview();
+});
 
 /* ==========================================================================
    Record modal — one bug report, either side of it
@@ -3140,15 +4797,11 @@ function recDropdown(id, value, rows, label){
 }
 
 function commentHtml(c){
-  return '<div class="c-comment' + (c.role === 'team' ? ' is-team' : '') +
-      (c.asks ? ' is-asking' : '') + '">' +
+  return '<div class="c-comment' + (c.role === 'team' ? ' is-team' : '') + '">' +
     '<span class="c-comment-avatar" aria-hidden="true">' + esc(initials(c.who)) + '</span>' +
     '<div class="c-comment-body">' +
       '<div class="c-comment-meta">' +
         '<b>' + esc(c.who) + '</b>' +
-        '<span class="c-badge ' + (c.role === 'team' ? 'c-badge-neutral' : 'c-badge-selected') + '">' +
-          (c.role === 'team' ? 'Tech team' : 'Reporter') + '</span>' +
-        (c.asks ? '<span class="c-badge c-badge-warning"><i class="ph-fill ph-question" aria-hidden="true"></i>Question</span>' : '') +
         '<time>' + fmtDateTime(c.at) + '</time>' +
       '</div>' +
       '<p class="c-comment-text">' + esc(c.body) + '</p>' +
@@ -3281,12 +4934,9 @@ function paintRecord(){
           '</div>' +
           '<div class="thumbs" id="recThumbs"></div>' +
           '<div class="c-comment-form-foot">' +
-            (admin
-              ? '<label class="c-choice switch"><input type="checkbox" id="recAsks" />' +
-                '<span class="c-switch-track"><span class="c-switch-thumb"></span></span>' +
-                '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">Mark as a question for ' + esc(them) + '</span>' +
-                '<span class="desc">Flags the ticket as waiting on their reply</span></span></label>'
-              : '<span class="hint">Visible to the tech team on this ticket.</span>') +
+            '<span class="hint">' + (admin
+              ? esc(them) + ' is notified and can reply on this ticket.'
+              : 'Visible to the tech team on this ticket.') + '</span>' +
             '<button class="c-btn c-btn-primary c-btn-md" type="button" id="recSend"><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Send</button>' +
           '</div>' +
         '</div>' +
@@ -3367,10 +5017,9 @@ function wireRecord(b, admin){
       ta.closest('.c-field').classList.add('c-field-error');
       ta.focus(); toast('Write something before sending'); return;
     }
-    var asks = admin && $('#recAsks').checked;
     b.comments = (b.comments || []).concat([
       cmt(admin ? (b.assignee || TECH[0]) : ME.name, admin ? 'team' : 'user',
-          new Date(NOW), body, asks, recShots.map(function(s){ return s.url; }))
+          new Date(NOW), body, recShots.map(function(s){ return s.url; }))
     ]);
     recShots = [];
     paintRecord();
@@ -3380,7 +5029,7 @@ function wireRecord(b, admin){
        as the send having failed. */
     var list = $('.c-comment-list .c-comment:last-child', $('#rec'));
     if (list) list.scrollIntoView({ block:'nearest' });
-    toast(asks ? 'Question sent to ' + b.who.split(/\s+/)[0] : 'Comment posted', 'success');
+    toast(admin ? 'Reply sent to ' + b.who.split(/\s+/)[0] : 'Reply sent to the tech team', 'success');
   });
 }
 
@@ -3418,17 +5067,109 @@ $('#lightbox').addEventListener('click', function(){ $('#lightbox').hidden = tru
 document.addEventListener('keydown', function(e){
   if (e.key === 'Escape'){
     if (!$('#lightbox').hidden){ $('#lightbox').hidden = true; return; }
+    if (previewOpen()){ closePreview(); return; }
+    if (shareOpen()){ closeShare(); return; }
     if (recordOpen()){ closeRecord(); return; }
     if (!$('#fabMenu').hidden){ closeFabMenu(); }
     return;
   }
-  if (!recordOpen()) return;
+  if (!recordOpen() || shareOpen() || previewOpen()) return;
   var t = e.target, typing = t && (t.tagName === 'TEXTAREA' ||
     (t.tagName === 'INPUT' && !t.readOnly) || t.isContentEditable);
   if (typing) return;
   if (e.key === 'ArrowLeft'){ e.preventDefault(); recStep(-1); }
   if (e.key === 'ArrowRight'){ e.preventDefault(); recStep(1); }
 });
+
+/* ==========================================================================
+   Entry point 1 — SidebarNav's own behaviour
+   Collapse/expand, the collapsed hover label and the account menu are all
+   part of the component, not this prototype: implemented here to the same
+   recipe preview.html uses, so the rail behaves identically wherever it
+   is dropped in.
+   ========================================================================== */
+var mainNav = $('#mainNav'), navToggle = $('#navToggle');
+navToggle.addEventListener('click', function(){
+  var collapsing = !mainNav.classList.contains('is-collapsed');
+  mainNav.classList.toggle('is-collapsed');
+  navToggle.setAttribute('aria-label', collapsing ? 'Expand sidebar' : 'Collapse sidebar');
+  /* The glyph is one path flipped, not two icons. */
+  $('#navToggleArrow').setAttribute('d', collapsing ? 'M11.5 7 14 10l-2.5 3' : 'M13.5 7 11 10l2.5 3');
+  closeUserMenu();
+});
+
+/* Below 768px App Shell floats the rail over the content with no scrim, so
+   the component specifies it loads collapsed — starting expanded covers the
+   page header before anyone has touched anything. Content region's own
+   clearance padding at that width is sized against the collapsed rail. */
+(function initCollapsedOnMobile(){
+  if (!window.matchMedia('(max-width: 768px)').matches) return;
+  mainNav.classList.add('is-collapsed');
+  navToggle.setAttribute('aria-label', 'Expand sidebar');
+  $('#navToggleArrow').setAttribute('d', 'M11.5 7 14 10l-2.5 3');
+})();
+
+/* Collapsed hover label — one shared element rather than one per row:
+   Tooltip's trigger-wrapper model does not survive living inside a
+   scrolling nav list, which is why the component specifies this instead. */
+var navHover = $('#navHoverLabel');
+function showNavLabel(item){
+  var src = $('.c-sidebar-hover-text', item);
+  if (!src || !mainNav.classList.contains('is-collapsed')) return;
+  var anchor = $('i', item) || $('.c-sidebar-user-avatar', item);
+  if (!anchor) return;
+  var r = anchor.getBoundingClientRect();
+  navHover.textContent = src.textContent;
+  navHover.style.left = (r.right + 8) + 'px';
+  navHover.style.top = (r.top + r.height / 2) + 'px';
+  navHover.style.transform = 'translateY(-50%)';
+  navHover.classList.add('is-visible');
+}
+function hideNavLabel(){ navHover.classList.remove('is-visible'); }
+/* mouseover/mouseout because they bubble, so one listener covers every row
+   including ones added later. */
+mainNav.addEventListener('mouseover', function(e){
+  var item = e.target.closest('.c-sidebar-item, .c-sidebar-user');
+  if (item && !item.contains(e.relatedTarget)) showNavLabel(item);
+});
+mainNav.addEventListener('mouseout', function(e){
+  var item = e.target.closest('.c-sidebar-item, .c-sidebar-user');
+  if (item && !item.contains(e.relatedTarget)) hideNavLabel();
+});
+mainNav.addEventListener('focusin', function(e){
+  var item = e.target.closest('.c-sidebar-item, .c-sidebar-user');
+  if (item) showNavLabel(item);
+});
+mainNav.addEventListener('focusout', hideNavLabel);
+
+/* Account menu. .c-user-menu is a sibling of .c-sidebar for the same reason
+   the toggle is — it has to escape the rail's own clip — so it is placed
+   against the trigger rather than by CSS. */
+var navUser = $('#navUser'), navUserMenu = $('#navUserMenu');
+function closeUserMenu(){
+  navUserMenu.hidden = true;
+  navUser.setAttribute('aria-expanded', 'false');
+  navUser.classList.remove('is-open');
+}
+navUser.addEventListener('click', function(e){
+  e.stopPropagation();
+  var opening = navUserMenu.hidden;
+  if (opening){
+    var shell = navUser.closest('.c-sidebar-shell');
+    navUserMenu.style.bottom = (shell.offsetHeight - navUser.offsetTop + 4) + 'px';
+    navUserMenu.style.left = '0px';
+    navUserMenu.hidden = false;
+  } else {
+    navUserMenu.hidden = true;
+  }
+  navUser.setAttribute('aria-expanded', opening ? 'true' : 'false');
+  navUser.classList.toggle('is-open', opening);
+});
+navUserMenu.addEventListener('click', function(e){
+  e.stopPropagation();
+  if (e.target.closest('.c-user-menu-item')){ closeUserMenu(); navUser.focus(); }
+});
+document.addEventListener('click', closeUserMenu);
 
 /* ==========================================================================
    Entry point 2 — floating action button
