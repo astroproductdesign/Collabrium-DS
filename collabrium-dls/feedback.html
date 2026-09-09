@@ -157,20 +157,66 @@
    A 1-5 / 0-10 linear-scale answer. Radio is the right semantics but its
    own circle+label stack reads as a vertical list, and Segmented Control is
    a view switcher, not a form answer. This is a radiogroup rendered as a row
-   of equal-width numbered targets: real <input type="radio">, so keyboard
+   of numbered targets: real <input type="radio">, so keyboard
    arrow-key navigation and form semantics come free.
+   The target is a circle rather than a rectangle: at 0-10 a row of eleven
+   rectangles reads as a segmented control — something you switch a view
+   with — and the circle is already this system's shape for one choice out
+   of several (Radio's own circle, at a size that can hold a number). Each
+   option keeps an equal share of the row and centres its circle in it, so
+   the numbers stay evenly spaced at any width and wrap in even rows.
    -------------------------------------------------------------------------- */
 .c-scale{display:flex; flex-direction:column; gap:var(--spacing-8);}
 .c-scale-track{display:flex; gap:var(--spacing-8); flex-wrap:wrap;}
-.c-scale-opt{position:relative; flex:1 1 0; min-width:40px;}
+.c-scale-opt{position:relative; flex:1 1 0; min-width:40px; display:flex; justify-content:center;}
 .c-scale-opt input{position:absolute; opacity:0; width:0; height:0;}
-.c-scale-opt span{display:flex; align-items:center; justify-content:center; height:40px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-scale-opt span{display:flex; align-items:center; justify-content:center; width:40px; height:40px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
 .c-scale-opt:hover span{background:var(--color-neutral-2);}
 .c-scale-opt input:checked + span{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
 .c-scale-opt input:focus-visible + span{outline:2px solid var(--color-obsidian); outline-offset:2px;}
 .c-scale-opt input:disabled + span{background:var(--color-neutral-2); color:var(--color-neutral-4); cursor:not-allowed;}
 /* End labels — the numbers alone never say which end is good. */
 .c-scale-ends{display:flex; justify-content:space-between; gap:var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 5 — Rating table (.c-matrix)
+   One rating scale asked of several things at once: a row per subject, a
+   column per rating, one radio group per row. Asking it as four separate
+   Multiple choice questions repeats the same five labels four times and
+   loses the comparison the grid exists to make.
+   Composed rather than invented: the frame is Table's own anatomy verbatim
+   (header row in label3/uppercase/Neutral-5 — the Embedded variant, since
+   this lives inside a question card that owns the surface; body rows in
+   body2/500 with a 1px Neutral-3 border-bottom and none on the last row;
+   Neutral-2 row hover), and the control is Radio verbatim
+   (.c-radio-circle + .dot, class-driven .on like every other choice row in
+   this file). Nothing new is styled here except the layout.
+   One deliberate departure from Table: the rating cells and their headers
+   are centre-aligned, where Table's own rule is that every column is
+   left-aligned. A rating cell's meaning is the intersection of its row and
+   its column, and an 18px radio parked at the left edge of a column headed
+   "Very poor" sits nearer the previous column's label than its own.
+   -------------------------------------------------------------------------- */
+.c-matrix{width:100%; overflow-x:auto;}
+.c-matrix table{width:100%; min-width:480px; border-collapse:collapse;}
+.c-matrix th,.c-matrix td{padding:var(--spacing-12) var(--spacing-8); border-bottom:1px solid var(--color-neutral-3);}
+.c-matrix thead th{font-family:var(--font-primary); font-size:var(--text-label3-size); font-weight:700; letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5); text-align:center; white-space:nowrap; vertical-align:bottom;}
+.c-matrix thead th:first-child{text-align:left;}
+.c-matrix tbody th{text-align:left; font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:500; color:var(--color-neutral-9);}
+.c-matrix tbody td{text-align:center;}
+.c-matrix tbody tr:last-child th,.c-matrix tbody tr:last-child td{border-bottom:0;}
+.c-matrix tbody tr{transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-matrix tbody tr:hover{background:var(--color-neutral-2);}
+/* The radio's own hit target: the cell is wider than the 18px circle, so
+   the whole cell is the label rather than the circle alone. */
+.c-matrix-cell{display:flex; align-items:center; justify-content:center; min-height:24px; cursor:pointer;}
+.c-matrix-cell input{position:absolute; opacity:0; width:0; height:0;}
+.c-matrix-cell .c-radio-circle{margin-top:0;}
+.c-matrix-cell input:focus-visible + .c-radio-circle{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-matrix-cell input:disabled + .c-radio-circle{background:var(--color-neutral-2); border-color:var(--color-neutral-3);}
+/* A missing row in a required grid is marked on the row, not on five
+   radios — same reasoning as the question card's own is-missing state. */
+.c-matrix tbody tr.is-missing th{color:var(--color-red);}
 
 /* ==========================================================================
    PROTOTYPE SCAFFOLDING — layout glue for this demo only. Nothing here is a
@@ -231,6 +277,14 @@ body{background:var(--color-canvas-warm); color:var(--color-neutral-9); font-fam
 .c-shell-content > .route{display:flex; flex-direction:column;}
 
 .route[hidden]{display:none;}
+/* Page-layout rule under the page header. PageHeader's own Don't list
+   forbids giving the component a bottom border — "if a page needs a
+   divider under its header, that belongs to the page layout" — so it
+   is a route child here, not a component change. The negative top
+   margin borrows half of App Shell's 48px header gap so the rule sits
+   24px under the description and 24px over the filter chips, and the
+   content below it does not move. */
+.route > .route-rule{flex:none; height:1px; margin:calc(var(--spacing-24) * -1) 0 0; border:none; background:var(--color-neutral-3);}
 .row{display:flex; align-items:center; gap:var(--spacing-12); flex-wrap:wrap;}
 .row.between{justify-content:space-between;}
 .row.tight{gap:var(--spacing-8);}
@@ -256,26 +310,40 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .avatar.sm{width:24px; height:24px; font-size:var(--text-label3-size);}
 .avatar.lg{width:40px; height:40px; font-size:var(--text-label2-size);}
 
-/* Form library rows */
-/* No overflow:hidden — a row's own menu has to be able to hang past the
-   bottom edge. The corners the clip used to handle are rounded on the first
-   and last rows instead, so a hover fill still stops at the card's shape. */
-.lib{display:flex; flex-direction:column; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1);}
-/* The row is a container, not a control: it holds the open target and a menu,
-   and a button cannot contain a button. The open target keeps the row's whole
-   padded area, so a click anywhere but the menu opens the survey. */
-.lib-row{display:flex; align-items:center; width:100%; border-bottom:1px solid var(--color-neutral-3); background:transparent; transition:background-color var(--duration-fast) var(--ease-standard);}
-.lib-row:first-child{border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
-.lib-row:last-child{border-bottom:0; border-radius:0 0 var(--radius-lg) var(--radius-lg);}
-.lib-row:only-child{border-radius:var(--radius-lg);}
-.lib-row:hover{background:var(--color-neutral-2);}
-.lib-row-hit{display:flex; align-items:center; gap:var(--spacing-16); flex:1 1 auto; min-width:0; padding:var(--spacing-16) var(--spacing-20); border:0; background:transparent; text-align:left; cursor:pointer; font-family:inherit; color:inherit;}
-.lib-row-hit:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
-.lib-row > .menu-wrap{flex:none; padding-right:var(--spacing-12);}
-.lib-row-title{font-size:var(--text-body1-size); font-weight:700; color:var(--color-neutral-9);}
+/* Form library — list view */
+/* The hand-rolled .lib / .lib-row stack is gone: it was a table drawn out of
+   divs, and Table's Standalone variant is the component for it. What is left
+   here is only what the component leaves to the caller — the two-line first
+   cell, and the action column's width. */
 .lib-row-meta{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-.lib-row-num{flex:none; text-align:right; font-variant-numeric:tabular-nums;}
-.lib-row-num b{display:block; font-size:var(--text-body1-size); font-weight:700;}
+/* The sort field carries one of five short labels — 176px fits the
+   longest of them without the row of controls growing to the search
+   input's own 240px twice over. */
+.hub-sort{width:176px;}
+.lib-table td:first-child{max-width:420px;}
+.lib-cell-title{display:block; font-weight:700; color:var(--color-neutral-9);}
+/* Second line inside the identity cell — the survey's own description, so a
+   row still says what it is now that the title has a column to itself. */
+.lib-cell-sub{display:block; margin-top:2px; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:400; color:var(--color-neutral-5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.lib-table td.nowrap,.lib-table th.nowrap{white-space:nowrap;}
+/* Action column: the spec's width is per action count — 40px for one, and
+   the kebab is the one. .c-table-action-col's own 72px is the two-action
+   size. */
+.lib-table .c-table-action-col{width:40px; padding-left:var(--spacing-4); padding-right:var(--spacing-4);}
+/* Below this the table is wider than the screen and scrolls, per Table's own
+   responsive rule. The identity column gives up most of its measure so a
+   second column is visible at rest — a table with one column showing has no
+   way of telling you the others are there. */
+@media (max-width:820px){
+  .lib-table td:first-child{max-width:210px;}
+}
+.lib-table tbody tr:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+/* Table's Standalone wrap clips to its own radius, and scrolls sideways on
+   top of that, so an absolutely-positioned row menu would be cut off by the
+   container the component itself requires. Inside the table the menu is
+   placed as position:fixed against its trigger instead (see placeRowMenu),
+   and anything that scrolls closes it. */
+.lib-table .menu-pop{position:fixed; top:auto; right:auto;}
 
 /* Builder toolbar */
 .toolbar{display:flex; align-items:center; gap:var(--spacing-4); padding:var(--spacing-8); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); position:sticky; top:var(--spacing-16); z-index:30;}
@@ -547,6 +615,12 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .c-modal.is-preview{width:min(720px, 100%);}
 .c-modal.is-preview .c-modal-body{gap:var(--spacing-16); background:var(--color-canvas-warm);}
 .c-modal.is-preview .c-modal-foot{gap:var(--spacing-8);}
+/* The head is align-items:flex-start so a wrapped title stays put; the
+   switch centres itself against the title block instead. */
+.prev-pages{flex:none; align-self:center;}
+/* Two words in an uppercase caption inside a track that sizes to content:
+   "Thank you" wraps and takes the whole switch to two lines with it. */
+.prev-pages .c-seg{white-space:nowrap;}
 /* Progress sticks to the top of the scrolling body, which is the only place
    a progress bar earns its keep — one parked at the top of a long form
    scrolls away before it has anything to report. */
@@ -558,6 +632,19 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .prev-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); white-space:pre-wrap;}
 .prev-q-title{display:block; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
 .prev-req{color:var(--color-red); margin-left:var(--spacing-4);}
+/* Slider's own optional static value label — caption/Neutral-9, right
+   aligned above the rail's end. It is used instead of the drag tooltip
+   (the component documents the two as mutually exclusive) because a survey
+   answer has to be readable at rest, not only while a thumb is held. */
+.slider-value{display:block; text-align:right; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9); margin-bottom:var(--spacing-4); font-variant-numeric:tabular-nums;}
+.slider-value.is-unset{font-weight:400; color:var(--color-neutral-5);}
+/* Unanswered. A range input always draws a thumb somewhere, so it sits at
+   the midpoint — but nothing has been committed yet, so the track stays
+   unfilled and the thumb takes a Neutral-4 outline instead of Obsidian's
+   "the value is here". Otherwise an untouched required question reads as
+   though it has already been answered 50. */
+.c-slider-rail.is-unset .c-slider-input::-webkit-slider-thumb{border-color:var(--color-neutral-4);}
+.c-slider-rail.is-unset .c-slider-input::-moz-range-thumb{border-color:var(--color-neutral-4);}
 /* A missed required answer marks the whole card. The controls underneath are
    radio rows and scale tracks — there is no single field border to redden,
    and reddening every radio in a group would read as ten errors, not one. */
@@ -598,12 +685,18 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 /* Settings save bar. Sticky at the foot of the viewport rather than parked
    at the end of the page: Settings is three cards tall, and a Save the
    reader has to scroll back down to find is a Save that gets missed. */
-.set-save{position:sticky; bottom:var(--spacing-16); z-index:40; display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-12) var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); box-shadow:var(--shadow-3);}
-.set-save.is-dirty{border-color:var(--color-obsidian);}
-.set-save-state{display:inline-flex; align-items:center; gap:var(--spacing-8); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-5);}
+.set-save{position:sticky; bottom:var(--spacing-16); z-index:40; display:flex; align-items:center; gap:var(--spacing-8); width:max-content; max-width:100%; margin:0 auto; padding:var(--spacing-4); padding-left:var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1); box-shadow:var(--shadow-2);}
+.set-save.is-dirty{border-color:var(--color-obsidian); box-shadow:var(--shadow-3);}
+/* Nothing staged: the bar is only reporting a state, so it drops to the
+   label and keeps a Save that says so — a full-width bar carrying two dead
+   buttons was the page's loudest element for saying there was nothing to
+   do. Discard appears with the changes there is something to discard. */
+.set-save:not(.is-dirty){padding-right:var(--spacing-12);}
+.set-save:not(.is-dirty) .c-btn{display:none;}
+.set-save-state{display:inline-flex; align-items:center; gap:var(--spacing-8); font-family:var(--font-primary); font-size:var(--text-label2-size); font-weight:700; color:var(--color-neutral-5); white-space:nowrap;}
 .set-save-state i{font-size:var(--icon-sm);}
 .set-save.is-dirty .set-save-state{color:var(--color-neutral-9);}
-.set-save.is-dirty .set-save-state i{font-size:10px; color:var(--color-amber);}
+.set-save.is-dirty .set-save-state i{font-size:8px; color:var(--color-amber);}
 
 /* Comment count in the table. A bordered pill rather than a caption, so it
    reads as a countable thing at a glance, and tinted by whose turn the
@@ -641,7 +734,7 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
   /* The scrolling content region has to become plain flow, or print takes
      one viewport's worth of it and stops. */
   .c-shell, .c-shell-main, .c-shell-content{height:auto; overflow:visible; padding:0;}
-  .c-card, .lib, .c-table-standalone-wrap{box-shadow:none; break-inside:avoid;}
+  .c-card, .c-table-standalone-wrap{box-shadow:none; break-inside:avoid;}
   .resp-list{max-height:none; overflow:visible;}
   .c-chart-card .c-chart-canvas-wrap{display:none;}
   .c-chart-card .c-chart-table-wrap{display:flex !important; min-height:0;}
@@ -649,11 +742,6 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 
 
 
-/* Below this the library and ticket rows have to stop being rows. Their
-   trailing block (badges, counts, priority) is flex:none by design, so on a
-   narrow screen it keeps its full width and the title beside it collapses to
-   one word per line. Wrapping the row and giving both halves the full width
-   is the same content, stacked. */
 /* Below this the content column is too narrow to give up 56px, and the
    fixed bar at the top of the page is doing the job on its own. */
 @media (max-width:820px){
@@ -662,11 +750,6 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 }
 
 @media (max-width:700px){
-  .lib-row-hit{flex-wrap:wrap; gap:var(--spacing-8);}
-  .lib-row-hit > .grow{flex:1 1 100%;}
-  .lib-row-num{flex:1 1 100%; text-align:left;}
-  .lib-row-num b{display:inline; margin-right:var(--spacing-4);}
-  .lib-row-hit > .c-badge{align-self:flex-start;}
   .svc-grid{grid-template-columns:1fr;}
   /* Preview's footer carries a sentence and two buttons. Side by side at
      this width all three wrap; the sentence takes its own line instead and
@@ -674,6 +757,12 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
   .c-modal.is-preview .c-modal-foot{flex-wrap:wrap;}
   .c-modal.is-preview .c-modal-foot .hint{flex:1 1 100%;}
   .c-modal.is-preview .c-modal-foot .c-btn{flex:1 1 0; min-width:0;}
+  /* Four things in the head do not fit this width: the page switch takes
+     its own row underneath rather than squeezing the title to two broken
+     lines. */
+  .c-modal.is-preview .c-modal-head{flex-wrap:wrap;}
+  .prev-pages{order:3; flex:1 1 100%; align-self:stretch;}
+  .prev-pages .c-seg{flex:1;}
 }
 </style>
 </head>
@@ -771,11 +860,13 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
            to run a survey and someone here about a bug. Landing on one of
            them made the other look like a tab of the first. -->
       <section class="route stack lg" id="routeLanding" hidden>
+        <hr class="route-rule" />
         <div class="entry-grid" id="entryGrid"></div>
       </section>
 
       <!-- ===== Route: Feedback Hub (form library) ===== -->
       <section class="route stack lg" id="routeHub">
+        <hr class="route-rule" />
         <div class="row between">
           <div class="c-chip-group" role="group" aria-label="Filter by status">
             <button class="c-chip c-chip-filter is-active" type="button" data-status="all">All <span class="count" id="cntAll">0</span></button>
@@ -800,6 +891,23 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
                 <button class="c-search-input-clear" type="button" id="hubSearchClear" aria-label="Clear search" hidden><i class="ph ph-x" aria-hidden="true"></i></button>
               </div>
             </div>
+            <!-- Sort — Dropdown's Single select for the field, and a
+                 direction toggle beside it, rather than a menu of every
+                 field-plus-direction pair. It is the same (column,
+                 direction) state the list view's own sortable headers
+                 drive, so the two controls can never disagree, and grid
+                 view gets the sort it otherwise had no header row for. -->
+            <div class="c-field c-dropdown-field dd-float hub-sort">
+              <div class="input-wrap has-trailing-icon">
+                <input type="text" class="c-dropdown-input" id="hubSortTrigger" readonly value="Last updated"
+                       aria-label="Sort by" aria-haspopup="listbox" aria-expanded="false" />
+                <span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>
+              </div>
+              <div class="c-dropdown-panel" id="hubSortPanel" hidden><div class="c-dropdown-list" id="hubSortList"></div></div>
+            </div>
+            <button class="c-btn c-btn-secondary c-btn-md c-btn-icon" type="button" id="hubSortDir">
+              <i class="ph ph-sort-descending" id="hubSortDirIcon" aria-hidden="true"></i>
+            </button>
             <div class="c-segctl c-segctl-default" role="tablist" aria-label="Library view" id="hubViewSeg">
               <span class="c-seg-pill" aria-hidden="true"></span>
               <button class="c-seg" type="button" role="tab" data-hv="grid" aria-label="Grid view" title="Grid view"><i class="ph ph-squares-four" aria-hidden="true"></i></button>
@@ -1090,6 +1198,8 @@ var TYPES = {
   single: { label:'Multiple choice',       icon:'ph-radio-button' },
   multi:  { label:'Checkboxes',            icon:'ph-check-square' },
   scale:  { label:'Linear scale',          icon:'ph-sliders-horizontal' },
+  slider: { label:'Slider',                icon:'ph-faders-horizontal' },
+  matrix: { label:'Rating table',          icon:'ph-table' },
   yesno:  { label:'Yes / No',              icon:'ph-toggle-left' }
 };
 
@@ -1180,6 +1290,24 @@ function buildResponses(qs, n, seed){
 
 var SEED_QS = seedQuestions();
 
+/* The CollabSales post-launch round. Five questions, and three of them are
+   the reason the two new question types exist: a 0-10 scale, one rating
+   scale asked of four parts of the interface at once, and a continuous
+   "how does it feel" slider. */
+var SALES_QS = [
+  { id:'s1', type:'scale',  title:'How satisfied are you with your experience overall?', required:true,
+    min:1, max:10, lo:'Very dissatisfied', hi:'Very satisfied' },
+  { id:'s2', type:'matrix', title:'Please rate the following aspects of our user interface', required:true,
+    rows:['Visual appeal','Layout','Ease of navigation','Information hierarchy'],
+    cols:['Very poor','Poor','Average','Good','Excellent'] },
+  { id:'s3', type:'slider', title:'How intuitive is the user experience on our platform?', required:true,
+    min:0, max:100, step:1, lo:'Not intuitive at all', hi:'Completely intuitive' },
+  { id:'s4', type:'short',  title:'What feature or function do you find most useful?', required:false,
+    placeholder:'Optional' },
+  { id:'s5', type:'long',   title:'Do you have any additional comments or suggestions for improvement?', required:false,
+    placeholder:'Optional' }
+];
+
 /* Every survey carries a time frame and an archive flag.
    `starts`/`ends` are whole dates, and `ends: null` is a real, chosen state
    — an open-ended survey, not a missing value — which is why the library
@@ -1194,6 +1322,12 @@ var FORMS = [
     updated: relDays(1), questions: SEED_QS, responses: buildResponses(SEED_QS, 128, 20260908),
     settings:{ sendCopy:true, allowEdit:false, oneResponse:true, progressBar:true,
                confirm:'Thanks for your feedback! We read every response.' } },
+  { id:'f7', title:'CollabSales Post-Launch Survey', status:'active', archived:false,
+    desc:'Five questions on the new CollabSales release — how it feels to use, and what to fix first. Ratings are anonymous to the pod.',
+    starts: ymd(2026, 9, 7), ends: ymd(2026, 10, 3),
+    updated: relDays(0), questions: SALES_QS, responses: [],
+    settings:{ sendCopy:false, allowEdit:true, oneResponse:true, progressBar:true,
+               confirm:'Thanks — this goes straight to the CollabSales team.' } },
   { id:'f2', title:'Onboarding check-in — week one', status:'active', archived:false,
     desc:'For new joiners at the end of their first week. Runs continuously — there is always someone in their first week.',
     starts: ymd(2026, 2, 1), ends: null,
@@ -1222,7 +1356,10 @@ var FORMS = [
 ];
 /* Response counts for the library rows on forms that have no detail built
    out — the library shows a count, the builder shows an empty Responses tab. */
-FORMS[1].count = 12; FORMS[2].count = 31; FORMS[3].count = 87; FORMS[4].count = 204; FORMS[5].count = 96;
+/* Keyed by id, not by array position: adding a survey to the list above
+   used to silently hand its count to the survey that took its index. */
+var SEED_COUNTS = { f2:12, f3:31, f4:87, f5:204, f6:96 };
+FORMS.forEach(function(f){ if (SEED_COUNTS[f.id] != null) f.count = SEED_COUNTS[f.id]; });
 
 /* --------------------------------------------------------------------------
    Time frame, as the library reads it
@@ -1516,6 +1653,7 @@ function wireTableToggles(root){
 var state = { route:'landing', formId:null, btab:'questions',
               respView:'summary', respIndex:0,
               hubStatus:'all', hubQuery:'', hubView:'grid',
+              hubSortCol:'updated', hubSortDir:-1,
               bugStatus:'all', bugPod:'all', bugSortCol:'date', bugSortDir:-1,
               /* Which list the record modal is paging through, and where in
                  it — the pager walks the view the reader opened the record
@@ -1710,6 +1848,8 @@ function renderHub(){
   setBack('Feedback', 'landing');
   $('#newFormBtn').addEventListener('click', newForm);
 
+  paintHubSort();
+
   var ts = terms(state.hubQuery);
   /* Chip counts count what the current query can actually reach, not the
      whole library. A chip reading "Closed 2" beside a search returning one
@@ -1761,10 +1901,45 @@ function renderHub(){
     return;
   }
 
-  host.innerHTML = state.hubView === 'grid' ? hubGrid(list, ts) : hubRows(list, ts);
+  list = hubSorted(list);
+  host.innerHTML = state.hubView === 'grid' ? hubGrid(list, ts) : hubTable(list, ts);
   $$('[data-form]', host).forEach(function(b){
     b.addEventListener('click', function(){ go('builder', { formId:b.dataset.form }); });
+    /* A table row is not a button, so it has to answer the keyboard itself
+       — the grid's tiles already are buttons and get this for free. */
+    if (b.tagName === 'TR') b.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go('builder', { formId:b.dataset.form }); }
+    });
   });
+  /* Header sort — cycles ascending, descending, then back to the library's
+     default order. Focus goes back to the header the click came from, since
+     the whole table is rebuilt underneath it. */
+  $$('[data-hubcol]', host).forEach(function(th){
+    function cycle(){
+      var k = th.dataset.hubcol, c = hubCol(k);
+      if (state.hubSortCol !== k){ state.hubSortCol = k; state.hubSortDir = c.def; }
+      else if (state.hubSortDir === c.def){ state.hubSortDir = -c.def; }
+      else { state.hubSortCol = 'updated'; state.hubSortDir = -1; }
+      renderHub();
+      var back = $('[data-hubcol="' + k + '"]', $('#hubList'));
+      if (back) back.focus();
+    }
+    th.addEventListener('click', cycle);
+    th.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cycle(); }
+    });
+  });
+  /* Scroll boundary shadow — the frozen columns only cast one while there is
+     scrolled content underneath them. */
+  var wrap = $('.c-table-scroll-x', host);
+  if (wrap){
+    var paintFreeze = function(){
+      wrap.classList.toggle('is-scrolled-left', wrap.scrollLeft > 0);
+      wrap.classList.toggle('is-scrolled-right', wrap.scrollLeft + wrap.clientWidth < wrap.scrollWidth - 1);
+    };
+    wrap.addEventListener('scroll', paintFreeze);
+    paintFreeze();
+  }
   $$('[data-libmenu]', host).forEach(function(btn){
     var pop = btn.nextElementSibling;
     btn.addEventListener('click', function(e){
@@ -1773,6 +1948,7 @@ function renderHub(){
       closeMenus();
       pop.hidden = !open;
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open && btn.closest('.lib-table')) placeRowMenu(btn, pop);
     });
     pop.addEventListener('click', function(e){ e.stopPropagation(); });
     $$('[data-rowkb]', pop).forEach(function(item){
@@ -1783,6 +1959,23 @@ function renderHub(){
       });
     });
   });
+}
+
+/* A menu placed against the viewport does not travel with the row it belongs
+   to, so scrolling closes it rather than leaving it behind. */
+document.addEventListener('scroll', function(e){
+  if ($$('.lib-table .menu-pop:not([hidden])').length) closeMenus();
+}, true);
+
+/* Inside the table the menu cannot be absolute — see .lib-table .menu-pop.
+   It is measured after it is shown, right-aligned to the trigger, and flipped
+   above it when there is not room below. */
+function placeRowMenu(btn, pop){
+  var r = btn.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+  var left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8));
+  var below = r.bottom + 8, above = r.top - 8 - h;
+  pop.style.left = left + 'px';
+  pop.style.top = (below + h <= window.innerHeight - 8 || above < 8 ? below : above) + 'px';
 }
 
 function statusBadge(f){
@@ -1850,26 +2043,94 @@ function formMenu(f){
   '</span>';
 }
 
-function hubRows(list, ts){
-  return '<div class="lib">' + list.map(function(f){
-    var n = formCount(f);
-    /* The chevron is gone: it pointed at something the whole row already
-       does, and the row's right edge is better spent on the actions that
-       were otherwise only reachable from inside the survey. */
-    return '<div class="lib-row">' +
-      '<button class="lib-row-hit" type="button" data-form="' + f.id + '">' +
-        '<span class="grow stack sm">' +
-          '<span class="lib-row-title">' + mark(f.title, ts) + '</span>' +
-          '<span class="lib-row-meta">' + esc(rangeLabel(f)) + ' · Updated ' + fmtDate(f.updated) + '</span>' +
-        '</span>' +
-        deadlinePill(f) +
-        statusBadge(f) +
-        '<span class="lib-row-num"><b>' + n.toLocaleString() + '</b>' +
-          '<span class="lib-row-meta">' + (n === 1 ? 'response' : 'responses') + '</span></span>' +
-      '</button>' +
-      formMenu(f) +
-    '</div>';
-  }).join('') + '</div>';
+/* Sorting — one (column, direction) pair for the whole library, whichever
+   view is showing. The list view's own sortable headers and the sort control
+   above the views both read and write this, so they cannot disagree, and the
+   grid gets an order without a header row to click.
+   `def` is the direction a column takes on first click: dates and counts
+   open on their largest value, text on A. */
+var HUB_COLS = [
+  { key:'title',     label:'Survey',    pick:'Title',        num:false, def:1,
+    dir:['A to Z','Z to A'],
+    val:function(f){ return f.title.toLowerCase(); } },
+  { key:'status',    label:'Status',    pick:'Status',       num:true,  def:1,
+    dir:['Active first','Closed first'],
+    val:function(f){ return f.archived ? 2 : f.status === 'active' ? 0 : 1; } },
+  { key:'deadline',  label:'Deadline',  pick:'Deadline',     num:true,  def:1,
+    dir:['Closing soonest','Closing latest'],
+    /* No deadline sorts last either way — it is not a date, so it cannot
+       take a place in the middle of them. */
+    val:function(f){ return f.ends ? f.ends.getTime() : Infinity; } },
+  { key:'responses', label:'Responses', pick:'Responses',    num:true,  def:-1,
+    dir:['Fewest first','Most first'],
+    val:function(f){ return formCount(f); } },
+  { key:'updated',   label:'Updated',   pick:'Last updated', num:true,  def:-1,
+    dir:['Oldest first','Newest first'],
+    val:function(f){ return f.updated.getTime(); } }
+];
+function hubCol(key){
+  return HUB_COLS.filter(function(c){ return c.key === key; })[0] || HUB_COLS[4];
+}
+function hubSorted(list){
+  var c = hubCol(state.hubSortCol), dir = state.hubSortDir;
+  return list.slice().sort(function(x, y){
+    var a = c.val(x), b = c.val(y);
+    if (c.num) return (a === b ? 0 : a < b ? -1 : 1) * dir;
+    return String(a).localeCompare(String(b)) * dir;
+  });
+}
+/* Direction reads as what it does to the column in hand: a date does not
+   run A to Z and a title does not run newest first. */
+function hubDirLabel(dir){
+  var c = hubCol(state.hubSortCol);
+  return c.dir[dir === 1 ? 0 : 1];
+}
+function hubSortSet(key, dir){
+  state.hubSortCol = key;
+  state.hubSortDir = dir;
+  renderHub();
+}
+
+/* Table's own documented header behaviour: every eligible column sortable,
+   one active sort at a time, cycling through to the library's default order
+   (most recently updated) as the third state — the table always has an
+   order, so "unsorted" here means that default rather than no order at all.
+   The Actions column is one of the two the spec exempts. */
+function hubSortTh(c, extra){
+  var on = state.hubSortCol === c.key;
+  var asc = state.hubSortDir === 1;
+  var icon = !on ? 'ph-arrows-down-up' : (asc ? 'ph-arrow-up' : 'ph-arrow-down');
+  return '<th class="c-table-sort-th' + (on ? ' is-sorted' : '') + (extra || '') + '" data-hubcol="' + c.key + '"' +
+    ' tabindex="0" role="columnheader" aria-sort="' + (on ? (asc ? 'ascending' : 'descending') : 'none') + '">' +
+    esc(c.label) + '<i class="ph ' + icon + ' c-table-sort-icon" aria-hidden="true"></i></th>';
+}
+
+/* List — Table's Standalone variant. The rows used to be a div stack with a
+   button per row, which was a table drawn by hand: no header, so nothing to
+   sort by, and five values crammed into two lines. */
+function hubTable(list, ts){
+  return '<div class="c-table-standalone-wrap c-table-scroll-x">' +
+    '<table class="c-table c-table-standalone lib-table">' +
+    /* Frozen columns: once this table scrolls sideways (it does below
+       820px), the row's identity and its actions are the two the spec keeps
+       in reach — everything between them scrolls underneath. */
+    '<thead><tr>' + HUB_COLS.map(function(c, i){
+        return hubSortTh(c, i === 0 ? ' c-table-freeze-left' : '');
+      }).join('') +
+      '<th class="c-table-action-col c-table-freeze-right no-sort"><span class="sr-only">Actions</span></th>' +
+    '</tr></thead><tbody>' + list.map(function(f){
+      var n = formCount(f);
+      return '<tr class="is-interactive is-clickable" data-form="' + f.id + '" tabindex="0"' +
+        ' aria-label="' + esc(f.title) + '">' +
+        '<td class="c-table-freeze-left"><span class="lib-cell-title">' + mark(f.title, ts) + '</span>' +
+          (f.desc ? '<span class="lib-cell-sub">' + mark(f.desc, ts) + '</span>' : '') + '</td>' +
+        '<td class="nowrap">' + statusBadge(f) + '</td>' +
+        '<td class="nowrap">' + deadlinePill(f) + '</td>' +
+        '<td class="num nowrap"><b>' + n.toLocaleString() + '</b></td>' +
+        '<td class="num nowrap">' + fmtDate(f.updated) + '</td>' +
+        '<td class="c-table-action-col c-table-freeze-right">' + formMenu(f) + '</td>' +
+      '</tr>';
+    }).join('') + '</tbody></table></div>';
 }
 
 /* The chips live in persistent markup, so anything that changes hubStatus
@@ -1895,6 +2156,52 @@ wireSeg($('#hubViewSeg'), state.hubView === 'grid' ? 0 : 1, function(i){
   state.hubView = i ? 'list' : 'grid';
   renderHub();
 });
+
+/* Sort control — the field in a Dropdown Single select, the direction in one
+   toggle beside it. Both write the same state the table headers do, so this
+   is repainted from that state rather than from its own last click. */
+$('#hubSortList').innerHTML = HUB_COLS.map(function(c){
+  return '<div class="c-dropdown-row" role="option" data-hubsort="' + c.key + '">' +
+    '<span class="c-dropdown-row-label">' + esc(c.pick) + '</span>' +
+    '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
+}).join('');
+function paintHubSort(){
+  var c = hubCol(state.hubSortCol), asc = state.hubSortDir === 1;
+  $('#hubSortTrigger').value = c.pick;
+  $$('#hubSortList [data-hubsort]').forEach(function(r){
+    r.classList.toggle('selected', r.dataset.hubsort === c.key);
+  });
+  $('#hubSortDirIcon').className = 'ph ' + (asc ? 'ph-sort-ascending' : 'ph-sort-descending');
+  var label = hubDirLabel(state.hubSortDir);
+  $('#hubSortDir').setAttribute('title', label + ' — switch to ' + hubDirLabel(-state.hubSortDir).toLowerCase());
+  $('#hubSortDir').setAttribute('aria-label', 'Sorted ' + label.toLowerCase() + '. Reverse the order');
+}
+(function wireHubSort(){
+  var trig = $('#hubSortTrigger'), panel = $('#hubSortPanel'), field = trig.closest('.c-dropdown-field');
+  function shut(){ panel.hidden = true; field.classList.remove('open'); trig.setAttribute('aria-expanded', 'false'); }
+  trig.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = panel.hidden;
+    closeMenus();
+    closeDropdowns();
+    panel.hidden = !open;
+    field.classList.toggle('open', open);
+    trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  panel.addEventListener('click', function(e){ e.stopPropagation(); });
+  $$('[data-hubsort]', panel).forEach(function(r){
+    r.addEventListener('click', function(){
+      shut();
+      /* Changing the field takes that column's own opening direction, the
+         same as a first click on its header would. */
+      hubSortSet(r.dataset.hubsort, hubCol(r.dataset.hubsort).def);
+      trig.focus();
+    });
+  });
+  $('#hubSortDir').addEventListener('click', function(){
+    hubSortSet(state.hubSortCol, -state.hubSortDir);
+  });
+})();
 
 function clearHubSearch(){
   state.hubQuery = '';
@@ -2046,11 +2353,19 @@ $$('#kebabMenu button').forEach(function(b){
 
 /* The block types, declared once. Both the fixed bar and the floating rail
    read this list, so they can never drift apart. */
+/* What the bar and the rail can add. The question kinds come first and the
+   two media blocks last, because a poll, a rating table and a slider are
+   all questions — only image and video are not. Each one lands as a real
+   question of that type rather than an empty block to retype: the type
+   switcher on the block can still change it afterwards, but the point of a
+   named Add button is that the thing it adds is already the thing. */
 var BLOCKS = [
-  { kind:'question', label:'Add question', icon:'ph-plus-circle' },
-  { kind:'image',    label:'Add image',    icon:'ph-image' },
-  { kind:'video',    label:'Add video',    icon:'ph-video' },
-  { kind:'poll',     label:'Add poll',     icon:'ph-chart-donut' }
+  { kind:'question', label:'Add question',     icon:'ph-plus-circle' },
+  { kind:'matrix',   label:'Add rating table', icon:'ph-table' },
+  { kind:'slider',   label:'Add slider',       icon:'ph-faders-horizontal' },
+  { kind:'poll',     label:'Add poll',         icon:'ph-chart-donut' },
+  { kind:'image',    label:'Add image',        icon:'ph-image' },
+  { kind:'video',    label:'Add video',        icon:'ph-video' }
 ];
 function addBarButtons(){
   return BLOCKS.map(function(b, i){
@@ -2140,10 +2455,8 @@ function renderQuestions(form){
 
     '<div class="set-save' + (dirty ? ' is-dirty' : '') + '">' +
       '<span class="set-save-state">' + saveStateHtml(dirty) + '</span>' +
-      '<span class="grow"></span>' +
-      '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="qDiscard"' + (dirty ? '' : ' disabled') + '>Discard</button>' +
-      '<button class="c-btn c-btn-primary c-btn-md" type="button" id="qSave"' + (dirty ? '' : ' disabled') + '>' +
-        '<i class="ph ph-floppy-disk" aria-hidden="true"></i>Save form</button>' +
+      '<button class="c-btn c-btn-secondary c-btn-sm" type="button" id="qDiscard"' + (dirty ? '' : ' disabled') + '>Discard</button>' +
+      '<button class="c-btn c-btn-primary c-btn-sm" type="button" id="qSave"' + (dirty ? '' : ' disabled') + '>Save form</button>' +
     '</div>';
 
   /* The page header keeps saying the survey's saved name. It used to track
@@ -2249,20 +2562,99 @@ function typeSwitcher(q){
    and back doesn't silently keep a stale scale range or option list. */
 function setType(q, t){
   q.type = t;
+  /* Scale and Slider share the min/max/end-label props but not their
+     defaults: a scale is a handful of discrete targets, a slider is a
+     continuous run (the component's own guidance is not to use it under
+     about ten distinct values). */
   if (t === 'scale'){
     if (q.min == null){ q.min = 1; q.max = 5; q.lo = 'Not at all'; q.hi = 'Very much'; }
-  } else { delete q.min; delete q.max; delete q.lo; delete q.hi; }
+    delete q.step;
+  } else if (t === 'slider'){
+    if (q.min == null){ q.min = 0; q.max = 100; q.lo = 'Not at all'; q.hi = 'Completely'; }
+    if (q.step == null) q.step = 1;
+  } else { delete q.min; delete q.max; delete q.lo; delete q.hi; delete q.step; }
   if (t === 'single' || t === 'multi'){
     if (!q.options) q.options = ['Option 1','Option 2','Option 3'];
   } else { delete q.options; }
+  if (t === 'matrix'){
+    if (!q.rows) q.rows = ['First aspect','Second aspect','Third aspect'];
+    if (!q.cols) q.cols = ['Very poor','Poor','Average','Good','Excellent'];
+  } else { delete q.rows; delete q.cols; }
+}
+
+/* Rating table and Slider markup, written once each and rendered in three
+   places: the builder's disabled preview, the preview modal and — through
+   the same functions — anything else that has to show a question the way a
+   responder sees it. Passing the answers in rather than reading a global is
+   what lets the builder render the same grid with nothing selected. */
+function matrixHtml(q, o){
+  o = o || {};
+  var ans = o.answers || {}, rows = q.rows || [], cols = q.cols || [];
+  return '<div class="c-matrix"><table><thead><tr>' +
+      '<th scope="col"><span class="sr-only">Aspect</span></th>' +
+      cols.map(function(c){ return '<th scope="col">' + esc(c) + '</th>'; }).join('') +
+    '</tr></thead><tbody>' +
+    rows.map(function(r, ri){
+      var picked = ans[r];
+      var miss = o.missingRows && o.missingRows.indexOf(r) > -1;
+      return '<tr' + (miss ? ' class="is-missing"' : '') + '>' +
+        '<th scope="row">' + esc(r) + '</th>' +
+        cols.map(function(c){
+          var on = picked === c;
+          return '<td><label class="c-matrix-cell">' +
+            '<input type="radio" name="' + o.name + '-' + ri + '"' +
+              (o.disabled ? ' disabled' : '') +
+              (o.attr ? ' ' + o.attr + '="' + q.id + '" data-pqrow="' + esc(r) + '" data-pqval="' + esc(c) + '"' : '') +
+              (on ? ' checked' : '') + ' />' +
+            '<span class="c-radio-circle' + (on ? ' on' : '') + '">' +
+              (on ? '<span class="dot"></span>' : '') + '</span>' +
+            '<span class="sr-only">' + esc(r) + ': ' + esc(c) + '</span>' +
+          '</label></td>';
+        }).join('') +
+      '</tr>';
+    }).join('') +
+  '</tbody></table></div>';
+}
+function matrixRowsLeft(q, ans){
+  ans = ans || {};
+  return (q.rows || []).filter(function(r){ return !ans[r]; });
+}
+function sliderHtml(q, o){
+  o = o || {};
+  var min = q.min == null ? 0 : q.min, max = q.max == null ? 100 : q.max;
+  var has = o.value != null && o.value !== '';
+  /* Unanswered still has to render a thumb somewhere — a range input always
+     has one — so it sits at the midpoint and the label says the question is
+     open rather than answered "50". */
+  var at = has ? +o.value : Math.round((min + max) / 2);
+  var pct = !has || max === min ? 0 : (at - min) / (max - min) * 100;
+  return '<div class="c-slider-group">' +
+    '<span class="slider-value' + (has ? '' : ' is-unset') + '"' +
+      (o.attr ? ' data-slval="' + q.id + '"' : '') + '>' +
+      (has ? at + ' of ' + max : 'Drag to answer') + '</span>' +
+    '<div class="c-slider-rail' + (has ? '' : ' is-unset') + '">' +
+      '<div class="c-slider-track"><div class="c-slider-fill" style="width:' + pct + '%"' +
+        (o.attr ? ' data-slfill="' + q.id + '"' : '') + '></div></div>' +
+      '<input class="c-slider-input" type="range" min="' + min + '" max="' + max + '"' +
+        ' step="' + (q.step || 1) + '" value="' + at + '"' +
+        (o.disabled ? ' disabled' : '') +
+        (o.attr ? ' ' + o.attr + '="' + q.id + '"' : '') +
+        ' aria-label="' + esc(q.title) + '" aria-valuetext="' + (has ? at + ' of ' + max : 'No answer yet') + '" />' +
+    '</div>' +
+    ((q.lo || q.hi)
+      ? '<div class="c-slider-minmax"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div>'
+      : '') +
+  '</div>';
 }
 
 function questionPreview(q){
   if (q.type === 'short')  return '<div class="c-field field-wide"><div class="input-wrap"><input type="text" placeholder="' + esc(q.placeholder || 'Short answer') + '" disabled /></div></div>';
   if (q.type === 'long')   return '<div class="c-field field-wide"><textarea rows="2" placeholder="' + esc(q.placeholder || 'Long answer') + '" disabled></textarea></div>';
+  /* No .dot inside these circles: the dot is the picked state, and nothing
+     is picked in a preview of an unanswered question. */
   if (q.type === 'yesno')  return '<div class="row tight">' +
       ['Yes','No'].map(function(o){ return '<label class="c-choice"><input type="radio" name="p-' + q.id + '" disabled />' +
-        '<span class="c-radio-circle"><span class="dot"></span></span><span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + o + '</span></span></label>'; }).join('') + '</div>';
+        '<span class="c-radio-circle"></span><span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + o + '</span></span></label>'; }).join('') + '</div>';
   if (q.type === 'scale'){
     var opts = '';
     for (var v = q.min; v <= q.max; v++)
@@ -2270,10 +2662,12 @@ function questionPreview(q){
     return '<div class="c-scale"><div class="c-scale-track">' + opts + '</div>' +
       '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
   }
+  if (q.type === 'slider') return sliderHtml(q, { disabled:true });
+  if (q.type === 'matrix')  return matrixHtml(q, { name:'p-' + q.id, disabled:true });
   if (q.type === 'single' || q.type === 'multi'){
     return '<div class="stack sm">' + (q.options || ['Option 1','Option 2','Option 3']).map(function(o){
       return q.type === 'single'
-        ? '<label class="c-choice"><input type="radio" name="p-' + q.id + '" disabled /><span class="c-radio-circle"><span class="dot"></span></span><span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(o) + '</span></span></label>'
+        ? '<label class="c-choice"><input type="radio" name="p-' + q.id + '" disabled /><span class="c-radio-circle"></span><span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(o) + '</span></span></label>'
         : '<label class="c-choice"><input type="checkbox" disabled /><span class="c-checkbox-box"></span><span class="text"><span class="label" style="font-size:var(--text-body2-size)">' + esc(o) + '</span></span></label>';
     }).join('') + '</div>';
   }
@@ -2396,6 +2790,14 @@ function addBlock(f, kind){
   } else if (kind === 'poll'){
     f.questions.push({ id:id, type:'single', title:'Quick poll — which would you rather have first?',
       required:false, options:['Saved filters','Bulk export','Dark mode'] });
+  } else if (kind === 'matrix' || kind === 'slider'){
+    /* Built through setType so the starting rows, ratings and range are
+       defined in exactly one place — the same defaults the type switcher
+       hands out when an existing question is changed to one of these. */
+    var q = { id:id, required:false,
+              title: kind === 'matrix' ? 'Please rate the following' : 'Untitled question' };
+    setType(q, kind);
+    f.questions.push(q);
   } else {
     f.questions.push({ id:id, type:'short', title:'Untitled question', required:false });
   }
@@ -3354,7 +3756,7 @@ function renderSettings(f){
           ? 'Locked. Press Edit to change it.'
           : 'Editing. Press Save to lock it again — it is kept either way until you save the page.') + '</span></div>' +
       '</div>' +
-    '</div>' +
+    '</div></div>' +
 
     (s.progressBar ? '<div class="c-card stack sm"><span class="eyebrow">Preview</span>' +
       '<div class="c-progress-track size-default"><div class="c-progress-fill" style="width:40%"></div></div>' +
@@ -3366,10 +3768,8 @@ function renderSettings(f){
        offering an action that would do nothing. */
     '<div class="set-save' + (dirty ? ' is-dirty' : '') + '">' +
       '<span class="set-save-state">' + saveStateHtml(dirty) + '</span>' +
-      '<span class="grow"></span>' +
-      '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="setDiscard"' + (dirty ? '' : ' disabled') + '>Discard</button>' +
-      '<button class="c-btn c-btn-primary c-btn-md" type="button" id="setSave"' + (dirty ? '' : ' disabled') + '>' +
-        '<i class="ph ph-floppy-disk" aria-hidden="true"></i>Save settings</button>' +
+      '<button class="c-btn c-btn-secondary c-btn-sm" type="button" id="setDiscard"' + (dirty ? '' : ' disabled') + '>Discard</button>' +
+      '<button class="c-btn c-btn-primary c-btn-sm" type="button" id="setSave"' + (dirty ? '' : ' disabled') + '>Save settings</button>' +
     '</div>';
 
   /* ---- toggles ---- */
@@ -3460,7 +3860,11 @@ function bugSegHtml(metaHtml){
      different route sections and both stay in the document, so an id here
      would be a duplicate and every lookup would resolve to whichever copy
      came first — which is the hidden one, half the time. */
-  return '<div class="row between">' +
+  /* The rule under the page header comes first, the same one the other two
+     landing screens carry — it is here rather than in each route because
+     both of them open on this row. */
+  return '<hr class="route-rule" />' +
+    '<div class="row between">' +
     '<div class="c-segctl c-segctl-default" role="tablist" aria-label="Bug report view" data-bugseg>' +
       '<span class="c-seg-pill" aria-hidden="true"></span>' +
       '<button class="c-seg" type="button" role="tab" data-bv="mine">My tickets</button>' +
@@ -4437,10 +4841,10 @@ $('#shareLayer').addEventListener('click', function(e){
 var prevLastFocus = null;
 var prevAns = {};          /* answers typed into the preview, question id -> value */
 var prevMissing = [];      /* required questions the last submit caught */
-var prevDone = false;      /* showing the confirmation screen */
+var prevPage = 'form';     /* which page of the responder view is showing */
 
 function previewOpen(){ return !$('#prevLayer').hidden; }
-function resetPreview(){ prevAns = {}; prevMissing = []; prevDone = false; }
+function resetPreview(){ prevAns = {}; prevMissing = []; prevPage = 'form'; }
 
 function openPreview(f){
   resetPreview();
@@ -4474,6 +4878,9 @@ function prevAsks(f){
 function prevHas(q){
   var v = prevAns[q.id];
   if (v == null) return false;
+  /* A rating table holds one answer per row, so a half-filled grid is not
+     an answered question — String(v) on the object would say otherwise. */
+  if (q.type === 'matrix') return matrixRowsLeft(q, v).length === 0;
   return Array.isArray(v) ? v.length > 0 : String(v).trim() !== '';
 }
 
@@ -4522,6 +4929,12 @@ function prevField(q){
     return '<div class="c-scale"><div class="c-scale-track">' + opts + '</div>' +
       '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
   }
+  if (q.type === 'slider')
+    return sliderHtml(q, { value: prevAns[q.id], attr:'data-pqsl' });
+  if (q.type === 'matrix')
+    return matrixHtml(q, { name:'pv-' + q.id, answers: prevAns[q.id] || {}, attr:'data-pqmx',
+                           missingRows: prevMissing.indexOf(q.id) > -1
+                             ? matrixRowsLeft(q, prevAns[q.id]) : null });
   if (q.type === 'single' || q.type === 'multi')
     return '<div class="stack sm">' + (q.options || []).map(function(o){
       return prevChoice(q, o, o, q.type); }).join('') + '</div>';
@@ -4603,13 +5016,25 @@ function paintPreview(f){
         '<span class="eyebrow"><i class="ph-fill ph-eye" aria-hidden="true"></i> Responder view</span>' +
         '<h4 id="prevTitle">Preview</h4>' +
       '</span>' +
-      statusBadge(f) +
+      /* A responder sees two pages, and the second one is built out of
+         settings that have no other visible effect anywhere — so it has to
+         be reachable without answering the form first, not only as the
+         reward for completing it. Segmented Control's Compact size: this
+         sits in a modal head beside a title, not on a page of its own. */
+      '<div class="c-segctl c-segctl-compact prev-pages" role="tablist" aria-label="Preview page" id="prevPages">' +
+        '<span class="c-seg-pill" aria-hidden="true"></span>' +
+        '<button class="c-seg" type="button" role="tab" data-pp="form">Form</button>' +
+        '<button class="c-seg" type="button" role="tab" data-pp="thanks">Thank you</button>' +
+      '</div>' +
+      /* No status badge: whether the survey is Active is a fact about the
+         survey, not about the page being previewed, and the head is already
+         saying whose view this is and which of its two pages is showing. */
       '<button class="c-icon-btn" type="button" id="prevClose" aria-label="Close preview">' +
         '<i class="ph ph-x" aria-hidden="true"></i></button>' +
     '</div>' +
 
     '<div class="c-modal-body">' +
-      (prevDone ? prevThanksHtml(f) : prevFormHtml(f, asks, done)) +
+      (prevPage === 'thanks' ? prevThanksHtml(f) : prevFormHtml(f, asks, done)) +
     '</div>' +
 
     '<div class="c-modal-foot">' +
@@ -4622,7 +5047,7 @@ function paintPreview(f){
       '<span class="hint grow">' + (builderDirty(f)
         ? 'This survey has unsaved changes. The preview shows the saved version.'
         : 'Preview only — nothing entered here is recorded.') + '</span>' +
-      (prevDone || !f.questions.length ? ''
+      (prevPage === 'thanks' || !f.questions.length ? ''
         : '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="prevReset">Clear answers</button>') +
       '<button class="c-btn c-btn-primary c-btn-md" type="button" id="prevCloseBtn">Close preview</button>' +
     '</div>';
@@ -4633,6 +5058,21 @@ function paintPreview(f){
 /* Typing patches the progress bar in place. A repaint on every keystroke
    would take the caret out of the field — the same reason the Settings save
    bar is patched rather than re-rendered. */
+/* Answering a question that the last Submit marked as missing clears the
+   mark, without a repaint — the card and its message are patched, the same
+   way the progress bar is. */
+function clearPrevMiss(f, id){
+  if (prevMissing.indexOf(id) === -1) return;
+  var q = f.questions.filter(function(x){ return x.id === id; })[0];
+  if (!q || !prevHas(q)) return;
+  prevMissing = prevMissing.filter(function(x){ return x !== id; });
+  var card = $('[data-pq="' + id + '"]');
+  if (!card) return;
+  card.classList.remove('is-missing');
+  var msg = $('.prev-miss', card);
+  if (msg) msg.parentNode.removeChild(msg);
+}
+
 function refreshPrevProgress(f){
   var bar = $('.prev-progress');
   if (!bar) return;
@@ -4653,20 +5093,29 @@ function prevSubmit(f){
       : prevMissing.length + ' required questions still need an answer');
     return;
   }
-  prevDone = true;
+  prevPage = 'thanks';
   paintPreview(f);
   $('#prev .c-modal-body').scrollTop = 0;
 }
 
 function wirePreview(f){
   var root = $('#prev');
+  /* Switching pages is not a failed submit, so it drops any required-answer
+     marks the last Submit left behind. The answers themselves are kept —
+     going to the confirmation and back is a look, not a reset. */
+  wireSeg($('#prevPages', root), prevPage === 'form' ? 0 : 1, function(i){
+    prevPage = i ? 'thanks' : 'form';
+    prevMissing = [];
+    paintPreview(f);
+    $('#prev .c-modal-body').scrollTop = 0;
+  });
   $('#prevClose').addEventListener('click', closePreview);
   $('#prevCloseBtn').addEventListener('click', closePreview);
   if ($('#prevReset', root)) $('#prevReset').addEventListener('click', function(){
     resetPreview(); paintPreview(f); toast('Preview answers cleared');
   });
   if ($('#prevSubmit', root)) $('#prevSubmit').addEventListener('click', function(){ prevSubmit(f); });
-  if ($('#prevEdit', root))   $('#prevEdit').addEventListener('click', function(){ prevDone = false; paintPreview(f); });
+  if ($('#prevEdit', root))   $('#prevEdit').addEventListener('click', function(){ prevPage = 'form'; paintPreview(f); });
   if ($('#prevAgain', root))  $('#prevAgain').addEventListener('click', function(){ resetPreview(); paintPreview(f); });
 
   $$('[data-pqtext]', root).forEach(function(el){
@@ -4680,6 +5129,42 @@ function wirePreview(f){
      question, and it clears that question's own required flag. Focus is put
      back on the control that was just used, since the node it was on is
      gone. */
+  /* A grid and a slider both patch in place. Neither can gate a dependent
+     question — that hangs off a single named value — so there is nothing a
+     repaint would reveal, and repainting would take focus out of the row or
+     drop the thumb mid-drag. */
+  $$('[data-pqmx]', root).forEach(function(el){
+    el.addEventListener('change', function(){
+      var id = el.dataset.pqmx, row = el.dataset.pqrow;
+      var v = prevAns[id] || {};
+      v[row] = el.dataset.pqval;
+      prevAns[id] = v;
+      var tr = el.closest('tr');
+      $$('.c-radio-circle', tr).forEach(function(c){ c.classList.remove('on'); c.innerHTML = ''; });
+      var mine = el.nextElementSibling;
+      mine.classList.add('on');
+      mine.innerHTML = '<span class="dot"></span>';
+      tr.classList.remove('is-missing');
+      clearPrevMiss(f, id);
+      refreshPrevProgress(f);
+    });
+  });
+
+  $$('[data-pqsl]', root).forEach(function(el){
+    el.addEventListener('input', function(){
+      var id = el.dataset.pqsl, min = +el.min, max = +el.max;
+      prevAns[id] = el.value;
+      var fill = $('[data-slfill="' + id + '"]', root);
+      if (fill) fill.style.width = (max === min ? 0 : (el.value - min) / (max - min) * 100) + '%';
+      var lab = $('[data-slval="' + id + '"]', root);
+      if (lab){ lab.textContent = el.value + ' of ' + max; lab.classList.remove('is-unset'); }
+      el.parentNode.classList.remove('is-unset');
+      el.setAttribute('aria-valuetext', el.value + ' of ' + max);
+      clearPrevMiss(f, id);
+      refreshPrevProgress(f);
+    });
+  });
+
   $$('[data-pqpick]', root).forEach(function(el){
     el.addEventListener('change', function(){
       var id = el.dataset.pqpick, v = el.dataset.pqval;

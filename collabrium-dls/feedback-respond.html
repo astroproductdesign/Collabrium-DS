@@ -15,10 +15,11 @@
 <style>
 /* ==========================================================================
    CANDIDATE COMPONENTS — not in components.css yet.
-   Two patterns this flow needs that the DLS does not have. Written to house
-   conventions (tokens only, .c- prefix, same commenting style) so promoting
-   either is a copy-paste rather than a rewrite. Everything below the second
-   banner is prototype-only scaffolding and would NOT be promoted.
+   Three patterns this flow needs that the DLS does not have. Written to
+   house conventions (tokens only, .c- prefix, same commenting style) so
+   promoting any of them is a copy-paste rather than a rewrite. Everything
+   below the second banner is prototype-only scaffolding and would NOT be
+   promoted.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -27,21 +28,63 @@
    1-5 / 0-10 linear-scale answer. Radio is the right semantics but its own
    circle+label stack reads as a vertical list, and Segmented Control is a
    view switcher, not a form answer. This is a radiogroup rendered as a row
-   of equal-width numbered targets: real <input type="radio">, so keyboard
-   arrow-key navigation and form semantics come free.
+   of numbered targets: real <input type="radio">, so keyboard arrow-key
+   navigation and form semantics come free.
+   The target is a circle rather than a rectangle: at 0-10 a row of eleven
+   rectangles reads as a segmented control — something you switch a view
+   with — and the circle is already this system's shape for one choice out
+   of several. Each option keeps an equal share of the row and centres its
+   circle in it, so the numbers stay evenly spaced at any width and wrap in
+   even rows. 44px here rather than feedback.html's 40: this is the page a
+   responder actually fills in, often on a phone.
    Two prototypes needing the identical thing is the argument for promoting
    it rather than copying it a third time.
    -------------------------------------------------------------------------- */
 .c-scale{display:flex; flex-direction:column; gap:var(--spacing-8);}
 .c-scale-track{display:flex; gap:var(--spacing-8); flex-wrap:wrap;}
-.c-scale-opt{position:relative; flex:1 1 0; min-width:40px;}
+.c-scale-opt{position:relative; flex:1 1 0; min-width:44px; display:flex; justify-content:center;}
 .c-scale-opt input{position:absolute; opacity:0; width:0; height:0;}
-.c-scale-opt span{display:flex; align-items:center; justify-content:center; height:44px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-scale-opt span{display:flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
 .c-scale-opt:hover span{background:var(--color-neutral-2);}
 .c-scale-opt input:checked + span{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
 .c-scale-opt input:focus-visible + span{outline:2px solid var(--color-obsidian); outline-offset:2px;}
 /* End labels — the numbers alone never say which end is good. */
 .c-scale-ends{display:flex; justify-content:space-between; gap:var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 3 — Rating table (.c-matrix)
+   Carried over verbatim from feedback.html, where it was first proposed:
+   one rating scale asked of several things at once, a row per subject and a
+   column per rating. Composed rather than invented — the frame is Table's
+   own anatomy (Embedded header in label3/uppercase/Neutral-5, body rows in
+   body2/500 with a 1px Neutral-3 border-bottom and none on the last,
+   Neutral-2 row hover) and the control is Radio verbatim.
+   One deliberate departure from Table: the rating cells and their headers
+   are centre-aligned, where Table's own rule is that every column is
+   left-aligned. A rating cell's meaning is the intersection of its row and
+   its column, and an 18px radio parked at the left edge of a column headed
+   "Very poor" sits nearer the previous column's label than its own.
+   -------------------------------------------------------------------------- */
+.c-matrix{width:100%; overflow-x:auto;}
+.c-matrix table{width:100%; min-width:480px; border-collapse:collapse;}
+.c-matrix th,.c-matrix td{padding:var(--spacing-12) var(--spacing-8); border-bottom:1px solid var(--color-neutral-3);}
+.c-matrix thead th{font-family:var(--font-primary); font-size:var(--text-label3-size); font-weight:700; letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5); text-align:center; white-space:nowrap; vertical-align:bottom;}
+.c-matrix thead th:first-child{text-align:left;}
+.c-matrix tbody th{text-align:left; font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:500; color:var(--color-neutral-9);}
+.c-matrix tbody td{text-align:center;}
+.c-matrix tbody tr:last-child th,.c-matrix tbody tr:last-child td{border-bottom:0;}
+.c-matrix tbody tr{transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-matrix tbody tr:hover{background:var(--color-neutral-2);}
+/* The cell is wider than the 18px circle, so the whole cell is the label
+   rather than the circle alone — 44px of height on the page people fill in
+   on a phone. */
+.c-matrix-cell{display:flex; align-items:center; justify-content:center; min-height:44px; cursor:pointer;}
+.c-matrix-cell input{position:absolute; opacity:0; width:0; height:0;}
+.c-matrix-cell .c-radio-circle{margin-top:0;}
+.c-matrix-cell input:focus-visible + .c-radio-circle{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* A missing row in a required grid is marked on the row, not on five
+   radios — same reasoning as the question card's own is-missing state. */
+.c-matrix tbody tr.is-missing th{color:var(--color-red);}
 
 /* --------------------------------------------------------------------------
    CANDIDATE 2 — Notification panel (.c-notify)
@@ -190,6 +233,24 @@ p.hint{margin:0;}
 .q-card.is-missing{border-color:var(--color-red);}
 .q-miss{display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-red);}
 .q-miss i{font-size:var(--icon-sm);}
+/* Slider's own optional static value label — caption/Neutral-9, right
+   aligned above the rail's end. Used instead of the drag tooltip (the
+   component documents the two as mutually exclusive) because a survey
+   answer has to be readable at rest, not only while a thumb is held. */
+.slider-value{display:block; text-align:right; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9); margin-bottom:var(--spacing-4); font-variant-numeric:tabular-nums;}
+.slider-value.is-unset{font-weight:400; color:var(--color-neutral-5);}
+/* Unanswered. A range input always draws a thumb somewhere, so it sits at
+   the midpoint — but nothing has been committed yet, so the track stays
+   unfilled and the thumb takes a Neutral-4 outline instead of Obsidian's
+   "the value is here". */
+.c-slider-rail.is-unset .c-slider-input::-webkit-slider-thumb{border-color:var(--color-neutral-4);}
+.c-slider-rail.is-unset .c-slider-input::-moz-range-thumb{border-color:var(--color-neutral-4);}
+/* A free-text answer takes the whole card. .c-field ships a 220px default
+   width, which is right for one field in a row of them and wrong for the one
+   thing a question is asking for — the markup was already asking for this
+   with .field-wide, which nothing here defined. */
+.c-field.field-wide{width:100%; max-width:none;}
+.c-field.field-wide input,.c-field.field-wide textarea{width:100%; box-sizing:border-box;}
 /* Progress sticks to the top of the page, under the name bar, which is the
    only place a progress bar earns its keep on a long form. */
 .pub-progress{position:sticky; top:0; z-index:10; display:flex; flex-direction:column; gap:var(--spacing-8); margin:0 calc(var(--spacing-24) * -1); padding:var(--spacing-12) var(--spacing-24); background:var(--color-canvas-warm);}
@@ -198,7 +259,6 @@ p.hint{margin:0;}
 /* Step 3 — confirmation. */
 .done-card{align-items:flex-start; text-align:left;}
 .done-icon{font-size:44px; color:var(--color-green); line-height:1;}
-.done-facts{display:flex; flex-wrap:wrap; gap:var(--spacing-8); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3); width:100%;}
 
 @media (max-width:820px){
   .dash-cols{grid-template-columns:minmax(0,1fr);}
@@ -255,30 +315,37 @@ function daysBetween(a, b){
    two prototypes describe one product rather than two.
    ========================================================================== */
 var SURVEY = {
-  title: 'Product experience survey — Q3',
-  desc:  'Ten quick questions about how Collabrium is working for you. Takes about two minutes and everything is anonymous to your pod lead.',
+  title: 'CollabSales Post-Launch Survey',
+  desc:  'Five questions on the new CollabSales release — how it feels to use, and what to fix first. Ratings are anonymous to the pod.',
   /* The person asking is not the person answering — the responder is ME
      below. Sending yourself a survey reads as a bug in the prototype. */
   from:  'Nurul Kamal',
-  fromRole: 'Pod lead, CollabMedia',
-  ends:  new Date(2026, 8, 30),
-  settings: { progressBar:true, sendCopy:true, allowEdit:true, oneResponse:true,
-              confirm:'Thanks for your feedback! We read every response.' },
+  fromRole: 'Product lead, CollabSales',
+  ends:  new Date(2026, 9, 3),
+  settings: { progressBar:true, sendCopy:false, allowEdit:true, oneResponse:true,
+              confirm:'Thanks — this goes straight to the CollabSales team.' },
+  /* The same five questions as the survey of this name in feedback.html, so
+     the two prototypes describe one survey rather than two. Three of them
+     are the reason the rating table and the slider exist: a 1-10 scale, one
+     rating scale asked of four parts of the interface at once, and a
+     continuous "how does it feel" slider. */
   questions: [
-    { id:'q1',  type:'scale', title:'How easy was it to complete what you came here to do?', required:true, min:1, max:5, lo:'Very difficult', hi:'Very easy' },
-    { id:'q2',  type:'scale', title:'How easy was it to find what you were looking for?', required:true, min:1, max:5, lo:'Very difficult', hi:'Very easy' },
-    { id:'q3',  type:'scale', title:'How would you rate the look and feel?', required:true, min:1, max:5, lo:'Poor', hi:'Excellent' },
-    { id:'q4',  type:'yesno', title:'Did the site/app feel fast and responsive?', required:true },
-    { id:'q5',  type:'scale', title:'Was the information clear and easy to understand?', required:true, min:1, max:5, lo:'Not at all', hi:'Completely' },
-    { id:'q6',  type:'yesno', title:'Were you able to complete your task/goal today?', required:true },
-    { id:'q6b', type:'long',  title:'If no, why not?', required:false, dependsOn:'q6', dependsValue:'No', placeholder:'Tell us what got in the way' },
-    { id:'q7',  type:'scale', title:'How satisfied are you with your experience overall?', required:true, min:1, max:5, lo:'Very dissatisfied', hi:'Very satisfied' },
-    { id:'q8',  type:'scale', title:'How likely are you to recommend this to a colleague?', required:true, min:0, max:10, lo:'Not at all likely', hi:'Extremely likely' },
-    { id:'q9',  type:'long',  title:'What was the most frustrating part of your experience?', required:false, placeholder:'Optional' },
-    { id:'q10', type:'long',  title:"What's one thing we could improve?", required:false, placeholder:'Optional' }
+    { id:'s1', type:'scale',  title:'How satisfied are you with your experience overall?', required:true,
+      min:1, max:10, lo:'Very dissatisfied', hi:'Very satisfied' },
+    { id:'s2', type:'matrix', title:'Please rate the following aspects of our user interface', required:true,
+      rows:['Visual appeal','Layout','Ease of navigation','Information hierarchy'],
+      cols:['Very poor','Poor','Average','Good','Excellent'] },
+    { id:'s3', type:'slider', title:'How intuitive is the user experience on our platform?', required:true,
+      min:0, max:100, step:1, lo:'Not intuitive at all', hi:'Completely intuitive' },
+    { id:'s4', type:'short',  title:'What feature or function do you find most useful?', required:false,
+      placeholder:'Optional' },
+    { id:'s5', type:'long',   title:'Do you have any additional comments or suggestions for improvement?', required:false,
+      placeholder:'Optional' }
   ]
 };
-var ME = { name:'Aisyah Rahman', initials:'AR', pod:'CollabMedia', email:'aisyah.rahman@astro.com.my' };
+/* In the pod the release landed in — a CollabSales post-launch survey
+   arriving at someone who does not use CollabSales reads as a mis-send. */
+var ME = { name:'Aisyah Rahman', initials:'AR', pod:'CollabSales', email:'aisyah.rahman@astro.com.my' };
 
 /* ==========================================================================
    Flow state
@@ -299,9 +366,7 @@ var state = {
   ans: {},          /* question id -> answer */
   missing: [],      /* required questions the last submit caught */
   bellOpen: false,
-  unread: 3,
-  openedAt: null,   /* when the form was first opened, for the real duration */
-  seconds: 0
+  unread: 3
 };
 
 /* ==========================================================================
@@ -338,6 +403,9 @@ function visible(){
 function has(q){
   var v = state.ans[q.id];
   if (v == null) return false;
+  /* A rating table holds one answer per row, so a half-filled grid is not
+     an answered question — String(v) on the object would say otherwise. */
+  if (q.type === 'matrix') return matrixRowsLeft(q, v).length === 0;
   return Array.isArray(v) ? v.length > 0 : String(v).trim() !== '';
 }
 function answeredCount(){ return visible().filter(has).length; }
@@ -561,6 +629,65 @@ function choiceRow(q, label, value, kind){
   '</label>';
 }
 
+/* Rating table and Slider markup — the same two functions feedback.html
+   carries, so a question renders identically in the editor's preview and on
+   the page a responder actually fills in. */
+function matrixHtml(q, o){
+  o = o || {};
+  var ans = o.answers || {}, rows = q.rows || [], cols = q.cols || [];
+  return '<div class="c-matrix"><table><thead><tr>' +
+      '<th scope="col"><span class="sr-only">Aspect</span></th>' +
+      cols.map(function(c){ return '<th scope="col">' + esc(c) + '</th>'; }).join('') +
+    '</tr></thead><tbody>' +
+    rows.map(function(r, ri){
+      var picked = ans[r];
+      var miss = o.missingRows && o.missingRows.indexOf(r) > -1;
+      return '<tr' + (miss ? ' class="is-missing"' : '') + '>' +
+        '<th scope="row">' + esc(r) + '</th>' +
+        cols.map(function(c){
+          var on = picked === c;
+          return '<td><label class="c-matrix-cell">' +
+            '<input type="radio" name="a-' + q.id + '-' + ri + '"' +
+              ' data-mx="' + q.id + '" data-mrow="' + esc(r) + '" data-val="' + esc(c) + '"' +
+              (on ? ' checked' : '') + ' />' +
+            '<span class="c-radio-circle' + (on ? ' on' : '') + '">' +
+              (on ? '<span class="dot"></span>' : '') + '</span>' +
+            '<span class="sr-only">' + esc(r) + ': ' + esc(c) + '</span>' +
+          '</label></td>';
+        }).join('') +
+      '</tr>';
+    }).join('') +
+  '</tbody></table></div>';
+}
+function matrixRowsLeft(q, ans){
+  ans = ans || {};
+  return (q.rows || []).filter(function(r){ return !ans[r]; });
+}
+function sliderHtml(q, value){
+  var min = q.min == null ? 0 : q.min, max = q.max == null ? 100 : q.max;
+  var has_ = value != null && value !== '';
+  /* Unanswered still has to render a thumb somewhere — a range input always
+     has one — so it sits at the midpoint, with an unfilled track and a label
+     saying the question is open rather than answered "50". */
+  var at = has_ ? +value : Math.round((min + max) / 2);
+  var pct = !has_ || max === min ? 0 : (at - min) / (max - min) * 100;
+  return '<div class="c-slider-group">' +
+    '<span class="slider-value' + (has_ ? '' : ' is-unset') + '" data-slval="' + q.id + '">' +
+      (has_ ? at + ' of ' + max : 'Drag to answer') + '</span>' +
+    '<div class="c-slider-rail' + (has_ ? '' : ' is-unset') + '">' +
+      '<div class="c-slider-track"><div class="c-slider-fill" style="width:' + pct + '%"' +
+        ' data-slfill="' + q.id + '"></div></div>' +
+      '<input class="c-slider-input" type="range" min="' + min + '" max="' + max + '"' +
+        ' step="' + (q.step || 1) + '" value="' + at + '" data-sl="' + q.id + '"' +
+        ' aria-label="' + esc(q.title) + '"' +
+        ' aria-valuetext="' + (has_ ? at + ' of ' + max : 'No answer yet') + '" />' +
+    '</div>' +
+    ((q.lo || q.hi)
+      ? '<div class="c-slider-minmax"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div>'
+      : '') +
+  '</div>';
+}
+
 function fieldHtml(q){
   var v = state.ans[q.id];
   if (q.type === 'short')
@@ -584,6 +711,11 @@ function fieldHtml(q){
     return '<div class="c-scale"><div class="c-scale-track">' + opts + '</div>' +
       '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
   }
+  if (q.type === 'slider') return sliderHtml(q, state.ans[q.id]);
+  if (q.type === 'matrix')
+    return matrixHtml(q, { answers: state.ans[q.id] || {},
+                           missingRows: state.missing.indexOf(q.id) > -1
+                             ? matrixRowsLeft(q, state.ans[q.id]) : null });
   if (q.type === 'single' || q.type === 'multi')
     return '<div class="stack sm">' + (q.options || []).map(function(o){
       return choiceRow(q, o, o, q.type); }).join('') + '</div>';
@@ -647,9 +779,6 @@ function submit(){
       : state.missing.length + ' required questions still need an answer');
     return;
   }
-  /* A real duration, measured from when the form was opened — not a number
-     picked to look plausible. */
-  state.seconds = state.openedAt ? Math.max(1, Math.round((Date.now() - state.openedAt) / 1000)) : 0;
   state.step = 3;
   render();
   window.scrollTo(0, 0);
@@ -658,12 +787,8 @@ function submit(){
 /* ==========================================================================
    Step 3 — confirmation
    ========================================================================== */
-function mmss(s){
-  var m = Math.floor(s / 60);
-  return m ? m + ' min ' + (s % 60) + ' s' : s + ' s';
-}
 function doneHtml(){
-  var s = SURVEY.settings, vis = visible();
+  var s = SURVEY.settings;
   return '<div class="pub">' +
     '<div class="pub-bar">' +
       '<span style="font-family:var(--font-secondary);font-size:18px;font-weight:600">Collabrium</span>' +
@@ -673,16 +798,6 @@ function doneHtml(){
         '<i class="ph-fill ph-check-circle done-icon" aria-hidden="true"></i>' +
         '<h1 class="form-title">Your answers are in.</h1>' +
         '<p class="form-desc">' + esc(s.confirm) + '</p>' +
-        (s.sendCopy
-          ? '<p class="hint"><i class="ph ph-envelope-simple" aria-hidden="true"></i> ' +
-            'A copy of your response has been emailed to ' + esc(ME.email) + '.</p>'
-          : '') +
-        '<div class="done-facts">' +
-          '<span class="c-badge c-badge-neutral"><i class="ph ph-list-checks" aria-hidden="true"></i>' +
-            answeredCount() + ' of ' + vis.length + ' answered</span>' +
-          '<span class="c-badge c-badge-neutral"><i class="ph ph-clock" aria-hidden="true"></i>' +
-            esc(mmss(state.seconds)) + '</span>' +
-        '</div>' +
       '</div>' +
       '<div class="row tight">' +
         (s.allowEdit
@@ -694,11 +809,6 @@ function doneHtml(){
         '<button class="c-btn c-btn-primary c-btn-md" type="button" id="backToApp">' +
           'Back to Collabrium<i class="ph ph-arrow-right" aria-hidden="true"></i></button>' +
       '</div>' +
-      '<p class="hint">' + (s.oneResponse
-        ? (s.allowEdit
-            ? 'One response per person — coming back to this link reopens your answers.'
-            : 'One response per person — this link will not take another submission from you.')
-        : 'You can answer this survey more than once.') + '</p>' +
     '</div>' +
   '</div>';
 }
@@ -732,7 +842,6 @@ function openForm(){
   state.step = 2;
   state.bellOpen = false;
   state.unread = 0;
-  if (!state.openedAt) state.openedAt = Date.now();
   render();
   window.scrollTo(0, 0);
 }
@@ -824,6 +933,42 @@ function wire(){
   /* Picking an answer repaints: it can reveal or retract the dependent
      question, and it clears that question's own required flag. Focus goes
      back on the control that was used, since the node it was on is gone. */
+  /* A grid and a slider both patch in place. Neither can gate a dependent
+     question — that hangs off a single named value — so there is nothing a
+     repaint would reveal, and repainting would take focus out of the row or
+     drop the thumb mid-drag. */
+  $$('[data-mx]', root).forEach(function(el){
+    el.addEventListener('change', function(){
+      var id = el.dataset.mx, row = el.dataset.mrow;
+      var v = state.ans[id] || {};
+      v[row] = el.dataset.val;
+      state.ans[id] = v;
+      var tr = el.closest('tr');
+      $$('.c-radio-circle', tr).forEach(function(c){ c.classList.remove('on'); c.innerHTML = ''; });
+      var mine = el.nextElementSibling;
+      mine.classList.add('on');
+      mine.innerHTML = '<span class="dot"></span>';
+      tr.classList.remove('is-missing');
+      clearMiss(id);
+      refreshProgress();
+    });
+  });
+
+  $$('[data-sl]', root).forEach(function(el){
+    el.addEventListener('input', function(){
+      var id = el.dataset.sl, min = +el.min, max = +el.max;
+      state.ans[id] = el.value;
+      var fill = $('[data-slfill="' + id + '"]', root);
+      if (fill) fill.style.width = (max === min ? 0 : (el.value - min) / (max - min) * 100) + '%';
+      var lab = $('[data-slval="' + id + '"]', root);
+      if (lab){ lab.textContent = el.value + ' of ' + max; lab.classList.remove('is-unset'); }
+      el.parentNode.classList.remove('is-unset');
+      el.setAttribute('aria-valuetext', el.value + ' of ' + max);
+      clearMiss(id);
+      refreshProgress();
+    });
+  });
+
   $$('[data-pick]', root).forEach(function(el){
     el.addEventListener('change', function(){
       var id = el.dataset.pick, v = el.dataset.val;
@@ -857,12 +1002,27 @@ function wire(){
     state.step = 2; render(); window.scrollTo(0, 0);
   });
   if ($('#again', root)) $('#again').addEventListener('click', function(){
-    state.ans = {}; state.missing = []; state.step = 2; state.openedAt = Date.now();
+    state.ans = {}; state.missing = []; state.step = 2;
     render(); window.scrollTo(0, 0);
   });
   if ($('#backToApp', root)) $('#backToApp').addEventListener('click', function(){
     reset('dash'); toast('Back in Collabrium');
   });
+}
+
+/* Answering a question the last Submit marked as missing clears the mark
+   without a repaint — the card and its message are patched, the same way
+   the progress bar is. */
+function clearMiss(id){
+  if (state.missing.indexOf(id) === -1) return;
+  var q = SURVEY.questions.filter(function(x){ return x.id === id; })[0];
+  if (!q || !has(q)) return;
+  state.missing = state.missing.filter(function(x){ return x !== id; });
+  var card = $('[data-q="' + id + '"]');
+  if (!card) return;
+  card.classList.remove('is-missing');
+  var msg = $('.q-miss', card);
+  if (msg) msg.parentNode.removeChild(msg);
 }
 
 /* Typing patches the progress bar in place — a repaint on every keystroke
@@ -884,8 +1044,6 @@ function reset(entry){
      the moment being tested, not the click that opens the bell. */
   state.bellOpen = state.entry === 'notify';
   state.unread = 3;
-  state.openedAt = null;
-  state.seconds = 0;
   render();
   window.scrollTo(0, 0);
 }
@@ -896,7 +1054,6 @@ $('#hSteps').addEventListener('click', function(e){
   if (!b) return;
   e.stopPropagation();
   var n = +b.dataset.step;
-  if (n === 2 && !state.openedAt) state.openedAt = Date.now();
   state.step = n;
   render();
   window.scrollTo(0, 0);
