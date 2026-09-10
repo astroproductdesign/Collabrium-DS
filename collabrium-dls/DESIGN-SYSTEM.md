@@ -6761,6 +6761,21 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.102 — 2026-09-10** — [Charts](#chart-chrome--marks)' six
+  Chart.js v4 demo cards are retitled to name the chart type they
+  demonstrate — Bar Chart, Doughnut Chart, Line Chart, Scatter Chart,
+  Pie Chart and Mixed Chart (Bar + Line) — in place of the sample
+  business headings they carried ("Renewals closed", "Pipeline by
+  stage", "Renewal rate trend", and so on). `preview.html` is a
+  component gallery, and every other `.comp-block` in it names the
+  thing being demonstrated; these six named their illustrative data
+  instead, which made the one card a reader wants when they are picking
+  a chart type the hardest one to pick out. Nothing else moved: no
+  chrome, marks, colour mapping or sample series changed, and the
+  dimension names are not lost with the headings — each card's own
+  **View as table** headers still carry them, as do the dataset labels
+  the tooltip and legend read from.
+
 - **v0.9.101 — 2026-09-08** — [Dropdown](#dropdown) gains six additions
   and one bug fix, all of them selected from a proposal draft rather than
   invented wholesale, and most of them closing a gap another component

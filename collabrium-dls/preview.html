@@ -1796,7 +1796,7 @@
             <div class="c-chart-grid">
 
               <div class="c-card c-chart-card" id="chartBar">
-                <h5>Renewals closed</h5>
+                <h5>Bar Chart</h5>
                 <div class="c-chart-canvas-wrap"><canvas></canvas></div>
                 <div class="c-chart-table-wrap"><table class="c-table c-table-embedded c-chart-table">
                   <thead><tr><th>Month</th><th class="num">Renewals</th></tr></thead>
@@ -1806,7 +1806,7 @@
               </div>
 
               <div class="c-card c-chart-card" id="chartDoughnut">
-                <h5>Pipeline by stage</h5>
+                <h5>Doughnut Chart</h5>
                 <div class="c-chart-canvas-wrap"><canvas></canvas></div>
                 <div class="c-chart-table-wrap"><table class="c-table c-table-embedded c-chart-table">
                   <thead><tr><th>Stage</th><th class="num">Deals</th></tr></thead>
@@ -1816,7 +1816,7 @@
               </div>
 
               <div class="c-card c-chart-card" id="chartLine">
-                <h5>Renewal rate trend</h5>
+                <h5>Line Chart</h5>
                 <div class="c-chart-canvas-wrap"><canvas></canvas></div>
                 <div class="c-chart-table-wrap"><table class="c-table c-table-embedded c-chart-table">
                   <thead><tr><th>Month</th><th class="num">Renewal rate</th></tr></thead>
@@ -1826,7 +1826,7 @@
               </div>
 
               <div class="c-card c-chart-card" id="chartScatter">
-                <h5>Deal size vs. days to close</h5>
+                <h5>Scatter Chart</h5>
                 <div class="c-chart-canvas-wrap"><canvas></canvas></div>
                 <div class="c-chart-table-wrap"><table class="c-table c-table-embedded c-chart-table">
                   <thead><tr><th class="num">Days to close</th><th class="num">Deal size ($k)</th></tr></thead>
@@ -1836,7 +1836,7 @@
               </div>
 
               <div class="c-card c-chart-card" id="chartPie">
-                <h5>Support tickets by priority</h5>
+                <h5>Pie Chart</h5>
                 <div class="c-chart-canvas-wrap"><canvas></canvas></div>
                 <div class="c-chart-table-wrap"><table class="c-table c-table-embedded c-chart-table">
                   <thead><tr><th>Priority</th><th class="num">Tickets</th></tr></thead>
@@ -1846,7 +1846,7 @@
               </div>
 
               <div class="c-card c-chart-card" id="chartMixed">
-                <h5>Renewals &amp; renewal rate</h5>
+                <h5>Mixed Chart (Bar + Line)</h5>
                 <div class="c-chart-canvas-wrap"><canvas></canvas></div>
                 <div class="c-chart-table-wrap"><table class="c-table c-table-embedded c-chart-table">
                   <thead><tr><th>Month</th><th class="num">Renewals</th><th class="num">Renewal rate</th></tr></thead>
@@ -10767,6 +10767,21 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.102 — 2026-09-10** — [Charts](#chart-chrome--marks)' six
+  Chart.js v4 demo cards are retitled to name the chart type they
+  demonstrate — Bar Chart, Doughnut Chart, Line Chart, Scatter Chart,
+  Pie Chart and Mixed Chart (Bar + Line) — in place of the sample
+  business headings they carried ("Renewals closed", "Pipeline by
+  stage", "Renewal rate trend", and so on). `preview.html` is a
+  component gallery, and every other `.comp-block` in it names the
+  thing being demonstrated; these six named their illustrative data
+  instead, which made the one card a reader wants when they are picking
+  a chart type the hardest one to pick out. Nothing else moved: no
+  chrome, marks, colour mapping or sample series changed, and the
+  dimension names are not lost with the headings — each card's own
+  **View as table** headers still carry them, as do the dataset labels
+  the tooltip and legend read from.
 
 - **v0.9.101 — 2026-09-08** — [Dropdown](#dropdown) gains six additions
   and one bug fix, all of them selected from a proposal draft rather than
