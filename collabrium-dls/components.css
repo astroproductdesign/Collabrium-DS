@@ -1562,7 +1562,7 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 .c-radio-circle .dot{width:9px; height:9px; border-radius:var(--radius-pill); background:var(--color-obsidian);}
 .c-choice.switch{align-items:center; gap:var(--spacing-12);}
 .c-switch-track{position:relative; width:40px; height:24px; flex:none; border-radius:var(--radius-pill); background:var(--color-neutral-4); transition:background-color var(--duration-base) var(--ease-standard);}
-.c-switch-track.on{background:var(--color-obsidian);}
+.c-switch-track.on{background:var(--color-green);}
 .c-switch-thumb{position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:var(--radius-pill); background:var(--color-neutral-1); box-shadow:var(--shadow-1); transition:left var(--duration-base) var(--ease-settle);}
 .c-switch-track.on .c-switch-thumb{left:19px;}
 
