@@ -5951,13 +5951,25 @@ Checkbox instead when the choice is part of a form that gets submitted.
 |---|---|
 | Track | 40×24px, `radius-pill`, spacing-12 gap to the text (wider than Checkbox/Radio's spacing-8, since the track itself is the primary visual) |
 | Track — off | Neutral-4 fill |
-| Track — on | Obsidian fill |
+| Track — on | Green `#00C26E` fill |
 | Track transition | `background-color` — `var(--duration-base) var(--ease-standard)` |
 | Thumb | 18×18px circle, `radius-pill`, Neutral-1 fill, `shadow-1`, 3px from top |
 | Thumb position | left: 3px (off) → 19px (on) |
 | Thumb transition | `left` — `var(--duration-base) var(--ease-settle)` (the anchored-arrival easing, matching the toggle's physical drop) |
 | Label / description | same as Checkbox — body1/weight 500/Neutral-9, caption/Neutral-5 |
 | Disabled | 50% opacity, `cursor: not-allowed` |
+
+
+⚠️ **Measured contrast.** The Neutral-1 thumb on the on-state Green
+track measures **2.35:1**, under the 3:1 floor
+[Accessibility](#accessibility) sets for UI components — the identical
+pairing, and the identical number, already recorded on Task Rows' green
+Completed disc. The thumb/track boundary was never this component's
+load-bearing signal: the off track measures **1.88:1** against the same
+thumb and always has. What separates the two states is the thumb's
+3px → 19px travel, which stays legible without resolving either colour
+against the other. Recorded rather than routed around, in the same
+spirit as the pairings Task Rows records.
 
 **Do:** label a Switch with what it controls ("Email notifications"), not
 its state ("On/Off"). **Don't:** use Switch inside a form that requires
@@ -6760,6 +6772,23 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.103 — 2026-09-10** — [Switch](#switch)'s on-state track changes
+  from Obsidian to Green `#00C26E`, per explicit direction. This is a
+  deliberate departure from [Component Rules](#component-rules) Rule 2 —
+  brand colours classify, only Obsidian carries action — and from the
+  reading [Segmented Control](#segmented-control) spells out, that accent
+  colours never signal selection. Switch is now the one control in the
+  system whose selected state is carried by a brand colour, and the
+  exception is written down here rather than left for the next reader to
+  find by diffing. `components.css` takes `var(--color-green)`, never the
+  literal hex, per Rule 3. The Switch section also gains a
+  measured-contrast note it never carried: the Neutral-1 thumb on the new
+  Green track is **2.35:1**, under the 3:1 UI-component floor — the same
+  pairing Task Rows already records for its green Completed disc — while
+  the off track has measured **1.88:1** against that same thumb all
+  along, so the thumb's 3px → 19px travel, not the thumb/track boundary,
+  is what has always distinguished the two states.
 
 - **v0.9.102 — 2026-09-10** — [Charts](#chart-chrome--marks)' six
   Chart.js v4 demo cards are retitled to name the chart type they
