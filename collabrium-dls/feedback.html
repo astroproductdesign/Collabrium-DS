@@ -168,9 +168,13 @@
    -------------------------------------------------------------------------- */
 .c-scale{display:flex; flex-direction:column; gap:var(--spacing-8);}
 .c-scale-track{display:flex; gap:var(--spacing-8); flex-wrap:wrap;}
-.c-scale-opt{position:relative; flex:1 1 0; min-width:40px; display:flex; justify-content:center;}
+.c-scale-opt{position:relative; flex:1 1 0; min-width:44px; display:flex; justify-content:center;}
 .c-scale-opt input{position:absolute; opacity:0; width:0; height:0;}
-.c-scale-opt span{display:flex; align-items:center; justify-content:center; width:40px; height:40px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+/* 44px, not 40: this document's own hit-target floor, cited for the
+   accordion head, the chat action button, the slider thumb and every
+   coarse-pointer control. The responder page renders the identical scale,
+   so the two surfaces agree and both clear the floor. */
+.c-scale-opt span{display:flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
 .c-scale-opt:hover span{background:var(--color-neutral-2);}
 .c-scale-opt input:checked + span{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
 .c-scale-opt input:focus-visible + span{outline:2px solid var(--color-obsidian); outline-offset:2px;}
@@ -251,8 +255,10 @@
 .c-matrix tbody tr{transition:background-color var(--duration-fast) var(--ease-standard);}
 .c-matrix tbody tr:hover{background:var(--color-neutral-2);}
 /* The radio's own hit target: the cell is wider than the 18px circle, so
-   the whole cell is the label rather than the circle alone. */
-.c-matrix-cell{display:flex; align-items:center; justify-content:center; min-height:24px; cursor:pointer;}
+   the whole cell is the label rather than the circle alone. 44px tall for
+   the same reason the scale circle is — the 18px painted radio keeps its
+   size, the row it sits in is what reaches the hit-target floor. */
+.c-matrix-cell{display:flex; align-items:center; justify-content:center; min-height:44px; cursor:pointer;}
 .c-matrix-cell input{position:absolute; opacity:0; width:0; height:0;}
 .c-matrix-cell .c-radio-circle{margin-top:0;}
 .c-matrix-cell input:focus-visible + .c-radio-circle{outline:2px solid var(--color-obsidian); outline-offset:2px;}
@@ -260,6 +266,30 @@
 /* A missing row in a required grid is marked on the row, not on five
    radios — same reasoning as the question card's own is-missing state. */
 .c-matrix tbody tr.is-missing th{color:var(--color-red);}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 8 — Element modifiers for the shared icon chip
+                 (.icon-chip-fire / -wood / -earth / -water / -gold)
+   components.css already ships .icon-chip (36x36, radius-sm, icon-md glyph)
+   but hardcodes Navy, while DESIGN-SYSTEM.md's Card > "Icon-chip header"
+   calls that chip "the standard way a card declares which department owns
+   it" — which only works if the chip can take the owning element's colour.
+   Each value is the element colour at 12% via color-mix, i.e. exactly what
+   .icon-chip already does for Navy. That 12% is deliberately NOT the 8%
+   -bg token used to tint a whole card: the same section warns these are
+   "two different tint strengths for two different purposes, don't conflate
+   them". Suffixes follow Tag's own element modifiers (.c-tag-fire etc.) so
+   the system has one element vocabulary rather than two.
+   -------------------------------------------------------------------------- */
+.icon-chip-fire {background:color-mix(in srgb, var(--color-orange) 12%, transparent);      color:var(--color-orange);}
+.icon-chip-wood {background:color-mix(in srgb, var(--color-salmon-pink) 12%, transparent); color:var(--color-salmon-pink);}
+.icon-chip-earth{background:color-mix(in srgb, var(--color-green) 12%, transparent);       color:var(--color-green);}
+.icon-chip-water{background:color-mix(in srgb, var(--color-navy) 12%, transparent);        color:var(--color-navy);}
+.icon-chip-gold {background:color-mix(in srgb, var(--color-amber) 12%, transparent);       color:var(--color-amber);}
+/* The glyph is Tier 2 Fill at icon-md — Iconography puts "Card / section
+   header" in its Fill column and the size scale puts card headers at 24px.
+   Set on the chip so no caller has to remember either. */
+.icon-chip i{font-size:var(--icon-md);}
 
 /* ==========================================================================
    PROTOTYPE SCAFFOLDING — layout glue for this demo only. Nothing here is a
@@ -359,11 +389,17 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    here is only what the component leaves to the caller — the two-line first
    cell, and the action column's width. */
 .lib-row-meta{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-/* The sort field carries one of five short labels — 176px fits the
-   longest of them without the row of controls growing to the search
-   input's own 240px twice over. */
+/* The sort field carries one of six short labels — 176px fits the
+   longest of them ("Last updated") without the row of controls growing to
+   the search input's own 240px twice over. */
 .hub-sort{width:176px;}
-.lib-table td:first-child{max-width:420px;}
+/* Down from 420px when the Owner column arrived. At 420 the six data columns
+   summed to 1127px inside a 1118px content area, so the table offered a 9px
+   horizontal scroll — a scroll shadow with nothing behind it. The identity
+   column is the only flexible one (every other cell is nowrap), so it is the
+   one that gives way; titles wrap to a second line here exactly as they
+   already do on the grid tile. */
+.lib-table td:first-child{max-width:320px;}
 .lib-cell-title{display:block; font-weight:700; color:var(--color-neutral-9);}
 /* Second line inside the identity cell — the survey's own description, so a
    row still says what it is now that the title has a column to itself. */
@@ -436,6 +472,32 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
   border-top:1px solid var(--color-neutral-3);}
 .qblock-media{border-radius:var(--radius-md); overflow:hidden; background:var(--color-neutral-2); display:flex; align-items:center; justify-content:center; min-height:160px; color:var(--color-neutral-5); gap:var(--spacing-8); flex-direction:column;}
 .qblock-media i{font-size:var(--icon-lg);}
+/* Rating table editor. Two columns on a wide block so the scale and the
+   things being rated are visible at once — they are edited against each
+   other, not in sequence. */
+.mx-editor{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:var(--spacing-16) var(--spacing-24); padding:var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1);}
+.mx-cols, .mx-rows{display:flex; flex-direction:column; gap:var(--spacing-8); min-width:0;}
+.mx-legend{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
+.mx-line{display:flex; align-items:center; gap:var(--spacing-8);}
+.mx-input{flex:1 1 auto; min-width:0; height:40px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1); font-family:inherit; font-size:var(--text-body2-size); color:var(--color-neutral-9); caret-color:auto; cursor:text;}
+.mx-input:focus{outline:none; border:2px solid var(--color-obsidian); padding:0 11px;}
+.mx-cols .c-btn, .mx-rows .c-btn{align-self:flex-start;}
+/* The action row spans both columns and sits behind a rule, so Save table
+   reads as belonging to the table rather than to the last column edited.
+   Same footer convention the Modal uses. */
+.mx-foot{grid-column:1 / -1; display:flex; justify-content:flex-end; gap:var(--spacing-8); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+/* Edit affordance under the read-only table. */
+.mx-editbar{display:flex; align-items:center; gap:var(--spacing-12); margin-top:var(--spacing-4);}
+/* FileUploader ships a 360px max-width, sized for a standalone uploader in
+   a form column. A question block's media zone is the width of the block —
+   the author is looking at the image as respondents will — so the cap is
+   lifted here rather than in the component. */
+.qblock .c-uploader{max-width:none;}
+/* An attached file sits in the same 160px-tall slot the placeholder used, so
+   swapping one for the other does not move the rest of the block. Height is
+   capped rather than fixed: a tall portrait image letterboxes inside the
+   box instead of pushing the question list open. */
+.qblock-media-el{display:block; width:100%; max-height:280px; min-height:160px; object-fit:contain; border-radius:var(--radius-md); background:var(--color-neutral-2);}
 /* The editor's own header gap. Every other route wants App Shell's 48px
    between the page header and the content, but here the next thing down is
    the survey's toolbar — the Publish button belongs to the title above it,
@@ -443,6 +505,20 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    :has() because the header is App Shell's, a sibling of the routes, so
    nothing inside the route can reach it. */
 .c-shell-content:has(#routeBuilder:not([hidden])) .c-pageheader{margin-bottom:var(--spacing-16);}
+/* Status badge beside the page title. PageHeader's own spec lists exactly two
+   parts, Title and Subtitle, so this is a local addition rather than a
+   component variant — the row wraps the h1 so .c-pageheader-text still sees
+   two column children and the documented spacing-8 title-to-subtitle gap is
+   untouched. Badge is Badge/Tag verbatim, the same statusBadge() the library
+   tile renders, so a survey reads the same in both places.
+   align-items:center centres the badge on the title; the row wraps so a
+   title long enough to break takes the badge onto its own line instead of
+   parking it halfway down two lines of 32px type. */
+.ph-title-row{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-12); min-width:0;}
+.ph-title-row h1{min-width:0;}
+/* An empty slot is still a flex child, so its parent's gap would open a
+   12px hole on every page that sets no badge. */
+.ph-badge:empty{display:none;}
 
 /* Add block — one control strip that hugs its own content, rather than a
    full-width dashed panel wedged between the survey's title and its first
@@ -523,11 +599,26 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .lib-card-wrap{position:relative; display:flex;}
 .lib-card-wrap > .lib-card{flex:1 1 auto; min-width:0;}
 .lib-card-wrap > .menu-wrap{position:absolute; top:var(--spacing-16); right:var(--spacing-12); z-index:2;}
-.lib-card .tag-row{padding-right:var(--spacing-24);}
+
 .lib-card{align-items:stretch; text-align:left; font-family:inherit; cursor:pointer; padding:var(--spacing-20); gap:var(--spacing-12);}
 .lib-card:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
+/* The chip is the tile's first row on its own. align-self keeps it 36px
+   wide inside .lib-card's own align-items:stretch, and the overlaid kebab
+   sits on the opposite side of the same row, so neither needs to reserve
+   space from the other. */
+.lib-card > .icon-chip{align-self:flex-start;}
+/* 16px between the heading and its badge row. .lib-card's own flex gap
+   already contributes 12px, so the margin adds the remaining 4 — written as
+   the subtraction rather than as a bare 4px so the number that matters
+   stays legible and stays right if the card's gap ever changes. */
+.lib-card > .lib-card-title + .tag-row{margin-top:calc(var(--spacing-16) - var(--spacing-12));}
 .lib-card-title{font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-.lib-card-desc{flex:1 1 auto; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+/* The description used to be the tile's flex:1 1 auto child, i.e. the thing
+   that absorbed the leftover height and so held the footer against the
+   bottom edge. With it gone the footer has to claim that space itself, or
+   every tile in a row stretches to the tallest one and leaves its own
+   response count floating in the middle. */
+.lib-card > .lib-card-foot{margin-top:auto;}
 .lib-card-foot{display:flex; align-items:baseline; justify-content:space-between; gap:var(--spacing-8); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
 .lib-card-foot b{font-size:var(--text-h5-size); font-weight:800; font-variant-numeric:tabular-nums;}
 /* Search hit — a plain background mark, not a brand tint: it marks the
@@ -694,12 +785,18 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .c-modal.is-preview{width:min(720px, 100%);}
 .c-modal.is-preview .c-modal-body{gap:var(--spacing-16); background:var(--color-canvas-warm);}
 .c-modal.is-preview .c-modal-foot{gap:var(--spacing-8);}
-/* The head is align-items:flex-start so a wrapped title stays put; the
-   switch centres itself against the title block instead. */
-.prev-pages{flex:none; align-self:center;}
+/* The tab strip carries the only rule between head and body. The head's own
+   border-bottom comes off, or the strip sits boxed between two hairlines
+   40px apart — the builder's own header/tabs/panel stack has one rule too,
+   and it is the tabs' one. */
+.c-modal.is-preview .c-modal-head{border-bottom:none;}
+/* Inset to 24px so the tabs line up with the cards in the body below, while
+   the strip's own bottom rule still runs the full width of the modal —
+   padding moves the tabs, not the border. */
+.prev-pages{flex:none; padding:0 var(--spacing-24);}
 /* Two words in an uppercase caption inside a track that sizes to content:
    "Thank you" wraps and takes the whole switch to two lines with it. */
-.prev-pages .c-seg{white-space:nowrap;}
+
 /* Sits at the top of the form and stays there. It reports on the whole
    form, so it belongs with the form's own heading rather than riding the
    scroll over the questions — and inside a modal the reader can see how far
@@ -852,12 +949,10 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
   .c-modal.is-preview .c-modal-foot{flex-wrap:wrap;}
   .c-modal.is-preview .c-modal-foot .hint{flex:1 1 100%;}
   .c-modal.is-preview .c-modal-foot .c-btn{flex:1 1 0; min-width:0;}
-  /* Four things in the head do not fit this width: the page switch takes
-     its own row underneath rather than squeezing the title to two broken
-     lines. */
-  .c-modal.is-preview .c-modal-head{flex-wrap:wrap;}
-  .prev-pages{order:3; flex:1 1 100%; align-self:stretch;}
-  .prev-pages .c-seg{flex:1;}
+  /* The strip keeps the body's narrow padding so the tabs stay aligned with
+     the cards under them. Two tabs fit this width; .c-tabs' own
+     overflow-x:auto is the fallback if a third ever joins them. */
+  .prev-pages{padding:0 var(--spacing-12);}
 }
 </style>
 </head>
@@ -942,7 +1037,10 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
       <header class="c-pageheader" id="pageHeader">
         <div class="c-pageheader-row">
           <div class="c-pageheader-text">
-            <h1 id="phTitle">Feedback</h1>
+            <div class="ph-title-row">
+              <h1 id="phTitle">Feedback</h1>
+              <span class="ph-badge" id="phBadge"></span>
+            </div>
             <p class="sub" id="phSub">Collect feedback from your team and triage the bugs they report.</p>
           </div>
           <div class="c-pageheader-actions" id="phActions"></div>
@@ -982,7 +1080,7 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
               <div class="c-search-input-box" id="hubSearchBox">
                 <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
                 <input type="search" id="hubSearch" placeholder="Search forms" autocomplete="off"
-                       aria-label="Search forms by title, description or status" aria-describedby="hubSearchCount" />
+                       aria-label="Search forms by title, description, owner or status" aria-describedby="hubSearchCount" />
                 <button class="c-search-input-clear" type="button" id="hubSearchClear" aria-label="Clear search" hidden><i class="ph ph-x" aria-hidden="true"></i></button>
               </div>
             </div>
@@ -1063,7 +1161,12 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 
 <!-- ===== Entry point 2 — floating action button ===== -->
 <button class="c-fab" id="fab" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Give feedback">
-  <i class="ph ph-chat-teardrop-dots" aria-hidden="true"></i>
+  <!-- Same glyph as the sidebar's Feedback item and as this menu's own
+       "Share feedback" row: one mark for the concept, wherever it appears.
+       Weight still follows Iconography rather than matching the sidebar
+       exactly — a sidebar nav item is Fill, an action inside a button is
+       Regular, and that pairing is the rule everywhere else in the shell. -->
+  <i class="ph ph-chat-teardrop-text" aria-hidden="true"></i>
 </button>
 <div class="c-fab-menu" id="fabMenu" role="menu" aria-label="Give feedback" hidden>
   <p class="c-fab-menu-title">Tell us how it's going</p>
@@ -1417,40 +1520,84 @@ var SALES_QS = [
    `archived` is deliberately separate from `status`: an archived survey
    keeps whatever it was (active or closed) so restoring it puts it back the
    way it was, and the library hides it either way. */
+/* Department -> element. Lifted straight from DESIGN-SYSTEM.md's own two
+   tables: the named sub-brand products (CollabSales is Gold, CollabMedia is
+   Water, CollabContent is Wood) and the department table for everything
+   else. A survey stores the department that owns it and the colour is looked
+   up here, never typed per row — that is what keeps a survey from drifting
+   onto an element that does not own its content, which the Card don't-list
+   forbids outright. An unlisted owner returns null and simply renders no
+   chip, rather than borrowing someone else's colour. */
+var OWNERS = {
+  'CollabSales':   'gold',   'QA & Audit':     'gold',   'Finance':  'gold',
+  'CollabMedia':   'water',  'Data Analytics': 'water',
+  'CollabContent': 'wood',   'Product Design': 'wood',
+  'People Ops':    'earth',  'Customer Success': 'earth',
+  'Marketing':     'fire'
+};
+function ownerEl(f){ return (f.owner && OWNERS[f.owner.name]) || null; }
+/* The chip is the whole ownership signal on a tile, so a survey with no
+   owner shows nothing here rather than a grey placeholder implying one. */
+function ownerChip(f){
+  var el = ownerEl(f);
+  if (!el) return '';
+  /* The tile prints no owner name, so the chip is the only place ownership
+     appears — which makes colour the sole carrier of it, and colour alone is
+     never allowed to be. The name goes in a title for a pointer and in
+     sr-only text for the button's accessible name, so the signal survives
+     both a screen reader and a monochrome print. */
+  return '<span class="icon-chip icon-chip-' + el + '" title="' + esc(f.owner.name) + '">' +
+    '<i class="ph-fill ' + f.owner.icon + '" aria-hidden="true"></i>' +
+    '<span class="sr-only">' + esc(f.owner.name) + '</span></span>';
+}
+function ownerTag(f){
+  var el = ownerEl(f);
+  if (!el) return '<span class="lib-row-meta">—</span>';
+  return '<span class="c-tag c-tag-' + el + '"><span class="dot" aria-hidden="true"></span>' +
+    esc(f.owner.name) + '</span>';
+}
+
 var FORMS = [
   { id:'f1', title:'Product experience survey — Q3', status:'active', archived:false,
+    owner:{ name:'Product Design', icon:'ph-pen-nib' },
     desc:'Ten quick questions about how Collabrium is working for you. Takes about two minutes and everything is anonymous to your pod lead.',
     starts: ymd(2026, 7, 1), ends: ymd(2026, 9, 30),
     updated: relDays(1), questions: SEED_QS, responses: buildResponses(SEED_QS, 128, 20260908),
     settings:{ sendCopy:true, allowEdit:false, oneResponse:true, progressBar:true,
                confirm:'Thanks for your feedback! We read every response.' } },
   { id:'f7', title:'CollabSales Post-Launch Survey', status:'active', archived:false,
+    owner:{ name:'CollabSales', icon:'ph-rocket-launch' },
     desc:'Five questions on the new CollabSales release — how it feels to use, and what to fix first. Ratings are anonymous to the pod.',
     starts: ymd(2026, 9, 7), ends: ymd(2026, 10, 3),
     updated: relDays(0), questions: SALES_QS, responses: [],
     settings:{ sendCopy:false, allowEdit:true, oneResponse:true, progressBar:true,
                confirm:'Thanks — this goes straight to the CollabSales team.' } },
   { id:'f2', title:'Onboarding check-in — week one', status:'active', archived:false,
+    owner:{ name:'People Ops', icon:'ph-user-plus' },
     desc:'For new joiners at the end of their first week. Runs continuously — there is always someone in their first week.',
     starts: ymd(2026, 2, 1), ends: null,
     updated: relDays(4), questions:[], responses:[],
     settings:{ sendCopy:false, allowEdit:true, oneResponse:false, progressBar:true, confirm:'Thanks for your feedback!' } },
   { id:'f3', title:'CollabMedia planning tool — pilot feedback', status:'active', archived:false,
+    owner:{ name:'CollabMedia', icon:'ph-broadcast' },
     desc:'Pilot group only.',
     starts: ymd(2026, 9, 1), ends: ymd(2026, 9, 12),
     updated: relDays(6), questions:[], responses:[],
     settings:{ sendCopy:true, allowEdit:true, oneResponse:true, progressBar:false, confirm:'Thanks for your feedback!' } },
   { id:'f4', title:'Reporting refresh — concept test', status:'closed', archived:false,
+    owner:{ name:'Data Analytics', icon:'ph-chart-bar' },
     desc:'Ran for three weeks alongside the reporting rebuild.',
     starts: ymd(2026, 8, 4), ends: ymd(2026, 8, 22),
     updated: relDays(17), questions:[], responses:[],
     settings:{ sendCopy:false, allowEdit:false, oneResponse:true, progressBar:true, confirm:'Thanks for your feedback!' } },
   { id:'f5', title:'Annual tooling review 2025', status:'closed', archived:true,
+    owner:{ name:'QA & Audit', icon:'ph-wrench' },
     desc:'The 2025 round. Superseded by the Q3 product experience survey.',
     starts: ymd(2025, 11, 1), ends: ymd(2025, 12, 15),
     updated: relDays(64), questions:[], responses:[],
     settings:{ sendCopy:true, allowEdit:false, oneResponse:true, progressBar:true, confirm:'Thanks for your feedback!' } },
   { id:'f6', title:'Remote working pulse — H1 2025', status:'closed', archived:true,
+    owner:{ name:'People Ops', icon:'ph-house-line' },
     desc:'One-off pulse check during the hybrid policy trial.',
     starts: ymd(2025, 4, 14), ends: ymd(2025, 6, 30),
     updated: relDays(140), questions:[], responses:[],
@@ -1804,10 +1951,14 @@ function render(){
 /* Every render sets its own header, so the Back button is cleared here and
    opted into by the routes that have a parent — a stale Back pointing at the
    previous screen's parent is worse than none. */
-function setHeader(title, sub, actionsHtml){
+/* badgeHtml is cleared rather than left alone when a caller omits it —
+   every route calls through here, so a badge set by one screen would
+   otherwise follow the user onto the next one. */
+function setHeader(title, sub, actionsHtml, badgeHtml){
   $('#phTitle').textContent = title;
   $('#phSub').textContent = sub;
   $('#phActions').innerHTML = actionsHtml || '';
+  $('#phBadge').innerHTML = badgeHtml || '';
   $('#backRow').hidden = true;
 }
 var backTo = null;
@@ -1938,6 +2089,9 @@ function mark(text, ts){
    "closed" is a thing people type into a search box. */
 function formHaystack(f){
   return f.title + ' ' + f.desc + ' ' +
+    /* The owning department is on the tile now, so it has to be typeable —
+       a signal you can see but not search for is a dead end. */
+    (f.owner ? f.owner.name + ' ' : '') +
     (f.status === 'active' ? 'active open live' : 'closed ended') + ' ' +
     (f.archived ? 'archived archive' : '') + ' ' +
     (f.ends ? rangeLabel(f) : 'no deadline open ended ongoing');
@@ -2096,11 +2250,16 @@ function hubGrid(list, ts){
     /* Status and countdown sit together at the top; the whole tile is the
        target, so the old corner arrow was decoration repeating what the
        hover state and the cursor already say. */
+    /* Reading order is chip, heading, state: who owns it, what it is called,
+       where it stands. The badges sit under the heading rather than above it
+       so the title is the first line of text on the tile and the two tiles
+       either side of it line up on that title, not on a badge row whose
+       height depends on how many badges the survey happens to warrant. */
     return '<div class="lib-card-wrap">' +
       '<button class="c-card c-card-interactive lib-card" type="button" data-form="' + f.id + '">' +
-        '<span class="tag-row">' + statusBadge(f) + deadlinePill(f) + '</span>' +
+        ownerChip(f) +
         '<span class="lib-card-title">' + mark(f.title, ts) + '</span>' +
-        '<span class="lib-card-desc">' + (f.desc ? mark(f.desc, ts) : 'No description yet.') + '</span>' +
+        '<span class="tag-row">' + statusBadge(f) + deadlinePill(f) + '</span>' +
         '<span class="lib-card-foot">' +
           '<span><b>' + n.toLocaleString() + '</b> <span class="lib-row-meta">' +
             (n === 1 ? 'response' : 'responses') + '</span></span>' +
@@ -2155,6 +2314,13 @@ var HUB_COLS = [
   { key:'title',     label:'Survey',    pick:'Title',        num:false, def:1,
     dir:['A to Z','Z to A'],
     val:function(f){ return f.title.toLowerCase(); } },
+  /* Ownership is an attribute of the survey, so it sits next to the title
+     rather than out past the metrics. Sorting by it groups the library by
+     department, which is the whole reason the colour is in the data. An
+     unowned survey sorts to the A-to-Z end with the other blanks. */
+  { key:'owner',     label:'Owner',     pick:'Owner',        num:false, def:1,
+    dir:['A to Z','Z to A'],
+    val:function(f){ return f.owner ? f.owner.name.toLowerCase() : ''; } },
   { key:'status',    label:'Status',    pick:'Status',       num:true,  def:1,
     dir:['Active first','Closed first'],
     val:function(f){ return f.archived ? 2 : f.status === 'active' ? 0 : 1; } },
@@ -2226,6 +2392,7 @@ function hubTable(list, ts){
         ' aria-label="' + esc(f.title) + '">' +
         '<td class="c-table-freeze-left"><span class="lib-cell-title">' + mark(f.title, ts) + '</span>' +
           (f.desc ? '<span class="lib-cell-sub">' + mark(f.desc, ts) + '</span>' : '') + '</td>' +
+        '<td class="nowrap">' + ownerTag(f) + '</td>' +
         '<td class="nowrap">' + statusBadge(f) + '</td>' +
         '<td class="nowrap">' + deadlinePill(f) + '</td>' +
         '<td class="num nowrap"><b>' + n.toLocaleString() + '</b></td>' +
@@ -2325,7 +2492,11 @@ $('#hubSearch').addEventListener('keydown', function(e){
 $('#hubSearchClear').addEventListener('click', clearHubSearch);
 
 function newForm(){
+  /* A new survey starts owned by the pod the author is actually in, so it
+     carries a department from the first render instead of appearing as the
+     one chipless tile in the grid. */
   var f = { id:'f' + (FORMS.length + 1), title:'Untitled survey', status:'closed', archived:false,
+    owner:{ name:ME.pods[0], icon:'ph-clipboard-text' },
     desc:'', starts:new Date(NOW), ends:null,
     updated:new Date(NOW), questions:[], responses:[],
     settings:{ sendCopy:false, allowEdit:false, oneResponse:true, progressBar:true,
@@ -2345,9 +2516,10 @@ function renderBuilder(){
   if (!f){ go('hub'); return; }
   $('#routeBuilder').hidden = false;
   var d = deadline(f);
-  setHeader(f.title,
-    (f.archived ? 'Archived' : f.status === 'active' ? 'Active · accepting responses' : 'Not published') +
-      ' · ' + d.text);
+  /* The status is a badge beside the title now, exactly as it reads on the
+     library tile, which leaves the subtitle to say the one thing the badge
+     cannot: when this survey closes. */
+  setHeader(f.title, d.text, null, statusBadge(f));
   setBack(f.archived ? 'Archive' : 'Feedback Forms', 'hub');
 
   /* One menu item, two directions — the survey is either in the archive or
@@ -2431,7 +2603,7 @@ function formAction(f, kb){
   } else if (kb === 'copy'){
     var c = JSON.parse(JSON.stringify({ questions:f.questions, settings:f.settings }));
     FORMS.unshift({ id:'f' + (FORMS.length + 1), title:f.title + ' (copy)', status:'closed',
-      archived:false, desc:f.desc, starts:new Date(NOW), ends:null,
+      archived:false, owner:f.owner, desc:f.desc, starts:new Date(NOW), ends:null,
       updated:new Date(NOW), questions:c.questions, responses:[], settings:c.settings });
     go('hub'); toast('Copy created');
   } else if (kb === 'archive'){
@@ -2519,6 +2691,11 @@ function qDraftFor(f){
   if (!qDraft || qDraft.id !== f.id){
     qDraft = { id:f.id, title:f.title, desc:f.desc,
                questions: JSON.parse(JSON.stringify(f.questions)) };
+    /* A table-edit session belongs to one question inside one draft. A new
+       draft means a different survey, so any open editor is stale — left
+       alone it would reopen against whichever question happened to share
+       the id. */
+    mxEdit = null; mxDraft = null;
   }
   return qDraft;
 }
@@ -2595,12 +2772,12 @@ function renderQuestions(form){
     form.desc  = f.desc;
     form.questions = JSON.parse(JSON.stringify(f.questions));
     form.updated = new Date(NOW);
-    qDraft = null;
+    qDraft = null; mxEdit = null; mxDraft = null;
     renderBuilder();
     toast('Form saved', 'success');
   });
   $('#qDiscard').addEventListener('click', function(){
-    qDraft = null;
+    qDraft = null; mxEdit = null; mxDraft = null;
     renderBuilder();
     toast('Changes discarded');
   });
@@ -2622,9 +2799,7 @@ function paintQuestions(f){
   list.innerHTML = f.questions.map(function(q, i){
     var body;
     if (q.type === 'media'){
-      body = '<div class="qblock-media"><i class="ph ' + (q.media === 'video' ? 'ph-video' : 'ph-image') +
-             '" aria-hidden="true"></i><span class="hint">' +
-             (q.media === 'video' ? 'Embedded video' : 'Embedded image') + '</span></div>';
+      body = uploadZoneHtml(q);
     } else {
       n++;
       body = questionPreview(q);
@@ -2825,6 +3000,51 @@ function sliderHtml(q, o){
   '</div>';
 }
 
+/* Rating table editing is its own mode, held per question rather than
+   globally: entering it on one table does not disturb another, and the
+   headers being edited live in a draft of their own so Cancel is a real
+   cancel. That draft is deliberately NOT the builder's qDraft — a
+   half-renamed column should not light up the form's Save bar, and Save
+   table is what promotes it into qDraft, where the form's own Save bar
+   picks it up like any other edit. */
+var mxEdit = null;    /* id of the question whose table is being edited */
+var mxDraft = null;   /* { rows:[], cols:[] } — a copy, until Save table */
+
+function mxRowInput(kind, i, value, total){
+  return '<div class="mx-line">' +
+    '<input class="c-dropdown-input mx-input" type="text" value="' + esc(value) + '"' +
+      ' data-mx' + kind + '="' + i + '" aria-label="' +
+      (kind === 'row' ? 'Row label ' : 'Column header ') + (i + 1) + '" />' +
+    /* The last one cannot be removed: a table with no rows or no columns is
+       not a smaller table, it is a broken one. */
+    '<button class="c-icon-btn" type="button" data-mx' + kind + 'del="' + i + '"' +
+      (total < 2 ? ' disabled aria-disabled="true" title="A table needs at least one"' : ' title="Remove"') +
+      ' aria-label="Remove ' + (kind === 'row' ? 'row ' : 'column ') + (i + 1) + '">' +
+      '<i class="ph ph-x" aria-hidden="true"></i></button>' +
+  '</div>';
+}
+function matrixEditorHtml(q){
+  var d = mxDraft || { rows:(q.rows || []).slice(), cols:(q.cols || []).slice() };
+  return '<div class="mx-editor">' +
+    '<div class="mx-cols">' +
+      '<span class="mx-legend">Columns — the rating scale</span>' +
+      d.cols.map(function(c, i){ return mxRowInput('col', i, c, d.cols.length); }).join('') +
+      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-mxaddcol>' +
+        '<i class="ph ph-plus" aria-hidden="true"></i>Add column</button>' +
+    '</div>' +
+    '<div class="mx-rows">' +
+      '<span class="mx-legend">Rows — what is being rated</span>' +
+      d.rows.map(function(r, i){ return mxRowInput('row', i, r, d.rows.length); }).join('') +
+      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-mxaddrow>' +
+        '<i class="ph ph-plus" aria-hidden="true"></i>Add row</button>' +
+    '</div>' +
+    '<div class="mx-foot">' +
+      '<button class="c-btn c-btn-ghost c-btn-sm" type="button" data-mxcancel>Cancel</button>' +
+      '<button class="c-btn c-btn-primary c-btn-sm" type="button" data-mxsave>Save table</button>' +
+    '</div>' +
+  '</div>';
+}
+
 function questionPreview(q){
   if (q.type === 'short')  return '<div class="c-field field-wide"><div class="input-wrap"><input type="text" placeholder="' + esc(q.placeholder || 'Short answer') + '" disabled /></div></div>';
   if (q.type === 'long')   return '<div class="c-field field-wide"><textarea rows="2" placeholder="' + esc(q.placeholder || 'Long answer') + '" disabled></textarea></div>';
@@ -2843,7 +3063,16 @@ function questionPreview(q){
   if (q.type === 'slider') return sliderHtml(q, { disabled:true });
   if (q.type === 'stars')   return starsHtml(q, { name:'p-' + q.id, disabled:true });
   if (q.type === 'rank')    return rankHtml(q, { disabled:true });
-  if (q.type === 'matrix')  return matrixHtml(q, { name:'p-' + q.id, disabled:true });
+  if (q.type === 'matrix')
+    return mxEdit === q.id
+      ? matrixEditorHtml(q)
+      : matrixHtml(q, { name:'p-' + q.id, disabled:true }) +
+        '<div class="mx-editbar">' +
+          '<button class="c-btn c-btn-secondary c-btn-sm" type="button" data-mxopen="' + q.id + '">' +
+            '<i class="ph ph-pencil-simple" aria-hidden="true"></i>Edit table</button>' +
+          '<span class="hint">' + (q.rows || []).length + ' rows · ' +
+            (q.cols || []).length + ' columns</span>' +
+        '</div>';
   if (q.type === 'single' || q.type === 'multi'){
     return '<div class="stack sm">' + (q.options || ['Option 1','Option 2','Option 3']).map(function(o){
       return q.type === 'single'
@@ -2961,6 +3190,188 @@ function wireQuestionBlocks(f){
       refreshQSave();
     });
   });
+
+  /* ---- Media blocks: attach, drop, remove ---- */
+  var qById = function(id){ return f.questions.filter(function(x){ return x.id === id; })[0]; };
+  var attach = function(q, file){
+    if (!q || !file) return;
+    /* accept="" filters the browse dialog but not a drop, so the type is
+       checked here too — dropping an MP4 on an image block would otherwise
+       render a broken <img> with no explanation. */
+    var wantVideo = q.media === 'video';
+    if (file.type && wantVideo !== /^video\//.test(file.type)){
+      toast('That block takes ' + (wantVideo ? 'a video' : 'an image') + ' — ' +
+            (file.name || 'the file') + ' is not one', 'error');
+      return;
+    }
+    q.src = URL.createObjectURL(file);
+    q.fileName = file.name;
+    q.fileSize = file.size;
+    paintQuestions(f);
+    refreshQSave();
+  };
+  $$('#qList [data-file]').forEach(function(inp){
+    inp.addEventListener('change', function(){
+      attach(qById(inp.dataset.file), inp.files && inp.files[0]);
+    });
+  });
+  $$('#qList [data-unfile]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var q = qById(b.dataset.unfile);
+      if (!q) return;
+      /* The block keeps its type and title — only the file goes, which puts
+         the drop zone back rather than deleting the author's block. */
+      delete q.src; delete q.fileName; delete q.fileSize;
+      paintQuestions(f);
+      refreshQSave();
+    });
+  });
+  /* ---- Rating table: edit, add/remove, save, cancel ---- */
+  var mxOpen = function(id){
+    var q = qById(id);
+    if (!q) return;
+    mxEdit = id;
+    mxDraft = { rows:(q.rows || []).slice(), cols:(q.cols || []).slice() };
+    paintQuestions(f);
+    var first = $('#qList [data-mxcol="0"]');
+    if (first){ first.focus(); first.select(); }
+  };
+  var mxClose = function(){ mxEdit = null; mxDraft = null; paintQuestions(f); };
+  $$('#qList [data-mxopen]').forEach(function(b){
+    b.addEventListener('click', function(){ mxOpen(b.dataset.mxopen); });
+  });
+  /* Typing writes to the draft and repaints nothing — the same reason the
+     question title input patches rather than re-renders. */
+  $$('#qList [data-mxcol]').forEach(function(inp){
+    inp.addEventListener('input', function(){ if (mxDraft) mxDraft.cols[+inp.dataset.mxcol] = inp.value; });
+  });
+  $$('#qList [data-mxrow]').forEach(function(inp){
+    inp.addEventListener('input', function(){ if (mxDraft) mxDraft.rows[+inp.dataset.mxrow] = inp.value; });
+  });
+  /* Structural changes do repaint, so focus is placed deliberately
+     afterwards: on the field that was just added, or on the one that took
+     the removed field's place. */
+  var mxRepaint = function(sel){
+    paintQuestions(f);
+    var el = $('#qList ' + sel);
+    if (el){ el.focus(); if (el.select) el.select(); }
+  };
+  $$('#qList [data-mxaddcol]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (!mxDraft) return;
+      mxDraft.cols.push('New column');
+      mxRepaint('[data-mxcol="' + (mxDraft.cols.length - 1) + '"]');
+    });
+  });
+  $$('#qList [data-mxaddrow]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (!mxDraft) return;
+      mxDraft.rows.push('New row');
+      mxRepaint('[data-mxrow="' + (mxDraft.rows.length - 1) + '"]');
+    });
+  });
+  $$('#qList [data-mxcoldel]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (!mxDraft || mxDraft.cols.length < 2) return;
+      var i = +b.dataset.mxcoldel;
+      mxDraft.cols.splice(i, 1);
+      mxRepaint('[data-mxcol="' + Math.min(i, mxDraft.cols.length - 1) + '"]');
+    });
+  });
+  $$('#qList [data-mxrowdel]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (!mxDraft || mxDraft.rows.length < 2) return;
+      var i = +b.dataset.mxrowdel;
+      mxDraft.rows.splice(i, 1);
+      mxRepaint('[data-mxrow="' + Math.min(i, mxDraft.rows.length - 1) + '"]');
+    });
+  });
+  $$('#qList [data-mxsave]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var q = qById(mxEdit);
+      if (!q || !mxDraft) return mxClose();
+      /* A header trimmed to nothing would render an unlabelled row that
+         still collects answers, so blanks fall back to their position. */
+      q.cols = mxDraft.cols.map(function(c, i){ return c.trim() || 'Column ' + (i + 1); });
+      q.rows = mxDraft.rows.map(function(r, i){ return r.trim() || 'Row ' + (i + 1); });
+      mxClose();
+      refreshQSave();
+      toast('Rating table updated — save the form to keep it', 'success');
+    });
+  });
+  $$('#qList [data-mxcancel]').forEach(function(b){
+    b.addEventListener('click', mxClose);
+  });
+
+  $$('#qList [data-drop]').forEach(function(zone){
+    /* dragenter and dragover both have to preventDefault or the browser
+       navigates to the dropped file instead of handing it over. A counter
+       rather than a boolean: dragging across a child fires leave on the
+       parent, and a boolean would flicker the state off mid-drag. */
+    var depth = 0;
+    var over = function(on){ zone.classList.toggle('dragover', on); };
+    zone.addEventListener('dragenter', function(e){ e.preventDefault(); depth++; over(true); });
+    zone.addEventListener('dragover', function(e){ e.preventDefault(); });
+    zone.addEventListener('dragleave', function(){ depth = Math.max(0, depth - 1); if (!depth) over(false); });
+    zone.addEventListener('drop', function(e){
+      e.preventDefault(); depth = 0; over(false);
+      var dt = e.dataTransfer;
+      attach(qById(zone.dataset.drop), dt && dt.files && dt.files[0]);
+    });
+  });
+}
+
+/* Object URLs, not data URLs. The draft is dirty-checked by
+   JSON.stringify-ing every question on each keystroke, and a base64 video
+   inlined into that string would make the comparison the slowest thing on
+   the page. An object URL is a short string and stays valid for the life of
+   the document, which is exactly as long as this prototype needs it. */
+function fileSizeLabel(bytes){
+  if (bytes == null) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+function fileKind(name, media){
+  var m = /\.([a-z0-9]+)$/i.exec(name || '');
+  return m ? m[1] : (media === 'video' ? 'video' : 'image');
+}
+/* The zone and the attached file are the two states of one block, so they
+   are built together — nothing else needs to know which is showing. */
+function uploadZoneHtml(q){
+  var isVid = q.media === 'video';
+  if (!q.src)
+    /* The zone is a <label> wrapping a real file input, so click and
+       keyboard both reach the picker without a handler. The input is
+       sr-only rather than display:none — a hidden input is not focusable
+       and the label would then be mouse-only. */
+    return '<div class="c-uploader">' +
+      '<label class="c-uploader-zone" data-drop="' + q.id + '">' +
+        '<i class="ph ph-upload-simple" aria-hidden="true"></i>' +
+        '<span class="c-uploader-label">Drop ' + (isVid ? 'a video' : 'an image') +
+          ' here, or click to browse</span>' +
+        '<span class="c-uploader-hint">' +
+          (isVid ? 'MP4 or WebM' : 'PNG, JPG, GIF or SVG') + ' · nothing leaves this prototype' +
+        '</span>' +
+        '<input class="sr-only" type="file" accept="' + (isVid ? 'video/*' : 'image/*') +
+          '" data-file="' + q.id + '" />' +
+      '</label>' +
+    '</div>';
+  return '<div class="c-uploader">' +
+    (isVid
+      ? '<video class="qblock-media-el" src="' + esc(q.src) + '" controls preload="metadata"></video>'
+      : '<img class="qblock-media-el" src="' + esc(q.src) + '" alt="' + esc(q.alt || q.fileName || 'Uploaded image') + '" />') +
+    '<div class="c-uploader-files">' +
+      '<div class="c-uploader-row">' +
+        '<span class="c-uploader-kind">' + esc(fileKind(q.fileName, q.media)) + '</span>' +
+        '<span class="c-uploader-name">' + esc(q.fileName || 'Attached file') + '</span>' +
+        '<span class="c-uploader-size">' + esc(fileSizeLabel(q.fileSize)) + '</span>' +
+        '<button class="c-uploader-remove" type="button" data-unfile="' + q.id + '"' +
+          ' title="Remove" aria-label="Remove ' + esc(q.fileName || 'file') + '">' +
+          '<i class="ph ph-x" aria-hidden="true"></i></button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
 
 function addBlock(f, kind){
@@ -5023,9 +5434,14 @@ var prevLastFocus = null;
 var prevAns = {};          /* answers typed into the preview, question id -> value */
 var prevMissing = [];      /* required questions the last submit caught */
 var prevPage = 'form';     /* which page of the responder view is showing */
+/* The height the form page last occupied, handed to the thank-you page so
+   the modal keeps one size across both tabs. Reset with the rest of the
+   preview state: a height measured against a different survey is worse than
+   no height at all. */
+var prevFormH = 0;
 
 function previewOpen(){ return !$('#prevLayer').hidden; }
-function resetPreview(){ prevAns = {}; prevMissing = []; prevPage = 'form'; }
+function resetPreview(){ prevAns = {}; prevMissing = []; prevPage = 'form'; prevFormH = 0; }
 
 function openPreview(f){
   resetPreview();
@@ -5085,10 +5501,16 @@ function prevChoice(q, label, value, kind){
 
 function prevField(q){
   var v = prevAns[q.id];
-  if (q.type === 'media')
+  /* A responder sees the file itself, or the placeholder while the author
+     has not attached one — never the author's drop zone. */
+  if (q.type === 'media'){
+    if (q.src) return q.media === 'video'
+      ? '<video class="qblock-media-el" src="' + esc(q.src) + '" controls preload="metadata"></video>'
+      : '<img class="qblock-media-el" src="' + esc(q.src) + '" alt="' + esc(q.alt || q.fileName || '') + '" />';
     return '<div class="qblock-media"><i class="ph ' + (q.media === 'video' ? 'ph-video' : 'ph-image') +
       '" aria-hidden="true"></i><span class="hint">' +
-      (q.media === 'video' ? 'Embedded video' : 'Embedded image') + '</span></div>';
+      (q.media === 'video' ? 'No video attached yet' : 'No image attached yet') + '</span></div>';
+  }
   if (q.type === 'short')
     return '<div class="c-field field-wide"><div class="input-wrap">' +
       '<input type="text" data-pqtext="' + q.id + '" value="' + esc(v || '') + '" placeholder="' +
@@ -5204,24 +5626,33 @@ function paintPreview(f){
         '<span class="eyebrow"><i class="ph-fill ph-eye" aria-hidden="true"></i> Responder view</span>' +
         '<h4 id="prevTitle">Preview</h4>' +
       '</span>' +
-      /* A responder sees two pages, and the second one is built out of
-         settings that have no other visible effect anywhere — so it has to
-         be reachable without answering the form first, not only as the
-         reward for completing it. Segmented Control's Compact size: this
-         sits in a modal head beside a title, not on a page of its own. */
-      '<div class="c-segctl c-segctl-compact prev-pages" role="tablist" aria-label="Preview page" id="prevPages">' +
-        '<span class="c-seg-pill" aria-hidden="true"></span>' +
-        '<button class="c-seg" type="button" role="tab" data-pp="form">Form</button>' +
-        '<button class="c-seg" type="button" role="tab" data-pp="thanks">Thank you</button>' +
-      '</div>' +
       /* No status badge: whether the survey is Active is a fact about the
          survey, not about the page being previewed, and the head is already
-         saying whose view this is and which of its two pages is showing. */
+         saying whose view this is. */
       '<button class="c-icon-btn" type="button" id="prevClose" aria-label="Close preview">' +
         '<i class="ph ph-x" aria-hidden="true"></i></button>' +
     '</div>' +
 
-    '<div class="c-modal-body">' +
+    /* A responder sees two pages, and the second one is built out of
+       settings that have no other visible effect anywhere — so it has to be
+       reachable without answering the form first, not only as the reward for
+       completing it. Tabs rather than a Segmented Control, and on their own
+       row rather than in the head: Tab's anatomy is a strip with a bottom
+       rule sitting directly above the panel it switches, which is what this
+       is. Same component the builder's own Questions/Responses/Settings
+       strip uses. */
+    '<div class="c-tabs prev-pages" role="tablist" aria-label="Preview page" id="prevPages">' +
+      '<button class="c-tab' + (prevPage === 'form' ? ' active' : '') + '" type="button" role="tab"' +
+        ' data-pp="form" aria-selected="' + (prevPage === 'form' ? 'true' : 'false') + '">Form</button>' +
+      '<button class="c-tab' + (prevPage === 'thanks' ? ' active' : '') + '" type="button" role="tab"' +
+        ' data-pp="thanks" aria-selected="' + (prevPage === 'thanks' ? 'true' : 'false') + '">Thank you</button>' +
+    '</div>' +
+
+    /* min-height on the thank-you page only, carrying the height the form
+       page last measured, so switching tabs does not resize the modal under
+       the reader's cursor. See prevFormH. */
+    '<div class="c-modal-body"' +
+      (prevPage === 'thanks' && prevFormH ? ' style="min-height:' + prevFormH + 'px"' : '') + '>' +
       (prevPage === 'thanks' ? prevThanksHtml(f) : prevFormHtml(f, asks, done)) +
     '</div>' +
 
@@ -5239,6 +5670,15 @@ function paintPreview(f){
         : '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="prevReset">Clear answers</button>') +
       '<button class="c-btn c-btn-primary c-btn-md" type="button" id="prevCloseBtn">Close preview</button>' +
     '</div>';
+
+  /* Measured, not guessed: clientHeight is the body's own visible box, so it
+     already accounts for both cases — a form long enough to scroll reports
+     the maximum the modal allows, and a short one reports its content. Using
+     scrollHeight instead would hand the thank-you page the full scroll
+     length of a long form and leave it scrolling through blank canvas.
+     box-sizing:border-box is set globally in this file, so this number can
+     go straight back out as a min-height without adjusting for padding. */
+  if (prevPage === 'form') prevFormH = $('#prev .c-modal-body').clientHeight;
 
   wirePreview(f);
 }
@@ -5291,11 +5731,18 @@ function wirePreview(f){
   /* Switching pages is not a failed submit, so it drops any required-answer
      marks the last Submit left behind. The answers themselves are kept —
      going to the confirmation and back is a look, not a reset. */
-  wireSeg($('#prevPages', root), prevPage === 'form' ? 0 : 1, function(i){
-    prevPage = i ? 'thanks' : 'form';
-    prevMissing = [];
-    paintPreview(f);
-    $('#prev .c-modal-body').scrollTop = 0;
+  $$('#prevPages .c-tab', root).forEach(function(t){
+    t.addEventListener('click', function(){
+      if (t.dataset.pp === prevPage) return;
+      prevPage = t.dataset.pp;
+      prevMissing = [];
+      paintPreview(f);
+      $('#prev .c-modal-body').scrollTop = 0;
+      /* The strip is rebuilt by the repaint, so focus has to be put back on
+         the tab that now owns it rather than left on a detached node. */
+      var now = $('#prevPages .c-tab[data-pp="' + prevPage + '"]');
+      if (now) now.focus();
+    });
   });
   $('#prevClose').addEventListener('click', closePreview);
   $('#prevCloseBtn').addEventListener('click', closePreview);

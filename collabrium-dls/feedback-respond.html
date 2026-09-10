@@ -46,7 +46,12 @@
 .c-scale-opt input{position:absolute; opacity:0; width:0; height:0;}
 .c-scale-opt span{display:flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
 .c-scale-opt:hover span{background:var(--color-neutral-2);}
-.c-scale-opt input:checked + span{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+/* Selected circle takes the accent. Text flips to Neutral-9 rather than
+   staying Neutral-1: white on Amber measures 2.13:1, while Neutral-9 on
+   Amber measures 10.10:1 (both computed in the page) — the same reason
+   Badge Warning pairs its amber tint with Neutral-9 text instead of white.
+   Dark text still clears the floor on the darker elements. */
+.pub .c-scale-opt input:checked + span{background:var(--form-accent); border-color:var(--form-accent); color:var(--color-neutral-9);}
 .c-scale-opt input:focus-visible + span{outline:2px solid var(--color-obsidian); outline-offset:2px;}
 /* End labels — the numbers alone never say which end is good. */
 .c-scale-ends{display:flex; justify-content:space-between; gap:var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
@@ -222,7 +227,32 @@ p.hint{margin:0;}
 .pub{min-height:100vh;}
 .pub-bar{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-16) var(--spacing-24); background:var(--color-neutral-1); border-bottom:1px solid var(--color-neutral-3);}
 .pub-inner{max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-16); padding:var(--spacing-24) 0 var(--spacing-60);}
-.form-head{border-top:4px solid var(--color-obsidian);}
+/* One accent variable for the whole form, set from the survey's owning
+   element. Obsidian stays the default, so a survey with no owner is
+   unchanged. Only three things read it — see the note on the two that
+   deliberately don't, below the element list. */
+.pub{--form-accent:var(--color-obsidian);}
+.pub.el-fire {--form-accent:var(--color-orange);}
+.pub.el-wood {--form-accent:var(--color-salmon-pink);}
+.pub.el-earth{--form-accent:var(--color-green);}
+.pub.el-water{--form-accent:var(--color-navy);}
+.pub.el-gold {--form-accent:var(--color-amber);}
+/* Accent bar. An element-coloured accent border is Card's own established
+   move — .c-card-accent ships a 3px Salmon Pink top border — so this is
+   that convention taking the owner's colour instead of a fixed one. */
+.form-head{border-top:4px solid var(--form-accent);}
+/* Progress fill. Progress Bar's own Fill row documents a department
+   override outright: "the owning department's elemental color, passed via
+   prop". This is that prop, as a variable. */
+.pub .c-progress-fill{background:var(--form-accent);}
+/* Slider fill. Not a documented override — Slider's spec calls Obsidian
+   "the value-committed color" — but a track fill is the same class of
+   indicator as Progress's, and leaving one of the two dark would read as a
+   bug rather than a rule. Flagged as a departure rather than done quietly.
+   The thumb keeps its 2px Obsidian border, which the spec is explicit about
+   and which Amber could not carry: #FFA425 on white measures 1.87:1, under
+   the 3:1 floor for a non-text boundary. */
+.pub .c-slider-fill{background:var(--form-accent);}
 .form-title{margin:0; font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); overflow-wrap:anywhere;}
 .form-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); white-space:pre-wrap;}
 .q-title{display:block; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
@@ -262,10 +292,17 @@ p.hint{margin:0;}
    with .field-wide, which nothing here defined. */
 .c-field.field-wide{width:100%; max-width:none;}
 .c-field.field-wide input,.c-field.field-wide textarea{width:100%; box-sizing:border-box;}
-/* Progress sticks to the top of the page, under the name bar, which is the
-   only place a progress bar earns its keep on a long form. */
-.pub-progress{position:sticky; top:0; z-index:10; display:flex; flex-direction:column; gap:var(--spacing-8); margin:0 calc(var(--spacing-24) * -1); padding:var(--spacing-12) var(--spacing-24); background:var(--color-canvas-warm);}
-.pub-foot{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); flex-wrap:wrap;}
+/* Progress sits at the top of the form and scrolls away with it — matching
+   the same bar in feedback.html's preview, which is the surface this page is
+   the real version of. It reads once, on arrival, as "how long is this";
+   pinned to the viewport it followed the reader down the page restating a
+   number they had already acted on. Full-bleed across .pub-inner's padding
+   so it reads as the page's own progress rather than a card's. */
+.pub-progress{display:flex; flex-direction:column; gap:var(--spacing-8); margin:0 calc(var(--spacing-24) * -1); padding:var(--spacing-8) var(--spacing-24) var(--spacing-12); background:var(--color-canvas-warm);}
+/* Submit at the right end of the row, where the preview puts it and where
+   the eye lands at the end of a form, with Clear form 8px to its left as
+   one action group rather than two ends of a bar. */
+.pub-foot{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8); flex-wrap:wrap;}
 
 /* Step 3 — confirmation. */
 .done-card{align-items:flex-start; text-align:left;}
@@ -332,6 +369,11 @@ var SURVEY = {
      below. Sending yourself a survey reads as a bug in the prototype. */
   from:  'Nurul Kamal',
   fromRole: 'Product lead, CollabSales',
+  /* Same ownership the library card carries: CollabSales is a Gold product
+     in DESIGN-SYSTEM.md's sub-brand table, so the form's accents follow
+     Amber rather than the default Obsidian. Changing this one word
+     re-accents the whole form. */
+  owner: { name:'CollabSales', el:'gold' },
   ends:  new Date(2026, 9, 3),
   settings: { progressBar:true, sendCopy:false, allowEdit:true, oneResponse:true,
               confirm:'Thanks — this goes straight to the CollabSales team.' },
@@ -738,7 +780,7 @@ function formHtml(){
   var pct = vis.length ? Math.round(done / vis.length * 100) : 0;
   var num = 0;
 
-  return '<div class="pub">' +
+  return '<div class="pub' + (SURVEY.owner ? ' el-' + SURVEY.owner.el : '') + '">' +
     '<div class="pub-bar">' +
       '<span style="font-family:var(--font-secondary);font-size:18px;font-weight:600">Collabrium</span>' +
       '<span class="grow"></span>' +
@@ -769,8 +811,8 @@ function formHtml(){
         '</div>';
       }).join('') +
       '<div class="pub-foot">' +
-        '<button class="c-btn c-btn-primary c-btn-lg" type="button" id="submit">Submit</button>' +
         '<button class="c-btn c-btn-ghost c-btn-md" type="button" id="clearAll">Clear form</button>' +
+        '<button class="c-btn c-btn-primary c-btn-lg" type="button" id="submit">Submit</button>' +
       '</div>' +
       '<p class="hint">Sent by ' + esc(SURVEY.from) + ' · ' + esc(SURVEY.fromRole) +
         '. Your answers are anonymous to your pod lead. Never enter a password in a Collabrium form.</p>' +

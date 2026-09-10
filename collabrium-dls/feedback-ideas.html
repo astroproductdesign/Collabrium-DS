@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Collabrium — Feedback visual interest: three options</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<style>
+/* ==========================================================================
+   CANDIDATE COMPONENTS — not in components.css yet.
+   One candidate only. Everything else on this page is either an existing
+   component used as-specified or prototype-only scaffolding (second banner).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 1 — Element modifiers for the shared icon chip
+                 (.icon-chip-fire / -wood / -earth / -water / -gold)
+   components.css already ships .icon-chip (36x36, radius-sm, icon-md glyph)
+   but hardcodes Navy. DESIGN-SYSTEM.md's Card > "Icon-chip header" calls
+   this "the standard way a card declares which department owns it", which
+   only works if the chip can take the owning element's colour. Values are
+   the element colour at 12% via color-mix — exactly what .icon-chip already
+   does for Navy, per that same section's warning that the 12% chip tint and
+   the 8% -bg card tint "are two different tint strengths for two different
+   purposes, don't conflate them". Naming follows Tag's own element
+   modifiers (.c-tag-fire etc.), so there is one element suffix vocabulary.
+   -------------------------------------------------------------------------- */
+.icon-chip-fire {background:color-mix(in srgb, var(--color-orange) 12%, transparent);      color:var(--color-orange);}
+.icon-chip-wood {background:color-mix(in srgb, var(--color-salmon-pink) 12%, transparent); color:var(--color-salmon-pink);}
+.icon-chip-earth{background:color-mix(in srgb, var(--color-green) 12%, transparent);       color:var(--color-green);}
+.icon-chip-water{background:color-mix(in srgb, var(--color-navy) 12%, transparent);        color:var(--color-navy);}
+.icon-chip-gold {background:color-mix(in srgb, var(--color-amber) 12%, transparent);       color:var(--color-amber);}
+/* The glyph is Tier 2 Fill at icon-md — Iconography puts "Card / section
+   header" in the Fill column, and the size scale puts card headers at 24px.
+   Set here rather than per-instance so no caller has to remember it. */
+.icon-chip i{font-size:var(--icon-md);}
+
+/* ==========================================================================
+   PROTOTYPE SCAFFOLDING — review-sheet furniture and copies of feedback.html's
+   own local card classes. None of this would be promoted.
+   ========================================================================== */
+
+body{margin:0; background:var(--color-canvas-warm); font-family:var(--font-primary); color:var(--color-neutral-9);}
+.sheet{max-width:1120px; margin:0 auto; padding:var(--spacing-48) var(--spacing-24) var(--spacing-120);}
+.sheet-head{display:flex; flex-direction:column; gap:var(--spacing-8); margin-bottom:var(--spacing-40);}
+.sheet-head h1{margin:0; font-size:var(--text-h1-size); line-height:var(--text-h1-lh); font-weight:var(--text-h1-weight);}
+.sheet-head .sub{margin:0; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight); color:var(--color-neutral-5); max-width:70ch;}
+.sheet-rule{height:1px; margin:0; border:none; background:var(--color-neutral-3);}
+
+/* An option block. The number is part of the heading, not a decorative
+   badge, so it sits inside the h2's own line box. */
+.idea{margin-top:var(--spacing-48);}
+.idea > h2{display:flex; align-items:center; gap:var(--spacing-12); margin:0 0 var(--spacing-8); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight);}
+.idea > h2 .num{flex:none; display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-obsidian); color:var(--color-neutral-1); font-size:var(--text-label1-size); font-weight:700;}
+.idea > .note{margin:0 0 var(--spacing-20); font-size:var(--text-body2-size); line-height:var(--text-body2-lh-lg); color:var(--color-neutral-5); max-width:78ch;}
+.idea > .note b{color:var(--color-neutral-9); font-weight:var(--text-body2-strong-weight);}
+/* <code> anywhere on this sheet stays in the primary face — the browser's
+   monospace default is not a font this system owns, and a class/token name
+   set in Mulish bold reads as a name without importing a second typeface. */
+code{font-family:var(--font-primary); font-weight:700; color:var(--color-neutral-9);}
+
+/* Spec strip — what each option costs to build, in the same three rows every
+   time so the options are comparable at a glance rather than by reading. */
+.spec{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:var(--spacing-16); margin:var(--spacing-20) 0 0; padding:var(--spacing-16) 0 0; border-top:1px solid var(--color-neutral-3); list-style:none;}
+.spec > li{display:flex; flex-direction:column; gap:var(--spacing-4);}
+.spec dt, .spec .k{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
+.spec .v{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-9);}
+.spec .v em{font-style:normal; color:var(--color-neutral-5);}
+
+/* Element → owner legend. */
+.map{display:grid; grid-template-columns:repeat(auto-fit,minmax(196px,1fr)); gap:var(--spacing-12); margin:0; padding:0; list-style:none;}
+.map > li{display:flex; align-items:flex-start; gap:var(--spacing-12); padding:var(--spacing-12); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md);}
+.map .who{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.map .el{font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight);}
+.map .owns{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.map li.is-unused{border-style:dashed; background:transparent;}
+.map li.is-unused .owns{font-style:italic;}
+
+/* Copied verbatim from feedback.html so the tiles here are the real thing
+   and not a lookalike — same grid, same padding, same clamps. */
+.lib-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:var(--spacing-16);}
+.lib-card-wrap{position:relative; display:flex;}
+.lib-card-wrap > .lib-card{flex:1 1 auto; min-width:0;}
+.lib-card-wrap > .menu-wrap{position:absolute; top:var(--spacing-16); right:var(--spacing-12); z-index:2;}
+.lib-card .tag-row{padding-right:var(--spacing-24);}
+.lib-card{align-items:stretch; text-align:left; font-family:inherit; cursor:pointer; padding:var(--spacing-20); gap:var(--spacing-12);}
+.lib-card:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
+.lib-card-title{font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+.lib-card-desc{flex:1 1 auto; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+.lib-card-foot{display:flex; align-items:baseline; justify-content:space-between; gap:var(--spacing-8); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+.lib-card-foot b{font-size:var(--text-h5-size); font-weight:800; font-variant-numeric:tabular-nums;}
+.lib-row-meta{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.tag-row{display:flex; flex-wrap:wrap; gap:var(--spacing-4);}
+
+/* Option 1's added row. The chip shares the badge row rather than taking a
+   row of its own, so the treatment costs zero extra card height — the tag
+   row was already 24px tall and the chip is 36px, which is the only height
+   this adds. Owner name goes under the title as caption text: the colour
+   reinforces ownership, the words state it. */
+.lib-card-top{display:flex; align-items:center; gap:var(--spacing-12);}
+.lib-card-top .tag-row{margin-left:auto; justify-content:flex-end;}
+.lib-card-titles{display:flex; flex-direction:column; gap:2px;}
+.lib-card-owner{display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* Option 2 — Progress bar in the card footer. The component is used as
+   specified; all this does is let the footer stack it above the date range
+   instead of sitting them on one baseline. */
+.lib-card-foot.has-rail{display:flex; flex-direction:column; align-items:stretch; gap:var(--spacing-8);}
+.lib-card-foot.has-rail .rail-foot{display:flex; align-items:baseline; justify-content:space-between; gap:var(--spacing-8);}
+/* COMPONENT GAP, worth reporting rather than only patching: Progress bar's
+   own rules set width/height on .c-progress, .c-progress-track and
+   .c-progress-fill but never set `display`, so they only work on block-level
+   elements. The library tile is a <button>, whose content model is phrasing
+   content — a <div> is invalid inside it — so every part here has to be a
+   <span>, and width/height silently do nothing on an inline box. Result: a
+   0px-tall, 0px-wide rail and no error anywhere. Three declarations fix it,
+   and they belong in components.css next to the width/height they enable,
+   not in this file. (.c-progress-header escapes the bug only because it
+   already declares display:flex.) */
+.lib-card-foot.has-rail .c-progress,
+.lib-card-foot.has-rail .c-progress-track,
+.lib-card-foot.has-rail .c-progress-fill{display:block;}
+
+/* Option 3 — the tinted detail panel. Fill is the owning element's -bg
+   token (8%), which is the Element-tinted Card variant exactly as written;
+   border-color:transparent follows .c-card.warm's own precedent for a card
+   that is meant to read as a coloured surface rather than a bordered one. */
+.detail-card{max-width:640px; padding:var(--spacing-24); gap:var(--spacing-16); border-color:transparent;}
+.detail-card.el-gold {background:var(--color-gold-bg);}
+.detail-card.el-water{background:var(--color-water-bg);}
+.detail-card h3{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight);}
+.detail-card .desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh-lg); color:var(--color-neutral-5);}
+.detail-facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:var(--spacing-16); margin:0; padding:var(--spacing-16) 0 0; border-top:1px solid color-mix(in srgb, var(--color-amber) 22%, transparent);}
+.detail-card.el-water .detail-facts{border-top-color:color-mix(in srgb, var(--color-navy) 22%, transparent);}
+.detail-facts > div{display:flex; flex-direction:column; gap:2px;}
+.detail-facts .k{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
+.detail-facts .v{font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); font-variant-numeric:tabular-nums;}
+/* A nested surface inside an already-tinted panel steps up to -bg-strong
+   (16%) rather than going white — that step is exactly what the -strong
+   tokens are for. */
+.detail-nest{padding:var(--spacing-16); border-radius:var(--radius-sm); background:var(--color-gold-bg-strong);}
+
+/* Gold's own motion entry is "brief glint on hover" — a single sweep, one
+   pass, no loop, on ease-precise (the gold curve). The sweep is white, not
+   an element colour: shadow-inset already establishes translucent white as
+   this system's highlight, and using a second element here would break the
+   one-element-per-surface rule the tint is there to honour. */
+.detail-card.el-gold{position:relative; overflow:hidden;}
+.detail-card.el-gold > *{position:relative; z-index:1;}
+.detail-card.el-gold::after{content:""; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:0;
+  background:linear-gradient(100deg, transparent 34%, rgba(255,255,255,.72) 50%, transparent 66%);
+  background-size:220% 100%; background-position:120% 0; background-repeat:no-repeat;}
+.detail-card.el-gold:hover::after{opacity:1; animation:glint var(--duration-reveal) var(--ease-precise) 1;}
+@keyframes glint{from{background-position:120% 0;} to{background-position:-60% 0;}}
+/* The glint carries no information, so it is the whole of what reduced
+   motion suppresses. */
+@media (prefers-reduced-motion: reduce){
+  .detail-card.el-gold:hover::after{animation:none; opacity:0;}
+}
+
+/* The failure mode, shown at tile scale so it can be judged rather than
+   argued about. Deliberately NOT a recommendation — see the caution note. */
+.salad{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:var(--spacing-12);}
+.salad-tile{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-8); padding:var(--spacing-12); border:1px solid transparent; border-radius:var(--radius-lg); box-shadow:var(--shadow-1);}
+.salad-tile .t{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700;}
+.salad .el-fire {background:var(--color-fire-bg);}
+.salad .el-wood {background:var(--color-wood-bg);}
+.salad .el-earth{background:var(--color-earth-bg);}
+.salad .el-water{background:var(--color-water-bg);}
+.salad .el-gold {background:var(--color-gold-bg);}
+
+/* Caution — Info banner's shape, but this sheet is a review document and
+   not the product, so it stays local scaffolding rather than pretending to
+   be the real component. */
+.caution{display:flex; gap:var(--spacing-12); margin:var(--spacing-20) 0 0; padding:var(--spacing-16); border:1px solid var(--color-neutral-3); border-left:3px solid var(--color-amber); border-radius:var(--radius-md); background:var(--color-neutral-1);}
+.caution i{flex:none; font-size:var(--icon-base); color:var(--color-amber);}
+.caution p{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh-lg); color:var(--color-neutral-5);}
+.caution p b{color:var(--color-neutral-9); font-weight:var(--text-body2-strong-weight);}
+
+.sub-h{margin:var(--spacing-24) 0 var(--spacing-12); font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight);}
+.sub-h:first-child{margin-top:0;}
+.stack{display:flex; flex-direction:column; gap:var(--spacing-8);}
+
+@media (max-width:600px){
+  .sheet{padding:var(--spacing-24) var(--spacing-16) var(--spacing-60);}
+  .idea > h2{font-size:var(--text-h4-size); line-height:var(--text-h4-lh);}
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+
+  <header class="sheet-head">
+    <h1>Making the feedback library more engaging</h1>
+    <p class="sub">Three options, isolated for review before any of them touch
+      the real build. All three replace decoration with ownership: the colour
+      on a survey comes from the department that owns it, so the grid gains
+      colour and gains meaning at the same time.</p>
+  </header>
+  <hr class="sheet-rule" />
+
+  <!-- ------------------------------------------------------------------ -->
+  <section class="idea">
+    <h2>Where the colour comes from</h2>
+    <p class="note">Nothing here is invented. <b>Elemental background tints are
+      the only permitted coloured backgrounds in the system</b>, and only for the
+      element that already owns the content — so the question was never "which
+      colour looks nice", it was "who owns this survey". Two surveys answer it
+      by name: the sub-brand table fixes <code>CollabSales</code> to Gold and
+      <code>CollabMedia</code> to Water. The rest follow their department.</p>
+
+    <ul class="map">
+      <li>
+        <span class="icon-chip icon-chip-gold"><i class="ph-fill ph-rocket-launch" aria-hidden="true"></i></span>
+        <span class="who"><span class="el">Gold · Amber</span>
+          <span class="owns">CollabSales · Finance · Legal · QA &amp; Audit</span></span>
+      </li>
+      <li>
+        <span class="icon-chip icon-chip-water"><i class="ph-fill ph-broadcast" aria-hidden="true"></i></span>
+        <span class="who"><span class="el">Water · Navy</span>
+          <span class="owns">CollabMedia · Data · Logistics · Exec Strategy</span></span>
+      </li>
+      <li>
+        <span class="icon-chip icon-chip-earth"><i class="ph-fill ph-user-plus" aria-hidden="true"></i></span>
+        <span class="who"><span class="el">Earth · Green</span>
+          <span class="owns">HR · People Ops · Customer Success</span></span>
+      </li>
+      <li>
+        <span class="icon-chip icon-chip-wood"><i class="ph-fill ph-pen-nib" aria-hidden="true"></i></span>
+        <span class="who"><span class="el">Wood · Salmon</span>
+          <span class="owns">Product Design · Strategy · R&amp;D</span></span>
+      </li>
+      <li class="is-unused">
+        <span class="icon-chip icon-chip-fire"><i class="ph-fill ph-megaphone" aria-hidden="true"></i></span>
+        <span class="who"><span class="el">Fire · Orange</span>
+          <span class="owns">Marketing · PR · Brand — no survey owns it yet</span></span>
+      </li>
+    </ul>
+
+    <ul class="spec">
+      <li><span class="k">Data change</span><span class="v">One <code>owner</code> field per entry in <code>FORMS</code> — <em>name, element, glyph</em></span></li>
+      <li><span class="k">Reuses</span><span class="v">The sub-brand element table and the department table, unchanged</span></li>
+      <li><span class="k">Why it matters</span><span class="v">Rotating tints by grid position is explicitly forbidden — <em>"don't tint a card with an element that doesn't own its content"</em></span></li>
+    </ul>
+  </section>
+
+  <!-- ------------------------------------------------------------------ -->
+  <section class="idea">
+    <h2>Baseline — what the grid looks like today</h2>
+    <p class="note">For comparison. Every signal on the tile is monochrome except
+      the status badge, so the eye has nothing to sort by until it reads.</p>
+
+    <div class="lib-grid">
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="tag-row">
+            <span class="c-badge c-badge-success">Active</span>
+            <span class="c-badge c-badge-warning"><i class="ph ph-clock" aria-hidden="true"></i>Closes in 24 days</span>
+          </span>
+          <span class="lib-card-title">CollabSales Post-Launch Survey</span>
+          <span class="lib-card-desc">Five questions on the new CollabSales release — how it feels to use, and what to fix first.</span>
+          <span class="lib-card-foot">
+            <span><b>0</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">7 Sep – 3 Oct</span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="tag-row">
+            <span class="c-badge c-badge-success">Active</span>
+            <span class="c-badge c-badge-neutral"><i class="ph ph-clock" aria-hidden="true"></i>Closes in 21 days</span>
+          </span>
+          <span class="lib-card-title">Product experience survey — Q3</span>
+          <span class="lib-card-desc">Ten quick questions about how Collabrium is working for you. Takes about two minutes and everything is anonymous to your pod lead.</span>
+          <span class="lib-card-foot">
+            <span><b>128</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">1 Jul – 30 Sep</span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="tag-row">
+            <span class="c-badge c-badge-success">Active</span>
+            <span class="c-badge c-badge-neutral"><i class="ph ph-infinity" aria-hidden="true"></i>No deadline</span>
+          </span>
+          <span class="lib-card-title">Onboarding check-in — week one</span>
+          <span class="lib-card-desc">For new joiners at the end of their first week. Runs continuously — there is always someone in their first week.</span>
+          <span class="lib-card-foot">
+            <span><b>12</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">From 1 Feb</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <hr class="sheet-rule" style="margin-top:var(--spacing-48)" />
+
+  <!-- ------------------------------------------------------------------ -->
+  <section class="idea">
+    <h2><span class="num" aria-hidden="true">1</span>Icon chip + subject glyph</h2>
+    <p class="note">The chip carries the owner's colour, the glyph says what the
+      survey is about, and the owner's name sits under the title as caption text
+      — <b>colour reinforces, words state</b>. The chip rides the badge row
+      rather than claiming one of its own, so it costs only the 16px by which
+      a 36px chip out-measures a 20px badge; the owner line accounts for the
+      rest, and the tile lands 34px taller than the baseline above. This is the
+      variant the spec itself prefers: <em>"the standard way a card declares
+      which department owns it."</em></p>
+
+    <div class="lib-grid">
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-gold"><i class="ph-fill ph-rocket-launch" aria-hidden="true"></i></span>
+            <span class="tag-row">
+              <span class="c-badge c-badge-success">Active</span>
+            </span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">CollabSales Post-Launch Survey</span>
+            <span class="lib-card-owner">CollabSales · Closes in 24 days</span>
+          </span>
+          <span class="lib-card-desc">Five questions on the new CollabSales release — how it feels to use, and what to fix first.</span>
+          <span class="lib-card-foot">
+            <span><b>0</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">7 Sep – 3 Oct</span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-wood"><i class="ph-fill ph-pen-nib" aria-hidden="true"></i></span>
+            <span class="tag-row">
+              <span class="c-badge c-badge-success">Active</span>
+            </span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">Product experience survey — Q3</span>
+            <span class="lib-card-owner">Product Design · Closes in 21 days</span>
+          </span>
+          <span class="lib-card-desc">Ten quick questions about how Collabrium is working for you. Takes about two minutes and everything is anonymous to your pod lead.</span>
+          <span class="lib-card-foot">
+            <span><b>128</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">1 Jul – 30 Sep</span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-earth"><i class="ph-fill ph-user-plus" aria-hidden="true"></i></span>
+            <span class="tag-row">
+              <span class="c-badge c-badge-success">Active</span>
+            </span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">Onboarding check-in — week one</span>
+            <span class="lib-card-owner">People Ops · No deadline</span>
+          </span>
+          <span class="lib-card-desc">For new joiners at the end of their first week. Runs continuously — there is always someone in their first week.</span>
+          <span class="lib-card-foot">
+            <span><b>12</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">From 1 Feb</span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-water"><i class="ph-fill ph-broadcast" aria-hidden="true"></i></span>
+            <span class="tag-row">
+              <span class="c-badge c-badge-success">Active</span>
+            </span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">CollabMedia planning tool — pilot feedback</span>
+            <span class="lib-card-owner">CollabMedia · Closes in 3 days</span>
+          </span>
+          <span class="lib-card-desc">Pilot group only.</span>
+          <span class="lib-card-foot">
+            <span><b>31</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">1 Sep – 12 Sep</span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-water"><i class="ph-fill ph-chart-bar" aria-hidden="true"></i></span>
+            <span class="tag-row">
+              <span class="c-badge c-badge-neutral">Closed</span>
+            </span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">Reporting refresh — concept test</span>
+            <span class="lib-card-owner">Data Analytics · Ended 18 days ago</span>
+          </span>
+          <span class="lib-card-desc">Ran for three weeks alongside the reporting rebuild.</span>
+          <span class="lib-card-foot">
+            <span><b>87</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">4 Aug – 22 Aug</span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-gold"><i class="ph-fill ph-wrench" aria-hidden="true"></i></span>
+            <span class="tag-row">
+              <span class="c-badge c-badge-neutral"><i class="ph ph-archive" aria-hidden="true"></i>Archived</span>
+            </span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">Annual tooling review 2025</span>
+            <span class="lib-card-owner">QA &amp; Audit · Ended 64 days ago</span>
+          </span>
+          <span class="lib-card-desc">The 2025 round. Superseded by the Q3 product experience survey.</span>
+          <span class="lib-card-foot">
+            <span><b>204</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">1 Nov – 15 Dec</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <ul class="spec">
+      <li><span class="k">Reuses</span><span class="v">The shared <code>.icon-chip</code> already in components.css, and Iconography's Fill weight for card headers</span></li>
+      <li><span class="k">New</span><span class="v">Five element modifiers — <em>10 lines of CSS, one promotable candidate</em></span></li>
+      <li><span class="k">Risk</span><span class="v">None to the layout. Chip tint is 12%, <em>not</em> the 8% card token — the two are not interchangeable</span></li>
+    </ul>
+  </section>
+
+  <hr class="sheet-rule" style="margin-top:var(--spacing-48)" />
+
+  <!-- ------------------------------------------------------------------ -->
+  <section class="idea">
+    <h2><span class="num" aria-hidden="true">2</span>Response count as a shape</h2>
+    <p class="note">The same tiles, with the footer's bare number turned into a
+      4px rail filled in the owner's colour. Progress bar already permits a
+      department-colour fill override, and <code>tone-gold</code> /
+      <code>tone-water</code> / <code>tone-earth</code> already exist in
+      components.css — <b>this option needs no new CSS at all</b>. It also makes
+      the grid scannable: a half-empty rail is a survey that needs chasing.</p>
+
+    <div class="lib-grid">
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-gold"><i class="ph-fill ph-rocket-launch" aria-hidden="true"></i></span>
+            <span class="tag-row"><span class="c-badge c-badge-success">Active</span></span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">CollabSales Post-Launch Survey</span>
+            <span class="lib-card-owner">CollabSales · Closes in 24 days</span>
+          </span>
+          <span class="lib-card-desc">Five questions on the new CollabSales release — how it feels to use, and what to fix first.</span>
+          <span class="lib-card-foot has-rail">
+            <span class="c-progress">
+              <span class="c-progress-header">
+                <span class="c-progress-title">Responses</span>
+                <span class="c-progress-value">0 of 40</span>
+              </span>
+              <span class="c-progress-track size-compact">
+                <span class="c-progress-fill tone-gold" style="width:0%"></span>
+              </span>
+            </span>
+            <span class="rail-foot"><span class="lib-row-meta">Just opened</span><span class="lib-row-meta">7 Sep – 3 Oct</span></span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-wood"><i class="ph-fill ph-pen-nib" aria-hidden="true"></i></span>
+            <span class="tag-row"><span class="c-badge c-badge-success">Active</span></span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">Product experience survey — Q3</span>
+            <span class="lib-card-owner">Product Design · Closes in 21 days</span>
+          </span>
+          <span class="lib-card-desc">Ten quick questions about how Collabrium is working for you. Takes about two minutes and everything is anonymous to your pod lead.</span>
+          <span class="lib-card-foot has-rail">
+            <span class="c-progress">
+              <span class="c-progress-header">
+                <span class="c-progress-title">Responses</span>
+                <span class="c-progress-value">128 of 150</span>
+              </span>
+              <span class="c-progress-track size-compact">
+                <span class="c-progress-fill tone-wood" style="width:85%"></span>
+              </span>
+            </span>
+            <span class="rail-foot"><span class="lib-row-meta">85% of target</span><span class="lib-row-meta">1 Jul – 30 Sep</span></span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-earth"><i class="ph-fill ph-user-plus" aria-hidden="true"></i></span>
+            <span class="tag-row"><span class="c-badge c-badge-success">Active</span></span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">Onboarding check-in — week one</span>
+            <span class="lib-card-owner">People Ops · No deadline</span>
+          </span>
+          <span class="lib-card-desc">For new joiners at the end of their first week. Runs continuously — there is always someone in their first week.</span>
+          <span class="lib-card-foot">
+            <span><b>12</b> <span class="lib-row-meta">responses</span></span>
+            <span class="lib-row-meta">From 1 Feb</span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-water"><i class="ph-fill ph-broadcast" aria-hidden="true"></i></span>
+            <span class="tag-row"><span class="c-badge c-badge-warning"><i class="ph ph-clock" aria-hidden="true"></i>3 days</span></span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">CollabMedia planning tool — pilot feedback</span>
+            <span class="lib-card-owner">CollabMedia · Closes in 3 days</span>
+          </span>
+          <span class="lib-card-desc">Pilot group only.</span>
+          <span class="lib-card-foot has-rail">
+            <span class="c-progress">
+              <span class="c-progress-header">
+                <span class="c-progress-title">Responses</span>
+                <span class="c-progress-value">31 of 50</span>
+              </span>
+              <span class="c-progress-track size-compact">
+                <span class="c-progress-fill tone-water" style="width:62%"></span>
+              </span>
+            </span>
+            <span class="rail-foot"><span class="lib-row-meta">19 short, 3 days left</span><span class="lib-row-meta">1 Sep – 12 Sep</span></span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-water"><i class="ph-fill ph-chart-bar" aria-hidden="true"></i></span>
+            <span class="tag-row"><span class="c-badge c-badge-neutral">Closed</span></span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">Reporting refresh — concept test</span>
+            <span class="lib-card-owner">Data Analytics · Ended 18 days ago</span>
+          </span>
+          <span class="lib-card-desc">Ran for three weeks alongside the reporting rebuild.</span>
+          <span class="lib-card-foot has-rail">
+            <span class="c-progress">
+              <span class="c-progress-header">
+                <span class="c-progress-title">Responses</span>
+                <span class="c-progress-value">87 of 90</span>
+              </span>
+              <span class="c-progress-track size-compact">
+                <span class="c-progress-fill tone-water" style="width:97%"></span>
+              </span>
+            </span>
+            <span class="rail-foot"><span class="lib-row-meta">97% of target</span><span class="lib-row-meta">4 Aug – 22 Aug</span></span>
+          </span>
+        </button>
+      </div>
+      <div class="lib-card-wrap">
+        <button class="c-card c-card-interactive lib-card" type="button">
+          <span class="lib-card-top">
+            <span class="icon-chip icon-chip-gold"><i class="ph-fill ph-wrench" aria-hidden="true"></i></span>
+            <span class="tag-row"><span class="c-badge c-badge-neutral"><i class="ph ph-archive" aria-hidden="true"></i>Archived</span></span>
+          </span>
+          <span class="lib-card-titles">
+            <span class="lib-card-title">Annual tooling review 2025</span>
+            <span class="lib-card-owner">QA &amp; Audit · Ended 64 days ago</span>
+          </span>
+          <span class="lib-card-desc">The 2025 round. Superseded by the Q3 product experience survey.</span>
+          <span class="lib-card-foot has-rail">
+            <span class="c-progress">
+              <span class="c-progress-header">
+                <span class="c-progress-title">Responses</span>
+                <span class="c-progress-value">204 of 200</span>
+              </span>
+              <span class="c-progress-track size-compact">
+                <span class="c-progress-fill tone-gold" style="width:100%"></span>
+              </span>
+            </span>
+            <span class="rail-foot"><span class="lib-row-meta">Target met</span><span class="lib-row-meta">1 Nov – 15 Dec</span></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="caution">
+      <i class="ph-fill ph-warning" aria-hidden="true"></i>
+      <p><b>This option needs a decision, not just a build.</b> A rail needs a
+        response target, and surveys do not have one today. Onboarding check-in
+        (third tile) shows the honest fallback: <b>no target, no rail</b> — it
+        runs continuously, so there is nothing to be a fraction of. If most
+        surveys end up targetless, this option is doing less work than it looks.</p>
+    </div>
+
+    <ul class="spec">
+      <li><span class="k">Reuses</span><span class="v">Progress bar as specified — <code>size-compact</code> plus the existing <code>tone-*</code> element fills</span></li>
+      <li><span class="k">New</span><span class="v">No CSS. One <code>target</code> field, and a footer that can stack</span></li>
+      <li><span class="k">Risk</span><span class="v">Needs a target per survey; the over-target case (204 of 200) has to clamp the fill but keep the true number</span></li>
+    </ul>
+  </section>
+
+  <hr class="sheet-rule" style="margin-top:var(--spacing-48)" />
+
+  <!-- ------------------------------------------------------------------ -->
+  <section class="idea">
+    <h2><span class="num" aria-hidden="true">3</span>Element-tinted card — detail screen only</h2>
+    <p class="note">Full 8% tint on the surface. On a detail screen this is
+      clean: <b>one survey, one owner, one tint</b>, which is exactly the
+      condition the rule asks for. The nested panel steps up to the 16%
+      <code>-strong</code> token rather than going white — that step is what the
+      <code>-strong</code> tokens exist for. Hover the card: Gold's own motion
+      entry is <em>"brief glint on hover"</em>, so the sweep is spec, not garnish.</p>
+
+    <div class="stack">
+      <div class="c-card detail-card el-gold">
+        <div class="lib-card-top">
+          <span class="icon-chip icon-chip-gold"><i class="ph-fill ph-rocket-launch" aria-hidden="true"></i></span>
+          <span class="tag-row">
+            <span class="c-badge c-badge-success">Active</span>
+            <span class="c-badge c-badge-warning"><i class="ph ph-clock" aria-hidden="true"></i>Closes in 24 days</span>
+          </span>
+        </div>
+        <h3>CollabSales Post-Launch Survey</h3>
+        <p class="desc">Five questions on the new CollabSales release — how it
+          feels to use, and what to fix first. Ratings are anonymous to the pod.</p>
+        <div class="detail-nest">
+          <div class="c-progress">
+            <div class="c-progress-header">
+              <span class="c-progress-title">Responses</span>
+              <span class="c-progress-value">0 of 40</span>
+            </div>
+            <div class="c-progress-track size-compact">
+              <div class="c-progress-fill tone-gold" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-facts">
+          <div><span class="k">Owner</span><span class="v">CollabSales</span></div>
+          <div><span class="k">Questions</span><span class="v">5</span></div>
+          <div><span class="k">Opens</span><span class="v">7 Sep</span></div>
+          <div><span class="k">Closes</span><span class="v">3 Oct</span></div>
+        </div>
+      </div>
+
+      <p class="lib-row-meta">A second element, for comparison — the same card at Water.</p>
+
+      <div class="c-card detail-card el-water">
+        <div class="lib-card-top">
+          <span class="icon-chip icon-chip-water"><i class="ph-fill ph-broadcast" aria-hidden="true"></i></span>
+          <span class="tag-row">
+            <span class="c-badge c-badge-warning"><i class="ph ph-clock" aria-hidden="true"></i>Closes in 3 days</span>
+          </span>
+        </div>
+        <h3>CollabMedia planning tool — pilot feedback</h3>
+        <p class="desc">Pilot group only.</p>
+        <div class="detail-facts">
+          <div><span class="k">Owner</span><span class="v">CollabMedia</span></div>
+          <div><span class="k">Responses</span><span class="v">31</span></div>
+          <div><span class="k">Opens</span><span class="v">1 Sep</span></div>
+          <div><span class="k">Closes</span><span class="v">12 Sep</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-h">Why not on the grid — the failure mode, shown</h3>
+    <p class="note">This is the version worth seeing before choosing it. Seven
+      tinted tiles put three colour systems on one screen — element tint, status
+      badge, deadline pill — and none of them wins. The spec's own line is
+      <em>"use sparingly; the icon-chip variant is usually the better signal"</em>,
+      and this is what that sentence is protecting against.</p>
+
+    <div class="salad">
+      <div class="salad-tile el-gold"><span class="c-badge c-badge-success">Active</span><span class="t">CollabSales Post-Launch Survey</span></div>
+      <div class="salad-tile el-wood"><span class="c-badge c-badge-success">Active</span><span class="t">Product experience survey — Q3</span></div>
+      <div class="salad-tile el-earth"><span class="c-badge c-badge-success">Active</span><span class="t">Onboarding check-in — week one</span></div>
+      <div class="salad-tile el-water"><span class="c-badge c-badge-warning">3 days</span><span class="t">CollabMedia planning tool</span></div>
+      <div class="salad-tile el-water"><span class="c-badge c-badge-neutral">Closed</span><span class="t">Reporting refresh — concept test</span></div>
+      <div class="salad-tile el-gold"><span class="c-badge c-badge-neutral">Archived</span><span class="t">Annual tooling review 2025</span></div>
+      <div class="salad-tile el-earth"><span class="c-badge c-badge-neutral">Archived</span><span class="t">Remote working pulse — H1 2025</span></div>
+    </div>
+
+    <ul class="spec">
+      <li><span class="k">Reuses</span><span class="v">Card's own Element-tinted variant and the <code>-bg</code> / <code>-bg-strong</code> tokens</span></li>
+      <li><span class="k">New</span><span class="v">Per-element surface classes, plus the glint keyframe — <em>reduced-motion suppressed</em></span></li>
+      <li><span class="k">Risk</span><span class="v">Safe on a detail screen, crowded on the grid. Two adjacent Water surveys stop reading as distinct</span></li>
+    </ul>
+  </section>
+
+  <hr class="sheet-rule" style="margin-top:var(--spacing-48)" />
+
+  <!-- ------------------------------------------------------------------ -->
+  <section class="idea">
+    <h2>Recommendation</h2>
+    <p class="note"><b>Ship 1, hold 2, take 3 on the detail screen only.</b>
+      Option 1 gets most of the visual lift for ten lines of CSS and one data
+      field, and it breaks no rule. Option 2 is free to build but needs a
+      product decision about targets first. Option 3 is genuinely good in one
+      place and genuinely bad in another, and the two demos above are there so
+      that call can be made by looking rather than by arguing.</p>
+    <p class="note">One thing none of these three touch: the bug reports. Severity
+      owns colour on that surface, and an elemental tint there would be read as
+      a severity signal. Worth leaving alone.</p>
+  </section>
+
+</main>
+</body>
+</html>
