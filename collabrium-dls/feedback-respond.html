@@ -1133,6 +1133,24 @@ document.addEventListener('keydown', function(e){
   if (e.key === 'Escape' && state.bellOpen){ state.bellOpen = false; render(); }
 });
 
+/* Deep link. feedback.html's "Share feedback" opens this page at the form,
+   so the flow has to be able to start anywhere the harness can jump to.
+   Query or hash, both accepted, because a link written by hand tends to use
+   whichever the writer reached for first; anything unrecognised — including
+   no link at all — boots at step 1 exactly as before. */
+(function deepLink(){
+  var q = (location.search || '') + (location.hash || '');
+  if (!q) return;
+  var e = /entry=(email|notify|dash)/.exec(q);
+  if (e) state.entry = e[1];
+  var n = /step=([123])/.exec(q);
+  if (n) state.step = +n[1];
+  /* Arriving past the invitation means the invitation has been dealt with:
+     an unread count and an open bell panel behind a form would be reporting
+     a notification the responder has already acted on. */
+  if (state.step > 1){ state.bellOpen = false; state.unread = 0; }
+})();
+
 render();
 
 })();
