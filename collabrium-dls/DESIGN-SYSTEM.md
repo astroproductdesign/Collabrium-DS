@@ -5210,6 +5210,7 @@ button that appears once there's a value, in three variants:
 |---|---|
 | Box | same anatomy as Input field: 40px height, `radius-sm`, 1px Neutral-3 border, Neutral-1 fill; border/radius/fill live on the `<input>` itself (icon and clear button sit on top of it), so Active is a genuine `:focus`, not a JS-toggled class |
 | Leading icon | `magnifying-glass`, `icon-sm` (16px), Neutral-5, **Tier 1, Regular** (search inside an input field, per Iconography) |
+| Input `type` | `search` or `text`, and the component renders identically either way. `search` is the semantically better choice — it is what earns a mobile keyboard its **Search** key — so the component suppresses WebKit's own `::-webkit-search-cancel-button` and `::-webkit-search-decoration` (`appearance: none`) rather than leaving consumers to avoid the type. Left alone, WebKit draws a blue, untokenised × *inside* the field: beside this component's own Clear button where one is present, and in place of it where one is not — see the Don't list |
 | Clear (×) | appears only once the field has a non-empty value; `icon-sm` (16px), **Tier 1, Regular**, Neutral-5 default / Neutral-9 hover, 24×24px hit target, spacing-12 from the right edge; hidden — removed from tab order, not just visually suppressed — when the field is empty |
 | Active | 2px Obsidian border swap, padding reduced 1px/side to compensate — real `:focus` (not `:focus-visible`), same rule as Input field, not the Water shadow-focus ring |
 | Error | 1px Red border, error text below in caption/700 Red, replacing helper text — matches Input field's own documented Error row |
@@ -5251,7 +5252,16 @@ markup and only hiding it visually rather than omitting it, so its
 layout space still counts toward the row's own sizing; keep the clear
 button keyboard-reachable via `Tab` once it's visible. **Don't:** show
 both a clear button and a separate trailing
-icon at once; style the dropdown's empty state as a full [Empty
+icon at once; rely on `type="search"`'s native × as the clear control —
+it is suppressed by this component on purpose, so a field that skips
+the Clear button has no way to clear at all, and a blue browser-chrome
+glyph was never one of this system's colours in the first place; give
+the leading magnifier Input field's `.icon-leading` class — that one is
+scoped to `.c-field` and `.c-filter-search`, so inside a
+`.c-search-input-box` it matches nothing, the icon drops into flex flow
+*outside* the input's border, and the input's own 36px left padding is
+left standing as an empty gutter; the class here is
+`.c-search-input-icon`; style the dropdown's empty state as a full [Empty
 state](#empty-state) (icon + heading + body) — it's an inline "nothing
 matched" message inside a compact popover, not a page-level empty
 state; use a Tier 2/Fill icon for the loading spinner — it's a process
@@ -6772,6 +6782,33 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.104 — 2026-09-14** — [Search input](#search-input) fixes a bug
+  that only showed up once a consumer used the semantically correct input
+  type. `type="search"` is the right type for this component — it is what
+  gives a mobile keyboard its **Search** key — but WebKit then draws its
+  own `::-webkit-search-cancel-button` inside the field, and the component
+  had no opinion about it. Where the consumer had also rendered this
+  component's own Clear button, the field showed **two** clear controls
+  side by side, the browser's one a blue that appears nowhere in this
+  system's palette; where the consumer had left the Clear button out, that
+  blue × silently became the field's only way to clear, which is how an
+  untokenised control ends up load-bearing. `components.css` now sets
+  `appearance: none` on `::-webkit-search-cancel-button` and
+  `::-webkit-search-decoration` for both `.c-search-input-box input` and
+  `.c-filter-search input`, so the component owns its Clear button
+  whichever type the consumer picks, and the type stays free to be chosen
+  on semantics. The spec gains an **Input `type`** row saying so, plus two
+  Don'ts: don't lean on the native × as the clear control, and don't give
+  the leading magnifier Input field's `.icon-leading` class — that class is
+  scoped to `.c-field` and `.c-filter-search`, so inside a
+  `.c-search-input-box` it matches nothing at all, dropping the icon into
+  flex flow *outside* the input's border while the input's own 36px left
+  padding stays behind as an empty gutter (measured: icon at the box's left
+  edge, input starting 16px to its right, text starting 36px after that).
+  The gallery's one interactive Default field moves to `type="search"` so
+  the suppression is exercised by the demo rather than only described here.
+  No token, geometry, state or behaviour changed.
 
 - **v0.9.103 — 2026-09-10** — [Switch](#switch)'s on-state track changes
   from Obsidian to Green `#00C26E`, per explicit direction. This is a

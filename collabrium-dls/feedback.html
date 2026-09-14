@@ -688,6 +688,10 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .prio.p3 .dot{background:var(--color-neutral-5);}
 .prio.p4 .dot{background:var(--color-neutral-4);}
 .prio.sm{font-size:var(--text-caption-size);}
+/* Not a step on the ramp, so it does not take the ramp's weight: regular,
+   Neutral-5, and the dot keeps the hollow default. */
+.prio.is-unset{font-weight:400; color:var(--color-neutral-5);}
+.prio.is-unset .dot{background:transparent; border:1px solid var(--color-neutral-4);}
 
 /* Affected services — a checkbox set, laid out in columns because ten
    one-line options in a single stack is a scroll, not a choice. */
@@ -795,6 +799,66 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 /* The two access rows get a mark each so they are scannable as a pair. Both
    are neutral: general access is a permission, not a department. */
 .share-access-icon{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-size:var(--icon-sm);}
+/* Operational impact's panel, and only it. Dropdown truncates row
+   descriptions to one line by design, so a long list keeps a fixed row
+   height and the check glyph never moves — the spec is explicit about it.
+   This panel is three rows, and the description is the option: "Medium" on
+   its own is a word, not a judgement, and a reporter choosing between three
+   truncated sentences is choosing between three ellipses. So the rule is
+   lifted here and nowhere else. Nothing shifts as a result — .has-desc
+   already top-aligns the row and pins the check with its own margin, so a
+   description that runs to three lines makes the row taller and leaves
+   every other part of it where it was. */
+#impactPanel .c-dropdown-row-desc{white-space:normal; overflow:visible; text-overflow:clip;}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE — Drawer (.c-drawer-layer + .c-drawer)
+   A task panel that slides in over the page from the right, for work that
+   belongs to the page you are on rather than to a page of its own. Filing a
+   bug is the case: it is always about whatever is on screen, and sending
+   someone to a separate route to do it loses their scroll position, their
+   filters and their place in whatever they were actually doing.
+   Not Modal. Modal is centred, sized to its content and reads as "stop and
+   answer this"; a drawer is full-height, fixed to one edge, and reads as
+   "this sits beside what you were doing" — which is also why it keeps the
+   page visible behind it rather than replacing it.
+   Anatomy is Modal's own — head, scrolling body, foot — so the two feel like
+   one family, and so the foot can hold the submit action at a fixed place
+   instead of at the bottom of a long scroll.
+   The DLS has no right-side drawer yet; Chat window's rail and SidebarNav
+   both have left-side ones for their own narrow breakpoints. Two surfaces
+   needing the same thing is the argument for promoting this rather than
+   copying it a third time.
+   -------------------------------------------------------------------------- */
+.c-drawer-layer{position:fixed; inset:0; z-index:940; display:flex; justify-content:flex-end; background:var(--shadow-overlay); opacity:0; transition:opacity var(--duration-base) var(--ease-standard);}
+.c-drawer-layer.is-open{opacity:1;}
+.c-drawer-layer[hidden]{display:none;}
+.c-drawer{position:relative; display:flex; flex-direction:column; width:min(560px, 100%); height:100%;
+  background:var(--color-neutral-1); box-shadow:var(--shadow-modal);
+  transform:translateX(100%); transition:transform var(--duration-base) var(--ease-settle);}
+.c-drawer-layer.is-open .c-drawer{transform:none;}
+.c-drawer-head{flex:none; display:flex; align-items:flex-start; gap:var(--spacing-12); padding:var(--spacing-20) var(--spacing-24); border-bottom:1px solid var(--color-neutral-3);}
+.c-drawer-head h4{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9);}
+.c-drawer-body{flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; display:flex; flex-direction:column; gap:var(--spacing-20); padding:var(--spacing-24);}
+.c-drawer-foot{flex:none; display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-16) var(--spacing-24); border-top:1px solid var(--color-neutral-3);}
+/* Success takes the whole body and centres in it, because at that point the
+   panel has one thing to say and the reader's next act is leaving. */
+.drawer-done{margin:auto 0; display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-12);}
+.drawer-done-icon{font-size:44px; line-height:1; color:var(--color-green);}
+.drawer-done h3{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9);}
+.drawer-done p{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+.drawer-done b{color:var(--color-neutral-9);}
+.drawer-next{display:flex; flex-direction:column; gap:var(--spacing-8); width:100%; margin-top:var(--spacing-4); padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3);}
+.drawer-next li{display:flex; align-items:flex-start; gap:var(--spacing-8); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+.drawer-next i{flex:none; margin-top:2px; font-size:var(--icon-sm); color:var(--color-neutral-5);}
+.drawer-next ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
+@media (prefers-reduced-motion: reduce){
+  .c-drawer{transition:none; transform:none;}
+}
+@media (max-width:640px){
+  .c-drawer{width:100%;}
+}
+
 /* Send modal — the second half of Share. Same width as Share, because it
    is the same conversation continued: who gets it, then what they get. */
 .c-modal.is-send{width:min(560px, 100%);}
@@ -1031,57 +1095,274 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 .shot-tile{width:100%; height:auto; aspect-ratio:16/10;}
 
 /* --------------------------------------------------------------------------
-   Prompt input bar — AI Native, Floating bar variant
-   The component ships whole in components.css; nothing about it is
-   redefined here. Three things are local, and all three are about the
-   surface it was dropped into rather than the component itself.
+   Dashboard — the Overview home
+   A different shape from every other route in this file: those are working
+   screens with a left-aligned Page header over a list. This one is a landing
+   moment — a centred greeting, four cards fanned like a hand you have been
+   dealt, and the assistant underneath. So it hides the shell's own page
+   header rather than fighting it, and everything here is page-local.
    -------------------------------------------------------------------------- */
-/* 1. The anchor. The bar positions itself absolutely and the spec anchors
-      it to "the bottom of the content region, not the viewport" — here that
-      is .c-shell-main, the box that does not scroll. Anchoring to
-      .c-shell-content instead would scroll the bar away with the page. */
-.c-shell-main{position:relative;}
-/* 2. Room at the end of the page. The bar floats over the last ~124px of
-      every route, and content you can never scroll clear of is content you
-      have hidden. The reserve is the bar's own measured height at its
-      tallest pose, set once from JS — using the live height would resize
-      the scroll region on every collapse and jump the page under the
-      reader. */
-.c-shell-content{padding-bottom:calc(var(--page-gutter) + var(--prompt-bar-rest-h, 0px));}
-/* 3. The FAB docks to the bar's left edge and takes the pill's own size,
-      so the two read as one row rather than two floating things that
-      happen to share an edge of the screen. Positioned in the same box the
-      bar is, which means both re-centre by themselves when the sidebar
-      collapses — a viewport-based sum would have to know the rail's width.
-      The size is the pill's measured resting height rather than a number:
-      --prompt-bar-rest-h is written from the bar itself and only while it
-      is collapsed, so the button cannot drift out of step with it. 46px is
-      only a first-paint fallback for the frame before script runs.
-      The offset tracks the bar's width so the pair stays adjacent through
-      the morph, travelling on the component's own timing. The two widths
-      below mirror the component's — 620/spacing-32 expanded, its
-      --prompt-bar-w collapsed — because a custom property declared on the
-      bar cannot be read by its parent. If either changes upstream, this
-      is the line that has to change with it. */
-.c-shell-main{--bar-w:min(620px, calc(100% - var(--spacing-32)));}
-.c-shell-main:has(#promptBar.is-collapsed){--bar-w:406px;}
-:root{--fab-lift:0px;}
-.c-fab{
-  position:absolute; right:auto;
-  left:calc(50% - (var(--bar-w) / 2) - var(--spacing-12) - var(--prompt-bar-rest-h, 46px));
-  bottom:calc(var(--spacing-24) + var(--fab-lift));
-  width:var(--prompt-bar-rest-h, 46px); height:var(--prompt-bar-rest-h, 46px);
+/* Greeting. Built from the same h1/body1 type tokens .c-pageheader itself
+   uses — the only new thing is the centring. The name is read from the
+   account row in the sidebar rather than written twice: one source for it,
+   so a prototype cannot greet you as someone other than who it says you
+   are signed in as. */
+.dash-greet{text-align:center; padding:var(--spacing-32) var(--page-gutter) 0;}
+.dash-greet h1{margin:0 0 var(--spacing-8); font-family:var(--font-primary); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); font-weight:var(--text-h1-weight); color:var(--color-neutral-9);}
+.dash-greet p{margin:0; font-family:var(--font-primary); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight); color:var(--color-neutral-5);}
+/* Held invisible until the route paints, then fade + rise, the subtitle one
+   beat behind the heading. One shared .is-revealed trigger, CSS does the
+   staggering — the cards below stagger far more elaborately and set their
+   own numbers from script instead. */
+.dash-greet h1, .dash-greet p{opacity:0; transform:translateY(16px); transition:opacity var(--duration-reveal) var(--ease-reveal), transform var(--duration-reveal) var(--ease-reveal);}
+.dash-greet h1.is-revealed, .dash-greet p.is-revealed{opacity:1; transform:translateY(0);}
+.dash-greet p.is-revealed{transition-delay:130ms;}
+
+/* The fan. justify-content:center with a negative margin between cards, so
+   the row stays centred however many cards it holds — a fixed left offset
+   would have to be recomputed the moment a fifth focus appears.
+   perspective lives here, on the parent: a perspective declared on the
+   rotating element itself is applied per-element and flattens, which is why
+   the tilt below reads as a skew rather than a turn if it moves. */
+.dash-fan{display:flex; justify-content:center; align-items:stretch; perspective:1400px; padding:var(--spacing-40) 0 var(--spacing-32);}
+/* The overlap is capped at the base Card's own padding (spacing-16, less a
+   hair), and that ceiling is the whole rule: z-index descends left to right
+   so each card is covered along its LEFT edge by the one before it, and any
+   overlap wider than the padding starts eating the first characters of every
+   line on the card underneath. Tested at -30px, where the recommendation
+   sentence on cards 2-4 lost its first letter. */
+.dash-fan .c-card-slide + .c-card-slide{margin-left:-14px;}
+
+/* One card. --card-rot/--card-y are the fan pose, --tilt-x/--tilt-y the
+   live pointer tilt, and they compose in one transform rather than nesting
+   wrappers — a rotate on a parent would take the child's hover lift with
+   it and the two would multiply.
+   transform-origin is the bottom edge: cards in a held fan pivot about
+   where the hand is, not about their middle. */
+.c-card-slide{
+  --card-rot:0deg; --card-y:0px; --card-z:1; --tilt-x:0deg; --tilt-y:0deg;
+  position:relative; z-index:var(--card-z); flex:none; width:264px;
+  display:flex; flex-direction:column; gap:var(--spacing-12);
+  transform-origin:50% 100%;
+  opacity:0;
+  transform:translateY(calc(var(--card-y) + 28px)) rotate(var(--card-rot)) scale(.96);
+  transition:opacity var(--card-reveal-duration, 700ms) var(--ease-reveal),
+             transform var(--card-reveal-duration, 700ms) var(--ease-reveal);
+  transition-delay:var(--card-reveal-delay, 0ms);
+}
+.c-card-slide.is-revealed{opacity:1; transform:translateY(var(--card-y)) rotate(var(--card-rot)) scale(1);}
+/* Settled is added on transitionend, and it is what hands the transform over
+   from the entrance to the interaction. Two separate timings on one property
+   cannot co-exist, so the hover lift is simply unavailable until the card has
+   finished arriving — which is also the honest behaviour: a card still flying
+   in is not yet something to point at. */
+.c-card-slide.is-settled{
+  transition:transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+  transition-delay:0ms;
+  transform:translateY(var(--card-y)) rotate(var(--card-rot)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+}
+/* Hover straightens the card out of the fan and lifts it. focus-within, not
+   just hover: the card carries two real controls, so a keyboard reader has
+   to be able to bring it to the front the same way a pointer does. */
+.c-card-slide.is-settled:hover, .c-card-slide.is-settled:focus-within{
+  z-index:20;
+  transform:translateY(calc(var(--card-y) - 12px)) rotate(0deg) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  box-shadow:var(--shadow-4);
+}
+@media (prefers-reduced-motion:reduce){
+  .c-card-slide{opacity:1; transform:translateY(var(--card-y)) rotate(var(--card-rot)); transition:none;}
+  .c-card-slide.is-settled:hover, .c-card-slide.is-settled:focus-within{transform:translateY(var(--card-y)) rotate(0deg);}
+  .dash-greet h1, .dash-greet p{opacity:1; transform:none; transition:none;}
+}
+
+/* Ribbon — the focus order, stated on the card rather than left to the
+   reading order, because a fan has no unambiguous first item once the cards
+   overlap. Obsidian: this is a rank, not a status, and rank is not one of
+   the things the element palette classifies. */
+.c-hcard-ribbon{position:absolute; top:var(--spacing-16); right:0; z-index:2;}
+.c-hcard-ribbon-band{display:inline-block; padding:3px var(--spacing-12) 3px var(--spacing-8);
+  border-radius:var(--radius-pill) 0 0 var(--radius-pill);
+  background:var(--color-obsidian); color:var(--color-neutral-1);
+  font-family:var(--font-primary); font-size:var(--text-label3-size); line-height:var(--text-label3-lh);
+  font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; white-space:nowrap;}
+
+/* Eyebrow, and the provenance note that follows it. The note is deliberately
+   quiet and deliberately present: every number on this card is derived from
+   the library and the report queue behind it, and a card that asserts a
+   priority without saying where it got it is the thing nobody trusts twice. */
+/* The right padding is the ribbon's own width plus a gap — the ribbon is
+   absolutely positioned and takes no space of its own, so without it the
+   eyebrow simply runs underneath it. */
+.c-hcard-label{display:block; padding-right:88px; font-family:var(--font-primary); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+/* Its own line rather than trailing the phrase inline: at 144px of usable
+   width the two wrap into each other and you get "CLOSE FIRST · derived," /
+   "live", which reads as a broken string rather than a phrase and a note. */
+.c-hcard-prov{display:block; font-weight:400; text-transform:none; letter-spacing:0; color:var(--color-neutral-4);}
+.c-card-slide h4{margin:0; font-family:var(--font-primary); font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+
+/* The three facts. A definition row, not a table: label left in Neutral-5,
+   value right as a real Badge, so the values line up into a column you can
+   read down across all four cards. */
+.c-hcard-list{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-hcard-list-row{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-8);}
+.c-hcard-list-row > span:first-child{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+
+/* The recommendation — one sentence saying why this card is where it is.
+   margin-top:auto pins it and the actions to the bottom, so four cards of
+   different text lengths still line their buttons up. */
+.c-hcard-rec{margin-top:auto; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-7);}
+
+/* Primary action. The Button Secondary recipe at full width rather than a
+   Primary: four cards side by side means four primaries on one screen, and
+   this system earns exactly one. The Primary on this route is the assistant
+   below. */
+.c-hcard-cta-btn{width:100%; height:36px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);
+  background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; cursor:pointer;
+  transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);}
+.c-hcard-cta-btn:hover{background:var(--color-neutral-2); border-color:var(--color-neutral-5);}
+.c-hcard-cta-btn:active{background:var(--color-neutral-3);}
+.c-hcard-cta-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* Tertiary path, as a real link — it leaves this prototype, and a button
+   that navigates elsewhere is the thing that should have been a link. */
+.c-hcard-cta{display:inline-flex; align-items:center; gap:var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-obsidian); text-decoration:underline; text-underline-offset:3px;
+  transition:color var(--duration-fast) var(--ease-standard);}
+.c-hcard-cta:hover{color:var(--color-neutral-8);}
+.c-hcard-cta i{font-size:var(--icon-sm);}
+
+/* The fan has a hard minimum width: four 264px cards overlapping by 14 is
+   1014px, and the content column is the viewport less the rail and its
+   gutters — so it needs about 1334px before it fits. Below that it is not a
+   fan, it is a horizontal scrollbar, and .c-shell-content's overflow-y:auto
+   computes the cross axis to auto, so it would genuinely scroll.
+   Two steps down rather than one: a 2x2 grid keeps four cards comparable at
+   laptop widths, and only the phone gets a single column.
+   The pose properties are written inline by heroCard(), and an inline custom
+   property beats any selector — hence !important, which is doing real work
+   here rather than papering over a specificity accident. */
+@media (max-width:1340px){
+  .dash-fan{flex-wrap:wrap; justify-content:center; align-items:stretch;
+    gap:var(--spacing-16); max-width:552px; margin:0 auto; perspective:none;
+    padding:var(--spacing-32) 0;}
+  .dash-fan .c-card-slide + .c-card-slide{margin-left:0;}
+  .c-card-slide{--card-rot:0deg !important; --card-y:0px !important;}
+  .c-card-slide.is-settled:hover, .c-card-slide.is-settled:focus-within{transform:translateY(-6px);}
+}
+@media (max-width:900px){
+  .dash-fan{flex-direction:column; align-items:center; max-width:none;}
+  .c-card-slide{width:min(340px, 100%);}
+}
+
+/* --------------------------------------------------------------------------
+   Prompt input bar — AI Native, Floating bar variant, on the Dashboard only
+   The component ships whole in components.css and nothing about it is
+   redefined here. What is local is the surface it was dropped into: the bar
+   anchors to "the bottom of the content region, not the viewport", which on
+   this page is .c-shell-main, and the FAB docks to its right-hand edge.
+   Both are scoped to .has-prompt-bar, set by the router: on every other
+   route there is no bar, and the FAB belongs back in its own corner.
+   -------------------------------------------------------------------------- */
+/* Three geometry terms, and every one of them is read off the component
+   rather than copied from its spec — a custom property declared on the bar
+   cannot be read by its parent, so script mirrors them up (see
+   measurePromptBar). --bar-w is what the bar is currently as wide as,
+   --bar-h how tall, and --fab-size what the button should be against it.
+   The expanded width is the one literal left here, because it is the
+   component's own `min(620px, 100% - spacing-32)` and has no custom
+   property to read. */
+.c-shell-main.has-prompt-bar{
+  --bar-w:min(620px, calc(100% - var(--spacing-32)));
+  --bar-h:var(--prompt-bar-h, 100px);
+  --fab-size:56px;
+}
+/* Collapsed. --bar-w-collapsed and --prompt-bar-pill-h are both measured
+   from the real element once it has morphed, so if the component ever
+   retunes its 406px width or its 11px-padding pill height, this follows
+   without a second set of numbers to keep in step. The literals are
+   first-paint fallbacks for the frame before script has measured. */
+.c-shell-main.has-prompt-bar:has(#promptBar.is-collapsed){
+  --bar-w:var(--bar-w-collapsed, 406px);
+  --bar-h:var(--prompt-bar-pill-h, 46px);
+  --fab-size:var(--prompt-bar-pill-h, 46px);
+}
+/* The reserve at the end of the page uses the bar's TALLEST pose, not its
+   live height. Using --bar-h would resize the scroll region on every
+   collapse and jump the page under the reader — and since the collapse is
+   itself driven by scroll position, that is a feedback loop, not just a
+   jolt. */
+.c-shell-main.has-prompt-bar .c-shell-content{padding-bottom:calc(var(--page-gutter) + var(--prompt-bar-rest-h, 124px));}
+/* Docked to the bar's right edge and centred on its midline. Both boxes
+   bottom out at spacing-24, so centring is the bar's height less the
+   button's, halved — which lands the pair flush when the two heights are
+   equal, i.e. exactly when the bar is a pill and the button has taken the
+   pill's own height. Expanded, a 56px button sits centred on a 100px card
+   instead of hanging off its bottom edge.
+   left/bottom/width/height all travel on the component's own morph timing,
+   so the button moves with the bar rather than after it. */
+.c-shell-main.has-prompt-bar .c-fab{
+  left:calc(50% + (var(--bar-w) / 2) + var(--spacing-12));
+  right:auto;
+  width:var(--fab-size); height:var(--fab-size);
+  bottom:calc(var(--spacing-24) + (var(--bar-h) - var(--fab-size)) / 2);
   transition:background-color var(--duration-fast) var(--ease-standard),
              transform var(--duration-fast) var(--ease-standard),
-             left var(--duration-morph) var(--ease-morph);
+             left var(--duration-morph) var(--ease-morph),
+             bottom var(--duration-morph) var(--ease-morph),
+             width var(--duration-morph) var(--ease-morph),
+             height var(--duration-morph) var(--ease-morph);
 }
-/* Below 640px the component goes full-bleed to both gutters and there is
-   no room beside it, so the button goes back to the corner and rides above
-   the bar instead — the same relationship, stacked rather than in a row. */
+/* Below 640px the component goes full-bleed to both gutters and there is no
+   room beside it, so the button returns to the corner and rides above the
+   bar — the same relationship, stacked rather than in a row. It still takes
+   the bar's collapsed height, so the pair still reads as one set. */
 @media (max-width:640px){
-  :root{--fab-lift:calc(var(--prompt-bar-h, 0px) + var(--spacing-8));}
-  .c-fab{left:auto; right:var(--spacing-24);}
+  .c-shell-main.has-prompt-bar .c-fab{
+    left:auto; right:var(--spacing-24);
+    bottom:calc(var(--spacing-24) + var(--bar-h) + var(--spacing-8));
+  }
 }
+@media (prefers-reduced-motion:reduce){
+  .c-shell-main.has-prompt-bar .c-fab{transition:background-color var(--duration-fast) var(--ease-standard);}
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard — everything the four cards left out
+   The focus cards are an argument about what matters today; this is the
+   ground they were picked from, so it has to be visible or the argument
+   cannot be checked. It is also what gives the route enough height to
+   scroll, which is what drives the bar's own collapse.
+   -------------------------------------------------------------------------- */
+.dash-rest{max-width:1014px; margin:0 auto; padding:var(--spacing-24) var(--page-gutter) 0;}
+.dash-rest > h2{margin:0 0 var(--spacing-16); text-align:center; font-family:var(--font-primary); font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); color:var(--color-neutral-9);}
+.dash-rest-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:var(--spacing-16); align-items:start;}
+.dash-rest h3{margin:0; font-family:var(--font-primary); font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+.dash-list{display:flex; flex-direction:column;}
+/* Rows divide rather than box: a list of eight surveys inside eight cards
+   is eight times the chrome for the same eight facts. */
+.dash-list-row{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); padding:var(--spacing-12) 0; border-top:1px solid var(--color-neutral-2);}
+.dash-list-row:first-child{border-top:0;}
+.dash-list-row > span:first-child{min-width:0; display:flex; flex-direction:column; gap:2px;}
+.dash-list-t{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:700; color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.dash-list-m{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.dash-list-row > .c-badge{flex:none;}
+
+/* --------------------------------------------------------------------------
+   Floating action button — placement
+   The component ships whole above; these two rules are only about the box
+   it floats in. It sits bottom-right, the corner the component ships in,
+   at its own 56px — it briefly wore 46px and a centre-relative left offset
+   while it docked beside the AI-native prompt bar, and both of those were
+   only ever descriptions of that bar, which is no longer on this screen.
+   Restoring 56px also puts .c-fab-menu back where its own offset assumes:
+   that menu is placed at 24 + 56 + 8, so against a 46px button it was
+   sitting 18px clear instead of the intended spacing-8.
+   -------------------------------------------------------------------------- */
+/* The anchor is .c-shell-main, the box that does not scroll — anchoring to
+   .c-shell-content instead would scroll the button away with the page. The
+   inset is then measured from the content region's own right edge rather
+   than the window's, which is the same place right up until something
+   outside that region claims width. */
+.c-shell-main{position:relative;}
+.c-fab{position:absolute; left:auto; right:var(--spacing-24); bottom:var(--spacing-24);}
 
 /* Print — the PDF export route. Chrome's own "Save as PDF" is the only
    way to a real PDF without shipping a rendering library, so the export
@@ -1089,7 +1370,7 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 @media print{
   /* Everything that is a control rather than content comes out: the reader
      of a PDF cannot use a filter, a view switcher or a search box. */
-  .c-sidebar-shell, .c-fab, .c-fab-menu, .c-toast-host, .c-tabs, .toolbar, .c-prompt-bar,
+  .c-sidebar-shell, .c-fab, .c-fab-menu, .c-toast-host, .c-tabs, .toolbar,
   .c-pageheader-actions, .c-back-button-row, .c-modal-layer, .lightbox, .c-chart-table-btn,
   .c-segctl, .menu-wrap, .c-search-input, .c-chip-group, .add-bar, .add-rail, .set-save,
   #hubSearchCount, .ai-panel-head .c-btn, .ai-panel-head .c-icon-btn{display:none !important;}
@@ -1153,7 +1434,7 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
       </div>
 
       <div class="c-sidebar-section">Overview</div>
-      <button class="c-sidebar-item" type="button"><i class="ph-fill ph-house" aria-hidden="true"></i><span class="label">Dashboard</span><span class="c-sidebar-hover-text">Dashboard</span></button>
+      <button class="c-sidebar-item" id="navDashboard" type="button" data-go="dashboard"><i class="ph-fill ph-house" aria-hidden="true"></i><span class="label">Dashboard</span><span class="c-sidebar-hover-text">Dashboard</span></button>
       <button class="c-sidebar-item" type="button"><i class="ph-fill ph-briefcase" aria-hidden="true"></i><span class="label">Campaigns</span><span class="c-sidebar-hover-text">Campaigns</span></button>
       <button class="c-sidebar-item" type="button"><i class="ph-fill ph-chart-bar" aria-hidden="true"></i><span class="label">Reports</span><span class="c-sidebar-hover-text">Reports</span></button>
 
@@ -1220,6 +1501,26 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
           <div class="c-pageheader-actions" id="phActions"></div>
         </div>
       </header>
+
+      <!-- ===== Route: Dashboard — the Overview home =====
+           The one route with no Page header: the greeting IS the header
+           here, and a left-aligned "Dashboard / subtitle" above a centred
+           greeting would be the same thing said twice, in two alignments.
+           renderDashboard() hides #pageHeader and puts it back on exit. -->
+      <section class="route" id="routeDashboard" hidden>
+        <div class="dash-greet">
+          <h1 id="dashHello"></h1>
+          <p id="dashSub">Here is what needs your attention today</p>
+        </div>
+        <div class="dash-fan" id="dashFan"></div>
+        <!-- The ground the four cards were picked from. It is here to be
+             checkable, and it is also what gives this route the height the
+             bar's own scroll collapse needs to have anything to react to. -->
+        <section class="dash-rest" aria-labelledby="dashRestH">
+          <h2 id="dashRestH">Everything else</h2>
+          <div class="dash-rest-grid" id="dashRestGrid"></div>
+        </section>
+      </section>
 
       <!-- ===== Route: Landing — the two things this section is =====
            Two entry cards rather than dropping straight into one of the two
@@ -1324,9 +1625,6 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
         <div id="tabSettings" class="stack lg" hidden></div>
       </section>
 
-      <!-- ===== Route: Bug report — user view ===== -->
-      <section class="route stack lg" id="routeBugNew" hidden></section>
-
       <!-- ===== Route: Bug report — reporter's own tickets ===== -->
       <section class="route stack lg" id="routeBugMine" hidden></section>
 
@@ -1340,22 +1638,20 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
          .c-shell-content because the component anchors to the content
          region, not to the scroller inside it: a sibling of the scroll box
          stays put while the page moves under it.
-         Centred and bottom-aligned is the variant's own default —
-         left:50% + translateX(-50%), bottom:spacing-24 — so no positioning
-         is overridden. --prompt-bar-shift, the parking term that pushes the
-         collapsed pill sideways towards a dock, is deliberately left at 0:
-         there is no dock on this screen, and the pill sits on the same
-         centre line the expanded card would.
-         Collapsed is the resting pose here. It is set in the markup rather
-         than added by script so the bar reveals as a pill instead of
-         arriving as a card and folding a frame later. -->
-    <div class="c-prompt-bar is-collapsed" id="promptBar" role="group" aria-label="Ask Collabrium">
+         Expanded is its only pose on this page — there is no collapse, no
+         morph and no scroll state, because the Dashboard is where you are
+         meant to ask something. Centred and bottom-aligned is the variant's
+         own default (left:50% + translateX(-50%), bottom:spacing-24), so no
+         positioning is overridden; --prompt-bar-shift stays 0 and the FAB
+         docks to the right of it instead of the bar moving aside.
+         Hidden on every other route — see render(). -->
+    <div class="c-prompt-bar" id="promptBar" role="group" aria-label="Ask Collabrium" hidden>
       <div class="c-prompt-bar-glow-outer" aria-hidden="true"></div>
       <div class="c-prompt-bar-glow-inner" aria-hidden="true"></div>
       <div class="c-prompt-bar-surface">
         <div class="c-btn c-btn-primary c-btn-icon c-btn-sm c-prompt-bar-mark" aria-hidden="true"><i class="ph-fill ph-sparkle"></i></div>
         <div class="c-prompt-bar-field" id="promptField">
-          <input type="text" id="promptInput" aria-label="Ask anything" />
+          <input type="text" id="promptInput" aria-label="Ask anything" placeholder="Ask me anything" />
           <div class="c-prompt-bar-ghost" aria-hidden="true">
             <span class="c-prompt-bar-ghost-text" id="promptGhost"></span>
           </div>
@@ -1388,10 +1684,12 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
     </div>
 
     <!-- ===== Entry point 2 — floating action button =====
-         Inside the content region, like the bar it docks to: both are
-         positioned against .c-shell-main, so the pair moves as one when
-         the sidebar collapses. Its menu stays at body level — it is a
-         viewport-level popover and is placed from this button's rect. -->
+         Inside the content region rather than at body level: positioned
+         against .c-shell-main, so it holds the same inset from the content
+         edge whether or not the sidebar is collapsed, instead of measuring
+         from a viewport edge that the rail's width keeps moving. Its menu
+         stays at body level — it is a viewport-level popover and is placed
+         from this button's rect. -->
     <button class="c-fab" id="fab" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Give feedback">
   <!-- Same glyph as the sidebar's Feedback item and as this menu's own
        "Share feedback" row: one mark for the concept, wherever it appears.
@@ -1418,6 +1716,11 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 <!-- Preview modal (the form as a responder sees it) -->
 <div class="c-modal-layer" id="prevLayer" hidden>
   <div class="c-modal is-record is-preview" id="prev" role="dialog" aria-modal="true" aria-labelledby="prevTitle"></div>
+</div>
+
+<!-- Bug report drawer — the form, over whatever page you were on -->
+<div class="c-drawer-layer" id="bugLayer" hidden>
+  <div class="c-drawer" id="bugDrawer" role="dialog" aria-modal="true" aria-labelledby="bugDrawerTitle"></div>
 </div>
 
 <!-- Send modal — Share's second step -->
@@ -1622,13 +1925,35 @@ var PRIORITIES = {
   p4:{ short:'P4', name:'Low',      desc:'Cosmetic, or an annoyance worth logging' }
 };
 var PRIO_ORDER = ['p1','p2','p3','p4'];
+
+/* Operational impact — the reporter's field, where priority is the team's.
+   They are not the same judgement and should not be made by the same person:
+   the reporter knows what the bug is stopping them doing, the team knows
+   what it costs against everything else in the queue. Asking a reporter for
+   a P-level asks them to rank their problem against work they cannot see,
+   which is why every ticket used to arrive P3. */
+var IMPACTS = {
+  low:    { name:'Low',    desc:'Minor issue with little or no impact on daily operations. Cosmetic or non-critical defects that do not affect task completion.' },
+  medium: { name:'Medium', desc:'Some disruption or inefficiency in daily operations, but users can continue working with a workaround.' },
+  high:   { name:'High',   desc:'Significantly disrupts daily operations, preventing users from completing essential tasks. Requires immediate attention.' }
+};
+var IMPACT_ORDER = ['low','medium','high'];
+function impactLabel(k){ return IMPACTS[k] ? IMPACTS[k].name : ''; }
 function prioLabel(k){ return PRIORITIES[k].short + ' — ' + PRIORITIES[k].name; }
 /* Two shapes. Anywhere a priority is being chosen or read on its own it
    spells itself out — "P2 — High". In a table it is the code and the dot,
    with the name still on the cell for hover and for screen readers: eight
    columns do not have room for a word that P1..P4 already says, and the
    record modal spells it out the moment a row is opened. */
+/* A ticket arrives with no priority at all, so the pill has a fourth shape:
+   the absence itself. Stated rather than blank — a priority column with
+   empty cells in it reads as a rendering fault, where "Not set" reads as a
+   ticket waiting for triage, which is exactly what it is. Neutral weight
+   and colour, because it is not a value on the ramp. */
 function prioPill(k, sm){
+  if (!k || !PRIORITIES[k])
+    return '<span class="prio is-unset' + (sm ? ' sm' : '') + '" title="Priority is set by the tech team at triage">' +
+      '<span class="dot" aria-hidden="true"></span>Not set</span>';
   return '<span class="prio ' + k + (sm ? ' sm' : '') + '"' +
     (sm ? ' title="' + esc(prioLabel(k)) + '"' : '') + '>' +
     '<span class="dot" aria-hidden="true"></span>' +
@@ -1905,7 +2230,7 @@ function cmt(who, role, at, body, shots){
 
 var BUGS = [
   { id:'b1', at:new Date(2026,8,8,9,12),  who:'Jason Lim',    pod:'CollabSales',     status:'new',
-    priority:'p2', services:['Reports & exports'], assignee:null, resolution:'',
+    priority:'p2', impact:'high', location:'Collabrium › Reports & exports', services:['Reports & exports'], assignee:null, resolution:'',
     title:'Export button unresponsive on Safari',
     desc:'Clicking Export on the pipeline report does nothing on Safari 17.6. No spinner, no download, no error. The same report exports fine in Chrome on the same machine.',
     extra:'Steps: open Pipeline > Q3 > Export > CSV. macOS 15.1, Safari 17.6. Happens every time, tried after a hard refresh and in a private window.',
@@ -1913,7 +2238,7 @@ var BUGS = [
     comments:[] },
 
   { id:'b2', at:new Date(2026,8,7,16,48), who:'Nurul Kamal',  pod:'CollabMedia',     status:'progress',
-    priority:'p2', services:['Dashboards'], assignee:'Divya Menon',
+    priority:'p2', impact:'high', location:'Collabrium › Dashboards', services:['Dashboards'], assignee:'Divya Menon',
     resolution:'Filter state is held in component memory only. Moving it to the URL query string so a reload and the 5-minute auto-refresh both restore it. Behind a flag on staging.',
     title:'Dashboard filter resets on refresh',
     desc:'Any filter I set on the media dashboard is gone the moment the page reloads, including the automatic refresh every 5 minutes. So the dashboard is effectively unfiltered whenever I look away.',
@@ -1926,7 +2251,7 @@ var BUGS = [
     ] },
 
   { id:'b3', at:new Date(2026,8,6,11,3),  who:'Priya Nair',   pod:'CollabContent',   status:'progress',
-    priority:'p1', services:['Briefs & approvals','Asset library'], assignee:'Wei Sheng Loh',
+    priority:'p1', impact:'high', location:'Collabrium › Briefs & approvals', services:['Briefs & approvals','Asset library'], assignee:'Wei Sheng Loh',
     resolution:'Confirmed the upload proxy caps bodies at 10MB and returns 413, which the client swallows. Raising the cap to 50MB and surfacing the error. Fix is in review.',
     title:'Brief attachments over 10MB fail silently',
     desc:'Uploading a deck larger than about 10MB shows the progress bar completing, then the file simply is not there when the brief is saved. No error is shown at any point.',
@@ -1937,7 +2262,7 @@ var BUGS = [
     ] },
 
   { id:'b4', at:new Date(2026,8,4,14,27), who:'Marcus Tan',   pod:'CollabSales',     status:'resolved',
-    priority:'p2', services:['Quotes & billing'], assignee:'Chen Yi Xuan',
+    priority:'p2', impact:'high', location:'Collabrium › Quotes & billing', services:['Quotes & billing'], assignee:'Chen Yi Xuan',
     resolution:'Line items were rounded to 2dp before summing. Now summed at full precision and rounded once, on display. Shipped in 4.18.2; deal #48122 re-totals correctly.',
     title:'Quote totals off by one cent on multi-currency deals',
     desc:'A deal with both MYR and SGD line items totals one cent low. Looks like each line is rounded before the sum instead of after.',
@@ -1949,7 +2274,7 @@ var BUGS = [
     ] },
 
   { id:'b5', at:new Date(2026,8,3,8,55),  who:'Farah Idris',  pod:'CollabInfluence', status:'new',
-    priority:'p3', services:['Search'], assignee:null, resolution:'',
+    priority:'p3', impact:'medium', location:'Collabrium › Search', services:['Search'], assignee:null, resolution:'',
     title:'Creator search returns no results for names with accents',
     desc:'Searching for a creator whose name has an accent returns nothing unless I type it without the accent. Copy-pasting the exact name from their profile also returns nothing.',
     extra:'Try "Zoë Tan" — 0 results. "Zoe Tan" finds her. Chrome 129, macOS.',
@@ -1957,7 +2282,7 @@ var BUGS = [
     comments:[] },
 
   { id:'b6', at:new Date(2026,8,1,17,40), who:'Kelvin Cheah', pod:'CollabStudio',    status:'resolved',
-    priority:'p3', services:['Asset library'], assignee:'Arif Zulkifli',
+    priority:'p3', impact:'medium', location:'Collabrium › Asset library', services:['Asset library'], assignee:'Arif Zulkifli',
     resolution:'The preview worker had no MOV decoder, so it queued the job forever instead of failing. Decoder added and the queue now times out and reports. All 41 affected files re-processed.',
     title:'Asset preview stuck on spinner for MOV files',
     desc:'MOV renders never preview — the spinner runs indefinitely. Download works and the file itself is fine, so it looks like a preview-only problem.',
@@ -1972,7 +2297,7 @@ var BUGS = [
      the ball comes back — the row's Status reads "Reply received", its
      comment pill turns Water, and the "Reply received" chip finds it. */
   { id:'b7', at:new Date(2026,7,29,10,15), who:'Rachel Ong', pod:'CollabMedia',      status:'progress',
-    priority:'p1', services:['Reports & exports','Notifications'], assignee:null, resolution:'',
+    priority:'p1', impact:'high', location:'Collabrium › Reports & exports', services:['Reports & exports','Notifications'], assignee:null, resolution:'',
     title:'Scheduled report email arrives with an empty attachment',
     desc:'The Monday 8am scheduled report lands on time but the attached XLSX has headers and no rows. Running the same report by hand in the app returns 1,400 rows.',
     extra:'Started last Monday. Two people on the distribution list see the same empty file, so it is not a mail-client issue.',
@@ -1986,7 +2311,7 @@ var BUGS = [
     ] },
 
   { id:'b8', at:new Date(2026,7,27,13,22), who:'Hafiz Rahman', pod:'CollabContent',  status:'resolved',
-    priority:'p2', services:['Briefs & approvals','Notifications'], assignee:'Divya Menon',
+    priority:'p2', impact:'high', location:'Collabrium › Briefs & approvals', services:['Briefs & approvals','Notifications'], assignee:'Divya Menon',
     resolution:'The email linked to /briefs/current, which resolves against the session rather than the notification. Links are now absolute to the brief id. Shipped 1 September.',
     title:'Approval notification links to the wrong brief',
     desc:'The link in the approval email opens whichever brief I most recently viewed, not the one the email is about. Approved the wrong item twice before noticing.',
@@ -1996,7 +2321,7 @@ var BUGS = [
 
   /* ---- Filed by the signed-in reporter, so My tickets is not an empty state ---- */
   { id:'b9', at:new Date(2026,8,8,8,20),  who:ME.name, pod:'CollabMedia', status:'progress',
-    priority:'p2', services:['Campaigns','Dashboards'], assignee:'Wei Sheng Loh', resolution:'',
+    priority:'p2', impact:'high', location:'Collabrium › Campaigns', services:['Campaigns','Dashboards'], assignee:'Wei Sheng Loh', resolution:'',
     title:'Campaign spend column blank for campaigns created this week',
     desc:'Any campaign created after Monday shows an empty Spend column in the campaign list, even though the campaign itself has spend recorded on its own page.',
     extra:'Affects 6 of my campaigns. Older ones are fine. Chrome 129, macOS 15.1.',
@@ -2007,7 +2332,7 @@ var BUGS = [
     ] },
 
   { id:'b10', at:new Date(2026,8,5,15,42), who:ME.name, pod:'CollabContent', status:'progress',
-    priority:'p3', services:['Search'], assignee:'Arif Zulkifli', resolution:'',
+    priority:'p3', impact:'medium', location:'Collabrium › Search', services:['Search'], assignee:'Arif Zulkifli', resolution:'',
     title:'Search will not match a brief by its client name',
     desc:'Searching a client name returns nothing, even though the brief has that client set. I have to remember the brief title, which defeats the point.',
     extra:'Client "Seri Mutiara" — 0 results. The brief titled "Raya launch — Seri Mutiara" is right there in the list.',
@@ -2020,7 +2345,7 @@ var BUGS = [
     ] },
 
   { id:'b11', at:new Date(2026,7,31,9,8), who:ME.name, pod:'CollabMedia', status:'resolved',
-    priority:'p4', services:['Notifications'], assignee:'Chen Yi Xuan',
+    priority:'p4', impact:'low', location:'Collabrium › Notifications', services:['Notifications'], assignee:'Chen Yi Xuan',
     resolution:'Digest was built from UTC day boundaries, so anything after 8am MYT landed in the next day\'s email. Now built per-recipient timezone. Shipped 2 September.',
     title:'Daily digest email shows yesterday\'s date in the subject line',
     desc:'The subject says the wrong day. The content is right, but I keep filing the email under the wrong date.',
@@ -2155,7 +2480,7 @@ var state = { route:'landing', formId:null, btab:'questions',
               respView:'summary', respIndex:0,
               hubStatus:'all', hubQuery:'', hubView:'grid',
               hubSortCol:'updated', hubSortDir:-1,
-              bugStatus:'all', bugPod:'all', bugQuery:'', bugSortCol:'date', bugSortDir:-1,
+              bugStatus:'all', bugPods:[], bugQuery:'', bugSortCol:'date', bugSortDir:-1,
               /* Which list the record modal is paging through, and where in
                  it — the pager walks the view the reader opened the record
                  from, so it has to be captured at open time. */
@@ -2176,10 +2501,12 @@ function go(route, opts){
 /* The three bug routes render their whole body on entry, so the one being
    left has nothing worth keeping — and leaving it in the document means
    every document-wide lookup (and every duplicate id) can still reach it. */
-var DYNAMIC_ROUTES = { bugNew:'#routeBugNew', bugMine:'#routeBugMine', bugAdmin:'#routeBugAdmin' };
+/* Reporting a bug is not a route any more — it is a drawer over whatever
+   page the reporter is on. See openBugDrawer. */
+var DYNAMIC_ROUTES = { bugMine:'#routeBugMine', bugAdmin:'#routeBugAdmin' };
 
 function render(){
-  ['#routeLanding','#routeHub','#routeBuilder','#routeBugNew','#routeBugMine','#routeBugAdmin']
+  ['#routeDashboard','#routeLanding','#routeHub','#routeBuilder','#routeBugMine','#routeBugAdmin']
     .forEach(function(s){ $(s).hidden = true; });
   Object.keys(DYNAMIC_ROUTES).forEach(function(r){
     if (r !== state.route) $(DYNAMIC_ROUTES[r]).innerHTML = '';
@@ -2192,10 +2519,28 @@ function render(){
   if (state.route === 'builder'){ $('#fabMenu').hidden = true; $('#fab').setAttribute('aria-expanded','false'); }
   $('#phActions').innerHTML = '';
 
-  if (state.route === 'landing')        renderLanding();
+  /* The Dashboard is the one route that is not a working screen, and it
+     takes two things off the shell to say so: the Page header, which its own
+     greeting replaces, and the assistant, which only this route offers. The
+     bar is hidden rather than removed so the model menu's listeners, its
+     chosen model and any half-typed question all survive a trip to the
+     library and back. */
+  var onDash = state.route === 'dashboard';
+  $('#pageHeader').hidden = onDash;
+  $('#promptBar').hidden = !onDash;
+  if (onDash) syncPromptBar(); else resetPromptBar();
+  $('.c-shell-main').classList.toggle('has-prompt-bar', onDash);
+  /* The rail has to agree with the screen. Only two of its items are real
+     destinations in this prototype, so only those two are ever current. */
+  $('#navDashboard').classList.toggle('active', onDash);
+  $('#navFeedback').classList.toggle('active', !onDash);
+  (onDash ? $('#navDashboard') : $('#navFeedback')).setAttribute('aria-current', 'page');
+  (onDash ? $('#navFeedback') : $('#navDashboard')).removeAttribute('aria-current');
+
+  if (state.route === 'dashboard')      renderDashboard();
+  else if (state.route === 'landing')   renderLanding();
   else if (state.route === 'hub')       renderHub();
   else if (state.route === 'builder')   renderBuilder();
-  else if (state.route === 'bugNew')    renderBugNew();
   else if (state.route === 'bugMine')   renderBugMine();
   else if (state.route === 'bugAdmin')  renderBugAdmin();
 }
@@ -2224,6 +2569,265 @@ $('#backBtn').addEventListener('click', function(){
   if (backTo) go(backTo.route, backTo.opts);
 });
 $('#navFeedback').addEventListener('click', function(){ go('landing'); });
+$('#navDashboard').addEventListener('click', function(){ go('dashboard'); });
+
+/* ==========================================================================
+   Dashboard — the Overview home
+   Four cards answering one question: what needs you today. Every figure on
+   them is read from FORMS and BUGS, the same arrays the Feedback screens
+   render, so a card cannot promise a number the screen behind it disagrees
+   with — the same rule the Landing entry cards already follow. That is what
+   the "derived, live" note on each card is claiming, and it has to stay true.
+   ========================================================================== */
+/* Greeting. The hour comes from NOW, the prototype's own frozen clock, not
+   from the real one: every other date on this page is relative to NOW, and a
+   dashboard that says "Good evening" above a survey closing "in 3 days"
+   counted from a different today is two clocks disagreeing in one view. */
+function greeting(){
+  var h = NOW.getHours();
+  if (h < 12)  return { word:'Good morning',   mark:'☀️' };
+  if (h < 18)  return { word:'Good afternoon', mark:'☀️' };
+  return { word:'Good evening', mark:'🌙' };
+}
+
+/* The candidate focuses, in the order they would matter if they all existed.
+   Each returns null when it has nothing to say — a card reading "0 reports
+   waiting on you" is not an attention item, it is noise wearing the same
+   shape as one — and the first four that survive are what gets dealt. */
+function dashFocuses(){
+  var live = FORMS.filter(function(f){ return !f.archived; });
+
+  var closing = live.filter(function(f){ return f.status === 'active' && f.ends && closesIn(f) >= 0; })
+                    .sort(function(a, b){ return closesIn(a) - closesIn(b); })[0];
+
+  var mine = BUGS.filter(function(b){ return b.who === ME.name && threadState(b) === 'awaiting'; });
+  var openBugs = BUGS.filter(function(b){ return b.status !== 'resolved'; });
+
+  var draft = live.filter(function(f){ return f.status === 'draft'; })
+                  .sort(function(a, b){ return b.updated - a.updated; })[0];
+
+  var quiet = live.filter(function(f){ return f.status === 'active' && formCount(f) === 0; })
+                  .sort(function(a, b){ return b.updated - a.updated; })[0];
+
+  var busiest = live.filter(function(f){ return f.status === 'active' && formCount(f) > 0; })
+                    .sort(function(a, b){ return formCount(b) - formCount(a); })[0];
+
+  var out = [];
+
+  if (closing){
+    var d = closesIn(closing);
+    out.push({
+      label:'Close first',
+      title:closing.title,
+      rows:[['Responses', formCount(closing).toLocaleString(), 'c-badge-neutral'],
+            ['Owner', closing.owner ? closing.owner.name : 'Unassigned', 'c-badge-neutral'],
+            ['Closes', d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : 'In ' + d + ' days',
+             d <= 3 ? 'c-badge-warning' : 'c-badge-neutral']],
+      rec:'The soonest deadline in the library. Anything you want from this one has to be asked for before it closes.',
+      cta:'Read the responses',
+      act:function(){ state.btab = 'responses'; go('builder', { formId:closing.id }); }
+    });
+  }
+
+  if (mine.length || openBugs.length){
+    var waiting = mine.length;
+    out.push({
+      label:waiting ? 'Waiting on you' : 'Open on the board',
+      title:waiting ? (waiting === 1 ? 'One report is waiting on your reply'
+                                     : waiting + ' reports are waiting on your reply')
+                    : openBugs.length + ' reports are still open',
+      rows:[['Waiting on you', String(waiting), waiting ? 'c-badge-warning' : 'c-badge-neutral'],
+            ['Open in total', String(openBugs.length), 'c-badge-neutral'],
+            ['Oldest', fmtDate((waiting ? mine : openBugs).reduce(function(a, b){
+               return a.at < b.at ? a : b; }).at), 'c-badge-neutral']],
+      rec:waiting ? 'The team has answered and the thread is back with you. Nothing moves until you reply.'
+                  : 'None of these are yours to answer, but they are the queue your pods are in.',
+      cta:waiting ? 'Open my reports' : 'Open the board',
+      act:function(){ go(waiting ? 'bugMine' : 'bugAdmin'); }
+    });
+  }
+
+  if (draft){
+    out.push({
+      label:'Not live yet',
+      title:draft.title,
+      rows:[['Questions', String((draft.questions || []).length), 'c-badge-neutral'],
+            ['Owner', draft.owner ? draft.owner.name : 'Unassigned', 'c-badge-neutral'],
+            ['Status', 'Draft', 'c-badge-neutral']],
+      rec:'Written but never published, so it is collecting nothing. Publishing is the whole remaining step.',
+      cta:'Open the builder',
+      act:function(){ state.btab = 'questions'; go('builder', { formId:draft.id }); }
+    });
+  }
+
+  if (quiet){
+    out.push({
+      label:'No answers yet',
+      title:quiet.title,
+      rows:[['Responses', '0', 'c-badge-warning'],
+            ['Owner', quiet.owner ? quiet.owner.name : 'Unassigned', 'c-badge-neutral'],
+            ['Window', quiet.ends ? rangeLabel(quiet) : 'No deadline', 'c-badge-neutral']],
+      rec:'Live, and not one answer yet. Either nobody has the link or nobody has a reason to click it.',
+      cta:'Share the link',
+      act:function(){ go('builder', { formId:quiet.id }); }
+    });
+  }
+
+  if (busiest){
+    out.push({
+      label:'Most to read',
+      title:busiest.title,
+      rows:[['Responses', formCount(busiest).toLocaleString(), 'c-badge-success'],
+            ['Owner', busiest.owner ? busiest.owner.name : 'Unassigned', 'c-badge-neutral'],
+            ['Window', busiest.ends ? rangeLabel(busiest) : 'No deadline', 'c-badge-neutral']],
+      rec:'The busiest survey you own. The open-text answers are where the ones worth acting on are.',
+      cta:'Read the responses',
+      act:function(){ state.btab = 'responses'; go('builder', { formId:busiest.id }); }
+    });
+  }
+
+  return out.slice(0, 4);
+}
+
+/* The fan pose, per card. Written as data rather than nth-child rules so the
+   row still reads as a fan when there are three focuses instead of four:
+   the rotations spread evenly about centre whatever the count, and the outer
+   cards dip by the sine of their own angle rather than by a fixed number, so
+   the tops of the cards sit on one arc instead of a sagging line. */
+function fanPose(i, n){
+  var SPREAD = 7;                                   /* degrees at the outermost card */
+  var t = n === 1 ? 0 : (i / (n - 1)) * 2 - 1;      /* -1 .. 1 */
+  var rot = t * SPREAD;
+  return { rot:rot, y:Math.round(Math.abs(t) * 14), z:n - i };
+}
+
+function heroRow(r){
+  return '<div class="c-hcard-list-row"><span>' + esc(r[0]) + '</span>' +
+    '<span class="c-badge ' + r[2] + '">' + esc(r[1]) + '</span></div>';
+}
+
+function heroCard(c, i, n){
+  var p = fanPose(i, n);
+  /* Jittered, not a fixed step: an even cadence reads as a machine dealing
+     the cards. The spread is small enough that the order is never in doubt. */
+  var delay = 180 + i * 120 + Math.round(Math.random() * 60);
+  var dur   = 700 + Math.round(Math.random() * 120);
+  return '<div class="c-card c-card-slide" data-role="hero" data-tilt-enabled="true" data-hero="' + i + '" ' +
+      'style="--card-rot:' + p.rot.toFixed(1) + 'deg; --card-y:' + p.y + 'px; --card-z:' + p.z +
+      '; --card-reveal-delay:' + delay + 'ms; --card-reveal-duration:' + dur + 'ms">' +
+    '<span class="c-hcard-ribbon" role="img" aria-label="Focus ' + (i + 1) + ' of ' + n + '">' +
+      '<span class="c-hcard-ribbon-band" aria-hidden="true">Focus ' + (i + 1) + '</span></span>' +
+    '<span class="c-hcard-label">' + esc(c.label) +
+      '<span class="c-hcard-prov" title="Read from this prototype’s own survey library and report queue, not typed in.">derived, live</span></span>' +
+    '<h4>' + esc(c.title) + '</h4>' +
+    '<div class="c-hcard-list">' + c.rows.map(heroRow).join('') + '</div>' +
+    '<span class="c-hcard-rec">' + esc(c.rec) + '</span>' +
+    '<button class="c-hcard-cta-btn" type="button" data-heroact="' + i + '">' + esc(c.cta) + '</button>' +
+  '</div>';
+}
+
+/* The two lists under the fan. Same arrays, unfiltered and unranked — the
+   cards say what to do first, this says what there is. Rows rather than
+   cards: eight surveys in eight cards is eight times the chrome for the
+   same eight facts. */
+function dashListRow(title, meta, badge, tone){
+  return '<div class="dash-list-row"><span>' +
+      '<span class="dash-list-t">' + esc(title) + '</span>' +
+      '<span class="dash-list-m">' + esc(meta) + '</span>' +
+    '</span><span class="c-badge ' + tone + '">' + esc(badge) + '</span></div>';
+}
+
+function paintDashRest(){
+  var live = FORMS.filter(function(f){ return !f.archived; })
+                  .sort(function(a, b){ return b.updated - a.updated; });
+  var surveys = live.map(function(f){
+    var n = formCount(f);
+    return dashListRow(f.title,
+      (f.owner ? f.owner.name : 'Unassigned') + ' · ' + n.toLocaleString() + (n === 1 ? ' response' : ' responses'),
+      f.status === 'active' ? 'Active' : f.status === 'draft' ? 'Draft' : 'Closed',
+      f.status === 'active' ? 'c-badge-success' : 'c-badge-neutral');
+  }).join('');
+
+  var open = BUGS.filter(function(b){ return b.status !== 'resolved'; })
+                 .sort(function(a, b){ return b.at - a.at; });
+  var reports = open.map(function(b){
+    var t = threadState(b);
+    return dashListRow(b.title, b.pod + ' · ' + fmtDate(b.at),
+      t === 'awaiting' ? 'Needs a reply' : t === 'replied' ? 'With the team' : 'New',
+      t === 'awaiting' ? 'c-badge-warning' : 'c-badge-neutral');
+  }).join('');
+
+  $('#dashRestGrid').innerHTML =
+    '<div class="c-card"><h3>Surveys in the library</h3><div class="dash-list">' + surveys + '</div></div>' +
+    '<div class="c-card"><h3>Reports still open</h3><div class="dash-list">' + reports + '</div></div>';
+}
+
+/* Pointer tilt. Only on a settled card: the entrance owns `transform` until
+   it is finished, and two timings on one property cannot both be honoured.
+   The tilt is written as two custom properties the card's own transform
+   already composes, so nothing here has to know the fan pose. */
+function wireTilt(card){
+  if (card.dataset.tiltEnabled !== 'true') return;
+  var MAX = 6;
+  card.addEventListener('mousemove', function(e){
+    if (!card.classList.contains('is-settled')) return;
+    var r = card.getBoundingClientRect();
+    var px = (e.clientX - r.left) / r.width  - .5;
+    var py = (e.clientY - r.top)  / r.height - .5;
+    card.style.setProperty('--tilt-y', (px *  MAX).toFixed(2) + 'deg');
+    card.style.setProperty('--tilt-x', (py * -MAX).toFixed(2) + 'deg');
+  });
+  card.addEventListener('mouseleave', function(){
+    card.style.setProperty('--tilt-x', '0deg');
+    card.style.setProperty('--tilt-y', '0deg');
+  });
+}
+
+function renderDashboard(){
+  $('#routeDashboard').hidden = false;
+  /* Every other route calls setHeader, which clears the Back row on its way
+     past. This one has no header to set, so it clears it itself — otherwise
+     a Back button pointing at the library survives the trip to the
+     Dashboard and offers to take you "back" somewhere you did not come
+     from. */
+  $('#backRow').hidden = true;
+
+  var g = greeting();
+  /* One source for the name: the account row in the rail. A second copy in
+     here is a prototype that can greet you as somebody else. */
+  var who = $('.c-sidebar-user-name').textContent.trim().split(' ')[0];
+  $('#dashHello').textContent = g.word + ', ' + who + ' ' + g.mark;
+
+  var focuses = dashFocuses();
+  var host = $('#dashFan');
+  host.innerHTML = focuses.map(function(c, i){ return heroCard(c, i, focuses.length); }).join('');
+
+  $$('[data-heroact]', host).forEach(function(b){
+    b.addEventListener('click', function(){ focuses[+b.dataset.heroact].act(); });
+  });
+
+  paintDashRest();
+
+  var cards = $$('.c-card-slide', host);
+  cards.forEach(function(card){
+    wireTilt(card);
+    /* Settled hands the transform from the entrance over to the interaction.
+       Backed by a timeout because a backgrounded tab can drop transitionend
+       outright, which would leave the card permanently unhoverable. */
+    var settle = function(){ card.classList.add('is-settled'); };
+    card.addEventListener('transitionend', function(e){
+      if (e.propertyName === 'transform') settle();
+    });
+    setTimeout(settle, 2200);
+  });
+
+  /* One reflow, then the whole route is told to arrive at once — the timing
+     differences are already written into each element's own delay. */
+  void host.offsetWidth;
+  $('#dashHello').classList.add('is-revealed');
+  $('#dashSub').classList.add('is-revealed');
+  cards.forEach(function(card){ card.classList.add('is-revealed'); });
+}
 
 /* ==========================================================================
    Landing — the two doors into this section
@@ -2860,6 +3464,7 @@ document.addEventListener('click', function(){
   $('#kebabMenu').hidden = true; $('#kebabBtn').setAttribute('aria-expanded','false');
   closeMenus();
   closeDropdowns();
+  closePodFilter();
 });
 /* Every form-level action, in one place. The builder's kebab and every
    library menu call this, so the same action cannot mean two slightly
@@ -4064,6 +4669,7 @@ function paintRespBody(f){
         '<div class="c-search-input" style="max-width:none"><div class="c-search-input-box">' +
           '<i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>' +
           '<input type="search" placeholder="Search answers" aria-label="Search answers to: ' + esc(q.title) + '" data-tsearch="' + q.id + '" />' +
+          '<button class="c-search-input-clear" type="button" data-tclear="' + q.id + '" aria-label="Clear search" hidden><i class="ph ph-x" aria-hidden="true"></i></button>' +
         '</div></div>' +
         '<div class="resp-list" data-tlist="' + q.id + '">' +
           rows.map(function(r){
@@ -4085,7 +4691,8 @@ function paintRespBody(f){
   });
 
   $$('[data-tsearch]', host).forEach(function(inp){
-    inp.addEventListener('input', function(){
+    var clr = $('[data-tclear="' + inp.dataset.tsearch + '"]', host);
+    function filter(){
       var v = inp.value.trim().toLowerCase();
       var list = $('[data-tlist="' + inp.dataset.tsearch + '"]', host);
       var shown = 0;
@@ -4094,7 +4701,15 @@ function paintRespBody(f){
         it.hidden = !hit; if (hit) shown++;
       });
       $('[data-tempty="' + inp.dataset.tsearch + '"]', host).hidden = shown > 0;
+      /* The Clear button is the component's, so it follows the value —
+         WebKit's own x is suppressed system-wide and is not a fallback. */
+      if (clr) clr.hidden = !inp.value;
+    }
+    inp.addEventListener('input', filter);
+    inp.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && inp.value){ e.stopPropagation(); inp.value = ''; filter(); }
     });
+    if (clr) clr.addEventListener('click', function(){ inp.value = ''; filter(); inp.focus(); });
   });
 }
 function pct(n, d){ return d ? Math.round(n / d * 100) + '%' : '0%'; }
@@ -4984,7 +5599,7 @@ var draftShots = [];
 /* Draft state for the fields that survive a re-render of the form (the
    priority and services blocks repaint on every change, so their values
    cannot live in the DOM). */
-var draftBug = { priority:'p3', services:[], otherOn:false, other:'' };
+var draftBug = { impact:'', location:'', hereNow:true, services:[], otherOn:false, other:'', title:'', desc:'', extra:'' };
 
 /* Shared view switcher for the two bug list surfaces. Both are the same
    records read by different people, so this is a view switch, not
@@ -5029,12 +5644,21 @@ function bugFilterRow(scope, pool, podsHtml){
       ['awaiting','replied'].map(function(k){ return bugChip(k, pool); }).join('') +
     '</div>' +
     '<div class="row tight">' +
+      /* Search input's real recipe: the magnifier carries
+         .c-search-input-icon, not Input field's .icon-leading — that class
+         is scoped to .c-field and .c-filter-search, so inside a
+         .c-search-input-box it matches nothing, the icon falls into flex
+         flow outside the input's border, and the input's own 36px left
+         padding is left standing as an empty gutter. The Clear button is
+         part of the component too, not an extra. */
       '<div class="c-search-input" style="width:260px">' +
         '<div class="c-search-input-box">' +
-          '<i class="ph ph-magnifying-glass icon-leading" aria-hidden="true"></i>' +
+          '<i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>' +
           '<input type="search" data-bugsearch placeholder="Search reports" autocomplete="off"' +
             ' aria-label="Search reports by title, pod, reporter or status" value="' +
             esc(state.bugQuery) + '" />' +
+          '<button class="c-search-input-clear" type="button" data-bugclear aria-label="Clear search"' +
+            (state.bugQuery ? '' : ' hidden') + '><i class="ph ph-x" aria-hidden="true"></i></button>' +
         '</div>' +
       '</div>' +
       (podsHtml || '') +
@@ -5047,6 +5671,14 @@ function bugVisible(pool){
   return pool.filter(function(b){
     return matchesBugChip(b, state.bugStatus) && matchAll(bugHaystack(b), ts);
   });
+}
+/* Clearing rebuilds the toolbar, so focus is put back on the field the
+   rebuild replaced — the reader asked to empty the box, not to leave it. */
+function clearBugSearch(root, rerender){
+  state.bugQuery = '';
+  rerender();
+  var again = $('[data-bugsearch]', root);
+  if (again) again.focus();
 }
 function wireBugControls(root, rerender){
   $$('[data-bs]', root).forEach(function(c){
@@ -5062,7 +5694,15 @@ function wireBugControls(root, rerender){
       var again = $('[data-bugsearch]', root);
       if (again){ again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
     });
+    /* Escape clears rather than falling through to the global handler,
+       which would otherwise close a layer the reader never opened — the
+       same bargain the library's own search box already strikes. */
+    box.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && box.value){ e.stopPropagation(); clearBugSearch(root, rerender); }
+    });
   }
+  var clr = $('[data-bugclear]', root);
+  if (clr) clr.addEventListener('click', function(){ clearBugSearch(root, rerender); });
 }
 
 function wireBugSeg(root, active){
@@ -5076,27 +5716,69 @@ function wireBugSeg(root, active){
    different ways by four people. The severity dot rides inside the .prio
    pill in the label, not in the row's own media slot: Dropdown's media slot
    is documented as deliberately having no colour-dot modifier. */
-function prioFieldHtml(){
-  return '<div class="c-field field-wide c-dropdown-field dd-float" id="wrapPrio">' +
-    '<label for="bugPrio">Incident priority <span class="required-mark" aria-hidden="true">*</span></label>' +
+/* Operational impact. Dropdown's own has-desc row, because the three levels
+   are only distinguishable by their descriptions — "Medium" on its own is a
+   word, not a judgement, and a reporter picking between three bare words
+   picks the middle one. No default: a severity field that arrives pre-filled
+   is a severity field nobody reads. */
+function impactFieldHtml(){
+  var chosen = IMPACTS[draftBug.impact];
+  return '<div class="c-field field-wide c-dropdown-field dd-float" id="wrapImpact">' +
+    '<label for="bugImpact">Operational impact <span class="required-mark" aria-hidden="true">*</span></label>' +
     '<div class="input-wrap has-trailing-icon">' +
-      '<input type="text" id="bugPrio" class="c-dropdown-input" readonly value="' + esc(prioLabel(draftBug.priority)) + '"' +
+      '<input type="text" id="bugImpact" class="c-dropdown-input" readonly value="' +
+        esc(chosen ? chosen.name : '') + '" placeholder="How much is this holding work up?"' +
         ' aria-haspopup="listbox" aria-expanded="false" />' +
       '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
     '</div>' +
-    '<div class="c-dropdown-panel" id="prioPanel" hidden><div class="c-dropdown-list">' +
-      PRIO_ORDER.map(function(k){
-        return '<div class="c-dropdown-row has-desc' + (draftBug.priority === k ? ' selected' : '') +
-          '" role="option" data-prio="' + k + '">' +
+    '<div class="c-dropdown-panel" id="impactPanel" hidden><div class="c-dropdown-list">' +
+      IMPACT_ORDER.map(function(k){
+        return '<div class="c-dropdown-row has-desc' + (draftBug.impact === k ? ' selected' : '') +
+          '" role="option" data-imp="' + k + '">' +
           '<span class="c-dropdown-row-text">' +
-            '<span class="c-dropdown-row-label">' + prioPill(k) + '</span>' +
-            '<span class="c-dropdown-row-desc">' + esc(PRIORITIES[k].desc) + '</span>' +
+            '<span class="c-dropdown-row-label">' + esc(IMPACTS[k].name) + '</span>' +
+            '<span class="c-dropdown-row-desc">' + esc(IMPACTS[k].desc) + '</span>' +
           '</span>' +
           '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
       }).join('') +
     '</div></div>' +
-    '<span class="c-helper">' + esc(PRIORITIES[draftBug.priority].desc) + '</span>' +
+    (chosen ? '<span class="c-helper">' + esc(chosen.desc) + '</span>' : '') +
   '</div>';
+}
+
+/* Where the reporter was when it happened, read off the page behind the
+   drawer rather than asked for. The drawer is opened from the screen the bug
+   is on, so the answer is already known — and a location typed from memory
+   after navigating away is the field that most often sends a ticket to the
+   wrong team. The tick is the escape hatch: untick it and the field becomes
+   yours to write. */
+function currentLocation(){
+  var parts = ['Feedback'];
+  var head = ($('#phTitle').textContent || '').trim();
+  if (head && head !== 'Feedback') parts.push(head);
+  if (state.route === 'builder'){
+    var tab = $('#routeBuilder .c-tabs .c-tab.active');
+    /* Tab labels carry their own counts — "Questions 5" is a tab, not a
+       place. */
+    if (tab) parts.push(tab.textContent.replace(/\s*\d+\s*$/, '').trim());
+  }
+  return parts.join(' › ');
+}
+
+function locationFieldHtml(){
+  var here = draftBug.hereNow;
+  return '<div class="c-field field-wide" id="wrapLoc">' +
+      '<label for="bugLoc">Location of bug <span class="required-mark" aria-hidden="true">*</span></label>' +
+      '<div class="input-wrap"><input type="text" id="bugLoc" value="' + esc(draftBug.location) + '"' +
+        (here ? ' readonly disabled' : ' placeholder="Which screen is it on?"') + ' /></div>' +
+    '</div>' +
+    '<label class="c-choice" id="wrapHere">' +
+      '<input type="checkbox" id="bugHere"' + (here ? ' checked' : '') + ' />' +
+      '<span class="c-checkbox-box' + (here ? ' on' : '') + '">' +
+        (here ? '<i class="ph ph-check" aria-hidden="true"></i>' : '') + '</span>' +
+      '<span class="text"><span class="label">Current page</span>' +
+        '<span class="desc">Untick if the problem is somewhere else.</span></span>' +
+    '</label>';
 }
 
 /* Affected services — a fixed checkbox set, not free text, because this is
@@ -5126,7 +5808,7 @@ function svcFieldHtml(){
         svcBox(oth) +
         '<span class="text"><span class="label" style="font-size:var(--text-body2-size)">Other — not in this list</span></span></label>' +
     '</div>' +
-    '<span class="c-helper">Pick every part of Collabrium this affects. Choose at least one.</span>' +
+    '<span class="c-helper">Choose at least one.</span>' +
   '</div>' +
   '<div class="c-field field-wide" id="wrapOther"' + (oth ? '' : ' hidden') + '>' +
     '<label for="svcOtherText">Which service is affected? <span class="required-mark" aria-hidden="true">*</span></label>' +
@@ -5136,83 +5818,62 @@ function svcFieldHtml(){
   '</div>';
 }
 
-function renderBugNew(){
-  $('#routeBugNew').hidden = false;
-  setHeader('Report a bug', 'One report, one problem. The more specific you are, the faster it gets picked up.');
-  setBack('Bug Reports', 'bugMine');
+/* ==========================================================================
+   Bug report form — lives in a drawer, not on a page of its own
+   A bug is always about the screen the reporter is looking at. Sending them
+   to a route to describe it costs them that screen — the scroll position,
+   the filters, the half-finished thing that prompted the report — and makes
+   getting back a second navigation. The drawer keeps the page behind it and
+   closes back onto it, so filing a report is an interruption measured in
+   seconds rather than a detour.
+   ========================================================================== */
+var bugSent = null;        /* the ticket just filed, while the drawer shows success */
+var bugLastFocus = null;
 
-  var podField = ME.pods.length > 1
-    ? '<div class="c-field field-wide c-dropdown-field"><label for="bugPod">Collabrium Pod</label>' +
-      '<div class="input-wrap has-trailing-icon">' +
-        '<input type="text" id="bugPod" class="c-dropdown-input" value="' + esc(ME.pods[0]) + '" readonly />' +
-        '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
-      '</div><span class="c-helper">You belong to more than one pod — pick the one this affects.</span></div>'
-    : '<div class="c-field field-wide"><label>Collabrium Pod</label>' +
-      '<div class="input-wrap"><input type="text" value="' + esc(ME.pods[0]) + '" readonly disabled /></div>' +
-      '<span class="c-helper">From your profile.</span></div>';
+function bugFormHtml(){
+  /* No blurb above the fields and no Reported by / Pod block. Both said
+     things the form already shows or the system already knows: the reporter
+     is whoever is signed in, the pod comes off their profile, and a sentence
+     explaining that the template is fixed is only readable to someone who
+     has seen a different one. Both still land on the ticket — see submitBug
+     — they are simply not questions.
+     Every field is prefilled from the draft, so closing the drawer to go and
+     check something on the page behind it — which is the whole reason this
+     is a drawer — does not cost the reporter what they had already typed. */
+  return '<div class="c-field field-wide" id="wrapTitle"><label for="bugTitle">Title <span class="required-mark" aria-hidden="true">*</span></label>' +
+      '<div class="input-wrap"><input type="text" id="bugTitle" value="' + esc(draftBug.title) +
+        '" placeholder="e.g. Export button unresponsive on Safari" required /></div></div>' +
 
-  /* The form is a single reading column, centred in the content region —
-     margin:0 auto on a capped card, not left-set against a 1100px shell.
-     A one-column form set to one side of a wide page reads as an unfinished
-     two-column layout. */
-  $('#routeBugNew').innerHTML =
-    '<div class="c-card stack lg" style="max-width:720px;margin:0 auto">' +
-      '<div class="stack sm"><h2 class="sect">Report a bug</h2>' +
-        '<p class="hint">Fixed template — every field here is something the tech team needs to reproduce it.</p></div>' +
+    '<div class="c-field field-wide" id="wrapDesc"><label for="bugDesc">Description <span class="required-mark" aria-hidden="true">*</span></label>' +
+      '<textarea id="bugDesc" rows="4" placeholder="What happened, and what you expected to happen instead." required>' +
+        esc(draftBug.desc) + '</textarea></div>' +
 
-      '<div class="stack sm">' +
-        '<span class="eyebrow">Reported by</span>' +
-        '<div class="row tight">' +
-          '<span class="avatar lg">' + esc(initials(ME.name)) + '</span>' +
-          '<span class="stack" style="gap:2px">' +
-            '<b style="font-size:var(--text-body2-size)">' + esc(ME.name) + '</b>' +
-            '<span class="hint">From your session · not editable</span>' +
-          '</span>' +
+    '<div id="locSlot" class="stack sm">' + locationFieldHtml() + '</div>' +
+    '<div id="impactSlot">' + impactFieldHtml() + '</div>' +
+    '<div id="svcSlot" class="stack lg">' + svcFieldHtml() + '</div>' +
+
+    '<div class="stack sm">' +
+      '<span class="eyebrow">Screenshot</span>' +
+      '<div class="c-uploader field-wide">' +
+        '<div class="c-uploader-zone" id="dropZone" tabindex="0" role="button" aria-label="Add screenshots — drag and drop, or press Enter to browse">' +
+          '<i class="ph ph-image" aria-hidden="true"></i>' +
+          '<span class="c-uploader-label">Drag screenshots here, or click to browse</span>' +
+          '<span class="c-uploader-hint">PNG, JPG or GIF · multiple files welcome</span>' +
         '</div>' +
+        '<div class="thumbs" id="shotThumbs"></div>' +
       '</div>' +
+    '</div>' +
 
-      podField +
-
-      '<div class="c-field field-wide" id="wrapTitle"><label for="bugTitle">Title <span class="required-mark" aria-hidden="true">*</span></label>' +
-        '<div class="input-wrap"><input type="text" id="bugTitle" placeholder="e.g. Export button unresponsive on Safari" required /></div>' +
-        '<span class="c-helper">One line. What is broken, and where.</span></div>' +
-
-      '<div class="c-field field-wide" id="wrapDesc"><label for="bugDesc">Description <span class="required-mark" aria-hidden="true">*</span></label>' +
-        '<textarea id="bugDesc" rows="4" placeholder="What happened, and what you expected to happen instead." required></textarea></div>' +
-
-      '<div id="prioSlot">' + prioFieldHtml() + '</div>' +
-      '<div id="svcSlot" class="stack lg">' + svcFieldHtml() + '</div>' +
-
-      '<div class="stack sm">' +
-        '<span class="eyebrow">Screenshot</span>' +
-        '<div class="c-uploader field-wide">' +
-          '<div class="c-uploader-zone" id="dropZone" tabindex="0" role="button" aria-label="Add screenshots — drag and drop, or press Enter to browse">' +
-            '<i class="ph ph-image" aria-hidden="true"></i>' +
-            '<span class="c-uploader-label">Drag screenshots here, or click to browse</span>' +
-            '<span class="c-uploader-hint">PNG, JPG or GIF · multiple files welcome</span>' +
-          '</div>' +
-          '<div class="thumbs" id="shotThumbs"></div>' +
-        '</div>' +
-      '</div>' +
-
-      '<div class="c-field field-wide"><label for="bugExtra">Additional information</label>' +
-        '<textarea id="bugExtra" rows="3" placeholder="Steps to reproduce, browser and device, how often it happens."></textarea>' +
-        '<span class="c-helper">Optional, but it is usually what makes a bug reproducible.</span></div>' +
-
-      '<div class="row" style="justify-content:flex-end">' +
-        '<button class="c-btn c-btn-primary c-btn-md" type="button" id="bugSubmit"><i class="ph ph-paper-plane-tilt"></i>Submit</button>' +
-      '</div>' +
-    '</div>';
-
-  paintThumbs();
-  wireDropZone();
-  wirePrio();
-  wireSvc();
-  $('#bugSubmit').addEventListener('click', submitBug);
+    '<div class="c-field field-wide"><label for="bugExtra">Additional information (optional)</label>' +
+      '<textarea id="bugExtra" rows="3" placeholder="Steps to reproduce, browser and device, how often it happens.">' +
+        esc(draftBug.extra) + '</textarea></div>';
 }
 
-function wirePrio(){
-  var trig = $('#bugPrio'), panel = $('#prioPanel');
+/* Impact's own dropdown. Same open/select/repaint mechanic the rest of this
+   form's dropdowns use — repaint the one slot, rewire it, leave the rest of
+   the form and everything typed into it alone. */
+function wireImpact(){
+  var trig = $('#bugImpact'), panel = $('#impactPanel');
   if (!trig) return;
   var field = trig.closest('.c-dropdown-field');
   trig.addEventListener('click', function(e){
@@ -5222,13 +5883,157 @@ function wirePrio(){
     field.classList.toggle('open', open);
     trig.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
-  $$('[data-prio]', panel).forEach(function(r){
+  $$('[data-imp]', panel).forEach(function(r){
     r.addEventListener('click', function(){
-      draftBug.priority = r.dataset.prio;
-      $('#prioSlot').innerHTML = prioFieldHtml();
-      wirePrio();
+      draftBug.impact = r.dataset.imp;
+      $('#impactSlot').innerHTML = impactFieldHtml();
+      wireImpact();
+      $('#bugImpact').focus();
     });
   });
+}
+
+/* Location plus its tick. Ticked, the field states where the reporter was
+   and cannot be edited; unticked, it empties and takes focus, because the
+   only reason to untick is to type something else. */
+function wireLocation(){
+  var here = $('#bugHere');
+  if (!here) return;
+  $('#bugLoc').addEventListener('input', function(){ draftBug.location = this.value; });
+  here.addEventListener('change', function(){
+    draftBug.hereNow = here.checked;
+    draftBug.location = here.checked ? currentLocation() : '';
+    $('#locSlot').innerHTML = locationFieldHtml();
+    wireLocation();
+    var el = $('#bugHere');
+    if (draftBug.hereNow) el.focus();
+    else $('#bugLoc').focus();
+  });
+}
+
+function wireBugForm(){
+  paintThumbs();
+  wireDropZone();
+  wireLocation();
+  wireImpact();
+  wireSvc();
+  /* Typed text goes back into the draft on every keystroke rather than being
+     read only at submit — the drawer can be closed at any point, and the
+     draft is what survives it. */
+  [['bugTitle','title'], ['bugDesc','desc'], ['bugExtra','extra']].forEach(function(pair){
+    var el = $('#' + pair[0]);
+    if (!el) return;
+    el.addEventListener('input', function(){ draftBug[pair[1]] = el.value; });
+  });
+}
+
+function bugDrawerOpen(){ return !$('#bugLayer').hidden; }
+
+function paintBugDrawer(){
+  var box = $('#bugDrawer');
+
+  if (bugSent){
+    box.innerHTML =
+      '<div class="c-drawer-head">' +
+        '<span class="grow"><h4 id="bugDrawerTitle">Report a bug</h4></span>' +
+        '<button class="c-icon-btn" type="button" id="bugDrawerClose" aria-label="Close">' +
+          '<i class="ph ph-x" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<div class="c-drawer-body">' +
+        '<div class="drawer-done">' +
+          '<i class="ph-fill ph-check-circle drawer-done-icon" aria-hidden="true"></i>' +
+          '<h3>Report submitted</h3>' +
+          '<p><b>' + esc(bugSent.title) + '</b> is with the tech team. ' +
+            'It is filed against ' + esc(bugSent.pod) + '.</p>' +
+          /* What happens next, stated. The commonest thing a reporter wants
+             after sending is not another screen — it is to know the report
+             will not vanish into nothing. */
+          '<div class="drawer-next"><ul>' +
+            '<li><i class="ph ph-magnifying-glass" aria-hidden="true"></i>' +
+              'It gets triaged and picked up by whoever owns ' +
+              esc(bugSent.services[0] || 'the affected service') + '.</li>' +
+            '<li><i class="ph ph-bell" aria-hidden="true"></i>' +
+              'You are notified when someone replies or marks it resolved.</li>' +
+            '<li><i class="ph ph-chat-teardrop-text" aria-hidden="true"></i>' +
+              'The whole thread lives in My tickets, and you can answer there.</li>' +
+          '</ul></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="c-drawer-foot">' +
+        '<button class="c-btn c-btn-ghost c-btn-md" type="button" id="bugAnother">Report another</button>' +
+        '<span class="grow"></span>' +
+        '<button class="c-btn c-btn-secondary c-btn-md" type="button" id="bugGoMine">View my tickets</button>' +
+        /* Primary is the way back to what they were doing. That is the point
+           of filing from a drawer, and the button ordering should say so. */
+        '<button class="c-btn c-btn-primary c-btn-md" type="button" id="bugDone">Done</button>' +
+      '</div>';
+
+    $('#bugDrawerClose').addEventListener('click', closeBugDrawer);
+    $('#bugDone').addEventListener('click', closeBugDrawer);
+    $('#bugAnother').addEventListener('click', function(){ bugSent = null; paintBugDrawer(); });
+    $('#bugGoMine').addEventListener('click', function(){ closeBugDrawer(); go('bugMine'); });
+    $('#bugDone').focus();
+    return;
+  }
+
+  box.innerHTML =
+    '<div class="c-drawer-head">' +
+      '<span class="grow"><h4 id="bugDrawerTitle">Report a bug</h4></span>' +
+      '<button class="c-icon-btn" type="button" id="bugDrawerClose" aria-label="Close">' +
+        '<i class="ph ph-x" aria-hidden="true"></i></button>' +
+    '</div>' +
+    '<div class="c-drawer-body">' + bugFormHtml() + '</div>' +
+    /* Submit lives in the foot, not at the end of the fields: this form is
+       long enough to scroll, and an action that scrolls away is an action
+       people hunt for. */
+    '<div class="c-drawer-foot">' +
+      '<button class="c-btn c-btn-ghost c-btn-md" type="button" id="bugCancel">Cancel</button>' +
+      '<span class="grow"></span>' +
+      '<button class="c-btn c-btn-primary c-btn-md" type="button" id="bugSubmit">' +
+        '<i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>Submit report</button>' +
+    '</div>';
+
+  wireBugForm();
+  $('#bugDrawerClose').addEventListener('click', closeBugDrawer);
+  $('#bugCancel').addEventListener('click', closeBugDrawer);
+  $('#bugSubmit').addEventListener('click', submitBug);
+}
+
+function openBugDrawer(){
+  var layer = $('#bugLayer');
+  bugLastFocus = document.activeElement;
+  bugSent = null;
+  /* Read before the drawer paints, while the page behind it is still the
+     page the reporter was looking at. Only while the tick is on — a reporter
+     who has already named somewhere else keeps what they wrote. */
+  if (draftBug.hereNow) draftBug.location = currentLocation();
+  layer.hidden = false;
+  paintBugDrawer();
+  void layer.offsetWidth;
+  layer.classList.add('is-open');
+  /* Focus the first thing the reporter has to write, not the close button —
+     the drawer opened because they already decided to file something. */
+  var t = $('#bugTitle');
+  if (t) t.focus();
+}
+
+function closeBugDrawer(){
+  var layer = $('#bugLayer');
+  var filed = !!bugSent;
+  layer.classList.remove('is-open');
+  setTimeout(function(){ layer.hidden = true; $('#bugDrawer').innerHTML = ''; bugSent = null; }, 240);
+  /* The drawer's commonest opener is a FAB menu item, and that item is gone
+     by the time we close — the menu shut behind it. Focusing a detached or
+     hidden node drops focus to the body, which is exactly the lost place
+     this drawer exists to protect, so it falls back to the button the menu
+     belongs to. */
+  var back = bugLastFocus;
+  if (!back || !back.isConnected || !back.offsetParent) back = $('#fab').hidden ? null : $('#fab');
+  if (back && back.focus) back.focus();
+  /* A report filed while standing on one of the two bug lists has to appear
+     in it — the list behind the drawer was rendered before the ticket
+     existed. */
+  if (filed && (state.route === 'bugMine' || state.route === 'bugAdmin')) render();
 }
 
 /* Repaint only the box that changed, never the grid — repainting the grid on
@@ -5354,6 +6159,11 @@ function submitBug(){
      rather than free text: it is what routes the report. A ticket with no
      service on it is a ticket with no owner. */
   if (!svcChosen()) fail('#wrapSvc', 'Choose at least one affected service.');
+  /* Impact has no default on purpose, so it has to be caught here rather
+     than quietly shipping whatever the middle option happened to be. */
+  if (!draftBug.impact) fail('#wrapImpact', 'Choose how much this is holding work up.');
+  if (!(draftBug.hereNow ? currentLocation() : $('#bugLoc').value.trim()))
+    fail('#wrapLoc', 'Say which screen this happens on.');
   /* Other ticked and nothing written is worse than Other not ticked: it
      claims a service the report never names. */
   if (draftBug.otherOn && !draftBug.other.trim()){
@@ -5367,9 +6177,17 @@ function submitBug(){
     return;
   }
 
+  /* Reporter and pod are still on every ticket — they were never questions,
+     only fields, and the answers were already in the session. Priority
+     arrives as nothing at all rather than as a default: seeding it at the
+     middle would have made every new ticket look triaged, and a queue where
+     P3 means both "judged to be medium" and "nobody has looked yet" cannot
+     be sorted or trusted. The team sets it on the record. */
   BUGS.unshift({ id:'b' + (BUGS.length + 1), at:new Date(NOW), who:ME.name,
-    pod:($('#bugPod') ? $('#bugPod').value : ME.pods[0]), status:'new',
-    priority:draftBug.priority,
+    pod:ME.pods[0], status:'new',
+    priority:null,
+    impact:draftBug.impact,
+    location:draftBug.hereNow ? currentLocation() : $('#bugLoc').value.trim(),
     /* The described service joins the list as a service, prefixed so the
        team can see it came from Other rather than the fixed set. */
     services:draftBug.services.concat(
@@ -5379,11 +6197,14 @@ function submitBug(){
     shots:draftShots.map(function(s){ return s.url; }),
     comments:[] });
   draftShots = [];
-  draftBug = { priority:'p3', services:[], otherOn:false, other:'' };
-  /* Land on the reporter's own list, where the ticket they just filed is
-     the top row — not on the admin table, which is not their view. */
-  go('bugMine');
-  toast('Bug report submitted', 'success');
+  draftBug = { impact:'', location:'', hereNow:true, services:[], otherOn:false, other:'', title:'', desc:'', extra:'' };
+  /* The drawer stays open and swaps to a confirmation rather than throwing
+     the reporter onto a list they did not ask for. A toast would have said
+     the same thing and then taken itself away — this is the one moment the
+     reporter needs to be told what happens next, and it waits to be read. */
+  bugSent = BUGS[0];
+  paintBugDrawer();
+  $('#bugDrawer .c-drawer-body').scrollTop = 0;
 }
 
 /* ==========================================================================
@@ -5406,7 +6227,7 @@ function renderBugMine(){
   setHeader('Bug Reports', 'Track what you have reported and answer questions from the tech team.',
     '<button class="c-btn c-btn-primary c-btn-md" type="button" id="reportBug"><i class="ph ph-plus"></i>Report a bug</button>');
   setBack('Feedback', 'landing');
-  $('#reportBug').addEventListener('click', function(){ go('bugNew'); });
+  $('#reportBug').addEventListener('click', openBugDrawer);
 
   var shown = bugVisible(mine);
   $('#routeBugMine').innerHTML =
@@ -5464,7 +6285,7 @@ function renderBugMine(){
 
   wireBugSeg($('#routeBugMine'), 'mine');
   wireBugControls($('#routeBugMine'), renderBugMine);
-  if ($('#emptyNewBug')) $('#emptyNewBug').addEventListener('click', function(){ go('bugNew'); });
+  if ($('#emptyNewBug')) $('#emptyNewBug').addEventListener('click', openBugDrawer);
   if ($('#clearBugFilters')) $('#clearBugFilters').addEventListener('click', function(){
     state.bugStatus = 'all'; state.bugQuery = ''; renderBugMine();
   });
@@ -5487,10 +6308,9 @@ function renderBugAdmin(){
   setHeader('Bug Reports', 'Every report submitted across the pods.',
     '<button class="c-btn c-btn-primary c-btn-md" type="button" id="reportBug"><i class="ph ph-plus"></i>Report a bug</button>');
   setBack('Feedback', 'landing');
-  $('#reportBug').addEventListener('click', function(){ go('bugNew'); });
+  $('#reportBug').addEventListener('click', openBugDrawer);
 
-  var pods = ['all'].concat(PODS.filter(function(p){
-    return BUGS.some(function(b){ return b.pod === p; }); }));
+  var pods = podsWithReports();
 
   $('#routeBugAdmin').innerHTML =
     bugSegHtml('') +
@@ -5498,20 +6318,44 @@ function renderBugAdmin(){
       /* .dd-float — without it the panel is position:static and opening this
          filter pushes the entire table down by the panel's own height, which
          is the one thing a filter sitting above a table must not do. */
-      '<div class="c-field c-dropdown-field dd-float" style="width:200px">' +
+      /* Multiple select, not Single: a triage queue is read pod by pod but
+         also two pods at a time — "everything my two teams own" was three
+         passes through a single select and no way to see them together.
+         Select All is the component's own documented affordance for the
+         opposite move, clearing back to the whole workspace in one tick
+         rather than one per pod. */
+      '<div class="c-field c-dropdown-multi-field dd-float" style="width:200px">' +
         '<div class="input-wrap has-trailing-icon">' +
-          '<input type="text" class="c-dropdown-input" id="podTrigger" readonly value="' +
-            (state.bugPod === 'all' ? 'All pods' : esc(state.bugPod)) + '" aria-label="Filter by pod"' +
+          '<input type="text" class="c-dropdown-multi-input" id="podTrigger" readonly value="' +
+            esc(podFilterLabel(pods)) + '" aria-label="Filter by pod"' +
             ' aria-haspopup="listbox" aria-expanded="false" />' +
-          '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-chevron"></i></span>' +
+          '<span class="icon-trailing" aria-hidden="true"><i class="ph ph-caret-down c-dropdown-multi-chevron"></i></span>' +
         '</div>' +
-        '<div class="c-dropdown-panel" id="podPanel" hidden><div class="c-dropdown-list">' +
-          pods.map(function(p){
-            return '<div class="c-dropdown-row' + (state.bugPod === p ? ' selected' : '') + '" role="option" data-pod="' + esc(p) + '">' +
-              '<span class="c-dropdown-row-label">' + (p === 'all' ? 'All pods' : esc(p)) + '</span>' +
-              '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
-          }).join('') +
-        '</div></div>' +
+        '<div class="c-dropdown-multi-panel" id="podPanel" hidden>' +
+          '<div class="c-dropdown-multi-list">' +
+            /* Select All is a real checkbox so it can sit Indeterminate
+               while the list is partly ticked — the component's own rule,
+               and the only honest state for "some of them". */
+            '<label class="c-dropdown-option select-all">' +
+              '<input type="checkbox" id="podAll"' + (state.bugPods.length === pods.length ? ' checked' : '') + ' />' +
+              podAllBox(pods) +
+              '<span class="c-dropdown-option-label">Select All</span>' +
+              '<span class="c-dropdown-option-desc">' + pods.length + ' pods</span>' +
+            '</label>' +
+            '<div class="c-dropdown-multi-divider"></div>' +
+            pods.map(function(p){
+              var on = state.bugPods.indexOf(p) > -1;
+              return '<label class="c-dropdown-option">' +
+                '<input type="checkbox" data-pod="' + esc(p) + '"' + (on ? ' checked' : '') + ' />' +
+                '<span class="c-checkbox-box' + (on ? ' on' : '') + '">' +
+                  (on ? '<i class="ph ph-check" aria-hidden="true"></i>' : '') + '</span>' +
+                '<span class="c-dropdown-option-label">' + esc(p) + '</span>' +
+                '<span class="c-dropdown-option-desc">' +
+                  BUGS.filter(function(b){ return b.pod === p; }).length + '</span>' +
+              '</label>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
       '</div>') +
     '<div class="c-table-standalone-wrap c-table-scroll-x"><table class="c-table c-table-standalone"><thead><tr>' +
       BUG_COLS.map(bugSortTh).join('') +
@@ -5540,20 +6384,94 @@ function renderBugAdmin(){
     });
   });
 
-  /* Pod filter — Dropdown's Single select, wired for real. */
-  var trig = $('#podTrigger'), panel = $('#podPanel'), field = trig.closest('.c-dropdown-field');
+  /* Pod filter — Dropdown's Multiple select with Select All, wired for real. */
+  var trig = $('#podTrigger'), panel = $('#podPanel'), field = trig.closest('.c-dropdown-multi-field');
   trig.addEventListener('click', function(e){
     e.stopPropagation();
     var open = panel.hidden;
+    closeDropdowns();
     panel.hidden = !open;
     field.classList.toggle('open', open);
     trig.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
-  $$('[data-pod]', panel).forEach(function(r){
-    r.addEventListener('click', function(){ state.bugPod = r.dataset.pod; renderBugAdmin(); });
+  /* Ticking must not shut the panel — the whole point of a multiple select
+     is picking more than one thing — so the panel swallows its own clicks
+     rather than letting them reach the document-level closer. */
+  panel.addEventListener('click', function(e){ e.stopPropagation(); });
+
+  /* Patched in place, never re-rendered: re-rendering the route would tear
+     the open panel down under the reader's cursor on the first tick. Only
+     the boxes, the trigger's label and the table itself change. */
+  function syncPods(){
+    $$('[data-pod]', panel).forEach(function(c){
+      var on = state.bugPods.indexOf(c.dataset.pod) > -1;
+      c.checked = on;
+      var box = c.nextElementSibling;
+      box.classList.toggle('on', on);
+      box.innerHTML = on ? '<i class="ph ph-check" aria-hidden="true"></i>' : '';
+    });
+    var all = $('#podAll', panel);
+    all.checked = state.bugPods.length === pods.length;
+    var allBox = all.nextElementSibling;
+    allBox.classList.toggle('on', state.bugPods.length > 0);
+    allBox.innerHTML = state.bugPods.length === pods.length
+      ? '<i class="ph ph-check" aria-hidden="true"></i>'
+      : state.bugPods.length ? '<i class="ph ph-minus" aria-hidden="true"></i>' : '';
+    trig.value = podFilterLabel(pods);
+    paintBugRows();
+  }
+
+  $$('[data-pod]', panel).forEach(function(c){
+    c.addEventListener('change', function(){
+      var p = c.dataset.pod, at = state.bugPods.indexOf(p);
+      if (at > -1) state.bugPods.splice(at, 1); else state.bugPods.push(p);
+      syncPods();
+    });
+  });
+  $('#podAll', panel).addEventListener('change', function(){
+    state.bugPods = this.checked ? pods.slice() : [];
+    syncPods();
   });
 
   paintBugRows();
+}
+
+/* The pods that actually have reports against them. A filter listing a pod
+   with nothing in it is a row that can only ever empty the table. */
+function podsWithReports(){
+  return PODS.filter(function(p){
+    return BUGS.some(function(b){ return b.pod === p; });
+  });
+}
+/* Reads as the answer to "what am I looking at", not as a count of ticks:
+   none and all are both the whole workspace, one names the pod, and past
+   that the number is what fits in a 200px trigger. */
+function podFilterLabel(pods){
+  var n = state.bugPods.length;
+  if (n === 0 || n === pods.length) return 'All pods';
+  if (n === 1) return state.bugPods[0];
+  return n + ' pods';
+}
+function podAllBox(pods){
+  var n = state.bugPods.length;
+  return '<span class="c-checkbox-box' + (n ? ' on' : '') + '">' +
+    (n === pods.length ? '<i class="ph ph-check" aria-hidden="true"></i>'
+      : n ? '<i class="ph ph-minus" aria-hidden="true"></i>' : '') + '</span>';
+}
+
+/* The pod filter is a Multiple select, and closeDropdowns only sweeps the
+   single-select panel class — deliberately, because the Share modal runs its
+   own Multiple select and a blanket sweep would shut it mid-pick. So this
+   one panel is closed by name, from the same single document-level handler
+   everything else uses rather than a listener added per render. */
+function closePodFilter(){
+  var panel = $('#podPanel');
+  if (!panel || panel.hidden) return;
+  panel.hidden = true;
+  var field = panel.closest('.c-dropdown-multi-field');
+  if (field) field.classList.remove('open');
+  var trig = $('#podTrigger');
+  if (trig) trig.setAttribute('aria-expanded', 'false');
 }
 
 function bugChipLabel(k){
@@ -5589,7 +6507,11 @@ var BUG_COLS = [
   { key:'date',     label:'Submitted',   num:true,  val:function(b){ return b.at.getTime(); } },
   { key:'who',      label:'Reported by', num:false, val:function(b){ return b.who; } },
   { key:'pod',      label:'Pod',         num:false, val:function(b){ return b.pod; } },
-  { key:'priority', label:'Priority',    num:true,  val:function(b){ return PRIO_ORDER.indexOf(b.priority); } },
+  /* Untriaged sorts past P4 in both directions' sense of the ramp: sorting
+     by severity should not put the tickets that have no severity at the
+     urgent end of it. Finding them is the New status chip's job. */
+  { key:'priority', label:'Priority',    num:true,
+    val:function(b){ return b.priority ? PRIO_ORDER.indexOf(b.priority) : PRIO_ORDER.length; } },
   { key:'title',    label:'Title',       num:false, val:function(b){ return b.title; } },
   { key:'assignee', label:'Assigned to', num:false, val:function(b){ return b.assignee || '\uffff'; } },
   { key:'status',   label:'Status',      num:true,  val:function(b){
@@ -5616,7 +6538,10 @@ function filteredBugs(){
   var ts = terms(state.bugQuery);
   var list = BUGS.filter(function(b){
     return matchesBugChip(b, state.bugStatus)
-        && (state.bugPod === 'all' || b.pod === state.bugPod)
+        /* Nothing ticked reads as no filter rather than as no pods — an
+           empty selection is where this control starts, and a table that
+           begins empty teaches nobody anything. */
+        && (!state.bugPods.length || state.bugPods.indexOf(b.pod) > -1)
         && matchAll(bugHaystack(b), ts);
   });
   var c = bugCol(state.bugSortCol);
@@ -5774,6 +6699,7 @@ function askConfirm(opts){
 $('#confirmLayer').addEventListener('click', function(e){ if (e.target === this) closeConfirm(); });
 $('#liveLayer').addEventListener('click', function(e){ if (e.target === this) closePublished(); });
 $('#sendLayer').addEventListener('click', function(e){ if (e.target === this) closeSend(); });
+$('#bugLayer').addEventListener('click', function(e){ if (e.target === this) closeBugDrawer(); });
 
 function openShare(f){
   var layer = $('#shareLayer');
@@ -6724,7 +7650,7 @@ function paintRecord(){
                   '<span class="c-dropdown-row-label">' + BUG_STATUS[k].label + '</span>' +
                   '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
               }).join(''), 'Status') +
-            recDropdown('recPrio', prioLabel(b.priority),
+            recDropdown('recPrio', b.priority ? prioLabel(b.priority) : 'Not set',
               PRIO_ORDER.map(function(k){
                 return '<div class="c-dropdown-row has-desc' + (b.priority === k ? ' selected' : '') + '" role="option" data-pr="' + k + '">' +
                   '<span class="c-dropdown-row-text"><span class="c-dropdown-row-label">' + prioPill(k) + '</span>' +
@@ -6746,8 +7672,20 @@ function paintRecord(){
                   '<span class="c-dropdown-row-label">' + esc(name) + '</span>' +
                   '<i class="ph ph-check c-dropdown-row-check" aria-hidden="true"></i></div>';
               }).join(''), 'Assigned to')
-          : recCell('Incident priority', prioPill(b.priority)) +
+          : recCell('Incident priority', b.priority
+              ? prioPill(b.priority)
+              : '<span class="muted">Not set yet — the team assigns this at triage</span>') +
             recCell('Assigned to', b.assignee ? esc(b.assignee) : '<span class="muted">Not assigned yet</span>')) +
+        /* Both sides read these two, neither side edits them: impact is the
+           reporter's judgement and the location is the page they were on,
+           and a team that could overwrite either would be editing the
+           evidence rather than triaging it. The description rides along as
+           a title so "Medium" can be checked against what it means. */
+        recCell('Operational impact', IMPACTS[b.impact]
+          ? '<span title="' + esc(IMPACTS[b.impact].desc) + '">' + esc(IMPACTS[b.impact].name) + '</span>'
+          : '<span class="muted">Not recorded</span>') +
+        recCell('Location', b.location
+          ? esc(b.location) : '<span class="muted">Not recorded</span>') +
         recCell('Affected services', '<span class="tag-row">' +
           (b.services.length
             ? b.services.map(function(sv){ return '<span class="c-badge c-badge-neutral">' + esc(sv) + '</span>'; }).join('')
@@ -6936,6 +7874,9 @@ document.addEventListener('keydown', function(e){
     if (confirmOpen()){ closeConfirm(); return; }
     if (publishedOpen()){ closePublished(); return; }
     if (sendOpen()){ closeSend(); return; }
+    /* Escape closes the bug drawer without losing anything: every field is
+       already in draftBug, and reopening restores it. */
+    if (bugDrawerOpen()){ closeBugDrawer(); return; }
     if (previewOpen()){ closePreview(); return; }
     if (shareOpen()){ closeShare(); return; }
     if (recordOpen()){ closeRecord(); return; }
@@ -7081,29 +8022,32 @@ document.addEventListener('click', closeUserMenu);
    ========================================================================== */
 var fab = $('#fab'), fabMenu = $('#fabMenu');
 
-/* The menu is placed from the button rather than pinned to the corner,
-   now that the button is no longer in one. Park it at a known origin,
-   read where that put it, and close the gap — the same measure-and-correct
-   the model switcher's menu uses, and it survives the button moving
-   again (a sidebar collapse, the bar's own morph, the mobile branch)
-   without a second set of numbers to keep in step. */
+/* The menu is placed from the button rather than pinned to the corner.
+   The button sits bottom-right but is positioned against .c-shell-main,
+   which is inset from the window — so the menu's own fixed right:24px is
+   measured from a different edge than the button's, and pinning both to
+   "24px" leaves them out of line by exactly the shell's inset. Park the
+   menu at a known origin, read where that put it, and close the gap — the
+   same measure-and-correct used elsewhere in this file, and it survives
+   the button moving again (a sidebar collapse, the mobile branch) without
+   a second set of numbers to keep in step.
+   Right edges are what get matched: a 268px panel hung off the left edge
+   of a 56px button in the right-hand corner runs off screen every time,
+   so aligning the far edges is the placement, not a correction to one. */
 function placeFabMenu(){
   var r = fab.getBoundingClientRect();
-  fabMenu.style.right = 'auto';
-  fabMenu.style.left = '0px';
+  fabMenu.style.left = 'auto';
+  fabMenu.style.right = '0px';
   fabMenu.style.bottom = '0px';
   var at = fabMenu.getBoundingClientRect();
-  var left = r.left - at.left;
-  fabMenu.style.left = left + 'px';
+  var right = at.right - r.right;
+  fabMenu.style.right = right + 'px';
   fabMenu.style.bottom = (at.bottom - (r.top - 8)) + 'px';
-  /* Left-aligned to the button is right until the button is near the right
-     edge — at phone widths a 268px panel hung off it runs past the screen.
-     Pulled back to the gutter rather than flipped: the menu still reads as
-     belonging to the button it is sitting on top of. */
+  /* The one case right-alignment cannot cover: a viewport narrower than the
+     panel plus its gutters. Pushed back off the left edge rather than
+     flipped — the menu still reads as belonging to the button under it. */
   var now = fabMenu.getBoundingClientRect(), edge = 16;
-  var over = now.right - (window.innerWidth - edge);
-  if (over > 0) fabMenu.style.left = (left - over) + 'px';
-  else if (now.left < edge) fabMenu.style.left = (left + (edge - now.left)) + 'px';
+  if (now.left < edge) fabMenu.style.right = (right - (edge - now.left)) + 'px';
 }
 function openFabMenu(){
   fabMenu.hidden = false;
@@ -7128,7 +8072,7 @@ document.addEventListener('click', function(){
 $$('[data-fab]').forEach(function(b){
   b.addEventListener('click', function(){
     fabMenu.hidden = true; fab.setAttribute('aria-expanded','false');
-    if (b.dataset.fab === 'bug'){ go('bugNew'); return; }
+    if (b.dataset.fab === 'bug'){ openBugDrawer(); return; }
     /* Share feedback hands over to the responder prototype, opened at the
        form itself rather than at the invitation — what the menu offers is
        answering a survey, and landing a step short of it makes the reader
@@ -7455,174 +8399,209 @@ function openPublished(f, reopenedFrom){
 /* ==========================================================================
    Prompt input bar — AI Native, Floating bar variant
    Everything the component owns is in components.css; what follows is the
-   behaviour its spec defines and no stylesheet can carry — the entrance,
-   the scroll-driven morph, the one-shot placeholder choreography and the
-   model switcher.
+   behaviour its spec defines and no stylesheet can carry — the entrance, the
+   running placeholder line and the model switcher.
+   There is no collapse here. The Floating bar's morph exists for screens
+   where the assistant is a standing offer you scroll past; the Dashboard is
+   the one screen where asking something IS the task, so it stays expanded
+   and the FAB docks beside it rather than the bar shrinking out of the way.
    ========================================================================== */
+var promptRevealed = false;
+var PROMPT_LINE = 'Ask me anything about your surveys';
+var ghostDone = false, ghostTick = null;
+
+/* Every number the FAB's placement needs is read off the component here and
+   written up onto the shell, because a custom property declared on the bar
+   cannot be seen by its parent. Measure, never hardcode: the toolbar wraps
+   at narrow widths and the card gets taller, and the pill's height is an
+   11px-padding one-off the component could retune.
+   offsetWidth/offsetHeight, never a client rect — this element transitions
+   `width` and `grid-template-rows`, so a rect returns whichever frame of the
+   420ms morph it happened to be asked on. */
+function measurePromptBar(){
+  var bar = $('#promptBar');
+  if (bar.hidden) return;
+  var w = getComputedStyle(bar).getPropertyValue('--prompt-bar-w').trim();
+  if (w) $('.c-shell-main').style.setProperty('--bar-w-collapsed', w);
+  var root = document.documentElement.style;
+  var h = bar.offsetHeight;
+  if (bar.classList.contains('is-collapsed')){
+    root.setProperty('--prompt-bar-pill-h', h + 'px');
+  } else {
+    root.setProperty('--prompt-bar-h', h + 'px');
+    /* The tallest pose, kept separately: the content reserve must not track
+       the live height. It is the scroll position that collapses the bar, so
+       a reserve that shrank on collapse would change the scroll height that
+       caused it — a loop, not just a jump. */
+    root.setProperty('--prompt-bar-rest-h', h + 'px');
+  }
+}
+
+/* Scroll collapse, on the component's own documented thresholds: collapse
+   once past 240, expand only back at 8. Asymmetric on purpose — a single
+   threshold flip-flops either side of the boundary, and the hold is the
+   point. */
+var PROMPT_COLLAPSE_AT = 240, PROMPT_EXPAND_AT = 8;
+function setPromptCollapsed(on){
+  var bar = $('#promptBar');
+  if (bar.classList.contains('is-collapsed') === on) return;
+  /* A half-typed sentence must never be what ends up shuttling into the
+     pill, so a collapse arriving mid-type lands the line outright. */
+  if (on) finishGhost();
+  bar.classList.toggle('is-collapsed', on);
+  /* Re-measure once the morph has landed, not at the moment the class
+     changes — the height is 420ms of transition away from its new value.
+     Until then the CSS is on its first-paint fallbacks, which are the same
+     numbers, so nothing visibly corrects. */
+  setTimeout(measurePromptBar, 460);
+}
+
+function syncPromptBar(){
+  var bar = $('#promptBar');
+  if (bar.hidden) return;
+  measurePromptBar();
+  if (promptRevealed) return;
+  promptRevealed = true;
+  /* The component's entrance is a transition, and a transition cannot run
+     from display:none — the class has to land on a frame where the bar is
+     already laid out, which is what the reflow buys. */
+  void bar.offsetWidth;
+  bar.classList.add('is-revealed');
+  startGhost();
+  /* .is-morphable only after the entrance has played, and it is what makes
+     collapse and expand take the same 420ms — without it the expansion
+     falls through to the entrance rule's slower duration-reveal and reads
+     as lag coming back. */
+  setTimeout(function(){ bar.classList.add('is-morphable'); }, 1750);
+}
+
+/* Leaving the route resets the pose. go() puts the scroll container back to
+   0 on every navigation, so a bar left collapsed would come back as a pill
+   above a page that is scrolled to the top — the one combination the
+   scroll rule above can never produce on its own. */
+function resetPromptBar(){
+  $('#promptBar').classList.remove('is-collapsed');
+}
+window.addEventListener('resize', measurePromptBar);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(measurePromptBar);
+
+/* The running line types itself in once and then holds. It is a span rather
+   than the input's own ::placeholder because the component masks and
+   measures it — see .c-prompt-bar-ghost. Under reduced motion the component
+   swaps to its static line in CSS, so the typing is simply not started. */
+function finishGhost(){
+  if (ghostDone) return;
+  ghostDone = true;
+  if (ghostTick){ clearInterval(ghostTick); ghostTick = null; }
+  var ghost = $('#promptGhost');
+  ghost.textContent = PROMPT_LINE;
+  ghost.classList.remove('is-caret-pulsing');
+}
+
+function startGhost(){
+  var ghost = $('#promptGhost');
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (still){ finishGhost(); return; }
+  /* Begins after the component's own 1150ms entrance delay plus its
+     550ms reveal, so the line is not already typing while the box is still
+     flying in. */
+  setTimeout(function(){
+    if (ghostDone) return;
+    ghost.classList.add('is-caret-pulsing');
+    var i = 0;
+    ghostTick = setInterval(function(){
+      ghost.textContent = PROMPT_LINE.slice(0, ++i);
+      if (i >= PROMPT_LINE.length){
+        clearInterval(ghostTick); ghostTick = null; ghostDone = true;
+        setTimeout(function(){ ghost.classList.remove('is-caret-pulsing'); }, 900);
+      }
+    }, 34);
+  }, 1750);
+  /* A guard, so a stalled interval cannot leave the line half-typed. */
+  setTimeout(finishGhost, 4200);
+}
+
 (function promptBar(){
-  var bar   = $('#promptBar');
   var field = $('#promptField');
   var input = $('#promptInput');
-  var ghost = $('#promptGhost');
 
-  /* The entrance is CSS: opacity + translateY on duration-reveal with a
-     1150ms delay baked into the component so it lands after the rest of
-     the canvas. These two numbers only say when that has finished. */
-  var REVEAL_DELAY = 1150, REVEAL_DUR = 550;
-  /* The resting line, stated rather than typed. The component's own
-     placeholder choreography types into the expanded card and is explicit
-     that the pill must only ever carry finished text — an animation with
-     nowhere to travel reads as jitter. Collapsed at rest means there is no
-     expanded card to type in, so the line simply is what it is.
-     It is also a shorter line than the component's own. That default
-     measures 346px against this pill's 334px track, which is why the
-     spec masks both ends — a soften for a pose you were passing through.
-     Made permanent, a first character permanently half-cut reads as a
-     defect, so the line is one that fits: 271px, clear of the 10px mask
-     at either end. Same move the component itself makes under reduced
-     motion, where it swaps the running line for a short static label. */
-  var RESTING = 'Ask me anything about your surveys';
-  ghost.textContent = RESTING;
+  /* Listen on the scroll container, not window — .c-shell-content is the
+     only thing that scrolls in this shell, and window never fires. Throttled
+     through requestAnimationFrame and passive, so the handler can never
+     delay the scroll it is watching. */
+  (function(){
+    var sc = $('#shellContent'), bar = $('#promptBar'), ticking = false;
+    sc.addEventListener('scroll', function(){
+      if (bar.hidden || ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        ticking = false;
+        var y = sc.scrollTop;
+        if (y > PROMPT_COLLAPSE_AT) setPromptCollapsed(true);
+        else if (y <= PROMPT_EXPAND_AT) setPromptCollapsed(false);
+      });
+    }, { passive:true });
+  })();
 
-  /* ---- geometry ------------------------------------------------------
-     Measured, never hardcoded — the component's own instruction, and the
-     reason is visible here: the bar's height depends on an icon font that
-     loads after first paint. offsetHeight rather than a client rect,
-     because this element transitions width and a rect returns whichever
-     frame of the morph you happened to ask on. */
-  function syncGeometry(){
-    var h = bar.offsetHeight;
-    document.documentElement.style.setProperty('--prompt-bar-h', h + 'px');
-    /* The page's bottom reserve tracks the resting pose only. Opening the
-       composer is a deliberate act that lasts a few seconds; re-reserving
-       for the taller card would relayout the scroll region underneath the
-       reader every time they clicked into it. */
-    if (bar.classList.contains('is-collapsed'))
-      document.documentElement.style.setProperty('--prompt-bar-rest-h', h + 'px');
-  }
-  window.addEventListener('resize', syncGeometry);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncGeometry);
-  bar.addEventListener('transitionend', function(e){
-    if (e.propertyName === 'width' || e.propertyName === 'grid-template-rows') syncGeometry();
-  });
-
-  /* ---- entrance ------------------------------------------------------ */
-  requestAnimationFrame(function(){ bar.classList.add('is-revealed'); });
-  syncGeometry();
-  setTimeout(function(){
-    /* .is-morphable only after the entrance has played, or opening and
-       closing inherit the slower entrance timing and read as lag. */
-    bar.classList.add('is-morphable');
-    syncGeometry();
-  }, REVEAL_DELAY + REVEAL_DUR);
-
-  /* ---- open and close -------------------------------------------------
-     The pill is the resting pose, so something has to be able to reach the
-     second row: the model switcher, Send and the three attach controls all
-     live there, and a control you cannot get to is not a control. Focus
-     opens it, and it closes again when focus leaves an empty field — the
-     same contract a search field with an expanding tray uses. There is no
-     scroll listener any more: the component's 240/8 collapse exists to get
-     a full card out of the reader's way, and at rest there is no card. */
-  function openBar(){
-    if (!bar.classList.contains('is-collapsed')) return;
-    bar.classList.remove('is-collapsed');
-    syncGeometry();
-  }
-  function closeBar(){
-    if (bar.classList.contains('is-collapsed')) return;
-    bar.classList.add('is-collapsed');
-    syncGeometry();
-  }
-  /* mousedown, not click: preventDefault stops the browser dropping the
-     caret wherever on the pill the pointer landed, and the focus below
-     puts it in the field instead. Only while collapsed — once open, a
-     click on a toolbar button has to reach that button. */
-  bar.addEventListener('mousedown', function(e){
-    if (!bar.classList.contains('is-collapsed')) return;
-    e.preventDefault();
-    openBar();
-    input.focus();
-  });
-  bar.addEventListener('focusin', openBar);
-  bar.addEventListener('focusout', function(e){
-    /* relatedTarget is where focus is going. Moving between the input and
-       the toolbar is still inside the bar, and a field with something in
-       it stays open — closing it would hide the Send button for the one
-       person who has something to send. */
-    if (bar.contains(e.relatedTarget)) return;
-    if (input.value.trim()) return;
-    closeBar();
-  });
-
-  /* ---- typing --------------------------------------------------------- */
+  /* The ghost is the hint, so it goes the moment there is real text to read
+     — two lines of grey in the same box is the one thing this arrangement
+     must never show. */
   input.addEventListener('input', function(){
-    field.classList.toggle('is-typing', input.value.trim() !== '');
+    field.classList.toggle('is-typing', !!input.value.length);
   });
 
-  /* ---- send -----------------------------------------------------------
-     The component's documented target is Chat window, which this prototype
-     does not have — so rather than a dead control, the send path says so.
-     Enter is preventDefault'd for the same reason the spec gives: the bar
-     is not in a form and a stray submit would reload the page. */
   function ask(){
-    if (!input.value.trim()){ input.focus(); return; }
-    toast('Ask Collabrium is not wired up in this prototype');
+    var q = input.value.trim();
+    if (!q) { input.focus(); return; }
+    toast('Asked: “' + q + '”');
+    input.value = '';
+    field.classList.remove('is-typing');
+    input.focus();
   }
+  $('#promptSend').addEventListener('click', ask);
   input.addEventListener('keydown', function(e){
     if (e.key === 'Enter'){ e.preventDefault(); ask(); }
-    /* Escape out of an empty composer puts the pill back, the same way it
-       backs out of every other open thing on this page. With text in it,
-       Escape is left alone — losing a typed question to a stray key is a
-       worse outcome than a bar that stays open. */
-    if (e.key === 'Escape' && !input.value.trim()){ input.blur(); closeBar(); }
   });
-  $('#promptSend').addEventListener('click', ask);
-  $$('[data-prompt-todo]', bar).forEach(function(b){
-    b.addEventListener('click', function(){
-      toast(b.getAttribute('aria-label') + ' is not wired up in this prototype');
-    });
+  $$('[data-prompt-todo]').forEach(function(b){
+    b.addEventListener('click', function(){ toast('Not part of this prototype'); });
   });
 
-  /* ---- model switcher -------------------------------------------------
-     The menu is position:fixed and placed from the trigger's rect rather
-     than absolutely positioned, because the bar's surface clips its own
-     overflow during the morph — the same mechanic preview.html uses. */
+  /* ---- Model switcher.
+     The menu is position:fixed because .c-prompt-bar-more clips it
+     otherwise, and fixed boxes are placed from the viewport — except that
+     .c-prompt-bar carries a transform (its own -50% centring), which makes
+     it the containing block for any fixed descendant. Placing from viewport
+     coordinates therefore lands the menu a full half-bar-width off. So:
+     park it at a known origin, read where that actually put it, and correct
+     by the difference. The same measure-then-correct the FAB menu uses, and
+     it needs no knowledge of which ancestor is transformed. */
   function closeModelMenu(){
-    $$('.c-prompt-bar-model-menu.is-open', bar).forEach(function(m){
+    $$('.c-prompt-bar-model-menu.is-open').forEach(function(m){
       m.classList.remove('is-open');
       var t = $('.js-model-trigger', m.closest('.c-prompt-bar-model'));
       if (t) t.setAttribute('aria-expanded', 'false');
     });
   }
   document.addEventListener('click', function(e){
-    var trigger = e.target.closest('.js-model-trigger');
+    var trigger = e.target.closest && e.target.closest('.js-model-trigger');
     if (trigger){
+      e.stopPropagation();
       var menu = $('.js-model-menu', trigger.closest('.c-prompt-bar-model'));
-      var wasOpen = menu.classList.contains('is-open');
+      if (menu.classList.contains('is-open')){ closeModelMenu(); return; }
       closeModelMenu();
-      if (!wasOpen){
-        /* Placed by measuring, not by assuming the viewport is the frame
-           of reference. .c-prompt-bar carries a transform — the -50% that
-           centres it — and a transformed ancestor becomes the containing
-           block for a position:fixed descendant, so viewport coordinates
-           land this menu a few hundred pixels off its trigger. Below 640px
-           the component drops that transform and the viewport is the frame
-           again. Rather than branch on which, park the menu in a known
-           corner, read where that actually put it, and close the gap. */
-        var r = trigger.getBoundingClientRect();
-        menu.style.right = '0px';
-        menu.style.bottom = '0px';
-        menu.classList.add('is-open');
-        var at = menu.getBoundingClientRect();
-        menu.style.right  = (at.right - r.right) + 'px';
-        menu.style.bottom = (at.bottom - (r.top - 8)) + 'px';
-        trigger.setAttribute('aria-expanded', 'true');
-      }
+      var r = trigger.getBoundingClientRect();
+      menu.style.right = '0px';
+      menu.style.bottom = '0px';
+      menu.classList.add('is-open');
+      var at = menu.getBoundingClientRect();
+      menu.style.right  = (at.right - r.right) + 'px';
+      menu.style.bottom = (at.bottom - (r.top - 8)) + 'px';
+      trigger.setAttribute('aria-expanded', 'true');
       return;
     }
-    var option = e.target.closest('.js-model-option');
+    var option = e.target.closest && e.target.closest('.js-model-option');
     if (option){
+      e.stopPropagation();
       var wrap = option.closest('.c-prompt-bar-model');
       $$('.js-model-option', wrap).forEach(function(o){
         o.classList.toggle('is-active', o === option);
@@ -7633,13 +8612,13 @@ function openPublished(f, reopenedFrom){
       $('.js-model-trigger', wrap).focus();
       return;
     }
-    if (!e.target.closest('.c-prompt-bar-model')) closeModelMenu();
+    if (!(e.target.closest && e.target.closest('.c-prompt-bar-model'))) closeModelMenu();
   });
-  /* Its own Escape rather than a link into the page's modal chain: the
-     menu can only be open when nothing else is, since every layer that
-     owns that chain covers this bar. */
+  /* Its own Escape rather than a link into the page's modal chain: this menu
+     can only be open when nothing else is, since every layer that owns that
+     chain covers the bar. */
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && $('.c-prompt-bar-model-menu.is-open', bar)) closeModelMenu();
+    if (e.key === 'Escape' && $('.c-prompt-bar-model-menu.is-open')) closeModelMenu();
   });
 })();
 
