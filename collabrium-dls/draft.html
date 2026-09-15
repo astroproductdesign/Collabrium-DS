@@ -38,6 +38,18 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
 .tbl{width:100%; border-collapse:collapse; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); margin-bottom:var(--spacing-16);}
 .tbl th, .tbl td{text-align:left; vertical-align:top; padding:var(--spacing-8) var(--spacing-12); border-bottom:1px solid var(--color-neutral-3);}
 .tbl th{font-weight:700; color:var(--color-neutral-9); white-space:nowrap;}
+/* Header cells hold their line on a wide screen, where nowrap keeps the
+   column headings scannable — but nowrap plus a four-column table is what
+   pushed this page 51px wider than a 420px viewport, and a page that scrolls
+   sideways is a page whose own rule about wide content has been broken.
+   table-layout:fixed is the guarantee, not the nowrap release: it forces the
+   columns into the width actually available instead of letting content set
+   it, so no table added later can reintroduce this. */
+@media (max-width:760px){
+  .tbl{table-layout:fixed;}
+  .tbl th{white-space:normal;}
+  .tbl th, .tbl td{overflow-wrap:anywhere;}
+}
 .tbl td{color:var(--color-neutral-7);}
 .tbl td code, .sect code{font-family:var(--font-primary); font-weight:700; color:var(--color-neutral-9); background:var(--color-neutral-2); border-radius:6px; padding:1px 5px; font-size:.92em;}
 .pre{margin:0 0 var(--spacing-16); padding:var(--spacing-16); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow-x:auto; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; line-height:19px; color:var(--color-neutral-7); white-space:pre;}
@@ -114,15 +126,41 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
    and the reader is comparing the behaviour, not the placement. */
 .fmt-unit{width:100%; border-radius:4px; background:var(--color-obsidian); color:var(--color-neutral-1); overflow:hidden; position:relative;}
 
-/* ---- 2. Select checkbox ---------------------------------------------------
-   Card Selectable's own recipe verbatim — same 18px .c-checkbox-box, same
-   spacing-16 inset, same hover-reveal, same Selected persistence. The one
-   addition is the Neutral-1 backing plate: this checkbox sits over a preview
-   rather than over the card's own white padding, and an unbacked 1px Neutral-3
-   outline is not reliably visible against an arbitrary mock. */
-.c-format-card .c-card-select{z-index:3;}
-.c-format-card .c-card-select .c-checkbox-box{background:var(--color-neutral-1); box-shadow:var(--shadow-1);}
-.c-format-card .c-card-select .c-checkbox-box.on{background:var(--color-obsidian);}
+/* ---- 2. Compare toggle ----------------------------------------------------
+   A real Button, not a bespoke control: .c-btn.c-btn-icon.c-btn-sm gives the
+   32x32 box, Secondary gives the resting white/Neutral-3/shadow-1 chip and
+   Primary gives the Obsidian fill — both variants used verbatim and simply
+   swapped on state, so the two poses are the system's own two button fills
+   rather than a new pair.
+   The circle is the one override: .c-btn-icon is radius-sm by default, and
+   radius-pill here follows the precedent .c-prompt-bar-mark already sets for
+   a round icon button, rather than introducing a third radius idea.
+   Top-LEFT, which is a deliberate departure from Card Selectable's documented
+   top-right — see the Open questions. The short version is that the mock's ad
+   rail is top-right, so the system's position puts this control on top of the
+   one thing the preview exists to show; measured, it clipped the unit on
+   three of the four formats. */
+.c-format-compare{position:absolute; top:var(--spacing-16); left:var(--spacing-16); z-index:3;
+  border-radius:var(--radius-pill);
+  opacity:0; transition:opacity var(--duration-fast) var(--ease-standard),
+                        background-color var(--duration-fast) var(--ease-standard);}
+/* Revealed on hover like Card Selectable's checkbox — but also whenever it is
+   ON, because a state that persists has to be visible when the pointer is
+   somewhere else, and whenever it has focus, or it would be a control the
+   keyboard can reach and not see. */
+.c-format-card:hover .c-format-compare,
+.c-format-card:focus-within .c-format-compare,
+.c-format-compare:focus-visible,
+.c-format-compare.is-on{opacity:1;}
+.c-format-compare i{font-size:var(--icon-sm);}
+/* Touch has no hover, so the control cannot be hover-revealed there, and a
+   32px target is under the 44px floor. The hit area grows without the chip
+   growing — the same ::before technique this system already uses to give a
+   26px segmented-control pill a 44px target. */
+@media (pointer:coarse){
+  .c-format-compare{opacity:1;}
+  .c-format-compare::before{content:""; position:absolute; top:50%; left:50%; width:44px; height:44px; transform:translate(-50%,-50%);}
+}
 
 /* ---- 3. Play hint ---------------------------------------------------------
    Coarse pointers only. On a touch device there is no hover, so the preview
@@ -140,12 +178,18 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
 }
 
 /* ---- 4. Title row ---------------------------------------------------------
-   The title is a real link, and it is the card's only primary tab stop. The
-   spacing-24 right reserve is Card Selectable's own rule, moved from its h5
-   onto this row's h4 — the checkbox's footprint has to be held at rest too,
-   or the title would reflow the instant it fades in. */
-.c-format-titlerow{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-8);}
-.c-format-titlerow h4{margin:0; min-width:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+   Full card width, title hard left and family tag hard right. There is no
+   right-hand reserve any more: Card Selectable's rule exists because its
+   checkbox sits in the card's top-right corner and its footprint has to be
+   held even at rest, and this card's control is neither in that corner nor
+   in this row. Carrying the reserve over would have been cargo-cult — 24px
+   of permanent dead space held for something that is not there.
+   The title takes the slack (flex:1) so the tag is pinned to the right edge
+   whatever the name's length, rather than floating in from it; min-width:0
+   is what lets a long name actually shrink inside a flex item instead of
+   forcing the row wider than the card. */
+.c-format-titlerow{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-8); width:100%;}
+.c-format-titlerow h4{flex:1 1 auto; margin:0; min-width:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
 .c-format-open{color:inherit; text-decoration:none;}
 .c-format-open:hover{text-decoration:underline; text-underline-offset:3px;}
 .c-format-open:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:3px; border-radius:4px;}
@@ -155,7 +199,20 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
    clicks. */
 .c-format-open::after{content:""; position:absolute; inset:0; z-index:1;}
 .c-format-card{position:relative;}
-.c-format-titlerow .c-tag{flex:none; margin-right:var(--spacing-24);}
+.c-format-titlerow .c-tag{flex:0 0 auto;}
+
+/* ---- Tag, Purple ----------------------------------------------------------
+   The sixth family needs a sixth colour, and the system has the colour but not
+   the Tag: --color-purple is a real token, documented under Secondary accents
+   as "AI and premium feature UI, SECONDARY TAGS, chart series 5" — so a purple
+   tag is a sanctioned use. What does not exist is a --color-purple-bg tint,
+   because purple is not an element and the -bg scale is elemental.
+   Derived with color-mix at the same 8% the elemental -bg tints use, rather
+   than picking a hex — the same technique Card's own icon-chip already uses
+   for its one-off 12%. This belongs in components.css if the mapping is
+   adopted; it is local here because the system files are not being touched. */
+.c-tag-purple{background:color-mix(in srgb, var(--color-purple) 8%, #fff); color:var(--color-purple);}
+.c-tag-purple .dot{background:var(--color-purple);}
 
 /* ---- 5. Rest / spec swap --------------------------------------------------
    Both halves are always in the DOM and always in the accessibility tree —
@@ -163,20 +220,67 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
    spec; a reader with a pointer gets whichever one they asked for.
    Grid-stacked rather than absolutely positioned, so the card's height is the
    taller of the two at rest and never changes on hover. */
-.c-format-swap{display:grid; min-height:0;}
-.c-format-swap > *{grid-area:1/1; transition:opacity var(--duration-base) var(--ease-standard);}
+/* flex:1 makes this block take the card's remaining height rather than hug
+   its text, so the funnel line and the spec's last row sit on the card's
+   bottom edge instead of leaving a ragged gap under them — and, because Card
+   grids stretch every card to the tallest in the row, that bottom edge is
+   the same line across the whole row. */
+.c-format-swap{display:grid; min-height:0; flex:1 1 auto;}
+.c-format-swap > *{grid-area:1/1; min-height:0; transition:opacity var(--duration-base) var(--ease-standard);}
 .c-format-spec{opacity:0;}
 .c-format-card:hover .c-format-rest,
 .c-format-card:focus-within .c-format-rest{opacity:0;}
 .c-format-card:hover .c-format-spec,
 .c-format-card:focus-within .c-format-spec{opacity:1;}
-.c-format-rest{display:flex; flex-direction:column; gap:var(--spacing-8);}
-.c-format-tagline{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
-.c-format-funnel{margin:0; font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
-.c-format-spec{margin:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
-.c-format-spec > div{display:flex; flex-direction:column; gap:1px;}
-.c-format-spec dt{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
-.c-format-spec dd{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
+/* margin-top:auto on the funnel line is what actually pins it: the
+   description stays under the title where it belongs and the eyebrow drops
+   to the floor, with the slack between them rather than below both. */
+.c-format-rest{display:flex; flex-direction:column; gap:var(--spacing-8); height:100%;}
+/* Both of these are scoped through .c-format-card for one reason, and it is
+   not style: the base Card already ships `.c-card p{margin:0; font-size:
+   body2; color:neutral-5}` at (0,1,1), which beats a bare `.c-format-funnel`
+   at (0,1,0). Unscoped, the eyebrow silently rendered at 14px instead of
+   caption AND lost its `margin-top:auto`, which is what was holding it to the
+   card's floor — two symptoms, one cause, and neither raises an error.
+   Any Card variant that puts a <p> inside the card has to clear this bar. */
+.c-format-card .c-format-tagline{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+/* Caption token, set in Title Case — the copy's own capitalisation, not a
+   transform. The uppercase went because the funnel stages are proper names
+   of stages ("Awareness", "Consideration"), and setting a proper name in
+   caps is shouting a label that was already legible.
+   The letter-spacing went with it, and that is not incidental: eyebrow
+   tracking exists to open up capitals, and applied to lower case it just
+   loosens the word. Nothing here is a transform any more, so what the data
+   says is what renders — which also means a stage name with an odd
+   capitalisation survives instead of being flattened. */
+.c-format-card .c-format-funnel{margin:0; margin-top:auto; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+/* Two columns, one row per field — label and value on the same line.
+   The grid lives on the <dl> itself rather than on a wrapper per row, and
+   that is the whole trick: three separate rows would each size their own
+   label column and the values would start at three different x positions.
+   One grid means one `auto` column, sized to the longest label, so the
+   values line up into a column you can read straight down.
+   `auto` rather than a fixed width because there is no 76px token and there
+   should not be one — the column is as wide as "Benchmark" happens to be,
+   in whatever face and size the label is currently set in.
+   align-content:space-between keeps the earlier behaviour: first row under
+   the title, last row on the same floor the funnel line uses, so the two
+   halves of the swap do not jump against each other as they cross-fade. */
+.c-format-spec{margin:0; display:grid; grid-template-columns:auto minmax(0, 1fr);
+  column-gap:var(--spacing-12); row-gap:var(--spacing-8);
+  align-content:space-between; align-items:baseline; height:100%;}
+/* Labels and values now carry DIFFERENT jobs in the type ramp, which is what
+   the swap needed: the label is caption (12/16/400) in Title Case — the copy's
+   own capitalisation, no transform, matching the funnel line below it — and
+   the value is label2 (13/18/700), the "footnote strong" step. The label gets
+   quieter and the value gets heavier, so the column you read down a row of
+   cards is the answers, not the questions.
+   Dropping the uppercase here also closes something flagged last round: the
+   spec's last row lands in the same spot the funnel line occupies, so caps on
+   one and Title Case on the other put two treatments in one position as the
+   two halves cross-faded. */
+.c-format-spec dt{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-format-spec dd{margin:0; font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight); letter-spacing:var(--text-label2-tracking); color:var(--color-neutral-9);}
 /* Touch has no hover to swap with, so it stops being a swap and becomes two
    stacked blocks. A control whose second half is only reachable by hovering
    is a control with no second half on a phone. */
@@ -239,13 +343,100 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
 .c-format-stage[data-preview="sticky"] .fmt-cols{animation:fmt-scroll 3.4s var(--ease-flow) infinite; animation-play-state:var(--play);}
 @keyframes fmt-scroll{0%,8%{transform:translateY(0);} 55%,78%{transform:translateY(-26%);} 100%{transform:translateY(0);}}
 
+/* Spin — Gamification. Fire owns this family, and ease-flare is Fire's own
+   curve: pulse outward, then settle. A wheel that eases out is the whole
+   gesture; one that stops dead reads as a broken GIF. */
+.fmt-spin{aspect-ratio:1/1; border-radius:var(--radius-pill); background:var(--color-obsidian); display:flex; align-items:center; justify-content:center;}
+.fmt-spin i{position:relative; width:74%; height:74%; border-radius:var(--radius-pill);
+  background:conic-gradient(var(--color-orange) 0 25%, var(--color-neutral-1) 0 50%, var(--color-orange) 0 75%, var(--color-neutral-1) 0);
+  animation:fmt-spin 3.4s var(--ease-flare) infinite; animation-play-state:var(--play);}
+@keyframes fmt-spin{0%,10%{transform:rotate(0);} 70%,100%{transform:rotate(540deg);}}
+
+/* Social — an in-feed unit, drawn in the COPY column rather than the rail,
+   because inheriting the surrounding post layout is the entire format. Earth
+   owns this family and ease-settle is Earth's curve: anchored arrival. */
+.fmt-native{flex:none; display:flex; flex-direction:column; gap:3px; padding:4px; border-radius:4px;
+  background:var(--color-earth-bg); border:1px solid var(--color-green);
+  /* Rests LANDED, not pre-arrival. Frame one of a loop is what a paused
+     preview shows, and an in-feed unit that has not arrived yet is an empty
+     gap in a wireframe — the second time this draft has had to re-stage a
+     loop so its resting frame says something (see the sticky footer). */
+  animation:fmt-native 3.4s var(--ease-settle) infinite; animation-play-state:var(--play);}
+.fmt-native b{height:3px; border-radius:var(--radius-pill); background:var(--color-green); opacity:.5;}
+.fmt-native b.t{width:34%; opacity:.9;}
+.fmt-native i{height:16px; border-radius:2px; background:var(--color-green); opacity:.25;}
+@keyframes fmt-native{
+  0%,10%  {opacity:1; transform:translateY(0);}     /* landed — the resting frame */
+  26%,34% {opacity:0; transform:translateY(6px);}   /* the reader scrolls it away */
+  62%,100%{opacity:1; transform:translateY(0);}     /* the next one settles in */
+}
+
+/* Calculator — the one preview with a READOUT, and the reason it needed a
+   different technique: the fact being demonstrated is that a number changes
+   when you move a slider, and a number cannot be tweened in CSS. So the value
+   is a two-line strip inside a one-line window, translated — the readout
+   changes without a script, which keeps every preview on the same single
+   --play switch instead of one of them needing its own timer.
+   Water owns Interactive and ease-flow is Water's curve: a slider drag is a
+   continuous gesture, not an arrival. */
+.fmt-calc{display:flex; flex-direction:column; gap:4px; padding:5px;}
+.fmt-calc em{font-style:normal; font-size:6px; font-weight:700; color:var(--color-neutral-1); opacity:.8;}
+.fmt-calc-track{position:relative; height:3px; border-radius:var(--radius-pill); background:var(--color-neutral-1); opacity:.28;}
+.fmt-calc-track i{position:absolute; top:50%; width:6px; height:6px; margin-top:-3px; border-radius:var(--radius-pill); background:var(--color-navy); opacity:1;
+  animation:fmt-calc-a 3.4s var(--ease-flow) infinite; animation-play-state:var(--play);}
+.fmt-calc-track.s2 i{animation-name:fmt-calc-b;}
+@keyframes fmt-calc-a{0%,12%{left:6%;} 48%,100%{left:62%;}}
+@keyframes fmt-calc-b{0%,20%{left:18%;} 56%,100%{left:78%;}}
+/* The window is one line tall and the strip is two, so translating it by half
+   its own height swaps the figure with nothing overlapping and no reflow. */
+.fmt-calc-out{display:flex; align-items:center; justify-content:space-between; gap:4px; margin-top:1px;}
+.fmt-calc-win{height:9px; overflow:hidden;}
+.fmt-calc-val{display:flex; flex-direction:column; animation:fmt-calc-v 3.4s var(--ease-flow) infinite; animation-play-state:var(--play);}
+.fmt-calc-val b{height:9px; line-height:9px; font-size:7px; font-weight:700; color:var(--color-neutral-1); white-space:nowrap;}
+@keyframes fmt-calc-v{0%,34%{transform:translateY(0);} 52%,100%{transform:translateY(-50%);}}
+.fmt-calc-cta{align-self:flex-start; padding:1px 5px; border-radius:var(--radius-pill); background:var(--color-navy); color:var(--color-neutral-1); font-size:6px; font-weight:700;}
+
+/* Interscroller — the unit is FIXED and the window moves over it, which is
+   the inverse of every other preview here and the whole reason the format
+   exists. Drawn in the copy column rather than the rail because an
+   interscroller is a hole in the article, not a slot beside it: the panel
+   sits behind the page and the reader scrolls a window across it.
+   Gold owns High impact and ease-precise is Gold's curve — a clean
+   geometric wipe, which is exactly the gesture. */
+.fmt-scroll{position:relative; flex:none; height:30px; border-radius:4px; overflow:hidden; background:var(--color-obsidian);}
+.fmt-scroll i{position:absolute; left:0; right:0; top:0; height:320%;
+  /* Hard stops, not a gradient. A gradient between amber and obsidian mixes
+     to brown through its whole middle, which at 30px tall reads as a smear
+     rather than as artwork behind a hole. Three flat bands read as a poster:
+     ground, subject, ground — and the window travelling across them is the
+     only thing that says the canvas is bigger than the opening. */
+  background:linear-gradient(180deg,
+    var(--color-amber)   0 22%,
+    var(--color-obsidian) 22% 46%,
+    var(--color-amber)   46% 100%);
+  animation:fmt-scroll 3.4s var(--ease-precise) infinite; animation-play-state:var(--play);}
+.fmt-scroll b{position:absolute; left:5px; right:5px; bottom:4px; height:3px; border-radius:var(--radius-pill); background:var(--color-neutral-1); opacity:.7;}
+/* Rest shows the ground with the subject band just entering the bottom of
+   the window — enough to say there is more artwork below the opening. A rest
+   frame of flat colour could be any format at all. */
+@keyframes fmt-scroll{0%,10%{transform:translateY(0);} 58%,100%{transform:translateY(-62%);}}
+
 /* Reduced motion. The preview does not simply freeze on frame one — a still
    of the resting pose is the one frame that says nothing about the format.
    Every unit is pinned to its *revealed* pose instead, so a reader who has
    asked for no motion still learns what the format does. */
 @media (prefers-reduced-motion:reduce){
-  .fmt-flip-inner, .fmt-expand, .fmt-expand i, .fmt-video b,
+  .fmt-flip-inner, .fmt-expand, .fmt-expand i, .fmt-video b, .fmt-spin i, .fmt-native,
+  .fmt-calc-track i, .fmt-calc-val, .fmt-scroll i,
   .c-format-stage[data-preview="sticky"] .fmt-cols{animation:none;}
+  .fmt-scroll i{transform:translateY(-62%);}
+  /* Pinned to the answered pose: thumbs moved, figure recalculated. A
+     calculator resting on its starting number shows the format's furniture
+     but not its point. */
+  .fmt-calc-track i{left:62%;} .fmt-calc-track.s2 i{left:78%;}
+  .fmt-calc-val{transform:translateY(-50%);}
+  /* .fmt-native needs no override any more — its static state is the landed
+     pose, so removing the animation already leaves it correct. */
   .fmt-flip-inner{transform:rotateY(180deg);}
   .fmt-expand{height:86px;}
   .fmt-expand i{opacity:1;}
@@ -265,7 +456,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
    illustration forces both visible. This is diagram furniture, and it is
    deliberately scoped to .anat-card so it can never leak into the real
    component above. */
-.anat-card .c-card-select{opacity:1;}
+.anat-card .c-format-compare{opacity:1;}
 .anat-card .c-format-hint{display:inline-flex; position:absolute; left:var(--spacing-8); bottom:var(--spacing-8); z-index:2;
   align-items:center; gap:4px; height:24px; padding:0 10px; border-radius:var(--radius-pill);
   background:var(--color-neutral-1); box-shadow:var(--shadow-1);
@@ -291,7 +482,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
     <ul>
       <li>The reader is <b>choosing between formats</b> they cannot be assumed to know by name.</li>
       <li>Behaviour over time is the distinguishing feature — expand, flip, fill, stick.</li>
-      <li>A separate control on the page acts on a multi-card selection (a compare tray, an “Add 3 to brief” action). That is what earns the checkbox — see the note under Anatomy 2.</li>
+      <li>A separate control on the page collects across cards — a compare tray, an “Add 3 to brief” action. That is what earns the compare toggle; without somewhere for the additions to go, it is a dead control.</li>
     </ul>
 
     <h3>Don't use it when</h3>
@@ -312,7 +503,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
   <!-- ===================== LIVE ===================== -->
   <section class="sect">
     <h2>The component</h2>
-    <p>Hover or tab into a card to play its preview and swap the tagline for the spec. Tick a card to select it — selection is persistent, and the toolbar count below is the bulk-action context that justifies the checkbox existing at all.</p>
+    <p>Hover or tab into a card to play its preview and swap the tagline for the spec. Press <b>+</b> in the top-left corner to add a format to the compare set — the chip fills Obsidian and its glyph becomes a check, and the count below is the tray that justifies the control existing at all. Press it again to remove.</p>
 
     <div class="note" style="align-items:center">
       <i class="ph ph-scales" aria-hidden="true"></i>
@@ -334,10 +525,10 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
           <thead><tr><th>#</th><th>Part</th><th>Spec</th></tr></thead>
           <tbody>
             <tr><td>1</td><td><b>Preview stage</b><br><code>.c-format-stage</code></td><td><b>New.</b> 16:10, full-bleed to the card's inner edge, <code>canvas-warm</code> ground under a Neutral-1 page mock at <code>radius-sm</code> + <code>shadow-1</code>. Bleeds rather than insets because an inset stage needs a nested radius of <code>radius-lg − spacing-16 = 4px</code>, and 4px is not a token — bleeding lets it take the card's own <code>radius-lg</code> and invent no new shape. Decorative: <code>aria-hidden="true"</code>, and the format's name and behaviour are carried in text below it.</td></tr>
-            <tr><td>2</td><td><b>Select checkbox</b><br><code>.c-card-select</code></td><td><b>Existing, verbatim.</b> Card Selectable's own recipe — 18px <code>.c-checkbox-box</code>, <code>spacing-16</code> inset, hidden at rest, revealed on hover, persistent once checked. One addition: a Neutral-1 backing plate, because here it sits over a preview rather than over the card's own white padding, and a 1px Neutral-3 outline is not reliably visible against an arbitrary mock.</td></tr>
+            <tr><td>2</td><td><b>Compare toggle</b><br><code>.c-format-compare</code></td><td><b>Existing components, new arrangement.</b> A real <a href="DESIGN-SYSTEM.md">Button</a> — <code>.c-btn.c-btn-icon.c-btn-sm</code> for the 32×32 box, <b>Secondary</b> for the resting white chip and <b>Primary</b> for the Obsidian fill, the two variants simply swapped on state so both poses are the system's own. Circle is the single override, following the precedent <code>.c-prompt-bar-mark</code> already sets for a round icon button. <code>ph-plus</code> → <code>ph-check</code>, both <b>Tier 1, Regular</b>. Top-left, <code>spacing-16</code> inset, revealed on hover, on focus, and whenever it is on. Measured: check on Obsidian <b>14.14:1</b>, plus on white <b>20.03:1</b>.</td></tr>
             <tr><td>3</td><td><b>Play hint</b><br><code>.c-format-hint</code></td><td><b>New, and conditional.</b> Renders only under <code>@media (pointer:coarse)</code>. A touch device has no hover, so without it the preview simply never moves and the card reads as broken rather than as resting. On a fine pointer it is suppressed — a label telling you to do the thing you are already doing is noise.</td></tr>
-            <tr><td>4</td><td><b>Title row</b><br><code>.c-format-titlerow</code></td><td><b>New container, existing contents.</b> Card's own h5 type token for the title, and the real <a href="#tag-note">Tag</a> component for the family. The title is an <code>&lt;a&gt;</code> with a stretched <code>::after</code> covering the card — that is what makes the whole card clickable, without a <code>role="button"</code> wrapper. <code>spacing-24</code> right reserve on the tag, held at rest as well as on hover, per Card Selectable's own rule.</td></tr>
-            <tr><td>5</td><td><b>Rest / spec swap</b><br><code>.c-format-swap</code></td><td><b>New.</b> Two blocks stacked in one grid cell, cross-fading on <code>duration-base</code>. At rest: tagline (body2/Neutral-5) + funnel stage (label3 eyebrow). On hover or focus-within: Objective, Sizes, Benchmark as a <code>&lt;dl&gt;</code>. Both halves stay in the DOM and in the accessibility tree — only the paint swaps. Under <code>pointer:coarse</code> it stops being a swap and becomes two stacked blocks.</td></tr>
+            <tr><td>4</td><td><b>Title row</b><br><code>.c-format-titlerow</code></td><td><b>New container, existing contents.</b> Card's own h5 type token for the title, and the real <a href="#tag-note">Tag</a> component for the family. The title is an <code>&lt;a&gt;</code> with a stretched <code>::after</code> covering the card — that is what makes the whole card clickable, without a <code>role="button"</code> wrapper. The row fills the card's full content width: title hard left, tag hard right, title taking the slack so the tag pins to the edge whatever the name's length.</td></tr>
+            <tr><td>5</td><td><b>Rest / spec swap</b><br><code>.c-format-swap</code></td><td><b>New.</b> Two blocks stacked in one grid cell, cross-fading on <code>duration-base</code>. At rest: description (body2/Neutral-5) + funnel-stage line (<b>caption</b>, Title Case — no transform, so the copy's own capitalisation is what renders). On hover or focus-within: Objective, Sizes, Benchmark as a two-column <code>&lt;dl&gt;</code> — label and value on one line, the label column auto-sized to the longest label so the values align down the card. The block takes the card's remaining height, so the eyebrow and the spec's last row both land on the card's bottom edge — and since the grid stretches every card to the row's tallest, that edge is one line across the row. Both halves stay in the DOM and in the accessibility tree; only the paint swaps. Under <code>pointer:coarse</code> it stops being a swap and becomes two stacked blocks.</td></tr>
           </tbody>
         </table>
       </div>
@@ -362,15 +553,24 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
         &lt;/<b>div</b>&gt;
       &lt;/<b>div</b>&gt;
     &lt;/<b>div</b>&gt;
+    <span style="color:#5a5a5a">&lt;!-- 2. Compare toggle. Two real Button variants, swapped on state.
+         OFF: --&gt;</span>
+    &lt;<b>button</b> type="button" class="<i>c-btn c-btn-secondary c-btn-icon c-btn-sm</i> c-format-compare"
+            data-cmp="3d-float-flip" aria-pressed="false"
+            aria-label="Add 3D Float-flip to compare" title="Add to compare"&gt;
+      &lt;i class="ph ph-plus"&gt;&lt;/i&gt;
+    &lt;/<b>button</b>&gt;
+    <span style="color:#5a5a5a">&lt;!-- ON: --&gt;</span>
+    &lt;<b>button</b> type="button" class="<i>c-btn c-btn-primary c-btn-icon c-btn-sm</i> c-format-compare is-on"
+            data-cmp="3d-float-flip" aria-pressed="true"
+            aria-label="Remove 3D Float-flip from compare" title="Remove from compare"&gt;
+      &lt;i class="ph ph-check"&gt;&lt;/i&gt;
+    &lt;/<b>button</b>&gt;
+
     <span style="color:#5a5a5a">&lt;!-- 3. Coarse-pointer only, and outside the aria-hidden stage --&gt;</span>
     &lt;<b>span</b> class="c-format-hint"&gt;&lt;i class="ph ph-play"&gt;&lt;/i&gt;Tap to play&lt;/<b>span</b>&gt;
   &lt;/<b>div</b>&gt;
 
-  <span style="color:#5a5a5a">&lt;!-- 2. Card Selectable's own checkbox, unmodified --&gt;</span>
-  &lt;<b>span</b> class="<i>c-card-select</i>"&gt;
-    &lt;<b>span</b> class="<i>c-checkbox-box</i>" role="checkbox" aria-checked="false"
-          tabindex="0" aria-label="Compare 3D Float-flip"&gt;&lt;/<b>span</b>&gt;
-  &lt;/<b>span</b>&gt;
 
   <span style="color:#5a5a5a">&lt;!-- 4. Title row. The &lt;a&gt; is the card's primary action --&gt;</span>
   &lt;<b>div</b> class="c-format-titlerow"&gt;
@@ -385,20 +585,45 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
       &lt;<b>p</b> class="c-format-funnel"&gt;Awareness · Consideration&lt;/<b>p</b>&gt;
     &lt;/<b>div</b>&gt;
     &lt;<b>dl</b> class="c-format-spec"&gt;
-      &lt;<b>div</b>&gt;&lt;<b>dt</b>&gt;Objective&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;Brand / Product Awareness&lt;/<b>dd</b>&gt;&lt;/<b>div</b>&gt;
-      &lt;<b>div</b>&gt;&lt;<b>dt</b>&gt;Sizes&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;300×250 · 300×600 · 970×250&lt;/<b>dd</b>&gt;&lt;/<b>div</b>&gt;
-      &lt;<b>div</b>&gt;&lt;<b>dt</b>&gt;Benchmark&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;Not published&lt;/<b>dd</b>&gt;&lt;/<b>div</b>&gt;
+      &lt;<b>dt</b>&gt;Objective&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;Brand / Product Awareness&lt;/<b>dd</b>&gt;
+      &lt;<b>dt</b>&gt;Sizes&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;300×250, 320×480, 300×600, 970×250&lt;/<b>dd</b>&gt;
+      &lt;<b>dt</b>&gt;Benchmark&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;Not published&lt;/<b>dd</b>&gt;
     &lt;/<b>dl</b>&gt;
   &lt;/<b>div</b>&gt;
 
 &lt;/<b>article</b>&gt;</div>
+
+    <h3>Families</h3>
+    <p>Six, fixed. The colour is a property of the family, not a per-card choice — it lives in a <code>FAMILY</code> map so a card cannot quietly wear the wrong one.</p>
+    <table class="tbl">
+      <thead><tr><th>Family</th><th>Colour</th><th>Class</th><th>Tag text on its own tint</th></tr></thead>
+      <tbody>
+        <tr><td><span class="c-tag c-tag-water"><i class="dot"></i>Interactive</span></td><td>Navy</td><td><code>.c-tag-water</code></td><td>3.99:1</td></tr>
+        <tr><td><span class="c-tag c-tag-fire"><i class="dot"></i>Gamification</span></td><td>Orange</td><td><code>.c-tag-fire</code></td><td>2.80:1</td></tr>
+        <tr><td><span class="c-tag c-tag-wood"><i class="dot"></i>Video</span></td><td>Salmon Pink</td><td><code>.c-tag-wood</code></td><td>2.28:1</td></tr>
+        <tr><td><span class="c-tag c-tag-earth"><i class="dot"></i>Social</span></td><td>Green</td><td><code>.c-tag-earth</code></td><td>2.15:1</td></tr>
+        <tr><td><span class="c-tag c-tag-gold"><i class="dot"></i>High impact</span></td><td>Amber</td><td><code>.c-tag-gold</code></td><td>1.85:1</td></tr>
+        <tr><td><span class="c-tag c-tag-purple"><i class="dot"></i>Display</span></td><td>Purple</td><td><code>.c-tag-purple</code> — <b>new, local</b></td><td>3.62:1</td></tr>
+      </tbody>
+    </table>
+    <p><b>Purple is the one family the system cannot dress yet.</b> <code>--color-purple</code> is a real token and the palette lists “secondary tags” among its sanctioned uses, so a purple tag is on-spec — but there is no <code>--color-purple-bg</code>, because the <code>-bg</code> tint scale is elemental and purple is not an element. The draft derives it with <code>color-mix</code> at the same 8% the elemental tints use, rather than picking a hex. If this mapping is adopted, <code>.c-tag-purple</code> and a purple tint belong in <code>components.css</code>.</p>
+
+    <h3>Content rules</h3>
+    <table class="tbl">
+      <thead><tr><th>Field</th><th>Rule</th></tr></thead>
+      <tbody>
+        <tr><td><b>Sizes</b></td><td>Comma-separated, <b>ascending by area</b>, always. Held as structured data and sorted at render, not typed as a string — an ordering rule that depends on whoever typed the list is not a rule. An expandable sorts on its <em>collapsed</em> size, because that is the slot it occupies on the page, and carries its expanded size with it (<code>300×250 → 300×600</code>). An aspect ratio has no area, so it sorts on the ratio, running portrait → square → landscape.</td></tr>
+        <tr><td><b>Benchmark</b></td><td>A figure with its unit (<code>0.42% CTR</code>, <code>68% VTR</code>) or the phrase <code>Not published</code> — never blank, and never a zero standing in for “unknown”.</td></tr>
+        <tr><td><b>Family</b></td><td>Tag label, 24 characters maximum per Badge &amp; Tag's own authoring limit. The component never truncates; a longer family name gets rewritten.</td></tr>
+      </tbody>
+    </table>
 
     <h3>What changed from the markup you sent, and why</h3>
     <table class="tbl">
       <thead><tr><th>Was</th><th>Now</th><th>Why</th></tr></thead>
       <tbody>
         <tr><td><code>&lt;article role="button" tabindex="0"&gt;</code> containing a <code>&lt;button&gt;</code></td><td><code>&lt;article&gt;</code> with a stretched-link <code>&lt;a&gt;</code> on the title, and the checkbox as a sibling</td><td>A control cannot contain another control. <code>role="button"</code> on a container with a real button inside is invalid nesting, and it collapses the card's own name and the compare action into one ambiguous tab stop. The stretched link keeps the whole card clickable, gives the card one honest accessible name, and leaves the checkbox its own stop.</td></tr>
-        <tr><td><code>.fm-cmp</code> — a bespoke <code>+</code> icon button</td><td>Card Selectable's own <code>.c-card-select</code> checkbox</td><td>The DLS already decides this case: “does something else on the page act on however many cards are checked?” A compare tray is exactly that, so the answer is the Selectable variant — hover-reveal, persistent Selected, 2px Obsidian border, <code>shadow-3</code>. A second convention for the same job is the thing the rule exists to prevent.</td></tr>
+        <tr><td><code>.fm-cmp</code> — a bespoke <code>+</code> icon button</td><td><b>Kept</b>, rebuilt out of the real Button component</td><td>I first replaced this with Card Selectable's checkbox, on the DLS's own litmus test — “does something else act on however many cards are checked?” — and was overruled, correctly. A checkbox says <em>this one is included</em>; a <code>+</code> says <em>put this somewhere</em>, and the somewhere is the compare tray. Add/remove is the honest verb pair for a collection. So the control stays, but it is not bespoke any more: it is <code>.c-btn-icon.c-btn-sm</code> in Secondary and Primary, swapped on state, with one radius override. See Open question 2 — the system needs to record this.</td></tr>
         <tr><td>Hover-only swap (<code>.fm-swap</code>)</td><td>Swap on <code>:hover</code> <b>and</b> <code>:focus-within</code>; stacked under <code>pointer:coarse</code></td><td>Hover-only made Objective, Sizes and Benchmark unreachable by keyboard and invisible on every phone. The spec is the half a planner actually needs.</td></tr>
         <tr><td><code>.fm-spec-cell</code> with <code>&lt;b&gt;</code>/<code>&lt;span&gt;</code></td><td><code>&lt;dl&gt;</code> / <code>&lt;dt&gt;</code> / <code>&lt;dd&gt;</code></td><td>It is a term-and-value list. <code>&lt;b&gt;</code> is bold-with-no-meaning; <code>&lt;dt&gt;</code> pairs the label to its value for anyone not looking at the layout.</td></tr>
         <tr><td><code>&lt;em&gt;Tap to flip&lt;/em&gt;</code> inside the preview</td><td>Removed from the mock; the hint became <code>.c-format-hint</code> outside it</td><td>The preview is <code>aria-hidden</code> and rendered at ~7px. Instructions do not belong in a decorative thumbnail at a size nobody can read.</td></tr>
@@ -416,7 +641,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
         <tr><td><b>Default</b></td><td>Neutral-1, 1px Neutral-3, <code>shadow-1</code>, <code>radius-lg</code>. Preview holds its first pose. Tagline + funnel showing.</td><td>Card</td></tr>
         <tr><td><b>Hover</b></td><td><code>shadow-2</code>, pointer cursor. Preview plays. Checkbox fades in. Swap crosses to the spec.</td><td>Card Interactive + new</td></tr>
         <tr><td><b>Focus-visible</b></td><td><code>shadow-focus</code> on the card; a 2px Obsidian outline on the title link itself. Preview plays and the swap crosses, identically to hover — a keyboard reader gets the same card.</td><td>Card Interactive + new</td></tr>
-        <tr><td><b>Selected</b></td><td>2px Obsidian border, <code>shadow-3</code>, checkbox persistently visible and checked, padding down 1px/side in the same frame. Persistent, not a hover state.</td><td>Card Selectable, verbatim</td></tr>
+        <tr><td><b>Added to compare</b></td><td>The toggle swaps Secondary → Primary (Obsidian fill, <code>ph-check</code>) and stays visible with the pointer elsewhere; the card takes 2px Obsidian, <code>shadow-3</code>, padding down 1px/side in the same frame. <code>aria-pressed</code>, <code>aria-label</code> and <code>title</code> all flip to the remove wording together.</td><td>Button + Card Selectable's Selected treatment</td></tr>
         <tr><td><b>Playing</b> (touch)</td><td><code>.is-playing</code>, set by tapping the stage. Preview runs; the play hint hides. Tapping the stage again stops it.</td><td>New</td></tr>
         <tr><td><b>Reduced motion</b></td><td>Every preview is pinned to its <em>revealed</em> pose — flipped, expanded, filled, arrived — not frozen on frame one. The swap cross-fade becomes instant.</td><td>New</td></tr>
       </tbody>
@@ -435,10 +660,11 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
       <thead><tr><th>Role</th><th>Token</th></tr></thead>
       <tbody>
         <tr><td>Card shell</td><td><code>--radius-lg</code>, <code>--spacing-16</code>, <code>--shadow-1</code> / <code>-2</code> / <code>-3</code> / <code>--shadow-focus</code>, <code>--color-neutral-1</code> / <code>-3</code>, <code>--color-obsidian</code></td></tr>
+        <tr><td>Compare toggle</td><td>Button's own <code>.c-btn-secondary</code> / <code>.c-btn-primary</code> fills, <code>--radius-pill</code> (the one override), <code>--icon-sm</code> glyph, <code>--spacing-16</code> inset</td></tr>
         <tr><td>Stage</td><td><code>--color-canvas-warm</code> ground, <code>--radius-sm</code> page mock, <code>--color-neutral-2</code> / <code>-3</code> / <code>-4</code> wireframe</td></tr>
         <tr><td>Type</td><td><code>--text-h5-*</code> title, <code>--text-body2-*</code> tagline and values, <code>--text-label3-*</code> eyebrows, <code>--text-caption-*</code> hint</td></tr>
-        <tr><td>Motion</td><td><code>--duration-base</code> + <code>--ease-standard</code> swap; <code>--ease-morph</code> flip; <code>--ease-settle</code> sticky arrival; <code>--duration-fast</code> checkbox reveal</td></tr>
-        <tr><td>Family tags</td><td><code>.c-tag-water</code> / <code>-fire</code> / <code>-wood</code> / <code>-earth</code>, as they ship</td></tr>
+        <tr><td>Motion</td><td><code>--duration-base</code> + <code>--ease-standard</code> swap; <code>--duration-fast</code> compare-toggle reveal and fill. Each preview takes its family's own elemental curve where one applies — <code>--ease-morph</code> flip, <code>--ease-flare</code> spin (Fire), <code>--ease-settle</code> in-feed arrival (Earth), <code>--ease-flow</code> sticky page travel (Water)</td></tr>
+        <tr><td>Family tags</td><td><code>.c-tag-water</code> / <code>-fire</code> / <code>-wood</code> / <code>-earth</code> / <code>-gold</code> as they ship, plus a local <code>-purple</code> built to the same recipe</td></tr>
       </tbody>
     </table>
     <p><b>Derived, not invented:</b> the stage's inner radius is <code>calc(var(--radius-lg) − var(--fc-bw))</code> — the inside edge of the card's own border, which moves correctly when Selected swaps 1px for 2px. The wireframe's 3–6px bar heights inside the page mock are sub-token because the mock is a <em>drawing of a page at ~12% scale</em>, not a UI surface; treating them as spacing tokens would be a category error.</p>
@@ -469,15 +695,25 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
     <div class="note">
       <i class="ph ph-question" aria-hidden="true"></i>
       <div>
-        <p><b>2. Is a format family really a Tag?</b> Badge &amp; Tag defines Tag as “labels <em>which element/department owns</em> something”. A format family — Interactive, Rich media, Video, Standard — is a taxonomy, not an owner: every format on this page is owned by CollabMedia, so colouring by owner would make all four cards Water and say nothing.</p>
-        <p>I used Tag anyway, because the alternative is a sixth pill component and Rule 2 already makes element colour the classifying signal. But it does stretch the definition, and the honest options are: (a) widen Tag's definition in DESIGN-SYSTEM.md to “ownership <em>or</em> classification”, (b) record a fixed family→element mapping so the colours are at least stable, or (c) drop the colour and use a Neutral tag. <b>Your call</b> — I would take (a) plus (b).</p>
+        <p><b>2. Is a format family really a Tag?</b> <b>Half-answered.</b> Badge &amp; Tag defines Tag as “labels <em>which element/department owns</em> something”, and a format family is a taxonomy, not an owner — every format here is owned by CollabMedia, so colouring by owner would make all six cards Water and say nothing.</p>
+        <p>The mapping is now fixed and recorded (see <b>Families</b>, above), which settles the stability half: the colours can no longer drift card to card. What is still open is the definition — DESIGN-SYSTEM.md needs Tag widened to “ownership <em>or</em> classification” for this to be legal rather than merely consistent, and it needs the purple variant that the sixth family requires. Both are <code>components.css</code>/spec changes and neither is in this draft.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <i class="ph ph-warning" aria-hidden="true"></i>
+      <div>
+        <p><b>2b. This card's compare control diverges from Card Selectable, deliberately — and the system has to record it.</b> DESIGN-SYSTEM.md:2282 specifies an 18×18 Checkbox at the card's <b>top-right</b>. This one is a round <code>+</code>/<code>✓</code> Button at the <b>top-left</b>. Two departures, two reasons:</p>
+        <p><b>Position.</b> The rule's own justification is “the exact same position and recipe as Profile card's” — and Profile card puts it top-right because <em>its</em> top-left is occupied by the avatar. This card has no such constraint, and it has the opposite one: the page mock's ad rail is top-right, so the documented position lands the control on the one thing the preview exists to show. Measured, it clipped the ad unit by 6×1px on three of the four formats. Top-left covers a skeleton line instead. Worth noting the system is not uniform here anyway — <a href="DESIGN-SYSTEM.md">Table</a> pins its bulk-select checkbox <b>left</b>, first column.</p>
+        <p><b>Control.</b> A checkbox says <em>this one is included</em>; a <code>+</code> says <em>put this somewhere</em>. With a compare tray as the destination, add/remove is the truer verb pair. It is built from the real Button component in both poses, so nothing here is bespoke — but it is still a second convention for “collect this into a set”, and the fix is to write it down: either widen <b>Card Selectable</b> to cover a collect-style control and a left-hand position, or add a <b>Card Collectable</b> variant beside it. <b>Not decided in this draft.</b></p>
+        <p><b>One contrast caveat, stated precisely:</b> the resting chip's 1px Neutral-3 border measures <b>1.43:1</b> against the white page mock, under the 3:1 UI floor. It passes only because the boundary is not what identifies the control — the <code>+</code> glyph is, at 20.03:1. If the chip ever loses its glyph, the border has to darken.</p>
       </div>
     </div>
 
     <div class="note">
       <i class="ph ph-question" aria-hidden="true"></i>
       <div>
-        <p><b>3. The system has no screen-reader-only utility.</b> This draft defines a local <code>.vh</code> class for the checkbox's label. Several existing components need one too and each currently works around it. Worth adding once to <code>components.css</code>.</p>
+        <p><b>3. The system has no screen-reader-only utility.</b> This draft no longer needs one — the compare toggle carries a real <code>aria-label</code> — but the gap is still there, and several existing components work around it individually. Worth adding once to <code>components.css</code>.</p>
       </div>
     </div>
 
@@ -497,32 +733,88 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
 
   /* One record per format. Family drives the Tag variant and the preview
      behaviour; nothing else varies. */
+  /* Family drives the Tag colour, and the mapping is fixed rather than picked
+     per card: Interactive/Navy, Gamification/Orange, Video/Salmon, Social/
+     Green, High impact/Amber, Display/Purple. Written here as data so a card
+     cannot quietly wear the wrong colour — see the Families table above. */
+  var FAMILY = {
+    'Interactive': 'water',
+    'Gamification':'fire',
+    'Video':       'wood',
+    'Social':      'earth',
+    'High impact': 'gold',
+    'Display':     'purple'
+  };
+
   var FORMATS = [
-    { id:'3d-float-flip', name:'3D Float-flip', family:'Interactive', tag:'water', preview:'flip',
+    { id:'3d-float-flip', name:'3D Float-flip', family:'Interactive', preview:'flip',
       tagline:'A 3D-style unit where cards or objects float above the background and flip to reveal more detail on interaction.',
       funnel:'Awareness · Consideration',
       objective:'Brand / Product Awareness',
-      sizes:'300×250 · 300×600 · 320×480 · 970×250',
+      sizes:[{w:300,h:250},{w:300,h:600},{w:320,h:480},{w:970,h:250}],
       benchmark:'Not published' },
-    { id:'expandable-banner', name:'Expandable banner', family:'Rich media', tag:'fire', preview:'expand',
-      tagline:'A standard banner that pushes the page down to reveal a larger canvas, then collapses back when the reader moves on.',
-      funnel:'Consideration',
-      objective:'Product Consideration',
-      sizes:'300×250 → 300×600 · 970×250 → 970×500',
-      benchmark:'0.42% CTR' },
-    { id:'in-article-video', name:'In-article video', family:'Video', tag:'wood', preview:'video',
+    { id:'calculator-ad', name:'Calculator Ad', family:'Interactive', preview:'calc',
+      tagline:'Let users key in their own numbers within their own budget and see instant, personalised results inside the ad.',
+      funnel:'Consideration · Conversion · Lead gen',
+      objective:'Consideration + Leads',
+      sizes:[{w:800,h:600},{w:300,h:250},{w:970,h:250},{w:300,h:600},{w:320,h:480}],
+      benchmark:'>0.25% CTR' },
+    { id:'spin-to-win', name:'Spin-to-win', family:'Gamification', preview:'spin',
+      tagline:'A prize wheel the reader spins in place, trading a few seconds of attention for a code they can use.',
+      funnel:'Consideration · Conversion',
+      objective:'Lead Capture / Promotion',
+      sizes:[{w:300,h:600},{w:300,h:250},{w:320,h:480}],
+      benchmark:'2.1% Engagement' },
+    { id:'in-article-video', name:'In-article video', family:'Video', preview:'video',
       tagline:'A player seeded between paragraphs that starts muted in view and holds its place as the reader scrolls past.',
       funnel:'Awareness',
       objective:'Brand Awareness',
-      sizes:'16:9 · 1:1 · 9:16',
+      sizes:[{r:[16,9]},{r:[1,1]},{r:[9,16]}],
       benchmark:'68% VTR' },
-    { id:'sticky-footer', name:'Sticky footer', family:'Standard', tag:'earth', preview:'sticky',
+    { id:'social-feed-native', name:'Social feed native', family:'Social', preview:'social',
+      tagline:'A unit seeded into the feed that inherits the layout of the posts around it, and is marked as sponsored.',
+      funnel:'Awareness · Consideration',
+      objective:'Brand Awareness',
+      sizes:[{r:[1,1]},{r:[9,16]},{r:[4,5]}],
+      benchmark:'0.61% CTR' },
+    { id:'expandable-banner', name:'Expandable banner', family:'High impact', preview:'expand',
+      tagline:'A standard banner that pushes the page down to reveal a larger canvas, then collapses back when the reader moves on.',
+      funnel:'Consideration',
+      objective:'Product Consideration',
+      sizes:[{w:970,h:250,to:{w:970,h:500}},{w:300,h:250,to:{w:300,h:600}}],
+      benchmark:'0.42% CTR' },
+    { id:'interscroller', name:'Interscroller', family:'High impact', preview:'interscroll',
+      tagline:'A full-screen canvas sitting behind a window in the article, revealed a slice at a time as the reader scrolls over it.',
+      funnel:'Awareness',
+      objective:'Brand Awareness',
+      sizes:[{w:360,h:640},{w:320,h:480},{w:320,h:568}],
+      benchmark:'82% Viewability' },
+    { id:'sticky-footer', name:'Sticky footer', family:'Display', preview:'sticky',
       tagline:'A slim bar anchored to the bottom of the viewport that stays with the reader for the whole session.',
       funnel:'Consideration · Conversion',
       objective:'Traffic / Direct Response',
-      sizes:'320×50 · 320×100 · 728×90',
+      sizes:[{w:728,h:90},{w:320,h:50},{w:320,h:100}],
       benchmark:'0.18% CTR' }
   ];
+
+  /* Sizes are structured, not a pre-written string, for one reason: the order
+     is a rule and a string cannot obey a rule. Ascending by AREA — the metric
+     a planner actually compares slots by, and the only one under which
+     320×480 correctly sits between 300×250 and 300×600 rather than wherever
+     someone happened to type it. An expandable sorts on its collapsed size,
+     since that is the slot it occupies on the page; the expanded size rides
+     with it. An aspect ratio has no area, so it sorts on the ratio itself,
+     which runs portrait → square → landscape. Add a format tomorrow and it
+     lands in the right place without anyone re-typing the list. */
+  function sizeRank(z){ return z.r ? z.r[0] / z.r[1] : z.w * z.h; }
+  function sizeLabel(z){
+    if (z.r) return z.r[0] + ':' + z.r[1];
+    return z.w + '×' + z.h + (z.to ? ' → ' + z.to.w + '×' + z.to.h : '');
+  }
+  function sizeList(list){
+    return list.slice().sort(function(a, b){ return sizeRank(a) - sizeRank(b); })
+               .map(sizeLabel).join(', ');
+  }
 
   function esc(s){
     return String(s).replace(/[&<>"']/g, function(c){
@@ -539,23 +831,57 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
       '</div></div>';
     if (kind === 'expand') return '<div class="fmt-unit fmt-expand"><b></b><i></i></div>';
     if (kind === 'video')  return '<div class="fmt-unit fmt-video"><i></i><b></b></div>';
-    return '';   /* sticky renders into the page, not the rail */
+    if (kind === 'spin')   return '<div class="fmt-unit fmt-spin"><i></i></div>';
+    if (kind === 'calc')   return '<div class="fmt-unit fmt-calc">' +
+      '<em>Loan calculator</em>' +
+      '<span class="fmt-calc-track"><i></i></span>' +
+      '<span class="fmt-calc-track s2"><i></i></span>' +
+      '<span class="fmt-calc-out"><em>Monthly</em>' +
+        '<span class="fmt-calc-win"><span class="fmt-calc-val">' +
+          '<b>RM 980</b><b>RM 1,460</b></span></span></span>' +
+      '<span class="fmt-calc-cta">Apply</span></div>';
+    return '';   /* sticky renders into the page and social into the copy column */
   }
 
   function stageHtml(f){
+    /* Kept as an array, not a joined string, so the in-feed unit can be
+       spliced BETWEEN two lines. Slicing a concatenated HTML string at a
+       character index would cut a tag in half — it happened to look fine at
+       one offset, which is exactly how that class of bug survives. */
     var lines = ['<b class="h"></b>','<b></b>','<b style="width:85%"></b>','<b class="img"></b>',
-                 '<b></b>','<b style="width:70%"></b>','<b></b>','<b style="width:58%"></b>'].join('');
+                 '<b></b>','<b style="width:70%"></b>','<b></b>','<b style="width:58%"></b>'];
+    /* Two formats draw into the article rather than the rail, for the same
+       reason from opposite directions: a native unit inherits the posts around
+       it, and an interscroller is a hole cut through them. Both are facts
+       about placement, so placement is where they have to be drawn. */
+    var copy = lines.slice();
+    if (f.preview === 'social'){
+      copy.splice(4, 0, '<div class="fmt-native"><b class="t"></b><i></i><b></b></div>');
+    }
+    if (f.preview === 'interscroll'){
+      copy.splice(4, 0, '<div class="fmt-scroll"><i></i><b></b></div>');
+    }
     return '<div class="c-format-stagewrap">' +
       '<div class="c-format-stage" data-preview="' + f.preview + '" aria-hidden="true">' +
       '<div class="fmt-page">' +
         '<div class="fmt-chrome"><i></i><i></i><i></i><b></b></div>' +
         '<div class="fmt-cols">' +
-          '<div class="fmt-copy">' + lines + '</div>' +
+          /* Social is the one unit that does not go in the rail: an in-feed
+             native inherits the layout of the posts around it, so drawing it
+             beside the article would be drawing a different format. */
+          '<div class="fmt-copy">' + copy.join('') + '</div>' +
           '<div class="fmt-rail">' + unitHtml(f.preview) + '</div>' +
         '</div>' +
         (f.preview === 'sticky' ? '<div class="fmt-sticky"><b></b><i></i></div>' : '') +
         '</div>' +
       '</div>' +
+      /* The label says the verb, and it changes with the state — "Add to
+         compare" on a control that would remove it is the commonest lie in
+         a toggle. title carries the same string for the pointer. */
+      '<button type="button" class="c-btn c-btn-secondary c-btn-icon c-btn-sm c-format-compare" ' +
+        'data-cmp="' + f.id + '" aria-pressed="false" ' +
+        'aria-label="Add ' + esc(f.name) + ' to compare" title="Add to compare">' +
+        '<i class="ph ph-plus" aria-hidden="true"></i></button>' +
       '<span class="c-format-hint"><i class="ph ph-play" aria-hidden="true"></i>Tap to play</span>' +
     '</div>';
   }
@@ -563,23 +889,22 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
   function cardHtml(f){
     return '<article class="c-card c-card-interactive c-card-selectable c-format-card" data-format="' + f.id + '">' +
       stageHtml(f) +
-      '<span class="c-card-select">' +
-        '<span class="c-checkbox-box" role="checkbox" aria-checked="false" tabindex="0" ' +
-          'aria-label="Compare ' + esc(f.name) + '"></span>' +
-      '</span>' +
       '<div class="c-format-titlerow">' +
         '<h4><a class="c-format-open" href="#' + f.id + '">' + esc(f.name) + '</a></h4>' +
-        '<span class="c-tag c-tag-' + f.tag + '"><i class="dot" aria-hidden="true"></i>' + esc(f.family) + '</span>' +
+        '<span class="c-tag c-tag-' + FAMILY[f.family] + '"><i class="dot" aria-hidden="true"></i>' + esc(f.family) + '</span>' +
       '</div>' +
       '<div class="c-format-swap">' +
         '<div class="c-format-rest">' +
           '<p class="c-format-tagline">' + esc(f.tagline) + '</p>' +
           '<p class="c-format-funnel">' + esc(f.funnel) + '</p>' +
         '</div>' +
+        /* dt/dd as direct children of the <dl> — the wrapper divs are gone.
+           They are optional in the spec, and keeping them would have put a
+           block between each pair and the grid that is meant to align them. */
         '<dl class="c-format-spec">' +
-          '<div><dt>Objective</dt><dd>' + esc(f.objective) + '</dd></div>' +
-          '<div><dt>Sizes</dt><dd>' + esc(f.sizes) + '</dd></div>' +
-          '<div><dt>Benchmark</dt><dd>' + esc(f.benchmark) + '</dd></div>' +
+          '<dt>Objective</dt><dd>' + esc(f.objective) + '</dd>' +
+          '<dt>Sizes</dt><dd>' + esc(sizeList(f.sizes)) + '</dd>' +
+          '<dt>Benchmark</dt><dd>' + esc(f.benchmark) + '</dd>' +
         '</dl>' +
       '</div>' +
     '</article>';
@@ -596,30 +921,39 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
     document.getElementById('cmpCount').textContent =
       n + (n === 1 ? ' format selected' : ' formats selected');
   }
-  function toggle(box){
-    var on = box.getAttribute('aria-checked') === 'true';
-    box.setAttribute('aria-checked', on ? 'false' : 'true');
-    box.classList.toggle('on', !on);
-    box.innerHTML = on ? '' : '<i class="ph ph-check" aria-hidden="true"></i>';
-    box.closest('.c-format-card').classList.toggle('is-selected', !on);
+  /* One toggle, four things to keep in step: the pressed state, the two real
+     Button variants, the glyph, and both labels. They are set together here
+     rather than in four listeners so they cannot drift apart. */
+  function toggle(btn){
+    var on = btn.getAttribute('aria-pressed') !== 'true';
+    var name = btn.closest('.c-format-card').querySelector('.c-format-open').textContent;
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.classList.toggle('is-on', on);
+    btn.classList.toggle('c-btn-primary', on);
+    btn.classList.toggle('c-btn-secondary', !on);
+    /* ph-plus and ph-check, both Tier 1 Regular — every one of these is a
+       control, and this icon set renders ph-fill ph-check as a boxed glyph,
+       which Stepper already documents as the wrong mark inside a circle. */
+    btn.innerHTML = '<i class="ph ' + (on ? 'ph-check' : 'ph-plus') + '" aria-hidden="true"></i>';
+    btn.setAttribute('aria-label', (on ? 'Remove ' : 'Add ') + name + (on ? ' from compare' : ' to compare'));
+    btn.setAttribute('title', on ? 'Remove from compare' : 'Add to compare');
+    btn.closest('.c-format-card').classList.toggle('is-selected', on);
     countSelected();
   }
   grid.addEventListener('click', function(e){
-    var box = e.target.closest('.c-checkbox-box');
-    if (box){
-      /* The title's stretched ::after covers the card, so the checkbox has to
-         stop the click reaching it — otherwise ticking a card also opens it. */
+    var btn = e.target.closest('.c-format-compare');
+    if (btn){
+      /* The title's stretched ::after covers the whole card, so this has to
+         stop the click reaching it — otherwise adding a format to compare
+         also opens it. A real <button> needs no keydown handler of its own:
+         Space and Enter already activate it natively, which is most of why
+         it is a button and not a div. */
       e.preventDefault(); e.stopPropagation();
-      toggle(box);
+      toggle(btn);
       return;
     }
     var link = e.target.closest('.c-format-open');
     if (link) e.preventDefault();   /* draft: nothing to navigate to */
-  });
-  grid.addEventListener('keydown', function(e){
-    var box = e.target.closest('.c-checkbox-box');
-    if (!box) return;
-    if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggle(box); }
   });
 
   /* ---- Touch play. No hover on a coarse pointer, so the stage itself is the
