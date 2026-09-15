@@ -446,6 +446,288 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
   .c-format-swap > *{transition:none;}
 }
 
+/* ==========================================================================
+   EXPANDED VARIANT — Format panel
+   The same record the card summarises, opened out. Rendered INLINE in this
+   draft rather than over a scrim, on purpose: it is here to be fine-tuned,
+   and a surface you have to open is a surface you cannot sit and look at.
+   In use it is a right-hand panel; see the note in the section for why this
+   is a panel and not a modal.
+   The surface itself is Card's own recipe at Modal's own elevation — no new
+   fill, radius or shadow. Everything inside reuses either the card's parts
+   (the preview stage, the Tag) or the system's (.c-icon-btn, .c-chip,
+   .c-btn), so the only genuinely new things here are the layout, the
+   scale-proxy size chart and the related-format strip.
+   ========================================================================== */
+.c-format-panel{width:min(680px, 100%); margin:0 auto; background:var(--color-neutral-1);
+  border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-4); overflow:hidden;}
+
+/* Head. Crumb trail on the left, the three controls hard right. Prev/next
+   sit next to Close rather than on the stage because they page the RECORD,
+   not the preview — putting them over the artwork would say they scrub it. */
+.c-format-panel-head{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
+.c-format-crumbs{flex:1 1 auto; min-width:0; display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+.c-format-crumbs b{font-weight:700; color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-format-crumbs i{font-size:var(--icon-sm); color:var(--color-neutral-4); flex:none;}
+.c-format-panel-head .c-icon-btn{flex:none;}
+.c-format-panel-head .c-icon-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+
+.c-format-panel-body{padding:var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-24);}
+
+/* Stage. The card's own preview at panel size — same markup, same wireframe,
+   same --play switch. It runs continuously here rather than on hover: this
+   surface exists to be watched, so there is nothing to opt into. */
+.c-format-panel .c-format-stagewrap{margin:0; border-radius:var(--radius-md); border:1px solid var(--color-neutral-3);}
+/* --play is set explicitly on both surfaces rather than inherited by putting
+   .c-format-card round them, which is what I did first: that class also
+   carries width:264px and min-width:300px, and on the related strip it
+   forced every 150px grid cell up to 300px, collapsed the three columns to
+   one and stretched each thumbnail to the full panel width. Borrowing a
+   class for one custom property drags its whole box model along. */
+.c-format-panel-stage{position:relative; --play:running;}
+.c-format-replay{position:absolute; right:var(--spacing-12); bottom:var(--spacing-12); z-index:3;
+  display:inline-flex; align-items:center; gap:var(--spacing-4); height:28px; padding:0 var(--spacing-12);
+  border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1);
+  box-shadow:var(--shadow-1); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer;}
+.c-format-replay:hover{background:var(--color-neutral-2);}
+.c-format-replay:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-format-replay i{font-size:var(--icon-micro);}
+
+/* Title block. h3 is Modal's own header token — this is the same kind of
+   object, so it takes the same size rather than a new one. */
+.c-format-panel-title{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); width:100%;}
+.c-format-panel-title h3{margin:0; font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9);}
+.c-format-panel-lede{margin:0; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); color:var(--color-neutral-7);}
+.c-format-panel-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh-lg); color:var(--color-neutral-5);}
+
+/* Facts. Two columns of the card's own one-line label/value pattern — same
+   caption label, same label2 value, same auto-sized label column. A reader
+   moving from the card to the panel should not have to re-learn the shape. */
+/* ONE grid of four columns — label, value, label, value — not a grid of
+   two-column rows. I built it the second way first and it was wrong for the
+   same reason the card's spec list was wrong before it: each row sized its
+   own label column, so "Objective", "Best for" and "CPM on file" set three
+   different widths and their three values started at three different x
+   positions. One grid means the labels in a column share one `auto` width
+   and the values line up, which is the entire point of putting them in a
+   column. Same lesson, second surface. */
+.c-format-facts{display:grid; grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);
+  column-gap:var(--spacing-12); row-gap:var(--spacing-8); align-items:baseline;}
+/* Below the two-column threshold it folds to one pair per row. The columns
+   are declared here rather than by auto-fit because auto-fit cannot know
+   that these four tracks are two logical pairs. */
+@media (max-width:620px){ .c-format-facts{grid-template-columns:auto minmax(0,1fr);} }
+/* The gap between the two pairs is a column gap, not a margin, so it
+   disappears with the second pair when the grid folds. */
+.c-format-facts dt:nth-of-type(even){padding-left:var(--spacing-12);}
+@media (max-width:620px){ .c-format-facts dt:nth-of-type(even){padding-left:0;} }
+.c-format-facts dt{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); white-space:nowrap;}
+.c-format-facts dd{margin:0; font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight); color:var(--color-neutral-9);}
+/* A missing value is written out, never left blank and never zero — and it
+   is set lighter and at regular weight so it cannot be mistaken, at a glance
+   down the column, for a figure that exists. */
+.c-format-facts dd.is-na{font-weight:var(--text-body2-weight); color:var(--color-neutral-4);}
+
+.c-format-section{display:flex; flex-direction:column; gap:var(--spacing-12);}
+.c-format-section > h5{margin:0; font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+
+/* Supported sizes — drawn to ONE shared scale, which is the only thing that
+   makes them worth drawing. A list of numbers already tells you 970×250 is
+   wide; proxies at a common scale tell you how much of a page it takes
+   against a 300×250, which is the question a planner is actually asking.
+   The scale is computed per format so the largest slot fits the row, rather
+   than being a constant that either clips or wastes the space. */
+.c-format-sizes{display:flex; flex-wrap:wrap; align-items:flex-end; gap:var(--spacing-16);}
+.c-format-size{display:flex; flex-direction:column; align-items:center; gap:var(--spacing-8); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+.c-format-size i{display:block; border-radius:4px; background:var(--color-neutral-2); border:1px solid var(--color-neutral-3);}
+
+.c-format-chipset{display:flex; flex-wrap:wrap; gap:var(--spacing-4);}
+/* Chip's own Static style — no filter behaviour here, these are facts about
+   where the unit has run, not controls. */
+.c-format-chipset .c-chip{background:var(--color-neutral-2); padding:0 var(--spacing-12); height:28px;}
+
+/* Also consider — real cards, built from the same records, so the strip
+   cannot drift from the library it points into. */
+.c-format-related{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:var(--spacing-12);}
+.c-format-relcard{display:flex; flex-direction:column; gap:var(--spacing-8); padding:0; border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); cursor:pointer; overflow:hidden; text-align:left;
+  transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
+.c-format-relcard:hover{box-shadow:var(--shadow-2); border-color:var(--color-neutral-5);}
+/* The thumbnails rest still and play on hover or focus — three more things
+   moving under the one you are already watching is noise, not information. */
+.c-format-relcard{--play:paused;}
+.c-format-relcard:hover, .c-format-relcard:focus-visible{--play:running;}
+.c-format-relcard:focus-visible{outline:none; box-shadow:var(--shadow-focus);}
+.c-format-relcard .c-format-stagewrap{margin:0; border:0; border-radius:0; aspect-ratio:16/10;}
+.c-format-relcard > span{padding:0 var(--spacing-12) var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9);}
+
+/* Foot. Real Buttons, and the spacer is what separates the two commit
+   actions from the one that only changes a local set. */
+.c-format-panel-foot{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-16) var(--spacing-24); border-top:1px solid var(--color-neutral-3); background:var(--color-canvas-warm); flex-wrap:wrap;}
+.c-format-panel-foot .spacer{flex:1 1 auto;}
+.c-format-panel-foot .c-btn:disabled{cursor:not-allowed;}
+/* .c-btn sets no text-decoration, so the moment a Button is rendered as an
+   <a> — which the primary action here has to be, since it navigates — the UA
+   underlines its label and it stops looking like a button. Patched locally;
+   it belongs in components.css, since every link-shaped Button in the system
+   has this. */
+.c-format-panel-foot .c-btn{text-decoration:none;}
+
+/* ===================== COMPARE BAR =====================
+   The tray the card's + has been feeding all along. Toast's own surface
+   recipe, verbatim — Neutral-1 on 1px Neutral-3, radius-md, shadow-3,
+   spacing-12/spacing-16 padding — because it is the same kind of object: a
+   compact surface floating over the page that is absent most of the time.
+   radius-md, not Card's radius-lg, for exactly the reason Toast gives.
+
+   Centred, though, where Toast is documented bottom-right. A tray that
+   persists while you keep browsing cannot sit in the corner every toast on
+   the page is about to appear in, and the set it represents was gathered
+   from a grid that spans the full width, not from one corner of it.
+   Centring is also the system's own answer for a persistent bottom-docked
+   bar — Prompt input bar's Floating variant, left:50% + translateX(-50%)
+   at bottom:spacing-24, on a min(width, 100% - spacing-32) clamp. */
+.c-format-cbar{
+  position:fixed; bottom:var(--spacing-24); left:50%;
+  width:min(760px, calc(100% - var(--spacing-32)));
+  /* Above the page, below Toast. This document has no numeric z-index
+     scale, so the relationship is what matters: a toast reporting the
+     result of Compare has to land on top of the bar that launched it. */
+  z-index:900;
+  display:flex; align-items:center; gap:var(--spacing-12);
+  padding:var(--spacing-12) var(--spacing-16);
+  background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-3);
+  /* Toast's own entrance: slide up from the bottom edge + fade. */
+  transform:translate(-50%, 16px); opacity:0; pointer-events:none;
+  transition:opacity var(--duration-base) var(--ease-standard),
+             transform var(--duration-base) var(--ease-standard);
+}
+.c-format-cbar.is-open{opacity:1; transform:translate(-50%, 0); pointer-events:auto;}
+/* At zero it is not a disabled shell — it is gone from the layout and out
+   of the accessibility tree. [hidden] is applied after the exit runs. */
+.c-format-cbar[hidden]{display:none;}
+/* label2 — Chip and Button's own token, so the count sits at the same
+   weight as the chips it counts rather than shouting over them. */
+.c-format-cbar .lbl{flex:none; font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight); color:var(--color-neutral-9); white-space:nowrap;}
+.c-format-cbar .names{flex:1 1 auto; min-width:0; display:flex; flex-wrap:wrap; align-items:center; gap:var(--spacing-4);}
+.c-format-cbar .c-btn{flex:none;}
+
+/* Mobile takes Toast's own documented rule: full width, anchored to the
+   bottom, spacing-12 margins. The names row simply wraps to its own line
+   in DOM order — no `order` reshuffling, so what a screen reader hears is
+   what the eye sees. */
+@media (max-width:640px){
+  .c-format-cbar{left:var(--spacing-12); right:var(--spacing-12); bottom:var(--spacing-12); width:auto;
+    transform:translateY(16px); flex-wrap:wrap;}
+  .c-format-cbar.is-open{transform:translateY(0);}
+  .c-format-cbar .names{flex:1 1 100%;}
+  .c-format-cbar .c-btn{flex:1 1 auto;}
+}
+@media (prefers-reduced-motion: reduce){
+  .c-format-cbar{transition:none;}
+}
+
+/* Demo furniture. The specimens below are the same component with its
+   docking undone so it can be looked at in place; `position:static` makes
+   the bottom/left/right offsets inert on its own. Declared last so the
+   640px block above cannot take the width back. */
+.cbar-stage{display:flex; flex-direction:column; gap:var(--spacing-16);
+  padding:var(--spacing-24); background:var(--color-canvas-warm);
+  border:1px dashed var(--color-neutral-3); border-radius:var(--radius-md);}
+.cbar-stage .cap{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-format-cbar.is-inline{position:static; width:min(760px, 100%); transform:none; opacity:1; pointer-events:auto; transition:none;}
+
+/* ===================== COMPARE MODAL =====================
+   Where the Compare bar goes. This one IS a modal, unlike the Format panel
+   above, and the difference is what it is for: the panel is six sections of
+   reading about one format with no decision at the end, which is exactly
+   what Modal's Don't sends to a panel. This is a single decision — which of
+   these two-to-four goes into the plan — made against evidence laid out for
+   the purpose, ending in one commit. Long content is not the same thing as
+   a long flow: there are no steps, no input, and nothing to lose track of.
+   So it takes the lock: scrim, focus trap, Escape, scroll lock, and focus
+   handed back to the control that opened it. */
+.c-fmtcmp-layer{position:fixed; inset:0; z-index:1000; display:none;}
+.c-fmtcmp-layer.is-open{display:block;}
+.c-fmtcmp-scrim{position:absolute; inset:0; background:var(--shadow-overlay); opacity:0;
+  transition:opacity var(--duration-base) var(--ease-standard);}
+.c-fmtcmp-layer.is-shown .c-fmtcmp-scrim{opacity:1;}
+
+/* Two elements, because the box carries an animation and the centring has
+   to survive it. The wrapper holds the resting position; the box holds the
+   transform that runs. One element doing both means the entrance either
+   fights the centring or replaces it. */
+.c-fmtcmp-pos{position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+  width:min(1040px, calc(100% - var(--spacing-32)));
+  max-height:calc(100vh - var(--spacing-48)); display:flex;}
+/* Modal's panel recipe, at the width its own spec allows: "max-width ~480px
+   for simple confirmations, wider for forms". Four preview columns is the
+   widest case and 1040 is where they stop being worth looking at. */
+.c-fmtcmp-box{flex:1 1 auto; min-width:0; min-height:0; display:flex; flex-direction:column;
+  background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-4); overflow:hidden;
+  /* The entrance flies out of the button that opened it — the same idea
+     Tutorial Modal already ships, and the same tokens: duration-morph on
+     ease-morph. The four --sw-* values are measured from the trigger at
+     open time, never guessed. */
+  transform:translate(var(--sw-dx, 0px), var(--sw-dy, 0px)) scale(var(--sw-sx, 1), var(--sw-sy, 1));
+  opacity:0; transform-origin:50% 50%;
+  transition:transform var(--duration-morph) var(--ease-morph), opacity var(--duration-morph) var(--ease-morph);}
+.c-fmtcmp-layer.is-shown .c-fmtcmp-box{transform:none; opacity:1;}
+/* Tutorial Modal's own reduced-motion answer: cross-fades in rather than
+   flying out of the thing it came from. */
+@media (prefers-reduced-motion: reduce){
+  .c-fmtcmp-box{transform:none;
+    transition:opacity var(--duration-fast) var(--ease-standard);}
+}
+.c-fmtcmp-box:focus{outline:none;}
+.c-fmtcmp-box .c-modal-head{flex:none; border-bottom:1px solid var(--color-neutral-3);}
+.c-fmtcmp-scroll{flex:1 1 auto; min-height:0; overflow:auto; overscroll-behavior:contain;}
+.c-fmtcmp-box .c-modal-foot{flex:none; flex-wrap:wrap; gap:var(--spacing-8);
+  justify-content:flex-start; background:var(--color-canvas-warm);}
+.c-fmtcmp-box .c-modal-foot .spacer{flex:1 1 auto;}
+.c-fmtcmp-box .c-modal-foot .c-btn{text-decoration:none;}
+
+/* The table is the real Table component, transposed: the row labels are the
+   first column rather than a header row, because the things being compared
+   are the columns. Every <th> keeps scope="row" so that stays true to a
+   screen reader and not only to the eye. */
+.c-fmtcmp-table{table-layout:fixed;}
+.c-fmtcmp-table th, .c-fmtcmp-table td{vertical-align:top;}
+/* Label column: Table's own freeze-left, at the caption/Neutral-5 weighting
+   the card and the panel already use for a label beside a value. */
+.c-fmtcmp-table th[scope="row"]{position:sticky; left:0; z-index:2; width:124px;
+  background:var(--color-neutral-1);
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh);
+  font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+/* The names row stays put while the facts scroll under it — with ten rows
+   and four columns, a value whose column you cannot name is not a fact. */
+.c-fmtcmp-table tr.names th, .c-fmtcmp-table tr.names td{position:sticky; top:0; z-index:3;
+  background:var(--color-neutral-1); border-bottom:1px solid var(--color-neutral-3);}
+.c-fmtcmp-table tr.names th[scope="row"]{z-index:4;}
+.c-fmtcmp-table tr.names td{font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight);}
+.c-fmtcmp-table tr.names .c-tag{margin-top:var(--spacing-4);}
+.c-fmtcmp-table tr.stages td{padding-top:var(--spacing-16);}
+.c-fmtcmp-table tr.stages .c-format-stagewrap{margin:0; border:1px solid var(--color-neutral-3);
+  border-radius:var(--radius-sm); aspect-ratio:16/10;}
+/* Same rule as the panel's facts: a missing value is written out, and set
+   lighter and lighter-weight so it cannot be read, down a column, as a
+   figure that exists. */
+.c-fmtcmp-table .is-na{font-weight:400; color:var(--color-neutral-4);}
+.c-fmtcmp-table .stack{display:flex; flex-direction:column; gap:2px;}
+.c-fmtcmp-table .c-badge{margin-left:var(--spacing-8); vertical-align:1px;}
+/* The previews run continuously in here. This surface exists to be
+   watched and there is nothing to opt into, same as the panel. */
+.c-fmtcmp-table tr.stages td{--play:running;}
+
+.c-fmtcmp-note{padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);
+  background:var(--color-canvas-warm);
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* Demo furniture only — the three triggers that open the modal at each of
+   its widths without having to build the selection by hand. */
+.cmp-launch{display:flex; flex-wrap:wrap; gap:var(--spacing-8); align-items:center;}
+
 /* ---- Anatomy diagram. Page furniture, not the component. ---- */
 .anat{display:flex; flex-wrap:wrap; gap:var(--spacing-32); align-items:flex-start;}
 .anat-card{position:relative; width:320px; flex:none;}
@@ -507,10 +789,212 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
 
     <div class="note" style="align-items:center">
       <i class="ph ph-scales" aria-hidden="true"></i>
-      <div><p style="margin:0"><b id="cmpCount">0 formats selected</b> — a real compare tray would act on this set.</p></div>
+      <div><p style="margin:0">Adding one docks the real <a href="#cbar-sect"><b>Compare bar</b></a> to the bottom of this window — that is the tray, and it is what earns the toggle. It holds four.</p></div>
     </div>
 
     <div class="c-format-grid" id="grid"></div>
+  </section>
+
+  <!-- ===================== EXPANDED VARIANT ===================== -->
+  <section class="sect">
+    <span class="eyebrow">Variant</span>
+    <h2>Expanded — Format panel</h2>
+    <p>The same record the card summarises, opened out: the preview at a size you can actually read, the facts a planner needs before quoting, the supported sizes drawn to scale, and a way out to three formats that do a similar job.</p>
+    <p>It is rendered <b>inline here on purpose</b>. In use it is a right-hand panel over the library; in a draft it is a thing to sit and look at, and a surface you have to open first is a surface you cannot fine-tune. <b>Use ← and → in the panel head to page through all eight formats</b>, or click any card in <b>Also consider</b>.</p>
+
+    <div class="c-format-panel" id="panel"></div>
+
+    <h3>Why a panel and not a modal</h3>
+    <p>The system is explicit about this. Modal / dialog's own Don't reads: <em>“use a modal for anything that isn't a focused, single decision — long forms or multi-step flows need a full page or panel, not a modal.”</em> This surface is six sections of reading with two exits; it decides nothing. So it takes Card's fill, radius and border at Modal's elevation, but it is a panel, and it should not trap focus or take <code>aria-modal</code>.</p>
+    <p>There is a real counter-argument: <b>Tutorial Modal</b> is the one documented exception, carved out precisely for “reads rather than decisions” that collect no input and can be abandoned with nothing lost — which describes this too. If the team would rather this were modal, that exception is the door, and it should be widened in DESIGN-SYSTEM.md rather than quietly reused.</p>
+
+    <h3>What it reuses</h3>
+    <table class="tbl">
+      <thead><tr><th>Part</th><th>Comes from</th></tr></thead>
+      <tbody>
+        <tr><td>Surface</td><td>Card's Neutral-1 / 1px Neutral-3 / <code>radius-lg</code> at Modal's <code>shadow-4</code>. No new fill, radius or shadow.</td></tr>
+        <tr><td>Head controls</td><td><code>.c-icon-btn</code> verbatim — 32×32, <code>radius-sm</code>, Neutral-2 hover. Prev/next sit beside Close rather than on the artwork, because they page the <em>record</em>; over the stage they would read as scrubbing the preview.</td></tr>
+        <tr><td>Preview</td><td>The card's own <code>.c-format-stage</code> and every <code>.fmt-*</code> behaviour, unchanged — same wireframe, same units, same <code>--play</code> switch. It just runs continuously here, since this surface exists to be watched and there is nothing to opt into.</td></tr>
+        <tr><td>Title</td><td><code>h3</code> — Modal's own header token, because this is the same kind of object. Plus the same family <b>Tag</b>.</td></tr>
+        <tr><td>Facts</td><td>The card's own one-line label/value pattern: caption label, <code>label2</code> value, auto-sized label column. A reader moving from card to panel shouldn't have to re-learn the shape.</td></tr>
+        <tr><td>Industries</td><td><b>Chip</b>, in its static style — these are facts about where the unit has run, not filters.</td></tr>
+        <tr><td>Actions</td><td>Real <b>Buttons</b> — Primary, Secondary (disabled, with a title saying why) and Ghost. One local patch: <code>.c-btn</code> sets no <code>text-decoration</code>, so a Button rendered as an <code>&lt;a&gt;</code> — which the navigating primary has to be — gets underlined by the browser and stops reading as a button. That belongs in <code>components.css</code>; every link-shaped Button in the system has it.</td></tr>
+        <tr><td>Also consider</td><td>Real records, built through the same <code>stageHtml()</code> as the grid, so the strip can't drift from the library it points into. Same family first, then the rest.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <i class="ph ph-ruler" aria-hidden="true"></i>
+      <div><p><b>The size chart is the one genuinely new idea.</b> Each slot is drawn to a single scale computed per format, so the largest fits the row. That's the only reason to draw them: the numbers already tell you 970×250 is wide — the boxes tell you how much of a page it takes next to a 300×250, which is the question actually being asked. Aspect-ratio formats have no pixels, so their boxes share a height and differ only in shape, which is all a ratio has to say.</p></div>
+    </div>
+
+    <div class="note">
+      <i class="ph ph-warning" aria-hidden="true"></i>
+      <div>
+        <p><b>Two things in the foot I have left as you designed them, and would question.</b></p>
+        <p><b>1. Button order.</b> Modal's own rule is Primary on the <em>right</em>, Secondary to its left. Here the Primary leads on the left with the Ghost pushed right by a spacer. For a panel with one obvious next step that reads fine and I've kept it — but it is the opposite of what the system documents, so it needs writing down either way.</p>
+        <p><b>2. A disabled Secondary as a permanent state.</b> “Live demo”, disabled with a tooltip explaining why, is a control that can never be used in this build. A disabled button is a promise that it will become available; if it will not, the honest version omits it and says so in text.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== COMPARE BAR ===================== -->
+  <section class="sect" id="cbar-sect">
+    <span class="eyebrow">Companion component</span>
+    <h2>Compare bar</h2>
+    <p>The destination the card's <b>+</b> has been feeding. Card Selectable's own rule is that a hover-revealed select control is only earned when <em>“a separate bulk-action control acts on however many cards are currently checked”</em> — this is that control. Without it the <b>+</b> on every card above is a dead toggle, which is exactly what the Card spec warns against.</p>
+    <p><b>It is live.</b> Add a format in the grid above and the real bar docks itself to the bottom of this window; remove the last one and it leaves. The two specimens below are the same component with its docking undone, so the two edge states can be looked at side by side without having to reproduce them.</p>
+
+    <div class="cbar-stage">
+      <p class="cap"><b>One selected.</b> Compare is disabled — one format compared against nothing is not a comparison — and the reason is on the button, not left to be guessed.</p>
+      <div class="c-format-cbar is-inline" role="region" aria-label="Ad formats to compare (specimen)">
+        <span class="lbl">1 of 4 selected</span>
+        <div class="names">
+          <span class="c-chip c-chip-input">3D Float-flip<button class="c-chip-remove" type="button" aria-label="Remove 3D Float-flip from compare"><i class="ph ph-x" aria-hidden="true"></i></button></span>
+        </div>
+        <button class="c-btn c-btn-ghost c-btn-sm" type="button">Clear</button>
+        <button class="c-btn c-btn-primary c-btn-sm" type="button" disabled title="Select at least two formats to compare"><i class="ph ph-columns" aria-hidden="true"></i> Compare</button>
+      </div>
+
+      <p class="cap"><b>Four of four.</b> At the cap. Every unselected <b>+</b> in the grid goes disabled with a sentence saying why, so the fifth click cannot fail silently.</p>
+      <div class="c-format-cbar is-inline" role="region" aria-label="Ad formats to compare (specimen, full)">
+        <span class="lbl">4 of 4 selected</span>
+        <div class="names">
+          <span class="c-chip c-chip-input">3D Float-flip<button class="c-chip-remove" type="button" aria-label="Remove 3D Float-flip from compare"><i class="ph ph-x" aria-hidden="true"></i></button></span>
+          <span class="c-chip c-chip-input">Calculator Ad<button class="c-chip-remove" type="button" aria-label="Remove Calculator Ad from compare"><i class="ph ph-x" aria-hidden="true"></i></button></span>
+          <span class="c-chip c-chip-input">Spin-to-win<button class="c-chip-remove" type="button" aria-label="Remove Spin-to-win from compare"><i class="ph ph-x" aria-hidden="true"></i></button></span>
+          <span class="c-chip c-chip-input">Interscroller<button class="c-chip-remove" type="button" aria-label="Remove Interscroller from compare"><i class="ph ph-x" aria-hidden="true"></i></button></span>
+        </div>
+        <button class="c-btn c-btn-ghost c-btn-sm" type="button">Clear</button>
+        <button class="c-btn c-btn-primary c-btn-sm" type="button"><i class="ph ph-columns" aria-hidden="true"></i> Compare</button>
+      </div>
+    </div>
+
+    <h3>What it reuses</h3>
+    <table class="tbl">
+      <thead><tr><th>Part</th><th>Comes from</th></tr></thead>
+      <tbody>
+        <tr><td>Surface</td><td><b>Toast</b>'s recipe verbatim — Neutral-1, 1px Neutral-3, <code>radius-md</code>, <code>shadow-3</code>, <code>spacing-12</code>/<code>spacing-16</code> padding. Same kind of object: compact, floating, absent most of the time. <code>radius-md</code> rather than Card's <code>radius-lg</code> for the reason Toast already states — “a compact transient surface, not the Card's 20px”.</td></tr>
+        <tr><td>Position</td><td><b>Prompt input bar</b>, Floating variant — <code>bottom: spacing-24</code>, <code>left:50%</code> + <code>translateX(-50%)</code>, <code>min(760px, 100% − spacing-32)</code>. The system's only other persistent bottom-docked bar.</td></tr>
+        <tr><td>Mobile</td><td><b>Toast</b>'s documented mobile rule — full width, anchored to the bottom, <code>spacing-12</code> margins, at <b>640px</b>, which is also Filter Bar's own collapse breakpoint.</td></tr>
+        <tr><td>Name chips</td><td><b>Chip / Input Chip</b> (<code>.c-chip.c-chip-input</code> + <code>.c-chip-remove</code>), verbatim — 24px, Neutral-2 fill, 1px Neutral-3, <code>label2</code>, trailing × in a 24×24 hit target. This is precisely what Filter Bar's <b>Applied Filters</b> row already uses for the same job, and Chip's own definition of Input Chip — “a value the user entered or confirmed, always removable, not toggleable” — describes a compare entry exactly.</td></tr>
+        <tr><td>Actions</td><td>Real <b>Buttons</b>, small — Ghost for Clear, Primary for Compare, in Modal's documented order with the Primary last. <code>ph-columns</code> is <b>Tier 1, Regular</b>: it is a control.</td></tr>
+        <tr><td>Entrance</td><td><b>Toast</b>'s own — slide up from the bottom edge and fade, on <code>duration-base</code> / <code>ease-standard</code>. Suppressed under <code>prefers-reduced-motion</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>States</h3>
+    <table class="tbl">
+      <thead><tr><th>State</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><b>Empty (0)</b></td><td><b>Not rendered.</b> It leaves on the exit transition and then takes <code>hidden</code> — out of the layout and out of the accessibility tree, not a greyed-out shell sitting on the page. An empty tray is a permanent reminder of a thing you have not done.</td></tr>
+        <tr><td><b>One selected</b></td><td>Bar present, Compare <b>disabled</b> with <code>title</code> “Select at least two formats to compare”. The bar still appears, because its job at n=1 is to show you the set has started and offer the way out of it.</td></tr>
+        <tr><td><b>2–3 selected</b></td><td>The working state. Compare enabled.</td></tr>
+        <tr><td><b>At the cap (4)</b></td><td>Every <em>unselected</em> compare toggle in the grid goes <code>disabled</code> with “Compare holds 4 formats. Remove one to add another.” Already-selected toggles stay live, so removing is always available. The cap is enforced where the user is, not only where the count is shown.</td></tr>
+        <tr><td><b>Count changes</b></td><td>The label is <code>role="status"</code> / <code>aria-live="polite"</code>, so a screen reader hears “3 of 4 selected” on every add and remove. Without it the whole bar is invisible to anyone not looking at the bottom of the window.</td></tr>
+        <tr><td><b>Removing a chip</b></td><td>Focus moves to the chip that takes the removed one's place, or to the last chip if it was the last, or — if that emptied the set and the bar is about to leave — back to that format's own <b>+</b> in the grid. Focus is never dropped on the body.</td></tr>
+        <tr><td><b>Clear</b></td><td>Empties the set in one action and returns focus to the first card's toggle. No confirm: nothing is destroyed, and re-adding is one click per format.</td></tr>
+        <tr><td><b>Reduced motion</b></td><td>No slide, no fade. It is simply there or not.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <i class="ph ph-arrows-left-right" aria-hidden="true"></i>
+      <div>
+        <p><b>One source of truth.</b> The bar holds no state of its own. It is painted from <code>.c-format-card.is-selected</code> in the grid, and its × calls the card's own toggle rather than a second removal path — so the chip, the card's border, the card's <code>aria-pressed</code> and the count cannot disagree. The alternative, a list the bar maintains alongside the cards, is two truths that drift the first time anything else touches the set.</p>
+      </div>
+    </div>
+
+    <h3>What changed from your markup</h3>
+    <table class="tbl">
+      <thead><tr><th>Yours</th><th>Here</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;span&gt;Name&lt;button&gt;&lt;i class="ph ph-x"&gt;</code></td><td><code>.c-chip.c-chip-input</code> + <code>.c-chip-remove</code></td><td>The bare span is an Input Chip with the styling left off — same 24px pill, same Neutral-2 fill, same trailing ×, same 24×24 hit target. Filter Bar's Applied Filters row already made this exact call for the same shape.</td></tr>
+        <tr><td><code>&lt;span class="lbl"&gt;4 of 4&lt;/span&gt;</code></td><td>“4 of 4 selected”, <code>role="status"</code></td><td>“4 of 4” alone does not say what is being counted or that 4 is a ceiling — and silently. The word <em>selected</em> costs nothing and the live region is the only thing that makes the bar exist for a screen reader.</td></tr>
+        <tr><td>Compare always enabled</td><td>Disabled below two, with the reason</td><td>A Compare that opens a comparison of one is a dead end you only find by pressing it.</td></tr>
+        <tr><td>Cap implied by the label</td><td>Cap enforced on the grid's toggles</td><td>“4 of 4” tells you the ceiling exists after you have hit it. Disabling the remaining <b>+</b> buttons tells you where it is.</td></tr>
+        <tr><td><code>&lt;i class="ph ph-x"&gt;</code>, <code>ph-columns</code></td><td>Both <code>aria-hidden="true"</code></td><td>Every glyph here is decorative — the button already carries its own label or text. Without it a screen reader reads the icon font's own contents.</td></tr>
+        <tr><td>Ids: <code>fmCbar</code>, <code>fmCbarNames</code>…</td><td><code>.c-format-cbar</code> and classes</td><td>Same <code>.c-*</code> convention as the rest of the draft. Ids are kept only where JS needs a single handle.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <i class="ph ph-question" aria-hidden="true"></i>
+      <div>
+        <p><b>Two things I could not answer from the markup.</b></p>
+        <p><b>Where does 4 come from?</b> Your label hard-codes it, and a cap is worth having — a side-by-side of eight formats is a table nobody reads. But 4 should be the number of columns the comparison view can actually show at the narrowest supported width, not a number chosen here. If that view is two columns on mobile, the cap is a responsive fact, not a constant.</p>
+        <p><b>What does Compare open?</b> In this draft it does nothing, deliberately — it is wired to no destination and I have not invented one. If it opens a full-page comparison, this bar is correct as built. If it opens a <em>panel</em>, it collides with the Format panel above, and the two should be one surface with two modes rather than two surfaces that both float over the library.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== COMPARE MODAL ===================== -->
+  <section class="sect" id="cmp-sect">
+    <span class="eyebrow">Companion component</span>
+    <h2>Compare formats</h2>
+    <p>What the bar's <b>Compare</b> opens. Two to four formats, one column each, every fact the panel carries laid on the same row so the differences are read across rather than remembered between screens. It ends in one action — the plan — which is the whole reason the comparison exists.</p>
+    <p><b>The bar's rule is 2–4, and it is enforced in three places:</b> Compare is disabled below two, every unselected <b>+</b> goes disabled at four, and this view refuses to open outside that range rather than rendering a one-column comparison.</p>
+
+    <div class="cmp-launch">
+      <button class="c-btn c-btn-secondary c-btn-md" type="button" data-demo="2"><i class="ph ph-columns" aria-hidden="true"></i> Compare 2</button>
+      <button class="c-btn c-btn-secondary c-btn-md" type="button" data-demo="3"><i class="ph ph-columns" aria-hidden="true"></i> Compare 3</button>
+      <button class="c-btn c-btn-secondary c-btn-md" type="button" data-demo="4"><i class="ph ph-columns" aria-hidden="true"></i> Compare 4</button>
+      <span style="font-size:var(--text-caption-size); color:var(--color-neutral-5)">Each sets the bar's selection too, so the whole path is real — bar, modal, and back.</span>
+    </div>
+
+    <h3>Why this one <em>is</em> a modal</h3>
+    <p>The Format panel above is not, and the difference is worth stating precisely, because both surfaces show much of the same data. Modal's Don't sends <em>“long forms or multi-step flows”</em> to a panel. This is neither: it has no steps, collects no input, and ends in a <b>single decision</b> — which of these goes into the plan — made against evidence assembled for that decision and nothing else. Long content is not a long flow. So it takes the lock in full: scrim, focus trap, Escape, scroll lock, and focus handed back to the control that opened it.</p>
+    <p>The panel fails that test on its own terms — it decides nothing, so nothing justifies taking the page away from you to read it. Same data, different job, different surface. That distinction is what DESIGN-SYSTEM.md should record, rather than the current wording, which only separates by length.</p>
+
+    <h3>What it reuses</h3>
+    <table class="tbl">
+      <thead><tr><th>Part</th><th>Comes from</th></tr></thead>
+      <tbody>
+        <tr><td>Scrim + panel</td><td><b>Modal</b> verbatim — <code>--shadow-overlay</code> (Neutral-9 at 56%), Neutral-1 panel, 1px Neutral-3, <code>radius-lg</code>, <code>shadow-4</code>. Width <code>min(1040px, 100% − spacing-32)</code>, which Modal's own spec allows: “~480px for simple confirmations, <em>wider for forms</em>”.</td></tr>
+        <tr><td>Head</td><td><code>.c-modal-head</code> + <code>.c-icon-btn</code> with <code>ph-x</code> — Tier 1, Regular, a close affordance. Title is an <code>h4</code>, matching the shipped <code>.c-modal-head h4</code> and Tutorial Modal's own “the element and the type token are the same name”.</td></tr>
+        <tr><td>Table</td><td>The real <b>Table</b> (<code>.c-table</code>) — its padding, its Neutral-3 row rules, its <code>body2</code>/500 cells. Transposed, because the things being compared are the columns; every row label is a <code>&lt;th scope="row"&gt;</code>, so that stays true to a screen reader and not only to the eye. The label column uses Table's own frozen-column idea.</td></tr>
+        <tr><td>“Highest” mark</td><td><b>Badge</b>, Success variant — the system's own AA-darkened green. Not an inline <code>11px</code> / <code>--color-green</code> span.</td></tr>
+        <tr><td>Previews</td><td>The card's own <code>stageHtml()</code> in bare mode, running continuously. Same eight units, so a format looks the same in the grid, the panel and here.</td></tr>
+        <tr><td>Family</td><td>The same <b>Tag</b> under each name as the card and panel carry.</td></tr>
+        <tr><td>Entrance</td><td>Flies out of the button that opened it, on <code>--duration-morph</code> / <code>--ease-morph</code> — the idea and the tokens <b>Tutorial Modal</b> already ships. The four measurements are taken from the trigger at open time. Under <code>prefers-reduced-motion</code> it cross-fades, which is Tutorial Modal's own documented fallback.</td></tr>
+        <tr><td>Foot</td><td>Real <b>Buttons</b> — two Secondary exports, a spacer, Primary last. Modal's own Primary-on-the-right order, which the Format panel's foot does <em>not</em> follow; this one does.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>The one real design decision: what “best” means</h3>
+    <div class="note">
+      <i class="ph ph-medal" aria-hidden="true"></i>
+      <div>
+        <p><b>A winner can only be crowned when the cells measure the same thing.</b> Your markup marks both Benchmark cells “highest” where both read <code>CTR &gt;0.25%</code> — but that is a tie on a floor, not a maximum, and across the wider library the column holds <code>68% VTR</code>, <code>2.1% Engagement</code> and <code>82% Viewability</code>. Those are four different metrics in one column, and the largest number in it means nothing.</p>
+        <p>So the mark is computed, and it is withheld on purpose. It appears only when <b>every</b> column in that row parses to a number, <b>every</b> unit is the same, and the values <b>differ</b> — a tie is not a winner. On the current data that lights up <b>Inventory</b> (all in millions per month) and <b>Benchmark</b> only among formats reporting the same metric. <b>CPM</b> is never crowned: cheaper is not better without a brief saying so.</p>
+        <p>The honest fix upstream is to split Benchmark into a metric and a value — then the column is comparable by construction, and the modal can group or hide the rows that are not.</p>
+      </div>
+    </div>
+
+    <h3>What changed from your markup</h3>
+    <table class="tbl">
+      <thead><tr><th>Yours</th><th>Here</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;span style="font-size:11px; color:var(--color-green)"&gt;highest&lt;/span&gt;</code></td><td><code>.c-badge.c-badge-success</code>, “Highest”</td><td>Component Rule 3 — a raw <code>11px</code> and a bare element colour where the system already ships this exact object. Badge Success is also the variant whose text is documented as darkened for AA; <code>--color-green</code> at 11px on white is not.</td></tr>
+        <tr><td>Both Benchmark cells marked “highest”</td><td>Marked only when comparable and different</td><td>See above. A badge on every cell in a row tells you nothing and costs trust in the ones that mean something.</td></tr>
+        <tr><td><code>&lt;th&gt;</code> with no scope</td><td><code>&lt;th scope="row"&gt;</code></td><td>In a transposed table this is the whole accessibility story — without it a screen reader has no idea which fact a cell is.</td></tr>
+        <tr><td><code>&lt;td class="head"&gt;Name&lt;small&gt;Interactive&lt;/small&gt;</code></td><td>Name + the real family <b>Tag</b></td><td>The family is the same classification the card and panel show, and it is colour-coded there. Two treatments for one fact is how a library starts disagreeing with itself.</td></tr>
+        <tr><td><code>&lt;span class="na"&gt;</code></td><td>The panel's own <code>.is-na</code> weighting</td><td>Same idea, already built: lighter colour <em>and</em> regular weight, so a missing value cannot be scanned down a column as a figure that exists.</td></tr>
+        <tr><td>Sizes as free text, one per line</td><td>Same, ascending by area</td><td>Kept your line-per-size — in a table that is easier to diff than a comma run. Sorted by the same computed rule the cards use, so the order never depends on who typed the list.</td></tr>
+        <tr><td>Scroll pane, nothing pinned</td><td>Names row and label column both stick</td><td>Ten rows by four columns: a value whose column you can no longer name, or a row whose label has scrolled off, is not a fact.</td></tr>
+        <tr><td>No focus management</td><td>Trap, Escape, scroll lock, focus returned</td><td><code>aria-modal="true"</code> is a promise about behaviour. Tutorial Modal already documents that a scrim stops the mouse and does nothing about the keyboard.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <i class="ph ph-question" aria-hidden="true"></i>
+      <div>
+        <p><b>Three things still open.</b></p>
+        <p><b>1. Export PDF and Export Excel do nothing here</b>, and they are the two controls most likely to be wanted first. They are real Secondary Buttons in the right place; what they produce — the table as shown, or the full record for each format — is a decision I cannot make from the markup.</p>
+        <p><b>2. The formats in your markup are not in this library.</b> Reservation / Booking Ad, Multi-tab and Storytelling appear in your comparison but have no cards, no previews and no records here — so the modal is built against the eight formats the draft does have. Their data is in your paste; say the word and they become three more cards, three more previews, and three more panel records.</p>
+        <p><b>3. There is no way to drop a column from inside the modal.</b> Four formats in, the natural next move is “not that one” — and today that means closing, finding the card, and pressing its toggle. A × in each column head would close the loop; it also means the modal can empty itself below two, which needs an answer.</p>
+      </div>
+    </div>
   </section>
 
   <!-- ===================== ANATOMY ===================== -->
@@ -664,6 +1148,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
         <tr><td>Stage</td><td><code>--color-canvas-warm</code> ground, <code>--radius-sm</code> page mock, <code>--color-neutral-2</code> / <code>-3</code> / <code>-4</code> wireframe</td></tr>
         <tr><td>Type</td><td><code>--text-h5-*</code> title, <code>--text-body2-*</code> tagline and values, <code>--text-label3-*</code> eyebrows, <code>--text-caption-*</code> hint</td></tr>
         <tr><td>Motion</td><td><code>--duration-base</code> + <code>--ease-standard</code> swap; <code>--duration-fast</code> compare-toggle reveal and fill. Each preview takes its family's own elemental curve where one applies — <code>--ease-morph</code> flip, <code>--ease-flare</code> spin (Fire), <code>--ease-settle</code> in-feed arrival (Earth), <code>--ease-flow</code> sticky page travel (Water)</td></tr>
+        <tr><td>Compare bar</td><td>Toast's surface set — <code>--radius-md</code>, <code>--shadow-3</code>, <code>--color-neutral-1</code> / <code>-3</code>, <code>--spacing-12</code> / <code>-16</code> padding — on Prompt input bar's docking offsets (<code>--spacing-24</code> bottom, <code>--spacing-32</code> side clamp). Chips and buttons bring their own.</td></tr>
         <tr><td>Family tags</td><td><code>.c-tag-water</code> / <code>-fire</code> / <code>-wood</code> / <code>-earth</code> / <code>-gold</code> as they ship, plus a local <code>-purple</code> built to the same recipe</td></tr>
       </tbody>
     </table>
@@ -727,6 +1212,36 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
 
 </div>
 
+<!-- The live bar. Docked to the window, painted from the grid's own
+     selection, absent until there is something in the set. -->
+<div class="c-format-cbar" id="cbar" role="region" aria-label="Ad formats to compare" hidden>
+  <span class="lbl" id="cbarLbl" role="status" aria-live="polite">0 of 4 selected</span>
+  <div class="names" id="cbarNames"></div>
+  <button class="c-btn c-btn-ghost c-btn-sm" type="button" id="cbarClear">Clear</button>
+  <button class="c-btn c-btn-primary c-btn-sm" type="button" id="cbarOpen"><i class="ph ph-columns" aria-hidden="true"></i> Compare</button>
+</div>
+
+<!-- The compare modal. One layer, built from whatever the bar holds. -->
+<div class="c-fmtcmp-layer" id="cmpLayer">
+  <div class="c-fmtcmp-scrim" id="cmpScrim"></div>
+  <div class="c-fmtcmp-pos">
+    <div class="c-fmtcmp-box" id="cmpBox" role="dialog" aria-modal="true" aria-labelledby="cmpTitle" tabindex="-1">
+      <div class="c-modal-head">
+        <h4 id="cmpTitle">Compare formats</h4>
+        <button class="c-icon-btn" type="button" id="cmpClose" aria-label="Close"><i class="ph ph-x" aria-hidden="true"></i></button>
+      </div>
+      <p class="c-fmtcmp-note" id="cmpNote"></p>
+      <div class="c-fmtcmp-scroll" id="cmpScroll"></div>
+      <div class="c-modal-foot">
+        <button class="c-btn c-btn-secondary c-btn-md" type="button"><i class="ph ph-file-pdf" aria-hidden="true"></i> Export PDF</button>
+        <button class="c-btn c-btn-secondary c-btn-md" type="button"><i class="ph ph-file-xls" aria-hidden="true"></i> Export Excel</button>
+        <span class="spacer"></span>
+        <a class="c-btn c-btn-primary c-btn-md" id="cmpPlan" href="#"><i class="ph ph-compass-tool" aria-hidden="true"></i> Send to a media plan</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   'use strict';
@@ -752,49 +1267,105 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
       funnel:'Awareness · Consideration',
       objective:'Brand / Product Awareness',
       sizes:[{w:300,h:250},{w:300,h:600},{w:320,h:480},{w:970,h:250}],
-      benchmark:'Not published' },
+      benchmark:'Not published',
+      /* Panel-only detail. It lives on the same record as the card's own
+         fields rather than in a second map — one format, one object, so the
+         summary and the expanded view cannot describe different things. */
+      desc:'3D Float-flip is built for premium, visually-driven campaigns that want to showcase features or variants in a modern, high-impact way.',
+      runsOn:'Desktop & mobile', bestFor:'Rich media branding, interaction',
+      cpm:null, inventory:null,
+      industries:['Education','Financial Services','Public Services'] },
     { id:'calculator-ad', name:'Calculator Ad', family:'Interactive', preview:'calc',
       tagline:'Let users key in their own numbers within their own budget and see instant, personalised results inside the ad.',
       funnel:'Consideration · Conversion · Lead gen',
       objective:'Consideration + Leads',
       sizes:[{w:800,h:600},{w:300,h:250},{w:970,h:250},{w:300,h:600},{w:320,h:480}],
-      benchmark:'>0.25% CTR' },
+      benchmark:'>0.25% CTR',
+      /* Panel-only detail. It lives on the same record as the card's own
+         fields rather than in a second map — one format, one object, so the
+         summary and the expanded view cannot describe different things. */
+      desc:'Calculator Ad earns its attention by being useful: the reader puts their own numbers in and the unit answers, which is why it returns qualified leads rather than clicks.',
+      runsOn:'Desktop & mobile', bestFor:'Finance, property, automotive',
+      cpm:null, inventory:null,
+      industries:['Financial Services','Property','Automotive'] },
     { id:'spin-to-win', name:'Spin-to-win', family:'Gamification', preview:'spin',
       tagline:'A prize wheel the reader spins in place, trading a few seconds of attention for a code they can use.',
       funnel:'Consideration · Conversion',
       objective:'Lead Capture / Promotion',
       sizes:[{w:300,h:600},{w:300,h:250},{w:320,h:480}],
-      benchmark:'2.1% Engagement' },
+      benchmark:'2.1% Engagement',
+      /* Panel-only detail. It lives on the same record as the card's own
+         fields rather than in a second map — one format, one object, so the
+         summary and the expanded view cannot describe different things. */
+      desc:'Spin-to-win trades a reward for a few seconds of deliberate attention. It performs where there is a real offer behind it, and badly where there is not.',
+      runsOn:'Mobile first', bestFor:'Retail promotions, sampling',
+      cpm:null, inventory:null,
+      industries:['Retail','FMCG','Travel'] },
     { id:'in-article-video', name:'In-article video', family:'Video', preview:'video',
       tagline:'A player seeded between paragraphs that starts muted in view and holds its place as the reader scrolls past.',
       funnel:'Awareness',
       objective:'Brand Awareness',
       sizes:[{r:[16,9]},{r:[1,1]},{r:[9,16]}],
-      benchmark:'68% VTR' },
+      benchmark:'68% VTR',
+      /* Panel-only detail. It lives on the same record as the card's own
+         fields rather than in a second map — one format, one object, so the
+         summary and the expanded view cannot describe different things. */
+      desc:'In-article video buys completed views rather than impressions: it starts muted in view and holds its slot, so the reader chooses to stay rather than being interrupted.',
+      runsOn:'Desktop & mobile', bestFor:'Brand films, product launches',
+      cpm:'RM 38 — RM 52', inventory:'4.1M monthly',
+      industries:['Telco','Automotive','Entertainment'] },
     { id:'social-feed-native', name:'Social feed native', family:'Social', preview:'social',
       tagline:'A unit seeded into the feed that inherits the layout of the posts around it, and is marked as sponsored.',
       funnel:'Awareness · Consideration',
       objective:'Brand Awareness',
       sizes:[{r:[1,1]},{r:[9,16]},{r:[4,5]}],
-      benchmark:'0.61% CTR' },
+      benchmark:'0.61% CTR',
+      /* Panel-only detail. It lives on the same record as the card's own
+         fields rather than in a second map — one format, one object, so the
+         summary and the expanded view cannot describe different things. */
+      desc:'Social feed native inherits the layout of the posts around it, so it is read before it is recognised. That is its strength, and the reason the sponsored mark is not optional.',
+      runsOn:'Mobile first', bestFor:'Consideration at scale',
+      cpm:'RM 18 — RM 26', inventory:'12.4M monthly',
+      industries:['FMCG','Retail','Government'] },
     { id:'expandable-banner', name:'Expandable banner', family:'High impact', preview:'expand',
       tagline:'A standard banner that pushes the page down to reveal a larger canvas, then collapses back when the reader moves on.',
       funnel:'Consideration',
       objective:'Product Consideration',
       sizes:[{w:970,h:250,to:{w:970,h:500}},{w:300,h:250,to:{w:300,h:600}}],
-      benchmark:'0.42% CTR' },
+      benchmark:'0.42% CTR',
+      /* Panel-only detail. It lives on the same record as the card's own
+         fields rather than in a second map — one format, one object, so the
+         summary and the expanded view cannot describe different things. */
+      desc:'Expandable banner buys a second canvas without buying a second slot — it stays a standard unit until the reader asks for more.',
+      runsOn:'Desktop & mobile', bestFor:'Product ranges, multi-message',
+      cpm:'RM 29 — RM 41', inventory:'6.8M monthly',
+      industries:['Retail','Telco','Financial Services'] },
     { id:'interscroller', name:'Interscroller', family:'High impact', preview:'interscroll',
       tagline:'A full-screen canvas sitting behind a window in the article, revealed a slice at a time as the reader scrolls over it.',
       funnel:'Awareness',
       objective:'Brand Awareness',
       sizes:[{w:360,h:640},{w:320,h:480},{w:320,h:568}],
-      benchmark:'82% Viewability' },
+      benchmark:'82% Viewability',
+      /* Panel-only detail. It lives on the same record as the card's own
+         fields rather than in a second map — one format, one object, so the
+         summary and the expanded view cannot describe different things. */
+      desc:'Interscroller takes the full screen without taking the page: the canvas sits behind a window in the article and the reader scrolls it into view themselves.',
+      runsOn:'Mobile only', bestFor:'Full-bleed brand moments',
+      cpm:'RM 44 — RM 60', inventory:'3.2M monthly',
+      industries:['Entertainment','Travel','Automotive'] },
     { id:'sticky-footer', name:'Sticky footer', family:'Display', preview:'sticky',
       tagline:'A slim bar anchored to the bottom of the viewport that stays with the reader for the whole session.',
       funnel:'Consideration · Conversion',
       objective:'Traffic / Direct Response',
       sizes:[{w:728,h:90},{w:320,h:50},{w:320,h:100}],
-      benchmark:'0.18% CTR' }
+      benchmark:'0.18% CTR',
+      /* Panel-only detail. It lives on the same record as the card's own
+         fields rather than in a second map — one format, one object, so the
+         summary and the expanded view cannot describe different things. */
+      desc:'Sticky footer is the cheapest persistent presence on a page. It is a reminder, not a story — anything that needs explaining does not belong in 50 pixels.',
+      runsOn:'Desktop & mobile', bestFor:'Always-on, direct response',
+      cpm:'RM 12 — RM 17', inventory:'21.6M monthly',
+      industries:['Retail','Financial Services','Telco'] }
   ];
 
   /* Sizes are structured, not a pre-written string, for one reason: the order
@@ -843,7 +1414,13 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
     return '';   /* sticky renders into the page and social into the copy column */
   }
 
-  function stageHtml(f){
+  /* `bare` drops the two controls the stage normally carries. It exists
+     because the related thumbnails are themselves <button>s, and a <button>
+     inside a <button> is invalid: the parser closes the outer one early, and
+     the label ended up outside the card it labelled. It is also just correct
+     for the panel's own stage — the compare action lives in the foot there,
+     and a second one over the artwork would be the same offer twice. */
+  function stageHtml(f, bare){
     /* Kept as an array, not a joined string, so the in-feed unit can be
        spliced BETWEEN two lines. Slicing a concatenated HTML string at a
        character index would cut a tag in half — it happened to look fine at
@@ -875,6 +1452,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
         (f.preview === 'sticky' ? '<div class="fmt-sticky"><b></b><i></i></div>' : '') +
         '</div>' +
       '</div>' +
+      (bare ? '' :
       /* The label says the verb, and it changes with the state — "Add to
          compare" on a control that would remove it is the commonest lie in
          a toggle. title carries the same string for the pointer. */
@@ -882,7 +1460,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
         'data-cmp="' + f.id + '" aria-pressed="false" ' +
         'aria-label="Add ' + esc(f.name) + ' to compare" title="Add to compare">' +
         '<i class="ph ph-plus" aria-hidden="true"></i></button>' +
-      '<span class="c-format-hint"><i class="ph ph-play" aria-hidden="true"></i>Tap to play</span>' +
+      '<span class="c-format-hint"><i class="ph ph-play" aria-hidden="true"></i>Tap to play</span>') +
     '</div>';
   }
 
@@ -910,17 +1488,391 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
     '</article>';
   }
 
+  /* ---- Expanded variant -------------------------------------------------
+     Built from the same records as the card, so the two can never describe
+     different formats. */
+
+  /* Size proxies. Drawn to ONE scale per format, computed so the largest slot
+     fills the row — a constant scale would either clip a 970-wide unit or
+     leave a 320×50 as a hairline. This is the only reason to draw them at
+     all: the numbers already say 970×250 is wide, the boxes say how much of
+     a page it takes next to a 300×250. Aspect-ratio formats have no pixels,
+     so their boxes are drawn to the same shared height and differ only in
+     shape, which is the whole of what a ratio has to say. */
+  function sizeProxies(list){
+    var boxes = list.slice().sort(function(a, b){ return sizeRank(a) - sizeRank(b); })
+      .map(function(z){
+        return z.r ? { w:z.r[0], h:z.r[1], label:z.r[0] + ':' + z.r[1] }
+                   : { w:z.w,    h:z.h,    label:z.w + '×' + z.h };
+      });
+    var maxW = Math.max.apply(null, boxes.map(function(b){ return b.w; }));
+    var maxH = Math.max.apply(null, boxes.map(function(b){ return b.h; }));
+    var k = Math.min(184 / maxW, 104 / maxH);
+    return boxes.map(function(b){
+      return '<div class="c-format-size"><i style="width:' + Math.round(b.w * k) +
+             'px; height:' + Math.round(b.h * k) + 'px"></i>' + esc(b.label) + '</div>';
+    }).join('');
+  }
+
+  /* Related. Same family first, then anything else, which is what a reader
+     asking "what else could do this job" actually means. Computed rather
+     than authored per format, so adding a format keeps every strip correct. */
+  function relatedTo(f){
+    var same  = FORMATS.filter(function(x){ return x.id !== f.id && x.family === f.family; });
+    var other = FORMATS.filter(function(x){ return x.id !== f.id && x.family !== f.family; });
+    return same.concat(other).slice(0, 3);
+  }
+
+  /* dt/dd as direct children of the one grid — no wrapper, for the reason
+     spelled out in the .c-format-facts rule. */
+  function factRow(label, value){
+    var na = !value;
+    return '<dt>' + esc(label) + '</dt><dd' + (na ? ' class="is-na"' : '') + '>' +
+      esc(na ? 'Not on file' : value) + '</dd>';
+  }
+
+  function panelHtml(f){
+    return '<div class="c-format-panel-head">' +
+        '<span class="c-format-crumbs">Ad formats' +
+          '<i class="ph ph-caret-right" aria-hidden="true"></i><b>' + esc(f.name) + '</b></span>' +
+        '<button class="c-icon-btn" type="button" data-panel="prev" aria-label="Previous format" title="Previous"><i class="ph ph-arrow-left" aria-hidden="true"></i></button>' +
+        '<button class="c-icon-btn" type="button" data-panel="next" aria-label="Next format" title="Next"><i class="ph ph-arrow-right" aria-hidden="true"></i></button>' +
+        '<button class="c-icon-btn" type="button" data-panel="close" aria-label="Close"><i class="ph ph-x" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<div class="c-format-panel-body">' +
+        '<div class="c-format-panel-stage">' + stageHtml(f, true) +
+          '<button class="c-format-replay" type="button" data-panel="replay">' +
+            '<i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Replay</button>' +
+        '</div>' +
+        '<div class="c-format-section">' +
+          '<div class="c-format-panel-title"><h3>' + esc(f.name) + '</h3>' +
+            '<span class="c-tag c-tag-' + FAMILY[f.family] + '"><i class="dot" aria-hidden="true"></i>' + esc(f.family) + '</span></div>' +
+          '<p class="c-format-panel-lede">' + esc(f.tagline) + '</p>' +
+          '<p class="c-format-panel-desc">' + esc(f.desc) + '</p>' +
+        '</div>' +
+        '<dl class="c-format-facts">' +
+          factRow('Objective', f.objective) +
+          factRow('Runs on', f.runsOn) +
+          factRow('Best for', f.bestFor) +
+          factRow('Funnel', f.funnel) +
+          factRow('CPM on file', f.cpm) +
+          factRow('Monthly inventory', f.inventory) +
+        '</dl>' +
+        '<div class="c-format-section"><h5>Supported sizes</h5>' +
+          '<div class="c-format-sizes">' + sizeProxies(f.sizes) + '</div></div>' +
+        '<div class="c-format-section"><h5>Benchmark</h5>' +
+          '<p class="c-format-panel-desc">' + (f.benchmark === 'Not published'
+            ? 'No benchmark has been published for this unit. Ask Sales for the last three campaigns&rsquo; numbers before quoting one.'
+            : esc(f.benchmark) + ' across campaigns on file. Treat it as a floor to beat, not a promise.') + '</p></div>' +
+        '<div class="c-format-section"><h5>Industries it has run for</h5>' +
+          '<div class="c-format-chipset">' +
+            f.industries.map(function(i){ return '<span class="c-chip">' + esc(i) + '</span>'; }).join('') +
+          '</div></div>' +
+        '<div class="c-format-section"><h5>Also consider</h5>' +
+          '<div class="c-format-related">' +
+            relatedTo(f).map(function(r){
+              return '<button class="c-format-relcard" type="button" data-rel="' + r.id + '">' +
+                stageHtml(r, true) +
+                '<span>' + esc(r.name) + '</span></button>';
+            }).join('') +
+          '</div></div>' +
+      '</div>' +
+      '<div class="c-format-panel-foot">' +
+        '<a class="c-btn c-btn-primary c-btn-md" href="#plan"><i class="ph ph-compass-tool" aria-hidden="true"></i>Use in a media plan</a>' +
+        '<button class="c-btn c-btn-secondary c-btn-md" type="button" disabled title="Live demos are switched off in this build">' +
+          '<i class="ph ph-arrow-square-out" aria-hidden="true"></i>Live demo</button>' +
+        '<span class="spacer"></span>' +
+        '<button class="c-btn c-btn-ghost c-btn-md" type="button" data-panel="cmp"><i class="ph ph-plus" aria-hidden="true"></i>Add to compare</button>' +
+      '</div>';
+  }
+
+  var panelIndex = 0;
+  function paintPanel(){
+    var host = document.getElementById('panel');
+    if (!host) return;
+    host.innerHTML = panelHtml(FORMATS[panelIndex]);
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('[data-panel]');
+    if (b){
+      var k = b.dataset.panel;
+      if (k === 'prev'){ panelIndex = (panelIndex - 1 + FORMATS.length) % FORMATS.length; paintPanel(); }
+      if (k === 'next'){ panelIndex = (panelIndex + 1) % FORMATS.length; paintPanel(); }
+      /* Close and the two foot actions have nothing to do in a draft that is
+         showing the panel inline on purpose — they are here to be looked at,
+         and saying so is better than wiring a fake. */
+      if (k === 'close' || k === 'cmp') b.blur();
+      if (k === 'replay'){
+        var st = b.parentNode.querySelector('.c-format-stage');
+        var c = st.cloneNode(true); st.parentNode.replaceChild(c, st);
+      }
+      return;
+    }
+    var rel = e.target.closest && e.target.closest('[data-rel]');
+    if (rel){
+      var i = FORMATS.map(function(x){ return x.id; }).indexOf(rel.dataset.rel);
+      if (i > -1){ panelIndex = i; paintPanel(); }
+    }
+  });
+
   var grid = document.getElementById('grid');
   grid.innerHTML = FORMATS.map(cardHtml).join('');
 
   /* ---- Selection. Checkbox's own role="checkbox" contract: click and both
      Space and Enter toggle it, aria-checked carries the state, and the card
      moves into Card Selectable's own .is-selected. */
-  function countSelected(){
-    var n = grid.querySelectorAll('.c-format-card.is-selected').length;
-    document.getElementById('cmpCount').textContent =
-      n + (n === 1 ? ' format selected' : ' formats selected');
+  /* ---- Compare bar. The cap is one constant, read by the label, by the
+     Compare button and by the grid's own toggles, so the three can never
+     disagree about what "full" means. */
+  var CAP = 4;
+  var cbar = document.getElementById('cbar');
+  var cbarLbl = document.getElementById('cbarLbl');
+  var cbarNames = document.getElementById('cbarNames');
+  var cbarOpen = document.getElementById('cbarOpen');
+
+  function selectedCards(){
+    return [].slice.call(grid.querySelectorAll('.c-format-card.is-selected'));
   }
+  function nameOf(card){
+    return card.querySelector('.c-format-open').textContent;
+  }
+  /* Input Chip verbatim — the same recipe Filter Bar's Applied Filters row
+     uses for the same job. The x is a real button with its own label,
+     because "x" alone is not a name for anything. */
+  function chipHtml(card){
+    var name = nameOf(card);
+    return '<span class="c-chip c-chip-input">' + esc(name) +
+      '<button class="c-chip-remove" type="button" data-uncmp="' + card.dataset.format +
+      '" aria-label="Remove ' + esc(name) + ' from compare"><i class="ph ph-x" aria-hidden="true"></i></button></span>';
+  }
+  /* The bar holds no state. It is painted from the grid every time, so the
+     chips, the count, the card borders and every aria-pressed are one fact
+     read four ways rather than four copies that drift. */
+  function paintBar(){
+    var cards = selectedCards(), n = cards.length;
+    cbarLbl.textContent = n + ' of ' + CAP + ' selected';
+    cbarNames.innerHTML = cards.map(chipHtml).join('');
+    /* One format compared against nothing is not a comparison. Disabled
+       with the reason on it, not left to be discovered by pressing. */
+    cbarOpen.disabled = n < 2;
+    cbarOpen.title = n < 2 ? 'Select at least two formats to compare' : '';
+    if (n > 0){
+      if (cbar.hidden){
+        cbar.hidden = false;
+        /* Force the style to resolve once with the bar displayed but still
+           at opacity 0. Without this the browser coalesces display:none →
+           .is-open into a single change, finds no start value, and the bar
+           appears instead of rising. A frame queued with rAF does not do
+           it: the callback runs before that frame's style is committed,
+           and — since Clear fires four toggles in a row — a frame queued at
+           n=3 lands after the one that took the set to zero and pops the
+           bar back open. */
+        void cbar.offsetWidth;
+      }
+      cbar.classList.add('is-open');
+    } else {
+      cbar.classList.remove('is-open');
+      /* Under prefers-reduced-motion there is no transition, so
+         transitionend never fires — this is what actually removes it. */
+      window.setTimeout(function(){
+        if (!cbar.classList.contains('is-open')) cbar.hidden = true;
+      }, 400);
+    }
+    /* The cap enforced where the user actually is. A label saying "4 of 4"
+       only tells you the ceiling exists once you have hit it. */
+    grid.querySelectorAll('.c-format-compare').forEach(function(b){
+      var on = b.getAttribute('aria-pressed') === 'true';
+      var full = !on && n >= CAP;
+      b.disabled = full;
+      b.title = full ? 'Compare holds ' + CAP + ' formats. Remove one to add another.'
+                     : (on ? 'Remove from compare' : 'Add to compare');
+    });
+  }
+  /* ---- Compare modal. Two to four columns, built from the same records
+     the cards and the panel use. It refuses to open outside that range
+     rather than rendering a comparison of one. */
+  var cmpLayer  = document.getElementById('cmpLayer');
+  var cmpBox    = document.getElementById('cmpBox');
+  var cmpScroll = document.getElementById('cmpScroll');
+  var cmpNote   = document.getElementById('cmpNote');
+  var cmpPlan   = document.getElementById('cmpPlan');
+  var cmpReturn = null;
+
+  /* A number alone is not comparable. "68% VTR" and "0.42% CTR" are both
+     numbers and ranking them is nonsense, so the unit is parsed with the
+     value and a row is only crowned when every cell reports the same one. */
+  function metric(v){
+    var m = /^[^0-9]*([0-9.]+)\s*%?\s*(.*)$/.exec(String(v || ''));
+    return m ? { n: parseFloat(m[1]), unit: m[2].trim().toLowerCase() } : null;
+  }
+  function bestIn(vals){
+    var ms = vals.map(metric), i;
+    /* Any gap, any disagreement about the unit, or a dead tie — no mark.
+       A badge on every cell in a row says less than no badge at all. */
+    for (i = 0; i < ms.length; i++) if (!ms[i] || ms[i].unit !== ms[0].unit) return [];
+    var max = Math.max.apply(null, ms.map(function(m){ return m.n; }));
+    var win = [];
+    ms.forEach(function(m, j){ if (m.n === max) win.push(j); });
+    return win.length === ms.length ? [] : win;
+  }
+  /* A value the data records as absent. The phrasing lives in the records
+     ("Not published", "Not on file"), so the test is the phrasing. */
+  function isNA(v){ return !v || /^not\s/i.test(v); }
+
+  var CMP_ROWS = [
+    { label:'Objective',  get:function(f){ return f.objective; } },
+    { label:'Funnel',     get:function(f){ return f.funnel.replace(/ · /g, ', '); } },
+    /* One size per line rather than the card's comma run: in a table this
+       is what makes two lists diffable. Same computed ascending order. */
+    { label:'Sizes',      get:function(f){ return sizeList(f.sizes); }, lines:true },
+    { label:'Runs on',    get:function(f){ return f.runsOn; } },
+    { label:'Benchmark',  get:function(f){ return f.benchmark; }, best:true, na:'Not published' },
+    { label:'CPM (MYR)',  get:function(f){ return f.cpm; }, na:'Not on file' },
+    { label:'Inventory',  get:function(f){ return f.inventory; }, best:true, na:'Not on file' },
+    { label:'Best for',   get:function(f){ return f.bestFor; } },
+    { label:'Industries', get:function(f){ return f.industries.join(', '); } }
+  ];
+
+  function cmpTableHtml(list){
+    /* table-layout:fixed divides the pane evenly, which is right until the
+       pane is narrower than the columns deserve. A floor of 180px per
+       format plus the label column makes the pane scroll sideways instead
+       of crushing four previews into a phone. */
+    var h = '<table class="c-table c-fmtcmp-table" style="min-width:' +
+      (124 + 180 * list.length) + 'px"><tbody>';
+    /* Bare stages: the compare toggle belongs on the card, not in here,
+       and a <button> inside this table's cells would be a control with no
+       job. Also the reason stageHtml has a bare mode at all. */
+    h += '<tr class="stages"><th scope="row"></th>' +
+      list.map(function(f){ return '<td>' + stageHtml(f, true) + '</td>'; }).join('') + '</tr>';
+    h += '<tr class="names"><th scope="row">Format</th>' +
+      list.map(function(f){
+        return '<td>' + esc(f.name) +
+          '<br><span class="c-tag c-tag-' + FAMILY[f.family] + '">' +
+          '<i class="dot" aria-hidden="true"></i>' + esc(f.family) + '</span></td>';
+      }).join('') + '</tr>';
+    CMP_ROWS.forEach(function(r){
+      var vals = list.map(r.get);
+      var win = r.best ? bestIn(vals) : [];
+      h += '<tr><th scope="row">' + esc(r.label) + '</th>';
+      vals.forEach(function(v, i){
+        var cell;
+        if (isNA(v)) cell = '<span class="is-na">' + esc(v || r.na || 'Not on file') + '</span>';
+        else if (r.lines) cell = '<span class="stack">' + String(v).split(', ').map(function(z){
+          return '<span>' + esc(z) + '</span>'; }).join('') + '</span>';
+        else cell = esc(v);
+        if (win.indexOf(i) > -1) cell += '<span class="c-badge c-badge-success">Highest</span>';
+        h += '<td>' + cell + '</td>';
+      });
+      h += '</tr>';
+    });
+    return h + '</tbody></table>';
+  }
+
+  function openCmp(list, trigger){
+    /* The bar's own rule, enforced a third time. Two of the three places
+       stop you before here; this one is what makes it true rather than
+       merely discouraged. */
+    if (list.length < 2 || list.length > CAP) return;
+    cmpScroll.innerHTML = cmpTableHtml(list);
+    cmpNote.textContent = 'Comparing ' + list.length + ' formats. A “Highest” mark appears only where every column reports the same measure and the values differ.';
+    cmpPlan.setAttribute('href', 'planner.html?formats=' + list.map(function(f){ return f.id; }).join(','));
+    cmpReturn = trigger || document.activeElement;
+    cmpLayer.classList.add('is-open');
+    /* Modal's lock: the page behind does not scroll. */
+    document.documentElement.style.overflow = 'hidden';
+    /* FLIP out of the trigger. Both boxes are measured here, with the
+       custom properties cleared first so the second open does not measure
+       the first one's start pose. */
+    cmpBox.style.cssText = '';
+    var b = cmpBox.getBoundingClientRect();
+    var t = trigger && trigger.getBoundingClientRect();
+    if (t && b.width && b.height){
+      cmpBox.style.setProperty('--sw-sx', (t.width / b.width).toFixed(4));
+      cmpBox.style.setProperty('--sw-sy', (t.height / b.height).toFixed(4));
+      cmpBox.style.setProperty('--sw-dx', Math.round((t.left + t.width / 2) - (b.left + b.width / 2)) + 'px');
+      cmpBox.style.setProperty('--sw-dy', Math.round((t.top + t.height / 2) - (b.top + b.height / 2)) + 'px');
+    }
+    void cmpBox.offsetWidth;
+    cmpLayer.classList.add('is-shown');
+    cmpBox.focus();
+  }
+  function closeCmp(){
+    if (!cmpLayer.classList.contains('is-open')) return;
+    cmpLayer.classList.remove('is-shown');
+    window.setTimeout(function(){
+      cmpLayer.classList.remove('is-open');
+      document.documentElement.style.overflow = '';
+      /* Focus goes back to whatever opened it. Dropping it on the body is
+         how a keyboard reader ends up at the top of the document. */
+      if (cmpReturn && document.contains(cmpReturn)) cmpReturn.focus();
+      cmpReturn = null;
+    }, 420);
+  }
+  document.getElementById('cmpClose').addEventListener('click', closeCmp);
+  document.getElementById('cmpScrim').addEventListener('click', closeCmp);
+  /* The scrim stops the mouse and does nothing about the keyboard — that is
+     Tutorial Modal's own note, and this is the trap it asks for. */
+  document.addEventListener('keydown', function(e){
+    if (!cmpLayer.classList.contains('is-open')) return;
+    if (e.key === 'Escape'){ e.preventDefault(); closeCmp(); return; }
+    if (e.key !== 'Tab') return;
+    var f = cmpBox.querySelectorAll('a[href], button:not([disabled])');
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1], a = document.activeElement;
+    if (e.shiftKey && (a === first || a === cmpBox)){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && a === last){ e.preventDefault(); first.focus(); }
+  });
+  /* The three demo triggers set the bar's selection too, so the path they
+     show is the real one — bar, modal, and back to the bar behind it. */
+  document.addEventListener('click', function(e){
+    var d = e.target.closest && e.target.closest('[data-demo]');
+    if (!d) return;
+    var n = +d.getAttribute('data-demo');
+    selectedCards().forEach(function(c){ toggle(c.querySelector('.c-format-compare')); });
+    /* Deliberately the four records with complete CPM and inventory, so
+       the "Highest" rule can be seen doing both things: crowning Inventory,
+       where every column is millions per month, and withholding on
+       Benchmark the moment a Viewability figure joins two CTRs. */
+    var want = FORMATS.slice(4, 4 + n);
+    want.forEach(function(f){
+      toggle(grid.querySelector('.c-format-card[data-format="' + f.id + '"] .c-format-compare'));
+    });
+    openCmp(want, d);
+  });
+
+  /* [hidden] goes on only after the exit has run, so the bar leaves on
+     Toast's own slide-and-fade instead of vanishing mid-transition. */
+  cbar.addEventListener('transitionend', function(e){
+    if (e.propertyName === 'opacity' && !cbar.classList.contains('is-open')) cbar.hidden = true;
+  });
+
+  cbar.addEventListener('click', function(e){
+    var rm = e.target.closest('[data-uncmp]');
+    if (rm){
+      var chip = rm.closest('.c-chip');
+      var i = [].indexOf.call(chip.parentNode.children, chip);
+      var btn = grid.querySelector('.c-format-card[data-format="' + rm.getAttribute('data-uncmp') + '"] .c-format-compare');
+      if (btn) toggle(btn);
+      /* Focus is never dropped on the body: it takes the place of the chip
+         that has gone, or the last chip, or — once the bar is leaving —
+         the format's own toggle back in the grid. */
+      var chips = cbarNames.children;
+      if (chips.length) chips[Math.min(i, chips.length - 1)].querySelector('.c-chip-remove').focus();
+      else if (btn) btn.focus();
+      return;
+    }
+    if (e.target.closest('#cbarClear')){
+      var first = selectedCards()[0];
+      selectedCards().forEach(function(c){ toggle(c.querySelector('.c-format-compare')); });
+      if (first) first.querySelector('.c-format-compare').focus();
+    }
+    if (e.target.closest('#cbarOpen')){
+      openCmp(selectedCards().map(function(c){
+        return FORMATS[FORMATS.map(function(f){ return f.id; }).indexOf(c.dataset.format)];
+      }), cbarOpen);
+    }
+  });
   /* One toggle, four things to keep in step: the pressed state, the two real
      Button variants, the glyph, and both labels. They are set together here
      rather than in four listeners so they cannot drift apart. */
@@ -938,7 +1890,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
     btn.setAttribute('aria-label', (on ? 'Remove ' : 'Add ') + name + (on ? ' from compare' : ' to compare'));
     btn.setAttribute('title', on ? 'Remove from compare' : 'Add to compare');
     btn.closest('.c-format-card').classList.toggle('is-selected', on);
-    countSelected();
+    paintBar();
   }
   grid.addEventListener('click', function(e){
     var btn = e.target.closest('.c-format-compare');
@@ -990,7 +1942,15 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
      stop competing with the live grid above. */
   anat.querySelectorAll('a, [tabindex]').forEach(function(el){ el.setAttribute('tabindex', '-1'); });
 
-  countSelected();
+  /* The two specimens are illustrations of the live bar below, not a second
+     copy of it — nothing in them should be a tab stop competing with the
+     real one. Same treatment the anatomy card gets. */
+  document.querySelectorAll('.cbar-stage button').forEach(function(b){
+    b.setAttribute('tabindex', '-1');
+  });
+
+  paintBar();
+  paintPanel();
 })();
 </script>
 </body>
