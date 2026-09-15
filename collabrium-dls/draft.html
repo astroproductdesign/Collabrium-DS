@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Draft · Format card — Collabrium DLS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="SVG/coin.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+/* ==========================================================================
+   DRAFT — Format card
+   Nothing in this file is part of the DLS yet. tokens.css and components.css
+   are linked, never edited: everything the system already owns is used as it
+   ships (Card, Card Interactive, Card Selectable, Checkbox, Tag, Button),
+   and only the parts this component genuinely adds are written here.
+   If it is accepted, these rules move into components.css and the spec below
+   moves into DESIGN-SYSTEM.md in the same pass — per SKILL.md.
+   ========================================================================== */
+*{box-sizing:border-box;}
+body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary);}
+
+/* ---- Page chrome. Not the component; just enough to read it by. ---- */
+.pg{max-width:1120px; margin:0 auto; padding:var(--spacing-48) var(--spacing-24) var(--spacing-60);}
+.pg-head{margin-bottom:var(--spacing-40);}
+.pg-head h1{margin:0 0 var(--spacing-8); font-size:var(--text-h2-size); line-height:var(--text-h2-lh); font-weight:var(--text-h2-weight);}
+.pg-head p{margin:0; max-width:70ch; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); color:var(--color-neutral-5);}
+.sect{margin-top:var(--spacing-48);}
+.sect > h2{margin:0 0 var(--spacing-8); font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight);}
+.sect > p, .sect > ul{margin:0 0 var(--spacing-16); max-width:78ch; font-size:var(--text-body2-size); line-height:var(--text-body2-lh-lg); color:var(--color-neutral-7);}
+.sect > h3{margin:var(--spacing-24) 0 var(--spacing-8); font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight);}
+.eyebrow{display:block; margin-bottom:var(--spacing-4); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
+.tbl{width:100%; border-collapse:collapse; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); margin-bottom:var(--spacing-16);}
+.tbl th, .tbl td{text-align:left; vertical-align:top; padding:var(--spacing-8) var(--spacing-12); border-bottom:1px solid var(--color-neutral-3);}
+.tbl th{font-weight:700; color:var(--color-neutral-9); white-space:nowrap;}
+.tbl td{color:var(--color-neutral-7);}
+.tbl td code, .sect code{font-family:var(--font-primary); font-weight:700; color:var(--color-neutral-9); background:var(--color-neutral-2); border-radius:6px; padding:1px 5px; font-size:.92em;}
+.pre{margin:0 0 var(--spacing-16); padding:var(--spacing-16); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow-x:auto; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; line-height:19px; color:var(--color-neutral-7); white-space:pre;}
+.pre b{color:var(--color-neutral-9); font-weight:700;}
+.pre i{color:var(--color-navy); font-style:normal;}
+.note{display:flex; gap:var(--spacing-12); padding:var(--spacing-16); border-radius:var(--radius-lg); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); margin-bottom:var(--spacing-16);}
+.note > i{flex:none; font-size:var(--icon-base); color:var(--color-neutral-5); margin-top:1px;}
+.note p{margin:0 0 var(--spacing-8); font-size:var(--text-body2-size); line-height:var(--text-body2-lh-lg); color:var(--color-neutral-7);}
+.note p:last-child{margin-bottom:0;}
+.note b{color:var(--color-neutral-9);}
+/* Screen-reader-only. The DLS has no such utility yet — flagged below. */
+.vh{position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;}
+
+/* ==========================================================================
+   THE COMPONENT — Format card
+   Extends Card (base), Card Interactive and Card Selectable. Everything
+   below is only what those three do not already carry: the preview stage,
+   the title row's tag alignment, and the rest/spec swap.
+   ========================================================================== */
+
+/* Grid. The DLS's own universal card-grid contract, verbatim — auto-fill +
+   minmax at this variant's own min-width floor, align-items:stretch left at
+   its default so a row of cards matches the tallest. The floor is 300px, not
+   the base 240: the stage renders a two-column page mock, and below ~300 the
+   mock's side rail stops reading as a rail. */
+.c-format-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:var(--spacing-16); align-items:stretch;}
+
+/* The card. --fc-bw/--fc-pad exist so the full-bleed stage can stay welded to
+   the card's inner edge through the Selected state's 1px→2px border swap,
+   which the DLS specifies as instant and uncompensated elsewhere. Without
+   them the stage would overhang by exactly 1px the moment a card is checked. */
+.c-format-card{--fc-bw:1px; --fc-pad:var(--spacing-16); height:100%; min-width:300px; gap:var(--spacing-12); overflow:hidden;}
+.c-format-card.is-selected{--fc-bw:2px;  --fc-pad:calc(var(--spacing-16) - 1px);}
+
+/* ---- 1. Preview stage -----------------------------------------------------
+   Full-bleed to the card's inner edge rather than inset. An inset stage would
+   need a nested radius of radius-lg − spacing-16 = 4px, and 4px is not a
+   token; bleeding it lets the stage take the card's own radius-lg and invent
+   no new shape. The −var(--fc-bw) is the inner edge of the border, derived
+   from the token rather than guessed at.
+   16:10, because a page mock is a landscape thing and this is the one ratio
+   that leaves the side rail readable at the 300px floor. */
+/* The wrapper carries the bleed and the radius; the stage is just the mock
+   inside it. They are two elements rather than one because the play hint has
+   to be positioned against the preview but must NOT live inside it — the
+   stage is aria-hidden, and an affordance inside an aria-hidden subtree is an
+   affordance no screen reader can announce. (The markup this was drawn from
+   had exactly this wrapper, and it was right to.) */
+.c-format-stagewrap{position:relative; margin:calc(var(--fc-pad) * -1) calc(var(--fc-pad) * -1) 0; aspect-ratio:16/10;
+  border-radius:calc(var(--radius-lg) - var(--fc-bw)) calc(var(--radius-lg) - var(--fc-bw)) 0 0;
+  background:var(--color-canvas-warm); overflow:hidden; flex:none;}
+.c-format-stage{position:absolute; inset:0;}
+
+/* The page mock. Deliberately a wireframe in neutrals and never in element
+   colour: the tint on this card means "which family", and a second coloured
+   thing inside the preview would be a second, competing classification. The
+   only saturated thing in the stage is the ad unit itself, which is the
+   subject. */
+.fmt-page{position:absolute; inset:6%; display:flex; flex-direction:column; background:var(--color-neutral-1); border-radius:var(--radius-sm); box-shadow:var(--shadow-1); overflow:hidden;}
+.fmt-chrome{display:flex; align-items:center; gap:3px; padding:5px 7px; background:var(--color-neutral-2); flex:none;}
+.fmt-chrome i{width:4px; height:4px; border-radius:var(--radius-pill); background:var(--color-neutral-4); flex:none;}
+.fmt-chrome b{flex:1; height:5px; margin-left:4px; border-radius:var(--radius-pill); background:var(--color-neutral-3);}
+.fmt-cols{flex:1; display:flex; gap:7px; padding:7px; min-height:0;}
+.fmt-copy{flex:1 1 auto; display:flex; flex-direction:column; gap:4px; min-width:0;}
+.fmt-copy b{height:3px; border-radius:var(--radius-pill); background:var(--color-neutral-3); flex:none;}
+.fmt-copy b.h{height:6px; width:62%; background:var(--color-neutral-4);}
+/* The image block absorbs the column's slack rather than the slack pooling
+   as dead white below the last line — a mock that stops two-thirds of the
+   way down reads as a broken thumbnail, not as a page. */
+.fmt-copy b.img{flex:1 1 auto; min-height:22px; border-radius:4px; background:var(--color-neutral-2);}
+.fmt-rail{flex:0 0 34%; display:flex; align-items:flex-start; justify-content:center; min-width:0;}
+
+/* The unit. One shared shell so every format's slot sits in the same place
+   and the reader is comparing the behaviour, not the placement. */
+.fmt-unit{width:100%; border-radius:4px; background:var(--color-obsidian); color:var(--color-neutral-1); overflow:hidden; position:relative;}
+
+/* ---- 2. Select checkbox ---------------------------------------------------
+   Card Selectable's own recipe verbatim — same 18px .c-checkbox-box, same
+   spacing-16 inset, same hover-reveal, same Selected persistence. The one
+   addition is the Neutral-1 backing plate: this checkbox sits over a preview
+   rather than over the card's own white padding, and an unbacked 1px Neutral-3
+   outline is not reliably visible against an arbitrary mock. */
+.c-format-card .c-card-select{z-index:3;}
+.c-format-card .c-card-select .c-checkbox-box{background:var(--color-neutral-1); box-shadow:var(--shadow-1);}
+.c-format-card .c-card-select .c-checkbox-box.on{background:var(--color-obsidian);}
+
+/* ---- 3. Play hint ---------------------------------------------------------
+   Coarse pointers only. On a touch device there is no hover, so the preview
+   would simply never move and the card would look broken rather than static.
+   Hidden on fine pointers, where hovering is the affordance and a label
+   telling you to do what you are already doing is noise. */
+.c-format-hint{display:none;}
+@media (pointer:coarse){
+  .c-format-hint{position:absolute; left:var(--spacing-8); bottom:var(--spacing-8); z-index:2;
+    display:inline-flex; align-items:center; gap:4px; height:24px; padding:0 10px;
+    border-radius:var(--radius-pill); background:var(--color-neutral-1); box-shadow:var(--shadow-1);
+    font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
+  .c-format-hint i{font-size:var(--icon-micro);}
+  .c-format-card.is-playing .c-format-hint{display:none;}
+}
+
+/* ---- 4. Title row ---------------------------------------------------------
+   The title is a real link, and it is the card's only primary tab stop. The
+   spacing-24 right reserve is Card Selectable's own rule, moved from its h5
+   onto this row's h4 — the checkbox's footprint has to be held at rest too,
+   or the title would reflow the instant it fades in. */
+.c-format-titlerow{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-8);}
+.c-format-titlerow h4{margin:0; min-width:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+.c-format-open{color:inherit; text-decoration:none;}
+.c-format-open:hover{text-decoration:underline; text-underline-offset:3px;}
+.c-format-open:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:3px; border-radius:4px;}
+/* Stretched hit area: the whole card is the link's target, which is what
+   makes the card clickable without a role="button" wrapper or a click
+   handler. The checkbox sits above it on z-index, so it still takes its own
+   clicks. */
+.c-format-open::after{content:""; position:absolute; inset:0; z-index:1;}
+.c-format-card{position:relative;}
+.c-format-titlerow .c-tag{flex:none; margin-right:var(--spacing-24);}
+
+/* ---- 5. Rest / spec swap --------------------------------------------------
+   Both halves are always in the DOM and always in the accessibility tree —
+   only the paint swaps. A reader on a screen reader gets the tagline and the
+   spec; a reader with a pointer gets whichever one they asked for.
+   Grid-stacked rather than absolutely positioned, so the card's height is the
+   taller of the two at rest and never changes on hover. */
+.c-format-swap{display:grid; min-height:0;}
+.c-format-swap > *{grid-area:1/1; transition:opacity var(--duration-base) var(--ease-standard);}
+.c-format-spec{opacity:0;}
+.c-format-card:hover .c-format-rest,
+.c-format-card:focus-within .c-format-rest{opacity:0;}
+.c-format-card:hover .c-format-spec,
+.c-format-card:focus-within .c-format-spec{opacity:1;}
+.c-format-rest{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-format-tagline{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+.c-format-funnel{margin:0; font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-format-spec{margin:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-format-spec > div{display:flex; flex-direction:column; gap:1px;}
+.c-format-spec dt{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-format-spec dd{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
+/* Touch has no hover to swap with, so it stops being a swap and becomes two
+   stacked blocks. A control whose second half is only reachable by hovering
+   is a control with no second half on a phone. */
+@media (pointer:coarse){
+  .c-format-swap{display:flex; flex-direction:column; gap:var(--spacing-12);}
+  .c-format-spec{opacity:1;}
+  .c-format-card:hover .c-format-rest{opacity:1;}
+}
+
+/* ==========================================================================
+   Preview behaviours — one per format family.
+   Each runs only while the card is hovered, focused within, or (on touch)
+   tapped into .is-playing. At rest every stage holds its first pose, so a
+   grid of twelve cards is not twelve things moving at once.
+   ========================================================================== */
+.c-format-card{--play:paused;}
+.c-format-card:hover, .c-format-card:focus-within, .c-format-card.is-playing{--play:running;}
+
+/* Flip — a pose-to-pose shape change, so duration-morph/ease-morph, the pair
+   the system already names for exactly this. */
+/* width:100% is load-bearing — both faces are absolute, so they contribute
+   no intrinsic size and the unit collapses to nothing without it. */
+.fmt-flip{width:100%; perspective:320px; background:transparent;}
+.fmt-flip-inner{position:relative; width:100%; aspect-ratio:3/4; transform-style:preserve-3d; animation:fmt-flip 3.4s var(--ease-morph) infinite; animation-play-state:var(--play);}
+.fmt-face{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border-radius:4px; backface-visibility:hidden; padding:6px;}
+.fmt-front{background:var(--color-obsidian);}
+.fmt-back{background:var(--color-navy); transform:rotateY(180deg);}
+.fmt-face b{width:60%; height:4px; border-radius:var(--radius-pill); background:var(--color-neutral-1); opacity:.9;}
+.fmt-face i{width:26px; height:26px; border-radius:var(--radius-pill); background:var(--color-neutral-1); opacity:.28;}
+.fmt-face em{font-style:normal; font-size:7px; font-weight:700; color:var(--color-neutral-1); opacity:.75;}
+@keyframes fmt-flip{0%,34%{transform:rotateY(0);} 50%,84%{transform:rotateY(180deg);} 100%{transform:rotateY(0);}}
+
+/* Expand — the unit grows and the copy column is pushed, which is the whole
+   point of the format and the thing a still frame cannot say. */
+.fmt-expand{height:34px; animation:fmt-expand 3.4s var(--ease-standard) infinite; animation-play-state:var(--play);}
+.fmt-expand b{position:absolute; left:6px; right:6px; top:6px; height:3px; border-radius:var(--radius-pill); background:var(--color-neutral-1); opacity:.55;}
+.fmt-expand i{position:absolute; left:6px; right:6px; top:14px; bottom:6px; border-radius:3px; background:var(--color-orange); opacity:0; animation:fmt-expand-fill 3.4s var(--ease-standard) infinite; animation-play-state:var(--play);}
+@keyframes fmt-expand{0%,22%{height:34px;} 42%,80%{height:86px;} 100%{height:34px;}}
+@keyframes fmt-expand-fill{0%,26%{opacity:0;} 46%,80%{opacity:1;} 100%{opacity:0;}}
+
+/* Video — a fill, which is Water's own documented motion (liquid-fill), used
+   here because the format is Wood-owned but the *gesture* being drawn is a
+   progress fill, and progress is a fill everywhere else in this system. */
+.fmt-video{aspect-ratio:16/9; background:var(--color-neutral-9); display:flex; align-items:center; justify-content:center;}
+.fmt-video i{width:0; height:0; border-style:solid; border-width:5px 0 5px 8px; border-color:transparent transparent transparent var(--color-neutral-1); opacity:.8;}
+.fmt-video b{position:absolute; left:0; bottom:0; height:3px; width:0; background:var(--color-salmon-pink); animation:fmt-fill 3.4s linear infinite; animation-play-state:var(--play);}
+@keyframes fmt-fill{0%{width:0;} 88%,100%{width:100%;}}
+
+/* Sticky — the bar never moves; the PAGE moves under it. That is the whole
+   fact about the format, and animating the bar's arrival instead would have
+   made frame one an empty stage: at rest the unit would simply not be there,
+   and a card whose preview shows nothing until you hover it reads as broken
+   rather than as resting. Every other preview's frame one is already a
+   legible pose; this is the one that had to be re-staged to become one. */
+.fmt-sticky{position:absolute; left:0; right:0; bottom:0; height:13px; background:var(--color-obsidian); display:flex; align-items:center; gap:4px; padding:0 5px; z-index:2;}
+.fmt-sticky b{flex:1; height:3px; border-radius:var(--radius-pill); background:var(--color-neutral-1); opacity:.5;}
+.fmt-sticky i{flex:none; width:16px; height:6px; border-radius:2px; background:var(--color-green);}
+/* Anchored, continuous travel under a fixed object — ease-flow, Water's own
+   curve, chosen because the motion being drawn is the page flowing past. */
+.c-format-stage[data-preview="sticky"] .fmt-cols{animation:fmt-scroll 3.4s var(--ease-flow) infinite; animation-play-state:var(--play);}
+@keyframes fmt-scroll{0%,8%{transform:translateY(0);} 55%,78%{transform:translateY(-26%);} 100%{transform:translateY(0);}}
+
+/* Reduced motion. The preview does not simply freeze on frame one — a still
+   of the resting pose is the one frame that says nothing about the format.
+   Every unit is pinned to its *revealed* pose instead, so a reader who has
+   asked for no motion still learns what the format does. */
+@media (prefers-reduced-motion:reduce){
+  .fmt-flip-inner, .fmt-expand, .fmt-expand i, .fmt-video b,
+  .c-format-stage[data-preview="sticky"] .fmt-cols{animation:none;}
+  .fmt-flip-inner{transform:rotateY(180deg);}
+  .fmt-expand{height:86px;}
+  .fmt-expand i{opacity:1;}
+  .fmt-video b{width:100%;}
+  /* Sticky needs no override: its bar is static in both modes, which is
+     exactly what the format does. */
+  .c-format-swap > *{transition:none;}
+}
+
+/* ---- Anatomy diagram. Page furniture, not the component. ---- */
+.anat{display:flex; flex-wrap:wrap; gap:var(--spacing-32); align-items:flex-start;}
+.anat-card{position:relative; width:320px; flex:none;}
+.pin{position:absolute; z-index:5; width:22px; height:22px; border-radius:var(--radius-pill); background:var(--color-obsidian); color:var(--color-neutral-1); font-size:var(--text-label3-size); font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-2);}
+.anat-key{flex:1 1 380px; min-width:300px;}
+/* The diagram has to show the parts it is pointing at. Two of them —
+   the checkbox and the play hint — are conditional at rest, so the
+   illustration forces both visible. This is diagram furniture, and it is
+   deliberately scoped to .anat-card so it can never leak into the real
+   component above. */
+.anat-card .c-card-select{opacity:1;}
+.anat-card .c-format-hint{display:inline-flex; position:absolute; left:var(--spacing-8); bottom:var(--spacing-8); z-index:2;
+  align-items:center; gap:4px; height:24px; padding:0 10px; border-radius:var(--radius-pill);
+  background:var(--color-neutral-1); box-shadow:var(--shadow-1);
+  font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
+.anat-card .c-format-hint i{font-size:var(--icon-micro);}
+</style>
+</head>
+<body>
+<div class="pg">
+
+  <header class="pg-head">
+    <span class="eyebrow">Draft — not in the system yet</span>
+    <h1>Format card</h1>
+    <p>A catalogue tile for an ad-format library: one card per format, each showing a live miniature of how the unit behaves on a page, what it is for, and what it costs to run. Built entirely on <code>tokens.css</code> and <code>components.css</code> as they ship — nothing in either file has been edited.</p>
+  </header>
+
+  <!-- ===================== USE CASE ===================== -->
+  <section class="sect">
+    <h2>Use case</h2>
+    <p>Media planners pick formats from a list of forty-odd options whose names mean nothing until you have seen one run. A table of names and sizes does not tell you what a “3D Float-flip” <em>is</em>; a still screenshot barely does better, because the whole difference between one format and the next is what happens over three seconds. This card's job is to make that difference visible before anyone opens a spec sheet.</p>
+
+    <h3>Use it when</h3>
+    <ul>
+      <li>The reader is <b>choosing between formats</b> they cannot be assumed to know by name.</li>
+      <li>Behaviour over time is the distinguishing feature — expand, flip, fill, stick.</li>
+      <li>A separate control on the page acts on a multi-card selection (a compare tray, an “Add 3 to brief” action). That is what earns the checkbox — see the note under Anatomy 2.</li>
+    </ul>
+
+    <h3>Don't use it when</h3>
+    <ul>
+      <li>The reader already knows exactly which format they want — a <a href="DESIGN-SYSTEM.md">Table</a> is faster to scan and sorts by size and benchmark, which this cannot.</li>
+      <li>There is nothing to animate. A card whose preview never moves is a base <b>Card</b> with a picture in it, and should be one.</li>
+      <li>Fewer than about four formats are on offer. A grid of two is a decision that should have been a pair of radio buttons.</li>
+    </ul>
+
+    <div class="note">
+      <i class="ph ph-info" aria-hidden="true"></i>
+      <div>
+        <p><b>Where it sits in the system.</b> This is a <b>Card variant</b>, not a new component family — it extends <code>.c-card</code>, <code>.c-card-interactive</code> and <code>.c-card-selectable</code> and adds three parts they do not have: the preview stage, the title row's tag slot, and the rest/spec swap. It takes the Card grid contract unmodified (<code>auto-fill</code> + <code>minmax</code>, <code>align-items:stretch</code>, <code>height:100%</code>), with its own min-width floor of <b>300px</b> against the base Card's 240.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LIVE ===================== -->
+  <section class="sect">
+    <h2>The component</h2>
+    <p>Hover or tab into a card to play its preview and swap the tagline for the spec. Tick a card to select it — selection is persistent, and the toolbar count below is the bulk-action context that justifies the checkbox existing at all.</p>
+
+    <div class="note" style="align-items:center">
+      <i class="ph ph-scales" aria-hidden="true"></i>
+      <div><p style="margin:0"><b id="cmpCount">0 formats selected</b> — a real compare tray would act on this set.</p></div>
+    </div>
+
+    <div class="c-format-grid" id="grid"></div>
+  </section>
+
+  <!-- ===================== ANATOMY ===================== -->
+  <section class="sect">
+    <h2>Anatomy</h2>
+    <p>Five parts. Two of them (the checkbox and the card shell) are existing components used verbatim; three are new.</p>
+
+    <div class="anat">
+      <div class="anat-card" id="anatCard"></div>
+      <div class="anat-key">
+        <table class="tbl">
+          <thead><tr><th>#</th><th>Part</th><th>Spec</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><b>Preview stage</b><br><code>.c-format-stage</code></td><td><b>New.</b> 16:10, full-bleed to the card's inner edge, <code>canvas-warm</code> ground under a Neutral-1 page mock at <code>radius-sm</code> + <code>shadow-1</code>. Bleeds rather than insets because an inset stage needs a nested radius of <code>radius-lg − spacing-16 = 4px</code>, and 4px is not a token — bleeding lets it take the card's own <code>radius-lg</code> and invent no new shape. Decorative: <code>aria-hidden="true"</code>, and the format's name and behaviour are carried in text below it.</td></tr>
+            <tr><td>2</td><td><b>Select checkbox</b><br><code>.c-card-select</code></td><td><b>Existing, verbatim.</b> Card Selectable's own recipe — 18px <code>.c-checkbox-box</code>, <code>spacing-16</code> inset, hidden at rest, revealed on hover, persistent once checked. One addition: a Neutral-1 backing plate, because here it sits over a preview rather than over the card's own white padding, and a 1px Neutral-3 outline is not reliably visible against an arbitrary mock.</td></tr>
+            <tr><td>3</td><td><b>Play hint</b><br><code>.c-format-hint</code></td><td><b>New, and conditional.</b> Renders only under <code>@media (pointer:coarse)</code>. A touch device has no hover, so without it the preview simply never moves and the card reads as broken rather than as resting. On a fine pointer it is suppressed — a label telling you to do the thing you are already doing is noise.</td></tr>
+            <tr><td>4</td><td><b>Title row</b><br><code>.c-format-titlerow</code></td><td><b>New container, existing contents.</b> Card's own h5 type token for the title, and the real <a href="#tag-note">Tag</a> component for the family. The title is an <code>&lt;a&gt;</code> with a stretched <code>::after</code> covering the card — that is what makes the whole card clickable, without a <code>role="button"</code> wrapper. <code>spacing-24</code> right reserve on the tag, held at rest as well as on hover, per Card Selectable's own rule.</td></tr>
+            <tr><td>5</td><td><b>Rest / spec swap</b><br><code>.c-format-swap</code></td><td><b>New.</b> Two blocks stacked in one grid cell, cross-fading on <code>duration-base</code>. At rest: tagline (body2/Neutral-5) + funnel stage (label3 eyebrow). On hover or focus-within: Objective, Sizes, Benchmark as a <code>&lt;dl&gt;</code>. Both halves stay in the DOM and in the accessibility tree — only the paint swaps. Under <code>pointer:coarse</code> it stops being a swap and becomes two stacked blocks.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== STRUCTURE ===================== -->
+  <section class="sect">
+    <h2>Structure</h2>
+    <p>One <code>&lt;article&gt;</code>, no nested interactive controls, two tab stops (title link, checkbox).</p>
+<div class="pre">&lt;<b>article</b> class="<i>c-card c-card-interactive c-card-selectable</i> c-format-card"&gt;
+
+  <span style="color:#5a5a5a">&lt;!-- 1. Preview. The wrapper positions the hint; the stage is
+       decorative and hidden whole --&gt;</span>
+  &lt;<b>div</b> class="c-format-stagewrap"&gt;
+    &lt;<b>div</b> class="c-format-stage" data-preview="flip" aria-hidden="true"&gt;
+      &lt;<b>div</b> class="fmt-page"&gt;
+        &lt;<b>div</b> class="fmt-chrome"&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;b&gt;&lt;/b&gt;&lt;/<b>div</b>&gt;
+        &lt;<b>div</b> class="fmt-cols"&gt;
+          &lt;<b>div</b> class="fmt-copy"&gt;<span style="color:#5a5a5a">…skeleton lines…</span>&lt;/<b>div</b>&gt;
+          &lt;<b>div</b> class="fmt-rail"&gt;<span style="color:#5a5a5a">…the unit…</span>&lt;/<b>div</b>&gt;
+        &lt;/<b>div</b>&gt;
+      &lt;/<b>div</b>&gt;
+    &lt;/<b>div</b>&gt;
+    <span style="color:#5a5a5a">&lt;!-- 3. Coarse-pointer only, and outside the aria-hidden stage --&gt;</span>
+    &lt;<b>span</b> class="c-format-hint"&gt;&lt;i class="ph ph-play"&gt;&lt;/i&gt;Tap to play&lt;/<b>span</b>&gt;
+  &lt;/<b>div</b>&gt;
+
+  <span style="color:#5a5a5a">&lt;!-- 2. Card Selectable's own checkbox, unmodified --&gt;</span>
+  &lt;<b>span</b> class="<i>c-card-select</i>"&gt;
+    &lt;<b>span</b> class="<i>c-checkbox-box</i>" role="checkbox" aria-checked="false"
+          tabindex="0" aria-label="Compare 3D Float-flip"&gt;&lt;/<b>span</b>&gt;
+  &lt;/<b>span</b>&gt;
+
+  <span style="color:#5a5a5a">&lt;!-- 4. Title row. The &lt;a&gt; is the card's primary action --&gt;</span>
+  &lt;<b>div</b> class="c-format-titlerow"&gt;
+    &lt;<b>h4</b>&gt;&lt;<b>a</b> class="c-format-open" href="/formats/3d-float-flip"&gt;3D Float-flip&lt;/<b>a</b>&gt;&lt;/<b>h4</b>&gt;
+    &lt;<b>span</b> class="<i>c-tag c-tag-water</i>"&gt;&lt;i class="dot"&gt;&lt;/i&gt;Interactive&lt;/<b>span</b>&gt;
+  &lt;/<b>div</b>&gt;
+
+  <span style="color:#5a5a5a">&lt;!-- 5. Both halves always present; only the paint swaps --&gt;</span>
+  &lt;<b>div</b> class="c-format-swap"&gt;
+    &lt;<b>div</b> class="c-format-rest"&gt;
+      &lt;<b>p</b> class="c-format-tagline"&gt;A 3D-style unit where cards float above…&lt;/<b>p</b>&gt;
+      &lt;<b>p</b> class="c-format-funnel"&gt;Awareness · Consideration&lt;/<b>p</b>&gt;
+    &lt;/<b>div</b>&gt;
+    &lt;<b>dl</b> class="c-format-spec"&gt;
+      &lt;<b>div</b>&gt;&lt;<b>dt</b>&gt;Objective&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;Brand / Product Awareness&lt;/<b>dd</b>&gt;&lt;/<b>div</b>&gt;
+      &lt;<b>div</b>&gt;&lt;<b>dt</b>&gt;Sizes&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;300×250 · 300×600 · 970×250&lt;/<b>dd</b>&gt;&lt;/<b>div</b>&gt;
+      &lt;<b>div</b>&gt;&lt;<b>dt</b>&gt;Benchmark&lt;/<b>dt</b>&gt;&lt;<b>dd</b>&gt;Not published&lt;/<b>dd</b>&gt;&lt;/<b>div</b>&gt;
+    &lt;/<b>dl</b>&gt;
+  &lt;/<b>div</b>&gt;
+
+&lt;/<b>article</b>&gt;</div>
+
+    <h3>What changed from the markup you sent, and why</h3>
+    <table class="tbl">
+      <thead><tr><th>Was</th><th>Now</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;article role="button" tabindex="0"&gt;</code> containing a <code>&lt;button&gt;</code></td><td><code>&lt;article&gt;</code> with a stretched-link <code>&lt;a&gt;</code> on the title, and the checkbox as a sibling</td><td>A control cannot contain another control. <code>role="button"</code> on a container with a real button inside is invalid nesting, and it collapses the card's own name and the compare action into one ambiguous tab stop. The stretched link keeps the whole card clickable, gives the card one honest accessible name, and leaves the checkbox its own stop.</td></tr>
+        <tr><td><code>.fm-cmp</code> — a bespoke <code>+</code> icon button</td><td>Card Selectable's own <code>.c-card-select</code> checkbox</td><td>The DLS already decides this case: “does something else on the page act on however many cards are checked?” A compare tray is exactly that, so the answer is the Selectable variant — hover-reveal, persistent Selected, 2px Obsidian border, <code>shadow-3</code>. A second convention for the same job is the thing the rule exists to prevent.</td></tr>
+        <tr><td>Hover-only swap (<code>.fm-swap</code>)</td><td>Swap on <code>:hover</code> <b>and</b> <code>:focus-within</code>; stacked under <code>pointer:coarse</code></td><td>Hover-only made Objective, Sizes and Benchmark unreachable by keyboard and invisible on every phone. The spec is the half a planner actually needs.</td></tr>
+        <tr><td><code>.fm-spec-cell</code> with <code>&lt;b&gt;</code>/<code>&lt;span&gt;</code></td><td><code>&lt;dl&gt;</code> / <code>&lt;dt&gt;</code> / <code>&lt;dd&gt;</code></td><td>It is a term-and-value list. <code>&lt;b&gt;</code> is bold-with-no-meaning; <code>&lt;dt&gt;</code> pairs the label to its value for anyone not looking at the layout.</td></tr>
+        <tr><td><code>&lt;em&gt;Tap to flip&lt;/em&gt;</code> inside the preview</td><td>Removed from the mock; the hint became <code>.c-format-hint</code> outside it</td><td>The preview is <code>aria-hidden</code> and rendered at ~7px. Instructions do not belong in a decorative thumbnail at a size nobody can read.</td></tr>
+        <tr><td>Fixed <code>--i: 0</code> stagger index</td><td>Not carried over</td><td>Nothing in this draft staggers. If an entrance is wanted later it belongs to the grid, not to a per-card inline style.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== STATES ===================== -->
+  <section class="sect">
+    <h2>States</h2>
+    <table class="tbl">
+      <thead><tr><th>State</th><th>What changes</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td><b>Default</b></td><td>Neutral-1, 1px Neutral-3, <code>shadow-1</code>, <code>radius-lg</code>. Preview holds its first pose. Tagline + funnel showing.</td><td>Card</td></tr>
+        <tr><td><b>Hover</b></td><td><code>shadow-2</code>, pointer cursor. Preview plays. Checkbox fades in. Swap crosses to the spec.</td><td>Card Interactive + new</td></tr>
+        <tr><td><b>Focus-visible</b></td><td><code>shadow-focus</code> on the card; a 2px Obsidian outline on the title link itself. Preview plays and the swap crosses, identically to hover — a keyboard reader gets the same card.</td><td>Card Interactive + new</td></tr>
+        <tr><td><b>Selected</b></td><td>2px Obsidian border, <code>shadow-3</code>, checkbox persistently visible and checked, padding down 1px/side in the same frame. Persistent, not a hover state.</td><td>Card Selectable, verbatim</td></tr>
+        <tr><td><b>Playing</b> (touch)</td><td><code>.is-playing</code>, set by tapping the stage. Preview runs; the play hint hides. Tapping the stage again stops it.</td><td>New</td></tr>
+        <tr><td><b>Reduced motion</b></td><td>Every preview is pinned to its <em>revealed</em> pose — flipped, expanded, filled, arrived — not frozen on frame one. The swap cross-fade becomes instant.</td><td>New</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <i class="ph ph-play-circle" aria-hidden="true"></i>
+      <div><p><b>Why the preview rests.</b> Twelve cards all animating at once is a grid nobody can read, and it is a battery cost on a page that is mostly being browsed. Each stage plays only while the card is hovered, focused within, or tapped — driven by a single <code>--play</code> custom property flipped between <code>paused</code> and <code>running</code>, so every format's animation obeys one switch rather than each one wiring its own.</p></div>
+    </div>
+  </section>
+
+  <!-- ===================== TOKENS ===================== -->
+  <section class="sect">
+    <h2>Tokens used</h2>
+    <p>No raw values, per Component Rule 3. The two exceptions are called out below and both are derived from tokens rather than chosen.</p>
+    <table class="tbl">
+      <thead><tr><th>Role</th><th>Token</th></tr></thead>
+      <tbody>
+        <tr><td>Card shell</td><td><code>--radius-lg</code>, <code>--spacing-16</code>, <code>--shadow-1</code> / <code>-2</code> / <code>-3</code> / <code>--shadow-focus</code>, <code>--color-neutral-1</code> / <code>-3</code>, <code>--color-obsidian</code></td></tr>
+        <tr><td>Stage</td><td><code>--color-canvas-warm</code> ground, <code>--radius-sm</code> page mock, <code>--color-neutral-2</code> / <code>-3</code> / <code>-4</code> wireframe</td></tr>
+        <tr><td>Type</td><td><code>--text-h5-*</code> title, <code>--text-body2-*</code> tagline and values, <code>--text-label3-*</code> eyebrows, <code>--text-caption-*</code> hint</td></tr>
+        <tr><td>Motion</td><td><code>--duration-base</code> + <code>--ease-standard</code> swap; <code>--ease-morph</code> flip; <code>--ease-settle</code> sticky arrival; <code>--duration-fast</code> checkbox reveal</td></tr>
+        <tr><td>Family tags</td><td><code>.c-tag-water</code> / <code>-fire</code> / <code>-wood</code> / <code>-earth</code>, as they ship</td></tr>
+      </tbody>
+    </table>
+    <p><b>Derived, not invented:</b> the stage's inner radius is <code>calc(var(--radius-lg) − var(--fc-bw))</code> — the inside edge of the card's own border, which moves correctly when Selected swaps 1px for 2px. The wireframe's 3–6px bar heights inside the page mock are sub-token because the mock is a <em>drawing of a page at ~12% scale</em>, not a UI surface; treating them as spacing tokens would be a category error.</p>
+  </section>
+
+  <!-- ===================== FINDINGS ===================== -->
+  <section class="sect">
+    <h2>Open questions before this goes in</h2>
+
+    <div class="note" id="tag-note">
+      <i class="ph ph-warning" aria-hidden="true"></i>
+      <div>
+        <p><b>1. Tag contrast fails AA — and this is a pre-existing system issue, not a draft one.</b> Component Rule 5 says contrast is checked, not assumed, so I measured all five Tag variants as they ship in <code>components.css</code>: element colour on that element's own <code>-bg</code> tint, at caption size (12px, weight 700 — body text, so the 4.5:1 floor applies).</p>
+        <table class="tbl" style="margin-top:var(--spacing-12)">
+          <thead><tr><th>Tag</th><th>Pair</th><th>Measured</th><th>4.5:1</th></tr></thead>
+          <tbody>
+            <tr><td><span class="c-tag c-tag-water"><i class="dot"></i>Water</span></td><td><code>#1473E6</code> on <code>#E8F1FD</code></td><td>3.99:1</td><td>fails</td></tr>
+            <tr><td><span class="c-tag c-tag-fire"><i class="dot"></i>Fire</span></td><td><code>#FF5825</code> on <code>#FFEEE9</code></td><td>2.80:1</td><td>fails</td></tr>
+            <tr><td><span class="c-tag c-tag-wood"><i class="dot"></i>Wood</span></td><td><code>#FF7A90</code> on <code>#FFF2F4</code></td><td>2.28:1</td><td>fails</td></tr>
+            <tr><td><span class="c-tag c-tag-earth"><i class="dot"></i>Earth</span></td><td><code>#00C26E</code> on <code>#E6F9F1</code></td><td>2.15:1</td><td>fails</td></tr>
+            <tr><td><span class="c-tag c-tag-gold"><i class="dot"></i>Gold</span></td><td><code>#FFA425</code> on <code>#FFF6E9</code></td><td>1.85:1</td><td>fails</td></tr>
+          </tbody>
+        </table>
+        <p>Badge already solves this for two of its variants — its Success and Warning text are documented as “darkened for AA”. Tag never got the same treatment. The fix is the same one: a darkened text step per element, dot and fill unchanged. That is a <code>components.css</code> change and is <b>not</b> in this draft, because you asked me not to touch the system files. The draft uses Tag exactly as it ships so the gap stays visible rather than being papered over here.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <i class="ph ph-question" aria-hidden="true"></i>
+      <div>
+        <p><b>2. Is a format family really a Tag?</b> Badge &amp; Tag defines Tag as “labels <em>which element/department owns</em> something”. A format family — Interactive, Rich media, Video, Standard — is a taxonomy, not an owner: every format on this page is owned by CollabMedia, so colouring by owner would make all four cards Water and say nothing.</p>
+        <p>I used Tag anyway, because the alternative is a sixth pill component and Rule 2 already makes element colour the classifying signal. But it does stretch the definition, and the honest options are: (a) widen Tag's definition in DESIGN-SYSTEM.md to “ownership <em>or</em> classification”, (b) record a fixed family→element mapping so the colours are at least stable, or (c) drop the colour and use a Neutral tag. <b>Your call</b> — I would take (a) plus (b).</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <i class="ph ph-question" aria-hidden="true"></i>
+      <div>
+        <p><b>3. The system has no screen-reader-only utility.</b> This draft defines a local <code>.vh</code> class for the checkbox's label. Several existing components need one too and each currently works around it. Worth adding once to <code>components.css</code>.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <i class="ph ph-question" aria-hidden="true"></i>
+      <div>
+        <p><b>4. Benchmark is sometimes “Not published”.</b> Rendering an empty value as a phrase is right, but it means the Sizes row and the Benchmark row carry different <em>kinds</em> of fact at the same weight. If the benchmark is usually missing, it should probably be a Badge (a status) rather than a spec value.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* One record per format. Family drives the Tag variant and the preview
+     behaviour; nothing else varies. */
+  var FORMATS = [
+    { id:'3d-float-flip', name:'3D Float-flip', family:'Interactive', tag:'water', preview:'flip',
+      tagline:'A 3D-style unit where cards or objects float above the background and flip to reveal more detail on interaction.',
+      funnel:'Awareness · Consideration',
+      objective:'Brand / Product Awareness',
+      sizes:'300×250 · 300×600 · 320×480 · 970×250',
+      benchmark:'Not published' },
+    { id:'expandable-banner', name:'Expandable banner', family:'Rich media', tag:'fire', preview:'expand',
+      tagline:'A standard banner that pushes the page down to reveal a larger canvas, then collapses back when the reader moves on.',
+      funnel:'Consideration',
+      objective:'Product Consideration',
+      sizes:'300×250 → 300×600 · 970×250 → 970×500',
+      benchmark:'0.42% CTR' },
+    { id:'in-article-video', name:'In-article video', family:'Video', tag:'wood', preview:'video',
+      tagline:'A player seeded between paragraphs that starts muted in view and holds its place as the reader scrolls past.',
+      funnel:'Awareness',
+      objective:'Brand Awareness',
+      sizes:'16:9 · 1:1 · 9:16',
+      benchmark:'68% VTR' },
+    { id:'sticky-footer', name:'Sticky footer', family:'Standard', tag:'earth', preview:'sticky',
+      tagline:'A slim bar anchored to the bottom of the viewport that stays with the reader for the whole session.',
+      funnel:'Consideration · Conversion',
+      objective:'Traffic / Direct Response',
+      sizes:'320×50 · 320×100 · 728×90',
+      benchmark:'0.18% CTR' }
+  ];
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  /* The page mock. Identical for every format except the unit in the rail —
+     that is the point: the reader is comparing behaviour, not placement. */
+  function unitHtml(kind){
+    if (kind === 'flip') return '<div class="fmt-flip"><div class="fmt-flip-inner">' +
+      '<div class="fmt-face fmt-front"><i></i><b></b></div>' +
+      '<div class="fmt-face fmt-back"><em>20% off</em><b></b></div>' +
+      '</div></div>';
+    if (kind === 'expand') return '<div class="fmt-unit fmt-expand"><b></b><i></i></div>';
+    if (kind === 'video')  return '<div class="fmt-unit fmt-video"><i></i><b></b></div>';
+    return '';   /* sticky renders into the page, not the rail */
+  }
+
+  function stageHtml(f){
+    var lines = ['<b class="h"></b>','<b></b>','<b style="width:85%"></b>','<b class="img"></b>',
+                 '<b></b>','<b style="width:70%"></b>','<b></b>','<b style="width:58%"></b>'].join('');
+    return '<div class="c-format-stagewrap">' +
+      '<div class="c-format-stage" data-preview="' + f.preview + '" aria-hidden="true">' +
+      '<div class="fmt-page">' +
+        '<div class="fmt-chrome"><i></i><i></i><i></i><b></b></div>' +
+        '<div class="fmt-cols">' +
+          '<div class="fmt-copy">' + lines + '</div>' +
+          '<div class="fmt-rail">' + unitHtml(f.preview) + '</div>' +
+        '</div>' +
+        (f.preview === 'sticky' ? '<div class="fmt-sticky"><b></b><i></i></div>' : '') +
+        '</div>' +
+      '</div>' +
+      '<span class="c-format-hint"><i class="ph ph-play" aria-hidden="true"></i>Tap to play</span>' +
+    '</div>';
+  }
+
+  function cardHtml(f){
+    return '<article class="c-card c-card-interactive c-card-selectable c-format-card" data-format="' + f.id + '">' +
+      stageHtml(f) +
+      '<span class="c-card-select">' +
+        '<span class="c-checkbox-box" role="checkbox" aria-checked="false" tabindex="0" ' +
+          'aria-label="Compare ' + esc(f.name) + '"></span>' +
+      '</span>' +
+      '<div class="c-format-titlerow">' +
+        '<h4><a class="c-format-open" href="#' + f.id + '">' + esc(f.name) + '</a></h4>' +
+        '<span class="c-tag c-tag-' + f.tag + '"><i class="dot" aria-hidden="true"></i>' + esc(f.family) + '</span>' +
+      '</div>' +
+      '<div class="c-format-swap">' +
+        '<div class="c-format-rest">' +
+          '<p class="c-format-tagline">' + esc(f.tagline) + '</p>' +
+          '<p class="c-format-funnel">' + esc(f.funnel) + '</p>' +
+        '</div>' +
+        '<dl class="c-format-spec">' +
+          '<div><dt>Objective</dt><dd>' + esc(f.objective) + '</dd></div>' +
+          '<div><dt>Sizes</dt><dd>' + esc(f.sizes) + '</dd></div>' +
+          '<div><dt>Benchmark</dt><dd>' + esc(f.benchmark) + '</dd></div>' +
+        '</dl>' +
+      '</div>' +
+    '</article>';
+  }
+
+  var grid = document.getElementById('grid');
+  grid.innerHTML = FORMATS.map(cardHtml).join('');
+
+  /* ---- Selection. Checkbox's own role="checkbox" contract: click and both
+     Space and Enter toggle it, aria-checked carries the state, and the card
+     moves into Card Selectable's own .is-selected. */
+  function countSelected(){
+    var n = grid.querySelectorAll('.c-format-card.is-selected').length;
+    document.getElementById('cmpCount').textContent =
+      n + (n === 1 ? ' format selected' : ' formats selected');
+  }
+  function toggle(box){
+    var on = box.getAttribute('aria-checked') === 'true';
+    box.setAttribute('aria-checked', on ? 'false' : 'true');
+    box.classList.toggle('on', !on);
+    box.innerHTML = on ? '' : '<i class="ph ph-check" aria-hidden="true"></i>';
+    box.closest('.c-format-card').classList.toggle('is-selected', !on);
+    countSelected();
+  }
+  grid.addEventListener('click', function(e){
+    var box = e.target.closest('.c-checkbox-box');
+    if (box){
+      /* The title's stretched ::after covers the card, so the checkbox has to
+         stop the click reaching it — otherwise ticking a card also opens it. */
+      e.preventDefault(); e.stopPropagation();
+      toggle(box);
+      return;
+    }
+    var link = e.target.closest('.c-format-open');
+    if (link) e.preventDefault();   /* draft: nothing to navigate to */
+  });
+  grid.addEventListener('keydown', function(e){
+    var box = e.target.closest('.c-checkbox-box');
+    if (!box) return;
+    if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggle(box); }
+  });
+
+  /* ---- Touch play. No hover on a coarse pointer, so the stage itself is the
+     switch. Bound unconditionally — the hint and the media query decide
+     whether it is ever the only way in. */
+  grid.addEventListener('click', function(e){
+    var stage = e.target.closest('.c-format-stage');
+    if (!stage) return;
+    if (!window.matchMedia || !window.matchMedia('(pointer:coarse)').matches) return;
+    e.preventDefault(); e.stopPropagation();
+    stage.closest('.c-format-card').classList.toggle('is-playing');
+  }, true);
+
+  /* ---- Anatomy diagram: one real card, pinned. Built from the same builder
+     as the grid, so the diagram cannot drift from the component. */
+  var anat = document.getElementById('anatCard');
+  anat.innerHTML = cardHtml(FORMATS[0]);
+  var PINS = [
+    { n:1, top:'54px',  left:'-11px' },
+    { n:2, top:'6px',   left:'297px' },
+    { n:3, top:'150px', left:'-11px' },
+    { n:4, top:'214px', left:'-11px' },
+    { n:5, top:'272px', left:'-11px' }
+  ];
+  PINS.forEach(function(p){
+    var el = document.createElement('span');
+    el.className = 'pin';
+    el.textContent = p.n;
+    el.setAttribute('aria-hidden', 'true');
+    el.style.top = p.top; el.style.left = p.left;
+    anat.appendChild(el);
+  });
+  /* The diagram's card is an illustration, so nothing in it should be a tab
+     stop competing with the live grid above. */
+  anat.querySelectorAll('a, [tabindex]').forEach(function(el){ el.setAttribute('tabindex', '-1'); });
+
+  countSelected();
+})();
+</script>
+</body>
+</html>
