@@ -500,28 +500,35 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
 .c-format-panel-lede{margin:0; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); color:var(--color-neutral-7);}
 .c-format-panel-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh-lg); color:var(--color-neutral-5);}
 
-/* Facts. Two columns of the card's own one-line label/value pattern — same
-   caption label, same label2 value, same auto-sized label column. A reader
-   moving from the card to the panel should not have to re-learn the shape. */
-/* ONE grid of four columns — label, value, label, value — not a grid of
-   two-column rows. I built it the second way first and it was wrong for the
-   same reason the card's spec list was wrong before it: each row sized its
-   own label column, so "Objective", "Best for" and "CPM on file" set three
-   different widths and their three values started at three different x
-   positions. One grid means the labels in a column share one `auto` width
-   and the values line up, which is the entire point of putting them in a
-   column. Same lesson, second surface. */
-.c-format-facts{display:grid; grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);
-  column-gap:var(--spacing-12); row-gap:var(--spacing-8); align-items:baseline;}
-/* Below the two-column threshold it folds to one pair per row. The columns
-   are declared here rather than by auto-fit because auto-fit cannot know
-   that these four tracks are two logical pairs. */
-@media (max-width:620px){ .c-format-facts{grid-template-columns:auto minmax(0,1fr);} }
-/* The gap between the two pairs is a column gap, not a margin, so it
-   disappears with the second pair when the grid folds. */
-.c-format-facts dt:nth-of-type(even){padding-left:var(--spacing-12);}
-@media (max-width:620px){ .c-format-facts dt:nth-of-type(even){padding-left:0;} }
-.c-format-facts dt{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); white-space:nowrap;}
+/* Facts. The card's own caption label and label2 value, stacked rather than
+   set side by side, on a warm surface of their own — so the six things a
+   planner needs before quoting read as one block instead of six lines
+   competing with the prose above and the size chart below.
+
+   Worth recording: the earlier side-by-side version needed ONE grid of four
+   tracks (label, value, label, value) rather than a grid of two-column
+   rows, because per-row grids each sized their own label column and the
+   values started at three different x positions — the same bug the card's
+   spec list had. Stacking the pair removes the problem at its root: nothing
+   has to line up across columns any more, because each fact owns its cell. */
+/* The block sits on Card's own Warm variant (.c-card.warm) — the fill
+   tokens.css describes as "a surface that's meant to blend into the warm
+   canvas ... a featured stat". Six facts is a stat block, so it takes the
+   shipped variant rather than a tinted div invented here. Two of .c-card's
+   own declarations have to be undone: height:100% and min-width:240px are
+   its grid-cell contract, and this block is not in a grid of cards. */
+.c-format-factcard{height:auto; min-width:0; gap:0;}
+/* Label above value now, not beside it — which removes the alignment
+   problem the old four-track grid existed to solve. Nothing has to line up
+   across columns any more, because each fact owns its own cell.
+   Three columns, then two: six divides evenly by both, so the last row is
+   never ragged. Declared rather than auto-fit for exactly that reason —
+   auto-fit would happily give four columns and leave two facts stranded. */
+.c-format-facts{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr));
+  column-gap:var(--spacing-16); row-gap:var(--spacing-16); margin:0;}
+@media (max-width:620px){ .c-format-facts{grid-template-columns:repeat(2, minmax(0, 1fr));} }
+.c-format-fact{display:flex; flex-direction:column; gap:2px; min-width:0;}
+.c-format-facts dt{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
 .c-format-facts dd{margin:0; font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight); color:var(--color-neutral-9);}
 /* A missing value is written out, never left blank and never zero — and it
    is set lighter and at regular weight so it cannot be mistaken, at a glance
@@ -694,12 +701,25 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
    screen reader and not only to the eye. */
 .c-fmtcmp-table{table-layout:fixed;}
 .c-fmtcmp-table th, .c-fmtcmp-table td{vertical-align:top;}
-/* Label column: Table's own freeze-left, at the caption/Neutral-5 weighting
-   the card and the panel already use for a label beside a value. */
+/* The label is 11/16 and the value 14/20, so top-aligning the two line
+   boxes leaves the eyebrow sitting about 2px proud of the text it labels.
+   Baseline alignment is the derived fix — the table does the arithmetic,
+   and it stays right if either type token ever changes. The stage row is
+   excluded: its cells hold a block, not a line, and it has no label. */
+.c-fmtcmp-table tr:not(.stages) th, .c-fmtcmp-table tr:not(.stages) td{vertical-align:baseline;}
+/* Label column: Table's own freeze-left, at the eyebrow recipe — which is
+   also Table's own header treatment (.c-table-embedded thead th: label3,
+   700, --text-label3-tracking, uppercase, Neutral-5). These ARE the header
+   cells, just turned onto their side, so they take the treatment the
+   component already gives headers rather than a third one invented here.
+   --text-label3-tracking (0.04em), not --tracking-eyebrow (0.12em): the
+   wider one is reserved for kickers and section eyebrows, and it is the
+   narrower one .c-table-embedded and this page's own .eyebrow both use. */
 .c-fmtcmp-table th[scope="row"]{position:sticky; left:0; z-index:2; width:124px;
   background:var(--color-neutral-1);
-  font-size:var(--text-caption-size); line-height:var(--text-caption-lh);
-  font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+  font-size:var(--text-label3-size); line-height:var(--text-label3-lh);
+  font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking);
+  text-transform:uppercase; color:var(--color-neutral-5);}
 /* The names row stays put while the facts scroll under it — with ten rows
    and four columns, a value whose column you cannot name is not a fact. */
 .c-fmtcmp-table tr.names th, .c-fmtcmp-table tr.names td{position:sticky; top:0; z-index:3;
@@ -816,7 +836,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
         <tr><td>Head controls</td><td><code>.c-icon-btn</code> verbatim — 32×32, <code>radius-sm</code>, Neutral-2 hover. Prev/next sit beside Close rather than on the artwork, because they page the <em>record</em>; over the stage they would read as scrubbing the preview.</td></tr>
         <tr><td>Preview</td><td>The card's own <code>.c-format-stage</code> and every <code>.fmt-*</code> behaviour, unchanged — same wireframe, same units, same <code>--play</code> switch. It just runs continuously here, since this surface exists to be watched and there is nothing to opt into.</td></tr>
         <tr><td>Title</td><td><code>h3</code> — Modal's own header token, because this is the same kind of object. Plus the same family <b>Tag</b>.</td></tr>
-        <tr><td>Facts</td><td>The card's own one-line label/value pattern: caption label, <code>label2</code> value, auto-sized label column. A reader moving from card to panel shouldn't have to re-learn the shape.</td></tr>
+        <tr><td>Facts</td><td><b>Card</b>'s own <b>Warm</b> variant (<code>.c-card.warm</code>) — the fill <code>tokens.css</code> describes as “a surface that's meant to blend into the warm canvas … a featured stat”. Six facts is a stat block, so it takes the shipped variant rather than a tinted <code>div</code>. Inside it, the card's caption label and <code>label2</code> value, stacked; three columns, then two below 620px, since six divides evenly by both and the last row is never ragged. Two of <code>.c-card</code>'s declarations are undone — <code>height:100%</code> and <code>min-width:240px</code> are its grid-cell contract, and this block is not in a grid of cards.</td></tr>
         <tr><td>Industries</td><td><b>Chip</b>, in its static style — these are facts about where the unit has run, not filters.</td></tr>
         <tr><td>Actions</td><td>Real <b>Buttons</b> — Primary, Secondary (disabled, with a title saying why) and Ghost. One local patch: <code>.c-btn</code> sets no <code>text-decoration</code>, so a Button rendered as an <code>&lt;a&gt;</code> — which the navigating primary has to be — gets underlined by the browser and stops reading as a button. That belongs in <code>components.css</code>; every link-shaped Button in the system has it.</td></tr>
         <tr><td>Also consider</td><td>Real records, built through the same <code>stageHtml()</code> as the grid, so the strip can't drift from the library it points into. Same family first, then the rest.</td></tr>
@@ -952,7 +972,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
       <tbody>
         <tr><td>Scrim + panel</td><td><b>Modal</b> verbatim — <code>--shadow-overlay</code> (Neutral-9 at 56%), Neutral-1 panel, 1px Neutral-3, <code>radius-lg</code>, <code>shadow-4</code>. Width <code>min(1040px, 100% − spacing-32)</code>, which Modal's own spec allows: “~480px for simple confirmations, <em>wider for forms</em>”.</td></tr>
         <tr><td>Head</td><td><code>.c-modal-head</code> + <code>.c-icon-btn</code> with <code>ph-x</code> — Tier 1, Regular, a close affordance. Title is an <code>h4</code>, matching the shipped <code>.c-modal-head h4</code> and Tutorial Modal's own “the element and the type token are the same name”.</td></tr>
-        <tr><td>Table</td><td>The real <b>Table</b> (<code>.c-table</code>) — its padding, its Neutral-3 row rules, its <code>body2</code>/500 cells. Transposed, because the things being compared are the columns; every row label is a <code>&lt;th scope="row"&gt;</code>, so that stays true to a screen reader and not only to the eye. The label column uses Table's own frozen-column idea.</td></tr>
+        <tr><td>Table</td><td>The real <b>Table</b> (<code>.c-table</code>) — its padding, its Neutral-3 row rules, its <code>body2</code>/500 cells. Transposed, because the things being compared are the columns; every row label is a <code>&lt;th scope="row"&gt;</code>, so that stays true to a screen reader and not only to the eye. The label column uses Table's own frozen-column idea, at Table's own header treatment — the <b>eyebrow</b> recipe (<code>label3</code> 11/16/700, <code>--text-label3-tracking</code>, uppercase, Neutral-5) that <code>.c-table-embedded thead th</code> already gives every column header. These <em>are</em> the header cells, turned on their side. <code>--text-label3-tracking</code> (0.04em) rather than <code>--tracking-eyebrow</code> (0.12em): the wider one is reserved for kickers and section eyebrows.</td></tr>
         <tr><td>“Highest” mark</td><td><b>Badge</b>, Success variant — the system's own AA-darkened green. Not an inline <code>11px</code> / <code>--color-green</code> span.</td></tr>
         <tr><td>Previews</td><td>The card's own <code>stageHtml()</code> in bare mode, running continuously. Same eight units, so a format looks the same in the grid, the panel and here.</td></tr>
         <tr><td>Family</td><td>The same <b>Tag</b> under each name as the card and panel carry.</td></tr>
@@ -1157,12 +1177,13 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
 
   <!-- ===================== FINDINGS ===================== -->
   <section class="sect">
-    <h2>Open questions before this goes in</h2>
+    <h2>Decisions on record</h2>
+    <p>Every question this draft raised has been ruled on. <b>Nothing here is being promoted</b> — this stays a draft, and no change has been made to <code>tokens.css</code>, <code>components.css</code> or DESIGN-SYSTEM.md. The rulings below are scoped to this component and are recorded so the reasoning is not re-litigated the next time someone opens the file.</p>
 
     <div class="note" id="tag-note">
-      <i class="ph ph-warning" aria-hidden="true"></i>
+      <i class="ph ph-check-circle" aria-hidden="true"></i>
       <div>
-        <p><b>1. Tag contrast fails AA — and this is a pre-existing system issue, not a draft one.</b> Component Rule 5 says contrast is checked, not assumed, so I measured all five Tag variants as they ship in <code>components.css</code>: element colour on that element's own <code>-bg</code> tint, at caption size (12px, weight 700 — body text, so the 4.5:1 floor applies).</p>
+        <p><b>1. Tag contrast against its own tint — accepted as is. No change.</b> Component Rule 5 says contrast is checked rather than assumed, so it was checked; the numbers are below and they stand as a record, not as a request. This is a pre-existing property of the shipped Tag variants, it is the same in every component that uses them, and it is not this draft&rsquo;s to change.</p>
         <table class="tbl" style="margin-top:var(--spacing-12)">
           <thead><tr><th>Tag</th><th>Pair</th><th>Measured</th><th>4.5:1</th></tr></thead>
           <tbody>
@@ -1173,39 +1194,39 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
             <tr><td><span class="c-tag c-tag-gold"><i class="dot"></i>Gold</span></td><td><code>#FFA425</code> on <code>#FFF6E9</code></td><td>1.85:1</td><td>fails</td></tr>
           </tbody>
         </table>
-        <p>Badge already solves this for two of its variants — its Success and Warning text are documented as “darkened for AA”. Tag never got the same treatment. The fix is the same one: a darkened text step per element, dot and fill unchanged. That is a <code>components.css</code> change and is <b>not</b> in this draft, because you asked me not to touch the system files. The draft uses Tag exactly as it ships so the gap stays visible rather than being papered over here.</p>
+        <p>Recorded and closed. If Tag is ever revisited system-wide, this table is the measurement; until then the cards render the variants exactly as they ship.</p>
       </div>
     </div>
 
     <div class="note">
-      <i class="ph ph-question" aria-hidden="true"></i>
+      <i class="ph ph-check-circle" aria-hidden="true"></i>
       <div>
-        <p><b>2. Is a format family really a Tag?</b> <b>Half-answered.</b> Badge &amp; Tag defines Tag as “labels <em>which element/department owns</em> something”, and a format family is a taxonomy, not an owner — every format here is owned by CollabMedia, so colouring by owner would make all six cards Water and say nothing.</p>
-        <p>The mapping is now fixed and recorded (see <b>Families</b>, above), which settles the stability half: the colours can no longer drift card to card. What is still open is the definition — DESIGN-SYSTEM.md needs Tag widened to “ownership <em>or</em> classification” for this to be legal rather than merely consistent, and it needs the purple variant that the sixth family requires. Both are <code>components.css</code>/spec changes and neither is in this draft.</p>
+        <p><b>2. A format family is a Tag — for this component. Settled.</b> Badge &amp; Tag defines Tag as labelling <em>which element/department owns</em> something, and a format family is a taxonomy rather than an owner. That reading is noted and set aside: <b>within the Format card, family is a Tag.</b></p>
+        <p>What that does <em>not</em> mean is a widened definition upstream. DESIGN-SYSTEM.md is not being edited, Tag&rsquo;s documented meaning is unchanged, and no other component inherits this from here. The six-way mapping is fixed and recorded under <b>Families</b> above, which is what keeps the colours from drifting card to card; <code>.c-tag-purple</code> stays local to this draft.</p>
       </div>
     </div>
 
     <div class="note">
-      <i class="ph ph-warning" aria-hidden="true"></i>
+      <i class="ph ph-check-circle" aria-hidden="true"></i>
       <div>
-        <p><b>2b. This card's compare control diverges from Card Selectable, deliberately — and the system has to record it.</b> DESIGN-SYSTEM.md:2282 specifies an 18×18 Checkbox at the card's <b>top-right</b>. This one is a round <code>+</code>/<code>✓</code> Button at the <b>top-left</b>. Two departures, two reasons:</p>
-        <p><b>Position.</b> The rule's own justification is “the exact same position and recipe as Profile card's” — and Profile card puts it top-right because <em>its</em> top-left is occupied by the avatar. This card has no such constraint, and it has the opposite one: the page mock's ad rail is top-right, so the documented position lands the control on the one thing the preview exists to show. Measured, it clipped the ad unit by 6×1px on three of the four formats. Top-left covers a skeleton line instead. Worth noting the system is not uniform here anyway — <a href="DESIGN-SYSTEM.md">Table</a> pins its bulk-select checkbox <b>left</b>, first column.</p>
-        <p><b>Control.</b> A checkbox says <em>this one is included</em>; a <code>+</code> says <em>put this somewhere</em>. With a compare tray as the destination, add/remove is the truer verb pair. It is built from the real Button component in both poses, so nothing here is bespoke — but it is still a second convention for “collect this into a set”, and the fix is to write it down: either widen <b>Card Selectable</b> to cover a collect-style control and a left-hand position, or add a <b>Card Collectable</b> variant beside it. <b>Not decided in this draft.</b></p>
-        <p><b>One contrast caveat, stated precisely:</b> the resting chip's 1px Neutral-3 border measures <b>1.43:1</b> against the white page mock, under the 3:1 UI floor. It passes only because the boundary is not what identifies the control — the <code>+</code> glyph is, at 20.03:1. If the chip ever loses its glyph, the border has to darken.</p>
+        <p><b>2b. The compare control keeps the round <code>+</code>/<code>✓</code> at top-left — specific to this component. Settled.</b> Card Selectable specifies an 18×18 Checkbox at the card&rsquo;s top-right (DESIGN-SYSTEM.md:2282). This card diverges on both counts, deliberately, and the divergence <b>stays inside this component</b> — Card Selectable is unchanged and nothing is being written back to the system.</p>
+        <p><b>Position.</b> The rule&rsquo;s own justification is “the exact same position and recipe as Profile card&rsquo;s” — and Profile card puts it top-right because <em>its</em> top-left is occupied by the avatar. This card has no such constraint, and top-left is the corner its preview leaves free.</p>
+        <p><b>Control.</b> A checkbox says <em>this one is included</em>; a <code>+</code> says <em>put this somewhere</em>. With a compare tray as the destination, add/remove is the truer verb pair. Both poses are built from the real Button component — Secondary at rest, Primary when on — so nothing about it is bespoke except the circle, for which <code>.c-prompt-bar-mark</code> is already the precedent.</p>
+        <p><b>One measurement kept on the record:</b> the resting chip&rsquo;s 1px Neutral-3 border is <b>1.43:1</b> against the white page mock, under the 3:1 UI floor. It passes because the boundary is not what identifies the control — the <code>+</code> glyph is, at 20.03:1 — and the check on Obsidian is 14.14:1. Stated so it is a known quantity rather than an oversight.</p>
       </div>
     </div>
 
     <div class="note">
-      <i class="ph ph-question" aria-hidden="true"></i>
+      <i class="ph ph-check-circle" aria-hidden="true"></i>
       <div>
-        <p><b>3. The system has no screen-reader-only utility.</b> This draft no longer needs one — the compare toggle carries a real <code>aria-label</code> — but the gap is still there, and several existing components work around it individually. Worth adding once to <code>components.css</code>.</p>
+        <p><b>3. No screen-reader-only utility. Closed.</b> The system does not have one and is not getting one on this draft&rsquo;s account. Nothing here needs it: every icon-only control carries a real <code>aria-label</code>, the compare bar&rsquo;s count is a live <code>role="status"</code>, and the comparison table names its rows with <code>&lt;th scope="row"&gt;</code> — all visible text doing the work, which is the better answer anyway.</p>
       </div>
     </div>
 
     <div class="note">
-      <i class="ph ph-question" aria-hidden="true"></i>
+      <i class="ph ph-check-circle" aria-hidden="true"></i>
       <div>
-        <p><b>4. Benchmark is sometimes “Not published”.</b> Rendering an empty value as a phrase is right, but it means the Sizes row and the Benchmark row carry different <em>kinds</em> of fact at the same weight. If the benchmark is usually missing, it should probably be a Badge (a status) rather than a spec value.</p>
+        <p><b>4. “Not published” stays plain text. Closed.</b> It will not become a Badge or a status. An absent benchmark is a gap in the record, not a state of the format, and dressing it as one gives a missing number more presence than the numbers that exist. It keeps the same treatment every other absent value gets — written out, one step lighter, at regular weight — so it reads as “nothing here” at a glance down a column and nowhere else.</p>
       </div>
     </div>
   </section>
@@ -1527,8 +1548,14 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
      spelled out in the .c-format-facts rule. */
   function factRow(label, value){
     var na = !value;
-    return '<dt>' + esc(label) + '</dt><dd' + (na ? ' class="is-na"' : '') + '>' +
-      esc(na ? 'Not on file' : value) + '</dd>';
+    /* A <div> grouping one dt with its dd is valid inside a <dl>, and it is
+       what lets each pair stack without the pairs interleaving in the grid.
+       The absent case says what to do about it rather than only that the
+       number is missing — there is room for that here, which there is not
+       in a cell of the comparison table. */
+    return '<div class="c-format-fact"><dt>' + esc(label) + '</dt>' +
+      '<dd' + (na ? ' class="is-na"' : '') + '>' +
+      esc(na ? 'Not on file \u2014 ask Sales' : value) + '</dd></div>';
   }
 
   function panelHtml(f){
@@ -1550,6 +1577,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
           '<p class="c-format-panel-lede">' + esc(f.tagline) + '</p>' +
           '<p class="c-format-panel-desc">' + esc(f.desc) + '</p>' +
         '</div>' +
+        '<div class="c-card warm c-format-factcard">' +
         '<dl class="c-format-facts">' +
           factRow('Objective', f.objective) +
           factRow('Runs on', f.runsOn) +
@@ -1557,7 +1585,7 @@ body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9)
           factRow('Funnel', f.funnel) +
           factRow('CPM on file', f.cpm) +
           factRow('Monthly inventory', f.inventory) +
-        '</dl>' +
+        '</dl></div>' +
         '<div class="c-format-section"><h5>Supported sizes</h5>' +
           '<div class="c-format-sizes">' + sizeProxies(f.sizes) + '</div></div>' +
         '<div class="c-format-section"><h5>Benchmark</h5>' +
