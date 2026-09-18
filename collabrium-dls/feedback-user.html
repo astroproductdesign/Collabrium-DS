@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Collabrium — CollabSales Beta Survey</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<style>
+/* ==========================================================================
+   The respondent's view of one survey — nothing else.
+
+   No app shell, no sidebar, no library, no builder: a person answering a
+   survey arrives from a link and sees the form. Two screens only, the two
+   a respondent ever sees — the form, and the confirmation after Submit.
+
+   Everything below is lifted verbatim from the prototypes that already
+   render this survey (feedback.html's preview and the responder flow), so
+   the three surfaces cannot drift into three different-looking forms. The
+   two CANDIDATE components are the same ones proposed there and would be
+   promoted once, not per page.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 1 — Scale input (.c-scale)
+   Carried over verbatim from feedback.html, where it was first proposed: a
+   1-5 / 0-10 linear-scale answer. Radio is the right semantics but its own
+   circle+label stack reads as a vertical list, and Segmented Control is a
+   view switcher, not a form answer. This is a radiogroup rendered as a row
+   of numbered targets: real <input type="radio">, so keyboard arrow-key
+   navigation and form semantics come free.
+   The target is a circle rather than a rectangle: at 0-10 a row of eleven
+   rectangles reads as a segmented control — something you switch a view
+   with — and the circle is already this system's shape for one choice out
+   of several. Each option keeps an equal share of the row and centres its
+   circle in it, so the numbers stay evenly spaced at any width and wrap in
+   even rows. 44px here rather than feedback.html's 40: this is the page a
+   responder actually fills in, often on a phone.
+   Two prototypes needing the identical thing is the argument for promoting
+   it rather than copying it a third time.
+   -------------------------------------------------------------------------- */
+.c-scale{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-scale-track{display:flex; gap:var(--spacing-8); flex-wrap:wrap;}
+.c-scale-opt{position:relative; flex:1 1 0; min-width:44px; display:flex; justify-content:center;}
+.c-scale-opt input{position:absolute; opacity:0; width:0; height:0;}
+.c-scale-opt span{display:flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-neutral-9); cursor:pointer; font-variant-numeric:tabular-nums; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-scale-opt:hover span{background:var(--color-neutral-2);}
+/* Selected circle takes the accent. Text flips to Neutral-9 rather than
+   staying Neutral-1: white on Amber measures 2.13:1, while Neutral-9 on
+   Amber measures 10.10:1 (both computed in the page) — the same reason
+   Badge Warning pairs its amber tint with Neutral-9 text instead of white.
+   Dark text still clears the floor on the darker elements. */
+.pub .c-scale-opt input:checked + span{background:var(--form-accent); border-color:var(--form-accent); color:var(--color-neutral-9);}
+.c-scale-opt input:focus-visible + span{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* End labels — the numbers alone never say which end is good. */
+.c-scale-ends{display:flex; justify-content:space-between; gap:var(--spacing-12); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* --------------------------------------------------------------------------
+   CANDIDATE 3 — Rating table (.c-matrix)
+   Carried over verbatim from feedback.html, where it was first proposed:
+   one rating scale asked of several things at once, a row per subject and a
+   column per rating. Composed rather than invented — the frame is Table's
+   own anatomy (Embedded header in label3/uppercase/Neutral-5, body rows in
+   body2/500 with a 1px Neutral-3 border-bottom and none on the last,
+   Neutral-2 row hover) and the control is Radio verbatim.
+   One deliberate departure from Table: the rating cells and their headers
+   are centre-aligned, where Table's own rule is that every column is
+   left-aligned. A rating cell's meaning is the intersection of its row and
+   its column, and an 18px radio parked at the left edge of a column headed
+   "Very poor" sits nearer the previous column's label than its own.
+   -------------------------------------------------------------------------- */
+.c-matrix{width:100%; overflow-x:auto;}
+.c-matrix table{width:100%; min-width:480px; border-collapse:collapse;}
+.c-matrix th,.c-matrix td{padding:var(--spacing-12) var(--spacing-8); border-bottom:1px solid var(--color-neutral-3);}
+.c-matrix thead th{font-family:var(--font-primary); font-size:var(--text-label3-size); font-weight:700; letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5); text-align:center; white-space:nowrap; vertical-align:bottom;}
+.c-matrix thead th:first-child{text-align:left;}
+.c-matrix tbody th{text-align:left; font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:500; color:var(--color-neutral-9);}
+.c-matrix tbody td{text-align:center;}
+.c-matrix tbody tr:last-child th,.c-matrix tbody tr:last-child td{border-bottom:0;}
+.c-matrix tbody tr{transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-matrix tbody tr:hover{background:var(--color-neutral-2);}
+/* The cell is wider than the 18px circle, so the whole cell is the label
+   rather than the circle alone — 44px of height on the page people fill in
+   on a phone. */
+.c-matrix-cell{display:flex; align-items:center; justify-content:center; min-height:44px; cursor:pointer;}
+.c-matrix-cell input{position:absolute; opacity:0; width:0; height:0;}
+.c-matrix-cell .c-radio-circle{margin-top:0;}
+.c-matrix-cell input:focus-visible + .c-radio-circle{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* A missing row in a required grid is marked on the row, not on five
+   radios — same reasoning as the question card's own is-missing state. */
+.c-matrix tbody tr.is-missing th{color:var(--color-red);}
+
+.c-notify-foot{padding:var(--spacing-8); border-top:1px solid var(--color-neutral-3); text-align:center;}
+
+/* ==========================================================================
+   PROTOTYPE SCAFFOLDING — layout glue and the two non-Collabrium surfaces
+   this flow has to pass through (an email client, a public form page).
+   Nothing here is a component and nothing here would be promoted.
+   ========================================================================== */
+*{box-sizing:border-box;}
+html,body{margin:0; min-height:100%;}
+/* The UA's own [hidden]{display:none} is type-selector strength, so any
+   class that sets display beats it. Every step in this flow is toggled by
+   [hidden], so it has to win everywhere. */
+[hidden]{display:none !important;}
+body{background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-body2-size);}
+.grow{flex:1 1 auto; min-width:0;}
+.row{display:flex; align-items:center; gap:var(--spacing-12); flex-wrap:wrap;}
+.row.tight{gap:var(--spacing-8);}
+.row.between{justify-content:space-between;}
+.stack{display:flex; flex-direction:column; gap:var(--spacing-16);}
+.stack.sm{gap:var(--spacing-8);}
+.stack.lg{gap:var(--spacing-24);}
+.hint{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+p.hint{margin:0;}
+.eyebrow{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;}
+
+/* No padding. In the prototype this was lifted from, .pub was a mock of a
+   public page sitting inside a harness, so it needed a frame around it.
+   Here there is no harness — .pub IS the page, so it runs to the window
+   edges and .pub-inner does the centring on its own. */
+.stage{}
+
+/* --------------------------------------------------------------------------
+   Step 2 — the form itself. A public page rather than an app route: the
+   person answering may not be signed in and has no business seeing the
+   navigation, so the only chrome is a name bar saying who is asking.
+   -------------------------------------------------------------------------- */
+.pub{min-height:100vh;}
+/* No product bar. The form is the whole page — a respondent arriving from
+   a link is not inside the app, and a chrome bar over the survey implies
+   they are. The top spacing the bar used to provide moves into the content
+   column, so the survey does not start hard against the window edge. */
+.pub-inner{max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-16); padding:var(--spacing-48) var(--spacing-24) var(--spacing-60);}
+/* One accent variable for the whole form, set from the survey's owning
+   element. Obsidian stays the default, so a survey with no owner is
+   unchanged. Only three things read it — see the note on the two that
+   deliberately don't, below the element list. */
+.pub{--form-accent:var(--color-obsidian);}
+.pub.el-fire {--form-accent:var(--color-orange);}
+.pub.el-wood {--form-accent:var(--color-salmon-pink);}
+.pub.el-earth{--form-accent:var(--color-green);}
+.pub.el-water{--form-accent:var(--color-navy);}
+.pub.el-gold {--form-accent:var(--color-amber);}
+/* Accent bar. An element-coloured accent border is Card's own established
+   move — .c-card-accent ships a 3px Salmon Pink top border — so this is
+   that convention taking the owner's colour instead of a fixed one. */
+.form-head{border-top:4px solid var(--form-accent);}
+/* Progress fill. Progress Bar's own Fill row documents a department
+   override outright: "the owning department's elemental color, passed via
+   prop". This is that prop, as a variable. */
+.pub .c-progress-fill{background:var(--form-accent);}
+.form-title{margin:0; font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); overflow-wrap:anywhere;}
+.form-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); white-space:pre-wrap;}
+.q-title{display:block; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
+.req{color:var(--color-red); margin-left:var(--spacing-4);}
+/* Leading the legend rather than trailing a title: the marker comes first
+   there, so the space goes on the other side. */
+.req.lead{margin-left:0; margin-right:var(--spacing-4);}
+/* The legend is a key to the asterisks on the questions below, not a third
+   line of the survey's description — Card's own Footer sub-part (hairline,
+   caption, Neutral-5) is exactly that job, so it takes that recipe rather
+   than sitting in the same stack as the prose. The type is restated here
+   because .c-card p (0,1,1) sets body2 and beats .c-card-footer (0,1,0) —
+   the trap components.css documents twice for exactly this reason. */
+.form-head > .c-card-footer{margin:var(--spacing-8) 0 0; padding-top:var(--spacing-12);
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+/* A missed required answer marks the whole card. The controls underneath are
+   radio rows and scale tracks — there is no single field border to redden,
+   and reddening every radio in a group reads as ten errors, not one. */
+.q-card.is-missing{border-color:var(--color-red);}
+.q-miss{display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-red);}
+.q-miss i{font-size:var(--icon-sm);}
+/* A free-text answer takes the whole card. .c-field ships a 220px default
+   width, which is right for one field in a row of them and wrong for the one
+   thing a question is asking for — the markup was already asking for this
+   with .field-wide, which nothing here defined. */
+.c-field.field-wide{width:100%; max-width:none;}
+.c-field.field-wide input,.c-field.field-wide textarea{width:100%; box-sizing:border-box;}
+/* Progress sits at the top of the form and scrolls away with it — matching
+   the same bar in feedback.html's preview, which is the surface this page is
+   the real version of. It reads once, on arrival, as "how long is this";
+   pinned to the viewport it followed the reader down the page restating a
+   number they had already acted on. Full-bleed across .pub-inner's padding
+   so it reads as the page's own progress rather than a card's. */
+.pub-progress{display:flex; flex-direction:column; gap:var(--spacing-8); margin:0 calc(var(--spacing-24) * -1); padding:var(--spacing-8) var(--spacing-24) var(--spacing-12); background:var(--color-canvas-warm);}
+/* Submit at the right end of the row, where the preview puts it and where
+   the eye lands at the end of a form, with Clear form 8px to its left as
+   one action group rather than two ends of a bar. */
+.pub-foot{display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8); flex-wrap:wrap;}
+
+/* Step 3 — confirmation. */
+.done-card{align-items:flex-start; text-align:left;}
+.done-icon{font-size:44px; color:var(--color-green); line-height:1;}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage"></div>
+<div class="c-toast-host" id="toastHost" aria-live="polite"></div>
+
+<script>
+(function(){
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
+  return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function $(s, r){ return (r || document).querySelector(s); }
+function $$(s, r){ return [].slice.call((r || document).querySelectorAll(s)); }
+
+/* The survey, copied from feedback.html's own record so the two prototypes
+   describe one survey rather than two. CollabSales is a Gold product in
+   DESIGN-SYSTEM.md's sub-brand table, so the form's accents follow Amber
+   rather than the default Obsidian — changing that one word re-accents the
+   whole page. */
+var SURVEY = {
+  title: 'CollabSales Beta Survey',
+  desc:  'This short survey collects feedback on your experience with the platform. Your input will help us identify improvements and enhance future user experiences.',
+  owner: { name:'CollabSales', el:'gold' },
+  /* allowEdit is false and stays false: a respondent cannot reopen a
+     submitted response, so the confirmation offers no way to. oneResponse
+     is true and is deliberately NOT surfaced — it is a rule the system
+     enforces, not a thing the person answering needs to be told. */
+  settings: { progressBar:true, allowEdit:false, oneResponse:true },
+  questions: [
+    { id:'s1', type:'scale',  title:'How satisfied are you with your experience overall?', required:true,
+      min:1, max:10, lo:'Very dissatisfied', hi:'Very satisfied' },
+    { id:'s2', type:'matrix', title:'Please rate the following aspects of our user interface', required:true,
+      rows:['Visual appeal','Layout','Ease of navigation','Information hierarchy'],
+      cols:['Very poor','Poor','Average','Good','Excellent'] },
+    { id:'s3', type:'matrix', title:'Please rate the user experience of following features.', required:true,
+      rows:['Brief generation','Proposal','Deck generation','Client intelligence'],
+      cols:['Very poor','Poor','Average','Good','Excellent'] },
+    { id:'s4', type:'short',  title:'What feature or function do you find most useful?', required:true,
+      placeholder:'The one you would miss most' },
+    { id:'s5', type:'long',   title:'Do you have any additional comments or suggestions for improvement?', required:true,
+      placeholder:'Anything you would change, add or remove' }
+  ]
+};
+
+var state = { page:'form', ans:{}, missing:[] };
+
+function visible(){ return SURVEY.questions; }
+function has(q){
+  var v = state.ans[q.id];
+  if (v == null) return false;
+  /* A rating table holds one answer per row, so a half-filled grid is not
+     an answered question — String(v) on the object would say otherwise. */
+  if (q.type === 'matrix') return matrixRowsLeft(q, v).length === 0;
+  return Array.isArray(v) ? v.length > 0 : String(v).trim() !== '';
+}
+function answeredCount(){ return visible().filter(has).length; }
+
+/* ==========================================================================
+   Fields
+   ========================================================================== */
+function matrixHtml(q, o){
+  o = o || {};
+  var ans = o.answers || {}, rows = q.rows || [], cols = q.cols || [];
+  return '<div class="c-matrix"><table><thead><tr>' +
+      '<th scope="col"><span class="sr-only">Aspect</span></th>' +
+      cols.map(function(c){ return '<th scope="col">' + esc(c) + '</th>'; }).join('') +
+    '</tr></thead><tbody>' +
+    rows.map(function(r, ri){
+      var picked = ans[r];
+      var miss = o.missingRows && o.missingRows.indexOf(r) > -1;
+      return '<tr' + (miss ? ' class="is-missing"' : '') + '>' +
+        '<th scope="row">' + esc(r) + '</th>' +
+        cols.map(function(c){
+          var on = picked === c;
+          return '<td><label class="c-matrix-cell">' +
+            '<input type="radio" name="a-' + q.id + '-' + ri + '"' +
+              ' data-mx="' + q.id + '" data-mrow="' + esc(r) + '" data-val="' + esc(c) + '"' +
+              (on ? ' checked' : '') + ' />' +
+            '<span class="c-radio-circle' + (on ? ' on' : '') + '">' +
+              (on ? '<span class="dot"></span>' : '') + '</span>' +
+            '<span class="sr-only">' + esc(r) + ': ' + esc(c) + '</span>' +
+          '</label></td>';
+        }).join('') +
+      '</tr>';
+    }).join('') +
+  '</tbody></table></div>';
+}
+function matrixRowsLeft(q, ans){
+  ans = ans || {};
+  return (q.rows || []).filter(function(r){ return !ans[r]; });
+}
+
+function fieldHtml(q){
+  var v = state.ans[q.id];
+  if (q.type === 'short')
+    return '<div class="c-field field-wide"><div class="input-wrap">' +
+      '<input type="text" data-text="' + q.id + '" value="' + esc(v || '') + '" placeholder="' +
+      esc(q.placeholder || 'Your answer') + '" /></div></div>';
+  if (q.type === 'long')
+    return '<div class="c-field field-wide"><textarea rows="3" data-text="' + q.id + '" placeholder="' +
+      esc(q.placeholder || 'Your answer') + '">' + esc(v || '') + '</textarea></div>';
+  if (q.type === 'scale'){
+    var opts = '';
+    for (var n = q.min; n <= q.max; n++){
+      var on = state.ans[q.id] === String(n);
+      opts += '<label class="c-scale-opt"><input type="radio" name="a-' + q.id + '"' +
+        ' data-pick="' + q.id + '" data-val="' + n + '"' + (on ? ' checked' : '') + ' />' +
+        '<span>' + n + '</span></label>';
+    }
+    return '<div class="c-scale"><div class="c-scale-track">' + opts + '</div>' +
+      '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
+  }
+  if (q.type === 'matrix')
+    return matrixHtml(q, { answers: state.ans[q.id] || {},
+                           missingRows: state.missing.indexOf(q.id) > -1
+                             ? matrixRowsLeft(q, state.ans[q.id]) : null });
+  return '';
+}
+
+/* ==========================================================================
+   The form
+   ========================================================================== */
+function formHtml(){
+  var vis = visible(), done = answeredCount();
+  var pct = vis.length ? Math.round(done / vis.length * 100) : 0;
+  var num = 0;
+
+  return '<div class="pub el-' + SURVEY.owner.el + '">' +
+    '<div class="pub-inner">' +
+      (SURVEY.settings.progressBar
+        ? '<div class="pub-progress">' +
+            '<div class="c-progress-track size-default"><div class="c-progress-fill" style="width:' + pct + '%"></div></div>' +
+            '<span class="hint">' + done + ' of ' + vis.length + ' answered</span>' +
+          '</div>'
+        : '') +
+      '<div class="c-card form-head stack sm">' +
+        '<h1 class="form-title">' + esc(SURVEY.title) + '</h1>' +
+        '<p class="form-desc">' + esc(SURVEY.desc) + '</p>' +
+        '<p class="c-card-footer"><span class="req lead">*</span>Required</p>' +
+      '</div>' +
+      vis.map(function(q){
+        num++;
+        var miss = state.missing.indexOf(q.id) > -1;
+        return '<div class="c-card q-card stack sm' + (miss ? ' is-missing' : '') + '" data-q="' + q.id + '">' +
+          '<span class="q-title">' + num + '. ' + esc(q.title) +
+            (q.required ? '<span class="req" aria-hidden="true">*</span><span class="sr-only"> (required)</span>' : '') +
+          '</span>' +
+          fieldHtml(q) +
+          (miss ? '<span class="q-miss" role="alert"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i>' +
+            'This question is required</span>' : '') +
+        '</div>';
+      }).join('') +
+      '<div class="pub-foot">' +
+        '<button class="c-btn c-btn-ghost c-btn-md" type="button" id="clearAll">Clear form</button>' +
+        '<button class="c-btn c-btn-primary c-btn-lg" type="button" id="submit">Submit</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ==========================================================================
+   The confirmation
+   One message and one way onward. No "Edit your response", because
+   responses cannot be edited; and no "one response per person" line,
+   because that is a rule the system keeps, not news the respondent needs.
+   ========================================================================== */
+function doneHtml(){
+  return '<div class="pub el-' + SURVEY.owner.el + '">' +
+    '<div class="pub-inner">' +
+      '<div class="c-card done-card stack">' +
+        '<i class="ph-fill ph-check-circle done-icon" aria-hidden="true"></i>' +
+        '<h1 class="form-title">Your response has been submitted.</h1>' +
+        '<p class="form-desc">Thank you for taking the time to complete this survey. ' +
+          'Your feedback is greatly appreciated and will help us improve the platform experience.</p>' +
+      '</div>' +
+      '<div class="row tight">' +
+        '<button class="c-btn c-btn-primary c-btn-md" type="button" id="backHome">' +
+          'Back to home<i class="ph ph-arrow-right" aria-hidden="true"></i></button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ==========================================================================
+   Submit, and the two in-place patches
+   ========================================================================== */
+function submit(){
+  state.missing = visible().filter(function(q){ return q.required && !has(q); })
+                           .map(function(q){ return q.id; });
+  if (state.missing.length){
+    render();
+    var el = $('[data-q="' + state.missing[0] + '"]');
+    if (el) el.scrollIntoView({ block:'center' });
+    toast(state.missing.length === 1
+      ? '1 required question still needs an answer'
+      : state.missing.length + ' required questions still need an answer');
+    return;
+  }
+  state.page = 'done';
+  render();
+  window.scrollTo(0, 0);
+}
+/* Answering a question the last Submit marked as missing clears the mark
+   without a repaint — the card and its message are patched, the same way
+   the progress bar is. */
+function clearMiss(id){
+  if (state.missing.indexOf(id) === -1) return;
+  var q = SURVEY.questions.filter(function(x){ return x.id === id; })[0];
+  if (!q || !has(q)) return;
+  state.missing = state.missing.filter(function(x){ return x !== id; });
+  var card = $('[data-q="' + id + '"]');
+  if (!card) return;
+  card.classList.remove('is-missing');
+  var msg = $('.q-miss', card);
+  if (msg) msg.parentNode.removeChild(msg);
+}
+function refreshProgress(){
+  var box = $('.pub-progress');
+  if (!box) return;
+  var vis = visible(), done = answeredCount();
+  $('.c-progress-fill', box).style.width = (vis.length ? Math.round(done / vis.length * 100) : 0) + '%';
+  $('.hint', box).textContent = done + ' of ' + vis.length + ' answered';
+}
+
+function toast(msg, tone){
+  var host = $('#toastHost');
+  var t = document.createElement('div');
+  t.className = 'c-toast is-message-only is-entering';
+  t.setAttribute('role', 'status');
+  t.innerHTML =
+    '<i class="ph-fill ' + (tone === 'success' ? 'ph-check-circle' : 'ph-info') +
+      ' tone ' + (tone === 'success' ? 'tone-success' : 'tone-neutral') + '" aria-hidden="true"></i>' +
+    '<div class="body"><div class="message">' + esc(msg) + '</div></div>';
+  host.appendChild(t);
+  void t.offsetWidth;
+  t.classList.remove('is-entering');
+  setTimeout(function(){
+    t.classList.add('is-exiting');
+    setTimeout(function(){ t.remove(); }, 260);
+  }, 2600);
+}
+
+/* ==========================================================================
+   Render
+   ========================================================================== */
+function render(){
+  $('#stage').innerHTML = state.page === 'done' ? doneHtml() : formHtml();
+  wire();
+}
+
+function wire(){
+  var root = $('#stage');
+
+  $$('[data-text]', root).forEach(function(el){
+    el.addEventListener('input', function(){
+      state.ans[el.dataset.text] = el.value;
+      clearMiss(el.dataset.text);
+      refreshProgress();
+    });
+  });
+
+  /* A grid patches in place rather than repainting: repainting would take
+     focus out of the row the person is working across. */
+  $$('[data-mx]', root).forEach(function(el){
+    el.addEventListener('change', function(){
+      var id = el.dataset.mx, row = el.dataset.mrow;
+      var v = state.ans[id] || {};
+      v[row] = el.dataset.val;
+      state.ans[id] = v;
+      var tr = el.closest('tr');
+      $$('.c-radio-circle', tr).forEach(function(c){ c.classList.remove('on'); c.innerHTML = ''; });
+      var mine = el.nextElementSibling;
+      mine.classList.add('on');
+      mine.innerHTML = '<span class="dot"></span>';
+      tr.classList.remove('is-missing');
+      clearMiss(id);
+      refreshProgress();
+    });
+  });
+
+  $$('[data-pick]', root).forEach(function(el){
+    el.addEventListener('change', function(){
+      state.ans[el.dataset.pick] = el.dataset.val;
+      clearMiss(el.dataset.pick);
+      refreshProgress();
+      /* The scale repaints so the checked circle moves — its fill is
+         class-driven in this system, not :checked-driven. Focus goes back
+         on the control that was used, since the node it was on is gone. */
+      render();
+      var back = $$('[data-pick]', $('#stage')).filter(function(n){
+        return n.dataset.pick === el.dataset.pick && n.dataset.val === el.dataset.val;
+      })[0];
+      if (back) back.focus();
+    });
+  });
+
+  if ($('#submit', root)) $('#submit').addEventListener('click', submit);
+  if ($('#clearAll', root)) $('#clearAll').addEventListener('click', function(){
+    state.ans = {}; state.missing = [];
+    render(); toast('Form cleared');
+  });
+  /* There is no home to go to from a single-page prototype, so this puts
+     the demo back to a blank form — which is what anyone showing the flow
+     twice actually wants. In the product it would leave for the app. */
+  if ($('#backHome', root)) $('#backHome').addEventListener('click', function(){
+    state.ans = {}; state.missing = []; state.page = 'form';
+    render(); window.scrollTo(0, 0);
+  });
+}
+
+render();
+})();
+</script>
+</body>
+</html>
