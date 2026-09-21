@@ -13498,6 +13498,48 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
 /* A missing row in a required grid is marked on the row, not on five
    radios — same reasoning as the question card's own is-missing state. */
 .c-matrix tbody tr.is-missing th{color:var(--color-red);}
+/* The column label travels with each cell instead of living only in the
+   header row. On a wide screen it is for screen readers, since the visible
+   header sits right above; below 640px, where the header row is gone, it is
+   the option's visible label. One string doing both jobs, so the two can
+   never fall out of step. */
+.c-matrix .mx-col{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;}
+/* Below 640px there is no room for five columns, so the table stacks: one
+   block per subject, the subject's name, then its options as a vertical
+   list, each carrying the label its column used to supply. The header row
+   goes to screen readers only, being now repeated on every option.
+   The alternative is a sideways scroller inside the card, which on a phone
+   parks options off-screen with nothing on the page to say they exist. A
+   rating table's whole argument is that the options are all visible at
+   once; a scroller gives that up exactly where it matters most.
+   Nothing above 640px changes. */
+@media (max-width:640px){
+  .c-matrix{overflow-x:visible;}
+  .c-matrix table{min-width:0;}
+  .c-matrix thead{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+  .c-matrix table,.c-matrix tbody,.c-matrix tbody tr,.c-matrix tbody th,.c-matrix tbody td{display:block; width:100%;}
+  .c-matrix tbody th,.c-matrix tbody td{border-bottom:0; padding:0; text-align:left;}
+  .c-matrix tbody th{padding:var(--spacing-12) 0 var(--spacing-4);}
+  .c-matrix tbody tr{padding-bottom:var(--spacing-8);}
+  .c-matrix tbody tr + tr{border-top:1px solid var(--color-neutral-3);}
+  /* No hover tint on a block this size, and touch leaves :hover stuck on
+     the last thing tapped. */
+  .c-matrix tbody tr:hover{background:none;}
+  /* Each option is a choice row now, so it reads like one: circle first,
+     label beside it, the whole row still the hit target. */
+  .c-matrix-cell{justify-content:flex-start; gap:var(--spacing-8);}
+  .c-matrix .mx-col{position:static; width:auto; height:auto; margin:0; overflow:visible; clip:auto; white-space:normal; font-size:var(--text-body2-size); color:var(--color-neutral-9);}
+}
+
+/* A list of choice rows as an answer to one question. .c-choice on its own
+   is 20px tall, which is right for a settings row and wrong here: this is
+   the same 44px floor the rating table and the scale already hold, on the
+   same page, for the same reason — it gets filled in on a phone. Spacing
+   comes from the row height rather than a gap, so a single-choice list and
+   a stacked rating table land on the identical 44px rhythm and the two can
+   be compared on their shape instead of on their spacing. */
+.q-choices{display:flex; flex-direction:column;}
+.q-choices .c-choice{align-items:center; min-height:44px;}
 
 .c-notify-foot{padding:var(--spacing-8); border-top:1px solid var(--color-neutral-3); text-align:center;}
 
@@ -13541,7 +13583,15 @@ p.hint{margin:0;}
    a link is not inside the app, and a chrome bar over the survey implies
    they are. The top spacing the bar used to provide moves into the content
    column, so the survey does not start hard against the window edge. */
-.pub-inner{max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-16); padding:var(--spacing-48) var(--spacing-24) var(--spacing-60);}
+/* 800px, not 680: the column is sized to the widest question so that no
+   answer needs a sideways scroll. The widest is Q2's rating table — five
+   nowrap column heads, "Rebuild completely" through "No rework", plus its
+   row label — which measures 700px at its natural width (Q3's is 676, Q1's
+   521). Add the question card's 16px padding and 1px border on each side
+   and this column's own 24px gutters: 700 + 34 + 48 = 782, rounded up to
+   800 so a pixel or two of font-rendering difference cannot put the
+   scrollbar back. Re-measure if a longer option label is ever added. */
+.pub-inner{max-width:800px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-16); padding:var(--spacing-48) var(--spacing-24) var(--spacing-60);}
 /* One accent variable for the whole form, set from the survey's owning
    element. Obsidian stays the default, so a survey with no owner is
    unchanged. Only three things read it — see the note on the two that
@@ -13581,6 +13631,14 @@ p.hint{margin:0;}
 .q-card.is-missing{border-color:var(--color-red);}
 .q-miss{display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-red);}
 .q-miss i{font-size:var(--icon-sm);}
+/* PROTOTYPE ONLY. Q2 and Q3 are each on the page twice so their two styles
+   can be compared; this names which style a card is showing. It is not part
+   of the survey and leaves with the duplicate card once a style is picked. */
+.q-variant{align-self:flex-start; font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+/* Choice rows ship at body1. Every other answer on this page — the rating
+   table's row labels, the scale's numbers — is body2, and a five-option list
+   set larger than the question's own subjects reads as the louder thing. */
+.q-card .c-choice .text .label{font-size:var(--text-body2-size);}
 /* A free-text answer takes the whole card. .c-field ships a 220px default
    width, which is right for one field in a row of them and wrong for the one
    thing a question is asking for — the markup was already asking for this
@@ -13631,17 +13689,42 @@ var SURVEY = {
      enforces, not a thing the person answering needs to be told. */
   settings: { progressBar:true, allowEdit:false, oneResponse:true },
   questions: [
-    { id:'s1', type:'scale',  title:'How satisfied are you with your experience overall?', required:true,
+    /* `no` is the number printed on the card, not the card's position: Q2 and
+       Q3 are each asked twice — once as a rating table, once as single choice
+       — so the pair can be compared side by side. Both members of a pair carry
+       the same `no`, and `variant` names which style is which. Drop one of
+       each pair and the numbering is already right. */
+    { id:'s1', no:1, type:'matrix',
+      title:'Please rate the user experience of the following features', required:true,
+      rows:['Brief generation','Proposal deck generation','Client intelligence'],
+      cols:['Very poor','Poor','Average','Good','Excellent'] },
+
+    /* Q2, twice. One subject and five points: a rating table with a single row
+       and a list of five radios are the same question in two shapes, which is
+       the comparison being asked for. */
+    { id:'s2',  no:2, variant:'Rating table',  type:'matrix',
+      title:'How much of what Collabrium generates can you use as-is without needing to rework it?', required:true,
+      rows:['Output usability'],
+      cols:['Rebuild completely','Major rework','Partial rework','Minor tweaks','No rework'] },
+    { id:'s2b', no:2, variant:'Single choice', type:'single',
+      title:'How much of what Collabrium generates can you use as-is without needing to rework it?', required:true,
+      options:['Rebuild completely','Major rework','Partial rework','Minor tweaks','No rework'] },
+
+    /* Q3, twice, same pairing. The scale runs slower -> faster so it reads
+       left-to-right in the same direction as every other scale on the page. */
+    { id:'s3',  no:3, variant:'Rating table',  type:'matrix',
+      title:'Compared to your usual process (Word/Excel/ChatGPT), has Collabrium made this work faster or slower overall?', required:true,
+      rows:['Overall speed'],
+      cols:['Much slower','Slightly slower','About the same','Slightly faster','Much faster'] },
+    { id:'s3b', no:3, variant:'Single choice', type:'single',
+      title:'Compared to your usual process (Word/Excel/ChatGPT), has Collabrium made this work faster or slower overall?', required:true,
+      options:['Much slower','Slightly slower','About the same','Slightly faster','Much faster'] },
+
+    { id:'s4', no:4, type:'scale',
+      title:'How satisfied are you with your experience overall?', required:true,
       min:1, max:10, lo:'Very dissatisfied', hi:'Very satisfied' },
-    { id:'s2', type:'matrix', title:'Please rate the following aspects of our user interface', required:true,
-      rows:['Visual appeal','Layout','Ease of navigation','Information hierarchy'],
-      cols:['Very poor','Poor','Average','Good','Excellent'] },
-    { id:'s3', type:'matrix', title:'Please rate the user experience of following features.', required:true,
-      rows:['Brief generation','Proposal','Deck generation','Client intelligence'],
-      cols:['Very poor','Poor','Average','Good','Excellent'] },
-    { id:'s4', type:'short',  title:'What feature or function do you find most useful?', required:true,
-      placeholder:'The one you would miss most' },
-    { id:'s5', type:'long',   title:'Do you have any additional comments or suggestions for improvement?', required:true,
+    { id:'s5', no:5, type:'long',
+      title:'Do you have any additional comments or suggestions for improvement?', required:true,
       placeholder:'Anything you would change, add or remove' }
   ]
 };
@@ -13682,7 +13765,8 @@ function matrixHtml(q, o){
               (on ? ' checked' : '') + ' />' +
             '<span class="c-radio-circle' + (on ? ' on' : '') + '">' +
               (on ? '<span class="dot"></span>' : '') + '</span>' +
-            '<span class="sr-only">' + esc(r) + ': ' + esc(c) + '</span>' +
+            '<span class="sr-only">' + esc(r) + ': </span>' +
+            '<span class="mx-col">' + esc(c) + '</span>' +
           '</label></td>';
         }).join('') +
       '</tr>';
@@ -13714,6 +13798,20 @@ function fieldHtml(q){
     return '<div class="c-scale"><div class="c-scale-track">' + opts + '</div>' +
       '<div class="c-scale-ends"><span>' + esc(q.lo || '') + '</span><span>' + esc(q.hi || '') + '</span></div></div>';
   }
+  /* Single choice. Radio verbatim — the same control the rating table puts
+     in each of its cells, which is the point of showing the two side by
+     side: one question, one control, two layouts. */
+  if (q.type === 'single')
+    return '<div class="q-choices">' + (q.options || []).map(function(o){
+      var on = state.ans[q.id] === o;
+      return '<label class="c-choice">' +
+        '<input type="radio" name="a-' + q.id + '" data-pick="' + q.id + '"' +
+          ' data-val="' + esc(o) + '"' + (on ? ' checked' : '') + ' />' +
+        '<span class="c-radio-circle' + (on ? ' on' : '') + '">' +
+          (on ? '<span class="dot"></span>' : '') + '</span>' +
+        '<span class="text"><span class="label">' + esc(o) + '</span></span>' +
+      '</label>';
+    }).join('') + '</div>';
   if (q.type === 'matrix')
     return matrixHtml(q, { answers: state.ans[q.id] || {},
                            missingRows: state.missing.indexOf(q.id) > -1
@@ -13743,10 +13841,14 @@ function formHtml(){
         '<p class="c-card-footer"><span class="req lead">*</span>Required</p>' +
       '</div>' +
       vis.map(function(q){
-        num++;
+        /* The card prints the question's own number where it has one, so a
+           question shown twice keeps one number across both of its cards.
+           Without `no` it falls back to counting, as before. */
+        var n = q.no || ++num;
         var miss = state.missing.indexOf(q.id) > -1;
         return '<div class="c-card q-card stack sm' + (miss ? ' is-missing' : '') + '" data-q="' + q.id + '">' +
-          '<span class="q-title">' + num + '. ' + esc(q.title) +
+          (q.variant ? '<span class="q-variant">' + esc(q.variant) + '</span>' : '') +
+          '<span class="q-title">' + n + '. ' + esc(q.title) +
             (q.required ? '<span class="req" aria-hidden="true">*</span><span class="sr-only"> (required)</span>' : '') +
           '</span>' +
           fieldHtml(q) +
@@ -13887,9 +13989,11 @@ function wire(){
       state.ans[el.dataset.pick] = el.dataset.val;
       clearMiss(el.dataset.pick);
       refreshProgress();
-      /* The scale repaints so the checked circle moves — its fill is
-         class-driven in this system, not :checked-driven. Focus goes back
-         on the control that was used, since the node it was on is gone. */
+      /* Scale and single choice both repaint so the checked mark moves —
+         the fill is class-driven in this system, not :checked-driven. Focus
+         goes back on the control that was used, since the node it was on is
+         gone. (The rating table patches in place instead: repainting there
+         would take focus out of the row being worked across.) */
       render();
       var back = $$('[data-pick]', $('#stage')).filter(function(n){
         return n.dataset.pick === el.dataset.pick && n.dataset.val === el.dataset.val;
