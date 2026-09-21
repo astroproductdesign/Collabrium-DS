@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium — CollabSales Beta Survey</title>
+<title>Collabrium — Beta Survey</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -209,7 +209,16 @@ p.hint{margin:0;}
 .pub .c-progress-fill{background:var(--form-accent);}
 .form-title{margin:0; font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); overflow-wrap:anywhere;}
 .form-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); white-space:pre-wrap;}
-.q-title{display:block; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
+/* The number is a hanging indent, never the first word of the question. A
+   title that runs past one line wraps back to its own first letter, so the
+   left column holds the number and nothing else — "Compared" and "work
+   faster" start at the same x. Grid rather than text-indent because the
+   column has to be exactly as wide as the number is, and "10." is not the
+   same width as "1.". The asterisk stays inside the text column so it
+   trails the last word instead of becoming a third column. */
+.q-title{display:grid; grid-template-columns:auto 1fr; column-gap:var(--spacing-4); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:700; color:var(--color-neutral-9);}
+.q-title > .num{font-variant-numeric:tabular-nums;}
+.q-title > .txt{min-width:0; overflow-wrap:anywhere;}
 .req{color:var(--color-red); margin-left:var(--spacing-4);}
 /* Leading the legend rather than trailing a title: the marker comes first
    there, so the space goes on the other side. */
@@ -228,10 +237,6 @@ p.hint{margin:0;}
 .q-card.is-missing{border-color:var(--color-red);}
 .q-miss{display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-red);}
 .q-miss i{font-size:var(--icon-sm);}
-/* PROTOTYPE ONLY. Q2 and Q3 are each on the page twice so their two styles
-   can be compared; this names which style a card is showing. It is not part
-   of the survey and leaves with the duplicate card once a style is picked. */
-.q-variant{align-self:flex-start; font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
 /* Choice rows ship at body1. Every other answer on this page — the rating
    table's row labels, the scale's numbers — is body2, and a five-option list
    set larger than the question's own subjects reads as the louder thing. */
@@ -271,15 +276,50 @@ function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
 function $(s, r){ return (r || document).querySelector(s); }
 function $$(s, r){ return [].slice.call((r || document).querySelectorAll(s)); }
 
-/* The survey, copied from feedback.html's own record so the two prototypes
-   describe one survey rather than two. CollabSales is a Gold product in
-   DESIGN-SYSTEM.md's sub-brand table, so the form's accents follow Amber
-   rather than the default Obsidian — changing that one word re-accents the
-   whole page. */
+/* ==========================================================================
+   Which survey, and which screen
+
+   One page, three deliverables: the CollabSales form, the CollabInfluence
+   form, and the confirmation on its own for review. They were three copied
+   files until the copies started needing the same edit three times.
+
+   The variant comes off the query string, so all three open from this one
+   file: ?survey=influence and ?page=thanks. An offline bundle is a single
+   file someone double-clicks, and a double-clicked file:// URL carries no
+   query string — so the build rewrites BUILD_DEFAULTS below to bake the
+   variant into each copy. Both paths read the same line, and the query
+   string still wins if there is one.
+   ========================================================================== */
+var BUILD_DEFAULTS = { survey:'sales', page:'form' };   /* rewritten by the build */
+
+function param(name, fallback){
+  var m = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.search);
+  return m ? decodeURIComponent(m[1]) : fallback;
+}
+
+/* Owner per variant. The element is the only difference between the two
+   surveys — CollabSales is Gold and CollabInfluence is Earth (Green
+   #00C26E) in DESIGN-SYSTEM.md's sub-brand table — and changing it
+   re-accents the whole page, because the top border, the selected scale
+   circle and the progress fill all read --form-accent. An unknown value
+   falls back to sales rather than rendering a form with no owner. */
+var OWNERS = {
+  sales:     { title:'CollabSales Beta Survey',     name:'CollabSales',     el:'gold',
+               features:['Brief generation','Proposal deck generation','Client intelligence'] },
+  influence: { title:'CollabInfluence Beta Survey', name:'CollabInfluence', el:'earth',
+               features:['Influencer CRM','Influencer registration','Campaign management'] }
+};
+var WHO = OWNERS[param('survey', BUILD_DEFAULTS.survey)] || OWNERS.sales;
+/* The confirmation-only build exists to show that one screen, so its Back
+   to home stays put instead of walking off to a blank survey. */
+var THANKS_ONLY = param('page', BUILD_DEFAULTS.page) === 'thanks';
+
+/* The survey itself, copied from feedback.html's own record so the two
+   prototypes describe one survey rather than two. */
 var SURVEY = {
-  title: 'CollabSales Beta Survey',
+  title: WHO.title,
   desc:  'This short survey collects feedback on your experience with the platform. Your input will help us identify improvements and enhance future user experiences.',
-  owner: { name:'CollabSales', el:'gold' },
+  owner: { name: WHO.name, el: WHO.el },
   /* allowEdit is false and stays false: a respondent cannot reopen a
      submitted response, so the confirmation offers no way to. oneResponse
      is true and is deliberately NOT surfaced — it is a rule the system
@@ -289,11 +329,17 @@ var SURVEY = {
     /* `no` is the number printed on the card, not the card's position: Q2 and
        Q3 are each asked twice — once as a rating table, once as single choice
        — so the pair can be compared side by side. Both members of a pair carry
-       the same `no`, and `variant` names which style is which. Drop one of
-       each pair and the numbering is already right. */
+       the same `no`, so the repeated number is what marks them as one question
+       in two shapes. Drop one of each pair and the numbering is already right.
+       `variant` records which style a card is, for anyone reading this list;
+       it is deliberately not printed on the page, because a respondent is
+       being asked to answer the question, not to review the control. */
+    /* The only question whose content differs between the two surveys:
+       each product is rated on its own features, listed on the variant
+       record above. Everything below this is the same question either way. */
     { id:'s1', no:1, type:'matrix',
       title:'Please rate the user experience of the following features', required:true,
-      rows:['Brief generation','Proposal deck generation','Client intelligence'],
+      rows: WHO.features,
       cols:['Very poor','Poor','Average','Good','Excellent'] },
 
     /* Q2, twice. One subject and five points: a rating table with a single row
@@ -326,7 +372,7 @@ var SURVEY = {
   ]
 };
 
-var state = { page:'form', ans:{}, missing:[] };
+var state = { page: THANKS_ONLY ? 'done' : 'form', ans:{}, missing:[] };
 
 function visible(){ return SURVEY.questions; }
 function has(q){
@@ -444,10 +490,10 @@ function formHtml(){
         var n = q.no || ++num;
         var miss = state.missing.indexOf(q.id) > -1;
         return '<div class="c-card q-card stack sm' + (miss ? ' is-missing' : '') + '" data-q="' + q.id + '">' +
-          (q.variant ? '<span class="q-variant">' + esc(q.variant) + '</span>' : '') +
-          '<span class="q-title">' + n + '. ' + esc(q.title) +
-            (q.required ? '<span class="req" aria-hidden="true">*</span><span class="sr-only"> (required)</span>' : '') +
-          '</span>' +
+          '<span class="q-title"><span class="num">' + n + '.</span>' +
+            '<span class="txt">' + esc(q.title) +
+              (q.required ? '<span class="req" aria-hidden="true">*</span><span class="sr-only"> (required)</span>' : '') +
+            '</span></span>' +
           fieldHtml(q) +
           (miss ? '<span class="q-miss" role="alert"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i>' +
             'This question is required</span>' : '') +
@@ -604,15 +650,21 @@ function wire(){
     state.ans = {}; state.missing = [];
     render(); toast('Form cleared');
   });
-  /* There is no home to go to from a single-page prototype, so this puts
-     the demo back to a blank form — which is what anyone showing the flow
-     twice actually wants. In the product it would leave for the app. */
+  /* In the product this leaves for the app. Here, on the confirmation-only
+     build it stays on the screen being reviewed and says where it would
+     have gone; anywhere else it puts the demo back to a blank form, which
+     is what anyone showing the flow twice actually wants. */
   if ($('#backHome', root)) $('#backHome').addEventListener('click', function(){
+    if (THANKS_ONLY){
+      toast('In the product this returns to the Collabrium home page.');
+      return;
+    }
     state.ans = {}; state.missing = []; state.page = 'form';
     render(); window.scrollTo(0, 0);
   });
 }
 
+document.title = 'Collabrium — ' + SURVEY.title + (THANKS_ONLY ? ' — Thank you' : '');
 render();
 })();
 </script>
