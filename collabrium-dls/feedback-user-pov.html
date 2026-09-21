@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium — Feedback &amp; Bug Reports</title>
+<title>Collabrium — My Feedback</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1000,6 +1000,59 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    set on the modal rather than the body because the head sits outside the
    body and the tint has to reach the whole dialog. Obsidian stays the
    default: a survey with no owner is unchanged. */
+/* The survey, answered on its own route instead of inside the author's
+   preview modal. The accent variables are the preview's own, re-scoped:
+   the rules below are written against .c-modal.is-preview, and the route
+   is not a modal. Same five element colours, same variable, so every
+   control that reads --form-accent works unchanged. */
+#routeSurvey,#routeResponse{--form-accent:var(--color-obsidian);}
+#routeSurvey.el-fire ,#routeResponse.el-fire {--form-accent:var(--color-orange);}
+#routeSurvey.el-wood ,#routeResponse.el-wood {--form-accent:var(--color-salmon-pink);}
+#routeSurvey.el-earth,#routeResponse.el-earth{--form-accent:var(--color-green);}
+#routeSurvey.el-water,#routeResponse.el-water{--form-accent:var(--color-navy);}
+#routeSurvey.el-gold ,#routeResponse.el-gold {--form-accent:var(--color-amber);}
+#routeSurvey .c-progress-fill{background:var(--form-accent);}
+#routeSurvey .prev-head,#routeResponse .prev-head{border-top:4px solid var(--form-accent);}
+#routeSurvey .c-scale-opt input:checked + span,
+#routeResponse .c-scale-opt input:checked + span{background:var(--form-accent); border-color:var(--form-accent); color:var(--color-neutral-9);}
+/* One column, the width the respondent page uses, centred on the route. */
+/* Feedback V2 — the confirmation, on the same column width the survey
+   itself uses so the two screens line up when flipped between. Nothing
+   new is styled: the card is the same .prev-done the author previews and
+   the responder page shows. */
+.v2-done{max-width:800px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-16); width:100%;}
+
+/* A response, read back — the form as it was filled in, not a transcript
+   of it. The same cards, the same controls, the same answers sitting in
+   them, so the page a person gets back is recognisably the page they
+   sent. What changes is only that it cannot be touched: every control is
+   disabled, the two text fields are readonly rather than disabled so the
+   words stay Neutral-9 instead of greying out, and nothing here hovers.
+   The banner at the top is the one thing the form does not have. */
+.ans-view label,
+.ans-view .c-matrix-cell{cursor:default;}
+.ans-view .c-matrix tbody tr:hover{background:none;}
+/* .c-field input:disabled is Neutral-2 on Neutral-5 — correct for a field
+   you are being stopped from using, wrong for one whose whole job now is
+   to be read. readonly keeps the ink; these two lines take away the rest
+   of the affordance. */
+.ans-view .c-field input,
+.ans-view textarea{cursor:default; resize:none;}
+
+/* One invitation. Card's own recipe with three rows: who is asking and
+   whether it is still owed, what it is about, and the three facts plus the
+   way in. No hover lift and no whole-card click — the row carries a real
+   button, and a card that is also a button gives a keyboard reader two
+   targets for one action. */
+.invite-card{gap:var(--spacing-12); height:auto;}
+.invite-title{font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+.invite-desc{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+.invite-meta{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.invite-foot{gap:var(--spacing-12); align-items:center;}
+
+#routeSurvey > .pov-survey,
+#routeResponse > .pov-survey{max-width:800px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-16); width:100%;}
+
 .c-modal.is-preview{--form-accent:var(--color-obsidian);}
 .c-modal.is-preview.el-fire {--form-accent:var(--color-orange);}
 .c-modal.is-preview.el-wood {--form-accent:var(--color-salmon-pink);}
@@ -1467,6 +1520,23 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 }
 </style>
 </head>
+
+<!-- ==========================================================================
+     THE SAME PRODUCT, FROM THE OTHER SIDE.
+
+     feedback.html is the survey author's tool: build a form, send it, read
+     what comes back, work the report queue. This file is the person that
+     tool is aimed at — someone who was invited to one survey and has filed
+     a couple of tickets. Same shell, same components, same data; what
+     changes is what they are allowed to see and do.
+
+     Live here: the landing's two cards, My surveys, answering a survey, and
+     My tickets (with the report drawer). The builder and the admin report
+     board are still in the file but nothing routes to them — see the note
+     above `go()`. They are left in place rather than cut out so this file
+     stays diffable against feedback.html.
+     ========================================================================== -->
+
 <body>
 
 <div class="c-shell">
@@ -1497,10 +1567,14 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
       <div class="c-sidebar-section">Overview</div>
       <button class="c-sidebar-item" id="navDashboard" type="button" data-go="dashboard"><i class="ph-fill ph-house" aria-hidden="true"></i><span class="label">Dashboard</span><span class="c-sidebar-hover-text">Dashboard</span></button>
       <button class="c-sidebar-item" type="button"><i class="ph-fill ph-note-pencil" aria-hidden="true"></i><span class="label">Edit Sales Board</span><span class="c-sidebar-hover-text">Edit Sales Board</span></button>
-      <!-- Not on the live nav yet. It stays because it is the only way into
-           the routes this prototype exists to show, and because the router
-           reads #navFeedback on every route change. -->
-      <button class="c-sidebar-item active" id="navFeedback" type="button" data-go="forms" aria-current="page"><i class="ph-fill ph-chat-teardrop-text" aria-hidden="true"></i><span class="label">Feedback</span><span class="c-sidebar-hover-text">Feedback</span></button>
+      <!-- Not on the live nav yet. They stay because they are the only way
+           into the routes this prototype exists to show, and because the
+           router reads both ids on every route change.
+           Two entries, one product area: V1 is the landing-then-section
+           flow, V2 the same content arranged differently. Both are live so
+           the two can be opened side by side and compared. -->
+      <button class="c-sidebar-item active" id="navFeedback" type="button" data-go="forms" aria-current="page"><i class="ph-fill ph-chat-teardrop-text" aria-hidden="true"></i><span class="label">Feedback V1</span><span class="c-sidebar-hover-text">Feedback V1</span></button>
+      <button class="c-sidebar-item" id="navFeedback2" type="button" data-go="forms2"><i class="ph-fill ph-chat-teardrop-text" aria-hidden="true"></i><span class="label">Feedback V2</span><span class="c-sidebar-hover-text">Feedback V2</span></button>
       <button class="c-sidebar-item" type="button"><i class="ph-fill ph-users" aria-hidden="true"></i><span class="label">Users</span><span class="c-sidebar-hover-text">Users</span></button>
 
       <div class="c-sidebar-footer">
@@ -1596,7 +1670,12 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
       <!-- ===== Route: Feedback Hub (form library) ===== -->
       <section class="route stack lg" id="routeHub">
         <hr class="route-rule" />
-        <div class="row between">
+        <!-- Status chips, search, sort and the grid/list switch are for
+             someone looking at a library. This person has one invitation.
+             The toolbar is hidden rather than deleted so the file still
+             diffs against feedback.html, and so the listeners bound to it
+             at start-up have something to bind to. -->
+        <div class="row between" hidden>
           <div class="c-chip-group" role="group" aria-label="Filter by status">
             <button class="c-chip c-chip-filter is-active" type="button" data-status="all">All <span class="count" id="cntAll">0</span></button>
             <button class="c-chip c-chip-filter" type="button" data-status="active">Active <span class="count" id="cntActive">0</span></button>
@@ -1648,6 +1727,15 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
         <p class="hint" id="hubSearchCount" role="status" aria-live="polite" hidden></p>
         <div id="hubList"></div>
       </section>
+
+      <!-- ===== Route: answering a survey ===== -->
+      <section class="route stack lg" id="routeSurvey" hidden></section>
+
+      <!-- ===== Route: reading back a response already sent ===== -->
+      <section class="route stack lg" id="routeResponse" hidden></section>
+
+      <!-- ===== Route: Feedback V2 ===== -->
+      <section class="route stack lg" id="routeV2" hidden></section>
 
       <!-- ===== Route: Form builder ===== -->
       <section class="route stack lg" id="routeBuilder" hidden>
@@ -1970,6 +2058,37 @@ function closeDropdowns(root){
    ========================================================================== */
 var PODS = ['CollabSales','CollabMedia','CollabContent','CollabInfluence','CollabStudio'];
 var ME = { name:'GAN, Jia Yi', pods:['CollabMedia','CollabContent'] };
+/* The surveys this person was invited to, by id. An author sees the whole
+   library; a respondent sees the ones addressed to them and nothing else,
+   which is why every count on this page is built from myForms() rather
+   than from FORMS. */
+var INVITED = ['f7', 'f8'];
+function myForms(){
+  return FORMS.filter(function(f){ return !f.archived && INVITED.indexOf(f.id) > -1; });
+}
+/* One response per person, and no editing it afterwards. A submitted
+   survey is therefore a record, not a draft: what is kept is the date and
+   the answers exactly as they were sent, and the only thing left to do
+   with it is read it back.
+   In memory only — reloading puts the invitation back, which is what
+   anyone demonstrating the flow twice actually wants. The CollabInfluence
+   entry is seeded so the list shows both states without having to fill a
+   survey in first. */
+var ANSWERED = {
+  f8: { at:new Date(2026, 8, 12, 9, 40), ans:{
+    s1:{ 'Influencer CRM':'Good', 'Influencer registration':'Average', 'Campaign management':'Excellent' },
+    s2:{ 'Output usability':'Minor tweaks' },
+    s2b:'Minor tweaks',
+    s3:{ 'Overall speed':'Much faster' },
+    s3b:'Much faster',
+    s4:'8',
+    s5:'Registration is the slow part — chasing an influencer for their bank details still happens over WhatsApp. Everything after that is quicker than the spreadsheet ever was.'
+  } }
+};
+function isAnswered(f){ return !!ANSWERED[f.id]; }
+function awaitingMe(){
+  return myForms().filter(function(f){ return f.status === 'active' && !isAnswered(f); });
+}
 
 var PEOPLE = ['Jason Lim','Nurul Kamal','Tan Wei Ming','Priya Nair','Daniel Wong','Siti Aminah',
   'Marcus Tan','Farah Idris','Kelvin Cheah','Rachel Ong','Hafiz Rahman','Yee Ling Chong'];
@@ -2393,16 +2512,10 @@ var BUGS = [
     comments:[] },
 
   /* ---- Filed by the signed-in reporter, so My tickets is not an empty state ---- */
-  { id:'b9', at:new Date(2026,8,8,8,20),  who:ME.name, pod:'CollabMedia', status:'progress',
-    priority:'p2', impact:'high', location:'Collabrium › Campaigns', services:['Campaigns','Dashboards'], assignee:'Wei Sheng Loh', resolution:'',
-    title:'Campaign spend column blank for campaigns created this week',
-    desc:'Any campaign created after Monday shows an empty Spend column in the campaign list, even though the campaign itself has spend recorded on its own page.',
-    extra:'Affects 6 of my campaigns. Older ones are fine. Chrome 129, macOS 15.1.',
-    shots:[shot(111,'Campaign list — spend blank')],
-    comments:[
-      cmt('Wei Sheng Loh','team', new Date(2026,8,8,9,5),
-        'Thanks for the screenshot. Two quick questions so I can narrow this down: are the six campaigns all in CollabMedia, or spread across pods? And does the Spend figure appear if you export the same list to CSV?')
-    ] },
+  /* The author's copy of this file gives this person a third ticket whose
+     last word came from the tech team, so their queue opens with one
+     waiting on them. Here they are up to date: two tickets, both already
+     answered by them or closed, and nothing owed. */
 
   { id:'b10', at:new Date(2026,8,5,15,42), who:ME.name, pod:'CollabContent', status:'progress',
     priority:'p3', impact:'medium', location:'Collabrium › Search', services:['Search'], assignee:'Arif Zulkifli', resolution:'',
@@ -2579,8 +2692,12 @@ function go(route, opts){
 var DYNAMIC_ROUTES = { bugMine:'#routeBugMine', bugAdmin:'#routeBugAdmin' };
 
 function render(){
-  ['#routeDashboard','#routeLanding','#routeHub','#routeBuilder','#routeBugMine','#routeBugAdmin']
+  ['#routeDashboard','#routeLanding','#routeHub','#routeSurvey','#routeResponse','#routeV2','#routeBuilder','#routeBugMine','#routeBugAdmin']
     .forEach(function(s){ $(s).hidden = true; });
+  /* The responder view follows the route: on 'survey' it paints onto the
+     page, everywhere else it belongs to the author's preview modal. */
+  prevHost = state.route === 'survey' ? '#routeSurvey' : '#prev';
+  if (state.route !== 'survey') $('#routeSurvey').innerHTML = '';
   Object.keys(DYNAMIC_ROUTES).forEach(function(r){
     if (r !== state.route) $(DYNAMIC_ROUTES[r]).innerHTML = '';
   });
@@ -2599,20 +2716,32 @@ function render(){
      chosen model and any half-typed question all survive a trip to the
      library and back. */
   var onDash = state.route === 'dashboard';
-  $('#pageHeader').hidden = onDash;
+  /* Two routes carry their own opening line instead of the shell's page
+     header: the Dashboard's greeting, and V2's confirmation. */
+  $('#pageHeader').hidden = onDash || state.route === 'v2';
   $('#promptBar').hidden = !onDash;
   if (onDash) syncPromptBar(); else resetPromptBar();
   $('.c-shell-main').classList.toggle('has-prompt-bar', onDash);
-  /* The rail has to agree with the screen. Only two of its items are real
-     destinations in this prototype, so only those two are ever current. */
-  $('#navDashboard').classList.toggle('active', onDash);
-  $('#navFeedback').classList.toggle('active', !onDash);
-  (onDash ? $('#navDashboard') : $('#navFeedback')).setAttribute('aria-current', 'page');
-  (onDash ? $('#navFeedback') : $('#navDashboard')).removeAttribute('aria-current');
+  /* The rail has to agree with the screen. Three of its items are real
+     destinations now — the Dashboard, and the two versions of the feedback
+     flow — so the current one is looked up rather than toggled between a
+     pair. */
+  var current = onDash ? '#navDashboard'
+              : state.route === 'v2' ? '#navFeedback2'
+              : '#navFeedback';
+  ['#navDashboard','#navFeedback','#navFeedback2'].forEach(function(sel){
+    var el = $(sel);
+    el.classList.toggle('active', sel === current);
+    if (sel === current) el.setAttribute('aria-current', 'page');
+    else el.removeAttribute('aria-current');
+  });
 
   if (state.route === 'dashboard')      renderDashboard();
   else if (state.route === 'landing')   renderLanding();
   else if (state.route === 'hub')       renderHub();
+  else if (state.route === 'survey')    renderSurvey();
+  else if (state.route === 'response')  renderResponse();
+  else if (state.route === 'v2')        renderV2();
   else if (state.route === 'builder')   renderBuilder();
   else if (state.route === 'bugMine')   renderBugMine();
   else if (state.route === 'bugAdmin')  renderBugAdmin();
@@ -2626,7 +2755,8 @@ function render(){
    otherwise follow the user onto the next one. */
 function setHeader(title, sub, actionsHtml, badgeHtml){
   $('#phTitle').textContent = title;
-  $('#phSub').textContent = sub;
+  $('#phSub').textContent = sub || '';
+  $('#phSub').hidden = !sub;
   $('#phActions').innerHTML = actionsHtml || '';
   $('#phBadge').innerHTML = badgeHtml || '';
   $('#backRow').hidden = true;
@@ -2642,6 +2772,7 @@ $('#backBtn').addEventListener('click', function(){
   if (backTo) go(backTo.route, backTo.opts);
 });
 $('#navFeedback').addEventListener('click', function(){ go('landing'); });
+$('#navFeedback2').addEventListener('click', function(){ go('v2'); });
 $('#navDashboard').addEventListener('click', function(){ go('dashboard'); });
 
 /* ==========================================================================
@@ -2667,107 +2798,56 @@ function greeting(){
    Each returns null when it has nothing to say — a card reading "0 reports
    waiting on you" is not an attention item, it is noise wearing the same
    shape as one — and the first four that survive are what gets dealt. */
+/* The two things this person could be asked to do: answer a survey, or
+   reply to the tech team about a ticket they filed. The author's version
+   of this function also derives cards for unpublished drafts, surveys with
+   no answers and the busiest inbox — all of them about running surveys,
+   none of them this person's business. */
 function dashFocuses(){
-  var live = FORMS.filter(function(f){ return !f.archived; });
-
-  var closing = live.filter(function(f){ return f.status === 'active' && f.ends && closesIn(f) >= 0; })
-                    .sort(function(a, b){ return closesIn(a) - closesIn(b); })[0];
-
-  var mine = BUGS.filter(function(b){ return b.who === ME.name && threadState(b) === 'awaiting'; });
-  var openBugs = BUGS.filter(function(b){ return b.status !== 'resolved'; });
-
-  var draft = live.filter(function(f){ return f.status === 'draft'; })
-                  .sort(function(a, b){ return b.updated - a.updated; })[0];
-
-  var quiet = live.filter(function(f){ return f.status === 'active' && formCount(f) === 0; })
-                  .sort(function(a, b){ return b.updated - a.updated; })[0];
-
-  var busiest = live.filter(function(f){ return f.status === 'active' && formCount(f) > 0; })
-                    .sort(function(a, b){ return formCount(b) - formCount(a); })[0];
-
   var out = [];
 
-  /* The invitation, written from the respondent's side rather than the
-     owner's. Every fact on it is one the person being asked has a use for
-     — how much of their time this is, and how long they have. How many
-     responses are already in, and who owns the survey, are the author's
-     business: a running total tells a respondent their answer is the
-     hundredth and changes nothing they can act on, and an owner's name
-     invites them to weigh the asker instead of the question. */
-  if (closing){
-    var d = closesIn(closing);
-    var qn = (closing.questions || []).length;
-    /* ~25 seconds a question, rounded to whole minutes and never zero. An
-       estimate the person can hold you to is worth more than a precise one
-       they have to work out for themselves. */
+  var invites = awaitingMe().sort(function(a, b){
+    if (!a.ends) return 1;
+    if (!b.ends) return -1;
+    return closesIn(a) - closesIn(b);
+  });
+  var next = invites[0];
+  if (next){
+    var d = next.ends ? closesIn(next) : null;
+    var qn = (next.questions || []).length;
     var mins = Math.max(1, Math.round(qn * 25 / 60));
     out.push({
       label:'Your turn',
-      title:closing.title,
+      title:next.title,
       rows:[['Questions', String(qn), 'c-badge-neutral'],
             ['Takes about', mins + (mins === 1 ? ' minute' : ' minutes'), 'c-badge-neutral'],
-            ['Closes', d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : 'In ' + d + ' days',
-             d <= 3 ? 'c-badge-warning' : 'c-badge-neutral']],
+            ['Closes', d === null ? 'No deadline'
+                     : d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : 'In ' + d + ' days',
+             (d !== null && d <= 3) ? 'c-badge-warning' : 'c-badge-neutral']],
       rec:'A few minutes now, and the next release is shaped by what you actually ran into rather than what we guessed. Every answer is read by the team building it.',
       cta:'Start the survey',
-      act:function(){ openPreview(closing); }
+      act:function(){ resetPreview(); go('survey', { formId:next.id }); }
     });
   }
 
-  if (mine.length || openBugs.length){
-    var waiting = mine.length;
+  var mine = myBugs();
+  if (mine.length){
+    var owed = mine.filter(function(b){ return threadState(b) === 'awaiting'; }).length;
+    var open = mine.filter(function(b){ return b.status !== 'resolved'; }).length;
+    var oldest = mine.reduce(function(a, b){ return a.at < b.at ? a : b; }).at;
     out.push({
-      label:waiting ? 'Waiting on you' : 'Open on the board',
-      title:waiting ? (waiting === 1 ? 'One report is waiting on your reply'
-                                     : waiting + ' reports are waiting on your reply')
-                    : openBugs.length + ' reports are still open',
-      rows:[['Waiting on you', String(waiting), waiting ? 'c-badge-warning' : 'c-badge-neutral'],
-            ['Open in total', String(openBugs.length), 'c-badge-neutral'],
-            ['Oldest', fmtDate((waiting ? mine : openBugs).reduce(function(a, b){
-               return a.at < b.at ? a : b; }).at), 'c-badge-neutral']],
-      rec:waiting ? 'The team has answered and the thread is back with you. Nothing moves until you reply.'
-                  : 'None of these are yours to answer, but they are the queue your pods are in.',
-      cta:waiting ? 'Open my reports' : 'Open the board',
-      act:function(){ go(waiting ? 'bugMine' : 'bugAdmin'); }
-    });
-  }
-
-  if (draft){
-    out.push({
-      label:'Not live yet',
-      title:draft.title,
-      rows:[['Questions', String((draft.questions || []).length), 'c-badge-neutral'],
-            ['Owner', draft.owner ? draft.owner.name : 'Unassigned', 'c-badge-neutral'],
-            ['Status', 'Draft', 'c-badge-neutral']],
-      rec:'Written but never published, so it is collecting nothing. Publishing is the whole remaining step.',
-      cta:'Open the builder',
-      act:function(){ state.btab = 'questions'; go('builder', { formId:draft.id }); }
-    });
-  }
-
-  if (quiet){
-    out.push({
-      label:'No answers yet',
-      title:quiet.title,
-      rows:[['Responses', '0', 'c-badge-warning'],
-            ['Owner', quiet.owner ? quiet.owner.name : 'Unassigned', 'c-badge-neutral'],
-            ['Window', quiet.ends ? rangeLabel(quiet) : 'No deadline', 'c-badge-neutral']],
-      rec:'Live, and not one answer yet. Either nobody has the link or nobody has a reason to click it.',
-      cta:'Share the link',
-      act:function(){ go('builder', { formId:quiet.id }); }
-    });
-  }
-
-  if (busiest){
-    out.push({
-      label:'Most to read',
-      title:busiest.title,
-      rows:[['Responses', formCount(busiest).toLocaleString(), 'c-badge-success'],
-            ['Owner', busiest.owner ? busiest.owner.name : 'Unassigned', 'c-badge-neutral'],
-            ['Window', busiest.ends ? rangeLabel(busiest) : 'No deadline', 'c-badge-neutral']],
-      rec:'The busiest survey you own. The open-text answers are where the ones worth acting on are.',
-      cta:'Read the responses',
-      act:function(){ state.btab = 'responses'; go('builder', { formId:busiest.id }); }
+      label:owed ? 'Waiting on you' : 'With the team',
+      title:owed ? (owed === 1 ? 'One ticket is waiting on your reply'
+                               : owed + ' tickets are waiting on your reply')
+                 : (open === 1 ? 'One ticket is still being worked on'
+                               : open + ' tickets are still being worked on'),
+      rows:[['Waiting on you', String(owed), owed ? 'c-badge-warning' : 'c-badge-neutral'],
+            ['Still open', String(open), 'c-badge-neutral'],
+            ['First reported', fmtDate(oldest), 'c-badge-neutral']],
+      rec:owed ? 'The tech team has answered and the thread is back with you. Nothing moves until you reply.'
+               : 'Nothing is owed from your side. You will get an email the moment one of these needs you.',
+      cta:'Open my tickets',
+      act:function(){ go('bugMine'); }
     });
   }
 
@@ -2826,29 +2906,27 @@ function dashListRow(title, meta, badge, tone){
     '</span><span class="c-badge ' + tone + '">' + esc(badge) + '</span></div>';
 }
 
+/* Two lists, both of them this person's own. The author's version of this
+   shows the whole library and every open report in the product. */
 function paintDashRest(){
-  var live = FORMS.filter(function(f){ return !f.archived; })
-                  .sort(function(a, b){ return b.updated - a.updated; });
-  var surveys = live.map(function(f){
-    var n = formCount(f);
+  var surveys = myForms().map(function(f){
+    var done = isAnswered(f);
     return dashListRow(f.title,
-      (f.owner ? f.owner.name : 'Unassigned') + ' · ' + n.toLocaleString() + (n === 1 ? ' response' : ' responses'),
-      f.status === 'active' ? 'Active' : f.status === 'draft' ? 'Draft' : 'Closed',
-      f.status === 'active' ? 'c-badge-success' : 'c-badge-neutral');
-  }).join('');
+      (f.owner ? f.owner.name : 'Unassigned') + ' · about ' + surveyMinutes(f) + ' min',
+      done ? 'Submitted' : 'Awaiting you',
+      done ? 'c-badge-success' : 'c-badge-warning');
+  }).join('') || '<p class="hint">Nothing to answer right now.</p>';
 
-  var open = BUGS.filter(function(b){ return b.status !== 'resolved'; })
-                 .sort(function(a, b){ return b.at - a.at; });
-  var reports = open.map(function(b){
+  var tickets = myBugs().sort(function(a, b){ return b.at - a.at; }).map(function(b){
     var t = threadState(b);
     return dashListRow(b.title, b.pod + ' · ' + fmtDate(b.at),
-      t === 'awaiting' ? 'Needs a reply' : t === 'replied' ? 'With the team' : 'New',
-      t === 'awaiting' ? 'c-badge-warning' : 'c-badge-neutral');
-  }).join('');
+      b.status === 'resolved' ? 'Resolved' : t === 'awaiting' ? 'Needs your reply' : 'With the team',
+      b.status === 'resolved' ? 'c-badge-success' : t === 'awaiting' ? 'c-badge-warning' : 'c-badge-neutral');
+  }).join('') || '<p class="hint">You have not reported anything yet.</p>';
 
   $('#dashRestGrid').innerHTML =
-    '<div class="c-card"><h3>Surveys in the library</h3><div class="dash-list">' + surveys + '</div></div>' +
-    '<div class="c-card"><h3>Reports still open</h3><div class="dash-list">' + reports + '</div></div>';
+    '<div class="c-card"><h3>Surveys you have been asked to answer</h3><div class="dash-list">' + surveys + '</div></div>' +
+    '<div class="c-card"><h3>Your tickets</h3><div class="dash-list">' + tickets + '</div></div>';
 }
 
 /* Pointer tilt. Only on a settled card: the entrance owns `transform` until
@@ -2948,26 +3026,28 @@ function entryCard(id, icon, tint, title, desc, facts, go){
 
 function renderLanding(){
   $('#routeLanding').hidden = false;
-  setHeader('Feedback', 'Ask your team how it is going, and hear about it when something breaks.');
+  setHeader('Feedback', 'Tell us how Collabrium is working for you, and let us know when it is not.');
 
-  var live = FORMS.filter(function(f){ return !f.archived && f.status === 'active'; }).length;
-  var responses = FORMS.reduce(function(n, f){ return n + formCount(f); }, 0);
-  var open = BUGS.filter(function(b){ return b.status !== 'resolved'; }).length;
-  var mineWaiting = BUGS.filter(function(b){
-    return b.who === ME.name && threadState(b) === 'awaiting';
-  }).length;
+  /* Every number here is this person's own. An author's landing counts the
+     whole library and the whole report queue; a respondent has no business
+     knowing either, and neither figure would tell them anything to do. */
+  var waitingForMe = awaitingMe().length;
+  var mine = myBugs();
+  var owed = mine.filter(function(b){ return threadState(b) === 'awaiting'; }).length;
 
   $('#entryGrid').innerHTML =
     entryCard('forms', 'ph-list-checks', '', 'Feedback Forms',
-      'Build a survey, send it out, and read what comes back.',
-      [[live, live === 1 ? 'live survey' : 'live surveys'],
-       [responses.toLocaleString(), 'responses collected']],
-      'Open the library') +
-    entryCard('bugs', 'ph-bug', 'is-water', 'Bug Reports',
-      'Report something broken, or work through what the pods have sent in.',
-      [[open, open === 1 ? 'open report' : 'open reports'],
-       [mineWaiting, 'waiting on you']],
-      'Open reports');
+      'View surveys you\u2019ve been invited to and track your previous responses.',
+      [[waitingForMe, (waitingForMe === 1 ? 'live survey' : 'live surveys') + ' awaiting your response']],
+      'Open my surveys') +
+    /* Bug Reports on the author's side is a queue of everyone's reports.
+       There is no queue here — there are the person's own tickets — so the
+       card is named after what it actually holds. */
+    entryCard('tickets', 'ph-ticket', 'is-water', 'My Tickets',
+      'Report issues and track their progress from submission to resolution.',
+      [[mine.length, mine.length === 1 ? 'ticket submitted' : 'tickets submitted'],
+       [owed, 'waiting on you']],
+      'Open my tickets');
 
   $$('[data-entry]', $('#entryGrid')).forEach(function(b){
     b.addEventListener('click', function(){
@@ -3048,128 +3128,228 @@ function formHaystack(f){
     (f.ends ? rangeLabel(f) : 'no deadline open ended ongoing');
 }
 
+/* --------------------------------------------------------------------------
+   My surveys
+   The author's version of this route is a library: every survey the pod
+   runs, with status chips, search, sort and two view modes over it. This
+   person has an invitation list. One row per survey, saying what it is,
+   how long it takes and whether they still owe it — the only three things
+   they can act on — and nothing about how it is performing.
+   -------------------------------------------------------------------------- */
+function surveyMinutes(f){
+  /* ~25 seconds a question, whole minutes, never zero. Same estimate the
+     dashboard's invitation card prints, so the two cannot disagree. */
+  return Math.max(1, Math.round((f.questions || []).length * 25 / 60));
+}
+
+function inviteRow(f){
+  var done = isAnswered(f);
+  var d = f.ends ? closesIn(f) : null;
+  /* Once it is answered the deadline stops being news — what matters is
+     when they sent it, which is also the receipt for a response they can
+     no longer change. */
+  var when = done ? 'Submitted ' + fmtDate(ANSWERED[f.id].at)
+           : d === null ? 'No deadline'
+           : d < 0 ? 'Closed'
+           : d === 0 ? 'Closes today'
+           : d === 1 ? 'Closes tomorrow'
+           : 'Closes in ' + d + ' days';
+  /* One surface for both states. An answered survey is not a lesser row —
+     it is the same record with a different status, and the Badge and the
+     CTA already say which. Recolouring the card as well says it a third
+     time and makes the list look like two kinds of thing. */
+  return '<div class="c-card invite-card">' +
+    '<div class="row between invite-top">' +
+      '<span class="row tight">' + ownerChip(f) +
+        '<span class="invite-title">' + esc(f.title) + '</span></span>' +
+      (done
+        ? '<span class="c-badge c-badge-success">Submitted</span>'
+        : '<span class="c-badge c-badge-warning">Awaiting your response</span>') +
+    '</div>' +
+    (f.desc ? '<p class="invite-desc">' + esc(f.desc) + '</p>' : '') +
+    '<div class="row between invite-foot">' +
+      '<span class="invite-meta">' +
+        '<span>' + (f.questions || []).length + ' questions</span>' +
+        '<span aria-hidden="true">·</span>' +
+        '<span>About ' + surveyMinutes(f) + ' min</span>' +
+        '<span aria-hidden="true">·</span>' +
+        '<span>' + esc(when) + '</span>' +
+      '</span>' +
+      /* Secondary once it is answered, not Primary: there is nothing left
+         to do here, and a filled button on every row would make a list of
+         completed surveys look like a list of jobs. */
+      (done
+        ? '<button class="c-btn c-btn-secondary c-btn-md" type="button" data-view="' + f.id + '">' +
+            '<i class="ph ph-eye" aria-hidden="true"></i>View my response</button>'
+        : '<button class="c-btn c-btn-primary c-btn-md" type="button" data-answer="' + f.id + '">' +
+            'Start the survey<i class="ph ph-arrow-right" aria-hidden="true"></i></button>') +
+    '</div>' +
+  '</div>';
+}
+
 function renderHub(){
   $('#routeHub').hidden = false;
-  setHeader('Feedback Forms', 'Every survey your pod is running, and everything that has come back.',
-    '<button class="c-btn c-btn-primary c-btn-md" type="button" id="newFormBtn"><i class="ph ph-plus"></i>New survey</button>');
+  setHeader('My surveys', 'Surveys you have been invited to answer.');
   setBack('Feedback', 'landing');
-  $('#newFormBtn').addEventListener('click', newForm);
 
-  paintHubSort();
+  var list = myForms();
+  $('#hubList').innerHTML = list.length
+    ? '<div class="stack">' + list.map(inviteRow).join('') + '</div>'
+    : '<div class="c-empty is-section"><i class="ph ph-tray" aria-hidden="true"></i>' +
+      '<h4>No surveys yet</h4>' +
+      '<p>Nobody has asked you for feedback at the moment. You will get an email when they do.</p></div>';
 
-  var ts = terms(state.hubQuery);
-  /* Chip counts count what the current query can actually reach, not the
-     whole library. A chip reading "Closed 2" beside a search returning one
-     row is the chip contradicting its own filter. */
-  var found = FORMS.filter(function(f){ return matchAll(formHaystack(f), ts); });
-  /* Archived surveys are out of the library entirely — they are not part of
-     "All", which is why their count lives on its own chip. */
-  var live = found.filter(function(f){ return !f.archived; });
-  var filed = found.filter(function(f){ return f.archived; });
-  $('#cntAll').textContent = live.length;
-  $('#cntActive').textContent = live.filter(function(f){ return f.status === 'active'; }).length;
-  /* Its own chip, because a status with no chip is a survey that can only
-     be found under All — and it would leave the counts not adding up,
-     which is the first thing anyone checks a filter row against. */
-  $('#cntDraft').textContent  = live.filter(function(f){ return f.status === 'draft'; }).length;
-  $('#cntClosed').textContent = live.filter(function(f){ return f.status === 'closed'; }).length;
-  $('#cntArchived').textContent = filed.length;
-
-  var archiveView = state.hubStatus === 'archived';
-  var list = archiveView ? filed : live.filter(function(f){
-    return state.hubStatus === 'all' || f.status === state.hubStatus;
+  $$('[data-view]', $('#hubList')).forEach(function(b){
+    b.addEventListener('click', function(){ go('response', { formId:b.dataset.view }); });
   });
-
-  var cnt = $('#hubSearchCount');
-  if (ts.length){
-    cnt.hidden = false;
-    cnt.textContent = list.length + (list.length === 1 ? ' form matches ' : ' forms match ') +
-      '“' + state.hubQuery.trim() + '”' +
-      (state.hubStatus === 'all' ? '' : ' in ' + (archiveView ? 'the archive' : state.hubStatus + ' forms'));
-  } else if (archiveView){
-    cnt.hidden = false;
-    cnt.textContent = 'Archived surveys are hidden from the library. Open one and choose Restore from archive to bring it back.';
-  } else {
-    cnt.hidden = true; cnt.textContent = '';
-  }
-
-  var host = $('#hubList');
-  if (!list.length){
-    host.innerHTML = '<div class="c-empty is-section">' +
-      '<i class="ph ph-magnifying-glass" aria-hidden="true"></i>' +
-      '<h4>No forms match</h4>' +
-      '<p>' + (ts.length ? 'Nothing matching &ldquo;' + esc(state.hubQuery.trim()) + '&rdquo;' +
-                   (state.hubStatus !== 'all' ? ' in ' + (archiveView ? 'the archive' : state.hubStatus + ' forms') : '') + '.'
-                 : archiveView ? 'Nothing has been archived yet.'
-                 : 'There are no ' + state.hubStatus + ' forms yet.') + '</p>' +
-      '<div class="c-empty-actions"><button class="c-btn c-btn-secondary c-btn-md" type="button" id="clearHub">Clear filters</button></div>' +
-      '</div>';
-    $('#clearHub').addEventListener('click', function(){
-      state.hubStatus = 'all';
-      syncHubChips();
-      clearHubSearch();
-    });
-    return;
-  }
-
-  list = hubSorted(list);
-  host.innerHTML = state.hubView === 'grid' ? hubGrid(list, ts) : hubTable(list, ts);
-  $$('[data-form]', host).forEach(function(b){
-    b.addEventListener('click', function(){ go('builder', { formId:b.dataset.form }); });
-    /* A table row is not a button, so it has to answer the keyboard itself
-       — the grid's tiles already are buttons and get this for free. */
-    if (b.tagName === 'TR') b.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go('builder', { formId:b.dataset.form }); }
+  $$('[data-answer]', $('#hubList')).forEach(function(b){
+    b.addEventListener('click', function(){
+      /* A fresh start each time in: the preview's answer store is shared
+         with the author's modal and would otherwise hand this person
+         somebody else's half-filled form. */
+      resetPreview();
+      go('survey', { formId:b.dataset.answer });
     });
   });
-  /* Header sort — cycles ascending, descending, then back to the library's
-     default order. Focus goes back to the header the click came from, since
-     the whole table is rebuilt underneath it. */
-  $$('[data-hubcol]', host).forEach(function(th){
-    function cycle(){
-      var k = th.dataset.hubcol, c = hubCol(k);
-      if (state.hubSortCol !== k){ state.hubSortCol = k; state.hubSortDir = c.def; }
-      else if (state.hubSortDir === c.def){ state.hubSortDir = -c.def; }
-      else { state.hubSortCol = 'updated'; state.hubSortDir = -1; }
-      renderHub();
-      var back = $('[data-hubcol="' + k + '"]', $('#hubList'));
-      if (back) back.focus();
-    }
-    th.addEventListener('click', cycle);
-    th.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cycle(); }
-    });
+}
+
+/* --------------------------------------------------------------------------
+   Answering one
+   The form itself is the responder view the author previews, painted onto
+   a route instead of into a modal — see prevHost. Building it twice would
+   have given the author a preview of something nobody is actually sent.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   Feedback V2 — the same content, one page
+
+   V1 opens on two cards and makes you pick a side before showing anything.
+   V2 drops the landing: surveys and tickets are both on the screen when
+   you arrive, because the whole of this person's feedback life is two
+   short lists and there is nothing to choose between.
+
+   PLACEHOLDER SHAPE. This is a starting point for the comparison, not a
+   finished proposal — the sections below reuse V1's own invitation card
+   and the dashboard's list row, so replacing either with a different idea
+   touches only this function.
+   -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------
+   Feedback V2 — what someone sees once they have already answered
+
+   V1 is the whole journey: two cards, a list, the form, the receipt. V2 is
+   the end of it on its own. Somebody who has already sent their response
+   and comes back to the link has nothing left to do here, so the screen
+   says so and offers the one way onward.
+
+   No page header on this route, for the same reason the Dashboard has
+   none: a title bar reading "Feedback" above a message that says you are
+   finished is the shell talking over the screen.
+   -------------------------------------------------------------------------- */
+function renderV2(){
+  $('#routeV2').hidden = false;
+  $('#backRow').hidden = true;
+  $('#routeV2').innerHTML =
+    '<div class="v2-done">' +
+      '<div class="c-card prev-done stack">' +
+        '<i class="ph-fill ph-check-circle prev-done-icon" aria-hidden="true"></i>' +
+        '<h3 class="prev-done-title">Your response has been submitted.</h3>' +
+        '<p class="prev-desc">Thank you for taking the time to complete this survey. ' +
+          'Your feedback is greatly appreciated and will help us improve the platform experience.</p>' +
+      '</div>' +
+      '<div class="row tight">' +
+        '<button class="c-btn c-btn-primary c-btn-md" type="button" id="v2Home">' +
+          'Back to home<i class="ph ph-arrow-right" aria-hidden="true"></i></button>' +
+      '</div>' +
+    '</div>';
+  $('#v2Home').addEventListener('click', function(){ go('landing'); });
+}
+
+/* --------------------------------------------------------------------------
+   Reading a response back
+
+   One response per person and no editing after submission, so nothing on
+   this route does anything — but it is still the form. It is painted with
+   the responder's own field renderers, reading the record instead of a
+   live answer set, so a person gets back the page they filled in with
+   their answers still sitting in it rather than a summary of what they
+   said. Locking it is done to the elements once they are in the page,
+   not by rendering something else — see lockResponse().
+   -------------------------------------------------------------------------- */
+function renderResponse(){
+  var f = FORMS.filter(function(x){ return x.id === state.formId; })[0];
+  var rec = f && ANSWERED[f.id];
+  if (!f || !rec){ go('hub'); return; }
+  $('#routeResponse').hidden = false;
+  setHeader(f.title, '');
+  setBack('My surveys', 'hub');
+
+  /* The same accent the survey route takes from the same owning element,
+     so the form and the record of it are the same colour. */
+  var box = $('#routeResponse');
+  PREV_ELEMENTS.forEach(function(k){ box.classList.remove('el-' + k); });
+  var el = ownerEl(f);
+  if (el) box.classList.add('el-' + el);
+
+  /* prevField reads prevAns. The record goes in, the questions are built,
+     and what was there goes back — the survey route may be holding a
+     part-finished answer set for another form. */
+  var keptAns = prevAns, keptMiss = prevMissing;
+  prevAns = rec.ans; prevMissing = [];
+  var num = 0;
+  var body = prevVisible(f).map(function(q){
+    if (q.type === 'media') return '<div class="c-card prev-q">' + prevField(q) + '</div>';
+    num++;
+    /* No required asterisk and no "* Required" footer: nothing here can
+       be filled in, so a mark saying it must be is noise. */
+    return '<div class="c-card prev-q stack sm">' +
+      '<span class="prev-q-title"><span class="num">' + num + '.</span>' +
+        '<span class="txt">' + esc(q.title) + '</span></span>' +
+      prevField(q) +
+    '</div>';
+  }).join('');
+  prevAns = keptAns; prevMissing = keptMiss;
+
+  box.innerHTML = '<div class="pov-survey ans-view">' +
+    '<div class="c-banner c-banner-info" role="status">' +
+      '<i class="ph ph-lock-simple icon" aria-hidden="true"></i>' +
+      '<div class="body"><p class="message">Submitted ' + esc(fmtDate(rec.at)) + '</p></div>' +
+    '</div>' +
+    '<div class="c-card prev-head stack sm">' +
+      '<h3 class="prev-title">' + esc(f.title) + '</h3>' +
+      (f.desc ? '<p class="prev-desc">' + esc(f.desc) + '</p>' : '') +
+    '</div>' +
+    body +
+  '</div>';
+  lockResponse(box);
+}
+
+/* Nothing on this route is wired, but the controls are real form elements:
+   left alone they would still take focus, take a click, and look like they
+   were about to accept one. Radios, checkboxes, sliders and buttons are
+   disabled outright. The two text controls are made readonly instead —
+   disabled greys the words out, and the words are the answer. */
+function lockResponse(box){
+  $$('input,select,button', box).forEach(function(c){
+    if (c.type === 'text') c.readOnly = true;
+    else c.disabled = true;
   });
-  /* Scroll boundary shadow — the frozen columns only cast one while there is
-     scrolled content underneath them. */
-  var wrap = $('.c-table-scroll-x', host);
-  if (wrap){
-    var paintFreeze = function(){
-      wrap.classList.toggle('is-scrolled-left', wrap.scrollLeft > 0);
-      wrap.classList.toggle('is-scrolled-right', wrap.scrollLeft + wrap.clientWidth < wrap.scrollWidth - 1);
-    };
-    wrap.addEventListener('scroll', paintFreeze);
-    paintFreeze();
-  }
-  $$('[data-libmenu]', host).forEach(function(btn){
-    var pop = btn.nextElementSibling;
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();                       /* never opens the survey */
-      var open = pop.hidden;
-      closeMenus();
-      pop.hidden = !open;
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open && btn.closest('.lib-table')) placeRowMenu(btn, pop);
-    });
-    pop.addEventListener('click', function(e){ e.stopPropagation(); });
-    $$('[data-rowkb]', pop).forEach(function(item){
-      item.addEventListener('click', function(){
-        closeMenus();
-        formAction(FORMS.filter(function(x){ return x.id === btn.dataset.libmenu; })[0],
-                   item.dataset.rowkb);
-      });
-    });
+  $$('textarea', box).forEach(function(t){
+    t.readOnly = true;
+    /* Three rows was a guess at how much someone might write. Now that it
+       is known, the field is the height of the answer — a record that
+       makes you scroll a box to read your own sentence is not a record. */
+    t.style.height = 'auto';
+    t.style.height = t.scrollHeight + 'px';
   });
+}
+
+function renderSurvey(){
+  var f = FORMS.filter(function(x){ return x.id === state.formId; })[0];
+  if (!f || INVITED.indexOf(f.id) === -1){ go('hub'); return; }
+  $('#routeSurvey').hidden = false;
+  setHeader(f.title, '');
+  setBack('My surveys', 'hub');
+  paintPreview(f);
 }
 
 /* A menu placed against the viewport does not travel with the row it belongs
@@ -5707,15 +5887,13 @@ function bugSegHtml(metaHtml){
   /* The rule under the page header comes first, the same one the other two
      landing screens carry — it is here rather than in each route because
      both of them open on this row. */
+  /* No My tickets / All reports switch here. "All reports" is the tech
+     team's queue of everyone's reports, and this person only has their
+     own — a two-tab control where one tab is unreachable is worse than no
+     control. The row keeps its meta so the count still has somewhere to
+     sit, and stays left-aligned now that nothing balances it. */
   return '<hr class="route-rule" />' +
-    '<div class="row between">' +
-    '<div class="c-segctl c-segctl-default" role="tablist" aria-label="Bug report view" data-bugseg>' +
-      '<span class="c-seg-pill" aria-hidden="true"></span>' +
-      '<button class="c-seg" type="button" role="tab" data-bv="mine">My tickets</button>' +
-      '<button class="c-seg" type="button" role="tab" data-bv="admin">All reports</button>' +
-    '</div>' +
-    (metaHtml || '') +
-  '</div>';
+    '<div class="row">' + (metaHtml || '') + '</div>';
 }
 /* What a ticket is searchable by. Status words are in here for the same
    reason the survey library puts them in: "resolved" is a thing people
@@ -5801,7 +5979,12 @@ function wireBugControls(root, rerender){
 }
 
 function wireBugSeg(root, active){
-  wireSeg($('[data-bugseg]', root), active === 'mine' ? 0 : 1, function(i){
+  /* bugSegHtml no longer draws the switch on this side — there is only one
+     view of the queue here. Nothing to wire, and wireSeg measures the pill
+     against a control that is not there. */
+  var seg = $('[data-bugseg]', root);
+  if (!seg) return;
+  wireSeg(seg, active === 'mine' ? 0 : 1, function(i){
     go(i ? 'bugAdmin' : 'bugMine');
   });
 }
@@ -6319,7 +6502,7 @@ function renderBugMine(){
   $('#routeBugMine').hidden = false;
   var mine = myBugs();
   var waiting = mine.filter(function(b){ return threadState(b) === 'awaiting'; }).length;
-  setHeader('Bug Reports', 'Track what you have reported and answer questions from the tech team.',
+  setHeader('My Tickets', 'Track what you have reported and answer questions from the tech team.',
     '<button class="c-btn c-btn-primary c-btn-md" type="button" id="reportBug"><i class="ph ph-plus"></i>Report a bug</button>');
   setBack('Feedback', 'landing');
   $('#reportBug').addEventListener('click', openBugDrawer);
@@ -7150,8 +7333,13 @@ function resetPreview(){ prevAns = {}; prevMissing = []; prevPage = 'form'; prev
    replaces the modal's innerHTML, not the modal — so they are applied here
    rather than written into the template. */
 var PREV_ELEMENTS = ['fire','wood','earth','water','gold'];
+/* Where the responder view is being painted. '#prev' is the author's
+   preview modal; '#routeSurvey' is the person actually answering. Every
+   repaint inside wirePreview goes through paintPreview, so setting this
+   one variable sends all of them to the right place. */
+var prevHost = '#prev';
 function applyPrevAccent(f){
-  var box = $('#prev');
+  var box = $(prevHost);
   PREV_ELEMENTS.forEach(function(k){ box.classList.remove('el-' + k); });
   var el = ownerEl(f);
   if (el) box.classList.add('el-' + el);
@@ -7355,6 +7543,17 @@ function prevThanksHtml(f){
 }
 
 function paintPreview(f){
+  /* On the survey route there is no modal to draw — no head, no page tabs,
+     no "preview only" footer. Just the two pages a responder sees. */
+  if (prevHost !== '#prev'){
+    applyPrevAccent(f);
+    var a = prevAsks(f);
+    $(prevHost).innerHTML = '<div class="pov-survey">' +
+      (prevPage === 'thanks' ? prevThanksHtml(f) : prevFormHtml(f, a, a.filter(prevHas).length)) +
+      '</div>';
+    wirePreview(f);
+    return;
+  }
   applyPrevAccent(f);
   var asks = prevAsks(f);
   var done = asks.filter(prevHas).length;
@@ -7471,12 +7670,19 @@ function prevSubmit(f){
     return;
   }
   prevPage = 'thanks';
+  /* Answering it is what takes the invitation off the landing page and the
+     survey list. Held in memory only — a reload puts it back. */
+  if (prevHost !== '#prev')
+    ANSWERED[f.id] = { at:new Date(NOW), ans:JSON.parse(JSON.stringify(prevAns)) };
   paintPreview(f);
-  $('#prev .c-modal-body').scrollTop = 0;
+  var body = $('#prev .c-modal-body');
+  if (body) body.scrollTop = 0;
+  var c = $('#shellContent');
+  if (c) c.scrollTop = 0;
 }
 
 function wirePreview(f){
-  var root = $('#prev');
+  var root = $(prevHost);
   /* Switching pages is not a failed submit, so it drops any required-answer
      marks the last Submit left behind. The answers themselves are kept —
      going to the confirmation and back is a look, not a reset. */
@@ -7486,25 +7692,31 @@ function wirePreview(f){
       prevPage = t.dataset.pp;
       prevMissing = [];
       paintPreview(f);
-      $('#prev .c-modal-body').scrollTop = 0;
+      var mb = $('#prev .c-modal-body');
+      if (mb) mb.scrollTop = 0;
       /* The strip is rebuilt by the repaint, so focus has to be put back on
          the tab that now owns it rather than left on a detached node. */
       var now = $('#prevPages .c-tab[data-pp="' + prevPage + '"]');
       if (now) now.focus();
     });
   });
-  $('#prevFull').addEventListener('click', function(){ togglePrevFull(f); });
-  $('#prevClose').addEventListener('click', closePreview);
-  $('#prevCloseBtn').addEventListener('click', closePreview);
+  /* Fullscreen, the close glyph and the footer's Close button belong to
+     the modal. On the survey route they are not drawn, so they are guarded
+     the same way every other optional control here already is. */
+  if ($('#prevFull'))     $('#prevFull').addEventListener('click', function(){ togglePrevFull(f); });
+  if ($('#prevClose'))    $('#prevClose').addEventListener('click', closePreview);
+  if ($('#prevCloseBtn')) $('#prevCloseBtn').addEventListener('click', closePreview);
   if ($('#prevReset', root)) $('#prevReset').addEventListener('click', function(){
     resetPreview(); paintPreview(f); toast('Preview answers cleared');
   });
   if ($('#prevSubmit', root)) $('#prevSubmit').addEventListener('click', function(){ prevSubmit(f); });
   if ($('#prevEdit', root))   $('#prevEdit').addEventListener('click', function(){ prevPage = 'form'; paintPreview(f); });
   if ($('#prevAgain', root))  $('#prevAgain').addEventListener('click', function(){ resetPreview(); paintPreview(f); });
-  /* Inside a preview there is nowhere to go, so this says where it would
-     have gone rather than closing the thing being previewed. */
+  /* On the survey route this is a real destination — the list the person
+     came from, with the invitation now marked Submitted. In the author's
+     preview there is nowhere to go, so it says where it would have gone. */
   if ($('#prevHome', root))   $('#prevHome').addEventListener('click', function(){
+    if (prevHost !== '#prev'){ go('hub'); return; }
     toast('In the product this returns to the Collabrium home page.'); });
 
   $$('[data-pqtext]', root).forEach(function(el){
@@ -7595,7 +7807,7 @@ function wirePreview(f){
       }
       prevMissing = prevMissing.filter(function(x){ return x !== id; });
       paintPreview(f);
-      var back = $$('[data-pqpick]', $('#prev')).filter(function(n){
+      var back = $$('[data-pqpick]', $(prevHost)).filter(function(n){
         return n.dataset.pqpick === id && n.dataset.pqval === v;
       })[0];
       if (back) back.focus();

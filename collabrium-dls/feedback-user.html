@@ -305,9 +305,15 @@ function param(name, fallback){
    falls back to sales rather than rendering a form with no owner. */
 var OWNERS = {
   sales:     { title:'CollabSales Beta Survey',     name:'CollabSales',     el:'gold',
-               features:['Brief generation','Proposal deck generation','Client intelligence'] },
+               features:['Brief generation','Proposal deck generation','Client intelligence'],
+               drop:[] },
+  /* CollabInfluence does not ask the rework question, in either of its two
+     shapes. Listed as ids to leave out rather than as a second question
+     array: one list still defines the survey, and what differs between the
+     two is stated in one place instead of having to be diffed. */
   influence: { title:'CollabInfluence Beta Survey', name:'CollabInfluence', el:'earth',
-               features:['Influencer CRM','Influencer registration','Campaign management'] }
+               features:['Influencer CRM','Influencer registration','Campaign management'],
+               drop:['s2', 's2b'] }
 };
 var WHO = OWNERS[param('survey', BUILD_DEFAULTS.survey)] || OWNERS.sales;
 /* The confirmation-only build exists to show that one screen, so its Back
@@ -374,7 +380,23 @@ var SURVEY = {
 
 var state = { page: THANKS_ONLY ? 'done' : 'form', ans:{}, missing:[] };
 
-function visible(){ return SURVEY.questions; }
+function visible(){
+  return SURVEY.questions.filter(function(q){ return (WHO.drop || []).indexOf(q.id) === -1; });
+}
+/* Numbers are assigned over what is actually on the page, not written on
+   the questions: `no` is the pairing key — two cards sharing it are one
+   question in two shapes and print one number — and the printed number is
+   its position among the groups that survived. Drop a question and
+   everything after it renumbers itself. */
+function numbering(){
+  var seen = {}, next = 0, map = {};
+  visible().forEach(function(q){
+    var key = q.no != null ? q.no : q.id;
+    if (!(key in seen)) seen[key] = ++next;
+    map[q.id] = seen[key];
+  });
+  return map;
+}
 function has(q){
   var v = state.ans[q.id];
   if (v == null) return false;
@@ -468,7 +490,7 @@ function fieldHtml(q){
 function formHtml(){
   var vis = visible(), done = answeredCount();
   var pct = vis.length ? Math.round(done / vis.length * 100) : 0;
-  var num = 0;
+  var nums = numbering();
 
   return '<div class="pub el-' + SURVEY.owner.el + '">' +
     '<div class="pub-inner">' +
@@ -484,10 +506,7 @@ function formHtml(){
         '<p class="c-card-footer"><span class="req lead">*</span>Required</p>' +
       '</div>' +
       vis.map(function(q){
-        /* The card prints the question's own number where it has one, so a
-           question shown twice keeps one number across both of its cards.
-           Without `no` it falls back to counting, as before. */
-        var n = q.no || ++num;
+        var n = nums[q.id];
         var miss = state.missing.indexOf(q.id) > -1;
         return '<div class="c-card q-card stack sm' + (miss ? ' is-missing' : '') + '" data-q="' + q.id + '">' +
           '<span class="q-title"><span class="num">' + n + '.</span>' +
