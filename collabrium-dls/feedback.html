@@ -1207,8 +1207,7 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    where the hand is, not about their middle. */
 .c-card-slide{
   --card-rot:0deg; --card-y:0px; --card-z:1; --tilt-x:0deg; --tilt-y:0deg;
-  position:relative; z-index:var(--card-z); flex:none; width:264px;
-  display:flex; flex-direction:column; gap:var(--spacing-12);
+  position:relative; z-index:var(--card-z); flex:none; width:300px;
   transform-origin:50% 100%;
   opacity:0;
   transform:translateY(calc(var(--card-y) + 28px)) rotate(var(--card-rot)) scale(.96);
@@ -1241,63 +1240,45 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
   .dash-greet h1, .dash-greet p{opacity:1; transform:none; transition:none;}
 }
 
-/* Ribbon — the focus order, stated on the card rather than left to the
-   reading order, because a fan has no unambiguous first item once the cards
-   overlap. Obsidian: this is a rank, not a status, and rank is not one of
-   the things the element palette classifies. */
-.c-hcard-ribbon{position:absolute; top:var(--spacing-16); right:0; z-index:2;}
-.c-hcard-ribbon-band{display:inline-block; padding:3px var(--spacing-12) 3px var(--spacing-8);
-  border-radius:var(--radius-pill) 0 0 var(--radius-pill);
-  background:var(--color-obsidian); color:var(--color-neutral-1);
-  font-family:var(--font-primary); font-size:var(--text-label3-size); line-height:var(--text-label3-lh);
-  font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; white-space:nowrap;}
+/* --------------------------------------------------------------------------
+   The focus cards are Hero Cards.
 
-/* Eyebrow, and the provenance note that follows it. The note is deliberately
-   quiet and deliberately present: every number on this card is derived from
-   the library and the report queue behind it, and a card that asserts a
-   priority without saying where it got it is the thing nobody trusts twice. */
-/* The right padding is the ribbon's own width plus a gap — the ribbon is
-   absolutely positioned and takes no space of its own, so without it the
-   eyebrow simply runs underneath it. */
-.c-hcard-label{display:block; padding-right:88px; font-family:var(--font-primary); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
-/* Its own line rather than trailing the phrase inline: at 144px of usable
-   width the two wrap into each other and you get "CLOSE FIRST · derived," /
-   "live", which reads as a broken string rather than a phrase and a note. */
-.c-hcard-prov{display:block; font-weight:400; text-transform:none; letter-spacing:0; color:var(--color-neutral-4);}
-.c-card-slide h4{margin:0; font-family:var(--font-primary); font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+   Everything the component defines is the component's: shell, Eyebrow,
+   Heading (with its 2-line clamp and Ribbon clearance), Body, the
+   Recommendation, the Ribbon, and a Ghost/md CTA with a trailing arrow.
+   Two things are added here, and both are layout or a slot's contents —
+   neither restyles a part Hero Card already owns.
 
-/* The three facts. A definition row, not a table: label left in Neutral-5,
-   value right as a real Badge, so the values line up into a column you can
-   read down across all four cards. */
-.c-hcard-list{display:flex; flex-direction:column; gap:var(--spacing-8);}
-.c-hcard-list-row{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-8);}
-.c-hcard-list-row > span:first-child{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+   The Ribbon is the component's Fire-orange corner flag now, not the
+   Obsidian pill this card used to carry. It reads as a flag rather than a
+   rank badge, which is a real change of meaning, but "Focus 1" beside a
+   diagonal flag still reads as an order and the alternative was a card
+   claiming to be a Hero Card while drawing its own ribbon.
+   -------------------------------------------------------------------------- */
+/* 1. The Body slot holds a definition list rather than prose — the three
+      facts are what this card is for. The slot supplies the type (body2,
+      Neutral-5); only the stacking is here. */
+.dash-fan .c-herocard-body{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.hcard-fact{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-8);}
+/* 2. Pin the Recommendation to the bottom so cards of different text
+      lengths still line their CTAs up across the fan. Layout only. */
+.dash-fan .c-herocard-recommendation{margin-top:auto;}
+/* 3. Ribbon clearance for the Eyebrow — a gap in the component, patched
+      here rather than in components.css so preview.html is not disturbed.
+      Hero Card reserves spacing-60 on the Heading and nothing on the
+      Eyebrow, but the Eyebrow is h2 (26px), the largest text on the card,
+      and it sits at the top of the card where the ribbon's band reaches
+      furthest in. Measured here: "No answers yet" runs under the flag
+      without this. Same token the Heading's own clearance uses. */
+.dash-fan .c-herocard:has(.c-herocard-ribbon) .c-herocard-eyebrow{padding-right:var(--spacing-60);}
 
-/* The recommendation — one sentence saying why this card is where it is.
-   margin-top:auto pins it and the actions to the bottom, so four cards of
-   different text lengths still line their buttons up. */
-.c-hcard-rec{margin-top:auto; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-7);}
-
-/* Primary action. The Button Secondary recipe at full width rather than a
-   Primary: four cards side by side means four primaries on one screen, and
-   this system earns exactly one. The Primary on this route is the assistant
-   below. */
-.c-hcard-cta-btn{width:100%; height:36px; padding:0 var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm);
-  background:var(--color-neutral-1); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; cursor:pointer;
-  transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);}
-.c-hcard-cta-btn:hover{background:var(--color-neutral-2); border-color:var(--color-neutral-5);}
-.c-hcard-cta-btn:active{background:var(--color-neutral-3);}
-.c-hcard-cta-btn:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
-/* Tertiary path, as a real link — it leaves this prototype, and a button
-   that navigates elsewhere is the thing that should have been a link. */
-.c-hcard-cta{display:inline-flex; align-items:center; gap:var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:700; color:var(--color-obsidian); text-decoration:underline; text-underline-offset:3px;
-  transition:color var(--duration-fast) var(--ease-standard);}
-.c-hcard-cta:hover{color:var(--color-neutral-8);}
-.c-hcard-cta i{font-size:var(--icon-sm);}
-
-/* The fan has a hard minimum width: four 264px cards overlapping by 14 is
-   1014px, and the content column is the viewport less the rail and its
-   gutters — so it needs about 1334px before it fits. Below that it is not a
+/* The fan has a hard minimum width: four 300px cards overlapping by 14 is
+   1158px, and the content column is the viewport less the rail and its
+   gutters (~320px of it) — so it needs about 1480px before it fits.
+   300px, not the 264 this fan used before Hero Card: the component's
+   Eyebrow is h2 (26px) where the old local one was 11px, and the Heading
+   reserves 60px on its right for the Ribbon. At 264 the Heading had 172px
+   of usable width and clamped two lines off most survey names. Below that it is not a
    fan, it is a horizontal scrollbar, and .c-shell-content's overflow-y:auto
    computes the cross axis to auto, so it would genuinely scroll.
    Two steps down rather than one: a 2x2 grid keeps four cards comparable at
@@ -1305,9 +1286,9 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    The pose properties are written inline by heroCard(), and an inline custom
    property beats any selector — hence !important, which is doing real work
    here rather than papering over a specificity accident. */
-@media (max-width:1340px){
+@media (max-width:1480px){
   .dash-fan{flex-wrap:wrap; justify-content:center; align-items:stretch;
-    gap:var(--spacing-16); max-width:552px; margin:0 auto; perspective:none;
+    gap:var(--spacing-16); max-width:616px; margin:0 auto; perspective:none;
     padding:var(--spacing-32) 0;}
   .dash-fan .c-card-slide + .c-card-slide{margin-left:0;}
   .c-card-slide{--card-rot:0deg !important; --card-y:0px !important;}
@@ -2692,18 +2673,30 @@ function dashFocuses(){
 
   var out = [];
 
+  /* The invitation, written from the respondent's side rather than the
+     owner's. Every fact on it is one the person being asked has a use for
+     — how much of their time this is, and how long they have. How many
+     responses are already in, and who owns the survey, are the author's
+     business: a running total tells a respondent their answer is the
+     hundredth and changes nothing they can act on, and an owner's name
+     invites them to weigh the asker instead of the question. */
   if (closing){
     var d = closesIn(closing);
+    var qn = (closing.questions || []).length;
+    /* ~25 seconds a question, rounded to whole minutes and never zero. An
+       estimate the person can hold you to is worth more than a precise one
+       they have to work out for themselves. */
+    var mins = Math.max(1, Math.round(qn * 25 / 60));
     out.push({
-      label:'Close first',
+      label:'Your turn',
       title:closing.title,
-      rows:[['Responses', formCount(closing).toLocaleString(), 'c-badge-neutral'],
-            ['Owner', closing.owner ? closing.owner.name : 'Unassigned', 'c-badge-neutral'],
+      rows:[['Questions', String(qn), 'c-badge-neutral'],
+            ['Takes about', mins + (mins === 1 ? ' minute' : ' minutes'), 'c-badge-neutral'],
             ['Closes', d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : 'In ' + d + ' days',
              d <= 3 ? 'c-badge-warning' : 'c-badge-neutral']],
-      rec:'The soonest deadline in the library. Anything you want from this one has to be asked for before it closes.',
-      cta:'Read the responses',
-      act:function(){ state.btab = 'responses'; go('builder', { formId:closing.id }); }
+      rec:'A few minutes now, and the next release is shaped by what you actually ran into rather than what we guessed. Every answer is read by the team building it.',
+      cta:'Start the survey',
+      act:function(){ openPreview(closing); }
     });
   }
 
@@ -2780,7 +2773,7 @@ function fanPose(i, n){
 }
 
 function heroRow(r){
-  return '<div class="c-hcard-list-row"><span>' + esc(r[0]) + '</span>' +
+  return '<div class="hcard-fact"><span>' + esc(r[0]) + '</span>' +
     '<span class="c-badge ' + r[2] + '">' + esc(r[1]) + '</span></div>';
 }
 
@@ -2790,17 +2783,21 @@ function heroCard(c, i, n){
      the cards. The spread is small enough that the order is never in doubt. */
   var delay = 180 + i * 120 + Math.round(Math.random() * 60);
   var dur   = 700 + Math.round(Math.random() * 120);
-  return '<div class="c-card c-card-slide" data-role="hero" data-tilt-enabled="true" data-hero="' + i + '" ' +
+  return '<div class="c-herocard c-card-slide" data-role="hero" data-tilt-enabled="true" data-hero="' + i + '" ' +
       'style="--card-rot:' + p.rot.toFixed(1) + 'deg; --card-y:' + p.y + 'px; --card-z:' + p.z +
       '; --card-reveal-delay:' + delay + 'ms; --card-reveal-duration:' + dur + 'ms">' +
-    '<span class="c-hcard-ribbon" role="img" aria-label="Focus ' + (i + 1) + ' of ' + n + '">' +
-      '<span class="c-hcard-ribbon-band" aria-hidden="true">Focus ' + (i + 1) + '</span></span>' +
-    '<span class="c-hcard-label">' + esc(c.label) +
-      '<span class="c-hcard-prov" title="Read from this prototype’s own survey library and report queue, not typed in.">derived, live</span></span>' +
-    '<h4>' + esc(c.title) + '</h4>' +
-    '<div class="c-hcard-list">' + c.rows.map(heroRow).join('') + '</div>' +
-    '<span class="c-hcard-rec">' + esc(c.rec) + '</span>' +
-    '<button class="c-hcard-cta-btn" type="button" data-heroact="' + i + '">' + esc(c.cta) + '</button>' +
+    '<div class="c-herocard-ribbon" role="img" aria-label="Focus ' + (i + 1) + ' of ' + n + '">' +
+      '<span aria-hidden="true">Focus ' + (i + 1) + '</span></div>' +
+    /* Sentence case, because Hero Card's Eyebrow is the one eyebrow in this
+       system that is not uppercase and not tracked — it reads as a second
+       headline rather than a label. The data was already sentence case; it
+       was the old local rule that shouted it. */
+    '<span class="c-herocard-eyebrow">' + esc(c.label) + '</span>' +
+    '<h4 class="c-herocard-heading">' + esc(c.title) + '</h4>' +
+    '<div class="c-herocard-body">' + c.rows.map(heroRow).join('') + '</div>' +
+    '<p class="c-herocard-recommendation">' + esc(c.rec) + '</p>' +
+    '<button class="c-btn c-btn-ghost c-btn-md c-herocard-cta" type="button" data-heroact="' + i + '">' +
+      esc(c.cta) + '<i class="ph ph-arrow-right" aria-hidden="true"></i></button>' +
   '</div>';
 }
 
