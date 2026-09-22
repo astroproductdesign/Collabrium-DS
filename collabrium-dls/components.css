@@ -285,59 +285,78 @@
 .c-card-price-total .value{color:var(--color-neutral-5);}
 .c-card-price-summary .c-card-footer .c-btn{width:100%; justify-content:center; margin-top:var(--spacing-12);}
 
-/* Profile card — Card variant. Header (Avatar in the icon-chip slot +
-   Name/Age-Gender-Location, both reusing .c-card h5/p verbatim), a
-   divider, Persona badges (real .c-badge pills, sorted alphabetically
-   at content level), then the Platform list (icon + name/handle stack
-   + Tier badge/Follower count, all vertically centered). Tier badges
-   reuse Tag's own elemental classes (.c-tag-wood/-earth/-water/-fire/
-   -gold for Nano/Micro/Mid/Macro/Mega) plus plain .c-tag (no modifier,
-   no dot) for the two non-ranked tiers, KOC and Seeder — see
-   DESIGN-SYSTEM.md's "Tier badge, all seven tiers" table.
+/* Profile card — Card variant. A centred identity block (Controls row,
+   then the 56px Avatar as the card's main element, then Name, then the
+   Meta and Persona lines) over a left/right-justified Platform list
+   (platform name — follower count — Tier badge). No divider, no leading
+   platform icon, and no handle: the count itself is the link to the
+   profile, underlining on hover/focus rather than swapping its text.
+   Tier badges reuse Tag's own elemental classes (.c-tag-wood/-earth/
+   -water/-fire/-gold for Nano/Micro/Mid/Macro/Mega) plus plain .c-tag
+   (no modifier, no dot) for the two non-ranked tiers, KOC and Seeder —
+   see DESIGN-SYSTEM.md's "Tier badge, all seven tiers" table.
    Width has no hardcoded px — fills its grid cell/container, per the
    documented Width rule; min-width:240px is the one floor. Persona
-   type and Platform list are each removed from the layout entirely
+   line and Platform list are each removed from the layout entirely
    (not left as an empty section) when a profile has none of either.
-   Interactive/selectable reuses this same shadow-2/shadow-focus hover
-   the base Card's own Interactive/clickable variant documents, plus a
-   hover-revealed Select checkbox (Checkbox's own real .c-checkbox-box/
-   .on recipe, same hover-reveal pattern as Table's bulk-select
-   column) top-right. Selected is persistent, not hover-only: 2px
-   Obsidian border + shadow-3 + the checkbox stays checked/visible;
-   padding drops 1px/side in the same instant as the border (same
-   compensation Search input's own Active state uses) so the content
-   box never shifts. box-shadow/border-color run on the card's own
-   duration-base/ease-settle pair for a seamless state change —
-   border-width and padding are deliberately left OUT of that
-   transition, since animating one without the other (they can't stay
-   in lockstep mid-transition) would itself cause the exact shift the
-   padding compensation exists to prevent. */
-.c-card-profile{width:100%; min-width:240px; height:100%; position:relative; box-sizing:border-box; transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
+   The Controls row (Select checkbox + kebab) is ALWAYS visible — not
+   hover-revealed — so it lays out in normal flow rather than being
+   absolutely positioned over the card, which is also why the identity
+   block needs no reserved right padding any more.
+   Interactive/selectable reuses the same shadow-2/shadow-focus hover
+   the base Card's own Interactive/clickable variant documents.
+   Selected is persistent: 2px Obsidian border + shadow-3 + the
+   checkbox stays checked; padding drops 1px/side in the same instant
+   as the border (same compensation Search input's own Active state
+   uses) so the content box never shifts. box-shadow/border-color run
+   on the card's own duration-base/ease-settle pair for a seamless
+   state change — border-width and padding are deliberately left OUT of
+   that transition, since animating one without the other (they can't
+   stay in lockstep mid-transition) would itself cause the exact shift
+   the padding compensation exists to prevent. */
+.c-card-profile{width:100%; min-width:240px; height:100%; position:relative; box-sizing:border-box; gap:0; transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
 .c-card-profile.is-interactive{cursor:pointer;}
 .c-card-profile.is-interactive:hover{box-shadow:var(--shadow-2);}
 .c-card-profile.is-interactive:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
-.c-card-profile-select{position:absolute; top:var(--spacing-16); right:var(--spacing-16); opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);}
-.c-card-profile-select .c-checkbox-box{cursor:pointer;}
-.c-card-profile.is-interactive:hover .c-card-profile-select,
-.c-card-profile.is-selected .c-card-profile-select{opacity:1;}
-.c-card-profile.is-interactive .c-card-profile-identity{padding-right:var(--spacing-24);}
 .c-card-profile.is-selected{border:2px solid var(--color-obsidian); box-shadow:var(--shadow-3); padding:calc(var(--spacing-16) - 1px);}
-.c-card-profile-header{display:flex; gap:var(--spacing-12); align-items:flex-start;}
-.c-card-profile-avatar{flex:none; width:36px; height:36px; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-weight:700; font-size:var(--text-label2-size);}
-.c-card-profile-identity{flex:1; min-width:0;}
+
+/* Controls row — Select checkbox (left) + kebab (right), always on */
+.c-card-profile-controls{position:relative; display:flex; align-items:center; justify-content:space-between; height:var(--icon-md);}
+.c-card-profile-select .c-checkbox-box{cursor:pointer;}
+.c-card-profile-more{display:inline-flex; align-items:center; justify-content:center; width:var(--icon-md); height:var(--icon-md); padding:0; border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-9); font-size:var(--icon-base); line-height:1; cursor:pointer;}
+.c-card-profile-more:hover{background:var(--color-neutral-2);}
+.c-card-profile-more:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
+
+/* Kebab menu — SidebarNav's user-menu popover recipe (Neutral-1 fill,
+   1px Neutral-3, radius-md, shadow-3, spacing-4 padding, Neutral-2 item
+   hover) at a compact 160px/32px scale, opening downward from the
+   trigger's own right edge. */
+.c-card-profile-menu{position:absolute; top:calc(100% + var(--spacing-4)); right:0; width:160px; padding:var(--spacing-4); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); text-align:left; z-index:20;}
+.c-card-profile-menu[hidden]{display:none;}
+.c-card-profile-menu-item{display:flex; align-items:center; gap:var(--spacing-8); width:100%; height:32px; padding:0 var(--spacing-8); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body2-size); font-weight:500; text-align:left; cursor:pointer;}
+.c-card-profile-menu-item:hover{background:var(--color-neutral-2);}
+.c-card-profile-menu-item i{flex:none; font-size:var(--icon-sm);}
+
+/* Identity — centred, avatar as the card's main element */
+.c-card-profile-avatar{position:relative; width:56px; height:56px; margin:0 auto; overflow:hidden; border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); display:flex; align-items:center; justify-content:center; font-family:var(--font-primary); font-weight:700; font-size:var(--text-h5-size);}
+.c-card-profile-avatar img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+.c-card-profile-identity{margin-top:var(--spacing-12); text-align:center;}
 .c-card-profile-identity h5{margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.c-card-profile-identity p{margin:4px 0 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.c-card-profile-divider{margin:var(--spacing-8) 0; border-top:1px solid var(--color-neutral-3);}
-.c-card-profile-personas{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:var(--spacing-4);}
-.c-card-profile-platforms{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-16);}
-.c-card-profile-row{display:flex; align-items:center; gap:var(--spacing-12);}
-.c-card-profile-row i{flex:none; font-size:var(--icon-sm); color:var(--color-neutral-9);}
-.c-card-profile-row svg{flex:none; width:var(--icon-sm); height:var(--icon-sm); color:var(--color-neutral-9);}
-.c-card-profile-stack{flex:1; min-width:0;}
-.c-card-profile-platform{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-5); margin:0;}
-.c-card-profile-handle{display:block; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-9); text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.c-card-profile-trailing{flex:none; display:flex; align-items:center; gap:var(--spacing-8);}
-.c-card-profile-followers{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+/* `.c-card p` (margin:0) out-specifies a bare class here, so the two
+   identity lines take their gap from a descendant selector that can
+   actually beat it. */
+.c-card-profile-identity p{margin:var(--spacing-8) 0 0;}
+.c-card-profile-meta,
+.c-card-profile-personas{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+/* Platform list */
+.c-card-profile-platforms{list-style:none; margin:var(--spacing-24) 0 var(--spacing-8); padding:0; display:flex; flex-direction:column; gap:var(--spacing-16);}
+.c-card-profile-row{display:flex; align-items:center; gap:var(--spacing-8);}
+.c-card-profile-platform{flex:1; min-width:0; margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-profile-followers{flex:none; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums; text-decoration:none;}
+.c-card-profile-followers:hover{text-decoration:underline;}
+.c-card-profile-followers:focus-visible{text-decoration:underline; border-radius:var(--radius-sm); box-shadow:var(--shadow-focus); outline:none;}
+.c-card-profile-row .c-tag{flex:none;}
 
 /* =========================================================
    Pacing Card — one metric's progress against a target it's racing a
