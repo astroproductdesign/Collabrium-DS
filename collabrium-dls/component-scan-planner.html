@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Collabrium — planner scan, what each candidate looks like</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* ==========================================================================
+     Planner scan — the picture that goes with the list.
+
+     The scan table named 23 things; a name like "fold-out modal" does not
+     tell you what you would be approving. Every card below carries a
+     SPECIMEN: a simplified, live rendering of the thing as the planner
+     page actually draws it — enough geometry to recognise it, none of the
+     data. Specimens are built from the real CSS, so the proportions,
+     radii and hairlines are the ones you would be buying.
+
+     Specimen classes are prefixed .k- so nothing here can leak into or
+     collide with the .c- system or the planner's own .p- page styles.
+     This page is a reading surface, not a source of truth — the backlog
+     stays in component-backlog.html.
+     ========================================================================== */
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--color-canvas-warm); color:var(--color-neutral-9);
+    font-family:var(--font-primary);
+    padding:var(--spacing-48) var(--spacing-32) var(--spacing-60);
+  }
+  .wrap{max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:var(--section-gap);}
+
+  .counts{display:flex; flex-wrap:wrap; gap:var(--spacing-24); padding-top:var(--spacing-16);}
+  .count{display:flex; flex-direction:column; gap:2px;}
+  .count b{font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); font-variant-numeric:tabular-nums;}
+  .count span{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+  .sect{display:flex; flex-direction:column; gap:var(--spacing-16);}
+  .sect > h2{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight);}
+  .note{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); max-width:76ch;}
+  /* Filenames and class names stay in the primary typeface — the system
+     has no monospace face, and borrowing the OS one would put a typeface
+     on the page that appears nowhere else in it. */
+  code{font-family:inherit; font-weight:600; color:var(--color-neutral-7);}
+
+  /* ── The candidate grid ── */
+  .s-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); gap:var(--spacing-24);}
+  .s-item{display:flex; flex-direction:column; gap:var(--spacing-12);
+    background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-lg); padding:var(--spacing-20); box-shadow:var(--shadow-1);}
+  .s-head{display:flex; align-items:center; gap:var(--spacing-12);}
+  .s-num{flex:none; width:24px; height:24px; border-radius:50%; background:var(--color-obsidian);
+    color:var(--color-neutral-1); display:inline-flex; align-items:center; justify-content:center;
+    font-size:var(--text-caption-size); font-weight:700; font-variant-numeric:tabular-nums;}
+  .s-head h3{margin:0; flex:1; min-width:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
+
+  /* The specimen sits on the warm canvas the planner itself sits on, so
+     a white component reads as white rather than as the card it is in. */
+  .s-stage{background:var(--color-canvas-warm); border:1px solid var(--color-neutral-2);
+    border-radius:var(--radius-md); padding:var(--spacing-16); overflow:hidden;}
+  .s-stage.on-white{background:var(--color-neutral-1);}
+
+  .s-facts{margin:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .s-facts > div{display:grid; grid-template-columns:96px 1fr; gap:var(--spacing-12);}
+  .s-facts dt{font-size:var(--text-caption-size); font-weight:700; color:var(--color-neutral-5);}
+  .s-facts dd{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
+
+  /* ══ Specimen kit ═════════════════════════════════════════════════════
+     Shared primitives the sketches draw with. Grey bars stand in for
+     copy wherever the words are not the point. */
+  .k-bar{height:8px; border-radius:var(--radius-pill); background:var(--color-neutral-3);}
+  .k-row{display:flex; align-items:center; gap:var(--spacing-8);}
+  .k-col{display:flex; flex-direction:column;}
+  .k-cap{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+  .k-eyebrow{font-size:var(--text-caption-size); font-weight:700; text-transform:uppercase;
+    letter-spacing:var(--tracking-eyebrow); color:var(--color-neutral-5);}
+  .k-b2{font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+
+  /* The AI signature — one recipe, worn by a badge, a button and a
+     header band. Drawn once here so the page shows it IS one recipe. */
+  @keyframes s-sweep{from{background-position:0 0;} to{background-position:200% 0;}}
+  .k-ai{position:relative; z-index:0; overflow:hidden; border:1px solid transparent;}
+  .k-ai::before, .k-ai::after{content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background-image:linear-gradient(90deg,var(--color-fire-pastel) 0%,var(--color-wood-pastel) 20%,var(--color-earth-pastel) 40%,var(--color-water-pastel) 60%,var(--color-gold-pastel) 80%,var(--color-fire-pastel) 100%);
+    background-size:200% 100%; animation:s-sweep 4s linear infinite;}
+  .k-ai::before{z-index:-1; opacity:.18;}
+  .k-ai::after{z-index:1; padding:1px;
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;}
+
+  /* 1 · vertical journey stepper */
+  .k-journey{list-style:none; margin:0; padding:0;}
+  .k-step{position:relative;}
+  .k-step + .k-step{margin-top:var(--spacing-12);}
+  .k-step::before{content:''; position:absolute; left:11px; top:34px; bottom:-16px;
+    width:2px; background:var(--color-neutral-3);}
+  .k-step:last-child::before{display:none;}
+  .k-stephead{display:flex; align-items:center; gap:var(--spacing-12);}
+  .k-stephead .c-step-indicator{flex:none; position:relative; z-index:1;}
+  .k-steptitle .t{display:block; font-size:var(--text-body1-size); font-weight:800;}
+  .k-steptitle .d{display:block; margin-top:1px; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .k-stephead > i{margin-left:auto; color:var(--color-neutral-5);}
+  .k-stepbody{padding:var(--spacing-12) 0 0 44px; display:flex; flex-direction:column; gap:var(--spacing-8);}
+
+  /* 2 · unboxed canvas block */
+  .k-block{padding:var(--spacing-12) 0;}
+  .k-block:first-child{padding-top:0;}
+  .k-block + .k-block{border-top:1px solid var(--color-neutral-3);}
+  .k-block h5{margin:0 0 var(--spacing-8); font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
+
+  /* 3 · inset drawer */
+  .k-drawer{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-md); padding:0 var(--spacing-16);}
+  .k-drawer + .k-drawer{margin-top:var(--spacing-8);}
+  .k-disclose{display:flex; justify-content:space-between; align-items:center; gap:var(--spacing-16);
+    padding:var(--spacing-12) 0;}
+  .k-disclose h5{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
+  .k-disclose .sub{margin:2px 0 0; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .k-disclose > i{color:var(--color-neutral-5); flex:none;}
+  .k-drawer .body{padding:var(--spacing-12) 0 var(--spacing-16); border-top:1px solid var(--color-neutral-3);
+    display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-8);}
+
+  /* 4 · pinned summary rail */
+  .k-rail{width:200px; margin:0 auto; background:var(--color-neutral-1);
+    border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-1); overflow:hidden;}
+  .k-railtabs{display:flex; justify-content:center; padding:var(--spacing-8) var(--spacing-8) 0;
+    border-bottom:1px solid var(--color-neutral-3);}
+  .k-railscroll{padding:var(--spacing-12); max-height:168px; overflow:hidden;
+    -webkit-mask-image:linear-gradient(#000 70%, transparent 100%);
+            mask-image:linear-gradient(#000 70%, transparent 100%);}
+  .k-railstat + .k-railstat{margin-top:var(--spacing-12); padding-top:var(--spacing-12);
+    border-top:1px solid var(--color-neutral-3);}
+  .k-railstat .v{font-size:var(--text-h4-size); font-weight:var(--text-h1-weight); font-variant-numeric:tabular-nums;}
+
+  /* 5 · editable page title */
+  .k-title{font-size:var(--text-h2-size); line-height:var(--text-h2-lh); font-weight:var(--text-h1-weight);}
+  .k-title.is-empty{color:var(--color-neutral-4);}
+  .k-caret{display:inline-block; width:1.5px; height:1em; background:var(--color-neutral-9);
+    vertical-align:-2px; animation:k-blink 1.1s steps(1) infinite;}
+  @keyframes k-blink{0%,49%{opacity:1;} 50%,100%{opacity:0;}}
+
+  /* 8 · AI field states */
+  .k-ring{border-color:transparent !important;
+    background-image:linear-gradient(var(--color-neutral-1), var(--color-neutral-1)),
+      linear-gradient(90deg,var(--color-fire-pastel) 0%,var(--color-wood-pastel) 20%,var(--color-earth-pastel) 40%,var(--color-water-pastel) 60%,var(--color-gold-pastel) 80%,var(--color-fire-pastel) 100%);
+    background-origin:border-box; background-clip:padding-box, border-box;
+    background-size:auto, 200% 100%; animation:s-sweep 1.1s linear infinite;
+    box-shadow:0 0 0 3px rgba(140, 170, 255, .14);}
+  @keyframes k-wash{0%{background-color:var(--color-water-pastel);} 100%{background-color:var(--color-neutral-1);}}
+  .k-wash{animation:k-wash 2.4s var(--ease-standard) infinite;}
+
+  /* 9 · reasoning card, three faces */
+  .k-faces{display:flex; flex-direction:column; gap:var(--spacing-12);}
+  .k-face-lab{font-size:10px; line-height:12px; letter-spacing:.04em; text-transform:uppercase;
+    font-weight:700; color:var(--color-neutral-5);}
+  .k-pop{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow-4); overflow:hidden;}
+  .k-pop .head{display:flex; align-items:flex-start; gap:var(--spacing-8); padding:var(--spacing-12);}
+  .k-pop .head h5{margin:0; font-size:var(--text-body2-size); font-weight:700;}
+  .k-pop .head .sub{margin:1px 0 0; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .k-pop .rowline{display:grid; grid-template-columns:96px 1fr; gap:var(--spacing-8);
+    padding:var(--spacing-8) var(--spacing-12); border-top:1px solid var(--color-neutral-2);}
+  .k-pop .rowline .k{font-size:var(--text-caption-size); font-weight:700;}
+  .k-ledger{display:grid; grid-template-columns:minmax(0,120px) 1fr; gap:var(--spacing-12);
+    padding:var(--spacing-12) 0; border-top:1px dotted var(--color-neutral-4);}
+  .k-tiles{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-8);}
+  .k-tile{border:1px solid var(--color-neutral-3); border-radius:var(--radius-md);
+    background:var(--color-neutral-1); padding:var(--spacing-8); display:flex;
+    flex-direction:column; gap:6px;}
+  .k-whycard{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:40px;
+    background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-md); padding:0 var(--spacing-16);}
+  .k-whycard .t{flex:1; font-size:var(--text-body2-size); font-weight:700;}
+  .k-whycard .chev{color:var(--color-neutral-5);}
+  .k-whyhead{display:flex; gap:var(--spacing-12); align-items:flex-start;
+    padding:var(--spacing-12); border-radius:var(--radius-lg);}
+  .k-whymark{flex:none; width:24px; height:24px; border-radius:50%; display:inline-flex;
+    align-items:center; justify-content:center; background:var(--color-neutral-9);
+    color:var(--color-neutral-1); font-size:12px;}
+
+  /* 10 · fold-out modal */
+  .k-foldstage{position:relative; height:208px; background:var(--color-neutral-2);
+    border-radius:var(--radius-md); overflow:hidden;}
+  .k-veil{position:absolute; inset:0; background:rgba(20,20,20,.42);}
+  .k-trigger{position:absolute; left:12px; top:12px; z-index:2;}
+  .k-foldshell{position:absolute; left:26%; top:14%; right:8%; bottom:10%;
+    background:var(--color-neutral-1); border-radius:var(--radius-lg);
+    box-shadow:0 25px 50px -12px rgba(0,0,0,.25); overflow:hidden;
+    display:flex; flex-direction:column; transform-origin:0 0;
+    animation:k-fold 3.6s cubic-bezier(.25,.9,.35,1) infinite;}
+  @keyframes k-fold{
+    0%{transform:translate(-30%, 12%) scale(.34); opacity:.4;}
+    22%{transform:translate(-15%, 6%) scale(.72) rotateY(42deg) rotateZ(-5deg); opacity:1;}
+    38%{transform:none; opacity:1;}
+    88%{transform:none; opacity:1;}
+    100%{transform:translate(-30%, 12%) scale(.34); opacity:.4;}
+  }
+  .k-foldhead{flex:none; display:flex; justify-content:space-between; align-items:flex-start;
+    gap:var(--spacing-8); padding:var(--spacing-12); border-bottom:1px solid var(--color-neutral-3);}
+  .k-foldhead h5{margin:0; font-size:var(--text-body1-size); font-weight:800;}
+  .k-foldhead .sub{margin:2px 0 0; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .k-foldbody{flex:1; padding:var(--spacing-12); display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .k-foldfoot{flex:none; display:flex; justify-content:flex-end; gap:var(--spacing-8);
+    padding:var(--spacing-8) var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+
+  /* 11 · hover peek card */
+  .k-peek{width:220px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow-4); overflow:hidden;}
+  .k-peek .pic{aspect-ratio:16/10; background:var(--color-neutral-2);
+    display:flex; align-items:center; justify-content:center; color:var(--color-neutral-4);
+    font-size:var(--icon-lg);}
+  .k-peek .lbl{display:flex; justify-content:space-between; gap:var(--spacing-8);
+    padding:var(--spacing-8) var(--spacing-12) 0; font-size:var(--text-caption-size); font-weight:700;}
+  .k-peek .lbl .fam{font-weight:400; color:var(--color-neutral-5);}
+  .k-peek .bars{display:flex; flex-direction:column; gap:3px; padding:var(--spacing-8) var(--spacing-12) var(--spacing-12);}
+  .k-ab{display:grid; grid-template-columns:40px 1fr 26px; align-items:center; gap:8px;
+    font-size:10px; line-height:12px; color:var(--color-neutral-5); font-weight:600;}
+  .k-ab i{display:block; height:5px; border-radius:var(--radius-pill); background:var(--color-neutral-2);}
+  .k-ab i b{display:block; height:100%; border-radius:var(--radius-pill); background:var(--color-obsidian);}
+  .k-ab em{font-style:normal; text-align:right; font-weight:700; color:var(--color-neutral-9);}
+
+  /* 12 · key–value row */
+  .k-kv{display:flex; justify-content:space-between; gap:var(--spacing-16);
+    padding:var(--spacing-8) 0; border-bottom:1px solid var(--color-neutral-2);
+    font-size:var(--text-body2-size);}
+  .k-kv:last-child{border-bottom:none;}
+  .k-kv .k{color:var(--color-neutral-5);}
+  .k-kv .v{font-weight:700; text-align:right; font-variant-numeric:tabular-nums;}
+
+  /* 13 · skeleton block */
+  @keyframes k-skel{from{background-position:100% 0;} to{background-position:0 0;}}
+  .k-skel{display:flex; flex-direction:column; gap:var(--spacing-12);}
+  .k-skelbar{flex:none; border-radius:var(--radius-md);
+    background:linear-gradient(90deg, var(--color-neutral-2) 25%, var(--color-neutral-3) 37%, var(--color-neutral-2) 63%);
+    background-size:400% 100%; animation:k-skel 1.1s linear infinite;}
+  .k-skelcols{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-12);}
+
+  /* 14 · channel block  ·  15 · allocation row */
+  .k-chanblock{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-md); padding:var(--spacing-12) var(--spacing-16);}
+  .k-chanhead{display:flex; justify-content:space-between; align-items:baseline;
+    gap:var(--spacing-12); margin-bottom:var(--spacing-4);}
+  .k-chanhead h5{margin:0; display:flex; align-items:center; gap:var(--spacing-8);
+    font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
+  .k-chanhead h5 i{font-size:var(--icon-sm); color:var(--color-neutral-5);}
+  .k-chanhead .sum{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+  .k-fmtrow{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr) 92px;
+    gap:var(--spacing-12); align-items:center; padding:var(--spacing-8) 0;}
+  .k-fmtrow + .k-fmtrow{border-top:1px dotted var(--color-neutral-3);}
+  .k-fmtrow .v{display:flex; flex-direction:column; align-items:flex-end; text-align:right;
+    font-size:var(--text-body2-size); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .k-fmtrow .v .imp{font-size:var(--text-caption-size); color:var(--color-neutral-5); font-weight:400;}
+  .k-lane{display:grid; grid-template-columns:76px 1fr; align-items:start;
+    column-gap:var(--spacing-8); margin-top:var(--spacing-8);}
+  .k-lane.sites{padding-top:var(--spacing-8); border-top:1px dotted var(--color-neutral-3);}
+  .k-lane .lab{padding-top:6px; font-size:var(--text-caption-size); font-weight:700;
+    text-transform:uppercase; letter-spacing:var(--tracking-eyebrow); color:var(--color-neutral-5);}
+  .k-lane .chips{display:flex; flex-wrap:wrap; gap:var(--spacing-8);}
+  .k-sitechip{display:inline-flex; align-items:center; gap:var(--spacing-4); height:26px;
+    padding:0 var(--spacing-8); border-radius:var(--radius-sm);
+    border:1px solid var(--color-neutral-3); background:var(--color-neutral-2);
+    font-size:var(--text-caption-size); font-weight:600;}
+  .k-sitechip i{font-size:12px; color:var(--color-neutral-5);}
+  .k-sitechip.is-active{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+  .k-sitechip.is-active i{color:var(--color-neutral-1);}
+  .k-chk{width:18px; height:18px; flex:none; border-radius:var(--radius-sm);
+    border:1px solid var(--color-neutral-4); background:var(--color-neutral-1);
+    display:inline-flex; align-items:center; justify-content:center; color:var(--color-neutral-1);}
+  .k-chk.on{background:var(--color-obsidian); border-color:var(--color-obsidian); font-size:11px;}
+
+  /* 16 · selectable big card */
+  .k-bigchoice{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-12);}
+  .k-bigcard{display:flex; flex-direction:column; gap:var(--spacing-8);
+    background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-md); padding:var(--spacing-12);}
+  .k-bigcard.is-selected{border-color:var(--color-obsidian); box-shadow:0 0 0 1px var(--color-obsidian);}
+  .k-bigcard .head{display:flex; align-items:center; gap:var(--spacing-8);}
+  .k-bigcard .t{font-size:var(--text-h5-size); font-weight:800;}
+  .k-bigcard .desc{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+  .k-bigcard .meta{margin-top:auto; font-size:var(--text-caption-size); font-weight:700;}
+
+  /* 17 · budget dial + field */
+  .k-budget{display:flex; align-items:center; gap:var(--spacing-12);}
+  .k-budget .c-slider-group{flex:1; min-width:0;}
+  .k-budget input{flex:none; width:110px;}
+
+  /* 18 · dropdown row with description */
+  .k-ddpanel{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4);}
+  .k-ddrow{display:flex; align-items:flex-start; gap:var(--spacing-8);
+    padding:var(--spacing-8); border-radius:var(--radius-sm);}
+  .k-ddrow:hover{background:var(--color-neutral-2);}
+  .k-ddrow .lab{font-size:var(--text-body2-size); font-weight:600;}
+  .k-ddrow .desc{display:block; margin-top:1px; font-size:var(--text-caption-size);
+    line-height:var(--text-caption-lh); font-weight:400; color:var(--color-neutral-5);}
+
+  /* 19 · brief composer */
+  .k-composer{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-md); padding:var(--spacing-12); min-height:132px;
+    font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-9);}
+  .k-composer b{font-weight:inherit; -webkit-text-stroke:.6px var(--color-neutral-9);}
+  .k-composer .tail{color:var(--color-neutral-4);}
+  .k-starters{display:flex; gap:var(--spacing-8); margin-top:var(--spacing-12);}
+  .k-trychip{display:inline-flex; align-items:center; gap:var(--spacing-4);
+    border:1px solid var(--color-neutral-3); background:var(--color-neutral-1);
+    border-radius:var(--radius-pill); padding:5px var(--spacing-12);
+    font-size:var(--text-caption-size); font-weight:700; box-shadow:var(--shadow-1);}
+  .k-trychip i{font-size:var(--icon-micro);}
+
+  /* 20 · system checker */
+  .k-checkflow{padding-top:var(--spacing-8); border-top:1px dotted var(--color-neutral-4);}
+  .k-checktitle{display:flex; align-items:center; gap:var(--spacing-8);
+    font-size:var(--text-body2-size); font-weight:700; margin-bottom:var(--spacing-8);}
+  .k-checkrow{display:flex; align-items:flex-start; gap:var(--spacing-8);
+    padding:var(--spacing-4) 0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+  .k-checkrow i{flex:none; font-size:var(--icon-sm); margin-top:2px; color:var(--color-neutral-5);}
+  .k-checkrow.ok i{color:var(--color-green);}
+  .k-checkrow.warn i{color:var(--color-amber);}
+  .k-checkrow.block i{color:var(--color-red);}
+  .k-checkrow.block{font-weight:700;}
+  @keyframes k-spin{to{transform:rotate(360deg);}}
+  .k-checkrow i.spin{animation:k-spin 700ms linear infinite;}
+
+  /* 21 · CTA beacon */
+  @keyframes k-beacon{
+    0%{box-shadow:0 0 0 0 rgba(8,8,8,.32);}
+    70%{box-shadow:0 0 0 12px rgba(8,8,8,0);}
+    100%{box-shadow:0 0 0 0 rgba(8,8,8,0);}
+  }
+  @keyframes k-nod{0%,60%,100%{transform:none;} 30%{transform:translateY(3px);}}
+  .k-beacon{animation:k-beacon 1.4s var(--ease-standard) infinite;}
+  .k-beacon i{display:inline-block; animation:k-nod 1.4s var(--ease-standard) infinite;}
+
+  /* Reuse list */
+  .c-table td.why{white-space:normal; color:var(--color-neutral-5); font-size:var(--text-body2-size);}
+  .c-table th{white-space:nowrap;}
+
+  @media (prefers-reduced-motion:reduce){
+    .k-ai::before, .k-ai::after, .k-ring, .k-wash, .k-foldshell, .k-skelbar,
+    .k-caret, .k-beacon, .k-beacon i, .k-checkrow i.spin{animation:none;}
+  }
+  @media (max-width:520px){
+    body{padding:var(--spacing-24) var(--spacing-16) var(--spacing-48);}
+    .s-grid{grid-template-columns:1fr;}
+    .s-facts > div{grid-template-columns:1fr; gap:2px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="c-pageheader">
+    <div class="c-pageheader-row">
+      <div class="c-pageheader-text">
+        <h1>Planner scan — what each candidate looks like</h1>
+        <p class="sub">Every "build new" find from <code>collab-media.vercel.app/pages/planner.html</code>, drawn simplified so you can see what you would be approving. Nothing here is in the backlog yet.</p>
+      </div>
+    </div>
+    <div class="counts">
+      <span class="count"><b>21</b><span>to build</span></span>
+      <span class="count"><b>10</b><span>reuse what exists</span></span>
+      <span class="count"><b>5</b><span>already in the backlog</span></span>
+      <span class="count"><b>3</b><span>decisions, not builds</span></span>
+    </div>
+  </header>
+
+  <section class="sect">
+    <h2>Two corrections to the scan table first</h2>
+    <p class="note">
+      I checked <code>components.css</code> again before drawing these, and two things I called new are already in the system. <b>The coach-mark tour</b> is Modal's <b>Tutorial</b> variant — <code>.c-modal-tutorial</code> ships the card, the kicker, the spotlight layer and the same grow-out-of-the-target entrance the planner hand-rolls as <code>.tw-card</code>. <b>The stacked share bar</b> is Progress Bar's <b>stacked</b> track plus its documented legend — <code>.c-progress-track.stacked</code>, <code>.c-progress-stack-segment</code> with the department tones, and <code>.c-progress-legend</code>. The planner uses the DS bar for audience pull and a private copy for budget by channel. Both move to <b>reuse</b>, so this page shows 21 builds, not 23.
+    </p>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════ -->
+  <section class="sect">
+    <h2>Flow and page structure</h2>
+    <p class="note">The five that decide how a long form is laid out. These are the ones with the widest blast radius — anything built here changes how future multi-step pages look.</p>
+
+    <div class="s-grid">
+
+      <article class="s-item" id="c1">
+        <div class="s-head"><span class="s-num">1</span><h3>Vertical journey stepper</h3></div>
+        <div class="s-stage">
+          <ol class="k-journey">
+            <li class="k-step">
+              <div class="k-stephead">
+                <span class="c-step-indicator active">1</span>
+                <span class="k-steptitle"><span class="t">Brief</span><span class="d">The ask, the goal, the languages.</span></span>
+                <i class="ph ph-caret-up"></i>
+              </div>
+              <div class="k-stepbody">
+                <div class="k-bar" style="width:70%"></div>
+                <div class="k-bar" style="width:52%"></div>
+              </div>
+            </li>
+            <li class="k-step">
+              <div class="k-stephead">
+                <span class="c-step-indicator upcoming">2</span>
+                <span class="k-steptitle"><span class="t">Audience</span><span class="d">Who this plan is trying to reach.</span></span>
+                <i class="ph ph-caret-down"></i>
+              </div>
+            </li>
+            <li class="k-step">
+              <div class="k-stephead">
+                <span class="c-step-indicator upcoming">3</span>
+                <span class="k-steptitle"><span class="t">Media mix</span><span class="d">Channels, formats and the split.</span></span>
+                <i class="ph ph-caret-down"></i>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>The whole wizard. Four steps, each a head that folds open in place over a connector line; the summary under each title stays live as you fill the step.</dd></div>
+          <div><dt>Fits as</dt><dd>A new component beside <b>Stepper</b>. Stepper ships only the numbered circle (<code>.c-step-indicator</code>) — the head, body, fold and connector are all new.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c2">
+        <div class="s-head"><span class="s-num">2</span><h3>Unboxed canvas block</h3></div>
+        <div class="s-stage">
+          <div class="k-block">
+            <h5>The ask</h5>
+            <div class="k-bar" style="width:88%; margin-bottom:6px;"></div>
+            <div class="k-bar" style="width:64%"></div>
+          </div>
+          <div class="k-block">
+            <h5>The goal</h5>
+            <div class="k-bar" style="width:76%; margin-bottom:6px;"></div>
+            <div class="k-bar" style="width:40%"></div>
+          </div>
+          <div class="k-block">
+            <h5>Languages</h5>
+            <div class="k-bar" style="width:58%"></div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Eight instances. The old cards, flattened: no border, no fill, no shadow — a hairline rule between bands does the grouping instead.</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>Card</b> variant, not a new family. It is Card with the container removed, which is a decision about when the system is allowed to drop the box.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c3">
+        <div class="s-head"><span class="s-num">3</span><h3>Inset drawer</h3></div>
+        <div class="s-stage">
+          <div class="k-drawer">
+            <div class="k-disclose">
+              <div><h5>Add context</h5><p class="sub">Benefits, challenges, key message. All optional.</p></div>
+              <i class="ph ph-caret-up"></i>
+            </div>
+            <div class="body">
+              <div class="k-bar" style="height:28px; border-radius:var(--radius-sm);"></div>
+              <div class="k-bar" style="height:28px; border-radius:var(--radius-sm);"></div>
+            </div>
+          </div>
+          <div class="k-drawer">
+            <div class="k-disclose">
+              <div><h5>Sharpen the audience</h5><p class="sub">Demographic refiners, intent and exclusions.</p></div>
+              <i class="ph ph-caret-down"></i>
+            </div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Twice — optional extras that must not compete with the required fields above them. Head plus a height-animated body.</dd></div>
+          <div><dt>Fits as</dt><dd>The <b>accordion</b> the system keeps referring to and has never had. <code>accordion</code> appears in design-system.md only inside an easing rationale; no <code>.c-accordion</code> exists.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c4">
+        <div class="s-head"><span class="s-num">4</span><h3>Pinned summary rail</h3></div>
+        <div class="s-stage">
+          <div class="k-rail">
+            <div class="k-railtabs"><div class="c-tabs"><button class="c-tab active" type="button">Summary</button><button class="c-tab" type="button">Preview</button></div></div>
+            <div class="k-railscroll">
+              <div class="k-railstat">
+                <span class="c-stat-label">Plan strength</span>
+                <div class="v">Strong</div>
+                <div class="c-progress-track size-compact" style="margin-top:6px;"><div class="c-progress-fill" style="width:78%"></div></div>
+              </div>
+              <div class="k-railstat">
+                <span class="c-stat-label">Budget</span>
+                <div class="v">RM 200,000</div>
+              </div>
+              <div class="k-railstat">
+                <span class="c-stat-label">Unique reach</span>
+                <div class="v">3,320,000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>One per screen, sticky full height. Fixed tabs on top, a scrolling body under them, and it shortens when the docked AI box takes the corner.</dd></div>
+          <div><dt>Fits as</dt><dd>A new shell that <i>holds</i> Tabs and Stat cards rather than replacing either. Nothing in the system is a pinned, self-scrolling companion column.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c5">
+        <div class="s-head"><span class="s-num">5</span><h3>Editable page title</h3></div>
+        <div class="s-stage">
+          <div class="k-title is-empty">New media plan<span class="k-caret"></span></div>
+          <p class="k-cap" style="margin:var(--spacing-8) 0 0;">Placeholder until typed · saves on blur</p>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>The h1 itself is <code>contenteditable</code>, Notion-style, with a placeholder and autosave. No edit button, no field.</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>PageHeader</b> variant. The smallest thing on this list, and the one most likely to spread: any document-shaped page wants it.</dd></div>
+        </dl>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════ -->
+  <section class="sect">
+    <h2>The AI signature</h2>
+    <p class="note">Four surfaces wearing one recipe: a pastel sweep washed under the content at low opacity, plus a 1px gradient rim on the same animation. The planner pastes the gradient four times. My recommendation is that this is <b>one token-level recipe</b> the system defines once, then applies to Badge, Button, Banner and Field — not four components.</p>
+
+    <div class="s-grid">
+
+      <article class="s-item" id="c6">
+        <div class="s-head"><span class="s-num">6</span><h3>AI badge</h3></div>
+        <div class="s-stage">
+          <span class="c-badge k-ai" style="color:rgba(8,8,8,.8);"><i class="ph-fill ph-sparkle" style="font-size:var(--icon-micro); margin-right:3px;"></i>Filled by Collab AI · <span style="text-decoration:underline; text-underline-offset:2px;">why?</span></span>
+          <div style="height:var(--spacing-8)"></div>
+          <span class="c-badge k-ai" style="color:rgba(8,8,8,.8);"><i class="ph-fill ph-sparkle" style="font-size:var(--icon-micro); margin-right:3px;"></i>Drafted by Collab AI · <span style="text-decoration:underline; text-underline-offset:2px;">why?</span></span>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Four-plus instances, one beside every section Collab AI touched. It is a button — the "why?" opens the reasoning card (9).</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>Badge</b> tone. Badge has neutral, success, error, warning and selected; there is no AI tone, and this one is also interactive, which no other Badge is.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c7">
+        <div class="s-head"><span class="s-num">7</span><h3>AI ghost button</h3></div>
+        <div class="s-stage">
+          <button class="c-btn c-btn-ghost c-btn-sm k-ai" type="button" style="border-radius:var(--radius-pill);"><i class="ph-fill ph-sparkle"></i> Draft it with Collab AI</button>
+          <div style="height:var(--spacing-8)"></div>
+          <button class="c-btn c-btn-ghost c-btn-sm k-ai" type="button" style="border-radius:var(--radius-pill);"><i class="ph ph-sparkle"></i> Let AI pick again</button>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Three instances — draft the brief, repick personas, restore the AI draft. Always the offer of AI work, never a destructive action.</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>Button</b> tone on the Ghost variant. Same sweep as the badge, at button size.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c8">
+        <div class="s-head"><span class="s-num">8</span><h3>AI field states</h3></div>
+        <div class="s-stage on-white">
+          <div class="c-field"><label>Being written now</label><input class="k-ring" value="Maybank Raya — Islamic savings" readonly /></div>
+          <div style="height:var(--spacing-12)"></div>
+          <div class="c-field"><label>Just landed</label><input class="k-wash" value="RM 200,000" readonly /></div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Two states on ordinary inputs, dropdowns and date triggers: a gradient ring while the AI is writing the field, then a pastel wash that fades once the value lands.</dd></div>
+          <div><dt>Fits as</dt><dd>Two new <b>Input</b> states alongside default / hover / focus / error. This is the piece I would build first — it is the one that makes AI-filled forms legible.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c9">
+        <div class="s-head"><span class="s-num">9</span><h3>Reasoning card</h3></div>
+        <div class="s-stage">
+          <div class="k-faces">
+            <div>
+              <div class="k-face-lab">Face 1 — popover, anchored under its badge</div>
+              <div class="k-pop" style="margin-top:6px;">
+                <div class="head">
+                  <div style="flex:1"><h5>Why this media mix</h5><p class="sub">What Collab AI read, and the rule behind it.</p></div>
+                  <i class="ph ph-x" style="color:var(--color-neutral-5);"></i>
+                </div>
+                <div class="rowline"><span class="k">Social video<span style="display:block; font-weight:400; color:var(--color-neutral-5);">3.25% eng.</span></span><span class="k-cap">Leads the mix — highest engagement for this audience over 90 days.</span></div>
+                <div class="rowline"><span class="k">Display<span style="display:block; font-weight:400; color:var(--color-neutral-5);">RM 18 CPM</span></span><span class="k-cap">Carries reach at the lowest cost per thousand in the pool.</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="k-face-lab">Face 2 — review ledger, full width</div>
+              <div class="k-whyhead k-ai" style="margin-top:6px;">
+                <span class="k-whymark"><i class="ph-fill ph-sparkle"></i></span>
+                <div style="flex:1; min-width:0;"><b style="font-size:var(--text-body2-size);">Why this plan</b><p class="k-cap" style="margin:2px 0 0;">The thinking behind each step</p></div>
+              </div>
+              <div class="k-ledger">
+                <div class="k-col" style="gap:4px;"><b style="font-size:var(--text-body2-size);">Media mix</b><span class="c-badge c-badge-neutral" style="align-self:flex-start;">AI draft</span></div>
+                <div class="k-tiles">
+                  <div class="k-tile"><span class="k-cap" style="font-weight:700; color:var(--color-neutral-9);">Social video</span><div class="k-bar" style="width:90%"></div><div class="k-bar" style="width:60%"></div></div>
+                  <div class="k-tile"><span class="k-cap" style="font-weight:700; color:var(--color-neutral-9);">Display</span><div class="k-bar" style="width:80%"></div><div class="k-bar" style="width:45%"></div></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="k-face-lab">Face 3 — one-line trigger card</div>
+              <div class="k-whycard" style="margin-top:6px;">
+                <i class="ph-fill ph-chart-bar"></i>
+                <span class="t">Why these personas?</span>
+                <i class="ph ph-arrow-up-right chev"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>The same content in three costumes, with three separate sets of CSS: a 440px popover, a two-column ledger band on the summary, and a 40px trigger card beside the persona picker.</dd></div>
+          <div><dt>My read</dt><dd><b>A decision, not a build.</b> One component with three densities, or one component and two ways of opening it — worth settling before anything is drafted.</dd></div>
+        </dl>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════ -->
+  <section class="sect">
+    <h2>Overlays</h2>
+
+    <div class="s-grid">
+
+      <article class="s-item" id="c10">
+        <div class="s-head"><span class="s-num">10</span><h3>Fold-out modal</h3></div>
+        <div class="s-stage">
+          <div class="k-foldstage">
+            <span class="k-trigger"><span class="c-badge c-badge-neutral">trigger</span></span>
+            <div class="k-veil"></div>
+            <div class="k-foldshell">
+              <div class="k-foldhead">
+                <div><h5>Why these personas?</h5><p class="sub">The evidence behind the pick.</p></div>
+                <i class="ph ph-x" style="color:var(--color-neutral-5);"></i>
+              </div>
+              <div class="k-foldbody">
+                <div class="k-bar" style="width:92%"></div>
+                <div class="k-bar" style="width:78%"></div>
+                <div class="k-bar" style="width:84%"></div>
+              </div>
+              <div class="k-foldfoot"><span class="c-badge c-badge-neutral">Cancel</span><span class="c-badge c-badge-neutral">Send</span></div>
+            </div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Three instances — the persona evidence, the AI thread, the brief composer. The panel <b>unfolds out of whatever opened it</b>, hinging on the trigger's position, then folds back into it on close.</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>Modal</b> variant. Modal today is centred and fades; this one is the same shell with an origin. The motion is the component.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c11">
+        <div class="s-head"><span class="s-num">11</span><h3>Hover peek card</h3></div>
+        <div class="s-stage">
+          <div class="k-peek">
+            <div class="pic"><i class="ph ph-image"></i></div>
+            <div class="lbl"><span>Young Families</span><span class="fam">1.8M</span></div>
+            <div class="bars">
+              <div class="k-ab"><span>TV</span><i><b style="width:82%"></b></i><em>82</em></div>
+              <div class="k-ab"><span>Social</span><i><b style="width:64%"></b></i><em>64</em></div>
+              <div class="k-ab"><span>Audio</span><i><b style="width:31%"></b></i><em>31</em></div>
+            </div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Two of these — a 300px format sample and a 272px audience segment. Both float on hover, land in place on first show, then slide between targets and cross-fade their contents.</dd></div>
+          <div><dt>My read</dt><dd><b>A decision, not two builds.</b> Same shell, same shadow, same motion; they differ in width and in what fills the body. One component with a media slot.</dd></div>
+        </dl>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════ -->
+  <section class="sect">
+    <h2>Reading data</h2>
+
+    <div class="s-grid">
+
+      <article class="s-item" id="c12">
+        <div class="s-head"><span class="s-num">12</span><h3>Key–value row</h3></div>
+        <div class="s-stage on-white">
+          <div class="k-kv"><span class="k">Campaign</span><span class="v">Maybank Raya 2026</span></div>
+          <div class="k-kv"><span class="k">Budget</span><span class="v">RM 200,000</span></div>
+          <div class="k-kv"><span class="k">Forecast reach</span><span class="v">3,320,000</span></div>
+          <div class="k-kv"><span class="k">Goes to</span><span class="v">Sales order desk</span></div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Two places — the booking modal's read-back and the rail's preview pane. Label left in Neutral-5, value right in bold tabular figures, hairline between, none after the last.</dd></div>
+          <div><dt>Fits as</dt><dd>A small primitive of its own, or a <b>Table</b> variant for the two-column read-back case. The cheapest thing on this list to build.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c13">
+        <div class="s-head"><span class="s-num">13</span><h3>Skeleton block</h3></div>
+        <div class="s-stage">
+          <div class="k-skel">
+            <div class="k-skelbar" style="height:44px"></div>
+            <div class="k-skelcols">
+              <div class="k-skelbar" style="height:72px"></div>
+              <div class="k-skelbar" style="height:72px"></div>
+            </div>
+            <div class="k-skelbar" style="height:28px"></div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Three instances. A step opens over a shimmering outline of its own layout, sized per step, then the real content replaces it.</dd></div>
+          <div><dt>Fits as</dt><dd>A standalone <b>Skeleton</b>. The system has the shimmer already, but only welded inside Table's loading state (<code>.c-table-skel-bar</code>) — it cannot be used anywhere else.</dd></div>
+        </dl>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════ -->
+  <section class="sect">
+    <h2>Inputs and allocation</h2>
+
+    <div class="s-grid">
+
+      <article class="s-item" id="c14">
+        <div class="s-head"><span class="s-num">14</span><h3>Channel block</h3></div>
+        <div class="s-stage">
+          <div class="k-chanblock">
+            <div class="k-chanhead">
+              <h5><i class="ph-fill ph-device-mobile"></i>Social</h5>
+              <span class="sum">RM 84,000 · 42%</span>
+            </div>
+            <div class="k-fmtrow">
+              <span class="k-row"><span class="k-chk on"><i class="ph-bold ph-check"></i></span><span class="k-b2">Social video ad</span></span>
+              <div class="c-slider-group"><div class="c-slider-rail"><div class="c-slider-track"><div class="c-slider-fill" style="width:62%"></div></div></div></div>
+              <span class="v">RM 52,000<span class="imp">2.1M imps</span></span>
+            </div>
+            <div class="k-fmtrow">
+              <span class="k-row"><span class="k-chk on"><i class="ph-bold ph-check"></i></span><span class="k-b2">Image social ad</span></span>
+              <div class="c-slider-group"><div class="c-slider-rail"><div class="c-slider-track"><div class="c-slider-fill" style="width:38%"></div></div></div></div>
+              <span class="v">RM 32,000<span class="imp">1.4M imps</span></span>
+            </div>
+            <div class="k-lane">
+              <span class="lab">Add</span>
+              <div class="chips">
+                <span class="c-chip c-chip-filter"><i class="ph ph-plus"></i>Carousel <span style="color:var(--color-neutral-5); font-weight:400;">RM 14</span></span>
+                <span class="c-chip c-chip-overflow">+6 more</span>
+              </div>
+            </div>
+            <div class="k-lane sites">
+              <span class="lab">Runs on</span>
+              <div class="chips">
+                <span class="k-sitechip is-active"><i class="ph-fill ph-push-pin"></i>Astro Gempak</span>
+                <span class="k-sitechip"><i class="ph ph-push-pin"></i>sooka</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>One per active channel, up to five. A titled block holding its own allocation rows, an "Add" shelf of format chips and a "Runs on" shelf of site tags — so a choice above visibly opens the things it governs.</dd></div>
+          <div><dt>Fits as</dt><dd>A composite. The biggest build on the list, and the one most specific to media planning — worth asking whether it belongs in the DS at all or stays a product pattern.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c15">
+        <div class="s-head"><span class="s-num">15</span><h3>Allocation row</h3></div>
+        <div class="s-stage on-white">
+          <div class="k-fmtrow">
+            <span class="k-row"><span class="k-chk on"><i class="ph-bold ph-check"></i></span><span class="k-b2">Social video ad</span></span>
+            <div class="c-slider-group"><div class="c-slider-rail"><div class="c-slider-track"><div class="c-slider-fill" style="width:62%"></div></div></div></div>
+            <span class="v">RM 52,000<span class="imp">2.1M imps</span></span>
+          </div>
+          <div class="k-fmtrow">
+            <span class="k-row"><span class="k-chk"></span><span class="k-b2" style="color:var(--color-neutral-5);">Display banner</span></span>
+            <div></div>
+            <span></span>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>The row inside 14, on its own. Tick, live slider, and a right-aligned amount with its derived figure beneath. When the tick is off the slider and value go invisible but keep their grid columns, so nothing shifts.</dd></div>
+          <div><dt>Fits as</dt><dd>Checkbox + Slider composed into one row. The rule worth writing down is the one about holding the grid when a row goes inactive.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c16">
+        <div class="s-head"><span class="s-num">16</span><h3>Selectable big card</h3></div>
+        <div class="s-stage">
+          <div class="k-bigchoice">
+            <div class="k-bigcard is-selected">
+              <span class="head"><span class="c-radio-circle on"><span class="dot"></span></span><span class="t">Personas</span></span>
+              <span class="desc">Segments from the KULT playbook, built on real viewing behaviour.</span>
+              <span class="meta">3 selected · 3.3M</span>
+            </div>
+            <div class="k-bigcard">
+              <span class="head"><span class="c-radio-circle"><span class="dot" hidden></span></span><span class="t">Mass</span></span>
+              <span class="desc">The whole Malaysia footprint, no segmentation.</span>
+              <span class="meta">16,150,000</span>
+            </div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Two cards, one decision. The whole card is the radio target; selection is a 1px Obsidian border doubled by a matching ring, and a live meta line sits pinned to the bottom.</dd></div>
+          <div><dt>Fits as</dt><dd>Radio + Card composed — the pattern for "choose one of two paths" that neither component gives you alone.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c17">
+        <div class="s-head"><span class="s-num">17</span><h3>Budget dial + field pair</h3></div>
+        <div class="s-stage on-white">
+          <div class="c-field">
+            <label>Working media budget (RM)</label>
+            <div class="k-budget">
+              <div class="c-slider-group"><div class="c-slider-rail"><div class="c-slider-track"><div class="c-slider-fill" style="width:40%"></div></div><input class="c-slider-input" type="range" min="0" max="500000" step="5000" value="200000" aria-label="Budget dial" /></div></div>
+              <input type="text" value="200,000" readonly />
+            </div>
+            <span class="c-helper">Dial up to RM 500K, or type any amount.</span>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>One instance, but the pattern is general: a capped dial for the common range and an open text field for anything beyond it. Each reflects the other, and the field wins.</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>Slider</b> variant — "bounded dial with an unbounded field". Answers what a slider does when the real range has no ceiling.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c18">
+        <div class="s-head"><span class="s-num">18</span><h3>Dropdown row with description</h3></div>
+        <div class="s-stage">
+          <div class="k-ddpanel">
+            <div class="k-ddrow">
+              <span class="k-chk on"><i class="ph-bold ph-check"></i></span>
+              <span><span class="lab">Awareness</span><span class="desc">Get the brand in front of as many of the right people as possible.</span></span>
+            </div>
+            <div class="k-ddrow">
+              <span class="k-chk"></span>
+              <span><span class="lab">Consideration</span><span class="desc">Move people who already know you toward looking properly.</span></span>
+            </div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Objective, KPI and refiner menus all carry a plain-words line under the option label, and the tick shifts to the top of the row rather than centring on two lines.</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>Dropdown</b> row variant. Small, but it decides whether menus in this system are allowed to explain themselves.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c19">
+        <div class="s-head"><span class="s-num">19</span><h3>Brief composer textarea</h3></div>
+        <div class="s-stage">
+          <div class="k-composer">Maybank Raya campaign for the new Islamic savings account. <b>Budget:</b> RM 200k working. <b>Dates:</b> 15 Sept to 6 Oct. Awareness first, 2M people reached. <span class="tail">Young families in BM and English…</span></div>
+          <div class="k-starters">
+            <span class="k-trychip"><i class="ph ph-list-dashes"></i> Use a template</span>
+            <span class="k-trychip"><i class="ph ph-sparkle"></i> Try an example</span>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>One long free-text field with no border, so the modal body reads as a sheet of paper. Labels like "Budget:" are thickened live by a backdrop layer sitting under a transparent textarea.</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>Textarea</b> variant. Genuinely clever and genuinely fiddly — the stroke trick exists so the backdrop wraps exactly where the textarea does.</dd></div>
+        </dl>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════ -->
+  <section class="sect">
+    <h2>Feedback and attention</h2>
+
+    <div class="s-grid">
+
+      <article class="s-item" id="c20">
+        <div class="s-head"><span class="s-num">20</span><h3>System checker</h3></div>
+        <div class="s-stage">
+          <div class="k-checkflow">
+            <div class="k-checktitle"><i class="ph ph-circle-notch spin" style="color:var(--color-neutral-5);"></i><span>Checking your brief</span></div>
+            <div class="k-checkrow ok"><i class="ph-fill ph-check-circle"></i><span>Campaign, brand and product are named</span></div>
+            <div class="k-checkrow ok"><i class="ph-fill ph-check-circle"></i><span>Dates and budget set</span></div>
+            <div class="k-checkrow warn"><i class="ph-fill ph-warning-circle"></i><span>No languages picked — creative coverage unknown</span></div>
+            <div class="k-checkrow block"><i class="ph-fill ph-x-circle"></i><span>An objective is required before the next step</span></div>
+          </div>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Runs on every step advance and again on booking. Rows stagger in with a spinner each, resolve to pass / warn / block, then the title becomes a verdict with a "Take me there" link on a block.</dd></div>
+          <div><dt>Fits as</dt><dd>New. It is validation as a visible act rather than error text under a field — closest relative is the AI Native <b>Task Rows</b>, which it visibly borrows from.</dd></div>
+        </dl>
+      </article>
+
+      <article class="s-item" id="c21">
+        <div class="s-head"><span class="s-num">21</span><h3>CTA beacon</h3></div>
+        <div class="s-stage" style="padding:var(--spacing-24) var(--spacing-16);">
+          <button class="c-btn c-btn-primary c-btn-md k-beacon" type="button">Next: audience <i class="ph ph-arrow-down"></i></button>
+        </div>
+        <dl class="s-facts">
+          <div><dt>On the page</dt><dd>Twice — Next after an AI fill lands, and Confirm booking. Six Obsidian rings breathe out of the button and its arrow nods along; hover, focus, click or nine seconds ends it.</dd></div>
+          <div><dt>Fits as</dt><dd>A <b>Button</b> state. The system has no "look here next" state, and the rings are the step indicator's own pulse recipe reused.</dd></div>
+        </dl>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════ -->
+  <section class="sect">
+    <h2>Reuse what already exists — no build</h2>
+    <p class="note">Ten things the planner draws that the system already covers. Nothing to approve here; they are listed so the scan is the whole picture.</p>
+    <div class="c-table-standalone-wrap c-table-scroll-x">
+      <table class="c-table c-table-standalone" style="min-width:720px;">
+        <thead><tr><th>On the planner</th><th>Already in the system as</th></tr></thead>
+        <tbody>
+          <tr><td>Coach-mark tour (7 stops)</td><td class="why"><b>Modal → Tutorial variant.</b> <code>.c-modal-tutorial</code> with its kicker, spotlight layer and grow-from-target entrance. The planner's <code>.tw-*</code> is a second copy of it.</td></tr>
+          <tr><td>Stacked share bar + legend</td><td class="why"><b>Progress Bar → stacked track.</b> <code>.c-progress-track.stacked</code>, department-toned segments and <code>.c-progress-legend</code>. The page already uses it for audience pull and hand-rolls it for budget.</td></tr>
+          <tr><td>AI ask pill</td><td class="why">AI Native → <b>Prompt input bar</b>, Floating variant.</td></tr>
+          <tr><td>Site tag chip</td><td class="why"><b>Chip</b>, Filter variant in its active state.</td></tr>
+          <tr><td>Suggestion chip ("Try it")</td><td class="why"><b>Chip.</b></td></tr>
+          <tr><td>Thread bubbles</td><td class="why">AI Native → <b>Chat window</b>.</td></tr>
+          <tr><td>Booking and delete modals</td><td class="why"><b>Modal</b>, unmodified.</td></tr>
+          <tr><td>Rail stat rows</td><td class="why"><b>Stat / KPI card</b>, compact.</td></tr>
+          <tr><td>Header action toolbar</td><td class="why"><b>Button</b> (icon-only) + <b>Tooltip</b>.</td></tr>
+          <tr><td>AI invite banner</td><td class="why"><b>Info Banner</b>, AI Recommendation tone.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>Deliberately skipped</h2>
+    <p class="note">
+      Layout grids (<code>.p-grid2</code>, <code>.p-grid3</code>, <code>.p-goal-cols</code>, <code>.p-sect-cols</code>, <code>.p-vstack</code>) — they are page scaffolding, not components. Decorative one-offs (<code>.p-brandmark</code>, <code>.p-actdiv</code>). And <code>.p-check</code>, whose CSS survives but which nothing renders any more: the rail checklist moved into the system checker (20), so <code>renderChecks()</code> now only calls <code>renderStrength()</code>.
+    </p>
+  </section>
+
+</div>
+
+</body>
+</html>
