@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.104** — 2026-09-22 — Sourced from the Collabrium brand deck
+**v0.9.105** — 2026-09-22 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -317,6 +317,16 @@ carry visual weight intentionally, and at `icon-md` (24px) and above, Fill
 reads naturally. Applies to: status indicators (success, warning, error,
 info), sidebar navigation items, card header icons, department indicators,
 feature highlights, empty-state illustrations, onboarding icons.
+
+**Below `icon-micro` (14px), a Tier 2 icon takes Regular instead.** That
+sentence above — "at `icon-md` and above, Fill reads naturally" — has a
+floor as well as a ceiling. A filled glyph rendered at 11–12px loses its
+internal detail and collapses into a solid shape, so it stops
+communicating the thing it was chosen to communicate. The icon stays
+Tier 2 by category; only its weight changes. See [Card](#card)'s
+**Campaign card** date row for the worked case (a 12px calendar), and
+note this does **not** license dropping to Regular at 14px or above,
+where Fill still holds.
 
 | Icon type | Examples | Weight | Class prefix |
 |---|---|---|---|
@@ -2172,6 +2182,7 @@ the Modal footer's divider, scaled down.
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
 - **USP** — a feature-highlight tile, not a generic content card. Anatomy: Header (h4, same as base) → Description (p, same as base body2/Neutral-5) → 3 bullet points (new `.c-card-usp-list`: `ph-fill ph-check-circle` at `icon-sm`, Obsidian — **Tier 2, Fill**, the same call as Button's own leading check-circle example — followed by body2/Neutral-9 text, both vertically centered on the same line, spacing-8 gap) → CTA button (the real [Button](#button) component, Primary/md — never rebuilt from scratch — stretched to the card's full width with its label centered, rather than hugging its own content like a Card-region CTA normally would).
 - **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
+- **Campaign card** — one campaign as a kanban board tile: brand mark, campaign name (plus an optional Lead tag), brand, owner faces, then a full-width divider over the dates and a 2-column Pax/Quote metric grid. Carries **no stage tag** — the column it sits in is the stage. Extends the base Card but drops its border and tightens its radius, because a board tile is a movable object rather than a page container — see **Campaign card**, below, for the full anatomy.
 - **Profile card** — a talent/influencer profile summary tile, built around a centred 56px avatar as its main element: a Controls row (Select checkbox + kebab menu), the avatar, Name, a demographic Meta line, a Persona line, then an alphabetically-sorted platform list carrying a follower count and a Tier badge per row. Extends the base Card and reuses [Checkbox](#checkbox)'s own box and [SidebarNav](#sidebarnav)'s own menu recipe rather than inventing new structure — see **Profile card**, below, for the full anatomy.
 - **Hero Card** — a promotional/insight tile: Eyebrow, Heading, Body, a media placeholder, optional Recommendation text, and a CTA, in four states (Default, Risk, AI Dark, Selected). Extends the base Card (Neutral-1, radius-lg, shadow-1) rather than inventing new structure, but is the first Card variant with its own corner ribbon, a dark surface, and a fixed/centered modal state — see **Hero Card**, below, for the full anatomy.
 - **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
@@ -2217,6 +2228,7 @@ grids if that floor would waste space for the narrower variants.
 | Element-accented | 240px | Matches base |
 | USP | 280px | 3 check-bullet points plus a full-width button need more room at minimum width |
 | Price summary card | 280px | Line-item list, RM pricing, and the CTA need more room to stay readable |
+| Campaign card | 240px | Matches base. The binding constraint is the identity row — a 32px brand mark, a truncating name and up to two 22px owner faces — plus a 2-column metric grid that must not wrap "RM 72,500" |
 | Pacing Card | 240px | Matches base. The binding constraint is the minibar's label row — "Total …" and "Target …" must share one line, which holds down to 240px for realistic figures; see **Pacing Card — Width** |
 
 Every variant keeps `width: 100%` of its grid cell regardless of its
@@ -2656,6 +2668,93 @@ mouse position:
 | Checkbox | checked — Obsidian fill, `icon-micro` check glyph, Checkbox's own real `.c-checkbox-box.on` state, not a separate "selected card" glyph. Its *visibility* doesn't change, since it was already always visible |
 | Everything else | unchanged — Selected doesn't add a fill tint and doesn't recolor any text; border + elevation + the checked checkbox are the only three signals, so Selected never competes visually with the Tier badge's own element colors inside the card |
 
+⚠️ **Campaign card comes from a product handoff spec**, not from the
+original brand deck — `CampaignBoardCard` as shipped in the campaigns
+board. The values below are that spec's, reconciled against this
+document's own tokens; every place the two disagreed is called out in
+**Campaign card — What this variant borrows and what it overrides**,
+below, rather than silently resolved.
+
+**Campaign card.** One campaign as a tile on a kanban board, one column
+per stage. An identity row (brand mark, name, brand, owner faces), a
+full-width divider, the dates, then a two-column Pax/Quote grid.
+
+**Campaign card — The five rules that make it this card.**
+
+1. **Six things and no more.** The brand's mark, the campaign name, the
+   brand, who owns it, when it runs, what it is worth. Everything else
+   a campaign carries lives on the campaign's own page, one click away.
+   A board tile is scanned, not read.
+2. **No status on the card.** The column it sits in *is* the stage, so a
+   stage tag here would restate the heading directly above it. The one
+   exception is the **Lead tag** — a lead is a campaign that has not
+   entered the pipeline yet, which is a different claim from "this
+   campaign is at stage X." A table view, which has no columns to carry
+   the stage, needs its own stage cell instead.
+3. **The faces ride the name**, not a row of their own. Who owns a
+   campaign is part of recognising it, not a footnote.
+4. **A rule that stops where the text stops separates nothing** — the
+   divider runs the card's full width. It separates what the campaign
+   *is* (above) from what is *known* about it (below).
+5. **Em dash, never zero.** An unset Pax, Quote or date renders `—`, not
+   `0` and not a blank: nobody has quoted nothing. Empty values also
+   drop to Neutral-4, so they read as absent rather than as a value.
+   Pax and Quote carry eyebrow labels and the date and faces do not — a
+   date reads as a date and a face reads as a person, but a bare `8`
+   beside a bare `RM 72,500` is two numbers with nothing saying which
+   is which.
+
+**Campaign card — Anatomy.**
+
+| Part | Spec |
+|---|---|
+| Container | spacing-16 padding, **14px radius**, Neutral-1 fill, `shadow-1`, and **no border** — two deliberate departures from the base Card, see the reconciliation table below. `height: auto`, not the base Card's `height: 100%` |
+| Brand mark | 32×32px, 9px radius, `object-fit: contain` on a Neutral-1 fill with a 1px Neutral-3 border. The fill stays for logos with transparent backgrounds; `contain` because every resolved logo is already square. **Placeholder** (no logo resolved): `--color-water-bg` fill with a `ph-fill ph-buildings` glyph at `icon-sm` in `--color-navy` |
+| Title | `label2` (13px/18px/700), Neutral-9, truncates. Clamp by character count at content level *in addition to* CSS truncation, so a pathological name can't defeat the ellipsis |
+| Lead tag (optional) | 20px height, 0/spacing-8 padding, `radius-pill`, **1px dashed Neutral-4**, transparent fill, `label3` size (11px)/700, uppercase, `letter-spacing: .08em`, Neutral-5. Dashed and colourless on purpose: it says *provisional* without spending a colour, which is what stops it reading as one more status chip |
+| Brand line | `caption` (12px/16px/400), Neutral-5, truncates, `—` when the brand is unknown |
+| Owner faces | 22×22px circles, 2px Neutral-1 border, 10px/700 initials on Neutral-2. A second (overseer) face overlaps the first by −7px and takes a `#E6E0F5` fill. With no PIC recorded the first face falls back to `?` |
+| Faces tooltip | the real [Tooltip](#tooltip) component, reading "Sarah K. · overseen by Lina M." (or "· no overseer"). The faces span carries `tabindex="0"` so the pairing is reachable **on focus, not only on hover** — two overlapping initials are not self-explanatory, and a mouse-only explanation leaves keyboard users with no way to find out who owns the campaign |
+| Divider | spacing-12 margin-top, spacing-8 padding-top, 1px `#EDEDED`, full width |
+| Date | `label3` size (11px) at weight **500**, Neutral-5, with a 12px `ph ph-calendar-blank` — **Regular (outline)**, not the Fill that [Iconography](#iconography)'s "Card / section header: Calendar → Fill" row would otherwise call for. This isn't a departure from that rule so much as its own stated limit: Tier 2 says Fill "reads naturally" at `icon-md` (24px) **and above**, and 12px is below even `--icon-micro` (14px), the smallest icon size this system defines. At that size a filled calendar loses its internal grid and collapses into a solid rounded block — it stops reading as a calendar at all, which is the one job the glyph has here. Neutral-4 and `—` when unset |
+| Metric label | 10px/13px/700, uppercase, `letter-spacing: .08em`, `#777777` |
+| Metric value | `caption` size (12px/16px) at weight **700**, tabular numerals, Neutral-9, truncates — the same caption-size/bold-weight recipe Profile card's own Follower count uses. Neutral-4 when `—` |
+| Metric grid | 2 equal columns, spacing-8 gap, spacing-8 margin-top; spacing-4 between each label and its value |
+
+**Campaign card — States.**
+
+| State | Spec |
+|---|---|
+| Rest | `shadow-1`, no border |
+| Hover | `shadow-3` **and** `translateY(-1px)` — the lift is what makes the tile read as pickable rather than merely highlighted. Suppressed under `prefers-reduced-motion`, where the shadow change carries the hover alone |
+| Focus-visible | `shadow-focus`, no outline — the same Water focus ring as every other focusable surface here |
+| Dragging | `opacity: .35`, and the tile **stays in its place** rather than being removed from the column. A tile that leaves a hole reflows the board under the pointer mid-drag, which moves the drop target the person is aiming at |
+| Cursor | `grab`, becoming `grabbing` on press, whenever the viewer can manage campaigns; `pointer` (via `.is-static`) when they can only open them. The cursor is the only thing that distinguishes the two — there is no separate read-only styling |
+| Transition | `box-shadow`, `transform` and `opacity` on `duration-fast`/`ease-standard` (140ms, `cubic-bezier(.2,.6,.2,1)`) — the handoff spec's own transition turned out to be these two tokens exactly, so nothing was invented here |
+
+**Campaign card — Interaction contract.** The tile is an `<article>`
+with `role="button"` and `tabindex="0"`, labelled "‹campaign name› —
+open campaign", and it opens on click, Enter **and** Space. The faces
+tooltip's own trigger is a nested focusable inside it, which is
+deliberate: the tile and the question "who owns this?" are two separate
+things a keyboard user needs to reach.
+
+**Campaign card — What this variant borrows and what it overrides.**
+The handoff spec was written against a different root font size and its
+own local palette, so it is reconciled here rather than copied:
+
+| Value | Resolution |
+|---|---|
+| Root size | the source sets `html { font-size: 90% }`, so every rem-derived size in its own CSS renders 10% small — its 28.8px mark is `w-8`, its 14.4px padding is `p-4`. This system runs at 100%, so those take their **true** values: a **32px** mark and **spacing-16** padding. Arbitrary pixel values in the source (`14px` radius, `22px` faces, `13px`/`12px`/`11px`/`10px` type) are exact at either root and carry over unchanged |
+| `shadow-1`, `shadow-3`, focus ring, 140ms `cubic-bezier(.2,.6,.2,1)` | already this system's `--shadow-1`, `--shadow-3`, `--shadow-focus`, `--duration-fast` and `--ease-standard`, value for value. Nothing to reconcile |
+| Title, brand line, metric value | map exactly onto `label2`, `caption`, and caption-size-at-700. Use the tokens, not the literals |
+| 10px gaps (`gap-2.5`) | **snapped to the 4px grid** — spacing-8 for the divider's padding-top and the metric grid's gap, spacing-12 for the identity row, which is the same mark-to-text gap the base Card's icon-chip header already uses. This system's spacing scale is strictly 4-based and a 10px gap has no token |
+| Brand-mark placeholder tint | the source uses Water at **10%**; this uses `--color-water-bg` (**8%**), because [Elemental background tints](#color-palette) permits only the 8%/16% steps and an arbitrary tint strength would break that rule for a 32px square |
+| 14px radius | kept as a **scoped literal**. It sits between `--radius-sm` (12px) and `--radius-md` (16px) with no token of its own, and the base Card's `--radius-lg` (20px) is visibly too soft for a dense column of tiles |
+| No border | kept. `shadow-1` alone carries the edge so a column of tiles reads as objects resting on a surface; the base Card's 1px Neutral-3 turns the same column into a stack of framed panels |
+| `#EDEDED` divider, `#777777` metric label, `#E6E0F5` overseer fill | kept as **scoped literals**, the same way [Hero Card](#card)'s AI (Dark) variant scopes its own `rgba(255,255,255,.08)` border. Each is deliberately *between* two of this system's neutrals — a hairline lighter than Neutral-3, a label lighter than Neutral-5 — and promoting any of them to a token would imply a general-purpose step this system has not agreed to |
+| 10px metric label | kept. It is the only sub-11px type here, and it earns the exception: the label sits directly under a 12px value, and this system's own eyebrow recipe (caption + uppercase + `tracking-eyebrow`) is *also* 12px, which would tie with the value instead of sitting under it. Note the tracking is `.08em`, not `--tracking-eyebrow`'s `.12em` |
+
 ⚠️ **Hero Card is designed from scratch** — no source in either the
 original brand deck or the teammate's build. First reviewed and
 committed 2026-08-18; see the Changelog for the review history.
@@ -2759,7 +2858,9 @@ against the platform name's regular weight, not a smaller supporting
 figure. Reuse the same Checkbox box recipe across the Interactive card
 and the Profile card — one box, two placements. Do compute the five
 ranked tiers from the follower count against the documented
-thresholds, never by hand. **Don't:** tint a card with an
+thresholds, never by hand. Do render an unset Pax, Quote or date on a
+Campaign card as an em dash in Neutral-4 — never a `0`, never a blank
+cell. **Don't:** tint a card with an
 element that doesn't own its content. Don't omit the Header or Total
 row in the Price summary card's Filled state — a total with no
 visible sum defeats the component's purpose. Don't read the Profile
@@ -2777,7 +2878,13 @@ under the cursor breaks the one comparison a roster exists to support.
 Don't give the Persona line one Badge per category — it is
 a single dot-separated caption line that truncates, which reverses an
 earlier rule here; Badges returned the card to a variable-height block
-that fought the platform list for attention. **Do** use
+that fought the platform list for attention. Don't put a stage tag on a
+Campaign card — the board column it sits in already states the stage,
+and the Lead tag is not an exception to that rule but a different
+claim ("not in the pipeline yet"). Don't give a Campaign card the base
+Card's border or `radius-lg`, or stretch it to `height: 100%` — a board
+tile hugs its content, and equal-height is a grid-row rule that a
+kanban column isn't subject to. **Do** use
 `align-items: stretch` on every card grid container — universal, no
 exceptions, including the Price summary + USP pairing. Do use
 `height: 100%` on every card in a grid so it fills its cell. Do use
@@ -6820,6 +6927,87 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.105 — 2026-09-22** — [Card](#card) gains **Campaign card**, a
+  kanban board tile for one campaign, and [Iconography](#iconography)
+  gains the size floor that card's date icon exposed.
+
+  The card carries **six things and no more** — brand mark, campaign
+  name, brand, owner faces, dates, worth — over a full-width divider
+  that separates what the campaign **is** from what is **known** about it.
+  It deliberately has **no stage tag**: the board column a tile sits in
+  already states the stage, so a tag would restate the heading directly
+  above it. The optional **Lead tag** is not an exception to that but a
+  different claim — "not in the pipeline yet" rather than "at stage X" —
+  and it is drawn dashed and colourless so it can't be mistaken for one
+  more status chip. Unset Pax, Quote and dates render an **em dash in
+  Neutral-4, never a zero and never a blank**: nobody has quoted
+  nothing, and Neutral-4 is what makes the value read as absent rather
+  than as a number. Owner faces ride the name instead of taking a row of
+  their own, wrapped in the real [Tooltip](#tooltip) with a `tabindex`
+  so the "Sarah K. · overseen by Lina M." pairing is reachable on focus
+  and not only on hover — two overlapping initials are not
+  self-explanatory, and a mouse-only explanation leaves keyboard users
+  with no way to learn who owns the campaign.
+
+  **Two departures from the base Card, both deliberate.** The tile drops
+  the 1px Neutral-3 border entirely — `shadow-1` alone carries the edge,
+  so a column of tiles reads as objects resting on a surface instead of
+  a stack of framed panels — and tightens the radius to **14px**, which
+  sits between `--radius-sm` and `--radius-md` with no token of its own
+  and is visibly less soft than the base Card's `--radius-lg`. It also
+  drops `height: 100%`: board tiles hug their content, and equal-height
+  is a grid-**row** rule that a kanban column isn't subject to.
+
+  **The source spec was reconciled, not pasted.** It is written against
+  a `font-size: 90%` root, so every rem-derived value in its own CSS
+  renders 10% small — its 28.8px brand mark is `w-8` and its 14.4px
+  padding is `p-4`. Both take their true values here (**32px** and
+  **spacing-16**); arbitrary pixel values (the 14px radius, 22px faces,
+  13/12/11/10px type) are exact at either root and carry over unchanged.
+  Its `shadow-1`, `shadow-3`, focus ring and `140ms
+  cubic-bezier(.2,.6,.2,1)` transition turned out to be this system's
+  `--shadow-1`, `--shadow-3`, `--shadow-focus`, `--duration-fast` and
+  `--ease-standard` **value for value**, so nothing was invented there;
+  its title, brand line and metric value map exactly onto `label2`,
+  `caption`, and caption-size-at-700. Its 10px (`gap-2.5`) gaps were
+  **snapped to this system's 4px grid** — spacing-8, and spacing-12 for
+  the identity row, matching the mark-to-text gap the base Card's
+  icon-chip header already uses. Its Water-at-10% placeholder tint was
+  snapped to `--color-water-bg` (8%), because [Elemental background
+  tints](#color-palette) permits only the 8%/16% steps. What stayed as
+  **scoped literals**, documented with reasons rather than promoted to
+  tokens: the 14px radius, `#EDEDED` divider, `#777777` metric label,
+  `#E6E0F5` overseer fill, and a 10px/`.08em` metric label — each sits
+  deliberately **between** two existing steps, and the 10px is the only
+  sub-11px type here because the label has to sit quieter than the 12px
+  value directly beneath it, where the standard caption-sized eyebrow
+  would tie with it instead.
+
+  **The date icon is Regular, and that is now a general rule.** Tier 2
+  already said Fill "reads naturally" at `icon-md` (24px) **and above**;
+  what it never said was what happens underneath. A filled glyph at
+  11–12px loses its internal detail and collapses into a solid shape —
+  a 12px `ph-fill ph-calendar-blank` stops reading as a calendar at all,
+  which is the one job it has on this card. Iconography now states the
+  floor explicitly: **below `icon-micro` (14px) a Tier 2 icon takes
+  Regular**, staying Tier 2 by category with only its weight changing,
+  and with no licence to drop to Regular at 14px or above. Worth noting
+  for whoever picks this up: [Date picker](#date-picker)'s own trigger
+  calendar is still Fill and sits above that floor, so it is untouched
+  and not in conflict — but it remains one of the icon-tier judgment
+  calls **Needs Input** #11 lists as unconfirmed.
+
+  `components.css`: `.c-card-campaign*` added after the Profile card
+  block, including a `.c-card-campaign .c-card-campaign-title` selector
+  scoped two classes deep on purpose, since `.c-card h5` out-specifies a
+  bare class and would reset the title's size. `tokens.css`: unchanged —
+  every value either mapped to an existing token or is scoped to this
+  one variant. `preview.html`: a **Campaign cards** subsection in the
+  Card block with three tiles — filled, a Lead showing all three empty
+  states at once, and the `.is-dragging` state — plus a
+  `.campaign-cards-grid` demo style using `align-items: start` rather
+  than the Profile grid's `stretch`.
 
 - **v0.9.104 — 2026-09-22** — [Card](#card)'s **Profile card** variant is
   rebuilt around a centred avatar, and its Select checkbox stops hiding.

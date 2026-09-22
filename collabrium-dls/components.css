@@ -358,6 +358,63 @@
 .c-card-profile-followers:focus-visible{text-decoration:underline; border-radius:var(--radius-sm); box-shadow:var(--shadow-focus); outline:none;}
 .c-card-profile-row .c-tag{flex:none;}
 
+/* Campaign card — Card variant. One campaign as a kanban board tile:
+   six facts and no more (mark, name, brand, owners, dates, worth), and
+   deliberately NO stage tag — the column a tile sits in is the stage,
+   so a tag here would restate the heading above it.
+   Two deliberate departures from the base Card: no border (shadow-1
+   alone carries the edge, so a column of tiles reads as objects on a
+   surface rather than a stack of framed panels) and a tighter 14px
+   radius, which is between --radius-sm and --radius-md and has no token
+   of its own — a movable tile, not a page container. It also drops the
+   base Card's height:100%, since board tiles hug their content in a
+   column; equal-height is a grid-ROW rule and a kanban column is not a
+   grid row.
+   Unset Pax/Quote/date render an em dash in Neutral-4 — never a zero,
+   because nobody has quoted nothing, and Neutral-4 makes the value read
+   as absent rather than as a number. */
+.c-card-campaign{border:0; border-radius:14px; height:auto; gap:0; box-shadow:var(--shadow-1); cursor:grab; outline:none; transition:box-shadow var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);}
+.c-card-campaign:hover{box-shadow:var(--shadow-3); transform:translateY(-1px);}
+.c-card-campaign:active{cursor:grabbing;}
+.c-card-campaign:focus-visible{box-shadow:var(--shadow-focus);}
+.c-card-campaign.is-static{cursor:pointer;}
+.c-card-campaign.is-dragging{opacity:.35;}
+@media (prefers-reduced-motion:reduce){.c-card-campaign:hover{transform:none;}}
+
+/* Identity — brand mark, name/brand stack, owner faces */
+.c-card-campaign-id{display:flex; align-items:center; gap:var(--spacing-12);}
+.c-card-campaign-mark{flex:none; width:32px; height:32px; border-radius:9px; display:block; object-fit:contain; border:1px solid var(--color-neutral-3); background:var(--color-neutral-1);}
+.c-card-campaign-mark.is-placeholder{display:flex; align-items:center; justify-content:center; border:0; background:var(--color-water-bg); color:var(--color-navy); font-size:var(--icon-sm);}
+.c-card-campaign-name{flex:1; min-width:0;}
+.c-card-campaign-title-row{display:flex; align-items:center; gap:var(--spacing-8); min-width:0;}
+/* Scoped two-class deep on purpose: `.c-card h5` (and any future
+   `.c-card h4`) out-specifies a bare class and would reset the size. */
+.c-card-campaign .c-card-campaign-title{margin:0; font-family:var(--font-primary); font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-campaign-brand{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* Lead tag — dashed, transparent, uppercase. A lead is a campaign that
+   isn't settled yet; the dashed edge says provisional without spending
+   a colour on it, which is what keeps it from reading as a status. */
+.c-card-campaign-lead{display:inline-flex; align-items:center; flex:none; height:20px; padding:0 var(--spacing-8); border:1px dashed var(--color-neutral-4); border-radius:var(--radius-pill); background:transparent; font-family:var(--font-primary); font-size:var(--text-label3-size); font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--color-neutral-5); white-space:nowrap;}
+/* Owner faces ride the name rather than taking a row of their own — who
+   owns a campaign is part of recognising it, not a footnote. */
+.c-card-campaign-faces{display:flex; flex:none;}
+.c-card-campaign-face{width:22px; height:22px; border-radius:var(--radius-pill); border:2px solid var(--color-neutral-1); background:var(--color-neutral-2); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; box-sizing:border-box;}
+.c-card-campaign-face.is-overseer{margin-left:-7px; background:#E6E0F5;}
+
+/* What is known about it. The rule runs the card's full width — a rule
+   that stops where the text stops separates nothing. */
+.c-card-campaign-when{margin-top:var(--spacing-12); padding-top:var(--spacing-8); border-top:1px solid #EDEDED; display:flex; align-items:center; gap:var(--spacing-8); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:500; color:var(--color-neutral-5); white-space:nowrap;}
+.c-card-campaign-when i{flex:none; font-size:12px;}
+.c-card-campaign-when.is-empty{color:var(--color-neutral-4);}
+.c-card-campaign-metrics{margin-top:var(--spacing-8); display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-8);}
+.c-card-campaign-metrics > div{min-width:0; display:flex; flex-direction:column;}
+/* 10px/.08em is the one sub-11px type in the system: the label has to
+   sit quieter than a 12px value directly under it, and the standard
+   caption-sized eyebrow would tie with that value instead. */
+.c-card-campaign-label{font-family:var(--font-primary); font-size:10px; line-height:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#777777;}
+.c-card-campaign-value{margin-top:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-9); font-variant-numeric:tabular-nums; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-campaign-value.is-empty{color:var(--color-neutral-4);}
+
 /* =========================================================
    Pacing Card — one metric's progress against a target it's racing a
    deadline to hit. A Card sub-component: container and footer are the
