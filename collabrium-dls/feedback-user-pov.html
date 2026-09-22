@@ -1005,6 +1005,7 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    the rules below are written against .c-modal.is-preview, and the route
    is not a modal. Same five element colours, same variable, so every
    control that reads --form-accent works unchanged. */
+.c-pageheader.is-tight{margin-bottom:var(--spacing-24);}
 #routeSurvey,#routeResponse{--form-accent:var(--color-obsidian);}
 #routeSurvey.el-fire ,#routeResponse.el-fire {--form-accent:var(--color-orange);}
 #routeSurvey.el-wood ,#routeResponse.el-wood {--form-accent:var(--color-salmon-pink);}
@@ -1020,6 +1021,10 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    itself uses so the two screens line up when flipped between. Nothing
    new is styled: the card is the same .prev-done the author previews and
    the responder page shows. */
+/* body2 strong — emphasis inside body copy, which is the one thing the
+   date is doing in that sentence. Weight only; the token pair does not
+   change colour, and .prev-desc's Neutral-5 is the paragraph's. */
+.v2-date{font-weight:var(--text-body2-strong-weight);}
 .v2-done{max-width:800px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-16); width:100%;}
 
 /* A response, read back — the form as it was filled in, not a transcript
@@ -1029,6 +1034,10 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
    disabled, the two text fields are readonly rather than disabled so the
    words stay Neutral-9 instead of greying out, and nothing here hovers.
    The banner at the top is the one thing the form does not have. */
+/* The banner is a note about the record, so it sits with it: the column's
+   own 16px down to the first question, and the shell's 48px above cut to
+   24 (see .c-pageheader.is-tight) so it does not float alone between the
+   heading and the answers. */
 .ans-view label,
 .ans-view .c-matrix-cell{cursor:default;}
 .ans-view .c-matrix tbody tr:hover{background:none;}
@@ -1566,7 +1575,6 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
 
       <div class="c-sidebar-section">Overview</div>
       <button class="c-sidebar-item" id="navDashboard" type="button" data-go="dashboard"><i class="ph-fill ph-house" aria-hidden="true"></i><span class="label">Dashboard</span><span class="c-sidebar-hover-text">Dashboard</span></button>
-      <button class="c-sidebar-item" type="button"><i class="ph-fill ph-note-pencil" aria-hidden="true"></i><span class="label">Edit Sales Board</span><span class="c-sidebar-hover-text">Edit Sales Board</span></button>
       <!-- Not on the live nav yet. They stay because they are the only way
            into the routes this prototype exists to show, and because the
            router reads both ids on every route change.
@@ -1575,7 +1583,6 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
            the two can be opened side by side and compared. -->
       <button class="c-sidebar-item active" id="navFeedback" type="button" data-go="forms" aria-current="page"><i class="ph-fill ph-chat-teardrop-text" aria-hidden="true"></i><span class="label">Feedback V1</span><span class="c-sidebar-hover-text">Feedback V1</span></button>
       <button class="c-sidebar-item" id="navFeedback2" type="button" data-go="forms2"><i class="ph-fill ph-chat-teardrop-text" aria-hidden="true"></i><span class="label">Feedback V2</span><span class="c-sidebar-hover-text">Feedback V2</span></button>
-      <button class="c-sidebar-item" type="button"><i class="ph-fill ph-users" aria-hidden="true"></i><span class="label">Users</span><span class="c-sidebar-hover-text">Users</span></button>
 
       <div class="c-sidebar-footer">
         <button class="c-sidebar-user" id="navUser" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="GAN, Jia Yi">
@@ -1832,34 +1839,14 @@ h2.sect{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); 
       </div>
     </div>
 
-    <!-- ===== Entry point 2 — floating action button =====
-         Inside the content region rather than at body level: positioned
-         against .c-shell-main, so it holds the same inset from the content
-         edge whether or not the sidebar is collapsed, instead of measuring
-         from a viewport edge that the rail's width keeps moving. Its menu
-         stays at body level — it is a viewport-level popover and is placed
-         from this button's rect. -->
-    <button class="c-fab" id="fab" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Give feedback">
-  <!-- Same glyph as the sidebar's Feedback item and as this menu's own
-       "Share feedback" row: one mark for the concept, wherever it appears.
-       Weight still follows Iconography rather than matching the sidebar
-       exactly — a sidebar nav item is Fill, an action inside a button is
-       Regular, and that pairing is the rule everywhere else in the shell. -->
-      <i class="ph ph-chat-teardrop-text" aria-hidden="true"></i>
-    </button>
+    <!-- The floating action button and its menu stood here — the app's
+         second entry point into the feedback flows. Removed: in this
+         build the only person using the product is the respondent, the
+         sidebar already carries Feedback, and a button that floats over
+         every screen offering the screen you are on is one entry point
+         too many. The .c-fab CSS stays below as the candidate-component
+         spec it was written as. -->
   </main>
-</div>
-
-<div class="c-fab-menu" id="fabMenu" role="menu" aria-label="Give feedback" hidden>
-  <p class="c-fab-menu-title">Tell us how it's going</p>
-  <button class="c-fab-menu-item" type="button" role="menuitem" data-fab="forms">
-    <i class="ph ph-chat-teardrop-text" aria-hidden="true"></i>
-    <span class="t"><b>Share feedback</b><span>Answer a short form about your experience</span></span>
-  </button>
-  <button class="c-fab-menu-item" type="button" role="menuitem" data-fab="bug">
-    <i class="ph ph-bug" aria-hidden="true"></i>
-    <span class="t"><b>Report a bug</b><span>Something broken? Send it with a screenshot</span></span>
-  </button>
 </div>
 
 <!-- Preview modal (the form as a responder sees it) -->
@@ -1936,6 +1923,11 @@ function skewed(rand, lo, hi, centre){
 
 var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtDate(d){ return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear(); }
+/* Spelled out, for the one place a date is read as a sentence rather than
+   scanned in a list. */
+var MONTHS_LONG = ['January','February','March','April','May','June',
+                   'July','August','September','October','November','December'];
+function fmtDateLong(d){ return d.getDate() + ' ' + MONTHS_LONG[d.getMonth()] + ' ' + d.getFullYear(); }
 function fmtDateTime(d){
   var h = d.getHours(), m = String(d.getMinutes()).padStart(2,'0');
   var ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
@@ -2701,12 +2693,6 @@ function render(){
   Object.keys(DYNAMIC_ROUTES).forEach(function(r){
     if (r !== state.route) $(DYNAMIC_ROUTES[r]).innerHTML = '';
   });
-  /* The FAB is for someone who wants to say something, anywhere in the
-     product. Inside the form builder it is the wrong offer twice over: the
-     page is already about writing a feedback form, and the button floats
-     over the add rail and the save bar. */
-  $('#fab').hidden = state.route === 'builder';
-  if (state.route === 'builder'){ $('#fabMenu').hidden = true; $('#fab').setAttribute('aria-expanded','false'); }
   $('#phActions').innerHTML = '';
 
   /* The Dashboard is the one route that is not a working screen, and it
@@ -2719,6 +2705,10 @@ function render(){
   /* Two routes carry their own opening line instead of the shell's page
      header: the Dashboard's greeting, and V2's confirmation. */
   $('#pageHeader').hidden = onDash || state.route === 'v2';
+  /* The shell's 48px below the heading is sized for a route that opens on
+     a card. The read-back route opens on a one-line banner, which at that
+     distance reads as adrift from both the heading and the answers. */
+  $('#pageHeader').classList.toggle('is-tight', state.route === 'response');
   $('#promptBar').hidden = !onDash;
   if (onDash) syncPromptBar(); else resetPromptBar();
   $('.c-shell-main').classList.toggle('has-prompt-bar', onDash);
@@ -3245,6 +3235,7 @@ function renderHub(){
    none: a title bar reading "Feedback" above a message that says you are
    finished is the shell talking over the screen.
    -------------------------------------------------------------------------- */
+var V2_SUBMITTED = new Date(2026, 8, 21);
 function renderV2(){
   $('#routeV2').hidden = false;
   $('#backRow').hidden = true;
@@ -3252,16 +3243,20 @@ function renderV2(){
     '<div class="v2-done">' +
       '<div class="c-card prev-done stack">' +
         '<i class="ph-fill ph-check-circle prev-done-icon" aria-hidden="true"></i>' +
-        '<h3 class="prev-done-title">Your response has been submitted.</h3>' +
-        '<p class="prev-desc">Thank you for taking the time to complete this survey. ' +
-          'Your feedback is greatly appreciated and will help us improve the platform experience.</p>' +
+        '<h3 class="prev-done-title">Thank you for completing this survey.</h3>' +
+        '<p class="prev-desc">Your response was successfully submitted on ' +
+          '<strong class="v2-date">' + esc(fmtDateLong(V2_SUBMITTED)) + '</strong>.</p>' +
       '</div>' +
       '<div class="row tight">' +
         '<button class="c-btn c-btn-primary c-btn-md" type="button" id="v2Home">' +
           'Back to home<i class="ph ph-arrow-right" aria-hidden="true"></i></button>' +
       '</div>' +
     '</div>';
-  $('#v2Home').addEventListener('click', function(){ go('landing'); });
+  /* Home is the Dashboard, not the Feedback landing. Somebody who has
+     finished the one thing they were sent here to do has no reason to be
+     put back into Feedback — the survey is answered and the landing would
+     only offer it again. */
+  $('#v2Home').addEventListener('click', function(){ go('dashboard'); });
 }
 
 /* --------------------------------------------------------------------------
@@ -3310,13 +3305,9 @@ function renderResponse(){
   prevAns = keptAns; prevMissing = keptMiss;
 
   box.innerHTML = '<div class="pov-survey ans-view">' +
-    '<div class="c-banner c-banner-info" role="status">' +
-      '<i class="ph ph-lock-simple icon" aria-hidden="true"></i>' +
-      '<div class="body"><p class="message">Submitted ' + esc(fmtDate(rec.at)) + '</p></div>' +
-    '</div>' +
-    '<div class="c-card prev-head stack sm">' +
-      '<h3 class="prev-title">' + esc(f.title) + '</h3>' +
-      (f.desc ? '<p class="prev-desc">' + esc(f.desc) + '</p>' : '') +
+    '<div class="c-banner c-banner-neutral ans-note" role="status">' +
+      '<i class="ph-fill ph-info icon" aria-hidden="true"></i>' +
+      '<div class="body"><div class="message">Submitted ' + esc(fmtDate(rec.at)) + '</div></div>' +
     '</div>' +
     body +
   '</div>';
@@ -6300,14 +6291,18 @@ function closeBugDrawer(){
   var filed = !!bugSent;
   layer.classList.remove('is-open');
   setTimeout(function(){ layer.hidden = true; $('#bugDrawer').innerHTML = ''; bugSent = null; }, 240);
-  /* The drawer's commonest opener is a FAB menu item, and that item is gone
-     by the time we close — the menu shut behind it. Focusing a detached or
-     hidden node drops focus to the body, which is exactly the lost place
-     this drawer exists to protect, so it falls back to the button the menu
-     belongs to. */
+  /* Focusing a detached or hidden node drops focus to the body, which is
+     exactly the lost place this drawer exists to protect. Normally the
+     opener is still there and takes it back. When it is not — the FAB menu
+     item used to be the commonest case, and the FAB is gone now — focus
+     goes to the content region instead, made focusable for this one
+     purpose and not reachable by Tab. */
   var back = bugLastFocus;
-  if (!back || !back.isConnected || !back.offsetParent) back = $('#fab').hidden ? null : $('#fab');
-  if (back && back.focus) back.focus();
+  if (!back || !back.isConnected || !back.offsetParent || !back.focus){
+    back = $('.c-shell-main');
+    back.setAttribute('tabindex', '-1');
+  }
+  back.focus();
   /* A report filed while standing on one of the two bug lists has to appear
      in it — the list behind the drawer was rendered before the ticket
      existed. */
@@ -7657,8 +7652,20 @@ function refreshPrevProgress(f){
   $('.hint', bar).textContent = done + ' of ' + asks.length + ' answered';
 }
 
+/* DEMO SWITCH — on for this build.
+   Somebody clicking through the prototype is here to see where Submit
+   leads, not to answer seven questions to earn it. With this on, Submit
+   always goes through on the route a respondent uses. The required-answer
+   check below is untouched and still runs in the author's preview, so
+   setting this to false restores real behaviour with nothing else to
+   change. The asterisks stay on the questions either way — they are part
+   of the design being reviewed. */
+var DEMO_SKIP_REQUIRED = true;
+
 function prevSubmit(f){
-  prevMissing = prevAsks(f).filter(function(q){ return q.required && !prevHas(q); })
+  var demo = DEMO_SKIP_REQUIRED && prevHost !== '#prev';
+  prevMissing = demo ? [] :
+                prevAsks(f).filter(function(q){ return q.required && !prevHas(q); })
                            .map(function(q){ return q.id; });
   if (prevMissing.length){
     paintPreview(f);
@@ -7715,8 +7722,12 @@ function wirePreview(f){
   /* On the survey route this is a real destination — the list the person
      came from, with the invitation now marked Submitted. In the author's
      preview there is nowhere to go, so it says where it would have gone. */
+  /* Home is the Dashboard, the same place V2's own Back to home goes. One
+     label, two screens, one destination — "home" meaning the survey list
+     here and the Dashboard there made the word mean whatever the screen
+     happened to be standing next to. */
   if ($('#prevHome', root))   $('#prevHome').addEventListener('click', function(){
-    if (prevHost !== '#prev'){ go('hub'); return; }
+    if (prevHost !== '#prev'){ go('dashboard'); return; }
     toast('In the product this returns to the Collabrium home page.'); });
 
   $$('[data-pqtext]', root).forEach(function(el){
@@ -8198,7 +8209,6 @@ document.addEventListener('keydown', function(e){
     if (previewOpen()){ closePreview(); return; }
     if (shareOpen()){ closeShare(); return; }
     if (recordOpen()){ closeRecord(); return; }
-    if (!$('#fabMenu').hidden){ closeFabMenu(); }
     return;
   }
   if (!recordOpen() || shareOpen() || previewOpen()) return;
@@ -8368,113 +8378,6 @@ navUserMenu.addEventListener('click', function(e){
   if (e.target.closest('.c-user-menu-item')){ closeUserMenu(); navUser.focus(); }
 });
 document.addEventListener('click', closeUserMenu);
-
-/* ==========================================================================
-   Entry point 2 — floating action button
-   ========================================================================== */
-var fab = $('#fab'), fabMenu = $('#fabMenu');
-
-/* The menu is placed from the button rather than pinned to the corner.
-   The button sits bottom-right but is positioned against .c-shell-main,
-   which is inset from the window — so the menu's own fixed right:24px is
-   measured from a different edge than the button's, and pinning both to
-   "24px" leaves them out of line by exactly the shell's inset. Park the
-   menu at a known origin, read where that put it, and close the gap — the
-   same measure-and-correct used elsewhere in this file, and it survives
-   the button moving again (a sidebar collapse, the mobile branch) without
-   a second set of numbers to keep in step.
-   Right edges are what get matched: a 268px panel hung off the left edge
-   of a 56px button in the right-hand corner runs off screen every time,
-   so aligning the far edges is the placement, not a correction to one. */
-function placeFabMenu(){
-  var r = fab.getBoundingClientRect();
-  fabMenu.style.left = 'auto';
-  fabMenu.style.right = '0px';
-  fabMenu.style.bottom = '0px';
-  var at = fabMenu.getBoundingClientRect();
-  var right = at.right - r.right;
-  fabMenu.style.right = right + 'px';
-  fabMenu.style.bottom = (at.bottom - (r.top - 8)) + 'px';
-  /* The one case right-alignment cannot cover: a viewport narrower than the
-     panel plus its gutters. Pushed back off the left edge rather than
-     flipped — the menu still reads as belonging to the button under it. */
-  var now = fabMenu.getBoundingClientRect(), edge = 16;
-  if (now.left < edge) fabMenu.style.right = (right - (edge - now.left)) + 'px';
-}
-function openFabMenu(){
-  fabMenu.hidden = false;
-  placeFabMenu();
-  fab.setAttribute('aria-expanded', 'true');
-  fab.classList.remove('is-nudging');
-  $('.c-fab-menu-item', fabMenu).focus();
-}
-function closeFabMenu(){
-  fabMenu.hidden = true;
-  fab.setAttribute('aria-expanded', 'false');
-  fab.focus();
-}
-fab.addEventListener('click', function(e){
-  e.stopPropagation();
-  fabMenu.hidden ? openFabMenu() : closeFabMenu();
-});
-fabMenu.addEventListener('click', function(e){ e.stopPropagation(); });
-document.addEventListener('click', function(){
-  if (!fabMenu.hidden){ fabMenu.hidden = true; fab.setAttribute('aria-expanded','false'); }
-});
-$$('[data-fab]').forEach(function(b){
-  b.addEventListener('click', function(){
-    fabMenu.hidden = true; fab.setAttribute('aria-expanded','false');
-    if (b.dataset.fab === 'bug'){ openBugDrawer(); return; }
-    /* Share feedback hands over to the responder prototype, opened at the
-       form itself rather than at the invitation — what the menu offers is
-       answering a survey, and landing a step short of it makes the reader
-       click twice to reach the thing they asked for. entry=dash because
-       that is where this click actually came from: an in-app control, not
-       an email, so the harness's Restart returns to the right origin.
-       A new tab rather than a navigation. Everything in this prototype is
-       held in memory, so Back would return to a freshly booted hub with the
-       draft, any new survey and any filed bug report gone — and the
-       responder's view is a different person's screen in any case. Falls
-       back to navigating in place if the tab is blocked. */
-    var url = 'feedback-respond.html?entry=dash&step=2';
-    var w = window.open(url, '_blank');
-    if (!w) window.location.href = url;
-  });
-});
-
-/* First-appearance nudge: three pulses, plus the tooltip, then it settles
-   down and never does it again for this user. Stored per-browser, so a
-   demo reload shows it again only after clearing site data — and a storage
-   failure (private window, blocked site data) degrades to simply not
-   nudging rather than throwing. */
-(function nudge(){
-  var seen = false;
-  try { seen = localStorage.getItem('collabrium.fab.seen') === '1'; } catch (e) {}
-  if (seen) return;
-  setTimeout(function(){
-    fab.classList.add('is-nudging');
-    var tip = document.createElement('span');
-    tip.className = 'c-tooltip-bubble is-portaled is-visible';
-    tip.textContent = 'Got feedback? Start here';
-    tip.style.left = '0px';
-    tip.style.right = 'auto';
-    tip.style.bottom = '0px';
-    tip.style.zIndex = '900';
-    document.body.appendChild(tip);
-    /* Above the button and centred on it. Beside it — where this used to
-       sit — now points into the bar. Measured after appending, because a
-       bubble sized by its own text cannot be centred before it has one. */
-    var fr = fab.getBoundingClientRect(), tr = tip.getBoundingClientRect();
-    tip.style.left = Math.round(fr.left + fr.width / 2 - tr.width / 2) + 'px';
-    tip.style.bottom = Math.round(window.innerHeight - fr.top + 8) + 'px';
-    setTimeout(function(){
-      tip.classList.remove('is-visible');
-      setTimeout(function(){ tip.remove(); }, 300);
-      fab.classList.remove('is-nudging');
-    }, 4200);
-    try { localStorage.setItem('collabrium.fab.seen', '1'); } catch (e) {}
-  }, 900);
-})();
 
 /* ==========================================================================
    Send modal — Share's second step
@@ -8978,13 +8881,6 @@ function startGhost(){
    Boot
    ========================================================================== */
 render();
-
-/* Demo affordance only — lets a reviewer replay the FAB nudge without
-   digging through devtools. Not part of the feature. */
-window.replayFabNudge = function(){
-  try { localStorage.removeItem('collabrium.fab.seen'); } catch (e) {}
-  location.reload();
-};
 
 })();
 </script>
