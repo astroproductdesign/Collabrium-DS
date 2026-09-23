@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Collab:Media — component candidates</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="SVG/water.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800;900&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* ==========================================================================
+     Collab:Media — component candidates.
+
+     A picking sheet, not a spec. Every block below is one component the
+     Ad formats page (collab-media.vercel.app/pages/formats.html) builds for
+     itself with page-local fm-* classes, redrawn here as a static mock-up
+     so it can be judged by eye. Mark each one Build / Maybe / Skip; the bar
+     at the bottom turns the marks into a list you can paste back.
+
+     The mock-ups compose tokens only and are prefixed cm- so nothing here
+     can leak into components.css by accident. Hover works where the real
+     unit reacts to hover, so the behaviour can be judged as well as the
+     look. Choices are kept in this browser only.
+     ========================================================================== */
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary);
+    padding:var(--spacing-48) var(--spacing-32) 140px;}
+  .wrap{max-width:1160px; margin:0 auto; display:flex; flex-direction:column; gap:var(--spacing-32);}
+  .lede{margin:0; max-width:74ch; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-6);}
+  .legend{display:flex; flex-wrap:wrap; gap:var(--spacing-16); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+
+  /* ── One candidate ── */
+  .cand{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-1); overflow:hidden; transition:border-color var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);}
+  .cand[data-pick="build"]{border-color:var(--color-obsidian); box-shadow:var(--shadow-2), 0 0 0 1px var(--color-obsidian);}
+  .cand[data-pick="skip"] .cand-demo{opacity:.45;}
+  .cand-head{display:flex; align-items:flex-start; gap:var(--spacing-16); padding:var(--spacing-20) var(--spacing-24); border-bottom:1px solid var(--color-neutral-2);}
+  .cand-no{flex:none; width:32px; height:32px; border-radius:var(--radius-pill); background:var(--color-water-bg);
+    color:var(--color-navy); font-weight:800; font-size:var(--text-body2-size); display:flex; align-items:center; justify-content:center;}
+  .cand-title{flex:1; min-width:0;}
+  .cand-title h2{margin:0 0 2px; font-size:var(--text-h5-size); font-weight:800; display:flex; align-items:center; gap:var(--spacing-8); flex-wrap:wrap;}
+  .cand-title p{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-6); max-width:80ch;}
+  .cand-title .src{margin-top:6px; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .cand-pick{flex:none;}
+  .cand-demo{padding:var(--spacing-32) var(--spacing-24); background:var(--color-canvas-warm-card);
+    display:flex; flex-wrap:wrap; gap:var(--spacing-24); align-items:flex-start; justify-content:center; transition:opacity var(--duration-base) var(--ease-standard);}
+  .cap{display:block; margin-top:var(--spacing-8); font-size:var(--text-caption-size); color:var(--color-neutral-5); text-align:center;}
+  @media (max-width:720px){
+    body{padding:var(--spacing-24) var(--spacing-16) 160px;}
+    .cand-head{flex-wrap:wrap;}
+    .cand-pick{width:100%;}
+    .cand-pick .c-segctl{width:100%;}
+  }
+
+  /* ── Shared: the miniature page a unit is drawn inside ── */
+  .cm-stage{position:relative; aspect-ratio:16/10; background:var(--color-neutral-1); overflow:hidden; font-size:10px;}
+  .cm-bar{height:14px; display:flex; align-items:center; gap:3px; padding:0 6px; background:var(--color-neutral-2); border-bottom:1px solid var(--color-neutral-3);}
+  .cm-bar i{width:4px; height:4px; border-radius:50%; background:var(--color-neutral-4);}
+  .cm-page{position:absolute; inset:14px 0 0; padding:8px 10px; display:flex; flex-direction:column; gap:5px;}
+  .cm-l{height:5px; border-radius:3px; background:var(--color-neutral-2);}
+  .cm-l.hl{height:8px; width:60%; background:var(--color-neutral-4);}
+  .cm-l.sh{width:70%;}
+  /* The creative itself: a navy-to-purple wash stands in for a brand's art. */
+  .cm-ad{border-radius:3px; color:#fff; display:flex; align-items:center; justify-content:center; gap:4px; font-weight:800; font-size:9px;
+    background:linear-gradient(120deg, color-mix(in srgb, var(--color-navy) 88%, #000), var(--color-purple));
+    transition:transform var(--duration-reveal) var(--ease-reveal), opacity var(--duration-reveal) var(--ease-reveal), height var(--duration-reveal) var(--ease-reveal);}
+  .cm-ad i{font-size:12px;}
+
+  /* ── 1 · Ad format card ── */
+  .cm-card{width:320px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-1); overflow:hidden; cursor:pointer; position:relative;
+    transition:box-shadow var(--duration-base) var(--ease-settle), transform var(--duration-base) var(--ease-settle);}
+  .cm-card:hover,.cm-card.is-live{box-shadow:var(--shadow-2); transform:translateY(-2px);}
+  .cm-card.is-compared{border-color:var(--color-obsidian); box-shadow:var(--shadow-2), 0 0 0 1px var(--color-obsidian);}
+  .cm-card .cm-stagewrap{position:relative; overflow:hidden; border-bottom:1px solid var(--color-neutral-2);}
+  .cm-card .cm-stage{transition:transform var(--duration-slow) var(--ease-settle);}
+  .cm-card:hover .cm-stage,.cm-card.is-live .cm-stage{transform:scale(1.10);}
+  .cm-card .cm-mh{height:0; opacity:0; flex:none;}
+  .cm-card .cm-mh.rest{height:26px; opacity:1;}
+  .cm-card:hover .cm-mh.rest,.cm-card.is-live .cm-mh.rest{height:44px;}
+  .cm-ctl{position:absolute; top:var(--spacing-16); left:var(--spacing-16); z-index:2;}
+  .cm-ctl button{width:28px; height:28px; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1);
+    color:var(--color-neutral-5); display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; font-family:inherit;}
+  .cm-ctl button.is-on{background:var(--color-obsidian); color:var(--color-neutral-1); border-color:var(--color-obsidian);}
+  .cm-body{padding:var(--spacing-20) var(--spacing-24) var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .cm-titlerow{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-8);}
+  .cm-titlerow h4{margin:0; font-size:var(--text-h5-size); font-weight:800; line-height:20px;}
+  .cm-swap{position:relative; height:66px;}
+  .cm-swap > div{position:absolute; inset:0; display:flex; flex-direction:column; gap:var(--spacing-8);
+    transition:opacity var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-settle);}
+  .cm-swap .spec{opacity:0; transform:translateY(8px); justify-content:center; gap:6px;}
+  .cm-card:hover .cm-swap .rest,.cm-card.is-live .cm-swap .rest{opacity:0; transform:translateY(-8px);}
+  .cm-card:hover .cm-swap .spec,.cm-card.is-live .cm-swap .spec{opacity:1; transform:none;}
+  .cm-tagline{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+  .cm-funnel{margin:auto 0 0; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .cm-cell{display:flex; align-items:baseline; gap:var(--spacing-12);}
+  .cm-cell b{flex:0 0 72px; font-size:10px; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); font-weight:700;}
+  .cm-cell span{font-size:var(--text-body2-size); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .fm-tag-purple{background:color-mix(in srgb, var(--color-purple) 8%, #fff); color:var(--color-purple);}
+  .fm-tag-purple .dot{background:var(--color-purple);}
+  .c-tag{white-space:nowrap; flex:none;}
+
+  /* ── 2 · Preview stage — each unit behaves the way it does live ── */
+  .cm-prev{width:230px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); overflow:hidden; background:var(--color-neutral-1); cursor:pointer;}
+  .cm-prev .lbl{padding:6px 10px; font-size:11px; font-weight:700; border-top:1px solid var(--color-neutral-2);}
+  .cm-prev .v-mh .cm-ad{height:18px; transform:translateY(-140%); opacity:0;}
+  .cm-prev:hover .v-mh .cm-ad{transform:none; opacity:1;}
+  .cm-prev .v-iv .cm-ad{height:44px; transform:scale(.85); opacity:.35;}
+  .cm-prev:hover .v-iv .cm-ad{transform:none; opacity:1;}
+  .cm-prev .v-st .cm-ad{position:absolute; left:0; right:0; bottom:0; height:16px; border-radius:0; transform:translateY(100%);}
+  .cm-prev:hover .v-st .cm-ad{transform:none; height:30px;}
+  .cm-prev .v-sk{display:flex;}
+  .cm-prev .v-sk .side{flex:0 0 14px; transition:flex-basis var(--duration-reveal) var(--ease-reveal);
+    background:linear-gradient(180deg, color-mix(in srgb, var(--color-navy) 88%, #000), var(--color-purple));}
+  .cm-prev:hover .v-sk .side{flex-basis:40px;}
+  .cm-prev .v-sk .mid{flex:1; padding:8px; display:flex; flex-direction:column; gap:5px;}
+
+  /* ── 3 · Placement map ── */
+  .cm-places{--sl:var(--color-navy);
+    --sl-line:color-mix(in srgb, var(--color-navy) 32%, #fff);
+    --sl-bg:color-mix(in srgb, var(--color-navy) 9%, #fff);
+    --sl-ink:color-mix(in srgb, var(--color-navy) 58%, #000);
+    --sl-solid:color-mix(in srgb, var(--color-navy) 88%, #000);
+    display:flex; gap:var(--spacing-32); align-items:flex-end; width:100%; max-width:900px;}
+  .cm-frame{position:relative; border-radius:var(--radius-lg); overflow:hidden; background:var(--color-neutral-1);
+    border:1px solid var(--color-neutral-3); box-shadow:var(--shadow-1);}
+  .cm-desk{flex:1; min-width:0; height:380px;}
+  .cm-phone{flex:0 0 170px; height:330px; border-radius:24px;}
+  .cm-brow{height:24px; display:flex; align-items:center; gap:5px; padding:0 10px; background:var(--color-neutral-2); border-bottom:1px solid var(--color-neutral-3);}
+  .cm-brow i{width:7px; height:7px; border-radius:50%; background:var(--color-neutral-4);}
+  .cm-brow u{flex:1; height:10px; margin-left:8px; border-radius:var(--radius-pill); background:var(--color-neutral-1);}
+  .cm-notch{height:20px; display:flex; justify-content:center;}
+  .cm-notch::after{content:""; width:54px; height:10px; border-radius:0 0 8px 8px; background:var(--color-neutral-3);}
+  .cm-desk .cm-pg{position:absolute; inset:24px 0 0; display:flex;}
+  .cm-phone .cm-pg{position:absolute; inset:20px 0 0; display:flex; flex-direction:column; padding:8px; gap:8px;}
+  .cm-inner{flex:1; min-width:0; display:flex; flex-direction:column; padding:0 10px;}
+  .cm-cols{flex:1; display:flex; gap:12px; padding-top:10px; min-height:0;}
+  .cm-art{flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .cm-rail{flex:0 0 96px; display:flex; flex-direction:column; gap:6px;}
+  .cm-post{border:1px solid var(--color-neutral-2); border-radius:var(--radius-sm); padding:6px; display:flex; flex-direction:column; gap:5px;}
+  .cm-post u{height:30px; border-radius:var(--radius-sm); background:var(--color-neutral-2);}
+  .cm-slot{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+    border:1px dashed var(--sl-line); background:var(--sl-bg); color:var(--sl-ink); border-radius:var(--radius-sm);
+    font-family:inherit; cursor:pointer; padding:0; text-align:center;
+    transition:background-color var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard), opacity var(--duration-slow) var(--ease-standard), flex-basis var(--duration-reveal) var(--ease-reveal), height var(--duration-reveal) var(--ease-reveal);}
+  .cm-slot b{font-size:11px; font-weight:800;}
+  .cm-slot small{font-size:10px; font-weight:700; opacity:.8;}
+  .cm-slot:hover,.cm-slot:focus-visible,.cm-slot[aria-pressed="true"]{background:var(--sl-solid); border:1px solid var(--sl-solid); color:#fff; box-shadow:var(--shadow-2);}
+  .cm-slot:focus-visible{outline:2px solid var(--sl); outline-offset:2px;}
+  .cm-places:has(.cm-slot:hover) .cm-slot:not(:hover){opacity:.3;}
+  .cm-slot.sk{flex:0 0 36px; border-radius:0; border-top:0; border-bottom:0;}
+  .cm-slot.sk b{writing-mode:vertical-rl; transform:rotate(180deg);}
+  .cm-slot.sk:hover{flex-basis:90px;}
+  .cm-slot.mh{height:46px; margin-top:8px;}
+  .cm-slot.ia{height:70px;}
+  .cm-slot.iv{height:58px;}
+  .cm-slot.sb{flex:1; max-height:190px;}
+  .cm-slot.st{position:absolute; left:0; right:0; bottom:0; height:30px; border-radius:0; flex-direction:row; gap:6px; z-index:2;}
+  .cm-slot.st:hover{height:64px;}
+  .cm-slot.fd{height:84px; flex:none;}
+  .cm-slot.ov{position:absolute; left:10px; right:10px; bottom:14px; height:34px; flex-direction:row; gap:6px; border-style:solid; box-shadow:var(--shadow-2); z-index:2;}
+  @media (max-width:760px){ .cm-places{flex-direction:column; align-items:stretch;} .cm-phone{flex-basis:auto; width:170px; align-self:center;} }
+
+  /* ── 4 · Placement card ── */
+  .cm-plcard{width:268px; padding:var(--spacing-16); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow-3);}
+  .cm-plcard .hd{display:flex; gap:10px; margin-bottom:8px;}
+  .cm-plcard .hd > i{font-size:20px; color:var(--color-navy); margin-top:1px;}
+  .cm-plcard .hd b{display:block; font-size:var(--text-body1-size); font-weight:800;}
+  .cm-plcard .hd em{display:block; font-style:normal; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .cm-plcard .desc{margin:0 0 var(--spacing-12); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-6);}
+  .cm-plcard dl{display:grid; grid-template-columns:auto 1fr; gap:6px var(--spacing-12); margin:0 0 var(--spacing-12);}
+  .cm-plcard dt{font-size:11px; font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+  .cm-plcard dd{margin:0; font-size:var(--text-body2-size); font-weight:600; font-variant-numeric:tabular-nums;}
+  .cm-plcard .fit{display:flex; align-items:baseline; gap:6px; padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-2);}
+  .cm-plcard .fit b{font-size:20px; font-weight:900; color:color-mix(in srgb, var(--color-navy) 58%, #000);}
+  .cm-plcard .fit span{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .cm-plcard .cta{display:flex; align-items:center; gap:5px; margin:var(--spacing-12) 0 0; font-size:var(--text-caption-size); font-weight:700; color:color-mix(in srgb, var(--color-navy) 58%, #000);}
+
+  /* ── 5 · Placement list item ── */
+  .cm-pllist{width:340px; display:grid; gap:8px; margin:0; padding:0; list-style:none;}
+  .cm-plitem{width:100%; display:flex; align-items:center; gap:8px; min-height:44px; padding:6px var(--spacing-12);
+    border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); cursor:pointer; font-family:inherit; color:var(--color-neutral-9); text-align:left;}
+  .cm-plitem:hover{border-color:var(--color-navy); background:color-mix(in srgb, var(--color-navy) 9%, #fff);}
+  .cm-plitem > i{font-size:var(--icon-sm); color:var(--color-navy);}
+  .cm-plitem .t{display:flex; flex-direction:column; line-height:1.2;}
+  .cm-plitem .t b{font-size:var(--text-body2-size); font-weight:700;}
+  .cm-plitem .t em{font-style:normal; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .cm-plitem .c{margin-left:auto; font-size:var(--text-body2-size); font-weight:800; color:color-mix(in srgb, var(--color-navy) 58%, #000);
+    background:color-mix(in srgb, var(--color-navy) 9%, #fff); border-radius:var(--radius-pill); padding:2px 8px;}
+  .cm-plitem[aria-pressed="true"]{background:color-mix(in srgb, var(--color-navy) 88%, #000); border-color:transparent; color:#fff;}
+  .cm-plitem[aria-pressed="true"] > i,.cm-plitem[aria-pressed="true"] .t em{color:rgba(255,255,255,.86);}
+  .cm-plitem[aria-pressed="true"] .c{background:rgba(255,255,255,.22); color:#fff;}
+
+  /* ── 6 · Built-for-slot badge ── */
+  .cm-native{position:absolute; left:12px; bottom:12px; display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:var(--radius-pill);
+    background:color-mix(in srgb, var(--color-navy) 72%, #000); color:#fff; font-size:11px; font-weight:800;}
+  .cm-native i{font-size:11px;}
+  .cm-mini{width:260px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow:hidden; background:var(--color-neutral-1); box-shadow:var(--shadow-1);}
+  .cm-mini .cm-stagewrap{position:relative;}
+  .cm-mini .nm{padding:10px 14px; font-size:var(--text-body2-size); font-weight:800;}
+
+  /* ── 7 · Detail modal ── */
+  .cm-drawer{width:min(560px, 100%); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg);
+    box-shadow:0 25px 50px -12px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column;}
+  .cm-dhead{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
+  .cm-dhead .crumbs{flex:1; font-size:var(--text-caption-size); color:var(--color-neutral-5); display:flex; align-items:center; gap:6px;}
+  .cm-dhead .crumbs b{color:var(--color-neutral-9);}
+  .cm-dbody{padding:var(--spacing-16) var(--spacing-24) var(--spacing-24);}
+  .cm-dstage{border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--color-neutral-3); margin-bottom:var(--spacing-16); position:relative;}
+  .cm-replay{position:absolute; right:10px; bottom:10px; height:26px; padding:0 10px; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-3);
+    background:rgba(255,255,255,.96); font-family:inherit; font-size:12px; font-weight:800; display:inline-flex; align-items:center; gap:5px; box-shadow:var(--shadow-1);}
+  .cm-dtitle{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-12);}
+  .cm-dtitle h3{margin:0; font-size:var(--text-h3-size); font-weight:800;}
+  .cm-dtag{margin:4px 0 var(--spacing-16); font-size:var(--text-body1-size); color:var(--color-neutral-5);}
+  .cm-specs{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-12) var(--spacing-16); margin-bottom:var(--spacing-20);
+    padding:var(--spacing-16); background:var(--color-canvas-warm-card); border-radius:var(--radius-md);}
+  .cm-spec b,.cm-sec h5{display:block; margin:0 0 3px; font-size:11px; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); font-weight:700;}
+  .cm-spec span{font-size:var(--text-body2-size); font-weight:700;}
+  .cm-spec span.na{font-weight:400; color:var(--color-neutral-4);}
+  .cm-sec{margin-bottom:var(--spacing-20);}
+  .cm-sec h5{margin-bottom:var(--spacing-8);}
+  .cm-sizes{display:flex; flex-wrap:wrap; gap:var(--spacing-16); align-items:flex-end;}
+  .cm-size{display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+  .cm-size i{display:block; background:var(--color-water-bg-strong); border:1px solid var(--color-navy); border-radius:2px;}
+  .cm-bench{display:flex; align-items:center; gap:var(--spacing-12); font-size:var(--text-body2-size); font-weight:700;}
+  .cm-benchbar{flex:1; height:6px; border-radius:3px; background:var(--color-neutral-2); overflow:hidden;}
+  .cm-benchbar i{display:block; height:100%; width:62%; background:var(--color-green);}
+  .cm-bench small{font-weight:400; color:var(--color-neutral-5);}
+  .cm-related{display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--spacing-8);}
+  .cm-relcard{border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); overflow:hidden; background:var(--color-neutral-1);}
+  .cm-relcard span{display:block; padding:6px 8px; font-size:11px; font-weight:700;}
+  .cm-dfoot{display:flex; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16); border-top:1px solid var(--color-neutral-3); flex-wrap:wrap; align-items:center;}
+  .cm-dfoot .spacer{flex:1;}
+  .cm-off{background:transparent !important; color:var(--color-neutral-4) !important; border-color:transparent !important; cursor:not-allowed !important;}
+
+  /* ── 8 · Compare tray ── */
+  .cm-cbar{display:inline-flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-8) var(--spacing-8) var(--spacing-16);
+    background:var(--color-obsidian); color:var(--color-neutral-1); border-radius:var(--radius-pill); box-shadow:var(--shadow-4); max-width:100%; flex-wrap:wrap;}
+  .cm-cbar .lbl{font-size:var(--text-caption-size); font-weight:700; opacity:.7;}
+  .cm-cbar .names{display:flex; gap:6px; flex-wrap:wrap;}
+  .cm-cbar .names span{display:inline-flex; align-items:center; gap:4px; padding:2px 6px 2px 10px; border-radius:var(--radius-pill); background:rgba(255,255,255,.14); font-size:13px; font-weight:700;}
+  .cm-cbar .names i{font-size:12px;}
+  .cm-cbar .c-btn-primary{background:var(--color-neutral-1); color:var(--color-neutral-9);}
+  .cm-cbar .c-btn-ghost{color:var(--color-neutral-1);}
+
+  /* ── 9 · Compare sheet ── */
+  .cm-cbox{width:100%; max-width:900px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg);
+    box-shadow:0 25px 50px -12px rgba(0,0,0,.25); overflow:hidden;}
+  .cm-cbox .c-modal-head{border-bottom:1px solid var(--color-neutral-3);}
+  .cm-cscroll{overflow-x:auto;}
+  .cm-ctable{width:100%; border-collapse:collapse; font-size:var(--text-body2-size); min-width:640px;}
+  .cm-ctable th{width:130px; text-align:left; vertical-align:top; padding:var(--spacing-12) var(--spacing-16); color:var(--color-neutral-5);
+    font-size:11px; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; font-weight:700; border-bottom:1px solid var(--color-neutral-2); background:var(--color-canvas-warm-card);}
+  .cm-ctable td{padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-2); border-left:1px solid var(--color-neutral-2); vertical-align:top;}
+  .cm-ctable td.stage{padding:0;}
+  .cm-ctable td.head{font-weight:800; font-size:var(--text-body1-size);}
+  .cm-ctable td.head small{display:block; font-weight:400; font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .cm-ctable td.best{background:var(--color-earth-bg);}
+  .cm-ctable td.best em{font-style:normal; font-size:11px; color:var(--color-green); font-weight:700;}
+  .cm-ctable .na{color:var(--color-neutral-4);}
+  .cm-cfoot{display:flex; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16); border-top:1px solid var(--color-neutral-3); flex-wrap:wrap;}
+  .cm-cfoot .spacer{flex:1;}
+
+  /* ── 10 · Table row with floating preview ── */
+  .cm-tablebox{position:relative; width:100%; max-width:900px;}
+  .cm-tablewrap{overflow-x:auto; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1);}
+  .cm-table{width:100%; border-collapse:collapse; font-size:var(--text-body2-size); min-width:720px;}
+  .cm-table th{text-align:left; font-size:11px; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); font-weight:700;
+    padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3); white-space:nowrap;}
+  .cm-table td{padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-2); vertical-align:top;}
+  .cm-table tr:last-child td{border-bottom:0;}
+  .cm-table tbody tr{cursor:pointer;}
+  .cm-table tbody tr:hover td,.cm-table tbody tr.is-peeking td{background:var(--color-neutral-2);}
+  .cm-table .name{font-weight:800; white-space:nowrap;}
+  .cm-table .name small{display:block; font-weight:400; color:var(--color-neutral-5); font-size:var(--text-caption-size);}
+  .cm-table .num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .cm-table .muted{color:var(--color-neutral-4);}
+  .cm-rowcmp{width:28px; height:28px; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1);
+    color:var(--color-neutral-5); display:flex; align-items:center; justify-content:center; font-size:14px;}
+  .cm-rowcmp.is-on{background:var(--color-obsidian); color:var(--color-neutral-1); border-color:var(--color-obsidian);}
+  .cm-peek{position:absolute; right:40px; top:40px; width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow-4); overflow:hidden; pointer-events:none;}
+  .cm-peek .lbl{padding:var(--spacing-8) var(--spacing-12); font-size:var(--text-caption-size); font-weight:700; border-top:1px solid var(--color-neutral-2);}
+  @media (max-width:760px){ .cm-peek{display:none;} }
+
+  /* ── 12 · Skeleton card ── */
+  .cm-sk{display:block; height:9px; border-radius:var(--radius-sm); background:var(--color-neutral-2);}
+  .cm-sk-stage{aspect-ratio:16/10; background:var(--color-neutral-2);}
+  @media (prefers-reduced-motion:no-preference){
+    .cm-sk,.cm-sk-stage{animation:cm-pulse 1.4s var(--ease-standard) infinite;}
+    @keyframes cm-pulse{0%,100%{opacity:1;} 50%{opacity:.45;}}
+  }
+  .cm-skcard{width:320px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); overflow:hidden;}
+  .cm-skcard .cm-body{gap:8px;}
+
+  /* ── The picking bar ── */
+  .pickbar{position:fixed; left:50%; bottom:var(--spacing-24); transform:translateX(-50%); z-index:50; display:flex; align-items:center; gap:var(--spacing-12);
+    padding:var(--spacing-8) var(--spacing-8) var(--spacing-8) var(--spacing-20); background:var(--color-obsidian); color:var(--color-neutral-1);
+    border-radius:var(--radius-pill); box-shadow:var(--shadow-4); max-width:calc(100vw - 32px); flex-wrap:wrap;}
+  .pickbar .tally{font-size:var(--text-body2-size); font-weight:700; white-space:nowrap;}
+  .pickbar .tally span{opacity:.65; font-weight:500;}
+  .pickbar .c-btn-primary{background:var(--color-neutral-1); color:var(--color-neutral-9);}
+  .pickbar .c-btn-primary:hover{background:var(--color-neutral-2);}
+  .pickbar .c-btn-ghost{color:var(--color-neutral-1);}
+  .pickbar .c-btn-ghost:hover{background:rgba(255,255,255,.12);}
+  .listout{display:none; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-20) var(--spacing-24);}
+  .listout.is-on{display:block;}
+  .listout h2{margin:0 0 var(--spacing-8); font-size:var(--text-h5-size); font-weight:800;}
+  .listout textarea{width:100%; min-height:180px; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);
+    border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); padding:var(--spacing-12); resize:vertical; color:var(--color-neutral-9);}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <header class="c-pageheader">
+    <div class="c-pageheader-row">
+      <div class="c-pageheader-text">
+        <h1>Collab:Media component candidates</h1>
+        <p class="sub">Twelve pieces the Ad formats page builds for itself. None of them are in the design system yet.</p>
+      </div>
+    </div>
+  </header>
+
+  <p class="lede">Each block is redrawn from <b>collab-media.vercel.app/pages/formats.html</b> as a mock-up. Hover a sample where the real one reacts to hover. Mark each block <b>Build</b>, <b>Maybe</b> or <b>Skip</b>, then use <b>Show my list</b> at the bottom to get a list you can paste back to me.</p>
+
+  <div class="legend">
+    <span><span class="c-badge c-badge-success">Recommended</span> used across the page, worth promoting</span>
+    <span><span class="c-badge c-badge-neutral">Optional</span> useful, but a smaller win</span>
+    <span><span class="c-badge c-badge-warning">Page-specific</span> tied to the Ad formats page, may be better left local</span>
+  </div>
+
+  <!-- 1 · Ad format card -->
+  <section class="cand" data-id="format-card" data-name="Ad format card">
+    <div class="cand-head">
+      <span class="cand-no">1</span>
+      <div class="cand-title">
+        <h2>Ad format card <span class="c-badge c-badge-success">Recommended</span></h2>
+        <p>The gallery card. It shows a live miniature of the unit above the name and family tag. On hover, the sample zooms, the unit plays, and the tagline swaps for three spec lines. The + in the corner adds it to compare; once added, the card gets a dark outline.</p>
+        <p class="src">Page classes: fm-card · fm-stagewrap · fm-body · fm-swap · fm-spec-cell · fm-ctl</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div>
+        <article class="cm-card">
+          <div class="cm-stagewrap">
+            <div class="cm-stage"><div class="cm-bar"><i></i><i></i><i></i></div>
+              <div class="cm-page"><div class="cm-ad cm-mh rest"><i class="ph ph-sparkle"></i>Expandable masthead</div><div class="cm-l hl"></div><div class="cm-l"></div><div class="cm-l sh"></div><div class="cm-l"></div></div>
+            </div>
+            <div class="cm-ctl"><button type="button" aria-label="Add to compare"><i class="ph ph-plus"></i></button></div>
+          </div>
+          <div class="cm-body">
+            <div class="cm-titlerow"><h4>Expandable Masthead</h4><span class="c-tag c-tag-gold"><i class="dot"></i>High impact</span></div>
+            <div class="cm-swap">
+              <div class="rest"><p class="cm-tagline">Opens from the top of the page into a full-width stage on hover.</p><p class="cm-funnel">Awareness · Consideration</p></div>
+              <div class="spec">
+                <div class="cm-cell"><b>Objective</b><span>Brand awareness</span></div>
+                <div class="cm-cell"><b>Sizes</b><span>970×250 · 728×90</span></div>
+                <div class="cm-cell"><b>Benchmark</b><span>CTR 0.62%</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+        <span class="cap">At rest (hover it)</span>
+      </div>
+      <div>
+        <article class="cm-card is-compared">
+          <div class="cm-stagewrap">
+            <div class="cm-stage"><div class="cm-bar"><i></i><i></i><i></i></div>
+              <div class="cm-page"><div class="cm-l hl"></div><div class="cm-l"></div><div class="cm-ad" style="height:48px"><i class="ph ph-play-circle"></i>In-read video</div><div class="cm-l sh"></div></div>
+            </div>
+            <div class="cm-ctl"><button type="button" class="is-on" aria-label="Remove from compare"><i class="ph ph-check"></i></button></div>
+          </div>
+          <div class="cm-body">
+            <div class="cm-titlerow"><h4>In-read Video</h4><span class="c-tag c-tag-wood"><i class="dot"></i>Video</span></div>
+            <div class="cm-swap">
+              <div class="rest"><p class="cm-tagline">Opens between paragraphs and plays muted as it scrolls into view.</p><p class="cm-funnel">Awareness · Engagement</p></div>
+              <div class="spec">
+                <div class="cm-cell"><b>Objective</b><span>Video views</span></div>
+                <div class="cm-cell"><b>Sizes</b><span>16:9 in-content</span></div>
+                <div class="cm-cell"><b>Benchmark</b><span>VTR 71%</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+        <span class="cap">Added to compare</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · Preview stage -->
+  <section class="cand" data-id="preview-stage" data-name="Format preview stage">
+    <div class="cand-head">
+      <span class="cand-no">2</span>
+      <div class="cand-title">
+        <h2>Format preview stage <span class="c-badge c-badge-success">Recommended</span></h2>
+        <p>The miniature page each ad format is drawn in, with an animation for each kind of unit. The same stage is reused in the card, the detail modal, the compare sheet, the table's floating preview and the related-format cards. The card (1) can't be built without it.</p>
+        <p class="src">From shared/format-previews.css and .js in the Collab:Media project · fp-stage</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div class="cm-prev"><div class="cm-stage v-mh"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-ad"><i class="ph ph-sparkle"></i>Masthead</div><div class="cm-l hl"></div><div class="cm-l"></div><div class="cm-l sh"></div></div></div><div class="lbl">Masthead: drops in from the top</div></div>
+      <div class="cm-prev"><div class="cm-stage v-iv"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-l hl"></div><div class="cm-ad"><i class="ph ph-play-circle"></i>Video</div><div class="cm-l"></div></div></div><div class="lbl">In-article: pops into place</div></div>
+      <div class="cm-prev"><div class="cm-stage v-st"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-l hl"></div><div class="cm-l"></div><div class="cm-l sh"></div><div class="cm-l"></div></div><div class="cm-ad">Sticky footer</div></div><div class="lbl">Sticky footer: rises from the bottom</div></div>
+      <div class="cm-prev"><div class="cm-stage"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page v-sk" style="padding:0"><span class="side"></span><div class="mid"><div class="cm-l hl"></div><div class="cm-l"></div><div class="cm-l sh"></div><div class="cm-l"></div></div><span class="side"></span></div></div><div class="lbl">Page skin: gutters push in</div></div>
+    </div>
+  </section>
+
+  <!-- 3 · Placement map -->
+  <section class="cand" data-id="placement-map" data-name="Placement map">
+    <div class="cand-head">
+      <span class="cand-no">3</span>
+      <div class="cand-title">
+        <h2>Placement map <span class="c-badge c-badge-warning">Page-specific</span></h2>
+        <p>A laptop and a phone drawn side by side, with the eight places an ad can sit. Each slot shows how many units fit it. On hover the slot fills navy, the others dim, and the slot acts out the placement. Clicking a slot filters the catalogue. Slots are always navy (Water, Collab:Media's element), never a family colour, so a position is never mistaken for a kind of ad. The frames also tilt toward the pointer (not shown here).</p>
+        <p class="src">Page classes: fm-places · fm-pl-stage · fm-pl-frame · fm-slot · fm-ovsheet</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div class="cm-places">
+        <div class="cm-frame cm-desk">
+          <div class="cm-brow"><i></i><i></i><i></i><u></u></div>
+          <div class="cm-pg">
+            <button class="cm-slot sk" type="button"><b>Page skin</b></button>
+            <div class="cm-inner">
+              <button class="cm-slot mh" type="button"><b>Masthead</b><small>9</small></button>
+              <div class="cm-cols">
+                <div class="cm-art">
+                  <div class="cm-l hl" style="height:11px"></div><div class="cm-l"></div><div class="cm-l sh"></div>
+                  <button class="cm-slot ia" type="button" aria-pressed="true"><b>In the article</b><small>14</small></button>
+                  <div class="cm-l"></div><div class="cm-l sh"></div>
+                  <button class="cm-slot iv" type="button"><i class="ph ph-play-circle"></i><b>In the player</b><small>6</small></button>
+                  <div class="cm-l"></div>
+                </div>
+                <div class="cm-rail">
+                  <button class="cm-slot sb" type="button"><b>Side rail</b><small>11</small></button>
+                  <div class="cm-l"></div><div class="cm-l sh"></div>
+                </div>
+              </div>
+            </div>
+            <button class="cm-slot sk" type="button" tabindex="-1" aria-hidden="true"></button>
+            <button class="cm-slot st" type="button"><b>Sticky footer</b><small>5</small></button>
+          </div>
+        </div>
+        <div class="cm-frame cm-phone">
+          <div class="cm-notch"></div>
+          <div class="cm-pg">
+            <div class="cm-post"><div class="cm-l sh"></div><u></u></div>
+            <button class="cm-slot fd" type="button"><b>In the feed</b><small>8</small></button>
+            <div class="cm-post"><div class="cm-l sh"></div><u></u></div>
+            <button class="cm-slot ov" type="button"><b>Full screen</b><small>4</small></button>
+          </div>
+        </div>
+      </div>
+      <span class="cap" style="width:100%">"In the article" is shown selected. Hover any slot to fill it and dim the rest.</span>
+    </div>
+  </section>
+
+  <!-- 4 · Placement card -->
+  <section class="cand" data-id="placement-card" data-name="Placement card (slot tooltip)">
+    <div class="cand-head">
+      <span class="cand-no">4</span>
+      <div class="cand-title">
+        <h2>Placement card <span class="c-badge c-badge-neutral">Optional</span></h2>
+        <p>A tooltip card that follows the pointer over a slot on the map. It never catches the pointer, so it can't interrupt the hover underneath. Order: sizes, devices, how many units fit. For keyboard users it sits beside the focused slot. Hidden below 760px wide.</p>
+        <p class="src">Page class: fm-plcard</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div class="cm-plcard">
+        <div class="hd"><i class="ph ph-article"></i><span><b>In the article</b><em>Between paragraphs</em></span></div>
+        <p class="desc">Sits inside the story, so it's seen at reading pace rather than scrolled past.</p>
+        <dl><dt>Sizes</dt><dd>300×250 · 336×280 · 16:9</dd><dt>Runs on</dt><dd>Desktop · Mobile</dd></dl>
+        <div class="fit"><b>14</b><span>of 38 units fit here · 5 built for it</span></div>
+        <p class="cta"><i class="ph ph-arrow-down"></i>Click to filter the catalogue</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · Placement list item -->
+  <section class="cand" data-id="placement-list" data-name="Placement list item">
+    <div class="cand-head">
+      <span class="cand-no">5</span>
+      <div class="cand-title">
+        <h2>Placement list item <span class="c-badge c-badge-warning">Page-specific</span></h2>
+        <p>Below 760px wide the map is replaced by this list of the same eight slots. Each row shows an icon, the name, where it sits, its sizes, and a count. A tap selects it, and a selected row fills navy.</p>
+        <p class="src">Page classes: fm-pl-list · fm-pl-item</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <ul class="cm-pllist">
+        <li><button class="cm-plitem" type="button"><i class="ph ph-browser"></i><span class="t"><b>Masthead</b><em>Top of the page · 970×250 · 728×90</em></span><span class="c">9</span></button></li>
+        <li><button class="cm-plitem" type="button" aria-pressed="true"><i class="ph ph-article"></i><span class="t"><b>In the article</b><em>Between paragraphs · 300×250 · 336×280</em></span><span class="c">14</span></button></li>
+        <li><button class="cm-plitem" type="button"><i class="ph ph-rows"></i><span class="t"><b>In the feed</b><em>Between posts · 1:1 · 4:5</em></span><span class="c">8</span></button></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 6 · Built-for-slot badge -->
+  <section class="cand" data-id="native-badge" data-name="Built-for-slot badge">
+    <div class="cand-head">
+      <span class="cand-no">6</span>
+      <div class="cand-title">
+        <h2>"Built for this slot" badge <span class="c-badge c-badge-neutral">Optional</span></h2>
+        <p>A deep navy pill pinned to the bottom-left of a card's sample. It appears while a slot filter is on and marks units that were made for that exact slot, as opposed to ones that merely fit it.</p>
+        <p class="src">Page class: fm-native</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div class="cm-mini">
+        <div class="cm-stagewrap"><div class="cm-stage"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-l hl"></div><div class="cm-l"></div><div class="cm-ad" style="height:40px">In-article carousel</div><div class="cm-l sh"></div></div></div>
+          <span class="cm-native"><i class="ph ph-push-pin"></i>Built for this slot</span></div>
+        <div class="nm">In-article Carousel</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · Detail modal -->
+  <section class="cand" data-id="format-detail" data-name="Format detail modal">
+    <div class="cand-head">
+      <span class="cand-no">7</span>
+      <div class="cand-title">
+        <h2>Format detail modal <span class="c-badge c-badge-success">Recommended</span></h2>
+        <p>Opens from a card with a swing animation that starts at the card's own position, over a warm backdrop. Contents: breadcrumb with previous/next (← → keys work too), the live sample with Replay, a six-cell spec grid, size swatches drawn to scale against each other, a CTR benchmark bar, and three related-format cards. Missing values are written as "Not on file — ask Sales", never left blank.</p>
+        <p class="src">Page classes: fm-cardmodal · fm-drawer · fm-specs · fm-sizes · fm-bench · fm-related · fm-relcard</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <aside class="cm-drawer" aria-label="Format detail mock-up">
+        <div class="cm-dhead">
+          <div class="crumbs"><span>Ad formats</span><i class="ph ph-caret-right"></i><b>Expandable Masthead</b></div>
+          <button class="c-icon-btn" type="button" aria-label="Previous format"><i class="ph ph-arrow-left"></i></button>
+          <button class="c-icon-btn" type="button" aria-label="Next format"><i class="ph ph-arrow-right"></i></button>
+          <button class="c-icon-btn" type="button" aria-label="Close"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="cm-dbody">
+          <div class="cm-dstage"><div class="cm-stage" style="font-size:14px"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-ad" style="height:60px"><i class="ph ph-sparkle"></i>Expandable masthead</div><div class="cm-l hl"></div><div class="cm-l"></div><div class="cm-l sh"></div></div></div>
+            <span class="cm-replay"><i class="ph ph-arrow-counter-clockwise"></i> Replay</span></div>
+          <div class="cm-dtitle"><h3>Expandable Masthead</h3><span class="c-tag c-tag-gold"><i class="dot"></i>High impact</span></div>
+          <p class="cm-dtag">Opens from the top of the page into a full-width stage on hover.</p>
+          <div class="cm-specs">
+            <div class="cm-spec"><b>Objective</b><span>Brand awareness</span></div>
+            <div class="cm-spec"><b>Runs on</b><span>Desktop · Mobile</span></div>
+            <div class="cm-spec"><b>Best for</b><span>Launches, big moments</span></div>
+            <div class="cm-spec"><b>Funnel</b><span>Awareness · Consideration</span></div>
+            <div class="cm-spec"><b>CPM on file</b><span>RM 38.00</span></div>
+            <div class="cm-spec"><b>Monthly inventory</b><span class="na">Not on file</span></div>
+          </div>
+          <div class="cm-sec"><h5>Supported sizes</h5>
+            <div class="cm-sizes">
+              <div class="cm-size"><i style="width:160px; height:41px"></i>970×250</div>
+              <div class="cm-size"><i style="width:120px; height:15px"></i>728×90</div>
+              <div class="cm-size"><i style="width:53px; height:9px"></i>320×50</div>
+            </div>
+          </div>
+          <div class="cm-sec"><h5>Benchmark</h5><div class="cm-bench"><span>CTR 0.62%</span><div class="cm-benchbar"><i></i></div><small>of a 1.00% ceiling</small></div></div>
+          <div class="cm-sec" style="margin:0"><h5>Also consider</h5>
+            <div class="cm-related">
+              <div class="cm-relcard"><div class="cm-stage" style="font-size:7px"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-ad" style="height:14px"></div><div class="cm-l"></div></div></div><span>Billboard</span></div>
+              <div class="cm-relcard"><div class="cm-stage" style="font-size:7px"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-l"></div><div class="cm-ad" style="height:22px"></div></div></div><span>Page Skin</span></div>
+              <div class="cm-relcard"><div class="cm-stage" style="font-size:7px"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-l"></div><div class="cm-l"></div></div></div><span>Sticky Footer</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cm-dfoot">
+          <a class="c-btn c-btn-primary c-btn-md" href="#" onclick="return false"><i class="ph ph-compass-tool"></i> Use in a media plan</a>
+          <button class="c-btn c-btn-secondary c-btn-md cm-off" type="button" disabled><i class="ph ph-arrow-square-out"></i> Live demo</button>
+          <span class="spacer"></span>
+          <button class="c-btn c-btn-ghost c-btn-md" type="button"><i class="ph ph-plus"></i> Compare</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 8 · Compare tray -->
+  <section class="cand" data-id="compare-tray" data-name="Compare tray">
+    <div class="cand-head">
+      <span class="cand-no">8</span>
+      <div class="cand-title">
+        <h2>Compare tray <span class="c-badge c-badge-success">Recommended</span></h2>
+        <p>A dark pill that slides up from the bottom of the screen once one format is picked. It holds up to four, each with its own remove ×. Compare becomes available at two. Useful anywhere a user picks a few items to compare (formats, influencers, plans), not only on this page.</p>
+        <p class="src">Page class: fm-cbar</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div class="cm-cbar">
+        <span class="lbl">3 of 4</span>
+        <div class="names"><span>Expandable Masthead <i class="ph ph-x"></i></span><span>In-read Video <i class="ph ph-x"></i></span><span>Page Skin <i class="ph ph-x"></i></span></div>
+        <button class="c-btn c-btn-ghost c-btn-sm" type="button">Clear</button>
+        <button class="c-btn c-btn-primary c-btn-sm" type="button"><i class="ph ph-columns"></i> Compare</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · Compare sheet -->
+  <section class="cand" data-id="compare-sheet" data-name="Compare sheet">
+    <div class="cand-head">
+      <span class="cand-no">9</span>
+      <div class="cand-title">
+        <h2>Compare sheet <span class="c-badge c-badge-neutral">Optional</span></h2>
+        <p>A modal table with one column per picked format. The live samples run across the top, then one row per fact. The highest benchmark cell is shaded and labelled "highest". The footer has PDF / Excel export and a "Send to a media plan" button.</p>
+        <p class="src">Page classes: fm-cmodal · fm-cbox · fm-ctable</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div class="cm-cbox">
+        <div class="c-modal-head"><h4>Compare formats</h4><button class="c-icon-btn" type="button" aria-label="Close"><i class="ph ph-x"></i></button></div>
+        <div class="cm-cscroll">
+          <table class="cm-ctable">
+            <tr><th></th>
+              <td class="stage"><div class="cm-stage" style="font-size:8px"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-ad" style="height:18px"></div><div class="cm-l"></div><div class="cm-l sh"></div></div></div></td>
+              <td class="stage"><div class="cm-stage" style="font-size:8px"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-l"></div><div class="cm-ad" style="height:30px"></div></div></div></td>
+              <td class="stage"><div class="cm-stage" style="font-size:8px"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page v-sk" style="padding:0; display:flex"><span style="flex:0 0 18px; background:var(--color-navy)"></span><div style="flex:1"></div><span style="flex:0 0 18px; background:var(--color-navy)"></span></div></div></td></tr>
+            <tr><th>Format</th><td class="head">Expandable Masthead<small>High impact</small></td><td class="head">In-read Video<small>Video</small></td><td class="head">Page Skin<small>High impact</small></td></tr>
+            <tr><th>Sizes</th><td>970×250<br>728×90</td><td>16:9 in-content</td><td>Custom</td></tr>
+            <tr><th>Benchmark</th><td class="best">CTR 0.62% <em>highest</em></td><td>CTR 0.41%</td><td><span class="na">Not published</span></td></tr>
+            <tr><th>CPM (MYR)</th><td>RM 38.00</td><td>RM 26.00</td><td><span class="na">Not on file</span></td></tr>
+          </table>
+        </div>
+        <div class="cm-cfoot">
+          <button class="c-btn c-btn-secondary c-btn-md" type="button"><i class="ph ph-file-pdf"></i> Export PDF</button>
+          <button class="c-btn c-btn-secondary c-btn-md" type="button"><i class="ph ph-file-xls"></i> Export Excel</button>
+          <span class="spacer"></span>
+          <button class="c-btn c-btn-primary c-btn-md" type="button"><i class="ph ph-compass-tool"></i> Send to a media plan</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · Table row with preview -->
+  <section class="cand" data-id="row-peek" data-name="Table row preview (row peek)">
+    <div class="cand-head">
+      <span class="cand-no">10</span>
+      <div class="cand-title">
+        <h2>Table row preview <span class="c-badge c-badge-neutral">Optional</span></h2>
+        <p>The catalogue's table view. Hovering a row floats that format's live sample beside the table, so the list view never makes you imagine the unit. Moving down the rows slides the preview along with the pointer and cross-fades the sample. Each row starts with the same compare control as the card.</p>
+        <p class="src">Page classes: fm-table · fm-rowcmp · fm-rowpeek</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div class="cm-tablebox">
+        <div class="cm-tablewrap">
+          <table class="cm-table">
+            <thead><tr><th></th><th>Format</th><th>Family</th><th>Sizes</th><th class="num">Benchmark</th><th class="num">CPM (MYR)</th></tr></thead>
+            <tbody>
+              <tr><td><span class="cm-rowcmp"><i class="ph ph-plus"></i></span></td><td class="name">Expandable Masthead<small>Opens into a full-width stage</small></td><td><span class="c-tag c-tag-gold"><i class="dot"></i>High impact</span></td><td>970×250</td><td class="num">CTR 0.62%</td><td class="num">38.00</td></tr>
+              <tr class="is-peeking"><td><span class="cm-rowcmp is-on"><i class="ph ph-check"></i></span></td><td class="name">In-read Video<small>Plays muted between paragraphs</small></td><td><span class="c-tag c-tag-wood"><i class="dot"></i>Video</span></td><td>16:9</td><td class="num">CTR 0.41%</td><td class="num">26.00</td></tr>
+              <tr><td><span class="cm-rowcmp"><i class="ph ph-plus"></i></span></td><td class="name">Scratch Card<small>Scratch to reveal an offer</small></td><td><span class="c-tag c-tag-fire"><i class="dot"></i>Gamification</span></td><td>300×250</td><td class="num"><span class="muted">—</span></td><td class="num"><span class="muted">—</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cm-peek"><div class="cm-stage"><div class="cm-bar"><i></i><i></i><i></i></div><div class="cm-page"><div class="cm-l hl"></div><div class="cm-ad" style="height:46px"><i class="ph ph-play-circle"></i>In-read video</div><div class="cm-l"></div></div></div><div class="lbl">In-read Video · Video</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · Display tag -->
+  <section class="cand" data-id="purple-tag" data-name="Display family tag (purple)">
+    <div class="cand-head">
+      <span class="cand-no">11</span>
+      <div class="cand-title">
+        <h2>Display family tag (purple) <span class="c-badge c-badge-neutral">Optional</span></h2>
+        <p>The page gives each of its six ad families an elemental tag colour. Five already exist in the design system. Display has none, so the page makes a purple one with the same recipe (8% tint, accent-coloured text and dot). Building it means adding one tag variant to the system.</p>
+        <p class="src">Page class: fm-tag-purple · design system: c-tag-water / -fire / -wood / -earth / -gold</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <span class="c-tag c-tag-water"><i class="dot"></i>Interactive</span>
+      <span class="c-tag c-tag-fire"><i class="dot"></i>Gamification</span>
+      <span class="c-tag c-tag-wood"><i class="dot"></i>Video</span>
+      <span class="c-tag c-tag-earth"><i class="dot"></i>Social</span>
+      <span class="c-tag c-tag-gold"><i class="dot"></i>High impact</span>
+      <span class="c-tag fm-tag-purple"><i class="dot"></i>Display</span>
+      <span class="cap" style="width:100%">The last tag (Display) is the new one. The other five are already in the design system.</span>
+    </div>
+  </section>
+
+  <!-- 12 · Skeleton card -->
+  <section class="cand" data-id="skeleton-card" data-name="Ad format card skeleton">
+    <div class="cand-head">
+      <span class="cand-no">12</span>
+      <div class="cand-title">
+        <h2>Card skeleton <span class="c-badge c-badge-neutral">Optional</span></h2>
+        <p>Grey placeholder bars in the shape of the ad format card, pulsing gently. Shown on first load and when choosing a slot changes the whole list, so the page settles into place rather than popping in. If card 1 is built, this should come with it.</p>
+        <p class="src">Page classes: fm-sk · fm-sk-card · fm-sk-stage</p>
+      </div>
+      <div class="cand-pick"></div>
+    </div>
+    <div class="cand-demo">
+      <div class="cm-skcard" aria-hidden="true">
+        <div class="cm-sk-stage"></div>
+        <div class="cm-body">
+          <div class="cm-titlerow"><span class="cm-sk" style="width:120px; height:16px"></span><span class="cm-sk" style="width:74px; height:22px; border-radius:var(--radius-pill)"></span></div>
+          <span class="cm-sk" style="width:92%"></span><span class="cm-sk" style="width:64%"></span><span class="cm-sk" style="width:46%; margin-top:6px"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="listout" id="listOut" aria-live="polite">
+    <h2>Your list</h2>
+    <p class="lede" style="margin-bottom:var(--spacing-12)">Copy this and paste it back to me.</p>
+    <textarea id="listText" readonly aria-label="Your component list"></textarea>
+  </section>
+
+</main>
+
+<div class="pickbar" role="region" aria-label="Your picks">
+  <span class="tally" id="tally">0 to build <span>· 0 maybe · 12 undecided</span></span>
+  <button class="c-btn c-btn-ghost c-btn-sm" type="button" id="resetBtn">Reset</button>
+  <button class="c-btn c-btn-primary c-btn-sm" type="button" id="showBtn"><i class="ph ph-list-checks"></i> Show my list</button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'collabmedia-component-picks';
+  var OPTS = [['build', 'Build'], ['maybe', 'Maybe'], ['skip', 'Skip']];
+  var picks = {};
+  try { picks = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { picks = {}; }
+  var cands = Array.prototype.slice.call(document.querySelectorAll('.cand'));
+
+  /* The DS segmented control, one per candidate, as a radiogroup. */
+  cands.forEach(function (c) {
+    var name = c.dataset.name;
+    c.querySelector('.cand-pick').innerHTML =
+      '<div class="c-segctl c-segctl-default" role="radiogroup" aria-label="' + name + ': build, maybe or skip">' +
+      OPTS.map(function (o) { return '<button class="c-seg" type="button" role="radio" aria-checked="false" data-v="' + o[0] + '">' + o[1] + '</button>'; }).join('') +
+      '</div>';
+  });
+
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(picks)); } catch (e) {} }
+  function sync() {
+    var n = { build: 0, maybe: 0, skip: 0 };
+    cands.forEach(function (c) {
+      var v = picks[c.dataset.id] || '';
+      if (v) n[v]++;
+      c.dataset.pick = v;
+      c.querySelectorAll('.c-seg').forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.v === v)); });
+    });
+    var und = cands.length - n.build - n.maybe - n.skip;
+    document.getElementById('tally').innerHTML = n.build + ' to build <span>· ' + n.maybe + ' maybe · ' + und + ' undecided</span>';
+    if (document.getElementById('listOut').classList.contains('is-on')) writeList();
+  }
+  function writeList() {
+    function group(v, title) {
+      var rows = cands.filter(function (c) { return picks[c.dataset.id] === v; });
+      if (!rows.length) return '';
+      return title + '\n' + rows.map(function (c) { return '- ' + c.querySelector('.cand-no').textContent + '. ' + c.dataset.name; }).join('\n') + '\n\n';
+    }
+    var txt = group('build', 'Build:') + group('maybe', 'Maybe:') + group('skip', 'Skip:');
+    document.getElementById('listText').value = txt.trim() || 'Nothing marked yet. Mark each component Build, Maybe or Skip.';
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.cand-pick .c-seg'); if (!b) return;
+    var id = b.closest('.cand').dataset.id;
+    picks[id] = picks[id] === b.dataset.v ? '' : b.dataset.v;  /* clicking the chosen one again clears it */
+    if (!picks[id]) delete picks[id];
+    save(); sync();
+  });
+  /* Arrow keys move within a radiogroup, as the pattern expects. */
+  document.addEventListener('keydown', function (e) {
+    var b = e.target.closest('.cand-pick .c-seg'); if (!b) return;
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var all = Array.prototype.slice.call(b.parentNode.children), i = all.indexOf(b);
+    var next = all[(i + (e.key === 'ArrowRight' ? 1 : -1) + all.length) % all.length];
+    next.focus(); next.click(); e.preventDefault();
+  });
+  document.getElementById('showBtn').addEventListener('click', function () {
+    var out = document.getElementById('listOut');
+    out.classList.add('is-on'); writeList();
+    out.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    var ta = document.getElementById('listText'); ta.focus(); ta.select();
+  });
+  document.getElementById('resetBtn').addEventListener('click', function () { picks = {}; save(); sync(); });
+
+  /* The static mock-ups' toggles respond, so the states can be tried. */
+  document.querySelectorAll('.cm-plitem').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var on = b.getAttribute('aria-pressed') === 'true';
+      document.querySelectorAll('.cm-plitem').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      b.setAttribute('aria-pressed', String(!on));
+    });
+  });
+  document.querySelectorAll('.cm-places .cm-slot').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var on = b.getAttribute('aria-pressed') === 'true';
+      document.querySelectorAll('.cm-places .cm-slot').forEach(function (x) { x.removeAttribute('aria-pressed'); });
+      if (!on) b.setAttribute('aria-pressed', 'true');
+    });
+  });
+  document.querySelectorAll('.cm-ctl button').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var on = !b.classList.contains('is-on'), card = b.closest('.cm-card');
+      b.classList.toggle('is-on', on); card.classList.toggle('is-compared', on);
+      b.innerHTML = '<i class="ph ' + (on ? 'ph-check' : 'ph-plus') + '"></i>';
+      b.setAttribute('aria-label', on ? 'Remove from compare' : 'Add to compare');
+    });
+  });
+
+  sync();
+})();
+</script>
+</body>
+</html>
