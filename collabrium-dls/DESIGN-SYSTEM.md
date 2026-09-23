@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.78** — 2026-09-01 — Sourced from the Collabrium brand deck
+**v0.9.105** — 2026-09-22 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -317,6 +317,16 @@ carry visual weight intentionally, and at `icon-md` (24px) and above, Fill
 reads naturally. Applies to: status indicators (success, warning, error,
 info), sidebar navigation items, card header icons, department indicators,
 feature highlights, empty-state illustrations, onboarding icons.
+
+**Below `icon-micro` (14px), a Tier 2 icon takes Regular instead.** That
+sentence above — "at `icon-md` and above, Fill reads naturally" — has a
+floor as well as a ceiling. A filled glyph rendered at 11–12px loses its
+internal detail and collapses into a solid shape, so it stops
+communicating the thing it was chosen to communicate. The icon stays
+Tier 2 by category; only its weight changes. See [Card](#card)'s
+**Campaign card** date row for the worked case (a 12px calendar), and
+note this does **not** license dropping to Regular at 14px or above,
+where Fill still holds.
 
 | Icon type | Examples | Weight | Class prefix |
 |---|---|---|---|
@@ -2172,7 +2182,8 @@ the Modal footer's divider, scaled down.
 - **Element-tinted** — full card background in the owning element's `-bg` tint (8%). Use sparingly; the icon-chip variant is usually the better signal.
 - **USP** — a feature-highlight tile, not a generic content card. Anatomy: Header (h4, same as base) → Description (p, same as base body2/Neutral-5) → 3 bullet points (new `.c-card-usp-list`: `ph-fill ph-check-circle` at `icon-sm`, Obsidian — **Tier 2, Fill**, the same call as Button's own leading check-circle example — followed by body2/Neutral-9 text, both vertically centered on the same line, spacing-8 gap) → CTA button (the real [Button](#button) component, Primary/md — never rebuilt from scratch — stretched to the card's full width with its label centered, rather than hugging its own content like a Card-region CTA normally would).
 - **Price summary card** — a running list of selected line items building toward a total, in Empty and Filled states. Extends the base Card (header, Footer) rather than inventing new structure — see **Price summary card**, below, for the full anatomy, display rules, and edge cases.
-- **Profile card** — a talent/influencer profile summary tile: identity block (name, demographic meta), a divider, persona badges, then an alphabetically-sorted platform list with a Title-weight follower count per row. Extends the base Card (Title, Description, Footer divider) and reuses Search input's own avatar recipe and Badge & Tag's own grouping/dot recipes rather than inventing new structure — see **Profile card**, below, for the full anatomy.
+- **Campaign card** — one campaign as a kanban board tile: brand mark, campaign name (plus an optional Lead tag), brand, owner faces, then a full-width divider over the dates and a 2-column Pax/Quote metric grid. Carries **no stage tag** — the column it sits in is the stage. Extends the base Card but drops its border and tightens its radius, because a board tile is a movable object rather than a page container — see **Campaign card**, below, for the full anatomy.
+- **Profile card** — a talent/influencer profile summary tile, built around a centred 56px avatar as its main element: a Controls row (Select checkbox + kebab menu), the avatar, Name, a demographic Meta line, a Persona line, then an alphabetically-sorted platform list carrying a follower count and a Tier badge per row. Extends the base Card and reuses [Checkbox](#checkbox)'s own box and [SidebarNav](#sidebarnav)'s own menu recipe rather than inventing new structure — see **Profile card**, below, for the full anatomy.
 - **Hero Card** — a promotional/insight tile: Eyebrow, Heading, Body, a media placeholder, optional Recommendation text, and a CTA, in four states (Default, Risk, AI Dark, Selected). Extends the base Card (Neutral-1, radius-lg, shadow-1) rather than inventing new structure, but is the first Card variant with its own corner ribbon, a dark surface, and a fixed/centered modal state — see **Hero Card**, below, for the full anatomy.
 - **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
 
@@ -2211,12 +2222,13 @@ grids if that floor would waste space for the narrower variants.
 | Variant | Min-width floor | Why |
 |---|---|---|
 | Base Card | 240px | General content |
-| Profile card | 240px | Platform row's three zones (icon, name/handle stack, Tier badge + Follower count) need this much room — see **Profile card — Width**, below |
+| Profile card | 240px | Platform row's three zones (platform name, follower count, Tier badge) need this much room — see **Profile card — Width**, below |
 | Element-tinted | 240px | Matches base |
 | Warm | 240px | Matches base |
 | Element-accented | 240px | Matches base |
 | USP | 280px | 3 check-bullet points plus a full-width button need more room at minimum width |
 | Price summary card | 280px | Line-item list, RM pricing, and the CTA need more room to stay readable |
+| Campaign card | 240px | Matches base. The binding constraint is the identity row — a 32px brand mark, a truncating name and up to two 22px owner faces — plus a 2-column metric grid that must not wrap "RM 72,500" |
 | Pacing Card | 240px | Matches base. The binding constraint is the minibar's label row — "Total …" and "Target …" must share one line, which holds down to 240px for realistic figures; see **Pacing Card — Width** |
 
 Every variant keeps `width: 100%` of its grid cell regardless of its
@@ -2279,8 +2291,8 @@ convention:
 
 | Part | Spec |
 |---|---|
-| Checkbox | [Checkbox](#checkbox)'s own real check box (`.c-checkbox-box`/`.on`, 18×18px, 6px radius, Obsidian border+fill when checked with the `icon-micro` check glyph), sits top-right of the card, spacing-16 inset from the top and right edges (the card's own padding) — the exact same position and recipe as Profile card's own Select checkbox |
-| Reveal | hidden at rest (`opacity: 0`), revealed on hover (`opacity: 1`) — same hover-reveals-checkbox pattern as Table's bulk-select row checkboxes and Profile card's own Select checkbox, not a third convention |
+| Checkbox | [Checkbox](#checkbox)'s own real check box (`.c-checkbox-box`/`.on`, 18×18px, 6px radius, Obsidian border+fill when checked with the `icon-micro` check glyph), sits top-right of the card, spacing-16 inset from the top and right edges (the card's own padding) — the same box recipe as Profile card's own Select checkbox, though Profile card lays its own out in a Controls row rather than overlaying the card's corner |
+| Reveal | hidden at rest (`opacity: 0`), revealed on hover (`opacity: 1`) — same hover-reveals-checkbox pattern as Table's bulk-select row checkboxes, not a third convention. **Profile card is the one documented exception**: its Select checkbox is always visible, because it shares a Controls row with an always-visible kebab menu and a control that only half-appears reads as broken — see **Profile card — Controls row**, below. Hover-reveal still governs Interactive card and Table |
 | Reserved space | spacing-24 of extra right padding on the card's Title (`<h4>`) whenever the card is Selectable — whether the checkbox is currently visible (hover) or not (rest). The checkbox only *appears* on hover, but its footprint has to be respected at rest too, otherwise the Title would truncate at one width while idle and clip shorter the instant the checkbox fades in — a layout jump, not just a color change. Same rationale as Profile card's own identity-block reserve |
 
 Checking the checkbox moves the card into its own **Selected** variant,
@@ -2417,9 +2429,22 @@ context requires a different one.
 | Clear all | Returns to the Empty state ("No items added"), list resets entirely — Clear all itself isn't part of this variant's own anatomy above; this row documents the resulting state for whichever control triggers it |
 | Item is one of the hidden items, removed while collapsed | "Show X more" count decrements by 1 (e.g. "Show 3 more" → "Show 2 more"); list stays collapsed |
 
-**Profile card.** The base Card's own header slot (Avatar + stacked
-text block), a divider, the persona category badges, then the platform
-list — no Footer; this variant doesn't use one.
+**Profile card.** A Controls row (Select checkbox + kebab menu), then
+a centred identity block — the avatar as the card's main element,
+Name, a Meta line and a Persona line — then the platform list. No
+Footer; this variant doesn't use one, and as of this pass no divider
+either.
+
+**Profile card — the grain is a person, not an account.** One card
+describes **one person across every platform they've connected**, with
+a tier computed per platform row. The source handoff spec this variant
+takes its tier system from models the opposite grain — one compact row
+per *platform account*, so somebody Macro on TikTok and Mid on
+Instagram is two separate rows there. Both are legitimate; they answer
+different questions ("who is this person?" vs "which account am I
+adding?"). What must not happen is a Profile card that silently
+collapses two accounts into one tier, or a roster that mixes the two
+grains in the same list without saying which it is.
 
 **Profile card — Width.** Follows the universal responsive-width rule
 — see **Grid layout — Responsive width**, above: `width: 100%` of its
@@ -2428,24 +2453,73 @@ own grid cell/flex basis, never a hardcoded pixel value, with a
 every tile from the grid's own column-track definition (e.g.
 `repeat(auto-fill, minmax(240px, 1fr))`, the same technique the Card
 demo gallery's own `.c-cards` grid already uses), not from a per-card
-width. The 240px floor exists because below it, the platform row's
-three zones (icon, name/handle stack, Tier badge + Follower count)
-can't coexist without the trailing zone crushing the handle's
-truncation point down to nothing meaningful.
+width. The 240px floor exists because below it the platform row's
+three zones (platform name, follower count, Tier badge) can't coexist
+without the platform name's truncation point crushing down to nothing
+meaningful — the same floor as before, re-derived against the row's
+current three zones rather than the icon/handle-stack pair it used to
+carry.
 
-**Profile card — Header (identity block).** Avatar in the base Card
-header's own icon-chip slot; the text block beside it stacks two rows,
-in this order:
+**Profile card — Vertical rhythm.** The card runs tight at the top and
+open at the bottom, deliberately: the Controls row and the avatar are
+two parts of one masthead and read as a single block, while the
+platform list needs room to settle above the card's own edge.
+
+| Gap | Value |
+|---|---|
+| Card padding → Controls row | spacing-16 (the base Card's own padding) |
+| Controls row → Avatar | **0** — the avatar sits directly under the controls, no added margin |
+| Avatar → Name | spacing-12 |
+| Name → Meta line | **spacing-8** |
+| Meta line → Persona line | **spacing-8** |
+| Persona line → Platform list | spacing-24 |
+| Between platform rows | spacing-16 |
+| Platform list → card's bottom padding | **spacing-8** on top of the card's own spacing-16, so the list clears the bottom edge by 24px rather than sitting as tight against it as the Controls row sits against the top |
+
+**Profile card — Controls row.** A Select checkbox on the left and a
+kebab (More options) button on the right, on one row at the very top
+of the card, both **always visible**.
 
 | Part | Spec |
 |---|---|
-| Avatar | 36×36px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, `--font-primary` weight 700, label2 size, showing initials — sized to match the base Card's own **icon-chip header** variant (36×36, same slot), not [Search input](#search-input)'s smaller 32×32 User Search avatar this recipe was originally scaled from, so a Profile card sits at the same header height as every other Card variant instead of introducing its own one-off size (no per-person gradient fills — that stays within this document's own "don't invent new brand colors" rule) |
-| Row 1 — Name | the base Card's own Title token, verbatim: `<h4>` styled at h5 (16px/700), Neutral-9 — same element and same CSS as every other Card variant's own title, not a bigger one-off size. Always a single line: truncates with an ellipsis past the row's available width rather than wrapping, same treatment as Handle and Platform name below |
-| Row 2 — Age · Gender · Location | the base Card's own Description/Subtitle token, verbatim: body2 (14px/400), Neutral-5 — same `<p>` element and same CSS as every other Card variant's own description text, `·` (middle dot) separators, spacing-4 below Row 1, e.g. "20 · Female · Kuala Lumpur." Age is a specific value, not a range — "20," not "20-30" — since a Profile card describes one real person, not an audience segment (a range belongs to a targeting/audience context, not an individual's own profile). Always a single line: truncates with an ellipsis past the row's available width rather than wrapping |
+| Row | `display: flex`, `justify-content: space-between`, `icon-md` (24px) tall — the kebab button's own height, so the row costs exactly what its tallest control needs. `position: relative`, which is what the kebab menu anchors to |
+| Select checkbox | [Checkbox](#checkbox)'s own real check box (`.c-checkbox-box`/`.on`, 18×18px, 6px radius, Obsidian border+fill when checked with the `icon-micro` check glyph) — the exact same recipe as [Card](#card)'s own Interactive/Selectable variant, not a re-skinned one-off |
+| Kebab | 24×24px transparent button, `radius-sm`, `ph ph-dots-three` at `icon-base` (20px), Neutral-9 — **Tier 1, Regular** ("more options" is a control, and this is the same glyph and tier [AI Native](#ai-native)'s own message-action row already uses for its own More options button). Neutral-2 fill on hover, `shadow-focus` on focus-visible. Needs an `aria-label` naming whose card it acts on ("More options for Amirah Yusof"), since it has no visible text |
+| Always visible | neither control is hover-revealed. This is a **deliberate exception** to the hover-reveal convention [Table](#table)'s bulk-select column and Card's own Interactive/Selectable variant share: those reveal a lone checkbox, but here the checkbox shares a row with a kebab that has to be permanently discoverable (a menu nobody knows is there is a menu nobody opens), and one visible control beside one invisible one reads as a rendering bug rather than as restraint. Both on, always |
+| No reserved padding | because the Controls row is laid out in normal flow rather than overlaying the card's top-right corner, nothing below it has to reserve space for a control that might appear. The `spacing-24` right-padding reserve the identity block used to carry is **removed** — there is no longer a hover state that could shift where Name or the Meta line truncates |
+
+**Profile card — Kebab menu.** Five actions, in this fixed order:
+**View details** (`ph ph-eye`), **Pin to top** (`ph ph-push-pin`),
+**Edit** (`ph ph-pencil-simple`), **Sync profile**
+(`ph ph-arrows-clockwise`), **Archive** (`ph ph-archive`). All **Tier
+1, Regular** — every one is a control.
+
+| Part | Spec |
+|---|---|
+| Container | 160px fixed width, Neutral-1 fill, 1px Neutral-3 border, `radius-md`, `shadow-3`, spacing-4 padding — [SidebarNav](#sidebarnav)'s own user-menu popover recipe, reused rather than a second popover convention |
+| Scale | a **compact** take on that recipe: 32px items and 160px width against the user menu's own 40px/240px. A menu hanging off a card in a grid sits in tighter company than one anchored to a full-height rail, and five one-word actions don't need 240px to breathe |
+| Placement | opens **downward**, `spacing-4` below the Controls row, right-aligned flush with the kebab's own right edge — the mirror of the user menu's upward/left-aligned placement, for the mirrored reason: this trigger sits at the *top* of its container, so downward is the direction with room |
+| Item | 32px height, 0/spacing-8 padding, `radius-sm`, spacing-8 gap between icon and label; body2 (14px)/500/Neutral-9 label; icon at `icon-sm` (16px). Neutral-2 fill on hover — the same row-hover token used everywhere else in this document |
+| Roles | `role="menu"` on the container, `role="menuitem"` on each item; the trigger carries `aria-haspopup="menu"` and an `aria-expanded` that tracks state |
+| One at a time | opening a card's menu closes any other Profile card menu already open — a roster can never show two menus at once |
+| Closes on | outside click, Escape, or item selection; Escape and item selection both return focus to the trigger — same contract as the user menu's own |
+| Destructive styling | none of the five is styled destructively, **Archive included** — archiving is reversible (the record is set aside, not deleted), and this system reserves Red for genuinely destructive actions. A future hard-delete action would need the Red treatment and a confirmation step; Archive needs neither |
+
+**Profile card — Identity block.** Centred, directly below the
+Controls row:
+
+| Part | Spec |
+|---|---|
+| Avatar | **56×56px** circle, `radius-pill`, horizontally centred, sitting directly below the Controls row with no margin of its own — see **Vertical rhythm**, above. Neutral-2 fill, Neutral-9 text, `--font-primary` weight 700 at h5 size (16px) showing initials — and an optional `<img>` layered over the top at `object-fit: cover`, which is the normal case for a real profile. The initials are the fallback, not a placeholder to be swapped out: a profile with no photo renders the initials permanently. Grown from the old 36×36 (which was sized to sit in the base Card's icon-chip header slot) because the avatar is no longer *in* that slot — it's the card's main element now, and 56px is what carries that at the card's own 240px floor. No per-person gradient fills — that stays within this document's own "don't invent new brand colors" rule |
+| Name | the base Card's own Title token, verbatim: `<h4>` styled at h5 (16px/700), Neutral-9, centred. Always a single line: truncates with an ellipsis past the card's available width rather than wrapping |
+| Meta line | `caption` (12px/16px/400), Neutral-5, centred, `·` (middle dot) separators, e.g. "20 · Female · Kuala Lumpur" — **Age · Gender · Location**, spacing-8 below Name. Stepped down from the body2 it used to carry: with the avatar now the card's main element, the meta line is supporting text, not a co-equal second row. Always a single line, truncating with an ellipsis |
+| Persona line | same token as the Meta line — caption/Neutral-5/centred, `·` separated, spacing-8 below it — sorted **alphabetically**, e.g. "Beauty · Entertainment · Fashion · Food & Lifestyle". A single truncating line, **not** one [Badge](#badge--tag) per category (see the Do/Don't note below, which this pass reverses) |
+| Empty parts are dropped, not blanked | both lines build from whatever is present and drop anything missing, so a person with no recorded age reads "Female · Kuala Lumpur", never "· Female · Kuala Lumpur" or a stray double separator. A person with no personas at all loses the whole line — see **Empty sections**, below |
 
 **Profile card — Avatar initials logic.** Always exactly **2
 characters**, uppercase, derived from the Name (never authored
-separately — the initials are computed from whatever Name is set):
+separately — the initials are computed from whatever Name is set), and
+used whenever there's no photo:
 
 - **Rule 1 — Two or more words:** take the first letter of the
   **first** word and the first letter of the **last** word. "Amirah
@@ -2466,75 +2540,54 @@ separately — the initials are computed from whatever Name is set):
   — see the Avatar row above; this rule only governs which letters
   appear, not their color.
 
-A divider — the same 1px Neutral-3 rule as the base Card's own Footer
-top border, but at spacing-8 margin (tighter than the Footer's own
-spacing-16 — and tightened further still from an earlier spacing-12
-pass, once that read as too airy for a divider that sits between two
-content sections inside one card rather than closing it) — separates
-the identity block above from the persona badges and platform list
-below, instead of relying on spacing alone.
-
-**Profile card — Persona type.** Sits directly below the divider,
-above the platform list. One [Badge](#badge--tag) per category,
-Neutral variant, spacing-4 between adjacent badges (Badge & Tag's own
-documented grouping rule), not one comma-joined label. Sorted
-**alphabetically** — `Beauty` · `Entertainment` · `Fashion` · `Food &
-Lifestyle`, not the order categories happened to be entered in — same
-stable-ordering rationale as the platform list's own alphabetical
-sort below. Wraps freely to as many lines as the category count needs
-— no single-line constraint — spacing-4 below it before the platform
-list starts (tightened from an earlier spacing-8 pass, and much
-tighter than the spacing-16 gap between platform rows themselves,
-since persona badges and the platform list are two sub-sections of
-one region, not two independent rows, while each platform row is
-already its own self-contained unit that needs the fuller gap).
-
-**Profile card — Platform list.** No divider between individual
-platform rows — a spacing-16 vertical gap between rows (widened
-slightly from an earlier spacing-12 pass, once that read as too tight
-against the identity block above) carries the separation on its own,
-since each row already reads as a self-contained unit (icon, name,
-handle, tier, count) without needing a rule to mark its edge. Rows are
-sorted **alphabetically by platform name** (Instagram, TikTok,
-Xiaohongshu, …), not by follower count or tier — a stable, predictable
-order regardless of which platforms a given profile has connected.
+**Profile card — Platform list.** Starts spacing-24 below the identity
+block and clears the card's bottom edge by spacing-8 more than the
+card's own padding — see **Vertical rhythm**, above. No divider between
+rows — and, as of this pass, no divider
+above the list either: a spacing-16 vertical gap between rows carries
+the separation on its own, since each row already reads as a
+self-contained unit. Rows are sorted **alphabetically by platform
+name** (Instagram, TikTok, Xiaohongshu, …), not by follower count or
+tier — a stable, predictable order regardless of which platforms a
+given profile has connected.
 
 | Part | Spec |
 |---|---|
-| Row | leading Platform icon + Platform name/Handle text stack + trailing Tier badge/Follower count, spacing-12 gap between zones, all three zones **vertically centered** on the row (not top-aligned) so the two-line name/handle stack, the single-line icon, and the trailing pair all share the same visual middle |
-| Platform icon | `icon-sm` (16px), Neutral-9, **Tier 2, Fill** (an expressive/informational glyph, per [Iconography](#iconography), the same tier as a card header icon) — Phosphor's own brand glyph where one exists (`ph-fill ph-tiktok-logo`, `ph-fill ph-instagram-logo`); for a platform Phosphor doesn't carry a logo for, use the matching file from [`SVG/`](#using-this-system-in-an-existing-project) instead of stretching a Remix substitute that wouldn't actually read as that platform — Xiaohongshu uses `SVG/Xiaohongshu-word-icon.svg`, inlined (not `<img>`, so its fill can inherit) at the same 16px box, `fill="currentColor"` so it takes the row's own Neutral-9 the same way the Phosphor glyphs do, not its source file's original locked-in `#000000` fill |
-| Platform name | the base Card's own Description token, verbatim: body2 (14px/400), Neutral-5 — same `<p>` styling as Row 2's Age/Gender/Location line, not a bolded/blackened one-off; abbreviate long platform names at content level when needed (Xiaohongshu's own name is short enough it doesn't need one — drop the earlier "(XHS)" parenthetical and the internal caps, sentence case like every other platform name here), the component itself never truncates a platform name |
-| Handle | caption, Neutral-9 (**not** a colored link), weight 400/regular — plain text, no underline; not [Button](#button)'s Link variant recipe (that convention is reserved for actual clickable link-styled controls like Filters' own **Clear all**, and a platform handle here is display text, not a tappable link affordance); directly below Platform name in the same text stack — truncates with an ellipsis past the row's available width once the trailing zone has taken its own space |
-| Tier badge | [Tag](#badge--tag)'s own elemental recipe for the five follower-count tiers, plus [Tag](#badge--tag)'s plain (unmodified, grey) form for the two non-ranked tiers — seven tiers total, see the table below. Sits inline, immediately before the Follower count, same row, right-aligned as a pair. |
-| Follower count | caption size (12px/16px, matching the Handle directly above it in the same column), weight 700, Neutral-9, tabular numerals, abbreviated per this document's own Numbers content rule (52K, not 52,000) — bold weight keeps it reading as a headline-weight value rather than a de-emphasized metadata figure, while its size now matches the Handle instead of the base Card's Title token; right-aligned in the trailing zone, no "Followers" label — the platform icon and stacked name/handle already establish what the number is counting; sits directly after the Tier badge, same row |
+| Row | platform name (left, flexes to fill) + follower count + Tier badge (both right), spacing-8 gap, all zones vertically centred |
+| Platform icon | **none.** The row previously led with a 16px platform glyph; it no longer does. The platform's own name is already the row's first and most prominent element, and a glyph beside a word that says the same thing is decoration, not information. This also retires the one place the system inlined `SVG/Xiaohongshu-word-icon.svg` — a platform Phosphor carries no logo for is now simply named in text like every other |
+| Platform name | the base Card's own Description token, verbatim: body2 (14px/400), Neutral-5. Sentence case; abbreviate long platform names at content level when needed. Truncates with an ellipsis once the trailing zones have taken their own space |
+| Follower count | caption (12px/16px), weight **700**, Neutral-9, tabular numerals, abbreviated per this document's own Numbers content rule (52K, not 52,000). No "Followers" label — the platform name already establishes what the number counts. Sits **before** the Tier badge, not after it: the count is the fact, the badge is that fact classified, so the row reads value-then-label. It is also the row's link — see **Follower count as link**, below |
+| Tier badge | [Tag](#badge--tag)'s own elemental recipe for the five ranked tiers, plus Tag's plain (unmodified, grey) form for the two role-based ones — see **Tier badge, all seven tiers**, below. Right-most in the row, always |
+| Handle | **not shown.** The handle is a lookup key, not a reason to pick anyone; it stays searchable but never occupies a row. It also isn't revealed on hover — an earlier pass swapped the count for the handle on hover and that is explicitly retired, see below |
 
-**Profile card — Empty sections are removed, not left blank.** Both
-the Persona type section and the Platform list are optional as a
-*whole section*, not just empty-safe — if a profile has zero persona
-categories, or zero connected platforms, that entire section
-(including its own spacing/margin) is removed from the card's layout
-rather than rendered as an empty gap. The section below it shifts up
-to close the space, the same way a `display: none` element (not just
-`visibility: hidden`) collapses out of normal flow. A Profile card
-with no persona categories goes straight from the divider into the
-platform list; a Profile card with no connected platforms ends at the
-persona badges (or at the divider, if that's empty too) — never a
-dead blank region sized for content that isn't there.
+**Profile card — Follower count as link.** The count is the row's one
+interactive element: an `<a>` to that platform profile that
+**underlines on hover and on focus-visible, and never changes its
+text**.
+
+| Part | Spec |
+|---|---|
+| Rest | caption/700/Neutral-9, tabular numerals, no underline, no link colour. It reads as the value it is; the affordance only appears on approach |
+| Hover / focus-visible | underline only. No colour change, no weight change, no text change — and focus-visible additionally takes the system's own `shadow-focus` ring |
+| Not a text swap | an earlier pass replaced the count with the handle on hover, in the same slot. That is **retired.** A number that turns into a different string under the cursor means the one fact the row exists to report disappears exactly when someone points at it, and a roster is scanned by comparing those numbers across cards. The underline carries "this is clickable" without spending the count to say it |
+| Accessible name | the visible text is just "31K", which alone tells a screen-reader user nothing about what it counts, so each link carries an `aria-label` naming the platform and the figure — e.g. `aria-label="Instagram, 31K followers"` |
+| Why not the platform name | the name is the row's label and the count is its value; making the label clickable and the value inert would invert which one the row is actually about |
 
 **Profile card — Tier badge, all seven tiers.** Five are ranked by
-follower count, low to high; two — KOC and Seeder — describe a role
-rather than a follower-count bracket, so they sit outside the ranking
-entirely rather than being squeezed into it at some arbitrary point.
+follower count, low to high, and take [Tag](#badge--tag)'s elemental
+recipe; two — KOC and Seeder — describe a **role** rather than a
+follower-count bracket, so they sit outside the ranking entirely
+rather than being squeezed into it at some arbitrary point.
 
-| Tier | Meaning | Recipe |
-|---|---|---|
-| Nano | Smallest follower-count bracket | [Tag](#badge--tag)'s Wood (salmon pink) |
-| Micro | | Tag's Earth (green) |
-| Mid | | Tag's Water (navy) |
-| Macro | | Tag's Fire (orange) |
-| Mega | Largest follower-count bracket | Tag's Gold (amber) |
-| KOC | Key Opinion Consumer — an everyday product user sharing honest reviews/recommendations, not ranked by reach | Tag's own plain/unmodified form — Neutral-2 fill, Neutral-5 text, **no dot** |
-| Seeder | A seeded/gifted-product participant, not ranked by reach | Tag's own plain/unmodified form — Neutral-2 fill, Neutral-5 text, **no dot** |
+| Tier | Followers | Meaning | Recipe |
+|---|---|---|---|
+| Nano | under 5,000 | Smallest follower-count bracket | [Tag](#badge--tag)'s Wood (salmon pink) |
+| Micro | 5,000–19,999 | | Tag's Earth (green) |
+| Mid | 20,000–99,999 | | Tag's Water (navy) |
+| Macro | 100,000–499,999 | | Tag's Fire (orange) |
+| Mega | 500,000+ | Largest follower-count bracket | Tag's Gold (amber) |
+| KOC | — | Key Opinion Consumer — an everyday product user sharing honest reviews/recommendations, not ranked by reach | Tag's own plain/unmodified form — Neutral-2 fill, Neutral-5 text, **no dot** |
+| Seeder | — | A seeded/gifted-product participant, not ranked by reach | Tag's own plain/unmodified form — Neutral-2 fill, Neutral-5 text, **no dot** |
 
 The five ranked tiers reuse Tag's elemental recipe (the owning tier's
 `-bg` tint at 8% as fill, full-strength element color for both text
@@ -2550,6 +2603,26 @@ drop the dot along with the color — the dot signals "this tier sits on
 the ranked ladder," and neither of these two does, so a plain grey Tag
 with no dot correctly reads as "outside the ranking" rather than as an
 unassigned or broken ranked tier.
+
+**The five ranked tiers are computed, never chosen.** The thresholds
+above are the whole rule: a row's tier follows from its follower count
+and nothing else — not from who the person is, not from how the card
+was authored. The two role-based tiers are the only ones a human
+assigns, and they're assignments about *what someone does*, not about
+reach, which is exactly why they carry no bracket and no dot.
+
+**Profile card — Empty sections are removed, not left blank.** Both
+the Persona line and the Platform list are optional as a *whole
+section*, not just empty-safe — if a profile has zero persona
+categories, or zero connected platforms, that entire section
+(including its own spacing/margin) is removed from the card's layout
+rather than rendered as an empty gap. The section below it shifts up
+to close the space, the same way a `display: none` element (not just
+`visibility: hidden`) collapses out of normal flow. A Profile card
+with no persona categories goes straight from the Meta line into the
+platform list; a Profile card with no connected platforms ends at the
+Persona line (or at the Meta line, if that's empty too) — never a dead
+blank region sized for content that isn't there.
 
 **Profile card — Placement in a row.** Follows the universal **Grid
 layout** rule, above: `align-items: stretch` on the grid container,
@@ -2570,7 +2643,10 @@ Equal height rows**, above).
 hover raises to `shadow-2`; cursor pointer; focus-visible gets
 `shadow-focus`. A Profile card only carries this variant when it's
 actually selectable (e.g. a talent roster with bulk actions) — a
-purely informational Profile card (no selection context) stays Static.
+purely informational Profile card (no selection context) stays Static
+and drops the Select checkbox from its Controls row, keeping the
+kebab. Checking the box moves the card into its own **Selected**
+variant, below.
 
 Hover in/out and toggling into or out of Selected both animate the
 card's `box-shadow` and `border-color` on the same `duration-base`/
@@ -2581,38 +2657,103 @@ included in that transition — see Selected's own Border row below for
 why animating them would itself cause the exact content-shift bug this
 variant has to avoid.
 
-When a Profile card is Interactive in this selectable sense, a
-[Checkbox](#checkbox)'s own real check box (`.c-checkbox-box`/`.on`,
-18×18px, 6px radius, Obsidian border+fill when checked with the
-`icon-micro` check glyph — the exact same recipe, not a re-skinned
-one-off) sits top-right of the card, spacing-16 inset from the top and
-right edges (the card's own padding). It's hidden at rest and revealed
-on hover — `opacity: 0 → 1` — the same hover-reveals-checkbox pattern
-[Table](#table)'s own bulk-select column already uses for its row
-checkboxes, reused here rather than inventing a second convention for
-"a checkbox that only appears when you're about to use it." Checking
-it moves the card into its own **Selected** variant, below.
-
-Reserve **spacing-24** of extra right padding on the header's text
-block (Name + Age/Gender/Location) whenever the card is Interactive —
-whether the checkbox is currently visible (hover) or not (rest). The
-checkbox only *appears* on hover, but its footprint has to be
-respected at rest too, otherwise Name/the meta line would truncate at
-one width while idle and suddenly get clipped shorter the moment the
-checkbox fades in on hover — a layout jump, not just a color change.
-Reserving the space up front means hovering never shifts where Row 1
-or Row 2 truncates.
-
 **Profile card — Selected.** A persistent state, not a hover state —
 once checked, the card stays visually marked as selected regardless of
 mouse position:
 
 | Part | Spec |
 |---|---|
-| Border | 2px Obsidian (replacing the base Card's 1px Neutral-3) — the same "2px Obsidian border signals actively engaged" convention [Search input](#search-input)'s own Active state already uses, reused here rather than a new selection color. Padding drops by 1px/side in the same instant (`spacing-16` → `spacing-16 − 1px`) — the exact compensation [Search input](#search-input)'s own Active state already documents for its own 1px→2px border swap — so the card's *inner content box* never moves: without it, the extra 1px of border on every edge would shrink the content area by 2px each direction the instant a card is selected, reading as the header/platform rows visibly shifting or shrinking rather than just a border appearing. This swap is deliberately **instant, not animated** — `border-width` can't transition in lockstep with a transitioning `padding` (they'd land at different values on different frames), so animating either alone reintroduces the exact shift the compensation exists to prevent; both change in the same frame instead, while `border-color` and `box-shadow` (which don't affect layout at all) are free to animate smoothly |
+| Border | 2px Obsidian (replacing the base Card's 1px Neutral-3) — the same "2px Obsidian border signals actively engaged" convention [Search input](#search-input)'s own Active state already uses, reused here rather than a new selection color. Padding drops by 1px/side in the same instant (`spacing-16` → `spacing-16 − 1px`) — the exact compensation [Search input](#search-input)'s own Active state already documents for its own 1px→2px border swap — so the card's *inner content box* never moves: without it, the extra 1px of border on every edge would shrink the content area by 2px each direction the instant a card is selected, reading as the identity block/platform rows visibly shifting or shrinking rather than just a border appearing. This swap is deliberately **instant, not animated** — `border-width` can't transition in lockstep with a transitioning `padding` (they'd land at different values on different frames), so animating either alone reintroduces the exact shift the compensation exists to prevent; both change in the same frame instead, while `border-color` and `box-shadow` (which don't affect layout at all) are free to animate smoothly |
 | Elevation | `shadow-3` — one step past the Interactive variant's own hover-only `shadow-2`, so a selected card reads as persistently "lifted" even when the pointer isn't over it, not just bordered. Reuses the same elevation scale [Elevation](#elevation) already defines rather than inventing a new shadow value |
-| Checkbox | stays visible at `opacity: 1` (no longer hover-only) and checked — Obsidian fill, `icon-micro` check glyph, Checkbox's own real `.c-checkbox-box.on` state, not a separate "selected card" glyph |
-| Everything else | unchanged — Selected doesn't add a fill tint and doesn't recolor any text; border + elevation + the persistent checked checkbox are the only three signals, so Selected never competes visually with the Tier badge's own element colors inside the card |
+| Checkbox | checked — Obsidian fill, `icon-micro` check glyph, Checkbox's own real `.c-checkbox-box.on` state, not a separate "selected card" glyph. Its *visibility* doesn't change, since it was already always visible |
+| Everything else | unchanged — Selected doesn't add a fill tint and doesn't recolor any text; border + elevation + the checked checkbox are the only three signals, so Selected never competes visually with the Tier badge's own element colors inside the card |
+
+⚠️ **Campaign card comes from a product handoff spec**, not from the
+original brand deck — `CampaignBoardCard` as shipped in the campaigns
+board. The values below are that spec's, reconciled against this
+document's own tokens; every place the two disagreed is called out in
+**Campaign card — What this variant borrows and what it overrides**,
+below, rather than silently resolved.
+
+**Campaign card.** One campaign as a tile on a kanban board, one column
+per stage. An identity row (brand mark, name, brand, owner faces), a
+full-width divider, the dates, then a two-column Pax/Quote grid.
+
+**Campaign card — The five rules that make it this card.**
+
+1. **Six things and no more.** The brand's mark, the campaign name, the
+   brand, who owns it, when it runs, what it is worth. Everything else
+   a campaign carries lives on the campaign's own page, one click away.
+   A board tile is scanned, not read.
+2. **No status on the card.** The column it sits in *is* the stage, so a
+   stage tag here would restate the heading directly above it. The one
+   exception is the **Lead tag** — a lead is a campaign that has not
+   entered the pipeline yet, which is a different claim from "this
+   campaign is at stage X." A table view, which has no columns to carry
+   the stage, needs its own stage cell instead.
+3. **The faces ride the name**, not a row of their own. Who owns a
+   campaign is part of recognising it, not a footnote.
+4. **A rule that stops where the text stops separates nothing** — the
+   divider runs the card's full width. It separates what the campaign
+   *is* (above) from what is *known* about it (below).
+5. **Em dash, never zero.** An unset Pax, Quote or date renders `—`, not
+   `0` and not a blank: nobody has quoted nothing. Empty values also
+   drop to Neutral-4, so they read as absent rather than as a value.
+   Pax and Quote carry eyebrow labels and the date and faces do not — a
+   date reads as a date and a face reads as a person, but a bare `8`
+   beside a bare `RM 72,500` is two numbers with nothing saying which
+   is which.
+
+**Campaign card — Anatomy.**
+
+| Part | Spec |
+|---|---|
+| Container | spacing-16 padding, **14px radius**, Neutral-1 fill, `shadow-1`, and **no border** — two deliberate departures from the base Card, see the reconciliation table below. `height: auto`, not the base Card's `height: 100%` |
+| Brand mark | 32×32px, 9px radius, `object-fit: contain` on a Neutral-1 fill with a 1px Neutral-3 border. The fill stays for logos with transparent backgrounds; `contain` because every resolved logo is already square. **Placeholder** (no logo resolved): `--color-water-bg` fill with a `ph-fill ph-buildings` glyph at `icon-sm` in `--color-navy` |
+| Title | `label2` (13px/18px/700), Neutral-9, truncates. Clamp by character count at content level *in addition to* CSS truncation, so a pathological name can't defeat the ellipsis |
+| Lead tag (optional) | 20px height, 0/spacing-8 padding, `radius-pill`, **1px dashed Neutral-4**, transparent fill, `label3` size (11px)/700, uppercase, `letter-spacing: .08em`, Neutral-5. Dashed and colourless on purpose: it says *provisional* without spending a colour, which is what stops it reading as one more status chip |
+| Brand line | `caption` (12px/16px/400), Neutral-5, truncates, `—` when the brand is unknown |
+| Owner faces | 22×22px circles, 2px Neutral-1 border, 10px/700 initials on Neutral-2. A second (overseer) face overlaps the first by −7px and takes a `#E6E0F5` fill. With no PIC recorded the first face falls back to `?` |
+| Faces tooltip | the real [Tooltip](#tooltip) component, reading "Sarah K. · overseen by Lina M." (or "· no overseer"). The faces span carries `tabindex="0"` so the pairing is reachable **on focus, not only on hover** — two overlapping initials are not self-explanatory, and a mouse-only explanation leaves keyboard users with no way to find out who owns the campaign |
+| Divider | spacing-12 margin-top, spacing-8 padding-top, 1px `#EDEDED`, full width |
+| Date | `label3` size (11px) at weight **500**, Neutral-5, with a 12px `ph ph-calendar-blank` — **Regular (outline)**, not the Fill that [Iconography](#iconography)'s "Card / section header: Calendar → Fill" row would otherwise call for. This isn't a departure from that rule so much as its own stated limit: Tier 2 says Fill "reads naturally" at `icon-md` (24px) **and above**, and 12px is below even `--icon-micro` (14px), the smallest icon size this system defines. At that size a filled calendar loses its internal grid and collapses into a solid rounded block — it stops reading as a calendar at all, which is the one job the glyph has here. Neutral-4 and `—` when unset |
+| Metric label | 10px/13px/700, uppercase, `letter-spacing: .08em`, `#777777` |
+| Metric value | `caption` size (12px/16px) at weight **700**, tabular numerals, Neutral-9, truncates — the same caption-size/bold-weight recipe Profile card's own Follower count uses. Neutral-4 when `—` |
+| Metric grid | 2 equal columns, spacing-8 gap, spacing-8 margin-top; spacing-4 between each label and its value |
+
+**Campaign card — States.**
+
+| State | Spec |
+|---|---|
+| Rest | `shadow-1`, no border |
+| Hover | `shadow-3` **and** `translateY(-1px)` — the lift is what makes the tile read as pickable rather than merely highlighted. Suppressed under `prefers-reduced-motion`, where the shadow change carries the hover alone |
+| Focus-visible | `shadow-focus`, no outline — the same Water focus ring as every other focusable surface here |
+| Dragging | `opacity: .35`, and the tile **stays in its place** rather than being removed from the column. A tile that leaves a hole reflows the board under the pointer mid-drag, which moves the drop target the person is aiming at |
+| Cursor | `grab`, becoming `grabbing` on press, whenever the viewer can manage campaigns; `pointer` (via `.is-static`) when they can only open them. The cursor is the only thing that distinguishes the two — there is no separate read-only styling |
+| Transition | `box-shadow`, `transform` and `opacity` on `duration-fast`/`ease-standard` (140ms, `cubic-bezier(.2,.6,.2,1)`) — the handoff spec's own transition turned out to be these two tokens exactly, so nothing was invented here |
+
+**Campaign card — Interaction contract.** The tile is an `<article>`
+with `role="button"` and `tabindex="0"`, labelled "‹campaign name› —
+open campaign", and it opens on click, Enter **and** Space. The faces
+tooltip's own trigger is a nested focusable inside it, which is
+deliberate: the tile and the question "who owns this?" are two separate
+things a keyboard user needs to reach.
+
+**Campaign card — What this variant borrows and what it overrides.**
+The handoff spec was written against a different root font size and its
+own local palette, so it is reconciled here rather than copied:
+
+| Value | Resolution |
+|---|---|
+| Root size | the source sets `html { font-size: 90% }`, so every rem-derived size in its own CSS renders 10% small — its 28.8px mark is `w-8`, its 14.4px padding is `p-4`. This system runs at 100%, so those take their **true** values: a **32px** mark and **spacing-16** padding. Arbitrary pixel values in the source (`14px` radius, `22px` faces, `13px`/`12px`/`11px`/`10px` type) are exact at either root and carry over unchanged |
+| `shadow-1`, `shadow-3`, focus ring, 140ms `cubic-bezier(.2,.6,.2,1)` | already this system's `--shadow-1`, `--shadow-3`, `--shadow-focus`, `--duration-fast` and `--ease-standard`, value for value. Nothing to reconcile |
+| Title, brand line, metric value | map exactly onto `label2`, `caption`, and caption-size-at-700. Use the tokens, not the literals |
+| 10px gaps (`gap-2.5`) | **snapped to the 4px grid** — spacing-8 for the divider's padding-top and the metric grid's gap, spacing-12 for the identity row, which is the same mark-to-text gap the base Card's icon-chip header already uses. This system's spacing scale is strictly 4-based and a 10px gap has no token |
+| Brand-mark placeholder tint | the source uses Water at **10%**; this uses `--color-water-bg` (**8%**), because [Elemental background tints](#color-palette) permits only the 8%/16% steps and an arbitrary tint strength would break that rule for a 32px square |
+| 14px radius | kept as a **scoped literal**. It sits between `--radius-sm` (12px) and `--radius-md` (16px) with no token of its own, and the base Card's `--radius-lg` (20px) is visibly too soft for a dense column of tiles |
+| No border | kept. `shadow-1` alone carries the edge so a column of tiles reads as objects resting on a surface; the base Card's 1px Neutral-3 turns the same column into a stack of framed panels |
+| `#EDEDED` divider, `#777777` metric label, `#E6E0F5` overseer fill | kept as **scoped literals**, the same way [Hero Card](#card)'s AI (Dark) variant scopes its own `rgba(255,255,255,.08)` border. Each is deliberately *between* two of this system's neutrals — a hairline lighter than Neutral-3, a label lighter than Neutral-5 — and promoting any of them to a token would imply a general-purpose step this system has not agreed to |
+| 10px metric label | kept. It is the only sub-11px type here, and it earns the exception: the label sits directly under a 12px value, and this system's own eyebrow recipe (caption + uppercase + `tracking-eyebrow`) is *also* 12px, which would tie with the value instead of sitting under it. Note the tracking is `.08em`, not `--tracking-eyebrow`'s `.12em` |
 
 ⚠️ **Hero Card is designed from scratch** — no source in either the
 original brand deck or the teammate's build. First reviewed and
@@ -2711,13 +2852,15 @@ simplified stand-in for the other.
 **Do:** let cards carry `shadow-1` — that's the intended resting state.
 Use the 12% icon-chip tint and the 8% full-card `-bg` tint deliberately —
 they're not interchangeable. Treat the Price summary card's Remove ×
-as optional per row. Keep the Profile card's Follower count at the same
-caption size as the Handle directly above it, while keeping its own
-bold (700) weight — it stays a headline-weight value against the
-Handle's regular weight, not a smaller supporting figure, just no
-longer sized to the Title token. Reuse the Selectable/Selected
-checkbox recipe identically across the Interactive card and the
-Profile card — one hover-reveal convention, not two. **Don't:** tint a card with an
+as optional per row. Keep the Profile card's Follower count at caption
+size with its own bold (700) weight — it stays a headline-weight value
+against the platform name's regular weight, not a smaller supporting
+figure. Reuse the same Checkbox box recipe across the Interactive card
+and the Profile card — one box, two placements. Do compute the five
+ranked tiers from the follower count against the documented
+thresholds, never by hand. Do render an unset Pax, Quote or date on a
+Campaign card as an em dash in Neutral-4 — never a `0`, never a blank
+cell. **Don't:** tint a card with an
 element that doesn't own its content. Don't omit the Header or Total
 row in the Price summary card's Filled state — a total with no
 visible sum defeats the component's purpose. Don't read the Profile
@@ -2725,11 +2868,23 @@ card's Tier badge as a department/ownership signal even though it
 reuses Tag's own Wood/Earth/Water/Fire/Gold classes — here the five
 colors mean follower tier (Nano→Mega), not "this row belongs to the
 Wood/Earth/Water/Fire/Gold department," so keep the Tier badge
-visually scoped to this one row
-rather than implying department ownership applies to the rest of the
-card. Don't comma-join the Profile card's
-persona categories into one Subtitle line — each is its own Badge, so
-they scan independently and never need mid-word truncation. **Do** use
+visually scoped to this one row rather than implying department
+ownership applies to the rest of the card. Don't hide a
+Profile card's Select checkbox or kebab behind hover — that card is
+the documented exception to the hover-reveal convention, not an
+oversight. Don't swap the Follower count's text for the handle on
+hover — it underlines and keeps its number; a count that vanishes
+under the cursor breaks the one comparison a roster exists to support.
+Don't give the Persona line one Badge per category — it is
+a single dot-separated caption line that truncates, which reverses an
+earlier rule here; Badges returned the card to a variable-height block
+that fought the platform list for attention. Don't put a stage tag on a
+Campaign card — the board column it sits in already states the stage,
+and the Lead tag is not an exception to that rule but a different
+claim ("not in the pipeline yet"). Don't give a Campaign card the base
+Card's border or `radius-lg`, or stretch it to `height: 100%` — a board
+tile hugs its content, and equal-height is a grid-row rule that a
+kanban column isn't subject to. **Do** use
 `align-items: stretch` on every card grid container — universal, no
 exceptions, including the Price summary + USP pairing. Do use
 `height: 100%` on every card in a grid so it fills its cell. Do use
@@ -5583,9 +5738,9 @@ page destination itself.
 | Part | Spec |
 |---|---|
 | Trigger — expanded | full width button, 0/spacing-12 padding, 56px height (taller than Nav item's 40px, to fit two stacked text lines), `radius-sm`, spacing-12 gap between avatar and text block; flex row, avatar left-aligned, text block fills the remaining width |
-| Avatar | 36×36px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, weight 700, label2 size, showing initials — [Card](#card)'s own Profile card avatar recipe, reused verbatim rather than a new avatar treatment, including its **Avatar initials logic** (2 characters derived from Name, Malay naming particles skipped, single-word names get 1 character, no per-person color) |
-| Name | body2 (14px), weight 700, Neutral-9, single line, truncates with an ellipsis — same truncation precedent as Profile card's own Row 1 — Name. This is a deliberate exception to SidebarNav's general "labels wrap, they don't truncate" rule (see above): that rule protects a single-line Nav item label with nowhere else to go; this trigger already reserves a fixed second line for Role, so letting Name wrap instead would silently grow the footer past its own fixed height |
-| Role | caption (12px), weight 400, Neutral-5, single line, truncates with an ellipsis, directly below Name — spacing-4 (4px) between the two lines, matching Profile card's own Row 1 → Row 2 spacing |
+| Avatar | 36×36px circle, `radius-pill`, Neutral-2 fill, Neutral-9 text, weight 700, label2 size, showing initials — [Card](#card)'s own Profile card avatar treatment, at this trigger's own 36×36 size rather than that card's 56×56 (the two differ only in scale: same circle, same Neutral-2/Neutral-9 pair, same no-per-person-color rule), including its **Avatar initials logic** (2 characters derived from Name, Malay naming particles skipped, single-word names get 1 character, no per-person color) |
+| Name | body2 (14px), weight 700, Neutral-9, single line, truncates with an ellipsis — same truncation precedent as Profile card's own Name. This is a deliberate exception to SidebarNav's general "labels wrap, they don't truncate" rule (see above): that rule protects a single-line Nav item label with nowhere else to go; this trigger already reserves a fixed second line for Role, so letting Name wrap instead would silently grow the footer past its own fixed height |
+| Role | caption (12px), weight 400, Neutral-5, single line, truncates with an ellipsis, directly below Name — spacing-4 (4px) between the two lines, matching Profile card's own Name → Meta line spacing |
 | Hover | Neutral-2 fill — reuses Nav item's own hover token, same row-control precedent as every other clickable row in SidebarNav |
 | Focus-visible | 2px Obsidian outline, 2px offset — reuses Button's exact focus-visible token, same precedent as Nav item's own focus-visible |
 | Open (menu visible) | Neutral-2 fill persists on the trigger — same precedent as Department switcher trigger's own active/open state, above |
@@ -6772,6 +6927,176 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.105 — 2026-09-22** — [Card](#card) gains **Campaign card**, a
+  kanban board tile for one campaign, and [Iconography](#iconography)
+  gains the size floor that card's date icon exposed.
+
+  The card carries **six things and no more** — brand mark, campaign
+  name, brand, owner faces, dates, worth — over a full-width divider
+  that separates what the campaign **is** from what is **known** about it.
+  It deliberately has **no stage tag**: the board column a tile sits in
+  already states the stage, so a tag would restate the heading directly
+  above it. The optional **Lead tag** is not an exception to that but a
+  different claim — "not in the pipeline yet" rather than "at stage X" —
+  and it is drawn dashed and colourless so it can't be mistaken for one
+  more status chip. Unset Pax, Quote and dates render an **em dash in
+  Neutral-4, never a zero and never a blank**: nobody has quoted
+  nothing, and Neutral-4 is what makes the value read as absent rather
+  than as a number. Owner faces ride the name instead of taking a row of
+  their own, wrapped in the real [Tooltip](#tooltip) with a `tabindex`
+  so the "Sarah K. · overseen by Lina M." pairing is reachable on focus
+  and not only on hover — two overlapping initials are not
+  self-explanatory, and a mouse-only explanation leaves keyboard users
+  with no way to learn who owns the campaign.
+
+  **Two departures from the base Card, both deliberate.** The tile drops
+  the 1px Neutral-3 border entirely — `shadow-1` alone carries the edge,
+  so a column of tiles reads as objects resting on a surface instead of
+  a stack of framed panels — and tightens the radius to **14px**, which
+  sits between `--radius-sm` and `--radius-md` with no token of its own
+  and is visibly less soft than the base Card's `--radius-lg`. It also
+  drops `height: 100%`: board tiles hug their content, and equal-height
+  is a grid-**row** rule that a kanban column isn't subject to.
+
+  **The source spec was reconciled, not pasted.** It is written against
+  a `font-size: 90%` root, so every rem-derived value in its own CSS
+  renders 10% small — its 28.8px brand mark is `w-8` and its 14.4px
+  padding is `p-4`. Both take their true values here (**32px** and
+  **spacing-16**); arbitrary pixel values (the 14px radius, 22px faces,
+  13/12/11/10px type) are exact at either root and carry over unchanged.
+  Its `shadow-1`, `shadow-3`, focus ring and `140ms
+  cubic-bezier(.2,.6,.2,1)` transition turned out to be this system's
+  `--shadow-1`, `--shadow-3`, `--shadow-focus`, `--duration-fast` and
+  `--ease-standard` **value for value**, so nothing was invented there;
+  its title, brand line and metric value map exactly onto `label2`,
+  `caption`, and caption-size-at-700. Its 10px (`gap-2.5`) gaps were
+  **snapped to this system's 4px grid** — spacing-8, and spacing-12 for
+  the identity row, matching the mark-to-text gap the base Card's
+  icon-chip header already uses. Its Water-at-10% placeholder tint was
+  snapped to `--color-water-bg` (8%), because [Elemental background
+  tints](#color-palette) permits only the 8%/16% steps. What stayed as
+  **scoped literals**, documented with reasons rather than promoted to
+  tokens: the 14px radius, `#EDEDED` divider, `#777777` metric label,
+  `#E6E0F5` overseer fill, and a 10px/`.08em` metric label — each sits
+  deliberately **between** two existing steps, and the 10px is the only
+  sub-11px type here because the label has to sit quieter than the 12px
+  value directly beneath it, where the standard caption-sized eyebrow
+  would tie with it instead.
+
+  **The date icon is Regular, and that is now a general rule.** Tier 2
+  already said Fill "reads naturally" at `icon-md` (24px) **and above**;
+  what it never said was what happens underneath. A filled glyph at
+  11–12px loses its internal detail and collapses into a solid shape —
+  a 12px `ph-fill ph-calendar-blank` stops reading as a calendar at all,
+  which is the one job it has on this card. Iconography now states the
+  floor explicitly: **below `icon-micro` (14px) a Tier 2 icon takes
+  Regular**, staying Tier 2 by category with only its weight changing,
+  and with no licence to drop to Regular at 14px or above. Worth noting
+  for whoever picks this up: [Date picker](#date-picker)'s own trigger
+  calendar is still Fill and sits above that floor, so it is untouched
+  and not in conflict — but it remains one of the icon-tier judgment
+  calls **Needs Input** #11 lists as unconfirmed.
+
+  `components.css`: `.c-card-campaign*` added after the Profile card
+  block, including a `.c-card-campaign .c-card-campaign-title` selector
+  scoped two classes deep on purpose, since `.c-card h5` out-specifies a
+  bare class and would reset the title's size. `tokens.css`: unchanged —
+  every value either mapped to an existing token or is scoped to this
+  one variant. `preview.html`: a **Campaign cards** subsection in the
+  Card block with three tiles — filled, a Lead showing all three empty
+  states at once, and the `.is-dragging` state — plus a
+  `.campaign-cards-grid` demo style using `align-items: start` rather
+  than the Profile grid's `stretch`.
+
+- **v0.9.104 — 2026-09-22** — [Card](#card)'s **Profile card** variant is
+  rebuilt around a centred avatar, and its Select checkbox stops hiding.
+  The identity block was a left-aligned header — a 36×36 initials avatar
+  in the base Card's own icon-chip slot, beside a stacked Name and
+  Age/Gender/Location pair. It is now centred and vertical: a **Controls
+  row**, then a **56×56 avatar** that takes an optional `<img>` over its
+  initials, then Name, a caption-sized Meta line and a Persona line. The
+  avatar grew because it no longer sits inside the icon-chip slot — it is the
+  card's main element, and 36px could not carry that at the card's own
+  240px floor. The Meta line drops from body2 to caption for the mirrored
+  reason: with the avatar leading, it is supporting text rather than a
+  co-equal second row. [SidebarNav](#sidebarnav)'s user trigger, which
+  borrowed this avatar recipe "verbatim," now says it borrows the
+  treatment at its own 36×36 — the two differ in scale and nothing else.
+
+  **The Select checkbox and a new kebab are always visible.** This is a
+  deliberate, documented exception to the hover-reveal convention
+  [Table](#table)'s bulk-select column and Card's own Interactive/
+  Selectable variant share, and the Interactive card's own Reveal row now
+  names it as such rather than claiming one convention covers all three.
+  The reason is the pairing: a checkbox that fades in on hover beside a
+  kebab that must stay permanently discoverable reads as a rendering bug,
+  not as restraint. Because the Controls row lays out in normal flow
+  instead of overlaying the card's corner, the `spacing-24` right-padding
+  reserve the identity block carried — there purely so hovering could not
+  shift where Name truncated — is **removed**; there is no longer a hover
+  state that could move anything. The kebab opens a five-action menu
+  (View details, Pin to top, Edit, Sync profile, Archive) reusing
+  SidebarNav's own user-menu popover recipe at a compact 160px/32px
+  rather than its 240px/40px, opening downward because this trigger sits
+  at the top of its container. Archive is **not** styled destructively —
+  it is reversible, and Red stays reserved for genuine deletion.
+
+  **Handles are gone from the card, and the follower count is now the
+  link.** The handle used to sit permanently under each platform name as
+  plain, explicitly non-clickable text. A first pass replaced that with a
+  hover reveal — the count swapping to the handle in its own slot — and
+  that was built, then **retired within this same pass**: a number that
+  turns into a different string under the cursor removes the one fact the
+  row exists to report at exactly the moment someone points at it, and a
+  roster is read by comparing those numbers across cards. The count keeps
+  its text and underlines on hover and focus-visible instead, carrying an
+  `aria-label` naming the platform and figure, since "31K" alone tells a
+  screen-reader user nothing. The handle stays searchable; it is a lookup
+  key, not a reason to pick anyone.
+
+  **Tier badges stay on the element ramp.** A seven-colour tier scale
+  from the source handoff spec (its own `--tier-*` ink/dot pairs, a flat
+  Neutral-2 pill, KOC and Seeder promoted to the bottom two rungs) was
+  built and then **reverted** in favour of the existing mapping:
+  [Tag](#badge--tag)'s Wood/Earth/Water/Fire/Gold for Nano→Mega, and
+  Tag's plain grey no-dot form for KOC and Seeder as role-based tiers
+  outside the ranking. The `--tier-*` tokens and `.c-tier-pill` class are
+  deleted rather than left unused, and the Do/Don't warning about not
+  reading a Macro badge as Fire-department ownership is restored. What
+  survived the revert is the **follower thresholds** — Nano under 5,000,
+  Micro 5,000–19,999, Mid 20,000–99,999, Macro 100,000–499,999, Mega
+  500,000+ — now a column in the seven-tier table with "—" for the two
+  role-based tiers. That table had always said "smallest bracket" without
+  ever naming a number.
+
+  **Three deletions and a spacing table.** The divider between identity
+  and platform list is gone; so is each row's leading 16px platform
+  glyph, which retires the one place this system inlined
+  `SVG/Xiaohongshu-word-icon.svg` — a glyph beside a word that says the
+  same thing is decoration. Persona categories collapse from one
+  [Badge](#badge--tag) each into a single dot-separated caption line that
+  truncates, which **reverses** this section's own former "Don't
+  comma-join the persona categories" rule: Badges wrapped freely and gave
+  the card a variable-height block that fought the platform list for
+  attention. A new **Vertical rhythm** table fixes the whole ladder in
+  one place — the card runs tight at the top (0 between Controls row and
+  avatar) and open at the bottom (the platform list clears the card's
+  edge by 24px, not 16), with 8px between Name, Meta and Persona.
+
+  `components.css`: the whole `.c-card-profile-*` block rewritten;
+  `.c-card-profile-divider`, `-header`, `-stack`, `-handle`, `-count`,
+  `-trailing` removed, `-controls`, `-more`, `-menu`, `-menu-item`,
+  `-meta` added. One trap worth recording: the identity block's line
+  spacing is scoped to `.c-card-profile-identity p` rather than to the
+  line classes, because `.c-card p { margin: 0 }` out-specifies a bare
+  class and silently ate the gap. `tokens.css`: unchanged on balance —
+  the `--tier-*` ramp was added and then removed again. `preview.html`:
+  three rebuilt sample cards covering all seven tiers, kebab wiring
+  (one-open-at-a-time, outside click, Escape, focus return). Version flag
+  bumped to v0.9.104 — which also closes a drift, since the top-of-file
+  stamp and both `preview.html` flags had been left at v0.9.78 while the
+  changelog ran on to v0.9.103.
 
 - **v0.9.103 — 2026-09-10** — [Switch](#switch)'s on-state track changes
   from Obsidian to Green `#00C26E`, per explicit direction. This is a
