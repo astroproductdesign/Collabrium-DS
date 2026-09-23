@@ -1892,6 +1892,7 @@ rail rather than assume this exact number carries over.
 | Property | Value |
 |---|---|
 | Background | none of its own — inherits the page canvas described above |
+| Scrolling | this region scrolls, the shell around it does not — `overflow-y: auto` with `position: relative`. **The `position` is load-bearing: do not remove it.** It makes this the containing block for anything absolutely positioned inside it, including the visually-hidden `<input>` behind every Radio, Checkbox and Scale option and every `.sr-only` label. Without it those resolve against an ancestor *outside* the scroller, are not clipped by its overflow, and hand their height to the document instead — so a long page scrolls the whole shell behind the fixed Sidebar rather than scrolling in this box |
 | Padding | `--page-gutter` (32px) horizontal, `--section-gap` (48px) top — reusing existing [Spacing & Shape](#spacing--shape) tokens, no new values introduced |
 | Max-width | full-bleed by default; 1200px centered only for reading-width content (settings, detail panels) — existing rule, unchanged |
 | Section gap | `--section-gap` (48px) between distinct regions (stat-card row → main panels → activity panel) |

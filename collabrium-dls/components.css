@@ -1404,7 +1404,15 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 .c-shell .c-sidebar-shell{flex:0 0 auto; display:flex; margin:var(--spacing-16) 0 var(--spacing-16) var(--spacing-16);}
 .c-shell .c-sidebar{overflow-y:auto;}
 .c-shell-main{flex:1; display:flex; flex-direction:column; min-width:0;}
-.c-shell-content{flex:1; overflow-y:auto; padding:var(--page-gutter); padding-top:var(--section-gap);}
+/* position:relative is load-bearing here, not decorative. This is the
+   region that scrolls, so it has to be the containing block for anything
+   absolutely positioned inside it — including the visually-hidden <input>
+   behind every Radio, Checkbox and Scale option, and every .sr-only
+   label. Without it those resolve against an ancestor outside the
+   scroller, escape its overflow, and push their own height onto the
+   document, so a long page scrolls the whole shell behind the fixed
+   sidebar instead of scrolling in this box. */
+.c-shell-content{position:relative; flex:1; overflow-y:auto; padding:var(--page-gutter); padding-top:var(--section-gap);}
 .c-shell .c-pageheader{margin-bottom:var(--section-gap);}
 
 /* App Shell — Main nav's own mobile placement, per DESIGN-SYSTEM.md's
