@@ -10973,7 +10973,15 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 .c-shell .c-sidebar-shell{flex:0 0 auto; display:flex; margin:var(--spacing-16) 0 var(--spacing-16) var(--spacing-16);}
 .c-shell .c-sidebar{overflow-y:auto;}
 .c-shell-main{flex:1; display:flex; flex-direction:column; min-width:0;}
-.c-shell-content{flex:1; overflow-y:auto; padding:var(--page-gutter); padding-top:var(--section-gap);}
+/* position:relative is load-bearing here, not decorative. This is the
+   region that scrolls, so it has to be the containing block for anything
+   absolutely positioned inside it — including the visually-hidden <input>
+   behind every Radio, Checkbox and Scale option, and every .sr-only
+   label. Without it those resolve against an ancestor outside the
+   scroller, escape its overflow, and push their own height onto the
+   document, so a long page scrolls the whole shell behind the fixed
+   sidebar instead of scrolling in this box. */
+.c-shell-content{position:relative; flex:1; overflow-y:auto; padding:var(--page-gutter); padding-top:var(--section-gap);}
 .c-shell .c-pageheader{margin-bottom:var(--section-gap);}
 
 /* App Shell — Main nav's own mobile placement, per DESIGN-SYSTEM.md's
@@ -13540,6 +13548,13 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
    be compared on their shape instead of on their spacing. */
 .q-choices{display:flex; flex-direction:column;}
 .q-choices .c-choice{align-items:center; min-height:44px;}
+/* Follow-up — the box that opens under a choice that needs explaining.
+   No rule and no indent: it is already inside that question's card,
+   directly under the options it belongs to, so the card does the
+   grouping and the gap above does the separating. The card's own red
+   border still carries the required state. */
+.q-followup{display:flex; flex-direction:column; gap:var(--spacing-8); margin-top:var(--spacing-12);}
+.q-followup-title{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:700; color:var(--color-neutral-9);}
 
 .c-notify-foot{padding:var(--spacing-8); border-top:1px solid var(--color-neutral-3); text-align:center;}
 
@@ -13710,13 +13725,13 @@ var OWNERS = {
   sales:     { title:'CollabSales Beta Survey',     name:'CollabSales',     el:'gold',
                features:['Brief generation','Proposal deck generation','Client intelligence'],
                drop:[] },
-  /* CollabInfluence does not ask the rework question, in either of its two
-     shapes. Listed as ids to leave out rather than as a second question
-     array: one list still defines the survey, and what differs between the
-     two is stated in one place instead of having to be diffed. */
+  /* CollabInfluence does not ask the rework question. Listed as ids to
+     leave out rather than as a second question array: one list still
+     defines the survey, and what differs between the two is stated in one
+     place instead of having to be diffed. */
   influence: { title:'CollabInfluence Beta Survey', name:'CollabInfluence', el:'earth',
                features:['Influencer CRM','Influencer registration','Campaign management'],
-               drop:['s2', 's2b'] }
+               drop:['s2'] }
 };
 var WHO = OWNERS[param('survey', BUILD_DEFAULTS.survey)] || OWNERS.sales;
 /* The confirmation-only build exists to show that one screen, so its Back
@@ -13735,14 +13750,16 @@ var SURVEY = {
      enforces, not a thing the person answering needs to be told. */
   settings: { progressBar:true, allowEdit:false, oneResponse:true },
   questions: [
-    /* `no` is the number printed on the card, not the card's position: Q2 and
-       Q3 are each asked twice — once as a rating table, once as single choice
-       — so the pair can be compared side by side. Both members of a pair carry
-       the same `no`, so the repeated number is what marks them as one question
-       in two shapes. Drop one of each pair and the numbering is already right.
-       `variant` records which style a card is, for anyone reading this list;
-       it is deliberately not printed on the page, because a respondent is
-       being asked to answer the question, not to review the control. */
+    /* Five questions, five cards, and `no` matches the card's position.
+       Q2 and Q3 were each asked twice for a while — once as a rating table,
+       once as single choice — so the two styles could be compared. Single
+       choice won: one subject and five points is a list of radios, and a
+       rating table with a single row was only ever that list wearing a
+       table. Both rating-table twins are gone.
+       Q2 and Q3 now carry a `followUp`: a second box that opens under the
+       answers that need explaining. It is not a sixth question — it takes
+       no number, it shares its parent's required flag, and it is stored
+       under "<id>_more". */
     /* The only question whose content differs between the two surveys:
        each product is rated on its own features, listed on the variant
        record above. Everything below this is the same question either way. */
@@ -13751,26 +13768,21 @@ var SURVEY = {
       rows: WHO.features,
       cols:['Very poor','Poor','Average','Good','Excellent'] },
 
-    /* Q2, twice. One subject and five points: a rating table with a single row
-       and a list of five radios are the same question in two shapes, which is
-       the comparison being asked for. */
-    { id:'s2',  no:2, variant:'Rating table',  type:'matrix',
+    { id:'s2', no:2, type:'single',
       title:'How much of what Collabrium generates can you use as-is without needing to rework it?', required:true,
-      rows:['Output usability'],
-      cols:['Rebuild completely','Major rework','Partial rework','Minor tweaks','No rework'] },
-    { id:'s2b', no:2, variant:'Single choice', type:'single',
-      title:'How much of what Collabrium generates can you use as-is without needing to rework it?', required:true,
-      options:['Rebuild completely','Major rework','Partial rework','Minor tweaks','No rework'] },
+      options:['Rebuild completely','Major rework','Partial rework','Minor tweaks','No rework'],
+      /* The two answers that say the output did not land. A rating on its
+         own cannot be acted on, so this is where the reason gets typed —
+         in the card that prompted it, while the question is still in front
+         of the person answering. */
+      followUp:{ when:['Rebuild completely','Major rework'], title:'Tell us more about this' } },
 
-    /* Q3, twice, same pairing. The scale runs slower -> faster so it reads
-       left-to-right in the same direction as every other scale on the page. */
-    { id:'s3',  no:3, variant:'Rating table',  type:'matrix',
+    /* The scale runs slower -> faster so it reads left-to-right in the same
+       direction as every other scale on the page. */
+    { id:'s3', no:3, type:'single',
       title:'Compared to your usual process (Word/Excel/ChatGPT), has Collabrium made this work faster or slower overall?', required:true,
-      rows:['Overall speed'],
-      cols:['Much slower','Slightly slower','About the same','Slightly faster','Much faster'] },
-    { id:'s3b', no:3, variant:'Single choice', type:'single',
-      title:'Compared to your usual process (Word/Excel/ChatGPT), has Collabrium made this work faster or slower overall?', required:true,
-      options:['Much slower','Slightly slower','About the same','Slightly faster','Much faster'] },
+      options:['Much slower','Slightly slower','About the same','Slightly faster','Much faster'],
+      followUp:{ when:['Much slower','Slightly slower'], title:'Tell us more about this' } },
 
     { id:'s4', no:4, type:'scale',
       title:'How satisfied are you with your experience overall?', required:true,
@@ -13806,8 +13818,44 @@ function has(q){
   /* A rating table holds one answer per row, so a half-filled grid is not
      an answered question — String(v) on the object would say otherwise. */
   if (q.type === 'matrix') return matrixRowsLeft(q, v).length === 0;
-  return Array.isArray(v) ? v.length > 0 : String(v).trim() !== '';
+  if (!(Array.isArray(v) ? v.length > 0 : String(v).trim() !== '')) return false;
+  /* An answer that opened a follow-up is not a finished answer until the
+     follow-up has been written — which is what keeps the counter honest at
+     "of 5" instead of inventing a sixth question. */
+  return followUpOn(q) ? !!followUpText(q) : true;
 }
+
+/* A follow-up is a second box inside a question, shown only under the
+   answers that need explaining. It takes no number, it shares the parent's
+   required flag, and it is stored under "<id>_more" so nothing else has to
+   know it exists. */
+function followUpOn(q, v){
+  if (!q || !q.followUp) return false;
+  return q.followUp.when.indexOf(v === undefined ? state.ans[q.id] : v) > -1;
+}
+function followUpText(q){ return String(state.ans[q.id + '_more'] || '').trim(); }
+/* When the follow-up is the only thing still empty, the card-level "this
+   question is required" would be pointing at a question that has been
+   answered. The message moves down into the follow-up instead. */
+function followUpMissOnly(q){
+  return followUpOn(q) && !followUpText(q) && String(state.ans[q.id] || '').trim() !== '';
+}
+function followUpHtml(q, miss){
+  if (!followUpOn(q)) return '';
+  var v = state.ans[q.id + '_more'], bad = miss && !followUpText(q);
+  return '<div class="q-followup' + (bad ? ' is-missing' : '') + '">' +
+    '<span class="q-followup-title">' + esc(q.followUp.title) +
+      (q.required ? '<span class="req" aria-hidden="true">*</span>' +
+        '<span class="sr-only"> (required)</span>' : '') + '</span>' +
+    '<div class="c-field field-wide"><textarea rows="3" data-text="' + q.id + '_more" placeholder="' +
+      esc(q.followUp.placeholder || 'Your answer') + '">' + esc(v || '') + '</textarea></div>' +
+    (bad ? '<span class="q-miss" role="alert"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i>' +
+      'Tell us more to continue</span>' : '') +
+  '</div>';
+}
+/* Text fields carry the question id, except a follow-up, which carries the
+   parent's id with a suffix. Both have to resolve to the card they live in. */
+function textOwner(key){ return key.replace(/_more$/, ''); }
 function answeredCount(){ return visible().filter(has).length; }
 
 /* ==========================================================================
@@ -13879,7 +13927,8 @@ function fieldHtml(q){
           (on ? '<span class="dot"></span>' : '') + '</span>' +
         '<span class="text"><span class="label">' + esc(o) + '</span></span>' +
       '</label>';
-    }).join('') + '</div>';
+    }).join('') + '</div>' +
+      followUpHtml(q, state.missing.indexOf(q.id) > -1);
   if (q.type === 'matrix')
     return matrixHtml(q, { answers: state.ans[q.id] || {},
                            missingRows: state.missing.indexOf(q.id) > -1
@@ -13917,8 +13966,9 @@ function formHtml(){
               (q.required ? '<span class="req" aria-hidden="true">*</span><span class="sr-only"> (required)</span>' : '') +
             '</span></span>' +
           fieldHtml(q) +
-          (miss ? '<span class="q-miss" role="alert"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i>' +
-            'This question is required</span>' : '') +
+          (miss && !followUpMissOnly(q)
+            ? '<span class="q-miss" role="alert"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i>' +
+              'This question is required</span>' : '') +
         '</div>';
       }).join('') +
       '<div class="pub-foot">' +
@@ -13982,8 +14032,9 @@ function clearMiss(id){
   var card = $('[data-q="' + id + '"]');
   if (!card) return;
   card.classList.remove('is-missing');
-  var msg = $('.q-miss', card);
-  if (msg) msg.parentNode.removeChild(msg);
+  var fu = $('.q-followup', card);
+  if (fu) fu.classList.remove('is-missing');
+  $$('.q-miss', card).forEach(function(m){ m.parentNode.removeChild(m); });
 }
 function refreshProgress(){
   var box = $('.pub-progress');
@@ -14025,7 +14076,7 @@ function wire(){
   $$('[data-text]', root).forEach(function(el){
     el.addEventListener('input', function(){
       state.ans[el.dataset.text] = el.value;
-      clearMiss(el.dataset.text);
+      clearMiss(textOwner(el.dataset.text));
       refreshProgress();
     });
   });
@@ -14052,6 +14103,12 @@ function wire(){
   $$('[data-pick]', root).forEach(function(el){
     el.addEventListener('change', function(){
       state.ans[el.dataset.pick] = el.dataset.val;
+      /* Switch to an answer that asks for no explanation and the
+         explanation goes, rather than waiting to reappear already filled
+         in if the respondent switches back. */
+      var qf = SURVEY.questions.filter(function(x){ return x.id === el.dataset.pick; })[0];
+      if (qf && qf.followUp && !followUpOn(qf, el.dataset.val))
+        delete state.ans[el.dataset.pick + '_more'];
       clearMiss(el.dataset.pick);
       refreshProgress();
       /* Scale and single choice both repaint so the checked mark moves —
@@ -14063,7 +14120,10 @@ function wire(){
       var back = $$('[data-pick]', $('#stage')).filter(function(n){
         return n.dataset.pick === el.dataset.pick && n.dataset.val === el.dataset.val;
       })[0];
-      if (back) back.focus();
+      /* preventScroll: the control was just clicked, so it is already in
+         view — and without it the browser scrolls the window to "reveal"
+         it, which reads as the whole page jumping. */
+      if (back) back.focus({ preventScroll:true });
     });
   });
 
