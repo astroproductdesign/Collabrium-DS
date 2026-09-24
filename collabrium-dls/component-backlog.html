@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Collabrium — component backlog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* ==========================================================================
+     Component backlog — the running list behind /build-components.
+
+     THIS FILE IS THE RECORD, NOT A REPORT OF ONE. The command reads the
+     table below before it scans anything, so a component already sitting
+     here as Drafted or Promoted is never offered again, and a branch
+     switch or a new session cannot lose the list.
+
+     Every row is one component. The <tbody> is the data — one <tr> per
+     item, with the status carried in data-status so a row can be found and
+     rewritten without parsing the Badge's text. Nothing is generated at
+     runtime: what you read in the source is what the page shows, so
+     editing this file by hand and editing it by tool are the same act.
+
+     Status vocabulary, in the order an item moves through:
+       suggested  — Claude spotted it; you have not said yes
+       queued     — you approved it; no draft yet
+       drafted    — a draft HTML exists; waiting on your review
+       promoted   — it is in components.css and design-system.md
+       skipped    — considered and deliberately not building it
+     ========================================================================== */
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--color-canvas-warm); color:var(--color-neutral-9);
+    font-family:var(--font-primary);
+    padding:var(--spacing-48) var(--spacing-32) var(--spacing-60);
+  }
+  .wrap{max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:var(--section-gap);}
+
+  /* The counts. Stat card's own recipe would be four cards for four
+     numbers that are really one sentence, so this is the lighter row the
+     PageHeader already sits above. */
+  .counts{display:flex; flex-wrap:wrap; gap:var(--spacing-24); padding-top:var(--spacing-16);}
+  .count{display:flex; flex-direction:column; gap:2px;}
+  .count b{font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); font-variant-numeric:tabular-nums;}
+  .count span{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+  .sect{display:flex; flex-direction:column; gap:var(--spacing-16);}
+  .sect h2{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight);}
+  .sect .note{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); max-width:72ch;}
+
+  /* Long prose in a cell is the point of the Notes column, so it wraps
+     rather than forcing the table wider than the page. */
+  .c-table td.why{white-space:normal; color:var(--color-neutral-5); font-size:var(--text-body2-size);}
+  /* Filenames stay in the primary typeface — this system has no monospace
+     face, and borrowing the OS one would put a typeface on the page that
+     appears nowhere else in it. Size and colour do the separating. */
+  code{font-family:inherit; font-size:var(--text-caption-size); color:var(--color-neutral-7);}
+  .c-table td.src code,
+  .c-table td.draft code{white-space:nowrap;}
+  .c-table th{white-space:nowrap;}
+  .c-table td.draft .none{color:var(--color-neutral-4);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="c-pageheader">
+    <div class="c-pageheader-row">
+      <div class="c-pageheader-text">
+        <h1>Component backlog</h1>
+        <p class="sub">What <code>/build-components</code> has found, what you approved, and what is still to build. This page is the list the command reads before every scan.</p>
+      </div>
+    </div>
+    <div class="counts">
+      <span class="count"><b id="cSuggested">5</b><span>suggested</span></span>
+      <span class="count"><b id="cQueued">0</b><span>queued</span></span>
+      <span class="count"><b id="cDrafted">0</b><span>drafted</span></span>
+      <span class="count"><b id="cPromoted">0</b><span>promoted</span></span>
+    </div>
+  </header>
+
+  <section class="sect">
+    <h2>Backlog</h2>
+    <p class="note">Rows move down the status list, never back up. A component reaches <b>promoted</b> only once it is in <code>components.css</code> and written up in <code>design-system.md</code> — until then the draft file is the only place it exists.</p>
+
+    <div class="c-table-standalone-wrap c-table-scroll-x">
+      <table class="c-table c-table-standalone" id="backlog" style="min-width:920px;">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Source file</th>
+            <th>Status</th>
+            <th>Draft file</th>
+            <th>Why it qualifies</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr data-status="suggested">
+            <td>Invitation card</td>
+            <td class="src"><code>feedback-user-pov.html</code></td>
+            <td><span class="c-badge c-badge-neutral">Suggested</span></td>
+            <td class="draft"><span class="none">—</span></td>
+            <td class="why">Repeats once per survey a person has been invited to, and carries a fixed anatomy: owner mark, title, description, meta row, status Badge, one action. Two states on one surface — awaiting and submitted.</td>
+          </tr>
+
+          <tr data-status="suggested">
+            <td>Survey question card</td>
+            <td class="src"><code>feedback-user-pov.html</code></td>
+            <td><span class="c-badge c-badge-neutral">Suggested</span></td>
+            <td class="draft"><span class="none">—</span></td>
+            <td class="why">One per question, seven per survey. Number, title with hanging indent, the answer control, and a required-error state — the wrapper every question type is poured into.</td>
+          </tr>
+
+          <tr data-status="suggested">
+            <td>Locked response view</td>
+            <td class="src"><code>feedback-user-pov.html</code></td>
+            <td><span class="c-badge c-badge-neutral">Suggested</span></td>
+            <td class="draft"><span class="none">—</span></td>
+            <td class="why">The form rendered read-only: controls disabled, text fields readonly so the words keep their colour, text areas grown to their content. A pattern any submitted record needs, not just surveys.</td>
+          </tr>
+
+          <tr data-status="suggested">
+            <td>Confirmation card</td>
+            <td class="src"><code>feedback-user-pov.html</code></td>
+            <td><span class="c-badge c-badge-neutral">Suggested</span></td>
+            <td class="draft"><span class="none">—</span></td>
+            <td class="why">Appears on three surfaces already (survey thank-you, V2, the standalone respondent page). Green check, heading, body, and actions that sit below the card rather than inside it.</td>
+          </tr>
+
+          <tr data-status="suggested">
+            <td>Floating action button</td>
+            <td class="src"><code>feedback-user-pov.html</code></td>
+            <td><span class="c-badge c-badge-neutral">Suggested</span></td>
+            <td class="draft"><span class="none">—</span></td>
+            <td class="why">Already written up in that file as CANDIDATE 1, with its own CSS, menu, placement logic and first-run nudge. Nothing in the system is a persistent, viewport-anchored action.</td>
+          </tr>
+
+          <tr data-status="promoted">
+            <td>Media Ad Card <span style="color:var(--color-neutral-5)">(drafted as Ad format card)</span></td>
+            <td class="src"><code>collab-media · pages/formats.html</code></td>
+            <td><span class="c-badge c-badge-success">Promoted</span></td>
+            <td class="draft"><span class="none">Draft removed — now in <code>components.css</code> (<code>.c-card-media-ad</code>)</span></td>
+            <td class="why">One per ad format, forty-odd in the Collab:Media catalogue. Fixed anatomy: media slot, compare toggle, title, family Tag, and a body that swaps tagline for three spec lines on hover. Media is a placeholder slot in the component, not the live preview.</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>How a row changes</h2>
+    <p class="note">
+      <b>Suggested → queued</b> when you confirm the scan table. <b>Queued → drafted</b> when the component-builder subagent saves <code>[component-name]-draft.html</code>; the filename goes in the Draft column. <b>Drafted → promoted</b> when the component lands in <code>components.css</code> and <code>design-system.md</code>. <b>Anything → skipped</b> when you say no — the row stays so the same suggestion is not made twice.
+    </p>
+  </section>
+
+</div>
+
+<script>
+/* The counts are the one thing not written by hand: four numbers that
+   would go stale the moment a row changed, derived from the rows
+   themselves so they cannot disagree with the table under them. */
+(function(){
+  var rows = [].slice.call(document.querySelectorAll('#backlog tbody tr'));
+  ['suggested','queued','drafted','promoted'].forEach(function(s){
+    var el = document.getElementById('c' + s.charAt(0).toUpperCase() + s.slice(1));
+    if (el) el.textContent = rows.filter(function(r){ return r.dataset.status === s; }).length;
+  });
+})();
+</script>
+
+</body>
+</html>
