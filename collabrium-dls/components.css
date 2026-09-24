@@ -451,6 +451,188 @@
 .c-card-pacing .c-card-footer{margin-top:var(--spacing-4);}
 
 /* =========================================================
+   Media Ad Card — Card variant. One ad format as a gallery tile: a
+   full-bleed 16:10 media Frame on top, then title + family Tag, then a
+   body that shows the tagline at rest and cross-fades to three spec
+   rows (Objective / Sizes / Benchmark) when the card goes Live.
+   First used by Collab:Media's Ad formats catalogue.
+
+   Composes the base Card rather than redrawing it: markup is
+   `c-card c-card-interactive c-card-media-ad`, so fill, border, radius,
+   shadow-1 and the hover shadow-2 all come from .c-card /
+   .c-card-interactive. This block only zeroes the base padding and gap
+   (the Frame runs edge to edge; the Body carries --card-padding
+   itself) and adds the lift, the zoom and the swap.
+
+   Media slot contract: .c-card-media-ad-slot accepts ANY child. The
+   card owns three things about it — the 16:10 ratio, the clipping and
+   the Live zoom (the slot itself scales, so whatever is inside zooms).
+   The component ships a neutral placeholder only, never an ad visual.
+
+   Accessibility structure: the root is a plain <article>, never
+   role="button". The primary action is a real <button> inside the
+   title whose ::after stretches over the whole card (z-index 1);
+   Compare is a sibling button stacked above it (z-index 3), so no
+   interactive element is nested in another.
+
+   Deliberate one-off values, recorded in DESIGN-SYSTEM.md's Media Ad
+   Card section rather than tokenised (nothing else uses them): the 2px
+   lift, the 16:10 ratio, the 1.1 zoom, and the 4deg / 800px tilt. The round (radius-pill) Compare button is
+   a recorded exception to Button's icon-only radius-sm.
+   ========================================================= */
+.c-card-media-ad{position:relative; padding:0; gap:0; overflow:hidden; transition:box-shadow var(--duration-base) var(--ease-settle), transform var(--duration-base) var(--ease-settle);}
+
+/* Live — real hover (hover-capable devices only), keyboard focus
+   anywhere inside the card, or .is-live set by JS (first tap on touch). */
+.c-card-media-ad.is-live,
+.c-card-media-ad:has(:focus-visible){box-shadow:var(--shadow-2); transform:translateY(-2px);}
+@media (hover:hover){
+  .c-card-media-ad:hover{transform:translateY(-2px);}
+}
+
+/* Frame — clip wrapper; Slot — the 16:10 zoom target */
+.c-card-media-ad-frame{position:relative; overflow:hidden; border-bottom:1px solid var(--color-neutral-3);}
+.c-card-media-ad-slot{position:relative; aspect-ratio:16 / 10; overflow:hidden; background:var(--color-neutral-2); transform-origin:center; transition:transform var(--duration-slow) var(--ease-settle);}
+.c-card-media-ad-slot > *{position:absolute; inset:0; width:100%; height:100%; box-sizing:border-box;}
+.c-card-media-ad-slot > :is(img, video, picture, iframe, canvas){display:block; object-fit:cover; border:0;}
+.c-card-media-ad.is-live .c-card-media-ad-slot,
+.c-card-media-ad:has(:focus-visible) .c-card-media-ad-slot{transform:scale(1.1);}
+@media (hover:hover){
+  .c-card-media-ad:hover .c-card-media-ad-slot{transform:scale(1.1);}
+}
+
+/* Placeholder — the default (and only shipped) slot child */
+.c-card-media-ad-placeholder{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing-4); background:var(--color-neutral-2); color:var(--color-neutral-5); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold);}
+.c-card-media-ad-placeholder i{font-size:var(--icon-lg); color:var(--color-neutral-4);}
+
+/* Touch hint — "Tap to play", centred on the Frame. Tag metrics
+   (24px, caption/700, radius-pill). Shown on hover:none devices or via
+   .is-touch; hidden once Live. */
+.c-card-media-ad-hint{position:absolute; left:50%; top:50%; z-index:2; transform:translate(-50%, -50%); display:none; align-items:center; gap:var(--spacing-4); height:24px; padding:0 var(--spacing-12); border-radius:var(--radius-pill); background:var(--color-neutral-1); color:var(--color-neutral-9); font-size:var(--text-caption-size); font-weight:var(--weight-bold); white-space:nowrap; box-shadow:var(--shadow-2); pointer-events:none;}
+.c-card-media-ad-hint i{font-size:var(--icon-micro);}
+@media (hover:none){ .c-card-media-ad-hint{display:inline-flex;} }
+.c-card-media-ad.is-touch .c-card-media-ad-hint{display:inline-flex;}
+.c-card-media-ad.is-live .c-card-media-ad-hint{display:none;}
+
+/* "Built for this slot" — a real .c-badge, light fill + dark text so it
+   stays AA over any media (Badge & Tag: never a solid brand fill with
+   white text). Push-pin is Tier 2 (status), so Fill. */
+.c-card-media-ad-native{position:absolute; left:var(--spacing-16); bottom:var(--spacing-16); z-index:2; background:var(--color-neutral-1); color:var(--color-neutral-9); border-color:var(--color-neutral-3); box-shadow:var(--shadow-1); pointer-events:none;}
+.c-card-media-ad-native i{font-size:var(--icon-micro); color:var(--color-navy);}
+
+/* Compare — round 32px toggle (Button Secondary colours; Primary
+   Obsidian when pressed). State lives in aria-pressed, the label never
+   changes. ::after widens the hit area to 44px for touch without
+   growing the drawn circle. */
+.c-card-media-ad-compare{position:absolute; top:var(--spacing-16); left:var(--spacing-16); z-index:3; width:32px; height:32px; display:flex; align-items:center; justify-content:center; padding:0; border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill); background:var(--color-neutral-1); box-shadow:var(--shadow-1); color:var(--color-neutral-5); font-size:var(--icon-sm); cursor:pointer; transition:background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);}
+.c-card-media-ad-compare::after{content:""; position:absolute; inset:-6px; border-radius:var(--radius-pill);}
+.c-card-media-ad.is-live .c-card-media-ad-compare:not([aria-pressed="true"]),
+.c-card-media-ad:has(:focus-visible) .c-card-media-ad-compare:not([aria-pressed="true"]){border-color:var(--color-neutral-4); color:var(--color-neutral-9);}
+@media (hover:hover){
+  .c-card-media-ad:hover .c-card-media-ad-compare:not([aria-pressed="true"]){border-color:var(--color-neutral-4); color:var(--color-neutral-9);}
+}
+.c-card-media-ad-compare:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.c-card-media-ad-compare:active{background:var(--color-neutral-3);}
+.c-card-media-ad-compare:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-card-media-ad-compare[aria-pressed="true"]{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+.c-card-media-ad-compare[aria-pressed="true"]:hover{background:var(--color-neutral-8); border-color:var(--color-neutral-8);}
+.c-card-media-ad-compare[aria-pressed="true"]:active{background:var(--color-neutral-7);}
+
+/* Body */
+.c-card-media-ad-body{flex:1; display:flex; flex-direction:column; gap:var(--spacing-8); padding:var(--card-padding);}
+.c-card-media-ad-titlerow{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-8);}
+.c-card-media-ad-titlerow .c-tag{flex:none;}
+/* Title — base Card title style (h5 look). The element's level follows
+   the page outline; this rule is two classes deep so `.c-card h5`
+   cannot reset it if an h5 is used. Wraps to 2 lines, then clamps. */
+.c-card-media-ad .c-card-media-ad-title{flex:1; min-width:0; margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9); display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden;}
+/* Primary action — real button, stretched over the whole card */
+.c-card-media-ad-open{appearance:none; margin:0; padding:0; border:0; background:none; font:inherit; color:inherit; text-align:left; cursor:pointer;}
+.c-card-media-ad-open::after{content:""; position:absolute; inset:0; z-index:1;}
+.c-card-media-ad-open:focus-visible{outline:none;} /* ring is drawn on the card, below */
+
+/* Swap — rest (tagline + funnel) cross-fades to specs when Live.
+   Height = 2 tagline lines + gap + 1 funnel line, all from tokens; the
+   skeleton reuses this box so a loaded card never changes height. */
+.c-card-media-ad-swap{position:relative; height:calc(var(--text-body2-lh) * 2 + var(--spacing-8) + var(--text-caption-lh));}
+.c-card-media-ad-rest,
+.c-card-media-ad-spec{position:absolute; inset:0; margin:0; display:flex; flex-direction:column; transition:opacity var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-settle);}
+.c-card-media-ad-rest{gap:var(--spacing-8);}
+.c-card-media-ad-spec{justify-content:center; gap:var(--spacing-4); opacity:0; transform:translateY(var(--spacing-8));}
+/* Spec rows share one grid, so every value starts on the same line: the
+   label column is as wide as the widest label ("BENCHMARK" at label3 +
+   eyebrow tracking), never a fixed width a label can overflow. Rows are
+   display:contents so their dt/dd sit directly on this grid. */
+.c-card-media-ad .c-card-media-ad-spec{display:grid; grid-template-columns:max-content minmax(0, 1fr); align-content:center; gap:var(--spacing-4) var(--spacing-12);}
+.c-card-media-ad.is-live .c-card-media-ad-rest,
+.c-card-media-ad:has(:focus-visible) .c-card-media-ad-rest{opacity:0; transform:translateY(calc(var(--spacing-8) * -1));}
+.c-card-media-ad.is-live .c-card-media-ad-spec,
+.c-card-media-ad:has(:focus-visible) .c-card-media-ad-spec{opacity:1; transform:none;}
+@media (hover:hover){
+  .c-card-media-ad:hover .c-card-media-ad-rest{opacity:0; transform:translateY(calc(var(--spacing-8) * -1));}
+  .c-card-media-ad:hover .c-card-media-ad-spec{opacity:1; transform:none;}
+}
+/* Two classes deep: `.c-card p` (0,1,1) would otherwise reset these. */
+.c-card-media-ad .c-card-media-ad-tagline{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-5); display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden;}
+.c-card-media-ad .c-card-media-ad-funnel{margin:auto 0 0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.c-card-media-ad-spec-row{display:contents;}
+.c-card-media-ad-spec-row dt{align-self:baseline; margin:0; font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-card-media-ad-spec-row dd{align-self:baseline; min-width:0; margin:0; font-size:var(--text-body2-size); line-height:var(--text-label2-lh); font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+/* Missing value — em dash / "Not published", never blank */
+.c-card-media-ad-spec-row dd.is-empty{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+
+/* Compared — Obsidian border + 1px Obsidian ring (reads as 2px without
+   a border-width change, so the full-bleed Frame never shifts) and
+   shadow-3, Card > Selected's elevation. border-color is not in the
+   transition list, so the outline switches instantly, as Selected does;
+   only the shadow eases. */
+.c-card-media-ad.is-compared{border-color:var(--color-obsidian); box-shadow:var(--shadow-3), 0 0 0 1px var(--color-obsidian);}
+
+/* Focus-visible — Card family convention (.c-card-interactive):
+   shadow-focus on the card, driven by the title button's focus. */
+.c-card-media-ad:has(.c-card-media-ad-open:focus-visible){box-shadow:var(--shadow-2), var(--shadow-focus);}
+.c-card-media-ad.is-compared:has(.c-card-media-ad-open:focus-visible){box-shadow:0 0 0 1px var(--color-obsidian), var(--shadow-focus), var(--shadow-3);}
+/* Forced colours drop box-shadow, which would take the focus ring with
+   it — a real outline stands in. */
+@media (forced-colors:active){
+  .c-card-media-ad:has(.c-card-media-ad-open:focus-visible){outline:2px solid CanvasText; outline-offset:2px;}
+  .c-card-media-ad.is-compared{outline:2px solid Highlight;}
+}
+
+/* Pointer tilt — optional, JS-driven, mouse only. JS writes --tilt-x /
+   --tilt-y in -1..1 and toggles .is-tilting; same custom-property
+   pattern and 800px perspective as .c-herocard-ai. Max 4deg. */
+.c-card-media-ad.is-tilting{z-index:1; will-change:transform; transform:perspective(800px) translateY(-2px) scale(1.015) rotateX(calc(var(--tilt-y, 0) * -4deg)) rotateY(calc(var(--tilt-x, 0) * 4deg)); transition:transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-base) var(--ease-settle);}
+
+/* Loading skeleton — same shell (`c-card c-card-media-ad
+   c-card-media-ad-skeleton`, aria-hidden), Neutral-2 bones. The body
+   reuses .c-card-media-ad-swap so the skeleton is exactly as tall as a
+   loaded card. Shimmer is Progress Bar's c-progress-shimmer keyframe,
+   as .c-table-skel-bar uses it. */
+.c-card-media-ad-skeleton{pointer-events:none;}
+.c-card-media-ad-skeleton .c-card-media-ad-swap{display:flex; flex-direction:column; justify-content:center; gap:var(--spacing-8);}
+.c-card-media-ad-bone{display:block; position:relative; overflow:hidden; background:var(--color-neutral-2); border-radius:var(--radius-sm);}
+.c-card-media-ad-bone::after{content:""; position:absolute; inset:0; background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) 40%, transparent), transparent); animation:c-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;}
+.c-card-media-ad-bone.is-media{aspect-ratio:16 / 10; border-radius:0;}
+.c-card-media-ad-bone.is-title{height:var(--spacing-16); width:60%;}
+.c-card-media-ad-bone.is-pill{height:24px; width:72px; flex:none; border-radius:var(--radius-pill);}
+.c-card-media-ad-bone.is-line{height:var(--spacing-12);}
+
+/* Reduced motion — no lift, zoom, tilt or slide; the body swap keeps a
+   short opacity cross-fade so the state change is still visible. */
+@media (prefers-reduced-motion:reduce){
+  .c-card-media-ad,
+  .c-card-media-ad.is-tilting,
+  .c-card-media-ad.is-live,
+  .c-card-media-ad:hover,
+  .c-card-media-ad:has(:focus-visible){transform:none !important;}
+  .c-card-media-ad-slot{transition:none; transform:none !important;}
+  .c-card-media-ad-rest,
+  .c-card-media-ad-spec{transform:none !important; transition:opacity var(--duration-fast) var(--ease-standard);}
+  .c-card-media-ad-bone::after{animation:none; background:var(--color-neutral-2);}
+}
+
+/* =========================================================
    Notes — coloured annotations attached to a table or list row, up to
    four per row. One surface throughout: a peek on hover, a panel on
    click (a 2x2 grid at 2-4 notes, the note itself at 1), and the same
@@ -843,6 +1025,11 @@
 .c-tag-earth{background:var(--color-earth-bg); color:var(--color-green);} .c-tag-earth .dot{background:var(--color-green);}
 .c-tag-water{background:var(--color-water-bg); color:var(--color-navy);} .c-tag-water .dot{background:var(--color-navy);}
 .c-tag-gold{background:var(--color-gold-bg); color:var(--color-amber);} .c-tag-gold .dot{background:var(--color-amber);}
+/* Purple — secondary-accent Tag, not an element. First used for the
+   Display family on Media Ad Card. Text is purple mixed 80/20 toward
+   Neutral-9 for AA on its tint (full-strength purple is ~4.0:1); the dot
+   stays full-strength, as on every other Tag. */
+.c-tag-purple{background:var(--color-purple-bg); color:color-mix(in srgb, var(--color-purple) 80%, var(--color-neutral-9));} .c-tag-purple .dot{background:var(--color-purple);}
 
 /* Table — consolidates the former "Table row" + "DataTable" into one
    component (see DESIGN-SYSTEM.md's Table section). Anatomy below is

@@ -52,6 +52,9 @@
   --color-water-bg: #E8F1FD;       --color-water-bg-strong: #D0E3FB;
   --color-gold-bg: #FFF6E9;        --color-gold-bg-strong: #FFEDD3;
   --color-wood-bg: #FFF2F4;        --color-wood-bg-strong: #FFE4E9;
+  /* Secondary-accent tint, same 10%/20% mix as the element pairs above.
+     Purple is not an element: this pair backs .c-tag-purple only. */
+  --color-purple-bg: #F5EEFF;      --color-purple-bg-strong: #ECDDFF;
 
   /* Elemental pastel tints — a distinct, stronger tint than the -bg/
      -bg-strong pair above (55% white mix, not 8%/16%): for decorative,

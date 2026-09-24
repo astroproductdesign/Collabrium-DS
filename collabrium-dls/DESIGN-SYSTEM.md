@@ -117,7 +117,7 @@ extraction):
 
 | Name | Hex | Usage |
 |---|---|---|
-| Purple | `#9F56FF` | AI and premium feature UI, secondary tags, chart series 5 |
+| Purple | `#9F56FF` | AI and premium feature UI, secondary tags, chart series 5. Tint pair `--color-purple-bg` `#F5EEFF` / `--color-purple-bg-strong` `#ECDDFF`, same mix as the elemental tints — backs the Purple Tag only |
 | Turquoise | `#00D9D9` | Additional secondary accent, reserved for future elements |
 
 ### Functional colors
@@ -2154,6 +2154,14 @@ fill — Fire's tag uses `--color-fire-bg` behind orange text/dot,
 Water's uses `--color-water-bg` behind navy, and so on for all five
 elements. Distinct from Badge because ownership is not a status.
 
+**Purple Tag** (`.c-tag-purple`) — the one Tag that isn't an element:
+Purple's documented "secondary tags" use, for a category with no
+department behind it. Fill is `--color-purple-bg`; the dot is
+full-strength Purple, but the text is Purple mixed 80/20 toward
+Neutral-9, because full-strength Purple on its own tint is about 4.0:1
+and fails AA at caption size. First used for the Display family on
+[Media Ad Card](#card).
+
 Both accept an optional leading `icon-micro` (14px) in the text color —
 weight follows the icon's own [Iconography](#iconography) tier (a Tag's
 element motif icon, e.g. `flame`/`drop`, is **Tier 2, Fill**, since it's a
@@ -2266,6 +2274,7 @@ the Modal footer's divider, scaled down.
 - **Profile card** — a talent/influencer profile summary tile, built around a centred 56px avatar as its main element: a Controls row (Select checkbox + kebab menu), the avatar, Name, a demographic Meta line, a Persona line, then an alphabetically-sorted platform list carrying a follower count and a Tier badge per row. Extends the base Card and reuses [Checkbox](#checkbox)'s own box and [SidebarNav](#sidebarnav)'s own menu recipe rather than inventing new structure — see **Profile card**, below, for the full anatomy.
 - **Hero Card** — a promotional/insight tile: Eyebrow, Heading, Body, a media placeholder, optional Recommendation text, and a CTA, in four states (Default, Risk, AI Dark, Selected). Extends the base Card (Neutral-1, radius-lg, shadow-1) rather than inventing new structure, but is the first Card variant with its own corner ribbon, a dark surface, and a fixed/centered modal state — see **Hero Card**, below, for the full anatomy.
 - **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
+- **Media Ad Card** — one ad format as a gallery tile: a full-bleed 16:10 media Frame (a placeholder slot the consumer fills), a round Compare toggle, the title and family Tag, and a body that trades its tagline for three spec rows (Objective, Sizes, Benchmark) when the card goes Live on hover, focus or first tap. Composes the base Card and Interactive variant rather than redrawing them — see **Media Ad Card**, below, for the slot contract, states and interaction rules.
 
 **Grid layout.** Every card variant follows one universal layout
 contract when placed in a grid — responsive width, equal-height rows,
@@ -3115,6 +3124,149 @@ In-table variant has no legend, so a multi-category rail shows colours
 nothing on the card names — the labels read the *total*. If the split
 itself is the point, use the Progress-to-Goal Bar's Card variant, which
 has a legend.
+
+**Media Ad Card.** One ad format as a gallery tile — a full-bleed
+media Frame on top, then the format's name and family Tag, then a body
+that shows the tagline at rest and trades it for three spec rows when
+the card goes Live. Built for Collab:Media's Ad formats catalogue,
+where a planner reads forty-odd formats by moving the pointer across
+them: the details arrive *over* the card rather than beside it, so the
+grid never has to grow a second column of text. Classes are
+`.c-card-media-ad` and its `-*` parts; markup is
+`class="c-card c-card-interactive c-card-media-ad"`.
+
+**Media Ad Card — When to use it.** Use it when each tile is a
+*thing you could buy or run* whose look matters as much as its
+numbers — ad formats, placements, creative templates — and the grid
+has room for a visual on every tile. **Don't** use it for a person
+(Profile card), a campaign moving through stages (Campaign card), or a
+metric against a target (Pacing Card). If a tile has no media at all,
+it wants the base Interactive card, not this one with an empty Frame.
+
+**Media Ad Card — Anatomy.** Top to bottom:
+
+| Part | Class | Spec |
+|---|---|---|
+| Frame | `-frame` | Full-bleed (the base Card's padding is zeroed on this variant), clips its child, 1px Neutral-3 bottom rule |
+| Slot | `-slot` | The media area: **16:10**, Neutral-2 fill, the Live zoom target. Accepts any child — see the slot contract below |
+| Placeholder | `-placeholder` | The default and only shipped Slot child: `ph-frame-corners` at `icon-lg` in Neutral-4 over a "Media" caption (caption/700, Neutral-5) |
+| Compare | `-compare` | Round 32×32 toggle, top-left at spacing-16, stacked above everything (z-index 3). `ph-plus` at rest, `ph-check` when pressed |
+| Built for this slot | `-native` | Optional `.c-badge`, bottom-left at spacing-16: Neutral-1 fill, Neutral-3 border, `shadow-1`, Neutral-9 text, `ph-fill ph-push-pin` in Navy |
+| Tap hint | `-hint` | "Tap to play", centred on the Frame. Tag metrics (24px, caption/700, `radius-pill`), Neutral-1 on `shadow-2`. Touch only |
+| Body | `-body` | `--card-padding` (16px), children at spacing-8 |
+| Title row | `-titlerow` | Title left, family Tag right (`flex:none`, never shrinks) |
+| Title | `-title` + `-open` | Card title style (h5, 16/24/700), wraps to **2 lines then clamps**. The element's level follows the page outline (h3 under an h2 section, h4 under an h3, and so on) — the class carries the look, not the tag |
+| Swap | `-swap` | A fixed-height box: 2 tagline lines + spacing-8 + 1 caption line, all from type tokens. Holds the two layers below, stacked |
+| Rest layer | `-rest` → `-tagline`, `-funnel` | Tagline in body2 Neutral-5, clamped at 2 lines; funnel stages in caption Neutral-5, one line with ellipsis, joined by " · " |
+| Spec layer | `-spec` (a `<dl>`) → `-spec-row` | Exactly three rows, in this order: **Objective**, **Sizes**, **Benchmark**. Label: label3, eyebrow tracking, uppercase, Neutral-5. Value: body2 at strong weight, Neutral-9, one line with ellipsis. The rows share one grid whose label column is as wide as the widest label, so all three values start on the same vertical line |
+
+**Media Ad Card — The media slot contract.** The component owns
+exactly three things about the Slot: its **16:10 ratio**, its
+**clipping**, and its **Live zoom** (the Slot itself scales, so
+whatever sits inside zooms with it). Everything else is the
+consumer's. Any child is stretched to fill it, and `img`, `video`,
+`picture`, `iframe` and `canvas` get `object-fit: cover`. The system
+never ships an ad visual in this card — the Placeholder is the whole
+of what it provides, and a product pours its own preview in.
+
+**Media Ad Card — Family Tag.** The Tag names the format's family
+using the elemental Tag colours, one fixed mapping: **Interactive** →
+`c-tag-water`, **Gamification** → `c-tag-fire`, **Video** →
+`c-tag-wood`, **Social** → `c-tag-earth`, **High impact** →
+`c-tag-gold`, **Display** → `c-tag-purple`. Display has no element,
+so it takes the Purple secondary accent's Tag (see
+[Badge & Tag](#badge--tag)). Here the element colours label *kinds of
+format*, not departments — the one place in the system they do, and
+recorded as such so it isn't copied as a precedent for department
+ownership.
+
+**Media Ad Card — States.**
+
+| State | Trigger | Treatment |
+|---|---|---|
+| Rest | — | Base Card surface, `shadow-1`. Rest layer showing |
+| Live | Hover (hover-capable devices only), keyboard focus anywhere in the card, or `.is-live` (first tap on touch) | `shadow-2`, card lifts **2px**, Slot zooms to **1.1** on `duration-slow` + `ease-settle`, Rest layer fades up and out while the Spec layer fades up and in (`duration-base`). The Compare circle's border darkens to Neutral-4 and its glyph to Neutral-9 |
+| Focus-visible | Keyboard focus on the title button | Live, plus `shadow-focus` on the card — the Card family's focus ring, drawn on the card because the button's own ring is suppressed. Under forced colours (Windows High Contrast), which strips box-shadow, a 2px `CanvasText` outline stands in |
+| Compared | `.is-compared` on the card, `aria-pressed="true"` on Compare | Obsidian border plus a 1px Obsidian ring (reads as 2px without a border-width change, so the full-bleed Frame never shifts) and `shadow-3` — Interactive card — Selected's elevation. The border switches **instantly**, as Selected does; only the shadow eases. Compare fills Obsidian with a Neutral-1 check |
+| Compare hover / active | Pointer on Compare | Unpressed: Neutral-2 then Neutral-3 fill. Pressed: Neutral-8 then Neutral-7 |
+| Touch | `(hover:none)` devices, or `.is-touch` | The Tap hint shows over the Frame until the card goes Live |
+| Tilting | Mouse over the card | Optional, JS-driven: up to **4deg** toward the pointer on `perspective(800px)` with a 1.015 scale — the same custom-property pattern (`--tilt-x` / `--tilt-y`) and perspective as the Hero Card's AI variant |
+| Loading | `.c-card-media-ad-skeleton` (with `aria-hidden="true"`; `aria-busy` on the grid) | Same shell with Neutral-2 bones: a 16:10 media bone, a 60% title bar and a 72px Tag pill, then three lines inside a real `-swap` box, so a skeleton is exactly as tall as the card that replaces it. Shimmer is Progress Bar's `c-progress-shimmer`, as the table skeleton uses it |
+| Reduced motion | `prefers-reduced-motion: reduce` | No lift, zoom, tilt or slide. The body swap keeps a short opacity cross-fade (`duration-fast`) so the state change is still visible; the shimmer stops |
+
+**Media Ad Card — Missing data.** A spec row is never left blank and
+never removed — the three rows are the card's shape, and a planner
+scanning the grid reads them by position. No published benchmark
+shows **"Not published"**; no fixed size shows an em dash. Both take
+`dd.is-empty` (body2 regular, Neutral-5), so an absent value reads as
+absent rather than as data.
+
+**Media Ad Card — Interaction contract.** The root is a plain
+`<article>`, **never** `role="button"` — a role-button wrapping the
+Compare button is invalid nesting and was the first thing fixed when
+this card came in from Collab:Media.
+
+- **Open** is a real `<button>` inside the title (`-open`). Its
+  `::after` stretches over the whole card at z-index 1, so a click
+  anywhere opens the format. Its accessible name is
+  "{Name}, {Family}. Open details" — the family and the verb ride in an
+  `.sr-only` span. Enter and Space are native.
+- **Compare** is a sibling button stacked above that hit area. Its
+  label is fixed ("Compare {Name}") and `aria-pressed` carries the
+  state — never swap the label as well, or a screen reader announces
+  "Remove from compare, pressed". It alone carries
+  `aria-keyshortcuts="c"`. The drawn circle is 32px; a transparent
+  `::after` at `inset:-6px` makes the hit area 44px for touch.
+- **C** toggles compare while focus is anywhere in the card — not
+  with a modifier held, not on key repeat, and never from inside a text
+  field.
+- **Touch** is two taps: the first makes the card Live (so the specs
+  can be read without a hover), the second opens it. Tapping outside,
+  or on another card's Compare, clears Live. The pointer type is read
+  from the click event itself, so a keyboard Enter after a tap still
+  opens rather than being mistaken for a first tap.
+- **Tab order** is title, then Compare. The body's text can't be
+  selected, because the stretched hit area covers it — accepted, since
+  every value on the card is repeated in the detail view it opens.
+
+**Media Ad Card — Width.** Follows the universal responsive-width
+rule, on the wider **functional floor**: place it in
+`c-cards c-cards-functional` (280px columns). At 280px the label
+column still leaves a readable value column and the 16:10 Frame still
+reads as media; a narrower card squeezes both. The card itself sets no
+width of its own beyond the base Card's.
+
+**Media Ad Card — What this variant borrows and what it overrides.**
+Borrows, verbatim: the base Card surface (fill, border, `radius-lg`,
+`shadow-1`), Interactive's `shadow-2` hover, `shadow-focus`, the Card
+title style, Selected's `shadow-3`, the real `.c-tag` and `.c-badge`,
+`.sr-only`, the Hero Card heading's 2-line clamp, the Hero Card AI
+variant's tilt pattern, and Progress Bar's shimmer. Overrides, on
+purpose:
+
+- **Padding and gap are zeroed** on the card so the Frame runs edge to
+  edge; the Body carries `--card-padding` instead.
+- **Compare is round** (`radius-pill`), not Button's icon-only
+  `radius-sm` — a recorded exception: over media it reads as a
+  toggle chip, not a toolbar button.
+- **Compared** is a 1px border plus a 1px ring, not Selected's 2px
+  border with 1px less padding — a padding change would shift the
+  full-bleed Frame.
+- **The Built-for-this-slot badge** is light (Neutral-1, dark text),
+  not the solid Navy the source page used, per Badge & Tag's rule
+  against solid brand fills behind white text.
+
+Values with no token, kept as deliberate one-offs because nothing else
+uses them: the **2px** lift, the **16:10** ratio, the **1.1** zoom,
+and the **4deg / 800px / 1.015** tilt.
+
+**Do** keep all three spec rows on every card, in the same order, even
+when a value is missing. **Do** let the consumer own the Slot's
+content — the component's job ends at ratio, clip and zoom.
+**Don't** put an ad visual in the component itself, or text over the
+Frame beyond the Compare toggle, the Built-for-this-slot badge and the
+Tap hint. **Don't** use the family Tag colours to mean departments on
+this card, or this card's family mapping to colour anything else.
 
 ### Chart chrome & marks
 
@@ -7007,6 +7159,40 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.107 — 2026-09-24** — [Card](#card) gains a **Media Ad Card**
+  variant, promoted from Collab:Media's Ad formats page, where it was a
+  page-local card (`fm-card`). One ad format per tile: a full-bleed
+  16:10 media Frame, a round Compare toggle, the title and family Tag,
+  and a body that trades its tagline for three spec rows when the card
+  goes Live.
+
+  **The media Frame is a slot, not a preview.** The source drew a live
+  miniature of each ad in the card; the system version ships a neutral
+  placeholder only and owns just the ratio, the clipping and the zoom.
+  A product pours its own preview in.
+
+  **Fixed on the way in.** The source card was `role="button"` wrapping
+  its own Compare button — invalid nesting. Open is now a real button
+  in the title, stretched over the card; Compare is a sibling above it
+  with a fixed label and `aria-pressed`, and it alone carries the C
+  shortcut. Also: a 44px touch target on the 32px Compare circle, a
+  forced-colours focus outline, a touch two-tap that can no longer
+  swallow a keyboard Enter, tilt measured once on entry instead of on
+  every move, a skeleton exactly as tall as a loaded card, and a
+  Compared outline that switches instantly like Selected. The source's
+  320px card floor overflowed small phones; the card now sits on the
+  existing 280px functional grid.
+
+  **New:** `.c-card-media-ad` and its parts in `components.css`
+  (directly after Pacing Card); `.c-tag-purple` with the Tag colours;
+  `--color-purple-bg` / `--color-purple-bg-strong` in `tokens.css` and
+  the token exports; one live Swipe Gallery card in the gallery's Card
+  block. Recorded exceptions: the round Compare button, the
+  border-plus-ring Compared state, and four untokenised one-off values
+  (2px lift, 16:10, 1.1 zoom, 4deg tilt). The spec rows share one grid
+  sized to the widest label, so the values line up — a fixed 80px label
+  column let "BENCHMARK" overflow and push its value 3px right.
 
 - **v0.9.106 — 2026-09-24** — [Logo](#logo) gains a third asset class —
   **platform app icons**, starting with Microsoft Teams — and is
