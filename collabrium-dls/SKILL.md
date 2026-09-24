@@ -33,7 +33,12 @@ whenever no department/element context applies; the other 4 element-colored vari
 (Fire, Wood, Water, Earth) don't exist yet. `SVG/`
 holds the confirmed true vector source for every letter and element icon
 individually — use those files (not a screenshot, not a hand-traced
-copy) if you need a piece of the mark on its own. `fonts/` has real,
+copy) if you need a piece of the mark on its own.
+`logo-icon-msteams/` holds the ready-made **Microsoft Teams app icon**
+PNGs (192×192 colour, plus 32×32 rest and focused states for the app
+bar) — a Teams build ships those exact files rather than re-exporting
+the mark, and DESIGN-SYSTEM.md's **Platform app icons** section carries
+the manifest mapping and the platform rules. `fonts/` has real,
 installable variable-font files for both typefaces (sourced from
 Google's official repo, not the web-embed subsets) — point people there
 instead of them hunting Google Fonts themselves. `preview.html` also has
@@ -59,7 +64,8 @@ a first design pass, not yet reviewed.
 **Charts are already solved: Chart.js v4.** Load it with the same pinned CDN tag `preview.html` uses — `<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js">` — and copy the shared chrome out of `preview.html`'s own Charts build (`baseAxes()`, one `tooltip` object, one `legend()`), which reads every value off computed CSS custom properties rather than hardcoding tokens. Don't reach for a second charting library; DESIGN-SYSTEM.md's **Chart chrome & marks** and **Chart color mapping** sections carry the axis, tooltip, legend, marks and colour-role rules, including which chart type to pick for which data story.
 
 **Standing rule:** any change to this skill's files (preview.html,
-logo.html, logo-lockups/, tokens.css, components.css, SVG/, fonts/, new
+logo.html, logo-lockups/, logo-icon-msteams/, tokens.css, components.css,
+SVG/, fonts/, new
 components) must be reflected back into `DESIGN-SYSTEM.md` in the same
 pass, not as a follow-up: update the relevant spec section to describe
 the **current state only**, and add a dated entry to `DESIGN-SYSTEM.md`'s

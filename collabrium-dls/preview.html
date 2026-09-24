@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.105</title>
+<title>Collabrium design system | v0.9.106</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -142,6 +142,21 @@
   .dept-logo-desc{font-size:var(--text-body2-size); color:var(--color-neutral-6); line-height:1.5; margin:0;}
   .dept-logo-download{position:absolute; top:var(--spacing-8); right:var(--spacing-8); text-decoration:none; opacity:0; transition:opacity .15s;}
   .dept-logo-img:hover .dept-logo-download, .logo-lockup-img:hover .dept-logo-download{opacity:1;}
+  /* Platform app icons. The 192 previews at half size; the two 32s preview
+     at an integer 2x with pixelated rendering, so they read as the small,
+     crisp assets they are rather than as blurry upscales. The rest/focus
+     pair is white on transparent and would be invisible on this page's own
+     Neutral-1 card, so those two sit on Neutral-8 — our own dark token
+     standing in for the Teams app bar, not a Teams brand colour. */
+  .appicon-card .dept-logo-img{padding:var(--spacing-24); min-height:144px;}
+  .appicon-card .dept-logo-img img{width:96px; height:96px;}
+  /* Rest and focused are two states of one app-bar icon, so they share a
+     single card's image area rather than competing as two cards. Each
+     keeps its own hover-reveal Download. */
+  .appicon-states{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-8);}
+  .appicon-states .dept-logo-img{flex-direction:column; gap:var(--spacing-12); padding:var(--spacing-16); min-height:132px; background:var(--color-neutral-8); border-color:var(--color-neutral-8);}
+  .appicon-states .dept-logo-img img{width:64px; height:64px; image-rendering:pixelated;}
+  .appicon-state-label{font-size:var(--text-label3-size); font-weight:700; text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:rgba(255,255,255,.6);}
   .element-icon{width:18px; height:18px; vertical-align:middle; margin-right:6px;}
   td.element-cell{white-space:nowrap;}
   .hero-tagline{color:var(--color-neutral-5); font-size:var(--text-body1-size); margin:0 0 var(--spacing-32);}
@@ -380,7 +395,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.105</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.106</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -388,7 +403,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.105</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.106</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -413,6 +428,7 @@
         <button class="c-sidebar-item js-nav-parent-toggle" type="button" aria-expanded="true" data-nav-parent="foundation"><i class="ph-fill ph-cube"></i><span class="label">Foundation</span><span class="c-sidebar-hover-text">Foundation</span><span class="c-nav-parent-toggle"><i class="ph ph-caret-up js-nav-parent-chevron"></i></span></button>
         <div class="c-nav-children is-open" data-nav-panel="foundation">
           <div class="c-nav-children-inner">
+            <button class="c-nav-child" type="button" data-nav-target="logo">Logo</button>
             <button class="c-nav-child" type="button" data-nav-target="color">Color Palette</button>
             <button class="c-nav-child" type="button" data-nav-target="typography">Typography</button>
             <button class="c-nav-child" type="button" data-nav-target="fonts">Fonts</button>
@@ -495,6 +511,7 @@
     <nav class="jumpnav">
       <div class="shell">
         <a href="#collabrium">General</a>
+        <a href="#logo">Logo</a>
         <a href="#color">Color Palette</a>
         <a href="#typography">Typography</a>
         <a href="#fonts">Fonts</a>
@@ -531,8 +548,16 @@
             <span class="tonepill">Steady</span>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="swatch-group-label">Logo</div>
+    <section id="logo">
+      <div class="shell">
+        <p class="kicker">01 &middot; Foundations</p>
+        <h2 class="section-title">Logo</h2>
+        <p class="lede">Collabrium's mark in every form it ships in — the default lockup, each department's own tinted lockup, and the platform app icon sets. Whenever no department context applies, the Gold default is the one to use.</p>
+
+        <div class="swatch-group-label">Default lockup</div>
         <div class="logo-lockup-card">
           <div class="logo-lockup-img">
             <img src="logo-lockups/collabrium-default-logo.svg" alt="Collabrium default logo lockup, Gold" />
@@ -599,12 +624,43 @@
             <p class="dept-logo-desc">Media planning system that recommends digital media space and channel strategy based on a brand's available revenue — turning budget into a data-driven media plan.</p>
           </div>
         </div>
+
+        <div class="swatch-group-label">App icons &mdash; Microsoft Teams</div>
+        <p class="lede" style="margin:0 0 var(--spacing-16)">The Collabrium app icon set for the Microsoft Teams Store and app bar. Ship these exact files &mdash; the app icon always carries the default Gold mark, never a department lockup. The app-bar icon is white on transparent, so its two states preview here on a dark tile.</p>
+        <div class="dept-logo-grid">
+          <div class="dept-logo-card appicon-card">
+            <div class="dept-logo-img">
+              <img src="logo-icon-msteams/collabrium_main_icon_192.png" alt="Collabrium Microsoft Teams colour app icon, full-bleed Gold, 192 by 192 pixels" />
+              <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-icon-msteams/collabrium_main_icon_192.png" download="collabrium_main_icon_192.png"><i class="ph ph-download-simple"></i> Download</a>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-gold-bg); color:var(--color-amber)"><img class="element-icon" src="SVG/gold.svg" alt="" style="margin-right:0" />Gold</span>
+            <h3 class="dept-logo-name">Colour icon</h3>
+            <p class="dept-logo-desc">192&times;192, full bleed. Shown in the Teams Store, flyouts and the app details page.</p>
+          </div>
+          <div class="dept-logo-card appicon-card">
+            <div class="appicon-states">
+              <div class="dept-logo-img">
+                <img src="logo-icon-msteams/collabrium_rest_icon_32.png" alt="Collabrium Microsoft Teams app bar icon, rest state, white outline on transparent, 32 by 32 pixels" />
+                <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-icon-msteams/collabrium_rest_icon_32.png" download="collabrium_rest_icon_32.png"><i class="ph ph-download-simple"></i> Download</a>
+                <span class="appicon-state-label">Rest</span>
+              </div>
+              <div class="dept-logo-img">
+                <img src="logo-icon-msteams/collabrium_focus_icon_32.png" alt="Collabrium Microsoft Teams app bar icon, focused state, solid white on transparent, 32 by 32 pixels" />
+                <a class="c-btn c-btn-sm c-btn-secondary dept-logo-download" href="logo-icon-msteams/collabrium_focus_icon_32.png" download="collabrium_focus_icon_32.png"><i class="ph ph-download-simple"></i> Download</a>
+                <span class="appicon-state-label">Focus</span>
+              </div>
+            </div>
+            <span class="dept-logo-tag" style="background:var(--color-neutral-2); color:var(--color-neutral-5)">App bar</span>
+            <h3 class="dept-logo-name">App bar icon</h3>
+            <p class="dept-logo-desc">32&times;32, two states of one icon: outline at rest, filled when focused. The focused state is optional.</p>
+          </div>
+        </div>
       </div>
     </section>
 
     <section id="color">
       <div class="shell">
-        <p class="kicker">01 · Foundations</p>
+        <p class="kicker">02 &middot; Foundations</p>
         <h2 class="section-title">Color Palette</h2>
         <p class="lede">Five brand accents map one-to-one to a five-element metaphor and a department cluster — they classify what something belongs to, never mean "click me." Obsidian is the system's only actionable color.</p>
 
@@ -630,7 +686,7 @@
 
     <section id="typography">
       <div class="shell">
-        <p class="kicker">02 · Foundations</p>
+        <p class="kicker">03 &middot; Foundations</p>
         <h2 class="section-title">Typography</h2>
         <p class="lede">17-step type scale, Primary (Mulish) for everything functional <b>and every heading</b> (800 ExtraBold), Secondary (Source Serif 4) reserved for deliberate brand-statement moments only. Sourced from a teammate's fuller deck extraction, not guessed — but still not brand-team signed off.</p>
         <div id="typeScale"></div>
@@ -642,7 +698,7 @@
       <div class="shell">
         <div class="section-header">
           <div>
-            <p class="kicker">03 · Foundations</p>
+            <p class="kicker">04 &middot; Foundations</p>
             <h2 class="section-title">Fonts</h2>
           </div>
           <a class="install-btn" href="fonts/collabrium-fonts.zip" download title="Downloads real .ttf files for Mulish + Source Serif 4. A browser can't install fonts into your OS directly, so double-click each file afterward and confirm Install Font.">
@@ -682,7 +738,7 @@
 
     <section id="iconography">
       <div class="shell">
-        <p class="kicker">04 · Foundations</p>
+        <p class="kicker">05 &middot; Foundations</p>
         <h2 class="section-title">Iconography</h2>
         <p class="lede">Bold, chunky silhouettes with rounded, organic forms, from a two-library system in <b>two weights</b> — the weight is decided by what the icon does, not by taste.</p>
 
@@ -759,7 +815,7 @@
 
     <section id="spacing">
       <div class="shell">
-        <p class="kicker">05 · Foundations</p>
+        <p class="kicker">06 &middot; Foundations</p>
         <h2 class="section-title">Spacing &amp; Shape</h2>
         <p class="lede">4pt base grid. Collabrium is a product surface, not a marketing page &mdash; most layouts run full-bleed within the app shell rather than centering. Radius is per-surface, not one flat scale. Values sourced from a teammate's fuller extraction of the same source deck &mdash; see DESIGN.md Changelog.</p>
 
@@ -778,7 +834,7 @@
 
     <section id="guidelines">
       <div class="shell">
-        <p class="kicker">06 · Reference</p>
+        <p class="kicker">07 &middot; Reference</p>
         <h2 class="section-title">Guidelines</h2>
         <p class="lede">The condensed, skimmable version of every rule in this system. Full detail and rationale in the DESIGN.md tab.</p>
         <div class="guide-cols">
@@ -825,7 +881,7 @@
 
     <section id="components">
       <div class="shell">
-        <p class="kicker">07 · Reference</p>
+        <p class="kicker">08 &middot; Reference</p>
         <h2 class="section-title">Components</h2>
         <p class="lede">A live, interactive reference for every Collabrium component &mdash; buttons, inputs, navigation, data display, and feedback patterns &mdash; each with real markup you can copy directly into a build. Full variant/state tables and Do/Don't rationale live in the DESIGN.md tab; this gallery is the same spec, rendered rather than described.</p>
 
@@ -3910,7 +3966,7 @@
     <div class="codearea" id="codearea"></div>
     <div class="pane-right-footer">
       <button type="button" class="iconbtn" id="downloadBtn"><i class="ph ph-download-simple"></i> Download (.md)</button>
-      <a class="iconbtn iconbtn-primary" href="https://github.com/astroproductdesign/Collabrium-DS/archive/refs/heads/main.zip" title="Downloads the whole collabrium-dls folder (this file, DESIGN-SYSTEM.md, tokens.css, logo.html, logo-lockups/, SVG/, fonts/) as a zip from GitHub, not just this tab's text"><i class="ph ph-download-simple"></i> Download dls (.zip)</a>
+      <a class="iconbtn iconbtn-primary" href="https://github.com/astroproductdesign/Collabrium-DS/archive/refs/heads/main.zip" title="Downloads the whole collabrium-dls folder (this file, DESIGN-SYSTEM.md, tokens.css, logo.html, logo-lockups/, logo-icon-msteams/, SVG/, fonts/) as a zip from GitHub, not just this tab's text"><i class="ph ph-download-simple"></i> Download dls (.zip)</a>
     </div>
   </div>
 
@@ -4097,7 +4153,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.105** — 2026-09-22 — Sourced from the Collabrium brand deck
+**v0.9.106** — 2026-09-24 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -4690,6 +4746,86 @@ email, a static deck slide), a clear-space rule, a minimum size, and
 monochrome/reverse versions. Don't treat a screenshot of `logo.html`, or
 an ad-hoc composite of the `SVG/` files, as a final lockup — confirm
 with the brand team before using one in a real build.
+
+### Platform app icons
+
+App icons are a **platform export of the master mark**, not a new piece
+of artwork. Each platform has its own required sizes, states and file
+rules, so each gets its own folder of ready-made PNGs — and a build for
+that platform ships **those exact files**. Never re-export from the
+lockup, never recolour, never substitute a department logo: an app icon
+identifies Collabrium itself, which means it is always the **default
+Gold mark**, the same rule [Default static lockup](#logo) sets for any
+surface with no department context.
+
+Microsoft Teams is the first platform documented here. A second
+platform (favicon, iOS, Slack) becomes a sibling folder and a sibling
+subsection below, not a rewrite of this one.
+
+**Platform app icons — Microsoft Teams.** Folder:
+`logo-icon-msteams/`. Three assets, matching Microsoft's own submission
+table for Apps for Microsoft 365 — the same set is used by the Teams
+Store, the **Manage your apps** page, and the app bars of Teams,
+Outlook and the Microsoft 365 Copilot app.
+
+| File | Size | Microsoft's asset role | Where it appears | Manifest |
+|---|---|---|---|---|
+| `collabrium_main_icon_192.png` | 192×192 | Full-bleed colour icon | Store listings, flyouts, app details | `icons.color` |
+| `collabrium_rest_icon_32.png` | 32×32 | Default (rest) icon | App bar — default state | `icons.outline` |
+| `collabrium_focus_icon_32.png` | 32×32 | Focused (pressed) icon | App bar — focused/active state | — |
+
+The focused icon is **optional** in Microsoft's table and has **no
+manifest key** — `manifest.json`'s `icons` object carries only `color`
+and `outline`. It is supplied as a submission asset (Developer Portal /
+Partner Center), so don't go looking for a third key that doesn't
+exist.
+
+**Microsoft Teams — the platform rules these files already satisfy.**
+Listed so nobody "improves" a file into non-compliance:
+
+| Rule | Why it matters |
+|---|---|
+| Colour icon is a **perfect square at full bleed**, 0% transparency | Teams masks the icon at runtime for consistent rendering |
+| **No rounded corners** | Corners are rounded dynamically; pre-rounding double-rounds them |
+| **No baked border** | The border is added dynamically; a baked one duplicates on white backgrounds |
+| Brand mark sits inside the **120×120 safe area** | Anything outside it is masked or cropped unevenly. Ours measures exactly 120×120, centred |
+| Both 32px icons are **pure white on a transparent background** | Teams supplies the app bar's own background and tints per theme; a baked background blocks that. Monochrome only — no gradients, no second colour |
+| Rest is **outline** weight, focus is **filled** | The same Regular/Fill distinction [Iconography](#iconography)'s own two tiers already draw, here carried by state rather than by role |
+| Outline stroke ~1.5–2px at 32px | Fluent's own weight for this size; ours is 2px on the ring |
+
+**Microsoft Teams — recorded deviations.** Two measurements sit outside
+Microsoft's guidance and are written down rather than quietly left for
+a reviewer to find:
+
+- **Contrast is 1.98:1.** White on Amber `#FFA425` measures 1.98:1,
+  under the **4.5:1** Microsoft recommends for app-icon contrast. It is
+  a recommendation rather than a Store gate, and this is a brand mark
+  rather than UI text, so it ships as the brand defines it — recorded
+  the same way [Switch](#switch)'s own 2.35:1 and Task Rows' green disc
+  are. If it ever needs closing, the same mark in Obsidian measures
+  **7.13:1** and in Neutral-9 **10.10:1**; that is a brand decision, not
+  an implementation one.
+- **The 32px glyphs carry 4px of padding** (a 24×24 glyph in a 32×32
+  box). Community guidance says the app-bar symbol should carry no
+  extra padding, while Fluent's own 32px grid does include a live area
+  — so this is a judgment call that was made deliberately, not an
+  oversight. Leave it unless a Store review actually raises it.
+
+One thing that reads as a violation and isn't: Microsoft's "don't place
+your brand icon in a circle" guidance targets a non-circular logo
+dropped onto a circular plate. Collabrium's mark **is** a circle — it's
+the "o" counter of the wordmark — so the circle here is the artwork,
+not a container added around it.
+
+**Do:** ship the files in `logo-icon-msteams/` byte-for-byte, and point
+`manifest.json` at them by the mapping above. Add a new platform as a
+new folder plus a new subsection here. Keep the app icon on the default
+Gold mark. **Don't:** re-export the icon from
+`logo-lockups/collabrium-default-logo.svg` (that's a wordmark lockup,
+not a square app icon), recolour the icon to a department element,
+round its corners, add a border, bake a background behind the 32px
+pair, or resize the 192 to make the other sizes — each of the three is
+drawn for its own size and state.
 
 ## Photography & Visual Direction
 
@@ -11024,6 +11160,96 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.106 — 2026-09-24** — [Logo](#logo) gains a third asset class —
+  **platform app icons**, starting with Microsoft Teams — and is
+  promoted out of the General page into a section of its own. The site
+  nav now follows the reader as they scroll instead of only tracking
+  what they last clicked.
+
+  **Platform app icons.** A new `logo-icon-msteams/` folder holds three
+  ready-made PNGs, and a new **Platform app icons** subsection carries
+  the rule: a platform build ships **those exact files**, never a
+  re-export from the wordmark lockup, never a recolour, never a
+  department logo. An app icon identifies Collabrium itself, so it is
+  always the **default Gold mark** — the same rule the default lockup
+  already sets for any surface with no department context. The section
+  is written platform-generically with Teams as its first entry, so a
+  favicon, iOS or Slack set becomes a sibling folder and a sibling
+  subsection rather than a rewrite. The manifest mapping is recorded in
+  full, including the part that sends people hunting: `icons.color`
+  takes the 192×192 and `icons.outline` takes the 32×32 rest icon, while
+  the 32×32 **focused icon is optional and has no manifest key at all**
+  — it is supplied as a submission asset, so there is no third key to
+  look for.
+
+  **What was measured, including what failed.** The colour icon is a
+  perfect square at full bleed with no rounded corners and no baked
+  border — Teams masks and borders at runtime, and pre-baking either one
+  doubles it — and its mark sits exactly inside the 120×120 safe area.
+  Both 32px icons are pure white on transparent, outline at rest and
+  filled when focused. Two numbers sit outside Microsoft's guidance and
+  are written down rather than left for a reviewer to find: **contrast
+  measures 1.98:1** against the 4.5:1 Microsoft recommends, recorded the
+  same way [Switch](#switch)'s own 2.35:1 is, with the note that the
+  same mark in Obsidian measures 7.13:1 if it ever needs closing; and
+  the 32px glyphs carry **4px of padding** where community guidance asks
+  for none, while Fluent's own 32px grid does include a live area. Both
+  are judgment calls, not oversights. One thing that reads as a
+  violation and is not: Microsoft's "don't place your brand icon in a
+  circle" targets a non-circular logo dropped onto a circular plate, and
+  Collabrium's mark **is** a circle — it is the "o" counter of the
+  wordmark, so the circle is the artwork rather than a container added
+  around it. Recorded so it stops being re-litigated at every review.
+
+  **Logo is now a first-class section.** It was a group of blocks at the
+  end of the General page; it is now its own section with the same
+  header every other foundation section carries, which renumbers the
+  run: **Logo 01**, Color Palette 02, Typography 03, Fonts 04,
+  Iconography 05, Spacing & Shape 06, Guidelines 07, Components 08. Its
+  first group label changes from "Logo" to **"Default lockup"**, which
+  stops it repeating the new section title and matches this document's
+  own heading for the same thing. Inside, the order is Default lockup →
+  Department logos → App icons, and this document was reordered to match
+  the gallery rather than the other way round. `preview.html`'s sidebar
+  gains a **Logo** child above Color Palette, with the jumpnav list kept
+  in lockstep as that file's own standing rule requires.
+
+  **The nav follows the reader.** Active state was set on click only, so
+  scrolling past a section left the nav pointing at wherever you last
+  clicked. A scroll-spy now tracks position, with two decisions worth
+  recording because neither is obvious from the code. Targets are sorted
+  by **document order, not nav order** — the test is "the last section
+  whose top has passed the line," which is meaningless if the list is
+  ordered by how the nav happens to be arranged — and the line sits 80px
+  below the scroll container's top, so a section becomes current once
+  its heading is comfortably in view rather than the instant its first
+  pixel crosses the edge. Clicking a nav item **suppresses the spy for
+  800ms**: a smooth scroll passes over every section in between, and
+  without the hold the nav strobes through all of them before settling.
+  The spy also handles the sub-900px case where `.pane-left` stops
+  scrolling and the window scrolls instead, reusing the detection
+  `scrollToTarget` already carried.
+
+  **One editorial rule this pass established.** The app-icon block in
+  `preview.html` first carried the full spec table and compliance
+  measurements, and was then stripped back to a label, one lede and the
+  cards. The split it settled on is worth stating plainly, because the
+  removed material is exactly what this document's own section is for:
+  **the gallery shows the asset and hands it over; the spec carries the
+  implementation contract.** A reader browsing the gallery needs to know
+  what the three files are and how to download them; a reader building
+  the Teams package needs the manifest keys and the safe-area rules, and
+  that reader is already here.
+
+  `preview.html`: new **Logo** section and sidebar/jumpnav entries, the
+  app-icon block and its demo styles, the scroll-spy, all seven existing
+  section kickers renumbered, and the "Download dls (.zip)" tooltip's
+  hand-listed folder set updated. `SKILL.md`: `logo-icon-msteams/`
+  added to both the asset-folder description and the Standing-rule file
+  list, so the skill's own doc-sync rule covers it. `tokens.css` and
+  `components.css`: unchanged — this pass added assets and structure,
+  not new component styling. Version flag bumped to v0.9.106.
 
 - **v0.9.105 — 2026-09-22** — [Card](#card) gains **Campaign card**, a
   kanban board tile for one campaign, and [Iconography](#iconography)
@@ -17425,9 +17651,67 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
     parentToggle.classList.add('parent-active-child');
   }
 
+  /* ---------- Scroll-spy — the nav follows the reader ----------
+     Active state used to be set on click only, so scrolling past a
+     section left the nav pointing at wherever you last clicked. Targets
+     are sorted by document order (not nav order) so the "last one whose
+     top has passed the line" test is meaningful, and the line sits 80px
+     below the scroll container's own top rather than at 0, so a section
+     counts as current once its heading is comfortably in view rather
+     than the instant its first pixel crosses the edge.
+
+     A programmatic scroll suppresses the spy while it runs: a smooth
+     scroll passes over every section in between, and without this the
+     nav would strobe through all of them before settling. */
+  const spyTargets = [...sidebar.querySelectorAll('[data-nav-target]')]
+    .map(btn => ({ btn, el: document.getElementById(btn.dataset.navTarget) }))
+    .filter(t => t.el)
+    .sort((a, b) => (a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1);
+
+  let spySuppressed = false, spySuppressTimer = null;
+  function suppressSpyFor(ms){
+    spySuppressed = true;
+    clearTimeout(spySuppressTimer);
+    spySuppressTimer = setTimeout(() => { spySuppressed = false; }, ms);
+  }
+
+  // Below 900px .pane-left stops scrolling and the window scrolls instead
+  // (see the mobile media query) — same detection scrollToTarget uses.
+  function activeScroller(){
+    return scrollHost.scrollHeight > scrollHost.clientHeight ? scrollHost : document.scrollingElement;
+  }
+
+  function syncSpy(){
+    if(spySuppressed || !spyTargets.length) return;
+    const host = activeScroller();
+    const hostTop = host === scrollHost ? scrollHost.getBoundingClientRect().top : 0;
+    let current = spyTargets[0];
+    for(const t of spyTargets){
+      if(t.el.getBoundingClientRect().top - hostTop <= 80) current = t;
+    }
+    // At the very bottom the last section can never reach the line, so
+    // claim it explicitly rather than leaving the nav one short.
+    if(host.scrollTop + host.clientHeight >= host.scrollHeight - 2) current = spyTargets[spyTargets.length - 1];
+    if(current.btn.classList.contains('active')) return;
+    if(current.btn.classList.contains('c-nav-child')) selectChild(current.btn);
+    else selectTopItem(current.btn);
+  }
+
+  let spyQueued = false;
+  function queueSpy(){
+    if(spyQueued) return;
+    spyQueued = true;
+    requestAnimationFrame(() => { spyQueued = false; syncSpy(); });
+  }
+  scrollHost.addEventListener('scroll', queueSpy, { passive: true });
+  window.addEventListener('scroll', queueSpy, { passive: true });
+  window.addEventListener('resize', queueSpy, { passive: true });
+  syncSpy();
+
   function scrollToTarget(id){
     const target = document.getElementById(id);
     if(!target) return;
+    suppressSpyFor(800);
     // Below 900px, .pane-left stops scrolling itself (window scrolls
     // instead — see the mobile media query), so detect which is actually
     // the scrolling container rather than assuming .pane-left always is.
