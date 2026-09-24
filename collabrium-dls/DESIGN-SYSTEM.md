@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.105** — 2026-09-22 — Sourced from the Collabrium brand deck
+**v0.9.106** — 2026-09-24 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -593,6 +593,86 @@ email, a static deck slide), a clear-space rule, a minimum size, and
 monochrome/reverse versions. Don't treat a screenshot of `logo.html`, or
 an ad-hoc composite of the `SVG/` files, as a final lockup — confirm
 with the brand team before using one in a real build.
+
+### Platform app icons
+
+App icons are a **platform export of the master mark**, not a new piece
+of artwork. Each platform has its own required sizes, states and file
+rules, so each gets its own folder of ready-made PNGs — and a build for
+that platform ships **those exact files**. Never re-export from the
+lockup, never recolour, never substitute a department logo: an app icon
+identifies Collabrium itself, which means it is always the **default
+Gold mark**, the same rule [Default static lockup](#logo) sets for any
+surface with no department context.
+
+Microsoft Teams is the first platform documented here. A second
+platform (favicon, iOS, Slack) becomes a sibling folder and a sibling
+subsection below, not a rewrite of this one.
+
+**Platform app icons — Microsoft Teams.** Folder:
+`logo-icon-msteams/`. Three assets, matching Microsoft's own submission
+table for Apps for Microsoft 365 — the same set is used by the Teams
+Store, the **Manage your apps** page, and the app bars of Teams,
+Outlook and the Microsoft 365 Copilot app.
+
+| File | Size | Microsoft's asset role | Where it appears | Manifest |
+|---|---|---|---|---|
+| `collabrium_main_icon_192.png` | 192×192 | Full-bleed colour icon | Store listings, flyouts, app details | `icons.color` |
+| `collabrium_rest_icon_32.png` | 32×32 | Default (rest) icon | App bar — default state | `icons.outline` |
+| `collabrium_focus_icon_32.png` | 32×32 | Focused (pressed) icon | App bar — focused/active state | — |
+
+The focused icon is **optional** in Microsoft's table and has **no
+manifest key** — `manifest.json`'s `icons` object carries only `color`
+and `outline`. It is supplied as a submission asset (Developer Portal /
+Partner Center), so don't go looking for a third key that doesn't
+exist.
+
+**Microsoft Teams — the platform rules these files already satisfy.**
+Listed so nobody "improves" a file into non-compliance:
+
+| Rule | Why it matters |
+|---|---|
+| Colour icon is a **perfect square at full bleed**, 0% transparency | Teams masks the icon at runtime for consistent rendering |
+| **No rounded corners** | Corners are rounded dynamically; pre-rounding double-rounds them |
+| **No baked border** | The border is added dynamically; a baked one duplicates on white backgrounds |
+| Brand mark sits inside the **120×120 safe area** | Anything outside it is masked or cropped unevenly. Ours measures exactly 120×120, centred |
+| Both 32px icons are **pure white on a transparent background** | Teams supplies the app bar's own background and tints per theme; a baked background blocks that. Monochrome only — no gradients, no second colour |
+| Rest is **outline** weight, focus is **filled** | The same Regular/Fill distinction [Iconography](#iconography)'s own two tiers already draw, here carried by state rather than by role |
+| Outline stroke ~1.5–2px at 32px | Fluent's own weight for this size; ours is 2px on the ring |
+
+**Microsoft Teams — recorded deviations.** Two measurements sit outside
+Microsoft's guidance and are written down rather than quietly left for
+a reviewer to find:
+
+- **Contrast is 1.98:1.** White on Amber `#FFA425` measures 1.98:1,
+  under the **4.5:1** Microsoft recommends for app-icon contrast. It is
+  a recommendation rather than a Store gate, and this is a brand mark
+  rather than UI text, so it ships as the brand defines it — recorded
+  the same way [Switch](#switch)'s own 2.35:1 and Task Rows' green disc
+  are. If it ever needs closing, the same mark in Obsidian measures
+  **7.13:1** and in Neutral-9 **10.10:1**; that is a brand decision, not
+  an implementation one.
+- **The 32px glyphs carry 4px of padding** (a 24×24 glyph in a 32×32
+  box). Community guidance says the app-bar symbol should carry no
+  extra padding, while Fluent's own 32px grid does include a live area
+  — so this is a judgment call that was made deliberately, not an
+  oversight. Leave it unless a Store review actually raises it.
+
+One thing that reads as a violation and isn't: Microsoft's "don't place
+your brand icon in a circle" guidance targets a non-circular logo
+dropped onto a circular plate. Collabrium's mark **is** a circle — it's
+the "o" counter of the wordmark — so the circle here is the artwork,
+not a container added around it.
+
+**Do:** ship the files in `logo-icon-msteams/` byte-for-byte, and point
+`manifest.json` at them by the mapping above. Add a new platform as a
+new folder plus a new subsection here. Keep the app icon on the default
+Gold mark. **Don't:** re-export the icon from
+`logo-lockups/collabrium-default-logo.svg` (that's a wordmark lockup,
+not a square app icon), recolour the icon to a department element,
+round its corners, add a border, bake a background behind the 32px
+pair, or resize the 192 to make the other sizes — each of the three is
+drawn for its own size and state.
 
 ## Photography & Visual Direction
 
@@ -6927,6 +7007,96 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.106 — 2026-09-24** — [Logo](#logo) gains a third asset class —
+  **platform app icons**, starting with Microsoft Teams — and is
+  promoted out of the General page into a section of its own. The site
+  nav now follows the reader as they scroll instead of only tracking
+  what they last clicked.
+
+  **Platform app icons.** A new `logo-icon-msteams/` folder holds three
+  ready-made PNGs, and a new **Platform app icons** subsection carries
+  the rule: a platform build ships **those exact files**, never a
+  re-export from the wordmark lockup, never a recolour, never a
+  department logo. An app icon identifies Collabrium itself, so it is
+  always the **default Gold mark** — the same rule the default lockup
+  already sets for any surface with no department context. The section
+  is written platform-generically with Teams as its first entry, so a
+  favicon, iOS or Slack set becomes a sibling folder and a sibling
+  subsection rather than a rewrite. The manifest mapping is recorded in
+  full, including the part that sends people hunting: `icons.color`
+  takes the 192×192 and `icons.outline` takes the 32×32 rest icon, while
+  the 32×32 **focused icon is optional and has no manifest key at all**
+  — it is supplied as a submission asset, so there is no third key to
+  look for.
+
+  **What was measured, including what failed.** The colour icon is a
+  perfect square at full bleed with no rounded corners and no baked
+  border — Teams masks and borders at runtime, and pre-baking either one
+  doubles it — and its mark sits exactly inside the 120×120 safe area.
+  Both 32px icons are pure white on transparent, outline at rest and
+  filled when focused. Two numbers sit outside Microsoft's guidance and
+  are written down rather than left for a reviewer to find: **contrast
+  measures 1.98:1** against the 4.5:1 Microsoft recommends, recorded the
+  same way [Switch](#switch)'s own 2.35:1 is, with the note that the
+  same mark in Obsidian measures 7.13:1 if it ever needs closing; and
+  the 32px glyphs carry **4px of padding** where community guidance asks
+  for none, while Fluent's own 32px grid does include a live area. Both
+  are judgment calls, not oversights. One thing that reads as a
+  violation and is not: Microsoft's "don't place your brand icon in a
+  circle" targets a non-circular logo dropped onto a circular plate, and
+  Collabrium's mark **is** a circle — it is the "o" counter of the
+  wordmark, so the circle is the artwork rather than a container added
+  around it. Recorded so it stops being re-litigated at every review.
+
+  **Logo is now a first-class section.** It was a group of blocks at the
+  end of the General page; it is now its own section with the same
+  header every other foundation section carries, which renumbers the
+  run: **Logo 01**, Color Palette 02, Typography 03, Fonts 04,
+  Iconography 05, Spacing & Shape 06, Guidelines 07, Components 08. Its
+  first group label changes from "Logo" to **"Default lockup"**, which
+  stops it repeating the new section title and matches this document's
+  own heading for the same thing. Inside, the order is Default lockup →
+  Department logos → App icons, and this document was reordered to match
+  the gallery rather than the other way round. `preview.html`'s sidebar
+  gains a **Logo** child above Color Palette, with the jumpnav list kept
+  in lockstep as that file's own standing rule requires.
+
+  **The nav follows the reader.** Active state was set on click only, so
+  scrolling past a section left the nav pointing at wherever you last
+  clicked. A scroll-spy now tracks position, with two decisions worth
+  recording because neither is obvious from the code. Targets are sorted
+  by **document order, not nav order** — the test is "the last section
+  whose top has passed the line," which is meaningless if the list is
+  ordered by how the nav happens to be arranged — and the line sits 80px
+  below the scroll container's top, so a section becomes current once
+  its heading is comfortably in view rather than the instant its first
+  pixel crosses the edge. Clicking a nav item **suppresses the spy for
+  800ms**: a smooth scroll passes over every section in between, and
+  without the hold the nav strobes through all of them before settling.
+  The spy also handles the sub-900px case where `.pane-left` stops
+  scrolling and the window scrolls instead, reusing the detection
+  `scrollToTarget` already carried.
+
+  **One editorial rule this pass established.** The app-icon block in
+  `preview.html` first carried the full spec table and compliance
+  measurements, and was then stripped back to a label, one lede and the
+  cards. The split it settled on is worth stating plainly, because the
+  removed material is exactly what this document's own section is for:
+  **the gallery shows the asset and hands it over; the spec carries the
+  implementation contract.** A reader browsing the gallery needs to know
+  what the three files are and how to download them; a reader building
+  the Teams package needs the manifest keys and the safe-area rules, and
+  that reader is already here.
+
+  `preview.html`: new **Logo** section and sidebar/jumpnav entries, the
+  app-icon block and its demo styles, the scroll-spy, all seven existing
+  section kickers renumbered, and the "Download dls (.zip)" tooltip's
+  hand-listed folder set updated. `SKILL.md`: `logo-icon-msteams/`
+  added to both the asset-folder description and the Standing-rule file
+  list, so the skill's own doc-sync rule covers it. `tokens.css` and
+  `components.css`: unchanged — this pass added assets and structure,
+  not new component styling. Version flag bumped to v0.9.106.
 
 - **v0.9.105 — 2026-09-22** — [Card](#card) gains **Campaign card**, a
   kanban board tile for one campaign, and [Iconography](#iconography)
