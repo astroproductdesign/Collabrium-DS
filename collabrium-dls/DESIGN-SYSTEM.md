@@ -3208,7 +3208,8 @@ this card came in from Collab:Media.
 
 - **Open** is a real `<button>` inside the title (`-open`). Its
   `::after` stretches over the whole card at z-index 1, so a click
-  anywhere opens the format. Its accessible name is
+  anywhere opens the format — into the
+  [Media Ad Modal](#media-ad-modal), the card's companion detail view. Its accessible name is
   "{Name}, {Family}. Open details" — the family and the verb ride in an
   `.sr-only` span. Enter and Space are native.
 - **Compare** is a sibling button stacked above that hit area. Its
@@ -4637,8 +4638,11 @@ forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone). **The one exception is
 the [Tutorial Modal](#tutorial-modal) variant below**, whose numbered
 steps are reads rather than decisions — it collects no input, commits
-nothing, and is abandonable at any point with nothing lost. No other
-multi-step flow inherits this.
+nothing, and is abandonable at any point with nothing lost. **The
+second is [Media Ad Modal](#media-ad-modal)**, a detail view stepped
+through with previous / next, on the same ground: it collects no input,
+commits nothing in the panel itself, and can be left at any point. No
+other multi-step flow inherits this.
 
 #### Tutorial Modal
 
@@ -4650,7 +4654,10 @@ panel recipe, Modal's scrim value, Modal's footer order and
 [Button](#button)'s own `.c-icon-btn` as they ship. Only its geometry and
 its lock are its own.
 
-**It is the one thing in this system that locks the page.** During a tour
+**It locks the page harder than anything else in this system.**
+([Media Ad Modal](#media-ad-modal) also holds the page still while it is
+open, behind a scrim that closes it on click; a tour does not even
+allow that.) During a tour
 the card is the only element that answers to anything — no scrolling, no
 clicking past the scrim, no tabbing out of the card — because a tour that
 can be half-operated while it runs is worse than no tour. That is also
@@ -4723,6 +4730,7 @@ clears all of it:
 | **1100** | **Tutorial Modal's layer** | — |
 | 1000 | [Toast](#toast) host | **Yes.** A toast firing mid-tour is dimmed with everything else rather than floating over the scrim looking live while the layer eats its clicks. A toast that *is* the step's target still shows, because the spotlight is a real hole — whatever paints beneath it comes through |
 | 400 | [Command brief](#command-brief)'s scrim | **Yes** |
+| 300 | [Media Ad Modal](#media-ad-modal)'s layer | **Yes** — a tour can explain a detail view that is already open |
 | 95 | [Chat window](#chat-window) | **Yes** — so a tour can explain a chat window rather than hide behind one |
 | *none* | Modal / dialog | **Yes.** `.c-modal` declares no z-index at all |
 
@@ -4868,6 +4876,119 @@ leave the page usable.
 > here rather than quietly picked a side on; **the drift is Modal's to
 > resolve**, and whichever way it goes this variant should follow the
 > parent it borrows from.
+
+#### Media Ad Modal
+
+The detail view a [Media Ad Card](#card) opens into — one ad format at
+a time: its media, name and family Tag, what it's for, the sizes it
+runs at, how it performs, where it has run, and what else to consider.
+Previous and next step through the list the card came from without
+closing, so a planner can read a shortlist in one sitting. Built for
+Collab:Media's Ad formats catalogue.
+
+It is a **variant of this component**, the way
+[Tutorial Modal](#tutorial-modal) is: markup is
+`class="c-modal c-modal-media-ad"` on the real panel, and Modal's
+panel recipe, scrim, head, body and footer order all ship unchanged.
+Everything interactive inside it is a shipped component used as-is —
+prev, next and close are [Button](#button)'s Ghost icon-only sm
+(`c-btn c-btn-ghost c-btn-icon c-btn-sm`), the footer is
+[Button](#button), the family label is [Tag](#badge--tag), industries
+are [Chip](#chip), the benchmark bar is [Progress Bar](#progress-bar),
+and the catalogue note is the neutral [Info Banner](#info-banner). Its
+content vocabulary is the card's: the same family-Tag mapping, the
+same spec labels, the same missing-data rule and the same media slot
+contract — see **Media Ad Card** under [Card](#card); this section
+does not restate them.
+
+**Why a modal is allowed here.** Modal's rule is one focused decision,
+and a view you step through is not that. The carve-out is the same one
+Tutorial Modal earned, for the same reason: this panel is a **read**.
+It collects no input and commits nothing in the panel itself — "Use in
+a media plan" leaves for another page, Compare is a reversible toggle
+mirrored on the card — and it can be abandoned at any point with
+nothing lost. That is also why it may lock the page while open: a
+detail view that half-scrolls the catalogue behind it is worse than
+one that holds still.
+
+| Part | Class | Spec |
+|---|---|---|
+| Layer | `-layer`, `-scrim` | One `position: fixed; inset: 0` root at `<body>` level holding the scrim and the panel. Scrim is Modal's own `--shadow-overlay`. `z-index: 300` — see the stacking row under Tutorial Modal |
+| Panel | `.c-modal.c-modal-media-ad` | Modal's recipe plus the spec's 1px Neutral-3 border. `min(600px, 100vw − spacing-32)` wide — Modal allows "wider for forms", and this is a reading surface. Max height `min(800px, 100dvh − spacing-60)`; only the body scrolls. `role="dialog"`, `aria-modal="true"`, labelled by the title, described by the tagline |
+| Head | `.c-modal-head` → `-crumbs`, `-nav`, close | Carries the breadcrumb and navigation instead of the title (the title sits under the media). Breadcrumb: "Ad formats › {Name}" in caption, the name bold Neutral-9 with an ellipsis. Then prev (`ph-arrow-left`, `aria-keyshortcuts="ArrowLeft"`), next (`ph-arrow-right`, `ArrowRight`) and close (`ph-x`) — the icon button as it ships. Nav is hidden when the list has one item. 12/16 padding, bottom rule |
+| Body | `.c-modal-body` | 16/24/24 padding (16 all round when narrow), body2. Resets to the top on every swap |
+| Frame + Slot | `-frame`, `-slot` | 16:10, `radius-md`, 1px Neutral-3. **The slot contract is the card's, minus the zoom**: it accepts any child, the component owns only the ratio and the clipping, and the system ships the shared placeholder (the same rule as `.c-card-media-ad-placeholder`) and never an ad visual |
+| Replay (optional) | `-replay` | A real `.c-btn-secondary.c-btn-sm`, bottom-right of the Frame. Rendered **only** when the slot holds something replayable; fires `c-modal-media-ad:replay` |
+| Title row | `-titlerow`, `-title` | Title is an **`h3`** at the h3 token — Modal's title level — wrapping, never clamped, `tabindex="-1"` so focus can land on it. The family Tag sits beside it and never shrinks |
+| Tagline / description | `-tagline`, `-desc` | Tagline required (body1, Neutral-5); description optional (body2, Neutral-9) |
+| Specs | `-specs` → `-spec` (a `<dl>`) | **Always six cells, always this order:** Objective, Runs on, Best for, Funnel, CPM on file, Monthly inventory. 2 columns (1 when narrow) on the warm-card fill. Label and value vocabulary match the card's spec rows; a missing value takes `.is-empty` |
+| Catalogue note (optional) | `.c-banner.c-banner-neutral` | "Standard display unit. Copy and sizes here are catalogue defaults — verify before quoting." For units with no gallery page of their own |
+| Sections | `-section`, `-section-title` | `h4` titles in the eyebrow recipe, **spacing-16 to their content**, spacing-20 between sections |
+| Supported sizes | `-sizes` → `-size`, `-size-box`, `-size-label`, `-size-chip` | **A sample, not a ruler.** All boxes share one scale, fitted so the widest size fits 96px and the tallest 64px, and every box keeps its exact aspect ratio (a very thin size grows evenly to a 6px short side rather than being stretched). Water-bg-strong fill, 1px Navy, 2px radius, `aria-hidden`; the label reads "970 by 250 pixels". A size that isn't W×H ("16:9 in-content") is a dashed text chip. No sizes → "No fixed size — this unit is built to the placement." |
+| Benchmark | `-bench` | "CTR 0.62%" + "of a 1.00% ceiling", then a Progress Bar (`size-default`, `tone-success`) that is decorative (`aria-hidden`) and eases in from 0. None → "No benchmark has been published for this unit. Ask Sales for recent campaign numbers before quoting one." |
+| Industries | `.c-chip-group` → `.c-chip.c-chip-input` | Static chips. The section is **omitted** when empty — the one section that may be, because an empty list says nothing a planner can use |
+| Also consider | `-related` → `-relcard`, `-relthumb`, `-relname` | Three related formats, 3 columns (2 when narrow). Each a real `<button>` with a placeholder thumbnail and the name, which truncates — so the button carries a `title` with the full name |
+| Foot | `.c-modal-foot` | spacing-8 gap, wraps. Modal's order: **Compare** far left (a Ghost toggle — not part of the commit pair), **Live demo** (Secondary), **Use in a media plan** (Primary, far right) |
+
+**States.**
+
+| State | Treatment |
+|---|---|
+| Opening | The panel swings out of the card that opened it (FLIP from the card's box) while the scrim fades in; focus lands on Close |
+| Stepping | ← / → or prev / next replace the body, reset its scroll, and **move focus to the new title** |
+| Related swap | Same as stepping, to the chosen format; focus to the new title |
+| Compared | Compare takes `aria-pressed="true"`, swaps `ph-plus` for `ph-check`, and gains an inset 1px Obsidian edge — Badge Selected's pairing, not an Obsidian fill, so the footer never shows two Primary-looking buttons. Its label stays "Compare" and it stays in sync with the card's round Compare |
+| Live demo off | `aria-disabled="true"` (not `disabled`, so it stays focusable), Button's Secondary-disabled colours, and the reason in `title` and `aria-describedby`. Clicks do nothing |
+| Missing data | The card's rule: never blank. CPM reads "Not on file — ask Sales"; the other cells "Not on file", in Neutral-5 |
+| Closing | The panel folds back into the card, **only if that card is on screen** — otherwise it fades. It ends fully transparent. Esc pressed mid-opening plays the opening swing backwards from where it is rather than jumping. Nothing in the panel responds while it closes |
+| Narrow (panel ≤480px) | A container query on the panel's own width: specs 1 column, related 2, body padding 16, footer buttons stretch. A phone and a narrow panel get the same layout |
+| Touch | Footer buttons 44px tall (Tutorial Modal's rule). The head's icon buttons stay the shipped 32px and are spaced **spacing-12** apart rather than having their hit areas lifted — lifted, adjacent targets would overlap, and overlapping targets are worse than small ones |
+| Reduced motion | No swing — a plain fade. The benchmark bar isn't animated |
+
+**Interaction contract.**
+
+- **Focus.** Opens on Close. Tab is trapped inside the panel and wraps
+  only at its ends — from the title, Tab follows the page order like
+  any other stop. On close, focus returns to the card.
+- **Keys.** Esc closes. ← / → step through the list (wrapping), never
+  with a modifier held and never from a text field. They keep working
+  after focus has moved to the new title.
+- **No live region.** A swap moves focus to the new title, so a screen
+  reader reads the new format by landing on it — the system's standing
+  rule, and the same mechanism Tutorial Modal uses between steps.
+- **The page is held still, three ways.** `overflow: hidden` on
+  `<html>` (with the scrollbar width padded back), wheel and touchmove
+  blocked outside the panel (iOS ignores overflow alone), and every
+  other child of `<body>` made `inert`, so VoiceOver can't move past
+  `aria-modal` onto the catalogue.
+- **The scrim closes it**, as Close does.
+
+**Motion.** The swing is kept from the Collab:Media source **by
+decision**: `.8s cubic-bezier(.25,.9,.35,1)` to open and
+`.55s cubic-bezier(.3,.6,.35,1)` to close, the same timings and curves
+as [Chat window](#chat-window)'s fold, but with a **48deg `rotateY` and
+7deg `rotateZ`** mid-pose at `.7` scale, on a 1200px perspective —
+a recorded exception to the fold's 10deg and to Tutorial Modal dropping
+`rotateY` altogether. Its source's 78% counter-rotation past rest is
+removed: movement settles, it never bounces.
+
+**Recorded one-off values**, not tokenised because nothing else uses
+them: the 16:10 ratio (shared with the card), the swing's timings,
+curves, angles and 1200px perspective, the 96 × 64px size sample and
+6px swatch minimum, the 2px swatch radius, and `z-index: 300`.
+
+**Do** keep all six spec cells in order on every format, even when
+most are "Not on file". **Do** let the consumer own the slot's content.
+**Don't** put an ad visual in the component, or add a form, a field or
+a confirm step to this panel — the moment it commits something in
+place, it stops being a read and loses the carve-out above; that
+belongs on a page. **Don't** open one Media Ad Modal from inside
+another.
+
+> ⚠️ **Modal's footer gap disagrees with itself.** This variant takes
+> the spec's spacing-8, while `.c-modal-foot` in `components.css`
+> ships spacing-12. Recorded here, not resolved — the same kind of
+> drift Tutorial Modal notes above, and Modal's to fix.
 
 ### Notes
 
@@ -7159,6 +7280,41 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.108 — 2026-09-25** — [Modal / dialog](#modal--dialog) gains a
+  second variant, **[Media Ad Modal](#media-ad-modal)**: the detail
+  view a Media Ad Card opens into, promoted from Collab:Media's Ad
+  formats page. One ad format at a time — media, name and family Tag,
+  six spec cells, supported sizes, benchmark, industries and three
+  related formats — with previous / next stepping through the list the
+  card came from.
+
+  **A modal, by carve-out.** Modal's rule is one focused decision; this
+  is a read that commits nothing in place, the same ground Tutorial
+  Modal stands on, so it is written into Modal's Don't as the second
+  exception. It also locks the page while open, so Tutorial Modal's
+  "the one thing that locks the page" and its stacking table are
+  updated (a new row at 300).
+
+  **The media is a slot, not a preview** — the card's contract minus
+  the zoom, and the placeholder rule is now one grouped selector shared
+  by both components. **Everything interactive is a shipped component
+  used as-is**: prev / next / close are Button's Ghost icon-only sm,
+  unmodified. **Fixed on the way in:** the title is an `h3` (Modal's
+  level) with `h4` section titles; stepping moves focus to the new
+  title instead of announcing through a live region; Tab from the title
+  follows page order; nothing responds mid-close; Esc mid-opening
+  reverses the swing; the close ends fully transparent and folds into
+  the card only when it's on screen; the page is inert and wheel/touch
+  scrolling is blocked while open; related names carry a full-name
+  title; footer buttons are 44px on touch and the head's icon buttons
+  are spaced rather than overlapped. **Kept by decision:** the source's
+  48deg swing, recorded as an exception to the Chat window fold.
+
+  **New:** `.c-modal-media-ad` and its parts in `components.css`
+  (directly after Tutorial Modal); one live example in the gallery's
+  Modal block, opened from a Media Ad Card. [Card](#card)'s Media Ad
+  Card now links to it from its Open action.
 
 - **v0.9.107 — 2026-09-24** — [Card](#card) gains a **Media Ad Card**
   variant, promoted from Collab:Media's Ad formats page, where it was a

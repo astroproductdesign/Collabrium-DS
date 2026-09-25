@@ -3034,6 +3034,32 @@
                 </div>
               </div>
             </div>
+            <p style="margin:var(--spacing-16) 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Media Ad Modal &mdash; the detail view a Media Ad Card opens into. Click the card: the panel swings out of it. Try <b>&larr;</b> / <b>&rarr;</b>, the related formats, Compare and <b>Esc</b>. The media area is a placeholder slot.</p>
+            <div class="c-cards c-cards-functional" style="max-width:360px;">
+              <article class="c-card c-card-interactive c-card-media-ad" data-mad-opener="swipe-gallery">
+                <div class="c-card-media-ad-frame">
+                  <div class="c-card-media-ad-slot"><div class="c-card-media-ad-placeholder" aria-hidden="true"><i class="ph ph-frame-corners"></i><span>Media</span></div></div>
+                </div>
+                <div class="c-card-media-ad-body">
+                  <div class="c-card-media-ad-titlerow">
+                    <h4 class="c-card-media-ad-title"><button type="button" class="c-card-media-ad-open">Swipe Gallery<span class="sr-only">, Interactive. Open details</span></button></h4>
+                    <span class="c-tag c-tag-water"><span class="dot"></span>Interactive</span>
+                  </div>
+                  <div class="c-card-media-ad-swap">
+                    <div class="c-card-media-ad-rest">
+                      <p class="c-card-media-ad-tagline">A horizontal carousel of product frames that viewers swipe through at their own pace.</p>
+                      <p class="c-card-media-ad-funnel">Consideration · Conversion</p>
+                    </div>
+                    <dl class="c-card-media-ad-spec">
+                      <div class="c-card-media-ad-spec-row"><dt>Objective</dt><dd>Engagement</dd></div>
+                      <div class="c-card-media-ad-spec-row"><dt>Sizes</dt><dd>300×250 · 320×480</dd></div>
+                      <div class="c-card-media-ad-spec-row"><dt>Benchmark</dt><dd>CTR 0.62%</dd></div>
+                    </dl>
+                  </div>
+                </div>
+                <button type="button" class="c-card-media-ad-compare" aria-pressed="false" aria-label="Compare Swipe Gallery" aria-keyshortcuts="c"><i class="ph ph-plus" aria-hidden="true"></i></button>
+              </article>
+            </div>
           </div>
         </div>
         <div class="comp-block" id="comp-notes">
@@ -7397,7 +7423,8 @@ this card came in from Collab:Media.
 
 - **Open** is a real `<button>` inside the title (`-open`). Its
   `::after` stretches over the whole card at z-index 1, so a click
-  anywhere opens the format. Its accessible name is
+  anywhere opens the format — into the
+  [Media Ad Modal](#media-ad-modal), the card's companion detail view. Its accessible name is
   "{Name}, {Family}. Open details" — the family and the verb ride in an
   `.sr-only` span. Enter and Space are native.
 - **Compare** is a sibling button stacked above that hit area. Its
@@ -8826,8 +8853,11 @@ forms or multi-step flows need a full page or panel, not a modal (this
 mirrors the deck's own steady, uncluttered tone). **The one exception is
 the [Tutorial Modal](#tutorial-modal) variant below**, whose numbered
 steps are reads rather than decisions — it collects no input, commits
-nothing, and is abandonable at any point with nothing lost. No other
-multi-step flow inherits this.
+nothing, and is abandonable at any point with nothing lost. **The
+second is [Media Ad Modal](#media-ad-modal)**, a detail view stepped
+through with previous / next, on the same ground: it collects no input,
+commits nothing in the panel itself, and can be left at any point. No
+other multi-step flow inherits this.
 
 #### Tutorial Modal
 
@@ -8839,7 +8869,10 @@ panel recipe, Modal's scrim value, Modal's footer order and
 [Button](#button)'s own `.c-icon-btn` as they ship. Only its geometry and
 its lock are its own.
 
-**It is the one thing in this system that locks the page.** During a tour
+**It locks the page harder than anything else in this system.**
+([Media Ad Modal](#media-ad-modal) also holds the page still while it is
+open, behind a scrim that closes it on click; a tour does not even
+allow that.) During a tour
 the card is the only element that answers to anything — no scrolling, no
 clicking past the scrim, no tabbing out of the card — because a tour that
 can be half-operated while it runs is worse than no tour. That is also
@@ -8912,6 +8945,7 @@ clears all of it:
 | **1100** | **Tutorial Modal's layer** | — |
 | 1000 | [Toast](#toast) host | **Yes.** A toast firing mid-tour is dimmed with everything else rather than floating over the scrim looking live while the layer eats its clicks. A toast that *is* the step's target still shows, because the spotlight is a real hole — whatever paints beneath it comes through |
 | 400 | [Command brief](#command-brief)'s scrim | **Yes** |
+| 300 | [Media Ad Modal](#media-ad-modal)'s layer | **Yes** — a tour can explain a detail view that is already open |
 | 95 | [Chat window](#chat-window) | **Yes** — so a tour can explain a chat window rather than hide behind one |
 | *none* | Modal / dialog | **Yes.** `.c-modal` declares no z-index at all |
 
@@ -9057,6 +9091,119 @@ leave the page usable.
 > here rather than quietly picked a side on; **the drift is Modal's to
 > resolve**, and whichever way it goes this variant should follow the
 > parent it borrows from.
+
+#### Media Ad Modal
+
+The detail view a [Media Ad Card](#card) opens into — one ad format at
+a time: its media, name and family Tag, what it's for, the sizes it
+runs at, how it performs, where it has run, and what else to consider.
+Previous and next step through the list the card came from without
+closing, so a planner can read a shortlist in one sitting. Built for
+Collab:Media's Ad formats catalogue.
+
+It is a **variant of this component**, the way
+[Tutorial Modal](#tutorial-modal) is: markup is
+`class="c-modal c-modal-media-ad"` on the real panel, and Modal's
+panel recipe, scrim, head, body and footer order all ship unchanged.
+Everything interactive inside it is a shipped component used as-is —
+prev, next and close are [Button](#button)'s Ghost icon-only sm
+(`c-btn c-btn-ghost c-btn-icon c-btn-sm`), the footer is
+[Button](#button), the family label is [Tag](#badge--tag), industries
+are [Chip](#chip), the benchmark bar is [Progress Bar](#progress-bar),
+and the catalogue note is the neutral [Info Banner](#info-banner). Its
+content vocabulary is the card's: the same family-Tag mapping, the
+same spec labels, the same missing-data rule and the same media slot
+contract — see **Media Ad Card** under [Card](#card); this section
+does not restate them.
+
+**Why a modal is allowed here.** Modal's rule is one focused decision,
+and a view you step through is not that. The carve-out is the same one
+Tutorial Modal earned, for the same reason: this panel is a **read**.
+It collects no input and commits nothing in the panel itself — "Use in
+a media plan" leaves for another page, Compare is a reversible toggle
+mirrored on the card — and it can be abandoned at any point with
+nothing lost. That is also why it may lock the page while open: a
+detail view that half-scrolls the catalogue behind it is worse than
+one that holds still.
+
+| Part | Class | Spec |
+|---|---|---|
+| Layer | `-layer`, `-scrim` | One `position: fixed; inset: 0` root at `<body>` level holding the scrim and the panel. Scrim is Modal's own `--shadow-overlay`. `z-index: 300` — see the stacking row under Tutorial Modal |
+| Panel | `.c-modal.c-modal-media-ad` | Modal's recipe plus the spec's 1px Neutral-3 border. `min(600px, 100vw − spacing-32)` wide — Modal allows "wider for forms", and this is a reading surface. Max height `min(800px, 100dvh − spacing-60)`; only the body scrolls. `role="dialog"`, `aria-modal="true"`, labelled by the title, described by the tagline |
+| Head | `.c-modal-head` → `-crumbs`, `-nav`, close | Carries the breadcrumb and navigation instead of the title (the title sits under the media). Breadcrumb: "Ad formats › {Name}" in caption, the name bold Neutral-9 with an ellipsis. Then prev (`ph-arrow-left`, `aria-keyshortcuts="ArrowLeft"`), next (`ph-arrow-right`, `ArrowRight`) and close (`ph-x`) — the icon button as it ships. Nav is hidden when the list has one item. 12/16 padding, bottom rule |
+| Body | `.c-modal-body` | 16/24/24 padding (16 all round when narrow), body2. Resets to the top on every swap |
+| Frame + Slot | `-frame`, `-slot` | 16:10, `radius-md`, 1px Neutral-3. **The slot contract is the card's, minus the zoom**: it accepts any child, the component owns only the ratio and the clipping, and the system ships the shared placeholder (the same rule as `.c-card-media-ad-placeholder`) and never an ad visual |
+| Replay (optional) | `-replay` | A real `.c-btn-secondary.c-btn-sm`, bottom-right of the Frame. Rendered **only** when the slot holds something replayable; fires `c-modal-media-ad:replay` |
+| Title row | `-titlerow`, `-title` | Title is an **`h3`** at the h3 token — Modal's title level — wrapping, never clamped, `tabindex="-1"` so focus can land on it. The family Tag sits beside it and never shrinks |
+| Tagline / description | `-tagline`, `-desc` | Tagline required (body1, Neutral-5); description optional (body2, Neutral-9) |
+| Specs | `-specs` → `-spec` (a `<dl>`) | **Always six cells, always this order:** Objective, Runs on, Best for, Funnel, CPM on file, Monthly inventory. 2 columns (1 when narrow) on the warm-card fill. Label and value vocabulary match the card's spec rows; a missing value takes `.is-empty` |
+| Catalogue note (optional) | `.c-banner.c-banner-neutral` | "Standard display unit. Copy and sizes here are catalogue defaults — verify before quoting." For units with no gallery page of their own |
+| Sections | `-section`, `-section-title` | `h4` titles in the eyebrow recipe, **spacing-16 to their content**, spacing-20 between sections |
+| Supported sizes | `-sizes` → `-size`, `-size-box`, `-size-label`, `-size-chip` | **A sample, not a ruler.** All boxes share one scale, fitted so the widest size fits 96px and the tallest 64px, and every box keeps its exact aspect ratio (a very thin size grows evenly to a 6px short side rather than being stretched). Water-bg-strong fill, 1px Navy, 2px radius, `aria-hidden`; the label reads "970 by 250 pixels". A size that isn't W×H ("16:9 in-content") is a dashed text chip. No sizes → "No fixed size — this unit is built to the placement." |
+| Benchmark | `-bench` | "CTR 0.62%" + "of a 1.00% ceiling", then a Progress Bar (`size-default`, `tone-success`) that is decorative (`aria-hidden`) and eases in from 0. None → "No benchmark has been published for this unit. Ask Sales for recent campaign numbers before quoting one." |
+| Industries | `.c-chip-group` → `.c-chip.c-chip-input` | Static chips. The section is **omitted** when empty — the one section that may be, because an empty list says nothing a planner can use |
+| Also consider | `-related` → `-relcard`, `-relthumb`, `-relname` | Three related formats, 3 columns (2 when narrow). Each a real `<button>` with a placeholder thumbnail and the name, which truncates — so the button carries a `title` with the full name |
+| Foot | `.c-modal-foot` | spacing-8 gap, wraps. Modal's order: **Compare** far left (a Ghost toggle — not part of the commit pair), **Live demo** (Secondary), **Use in a media plan** (Primary, far right) |
+
+**States.**
+
+| State | Treatment |
+|---|---|
+| Opening | The panel swings out of the card that opened it (FLIP from the card's box) while the scrim fades in; focus lands on Close |
+| Stepping | ← / → or prev / next replace the body, reset its scroll, and **move focus to the new title** |
+| Related swap | Same as stepping, to the chosen format; focus to the new title |
+| Compared | Compare takes `aria-pressed="true"`, swaps `ph-plus` for `ph-check`, and gains an inset 1px Obsidian edge — Badge Selected's pairing, not an Obsidian fill, so the footer never shows two Primary-looking buttons. Its label stays "Compare" and it stays in sync with the card's round Compare |
+| Live demo off | `aria-disabled="true"` (not `disabled`, so it stays focusable), Button's Secondary-disabled colours, and the reason in `title` and `aria-describedby`. Clicks do nothing |
+| Missing data | The card's rule: never blank. CPM reads "Not on file — ask Sales"; the other cells "Not on file", in Neutral-5 |
+| Closing | The panel folds back into the card, **only if that card is on screen** — otherwise it fades. It ends fully transparent. Esc pressed mid-opening plays the opening swing backwards from where it is rather than jumping. Nothing in the panel responds while it closes |
+| Narrow (panel ≤480px) | A container query on the panel's own width: specs 1 column, related 2, body padding 16, footer buttons stretch. A phone and a narrow panel get the same layout |
+| Touch | Footer buttons 44px tall (Tutorial Modal's rule). The head's icon buttons stay the shipped 32px and are spaced **spacing-12** apart rather than having their hit areas lifted — lifted, adjacent targets would overlap, and overlapping targets are worse than small ones |
+| Reduced motion | No swing — a plain fade. The benchmark bar isn't animated |
+
+**Interaction contract.**
+
+- **Focus.** Opens on Close. Tab is trapped inside the panel and wraps
+  only at its ends — from the title, Tab follows the page order like
+  any other stop. On close, focus returns to the card.
+- **Keys.** Esc closes. ← / → step through the list (wrapping), never
+  with a modifier held and never from a text field. They keep working
+  after focus has moved to the new title.
+- **No live region.** A swap moves focus to the new title, so a screen
+  reader reads the new format by landing on it — the system's standing
+  rule, and the same mechanism Tutorial Modal uses between steps.
+- **The page is held still, three ways.** `overflow: hidden` on
+  `<html>` (with the scrollbar width padded back), wheel and touchmove
+  blocked outside the panel (iOS ignores overflow alone), and every
+  other child of `<body>` made `inert`, so VoiceOver can't move past
+  `aria-modal` onto the catalogue.
+- **The scrim closes it**, as Close does.
+
+**Motion.** The swing is kept from the Collab:Media source **by
+decision**: `.8s cubic-bezier(.25,.9,.35,1)` to open and
+`.55s cubic-bezier(.3,.6,.35,1)` to close, the same timings and curves
+as [Chat window](#chat-window)'s fold, but with a **48deg `rotateY` and
+7deg `rotateZ`** mid-pose at `.7` scale, on a 1200px perspective —
+a recorded exception to the fold's 10deg and to Tutorial Modal dropping
+`rotateY` altogether. Its source's 78% counter-rotation past rest is
+removed: movement settles, it never bounces.
+
+**Recorded one-off values**, not tokenised because nothing else uses
+them: the 16:10 ratio (shared with the card), the swing's timings,
+curves, angles and 1200px perspective, the 96 × 64px size sample and
+6px swatch minimum, the 2px swatch radius, and `z-index: 300`.
+
+**Do** keep all six spec cells in order on every format, even when
+most are "Not on file". **Do** let the consumer own the slot's content.
+**Don't** put an ad visual in the component, or add a form, a field or
+a confirm step to this panel — the moment it commits something in
+place, it stops being a read and loses the carve-out above; that
+belongs on a page. **Don't** open one Media Ad Modal from inside
+another.
+
+> ⚠️ **Modal's footer gap disagrees with itself.** This variant takes
+> the spec's spacing-8, while `.c-modal-foot` in `components.css`
+> ships spacing-12. Recorded here, not resolved — the same kind of
+> drift Tutorial Modal notes above, and Modal's to fix.
 
 ### Notes
 
@@ -11348,6 +11495,41 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.108 — 2026-09-25** — [Modal / dialog](#modal--dialog) gains a
+  second variant, **[Media Ad Modal](#media-ad-modal)**: the detail
+  view a Media Ad Card opens into, promoted from Collab:Media's Ad
+  formats page. One ad format at a time — media, name and family Tag,
+  six spec cells, supported sizes, benchmark, industries and three
+  related formats — with previous / next stepping through the list the
+  card came from.
+
+  **A modal, by carve-out.** Modal's rule is one focused decision; this
+  is a read that commits nothing in place, the same ground Tutorial
+  Modal stands on, so it is written into Modal's Don't as the second
+  exception. It also locks the page while open, so Tutorial Modal's
+  "the one thing that locks the page" and its stacking table are
+  updated (a new row at 300).
+
+  **The media is a slot, not a preview** — the card's contract minus
+  the zoom, and the placeholder rule is now one grouped selector shared
+  by both components. **Everything interactive is a shipped component
+  used as-is**: prev / next / close are Button's Ghost icon-only sm,
+  unmodified. **Fixed on the way in:** the title is an `h3` (Modal's
+  level) with `h4` section titles; stepping moves focus to the new
+  title instead of announcing through a live region; Tab from the title
+  follows page order; nothing responds mid-close; Esc mid-opening
+  reverses the swing; the close ends fully transparent and folds into
+  the card only when it's on screen; the page is inert and wheel/touch
+  scrolling is blocked while open; related names carry a full-name
+  title; footer buttons are 44px on touch and the head's icon buttons
+  are spaced rather than overlapped. **Kept by decision:** the source's
+  48deg swing, recorded as an exception to the Chat window fold.
+
+  **New:** `.c-modal-media-ad` and its parts in `components.css`
+  (directly after Tutorial Modal); one live example in the gallery's
+  Modal block, opened from a Media Ad Card. [Card](#card)'s Media Ad
+  Card now links to it from its Open action.
 
 - **v0.9.107 — 2026-09-24** — [Card](#card) gains a **Media Ad Card**
   variant, promoted from Collab:Media's Ad formats page, where it was a
@@ -19897,6 +20079,318 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
         card.style.removeProperty('--tilt-y');
       });
     }
+  });
+})();
+</script>
+<!-- Media Ad Modal — the live layer. One per page, at <body> level so no
+     ancestor's overflow or transform can clip it; the script writes its
+     content. See DESIGN-SYSTEM.md's Modal / dialog > Media Ad Modal. -->
+<div class="c-modal-media-ad-layer" id="mad-layer">
+  <div class="c-modal-media-ad-scrim" data-mad-scrim></div>
+  <div class="c-modal c-modal-media-ad" role="dialog" aria-modal="true" aria-labelledby="mad-live-title" aria-describedby="mad-live-tagline"></div>
+</div>
+<script>
+/* Media Ad Modal — gallery demo, opened from the Modal block's Media Ad
+   Card. Behaviour per DESIGN-SYSTEM.md's "Media Ad Modal — Interaction
+   contract":
+   - Opens focused on Close; the panel swings out of the card (plain fade
+     under reduced motion). Esc, Close or the scrim closes it; the panel
+     folds back into the card only if that card is on screen, otherwise
+     it fades. Esc mid-swing reverses the swing from where it is.
+   - ← / → (and the prev / next buttons) step through the list the card
+     came from; a related card swaps to that format. Every swap moves
+     focus to the new title, so a screen reader reads the new format —
+     no live region. Arrows keep working from the title.
+   - Focus is trapped; the page behind is inert, wheel/touch scrolling
+     outside the panel is blocked, and focus returns to the card on
+     close. Nothing responds while the panel is closing. */
+(function(){
+  'use strict';
+  var layer = document.getElementById('mad-layer');
+  var opener = document.querySelector('[data-mad-opener]');
+  if (!layer || !opener) return;
+  var panel = layer.querySelector('.c-modal-media-ad');
+
+  var FAMILY_TAG = {'Interactive':'water','Gamification':'fire','Video':'wood','Social':'earth','High impact':'gold','Display':'purple'};
+  var CTR_CEILING = 1.00;
+  var SIZE_MAX_W = 96, SIZE_MAX_H = 64, SIZE_MIN = 6;
+  var NA = 'Not on file';
+  var DEMO_REASON = 'Live demos are switched off in this build';
+  var UID = 'mad-live';
+  var F = {
+    'swipe-gallery': {name:'Swipe Gallery', family:'Interactive',
+      tagline:'A horizontal carousel of product frames that viewers swipe through at their own pace.',
+      desc:'Each frame carries its own image, headline and click-through, so one unit can walk a viewer from a hero shot across a range without leaving the page.',
+      objective:'Engagement', runsOn:'Mobile web · In-app', bestFor:'Product ranges and launches', funnel:['Consideration','Conversion'],
+      cpm:38, inventory:'12M impressions', sizes:['300×250','320×480'], ctr:0.62, industries:['Telco','FMCG','Retail','Automotive']},
+    'scratch-win': {name:'Scratch & Win', family:'Gamification',
+      tagline:'A scratch-card reveal that rewards the viewer with an offer or a code.',
+      objective:'Engagement', runsOn:'Mobile web · In-app', bestFor:'Promotions and voucher drops', funnel:['Awareness','Consideration'],
+      cpm:45, inventory:'6M impressions', sizes:['300×600','320×480'], ctr:0.85, industries:['F&B','E-commerce','Banking']},
+    'outstream-video': {name:'Outstream Video', family:'Video',
+      tagline:'Video that opens up inside the article body when it scrolls into view.',
+      objective:'Awareness', runsOn:'Desktop · Mobile web', bestFor:'Brand films and trailers', funnel:['Awareness'],
+      cpm:null, inventory:null, sizes:['16:9 in-content'], ctr:null, industries:[], liveDemo:false},
+    'billboard': {name:'Billboard', family:'High impact',
+      tagline:'A full-width banner above the fold that owns the top of the page.',
+      objective:'Awareness', runsOn:'Desktop · Mobile web', bestFor:'Launch-day takeovers', funnel:['Awareness','Consideration'],
+      cpm:60, inventory:'4M impressions', sizes:['970×250','300×600','320×50'], ctr:0.34, industries:['Property','Telco','Government']}
+  };
+  var LIST = Object.keys(F);
+  var compared = {};
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function reduced(){ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function isEmpty(v){ return v == null || v === '' || (Array.isArray(v) && !v.length); }
+  function placeholder(){ return '<div class="c-modal-media-ad-placeholder" aria-hidden="true"><i class="ph ph-frame-corners"></i><span>Media</span></div>'; }
+  function spec(label, value, emptyText){
+    var e = isEmpty(value), v = e ? (emptyText || NA) : (Array.isArray(value) ? value.join(' · ') : value);
+    return '<div class="c-modal-media-ad-spec"><dt>' + esc(label) + '</dt><dd' + (e ? ' class="is-empty"' : '') + '>' + esc(v) + '</dd></div>';
+  }
+  function sizes(list){
+    if (!list || !list.length) return '<p class="c-modal-media-ad-note">No fixed size — this unit is built to the placement.</p>';
+    var dims = list.map(function(s){ var m = /^(\d+)\s*[x×]\s*(\d+)$/.exec(s); return m ? {w:+m[1], h:+m[2]} : {text:s}; });
+    var W = 0, H = 0; dims.forEach(function(d){ if (d.w){ W = Math.max(W, d.w); H = Math.max(H, d.h); } });
+    var scale = W ? Math.min(SIZE_MAX_W / W, SIZE_MAX_H / H) : 0;
+    return '<ul class="c-modal-media-ad-sizes" role="list">' + dims.map(function(d){
+      if (d.text) return '<li class="c-modal-media-ad-size"><span class="c-modal-media-ad-size-chip">' + esc(d.text) + '</span></li>';
+      /* One scale for all; a very thin size grows evenly to SIZE_MIN on
+         its short side, so its aspect ratio stays exact. */
+      var w0 = d.w * scale, h0 = d.h * scale, k = Math.max(1, SIZE_MIN / Math.min(w0, h0));
+      return '<li class="c-modal-media-ad-size"><span class="c-modal-media-ad-size-box" aria-hidden="true" style="width:' + Math.round(w0 * k) + 'px;height:' + Math.round(h0 * k) + 'px"></span>' +
+        '<span class="c-modal-media-ad-size-label"><span aria-hidden="true">' + d.w + '×' + d.h + '</span><span class="sr-only">' + d.w + ' by ' + d.h + ' pixels</span></span></li>';
+    }).join('') + '</ul>';
+  }
+  function bench(ctr){
+    if (ctr == null) return '<p class="c-modal-media-ad-note">No benchmark has been published for this unit. Ask Sales for recent campaign numbers before quoting one.</p>';
+    var pct = Math.min(ctr / CTR_CEILING, 1) * 100;
+    return '<div class="c-modal-media-ad-bench"><p class="c-modal-media-ad-bench-value"><b>CTR ' + ctr.toFixed(2) + '%</b><span>of a ' + CTR_CEILING.toFixed(2) + '% ceiling</span></p>' +
+      '<div class="c-progress-track size-default" aria-hidden="true"><div class="c-progress-fill tone-success" data-pct="' + pct + '" style="width:0%"></div></div></div>';
+  }
+  function iconBtn(cls, label, icon, key, title){
+    return '<button type="button" class="c-btn c-btn-ghost c-btn-icon c-btn-sm ' + cls + '" aria-label="' + label + '"' +
+      (key ? ' aria-keyshortcuts="' + key + '"' : '') + (title ? ' title="' + title + '"' : '') + '><i class="ph ' + icon + '" aria-hidden="true"></i></button>';
+  }
+  function head(f){
+    return '<div class="c-modal-head">' +
+      '<p class="c-modal-media-ad-crumbs"><span class="c-modal-media-ad-crumbs-parent">Ad formats</span><i class="ph ph-caret-right" aria-hidden="true"></i><b class="c-modal-media-ad-crumbs-current">' + esc(f.name) + '</b></p>' +
+      '<div class="c-modal-media-ad-nav"' + (LIST.length < 2 ? ' hidden' : '') + '>' +
+        iconBtn('c-modal-media-ad-prev', 'Previous format', 'ph-arrow-left', 'ArrowLeft', 'Previous (←)') +
+        iconBtn('c-modal-media-ad-next', 'Next format', 'ph-arrow-right', 'ArrowRight', 'Next (→)') +
+      '</div>' + iconBtn('c-modal-media-ad-close', 'Close', 'ph-x') + '</div>';
+  }
+  function body(f){
+    var cpm = f.cpm == null ? null : 'RM ' + f.cpm.toFixed(2);
+    var rel = LIST.filter(function(x){ return x !== f.id; }).slice(0, 3);
+    return '<div class="c-modal-media-ad-frame"><div class="c-modal-media-ad-slot">' + placeholder() + '</div></div>' +
+      '<div class="c-modal-media-ad-titlerow"><h3 class="c-modal-media-ad-title" id="' + UID + '-title" tabindex="-1">' + esc(f.name) + '</h3>' +
+        '<span class="c-tag c-tag-' + FAMILY_TAG[f.family] + '"><span class="dot" aria-hidden="true"></span>' + esc(f.family) + '</span></div>' +
+      '<p class="c-modal-media-ad-tagline" id="' + UID + '-tagline">' + esc(f.tagline) + '</p>' +
+      (f.desc ? '<p class="c-modal-media-ad-desc">' + esc(f.desc) + '</p>' : '') +
+      '<dl class="c-modal-media-ad-specs">' + spec('Objective', f.objective) + spec('Runs on', f.runsOn) + spec('Best for', f.bestFor) +
+        spec('Funnel', f.funnel) + spec('CPM on file', cpm, 'Not on file — ask Sales') + spec('Monthly inventory', f.inventory) + '</dl>' +
+      '<div class="c-modal-media-ad-section"><h4 class="c-modal-media-ad-section-title">Supported sizes</h4>' + sizes(f.sizes) + '</div>' +
+      '<div class="c-modal-media-ad-section"><h4 class="c-modal-media-ad-section-title">Benchmark</h4>' + bench(f.ctr) + '</div>' +
+      (f.industries.length ? '<div class="c-modal-media-ad-section"><h4 class="c-modal-media-ad-section-title">Industries it has run for</h4><ul class="c-chip-group" role="list">' +
+        f.industries.map(function(i){ return '<li class="c-chip c-chip-input">' + esc(i) + '</li>'; }).join('') + '</ul></div>' : '') +
+      '<div class="c-modal-media-ad-section"><h4 class="c-modal-media-ad-section-title">Also consider</h4><ul class="c-modal-media-ad-related" role="list">' +
+        rel.map(function(rid){ var r = F[rid];
+          return '<li><button type="button" class="c-modal-media-ad-relcard" data-format="' + rid + '" title="' + esc(r.name) + '">' +
+            '<span class="c-modal-media-ad-relthumb">' + placeholder() + '</span>' +
+            '<span class="c-modal-media-ad-relname">' + esc(r.name) + '<span class="sr-only">, ' + esc(r.family) + '. Show details</span></span></button></li>';
+        }).join('') + '</ul></div>';
+  }
+  function foot(f){
+    return '<div class="c-modal-foot">' +
+      '<button type="button" class="c-btn c-btn-ghost c-btn-md c-modal-media-ad-compare" aria-pressed="' + (compared[f.id] ? 'true' : 'false') + '"><i class="ph ph-plus" aria-hidden="true"></i><i class="ph ph-check" aria-hidden="true"></i>Compare<span class="sr-only c-modal-media-ad-compare-name"> ' + esc(f.name) + '</span></button>' +
+      '<button type="button" class="c-btn c-btn-secondary c-btn-md c-modal-media-ad-demo"><i class="ph ph-arrow-square-out" aria-hidden="true"></i>Live demo</button>' +
+      '<span class="sr-only" id="' + UID + '-demo-off">' + DEMO_REASON + '</span>' +
+      '<a class="c-btn c-btn-primary c-btn-md c-modal-media-ad-plan" href="#comp-modal"><i class="ph ph-compass-tool" aria-hidden="true"></i>Use in a media plan</a></div>';
+  }
+
+  var state = {open:false, closing:false, id:null, index:0};
+  var inerted = [];
+
+  function syncFoot(f){
+    var cmp = panel.querySelector('.c-modal-media-ad-compare');
+    cmp.setAttribute('aria-pressed', compared[f.id] ? 'true' : 'false');
+    cmp.querySelector('.c-modal-media-ad-compare-name').textContent = ' ' + f.name;
+    var demo = panel.querySelector('.c-modal-media-ad-demo');
+    if (f.liveDemo === false){ demo.setAttribute('aria-disabled', 'true'); demo.setAttribute('title', DEMO_REASON); demo.setAttribute('aria-describedby', UID + '-demo-off'); }
+    else { demo.removeAttribute('aria-disabled'); demo.removeAttribute('title'); demo.removeAttribute('aria-describedby'); }
+  }
+  function growBench(){
+    var fill = panel.querySelector('.c-modal-media-ad-bench .c-progress-fill');
+    if (!fill) return;
+    void fill.offsetWidth;
+    requestAnimationFrame(function(){ fill.style.width = fill.getAttribute('data-pct') + '%'; });
+  }
+  function onScreen(el){
+    var r = el.getBoundingClientRect();
+    return r.width > 0 && r.bottom > 0 && r.right > 0 && r.top < window.innerHeight && r.left < window.innerWidth;
+  }
+  function swingFrom(el){
+    var from = el.getBoundingClientRect(), p = panel.getBoundingClientRect();
+    panel.style.setProperty('--mad-dx', (from.left - p.left) + 'px');
+    panel.style.setProperty('--mad-dy', (from.top - p.top) + 'px');
+    panel.style.setProperty('--mad-sx', from.width / p.width);
+    panel.style.setProperty('--mad-sy', from.height / p.height);
+    panel.style.setProperty('--mad-dir', (from.left + from.width / 2) < window.innerWidth / 2 ? 1 : -1);
+  }
+  /* Scroll lock: three guards. overflow:hidden on <html>; wheel and
+     touchmove blocked outside the panel (iOS ignores overflow alone);
+     and everything but the layer made inert, so VoiceOver can't wander
+     off behind aria-modal. */
+  function blockScroll(e){ if (!panel.contains(e.target)) e.preventDefault(); }
+  function lock(){
+    var sb = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.classList.add('c-modal-media-ad-locked');
+    if (sb > 0) document.documentElement.style.paddingRight = sb + 'px';
+    document.addEventListener('wheel', blockScroll, {passive:false});
+    document.addEventListener('touchmove', blockScroll, {passive:false});
+    inerted = Array.prototype.filter.call(document.body.children, function(el){
+      return el !== layer && el.tagName !== 'SCRIPT' && !el.inert;
+    });
+    inerted.forEach(function(el){ el.inert = true; });
+  }
+  function unlock(){
+    document.documentElement.classList.remove('c-modal-media-ad-locked');
+    document.documentElement.style.paddingRight = '';
+    document.removeEventListener('wheel', blockScroll, {passive:false});
+    document.removeEventListener('touchmove', blockScroll, {passive:false});
+    inerted.forEach(function(el){ el.inert = false; });
+    inerted = [];
+  }
+
+  function open(id){
+    if (state.open) return;
+    var f = F[id];
+    state = {open:true, closing:false, id:id, index:LIST.indexOf(id)};
+    F[id].id = id;
+    panel.innerHTML = head(f) + '<div class="c-modal-body">' + body(f) + '</div>' + foot(f);
+    syncFoot(f);
+    panel.classList.remove('is-swinging-open', 'is-swinging-closed');
+    lock();
+    layer.classList.add('is-open');
+    if (!reduced() && onScreen(opener)){ swingFrom(opener); panel.classList.add('is-swinging-open'); }
+    void panel.offsetWidth;
+    layer.classList.add('is-shown');
+    growBench();
+    panel.querySelector('.c-modal-media-ad-close').focus({preventScroll:true});
+    document.addEventListener('keydown', onKey, true);
+  }
+  panel.addEventListener('animationend', function(e){
+    if (e.animationName === 'c-modal-media-ad-swing-open') panel.classList.remove('is-swinging-open');
+  });
+
+  function finishClose(){
+    layer.classList.remove('is-open');
+    panel.classList.remove('is-swinging-open', 'is-swinging-closed');
+    panel.innerHTML = '';
+    unlock();
+    state.open = false; state.closing = false;
+    var back = opener.querySelector('.c-card-media-ad-open');
+    if (back) back.focus();
+  }
+  function close(){
+    if (!state.open || state.closing) return;
+    state.closing = true;
+    document.removeEventListener('keydown', onKey, true);
+    layer.classList.remove('is-shown');
+    /* Esc mid-swing: play the opening swing backwards from where it is,
+       rather than snapping to rest and folding from there. */
+    var running = panel.classList.contains('is-swinging-open') && panel.getAnimations ? panel.getAnimations()[0] : null;
+    if (running && running.playState === 'running'){
+      running.onfinish = finishClose;
+      running.reverse();
+      return;
+    }
+    panel.classList.remove('is-swinging-open');
+    var fold = !reduced() && onScreen(opener);
+    if (fold){
+      swingFrom(opener);
+      void panel.offsetWidth;
+      panel.classList.add('is-swinging-closed');
+    }
+    setTimeout(finishClose, fold ? 550 : 320);
+  }
+
+  function swapTo(id){
+    if (!state.open || state.closing || !F[id]) return;
+    var f = F[id]; f.id = id;
+    state.id = id; state.index = LIST.indexOf(id);
+    panel.querySelector('.c-modal-media-ad-crumbs-current').textContent = f.name;
+    var b = panel.querySelector('.c-modal-body');
+    b.innerHTML = body(f);
+    b.scrollTop = 0;
+    syncFoot(f);
+    growBench();
+    panel.querySelector('.c-modal-media-ad-title').focus();
+  }
+  function step(d){
+    if (!state.open || state.closing) return;
+    var n = LIST.length; if (n < 2) return;
+    swapTo(LIST[(state.index + d + n) % n]);
+  }
+  function setCompared(id, on){
+    compared[id] = on;
+    if (id === opener.getAttribute('data-mad-opener')){
+      opener.classList.toggle('is-compared', on);
+      var b = opener.querySelector('.c-card-media-ad-compare');
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.innerHTML = '<i class="ph ' + (on ? 'ph-check' : 'ph-plus') + '" aria-hidden="true"></i>';
+    }
+    if (state.open && state.id === id) panel.querySelector('.c-modal-media-ad-compare').setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+
+  function focusables(){
+    return Array.prototype.filter.call(panel.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+      function(el){ return el.getClientRects().length > 0; });
+  }
+  function isTyping(el){ return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)); }
+  function onKey(e){
+    if (!state.open || state.closing) return;
+    if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); close(); return; }
+    if (e.key === 'Tab'){
+      /* Wrap only at the ends, or when focus has escaped the panel. Focus
+         on the tabindex=-1 title is inside the panel, so Tab from there
+         follows DOM order like any other stop. */
+      var list = focusables(); if (!list.length) return;
+      var first = list[0], last = list[list.length - 1], a = document.activeElement;
+      if (!panel.contains(a)){ e.preventDefault(); (e.shiftKey ? last : first).focus(); }
+      else if (e.shiftKey && a === first){ e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && a === last){ e.preventDefault(); first.focus(); }
+      return;
+    }
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && !isTyping(e.target)){
+      e.preventDefault(); step(e.key === 'ArrowLeft' ? -1 : 1);
+    }
+  }
+
+  layer.addEventListener('click', function(e){
+    if (!state.open || state.closing) return;
+    if (e.target.hasAttribute('data-mad-scrim') || e.target.closest('.c-modal-media-ad-close')){ close(); return; }
+    if (e.target.closest('.c-modal-media-ad-prev')){ step(-1); return; }
+    if (e.target.closest('.c-modal-media-ad-next')){ step(1); return; }
+    var rel = e.target.closest('.c-modal-media-ad-relcard');
+    if (rel){ swapTo(rel.getAttribute('data-format')); return; }
+    if (e.target.closest('.c-modal-media-ad-compare')){ setCompared(state.id, !compared[state.id]); return; }
+    var demo = e.target.closest('.c-modal-media-ad-demo');
+    if (demo && demo.getAttribute('aria-disabled') === 'true'){ e.preventDefault(); return; }
+    if (e.target.closest('.c-modal-media-ad-plan')){ e.preventDefault(); close(); }
+  });
+
+  /* The opener card: its title button opens the modal; its round Compare
+     and the C key toggle compare, kept in sync with the modal's toggle. */
+  opener.querySelector('.c-card-media-ad-open').addEventListener('click', function(){ open(opener.getAttribute('data-mad-opener')); });
+  opener.querySelector('.c-card-media-ad-compare').addEventListener('click', function(){
+    var id = opener.getAttribute('data-mad-opener'); setCompared(id, !compared[id]);
+  });
+  opener.addEventListener('keydown', function(e){
+    if (e.key !== 'c' && e.key !== 'C') return;
+    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+    e.preventDefault();
+    var id = opener.getAttribute('data-mad-opener'); setCompared(id, !compared[id]);
   });
 })();
 </script>
