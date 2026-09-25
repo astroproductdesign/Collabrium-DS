@@ -501,9 +501,13 @@
   .c-card-media-ad:hover .c-card-media-ad-slot{transform:scale(1.1);}
 }
 
-/* Placeholder — the default (and only shipped) slot child */
-.c-card-media-ad-placeholder{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing-4); background:var(--color-neutral-2); color:var(--color-neutral-5); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold);}
-.c-card-media-ad-placeholder i{font-size:var(--icon-lg); color:var(--color-neutral-4);}
+/* Placeholder — the default (and only shipped) slot child. Shared with
+   Media Ad Modal's slot and "Also consider" thumbnails, so the two
+   components can never draw different placeholders. */
+.c-card-media-ad-placeholder,
+.c-modal-media-ad-placeholder{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing-4); background:var(--color-neutral-2); color:var(--color-neutral-5); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold);}
+.c-card-media-ad-placeholder i,
+.c-modal-media-ad-placeholder i{font-size:var(--icon-lg); color:var(--color-neutral-4);}
 
 /* Touch hint — "Tap to play", centred on the Frame. Tag metrics
    (24px, caption/700, radius-pill). Shown on hover:none devices or via
@@ -1400,6 +1404,231 @@ html.c-modal-tutorial-locked{overflow:hidden;}
   .c-modal-tutorial.is-opening,
   .c-modal-tutorial.is-docked-top.is-opening{animation:c-modal-tutorial-fade var(--duration-fast) var(--ease-standard) both;}
   @keyframes c-modal-tutorial-fade{ from{opacity:0;} to{opacity:1;} }
+}
+
+/* =========================================================
+   Media Ad Modal — a variant of Modal / dialog. The detail view a
+   Media Ad Card opens into: media slot, title and family Tag, tagline,
+   six spec cells, supported sizes as a to-scale sample, benchmark,
+   industries, "Also consider", and a footer of actions. Prev / next
+   step through the list the card came from without closing.
+   First used by Collab:Media's Ad formats catalogue.
+
+   Named for its parent the way Tutorial Modal is, and composed onto
+   the real panel: markup is `class="c-modal c-modal-media-ad"`, so
+   fill, radius-lg and shadow-modal come from .c-modal as they ship.
+   Head, body and foot are the real .c-modal-head / .c-modal-body /
+   .c-modal-foot with padding and layout set under the variant — not
+   redrawn. Everything interactive is a shipped component used as-is:
+   prev / next / close are Button's Ghost icon-only sm
+   (`c-btn c-btn-ghost c-btn-icon c-btn-sm`), footer actions are .c-btn,
+   the family label is .c-tag, industries are .c-chip, the benchmark
+   bar is Progress Bar, the catalogue note is Info Banner.
+
+   Media slot contract — Media Ad Card's, minus the Live zoom: the slot
+   accepts ANY child and the component owns only its 16:10 ratio and
+   its clipping. The system never ships an ad visual here; the shared
+   placeholder (grouped with .c-card-media-ad-placeholder) is the whole
+   of what it provides. "Also consider" thumbnails follow the same
+   contract.
+
+   See DESIGN-SYSTEM.md's Modal / dialog > Media Ad Modal for the
+   carve-out from Modal's single-decision rule, the stacking row, and
+   the recorded one-off values: the 16:10 ratio, the 1200px perspective,
+   the .8s / .55s swing and its 48deg / 7deg angles and .7 mid-scale
+   (a recorded exception to the Chat window fold's 10deg), the 96 × 64px
+   size-sample area and 6px swatch minimum, the 2px swatch radius, and
+   the z-index 300.
+   ========================================================= */
+
+/* Layer — one fixed root owning scrim + panel. z-index 300: above Chat
+   window (95), below Command brief's scrim (400), Toast (1000) and
+   Tutorial Modal (1100). */
+.c-modal-media-ad-layer{position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; padding:var(--spacing-16); perspective:1200px;}
+.c-modal-media-ad-layer.is-open{display:flex;}
+.c-modal-media-ad-scrim{position:absolute; inset:0; background:var(--shadow-overlay); opacity:0; transition:opacity var(--duration-slow) var(--ease-standard);}
+.c-modal-media-ad-layer.is-shown .c-modal-media-ad-scrim{opacity:1; transition-duration:var(--duration-reveal);}
+/* Scroll lock, first of three guards (the script adds wheel and
+   touchmove guards outside the panel, and makes the page inert).
+   padding-right is written inline with the measured scrollbar width. */
+html.c-modal-media-ad-locked{overflow:hidden;}
+
+/* Panel — .c-modal's recipe as it ships plus Modal spec's 1px Neutral-3
+   border. Wider than .c-modal's 400px: this is a reading surface, not a
+   decision (Modal allows "wider for forms"). 100% up to 600px, so the
+   layer's padding gives min(600px, 100vw − spacing-32). A query
+   container, so the narrow layout follows the panel, not the viewport. */
+.c-modal.c-modal-media-ad{position:relative; container:c-modal-media-ad / inline-size; display:flex; flex-direction:column; overflow:hidden; width:100%; max-width:600px; max-height:min(800px, calc(100dvh - var(--spacing-60))); box-sizing:border-box; border:1px solid var(--color-neutral-3); font-family:var(--font-primary); color:var(--color-neutral-9); transform-origin:top left;}
+.c-modal-media-ad-layer .c-modal-media-ad{opacity:0; transition:opacity var(--duration-base) var(--ease-standard);}
+.c-modal-media-ad-layer.is-shown .c-modal-media-ad{opacity:1;}
+
+/* Swing — FLIP from the opening card's rect (--mad-* set by script).
+   The 48deg swing is kept from the source by decision, as a recorded
+   exception to Chat window's 10deg fold; its 78% counter-rotation past
+   rest is dropped ("Movement settles; it never bounces"). The close
+   ends fully transparent, so the panel never vanishes mid-fade; when
+   the card is off-screen the script skips the fold and fades. */
+.c-modal-media-ad.is-swinging-open{animation:c-modal-media-ad-swing-open .8s cubic-bezier(.25,.9,.35,1) both;}
+.c-modal-media-ad.is-swinging-closed{animation:c-modal-media-ad-swing-close .55s cubic-bezier(.3,.6,.35,1) both;}
+@keyframes c-modal-media-ad-swing-open{
+  0%{transform:translate(var(--mad-dx,0px), var(--mad-dy,0px)) scale(var(--mad-sx,.2), var(--mad-sy,.2)); opacity:.4;}
+  45%{transform:translate(calc(var(--mad-dx,0px) * .5), calc(var(--mad-dy,0px) * .5)) scale(.7) rotateY(calc(48deg * var(--mad-dir,1))) rotateZ(calc(-7deg * var(--mad-dir,1))); opacity:1;}
+  100%{transform:none; opacity:1;}
+}
+@keyframes c-modal-media-ad-swing-close{
+  0%{transform:none; opacity:1;}
+  50%{transform:translate(calc(var(--mad-dx,0px) * .5), calc(var(--mad-dy,0px) * .5)) scale(.7) rotateY(calc(45deg * var(--mad-dir,1))) rotateZ(calc(-6deg * var(--mad-dir,1))); opacity:1;}
+  100%{transform:translate(var(--mad-dx,0px), var(--mad-dy,0px)) scale(var(--mad-sx,.2), var(--mad-sy,.2)); opacity:0;}
+}
+
+/* Head — the real .c-modal-head, carrying breadcrumb + nav + close
+   instead of the title (the title sits under the media, in the body). */
+.c-modal-media-ad .c-modal-head{flex:none; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
+.c-modal-media-ad-crumbs{flex:1; min-width:0; margin:0; display:flex; align-items:center; gap:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-modal-media-ad-crumbs-parent{flex:none; white-space:nowrap;}
+.c-modal-media-ad-crumbs i{flex:none; font-size:var(--text-caption-size);}
+.c-modal-media-ad-crumbs-current{min-width:0; font-weight:var(--weight-bold); color:var(--color-neutral-9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.c-modal-media-ad-nav{flex:none; display:flex; gap:var(--spacing-4);}
+.c-modal-media-ad-nav[hidden]{display:none;}
+.c-modal-media-ad .c-modal-head .c-btn{flex:none;}
+
+/* Body — the real .c-modal-body; it alone scrolls. */
+.c-modal-media-ad .c-modal-body{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:var(--spacing-16) var(--spacing-24) var(--spacing-24); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+
+/* Frame + Slot — Media Ad Card's slot contract (ratio + clip), no zoom. */
+.c-modal-media-ad-frame{position:relative; overflow:hidden; margin:0 0 var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md);}
+.c-modal-media-ad-slot,
+.c-modal-media-ad-relthumb{position:relative; aspect-ratio:16 / 10; overflow:hidden; background:var(--color-neutral-2);}
+.c-modal-media-ad-slot > *,
+.c-modal-media-ad-relthumb > *{position:absolute; inset:0; width:100%; height:100%; box-sizing:border-box;}
+.c-modal-media-ad-slot > :is(img, video, picture, iframe, canvas),
+.c-modal-media-ad-relthumb > :is(img, video, picture, iframe, canvas){display:block; object-fit:cover; border:0;}
+/* Placeholder look is shared with the card — see the grouped
+   .c-card-media-ad-placeholder rule. Only the thumbnail icon differs. */
+.c-modal-media-ad-relthumb .c-modal-media-ad-placeholder i{font-size:var(--icon-md);}
+
+/* Replay — optional, a real .c-btn-secondary.c-btn-sm as it ships,
+   pinned in the Frame corner (a sibling of the Slot, never inside it —
+   Slot children are stretched to fill). Rendered only when the slot
+   holds something replayable. */
+.c-modal-media-ad-replay{position:absolute; right:var(--spacing-12); bottom:var(--spacing-12); z-index:2;}
+
+/* Title row — h3 element at the h3 type token (Modal's title level);
+   section titles below it are h4. The Tag never shrinks and is centred
+   on the title's first line. The title wraps, never clamps: this is the
+   full view, there is no second place to read the name. */
+.c-modal-media-ad-titlerow{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--spacing-12); margin:0 0 var(--spacing-4);}
+.c-modal-media-ad-titlerow .c-tag{flex:none; margin-top:calc((var(--text-h3-lh) - 24px) / 2);}
+.c-modal-media-ad .c-modal-media-ad-title{min-width:0; margin:0; overflow-wrap:anywhere; font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); letter-spacing:var(--text-h3-tracking); color:var(--color-neutral-9);}
+.c-modal-media-ad-title:focus{outline:none;}
+.c-modal-media-ad-title:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px; border-radius:var(--radius-sm);}
+.c-modal-media-ad .c-modal-media-ad-tagline{margin:0 0 var(--spacing-8); font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight); color:var(--color-neutral-5);}
+.c-modal-media-ad .c-modal-media-ad-desc{margin:0 0 var(--spacing-20); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);}
+.c-modal-media-ad-tagline + .c-modal-media-ad-specs{margin-top:var(--spacing-16);}
+
+/* Specs — six cells, always six, always this order. Same vocabulary as
+   the card's spec rows: label3 eyebrow label, body2-strong value;
+   missing values take .is-empty exactly as the card's dd.is-empty. */
+.c-modal-media-ad-specs{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--spacing-12) var(--spacing-16); margin:0 0 var(--spacing-20); padding:var(--spacing-16); background:var(--color-canvas-warm-card); border-radius:var(--radius-md);}
+.c-modal-media-ad-spec{min-width:0;}
+.c-modal-media-ad-spec dt{margin:0 0 var(--spacing-4); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-modal-media-ad-spec dd{margin:0; overflow-wrap:anywhere; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-modal-media-ad-spec dd.is-empty{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+
+/* Sections — title to content is spacing-16. */
+.c-modal-media-ad-section{margin:0 0 var(--spacing-20);}
+.c-modal-media-ad-section:last-child{margin-bottom:0;}
+.c-modal-media-ad .c-modal-media-ad-section-title{margin:0 0 var(--spacing-16); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-modal-media-ad .c-modal-media-ad-note{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+.c-modal-media-ad .c-banner{margin:0 0 var(--spacing-20);}
+.c-modal-media-ad .c-banner .message{margin:0;}
+
+/* Supported sizes — a small sample, not a ruler. Every box keeps its
+   exact aspect ratio and all share one scale, fitted so the widest fits
+   96px and the tallest 64px (computed by the script, written inline).
+   Swatches are aria-hidden; the text label is what gets read. */
+.c-modal-media-ad-sizes{display:flex; flex-wrap:wrap; align-items:flex-end; gap:var(--spacing-16); margin:0; padding:0; list-style:none;}
+.c-modal-media-ad-size{display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-4);}
+.c-modal-media-ad-size-box{display:block; box-sizing:border-box; background:var(--color-water-bg-strong); border:1px solid var(--color-navy); border-radius:2px;}
+.c-modal-media-ad-size-label{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); color:var(--color-neutral-5); font-variant-numeric:tabular-nums; white-space:nowrap;}
+/* Non-W×H size ("16:9 in-content") — a dashed text chip: no box to
+   draw, and the dashed edge says "fluid" rather than "fixed". */
+.c-modal-media-ad-size-chip{display:inline-flex; align-items:center; height:24px; padding:0 var(--spacing-8); box-sizing:border-box; border:1px dashed var(--color-neutral-4); border-radius:var(--radius-pill); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold); color:var(--color-neutral-5); white-space:nowrap;}
+
+/* Benchmark — text value first; the Progress Bar beside it is
+   decorative (aria-hidden). Width eases in from 0. */
+.c-modal-media-ad-bench{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-modal-media-ad .c-modal-media-ad-bench-value{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-variant-numeric:tabular-nums;}
+.c-modal-media-ad-bench-value b{font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9);}
+.c-modal-media-ad-bench-value span{margin-left:var(--spacing-4); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-modal-media-ad-bench .c-progress-fill{transition:width var(--duration-reveal) var(--ease-flow) var(--duration-fast);}
+
+/* Industries — real .c-chip.c-chip-input, static (no remove button). */
+.c-modal-media-ad .c-chip-group{margin:0; padding:0; list-style:none;}
+
+/* Also consider — three related formats, each a real <button> carrying
+   a title with the full name (the visible name truncates). */
+.c-modal-media-ad-related{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:var(--spacing-12); margin:0; padding:0; list-style:none;}
+.c-modal-media-ad-relcard{appearance:none; display:flex; flex-direction:column; width:100%; margin:0; padding:0; overflow:hidden; border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); font:inherit; color:inherit; text-align:left; cursor:pointer; transition:box-shadow var(--duration-base) var(--ease-settle);}
+.c-modal-media-ad-relcard:hover{box-shadow:var(--shadow-2);}
+.c-modal-media-ad-relcard:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-modal-media-ad-relcard .c-modal-media-ad-relthumb{border-bottom:1px solid var(--color-neutral-3);}
+.c-modal-media-ad-relname{display:block; padding:var(--spacing-8); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+/* Foot — the real .c-modal-foot at the spec's spacing-8 gap. Modal
+   order: Primary on the right, Secondary to its left; the Compare
+   toggle is not part of the commit pair, so it is pushed far left. */
+.c-modal-media-ad .c-modal-foot{flex:none; flex-wrap:wrap; align-items:center; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16);}
+.c-modal-media-ad .c-modal-foot a.c-btn{text-decoration:none;}
+.c-modal-media-ad-compare{margin-right:auto;}
+.c-modal-media-ad-compare .ph-check{display:none;}
+.c-modal-media-ad-compare[aria-pressed="true"] .ph-plus{display:none;}
+.c-modal-media-ad-compare[aria-pressed="true"] .ph-check{display:inline;}
+/* Pressed: Badge Selected's pairing (Neutral-1 + Obsidian edge), drawn
+   inset so the button never changes size. Not Obsidian-filled — that
+   would put a second Primary-looking button in the footer. */
+.c-modal-media-ad-compare[aria-pressed="true"]{background:var(--color-neutral-1); box-shadow:inset 0 0 0 1px var(--color-obsidian);}
+.c-modal-media-ad-compare[aria-pressed="true"]:hover{background:var(--color-neutral-2);}
+/* Disabled Live demo — Button's documented Secondary-disabled row
+   (Neutral-3 border, Neutral-4 text), via aria-disabled so the button
+   stays focusable and its reason can be reached by keyboard. */
+.c-modal-media-ad .c-btn-secondary[aria-disabled="true"],
+.c-modal-media-ad .c-btn-secondary[aria-disabled="true"]:hover,
+.c-modal-media-ad .c-btn-secondary[aria-disabled="true"]:active{background:var(--color-neutral-1); color:var(--color-neutral-4); border-color:var(--color-neutral-3); box-shadow:none; cursor:not-allowed;}
+
+/* Narrow — follows the PANEL's width, so a phone and a narrow panel
+   get the same layout. */
+@container c-modal-media-ad (max-width: 480px){
+  .c-modal-media-ad .c-modal-body{padding:var(--spacing-16);}
+  .c-modal-media-ad-specs{grid-template-columns:minmax(0, 1fr);}
+  .c-modal-media-ad-related{grid-template-columns:repeat(2, minmax(0, 1fr));}
+  .c-modal-media-ad .c-modal-foot .c-btn:not(.c-modal-media-ad-compare){flex:1 1 auto; justify-content:center;}
+}
+@media (max-width: 640px){
+  .c-modal-media-ad-layer{padding:var(--spacing-8);}
+  .c-modal-media-ad-layer .c-modal-media-ad{max-height:calc(100dvh - var(--spacing-16));}
+}
+/* Touch — Tutorial Modal's rules. Footer buttons take 44px. The head's
+   icon buttons stay the shipped 32px (the icon button is used as-is),
+   so instead of lifting their hit areas — which would overlap, and
+   overlapping targets are worse than small ones — they are spaced
+   spacing-12 apart. */
+@media (hover:none), (pointer:coarse){
+  .c-modal-media-ad .c-modal-foot .c-btn{height:44px;}
+  .c-modal-media-ad .c-modal-head,
+  .c-modal-media-ad-nav{gap:var(--spacing-12);}
+}
+
+/* Reduced motion — no swing (a plain opacity fade instead), bar width
+   not animated, no hover shadow ease. */
+@media (prefers-reduced-motion: reduce){
+  .c-modal-media-ad.is-swinging-open,
+  .c-modal-media-ad.is-swinging-closed{animation:none;}
+  .c-modal-media-ad-bench .c-progress-fill{transition:none;}
+  .c-modal-media-ad-relcard{transition:none;}
+}
+@media (forced-colors: active){
+  .c-modal-media-ad-compare[aria-pressed="true"]{outline:2px solid Highlight;}
 }
 
 
