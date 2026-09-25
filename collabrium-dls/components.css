@@ -637,6 +637,94 @@
 }
 
 /* =========================================================
+   Ad Placement Card — Card variant. A floating hover card describing
+   one ad slot (a position on a page where ads run) while that slot is
+   pointed at or focused on a placement map: what it is, where it sits,
+   the sizes and devices it runs on, and how many catalogue units fit.
+   Ported from Collab:Media's Ad formats page (.fm-plcard).
+
+   Markup: `c-card c-card-ad-placement`, role="tooltip", unique id,
+   rendered at <body> level. Surface is the base Card's (Neutral-1,
+   1px Neutral-3, radius-lg) raised to shadow-3; behaviour is Tooltip's
+   (instant show/hide, pointer-events:none, dismissed by Esc, scroll
+   and blur, reached through aria-describedby). The card's own padding
+   stays; its flex gap is zeroed so the parts set their own spacing.
+   Text parts are scoped two classes deep to beat `.c-card p` (0,1,1).
+   ========================================================= */
+.c-card.c-card-ad-placement{
+  /* Water is Collab:Media's element: slots are always Navy, never a family colour. */
+  --c-card-ad-placement-accent:var(--color-navy);
+  position:fixed; top:0; left:0; z-index:500;   /* above Command brief (400) and Media Ad Modal (300), per Tooltip's "above modals" rule */
+  display:block; gap:0;
+  width:268px;                                   /* one-off, from source — the one Card with a fixed width, because it never sits in a grid */
+  min-width:0; max-width:calc(100vw - var(--spacing-12) * 2);
+  height:auto;
+  padding:var(--card-padding);
+  box-shadow:var(--shadow-3);
+  font-family:var(--font-primary);
+  color:var(--color-neutral-9);
+  text-align:left;
+  overflow-wrap:break-word;
+  pointer-events:none;                           /* always, on every device */
+  opacity:0; visibility:hidden;
+  transform:translateY(var(--spacing-4));
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-settle),
+    visibility 0s linear var(--duration-fast);
+}
+.c-card.c-card-ad-placement.is-on{opacity:1; visibility:visible; transform:none; transition-delay:0s;}
+
+/* Head: a two-column grid — icon, then the title and "where" as rows 1
+   and 2 (-titles is display:contents so both land on the grid). The icon
+   has no box of its own; it is centred on the head's first two lines.
+   One-line title: those are title + where, so the icon spans rows 1–2.
+   Wrapped title: both are title lines, so .is-title-wrapped (set by the
+   consumer's script after layout, and again once fonts load) pins the
+   icon to row 1, its centre one title line-height down. */
+.c-card-ad-placement .c-card-ad-placement-head{display:grid; grid-template-columns:auto minmax(0, 1fr); column-gap:var(--spacing-12); align-items:start; margin:0 0 var(--spacing-8);}
+.c-card-ad-placement .c-card-ad-placement-icon{grid-column:1; grid-row:1 / span 2; align-self:center; display:block; font-size:var(--icon-base); line-height:1; color:var(--c-card-ad-placement-accent);}
+.c-card-ad-placement .c-card-ad-placement-head.is-title-wrapped .c-card-ad-placement-icon{grid-row:1; align-self:start; margin-top:calc(var(--text-h5-lh) - var(--icon-base) / 2);}
+.c-card-ad-placement .c-card-ad-placement-titles{display:contents;}
+.c-card-ad-placement .c-card-ad-placement-title{grid-column:2; grid-row:1; display:block; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+.c-card-ad-placement .c-card-ad-placement-where{grid-column:2; grid-row:2; display:block; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+
+/* One-sentence description */
+.c-card-ad-placement .c-card-ad-placement-desc{margin:0 0 var(--spacing-12); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-6);}
+
+/* Facts: Sizes, Runs on. Media Ad Card's spec-row recipe on one shared grid. */
+.c-card-ad-placement .c-card-ad-placement-facts{display:grid; grid-template-columns:max-content minmax(0, 1fr); gap:var(--spacing-4) var(--spacing-12); margin:0 0 var(--spacing-12);}
+.c-card-ad-placement .c-card-ad-placement-fact{display:contents;}
+.c-card-ad-placement .c-card-ad-placement-fact dt{align-self:baseline; margin:0; white-space:nowrap; font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.c-card-ad-placement .c-card-ad-placement-fact dd{align-self:baseline; min-width:0; margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-card-ad-placement .c-card-ad-placement-fact dd.is-empty{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+.c-card-ad-placement .c-card-ad-placement-more{color:var(--color-neutral-5);}
+
+/* Fit: the headline count */
+.c-card-ad-placement .c-card-ad-placement-fit{display:flex; align-items:baseline; gap:var(--spacing-4); margin:0; padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-2);}
+.c-card-ad-placement .c-card-ad-placement-count{flex:none; font-size:var(--text-h4-size); line-height:1; font-weight:var(--text-h4-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-card-ad-placement .c-card-ad-placement-fit-text{min-width:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-card-ad-placement.is-none .c-card-ad-placement-count{color:var(--color-neutral-5);}
+
+/* CTA hint (optional). Not a button: the card never takes the pointer. */
+.c-card-ad-placement .c-card-ad-placement-cta{display:flex; align-items:center; gap:var(--spacing-4); margin:var(--spacing-12) 0 0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9);}
+.c-card-ad-placement .c-card-ad-placement-cta i{flex:none; font-size:var(--icon-micro);}
+
+/* Touch-primary devices: never shown. The same text still reaches AT through aria-describedby. */
+@media (hover:none){ .c-card.c-card-ad-placement{display:none;} }
+
+/* Reduced motion: opacity only, no rise. */
+@media (prefers-reduced-motion:reduce){
+  .c-card.c-card-ad-placement{transform:none; transition:opacity var(--duration-fast) var(--ease-standard), visibility 0s linear var(--duration-fast);}
+}
+
+/* Forced colours strip box-shadow; keep the edge and the rule visible. */
+@media (forced-colors:active){
+  .c-card.c-card-ad-placement{border-color:CanvasText;}
+  .c-card-ad-placement .c-card-ad-placement-fit{border-top-color:CanvasText;}
+}
+
+/* =========================================================
    Notes — coloured annotations attached to a table or list row, up to
    four per row. One surface throughout: a peek on hover, a panel on
    click (a 2x2 grid at 2-4 notes, the note itself at 1), and the same

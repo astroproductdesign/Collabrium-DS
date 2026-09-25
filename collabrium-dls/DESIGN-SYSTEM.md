@@ -2275,6 +2275,7 @@ the Modal footer's divider, scaled down.
 - **Hero Card** — a promotional/insight tile: Eyebrow, Heading, Body, a media placeholder, optional Recommendation text, and a CTA, in four states (Default, Risk, AI Dark, Selected). Extends the base Card (Neutral-1, radius-lg, shadow-1) rather than inventing new structure, but is the first Card variant with its own corner ribbon, a dark surface, and a fixed/centered modal state — see **Hero Card**, below, for the full anatomy.
 - **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
 - **Media Ad Card** — one ad format as a gallery tile: a full-bleed 16:10 media Frame (a placeholder slot the consumer fills), a round Compare toggle, the title and family Tag, and a body that trades its tagline for three spec rows (Objective, Sizes, Benchmark) when the card goes Live on hover, focus or first tap. Composes the base Card and Interactive variant rather than redrawing them — see **Media Ad Card**, below, for the slot contract, states and interaction rules.
+- **Ad Placement Card** — a floating hover card describing one ad slot on a placement map while it is pointed at or focused: icon, title and where it sits, a one-sentence description, Sizes and Runs on rows, the count of catalogue units that fit, and an optional CTA hint. A Card by surface and a [Tooltip](#tooltip) by behaviour — see **Ad Placement Card**, below, for the anatomy, positioning and interaction rules.
 
 **Grid layout.** Every card variant follows one universal layout
 contract when placed in a grid — responsive width, equal-height rows,
@@ -2319,9 +2320,11 @@ grids if that floor would waste space for the narrower variants.
 | Price summary card | 280px | Line-item list, RM pricing, and the CTA need more room to stay readable |
 | Campaign card | 240px | Matches base. The binding constraint is the identity row — a 32px brand mark, a truncating name and up to two 22px owner faces — plus a 2-column metric grid that must not wrap "RM 72,500" |
 | Pacing Card | 240px | Matches base. The binding constraint is the minibar's label row — "Total …" and "Target …" must share one line, which holds down to 240px for realistic figures; see **Pacing Card — Width** |
+| Ad Placement Card | *n/a — fixed 268px* | The one exception: it floats at `<body>` level and never sits in a grid, so it has a fixed width instead of a floor; see **Ad Placement Card — What this variant borrows and what it overrides** |
 
 Every variant keeps `width: 100%` of its grid cell regardless of its
-min-width floor — a fixed pixel width is never used on any card.
+min-width floor — a fixed pixel width is never used on any card in a
+grid. (The floating Ad Placement Card is the recorded exception.)
 
 **Grid layout — Equal height rows.** Cards placed in a grid always
 match the tallest card's height in their row — universal, without
@@ -3268,6 +3271,135 @@ content — the component's job ends at ratio, clip and zoom.
 Frame beyond the Compare toggle, the Built-for-this-slot badge and the
 Tap hint. **Don't** use the family Tag colours to mean departments on
 this card, or this card's family mapping to colour anything else.
+
+**Ad Placement Card.** A floating hover card that describes one ad
+slot — a position on a page where ads run — while that slot is pointed
+at or focused on a placement map. It says what the slot is, where it
+sits, the sizes and devices it runs on, and how many units in the
+catalogue fit it. Built for Collab:Media's Ad formats page, where a
+planner moves across a mock page and reads each slot without clicking.
+Classes are `.c-card-ad-placement` and its `-*` parts; markup is
+`class="c-card c-card-ad-placement"` with `role="tooltip"` and a
+unique `id`.
+
+It is a Card by **surface** — the base Card's fill, border,
+`radius-lg` and padding, raised to `shadow-3` because it floats — and
+a [Tooltip](#tooltip) by **behaviour**: instant show and hide,
+`pointer-events: none` always, rendered at `<body>` level, dismissed by
+Esc, blur and scroll, and reached by assistive tech through
+`aria-describedby`. It carries more than Tooltip's 60 characters of
+structured content, which is why it is not the dark Tooltip bubble.
+
+**Ad Placement Card — When to use it.** Use it to describe a
+*position* someone is pointing at on a map, diagram or mock page, when
+the description is short and structured and the thing pointed at is
+the real control. **Don't** use it for a format (that's the
+[Media Ad Card](#card)), for anything the reader must act on inside the
+card (use a Popover), or for a one-line hint (use Tooltip).
+
+**Ad Placement Card — Anatomy.** Top to bottom:
+
+| Part | Class | Spec |
+|---|---|---|
+| Root | `.c-card.c-card-ad-placement` | Base Card surface, `shadow-3`, `card-padding`, the base Card's flex gap zeroed. **268px wide**, capped at the viewport minus 2 × spacing-12. `position: fixed` at `<body>` level, `z-index: 500` (see the stacking table under [Tutorial Modal](#tutorial-modal)), `pointer-events: none` always. `role="tooltip"`, unique `id` |
+| Head | `-head` | A two-column grid: the icon, then the title and "where" as rows 1 and 2 (`-titles` is `display: contents`). spacing-12 between icon and text, spacing-8 below |
+| Icon | `-icon` | The slot's glyph, `ph-fill` (Tier 2: it describes, it doesn't act), `icon-base`, Navy. No box of its own. **Centred on the head's first two lines**: title + where when the title fits one line; the first two title lines when it wraps (`.is-title-wrapped` on `-head`, set by script after layout and again once fonts load). `aria-hidden` |
+| Title | `-title` | The slot's label ("In the article"). h5, Neutral-9, wraps |
+| Where | `-where` | Where it sits, in brief ("Between paragraphs"). Caption, Neutral-5 |
+| Description | `-desc` | One sentence. body2, Neutral-6, wraps. spacing-12 below |
+| Facts | `-facts` → `-fact` (a `<dl>`) | **Always two rows, in this order:** Sizes, Runs on. Media Ad Card's spec-row recipe — label3 eyebrow label, body2-strong value, tabular figures — on one shared grid, so both values start on the same vertical line. Values wrap, never truncate |
+| Fit | `-fit` → `-count`, `-fit-text` | Neutral-2 top rule, spacing-12 above the text. Count at the h4 size and weight, Neutral-9, `line-height: 1`; text in caption, Neutral-5: "of 38 units fit here · 5 built for it" |
+| CTA hint (optional) | `-cta` | `ph-arrow-down` (Tier 1, `icon-micro`) + "Select to filter the catalogue". Caption bold, Neutral-9, spacing-12 above. A hint, not a button: no hover, no underline, no focus. The arrow points toward the catalogue the slot filters — down when the catalogue sits below the map, which is the default; turn it to match the layout |
+
+**Ad Placement Card — Content rules.**
+
+- **Sizes** run largest to smallest by area. Sizes that aren't W×H
+  ("16:9 pre-roll") keep their given order and go last. Comma-separated;
+  the first four, then `-more` "+N" in Neutral-5.
+- **Runs on** is comma-separated in sentence case — "Desktop, tablet,
+  mobile". Only the first letter of later items is lowered, so
+  "Connected TV" keeps its capitals.
+- **Missing data is never blank.** No fixed size reads "No fixed size";
+  no devices read "Not on file". Both take `dd.is-empty` (body2
+  regular, Neutral-5).
+- **Slots are always Navy.** Water is Collab:Media's element; the
+  format-family colours of the Media Ad Card never colour a slot.
+
+**Ad Placement Card — States.**
+
+| State | Treatment |
+|---|---|
+| Hidden | opacity 0 and `visibility: hidden` once the fade ends, sitting spacing-4 below its resting place |
+| Shown `.is-on` | Fades in and rises into place over `duration-fast` (opacity on `ease-standard`, rise on `ease-settle`, the Card family's arrival curve). No delay either way |
+| Pointer mode | Follows the cursor — see Positioning |
+| Keyboard mode | Anchored beside the focused slot — see Positioning |
+| No fixed size | Sizes reads "No fixed size", `dd.is-empty` |
+| None fit `.is-none` | Count shows **0** in Neutral-5. Text: "of 38 units fit here — none yet". The CTA is left out, because there is nothing to filter to |
+| Touch `(hover: none)` | Never shown. The same text still reaches assistive tech through `aria-describedby`; give touch a list view of the slots |
+| Reduced motion | Opacity only, no rise |
+| Forced colours | Edge and fit rule in `CanvasText` |
+
+**Ad Placement Card — Positioning.**
+
+- **Pointer:** spacing-20 below and to the right of the cursor,
+  redrawn at most once per frame on `pointermove`. If it would leave the
+  window it **flips** to the left of the cursor or above it first, and
+  only then is **clamped** to a spacing-12 gutter — Tooltip's
+  flip-before-shift, applied to a moving pointer.
+- **Keyboard:** beside the slot, vertically centred, spacing-12 away.
+  Right side first, then left. If neither fits (the slot spans the
+  map), above the slot, and if that doesn't fit either, below it —
+  Tooltip's final fallback. Then clamped to the spacing-12 gutter.
+- **No caret.** In pointer mode there is no fixed edge to point from.
+- **One card at a time.** Showing a new one hides the old one; the
+  last input wins, so pointing at a second slot replaces a
+  keyboard-shown card.
+
+**Ad Placement Card — Interaction contract.**
+
+- **Slots are real `<button>`s**, the controls; the card is never
+  focusable and never takes the pointer. A slot's accessible name is
+  "{label}, {where}".
+- **Each slot carries a static `aria-describedby`** naming its own
+  card's desc, facts, fit and CTA ids. The card is in the DOM whether
+  or not it is showing, so it is never the only place the information
+  lives.
+- **Focus** via `:focus-visible` shows the card in keyboard mode; a
+  mouse click that moves focus does not. **Blur** hides it.
+- **Esc** hides it and focus stays on the slot. The listener runs in
+  the capture phase and stops propagation **only while a card is
+  showing**, so the same keypress doesn't also close a modal
+  underneath. The dismissal **sticks**: the card does not come back on
+  the next `pointermove`, only when the pointer leaves the slot and
+  re-enters it, or focus moves to another slot (WCAG 1.4.13,
+  dismissible).
+- **Scrolling and resizing** hide it.
+
+**Ad Placement Card — What this variant borrows and what it
+overrides.** Borrows, verbatim: the base Card fill, border, `radius-lg`
+and padding; Selected's `shadow-3`; Media Ad Card's spec-row recipe;
+Tooltip's behaviour, portal, flip-before-shift and accessibility
+contract. Overrides, on purpose:
+
+- **A fixed width.** 268px, the one Card that doesn't follow the
+  responsive-width rule — it never sits in a grid, and a floating card
+  that resized with its container would jump as it followed the
+  pointer. Recorded in the width table above.
+- **`position: fixed`, `pointer-events: none`, hidden at rest** — it is
+  a floating layer, not a surface in the page's flow.
+- **`display: block` with no gap** — the parts carry their own
+  spacing, because the head-to-description gap (spacing-8) differs from
+  every other gap (spacing-12).
+
+Values with no token, kept as deliberate one-offs: the **268px**
+width, **`z-index: 500`**, and **`line-height: 1`** on the count.
+
+**Do** keep both fact rows and the fit line on every card, even when a
+value is missing, and show 0 when nothing fits — hiding the line would
+read as missing data. **Don't** put links or buttons in the card; it
+never takes the pointer. **Don't** make the card the only way to reach
+the information. **Don't** use the dark Tooltip bubble for this — it's
+more than 60 characters of structured content.
 
 ### Chart chrome & marks
 
@@ -4729,6 +4861,7 @@ clears all of it:
 |---|---|---|
 | **1100** | **Tutorial Modal's layer** | — |
 | 1000 | [Toast](#toast) host | **Yes.** A toast firing mid-tour is dimmed with everything else rather than floating over the scrim looking live while the layer eats its clicks. A toast that *is* the step's target still shows, because the spotlight is a real hole — whatever paints beneath it comes through |
+| 500 | [Ad Placement Card](#card) | **Yes** — Tooltip's "above modals" layer, so it sits over Command brief and Media Ad Modal, and a tour dims it like everything else |
 | 400 | [Command brief](#command-brief)'s scrim | **Yes** |
 | 300 | [Media Ad Modal](#media-ad-modal)'s layer | **Yes** — a tour can explain a detail view that is already open |
 | 95 | [Chat window](#chat-window) | **Yes** — so a tour can explain a chat window rather than hide behind one |
@@ -7280,6 +7413,31 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.109 — 2026-09-25** — [Card](#card) gains an **Ad Placement
+  Card** variant, promoted from Collab:Media's Ad formats page, where it
+  was a page-local hover card (`fm-plcard`). It describes one ad slot on
+  a placement map while that slot is pointed at or focused: icon, title
+  and where it sits, a one-sentence description, Sizes and Runs on rows,
+  the count of catalogue units that fit, and an optional CTA hint.
+
+  **A Card by surface, a Tooltip by behaviour.** It takes the base
+  Card's fill, border, `radius-lg` and padding, raised to `shadow-3`,
+  and Tooltip's instant show / hide, portal, flip-before-shift and
+  `aria-describedby` contract. It is the one Card with a fixed width
+  (268px), recorded in the width table, because it never sits in a
+  grid. **Refined on the way in:** the icon has no box and centres on
+  the head's first two lines; sizes run largest first, comma-separated;
+  devices are comma-separated in sentence case; count and CTA are
+  Neutral-9. **Fixed on the way in:** Esc dismissal sticks until the
+  pointer re-enters (WCAG 1.4.13); the Esc listener captures and stops
+  propagation only while a card is showing; `z-index` is 500, clearing
+  Command brief's 400, with a new row in Tutorial Modal's stacking
+  table.
+
+  **New:** `.c-card-ad-placement` and its parts in `components.css`
+  (directly after Media Ad Card); one static example (Default, with the
+  CTA hint) in the gallery's Card block.
 
 - **v0.9.108 — 2026-09-25** — [Modal / dialog](#modal--dialog) gains a
   second variant, **[Media Ad Modal](#media-ad-modal)**: the detail
