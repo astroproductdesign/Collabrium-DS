@@ -3219,7 +3219,10 @@ this card came in from Collab:Media.
   label is fixed ("Compare {Name}") and `aria-pressed` carries the
   state — never swap the label as well, or a screen reader announces
   "Remove from compare, pressed". It alone carries
-  `aria-keyshortcuts="c"`. The drawn circle is 32px; a transparent
+  `aria-keyshortcuts="c"`. Compared cards feed the [Action bar](#action-bar)'s
+  Item select variant, which opens the [Compare modal](#compare-modal) at
+  two to four picks. The
+  drawn circle is 32px; a transparent
   `::after` at `inset:-6px` makes the hit area 44px for touch.
 - **C** toggles compare while focus is anywhere in the card — not
   with a modifier held, not on key repeat, and never from inside a text
@@ -4773,8 +4776,9 @@ steps are reads rather than decisions — it collects no input, commits
 nothing, and is abandonable at any point with nothing lost. **The
 second is [Media Ad Modal](#media-ad-modal)**, a detail view stepped
 through with previous / next, on the same ground: it collects no input,
-commits nothing in the panel itself, and can be left at any point. No
-other multi-step flow inherits this.
+commits nothing in the panel itself, and can be left at any point. **The third is [Compare modal](#compare-modal)**, two to four formats
+read side by side: it collects no input and commits nothing in place.
+No other multi-step flow inherits this.
 
 #### Tutorial Modal
 
@@ -4787,9 +4791,9 @@ panel recipe, Modal's scrim value, Modal's footer order and
 its lock are its own.
 
 **It locks the page harder than anything else in this system.**
-([Media Ad Modal](#media-ad-modal) also holds the page still while it is
-open, behind a scrim that closes it on click; a tour does not even
-allow that.) During a tour
+([Media Ad Modal](#media-ad-modal) and [Compare modal](#compare-modal)
+also hold the page still while open, behind a scrim that closes them on
+click; a tour does not even allow that.) During a tour
 the card is the only element that answers to anything — no scrolling, no
 clicking past the scrim, no tabbing out of the card — because a tour that
 can be half-operated while it runs is worse than no tour. That is also
@@ -4864,7 +4868,9 @@ clears all of it:
 | 500 | [Ad Placement Card](#card) | **Yes** — Tooltip's "above modals" layer, so it sits over Command brief and Media Ad Modal, and a tour dims it like everything else |
 | 400 | [Command brief](#command-brief)'s scrim | **Yes** |
 | 300 | [Media Ad Modal](#media-ad-modal)'s layer | **Yes** — a tour can explain a detail view that is already open |
+| 300 | [Compare modal](#compare-modal)'s layer | **Yes.** Shares Media Ad Modal's tier; the two are never open at once |
 | 95 | [Chat window](#chat-window) | **Yes** — so a tour can explain a chat window rather than hide behind one |
+| 40 | [Action bar](#action-bar) | **Yes** — and it sits under both modals (300), which make it `inert` while open |
 | *none* | Modal / dialog | **Yes.** `.c-modal` declares no z-index at all |
 
 **Motion.** Every move is a pose change, so all of them take
@@ -5122,6 +5128,118 @@ another.
 > the spec's spacing-8, while `.c-modal-foot` in `components.css`
 > ships spacing-12. Recorded here, not resolved — the same kind of
 > drift Tutorial Modal notes above, and Modal's to fix.
+
+#### Compare modal
+
+**Two to four** ad formats side by side — one column per format, one
+row per fact, the highest published benchmark marked, then export and
+"Send to a media plan". A planner picks formats with the
+[Media Ad Card](#card)'s round Compare toggle, the
+[Action bar](#action-bar) (Item select) collects them, and its Compare
+button opens this. Built for
+Collab:Media's Ad formats catalogue.
+
+It is a **variant of this component**, as Media Ad Modal is: markup is
+`class="c-modal c-modal-compare"` on the real panel, inside a
+`.c-modal-compare-layer` at `<body>` level, and Modal's panel recipe,
+scrim, head, body and footer order ship unchanged. Everything
+interactive is a shipped component used as-is — close is
+[Button](#button)'s Ghost icon-only sm, the exports are Secondary md,
+"Send to a media plan" is Primary md on a real `<a>`, Highest is
+[Badge](#badge--tag) Success, and the grid is [Table](#table)'s
+`.c-table` base. Its content vocabulary is Media Ad Modal's: the same
+fact labels, the same missing-data wording and the same media slot
+contract.
+
+**Minimum 2, maximum 4.** It only ever opens with two to four formats.
+The Action bar enables its Compare button at two and caps picks at
+four ("Compare holds four"). **One format is not a comparison** — it
+opens in [Media Ad Modal](#media-ad-modal), never in a one-column
+Compare modal. The modal itself never adds or removes a format; that
+happens on the cards and in the Action bar.
+
+**Why a modal is allowed here.** The same carve-out as Media Ad Modal:
+it is a **read**. It collects no input and commits nothing in place —
+the exports produce a file, and the plan link leaves for another page —
+and it can be abandoned at any point with nothing lost.
+
+| Part | Class | Spec |
+|---|---|---|
+| Layer | `-layer`, `-scrim` | Media Ad Modal's recipe under this prefix: one `position: fixed; inset: 0` root at `<body>` level, `--shadow-overlay` scrim that closes it on click, `z-index: 300` — see the stacking table under Tutorial Modal |
+| Panel | `.c-modal.c-modal-compare` | Modal's recipe plus the spec's 1px Neutral-3 border. `min(1120px, 100vw − spacing-32)` wide — a four-column table is the widest reading surface in the system. Max height `min(800px, 100dvh − spacing-60)`; only the table region scrolls. A query container. `role="dialog"`, `aria-modal="true"`, labelled by the title |
+| Head | `.c-modal-head` → `-titles`, `-title`, close | Title "Compare formats", an `h4` at the h4 token, `tabindex="-1"`, **no description line under it**. Close is `c-btn c-btn-ghost c-btn-icon c-btn-sm` + `ph-x`, unmodified. 12/16 padding, bottom rule |
+| Scroll hint | `-hint` | Only while the table overflows sideways: "Scroll sideways to see every format" with `ph-arrows-left-right`, caption Neutral-5 on warm-card. `aria-hidden` — the region's label carries the meaning |
+| Scroll region | `.c-modal-body.c-modal-compare-scroll` in `-scrollwrap` | Scrolls both ways. `tabindex="0"`, `role="region"`, `aria-label="Comparison table"`, inset 2px Obsidian focus ring, so a keyboard can scroll it. `.has-more-right` on the wrap shows a spacing-32 fade on the right edge |
+| Table | `.c-table.c-modal-compare-table` | Table's base cells (12/16 padding, body2, Neutral-3 bottom rule, tabular figures). Separate borders so sticky cells keep theirs, fixed layout, `min-width` = label column + n × column floor via `--c-modal-compare-cols`. A visually hidden `<caption>` names the formats and facts |
+| Media row | first `<thead>` row, `-stage` → `-frame`, `-slot`, `-placeholder` | **Above the Format row, and not sticky.** Its row header is visually empty and reads "Media". Frame: `radius-md`, 1px Neutral-3. Slot: **16:10**, clips, accepts any child, `object-fit: cover` on media. The system ships only the shared placeholder (the same grouped rule as Media Ad Card and Media Ad Modal), never an ad visual |
+| Format row | second `<thead>` row, `-corner` + `th[scope=col].c-modal-compare-colhead` → `-colname`, `-colfamily` | **The column header.** A decorative "Format" eyebrow in the corner cell, then per format: the name at h5 and the family below it as **plain body2 text, Neutral-9 — no Tag, no remove button**. Sticky top on Neutral-1: once the Media row scrolls away, it pins to the top |
+| Row headers | `th[scope=row]` | Fact label: label3, eyebrow tracking, uppercase, Neutral-5 on warm-card — Media Ad Modal's spec label. Sticky left |
+| Fact rows | `td`, `.is-empty`, `-sizes`, `-bench` | **Always nine, always this order:** Objective, Funnel, Sizes, Runs on, Benchmark, CPM on file, Monthly inventory, Best for, Industries. Lists joined with commas; sizes one per line, read as "970 by 250 pixels" |
+| Highest | `td.is-highest` + `.c-badge.c-badge-success.c-modal-compare-highest` | `--color-earth-bg` cell and a real Badge Success reading "Highest" (screen readers hear "Highest CTR in this comparison"). The word carries the meaning, so it isn't colour-only |
+| Foot | `.c-modal-foot` → `-export` ×2, `-plan` | Export PDF (`ph-file-pdf`) and Export Excel (`ph-file-xls`), Secondary md, on the left. **Send to a media plan** (`ph-compass-tool`) is `<a class="c-btn c-btn-primary c-btn-md">` pushed right, its `href` carrying the format ids. spacing-8 gap |
+
+**Highest — the rule.** The top published CTR is marked, and only when
+**at least two** formats in view have a published CTR above 0 —
+marking the only benchmark against "Not published" would claim more
+than is known. Values are compared at the two decimals shown; **every
+format tied at the top is marked**, and if every published value ties,
+nothing is.
+
+**Missing data** is never blank, in Media Ad Modal's words: Benchmark
+"Not published"; CPM "Not on file — ask Sales"; other text facts "Not
+on file"; Sizes and Industries an em dash with hidden text ("No fixed
+size", "None listed"). All take `.is-empty` (body2 regular, Neutral-5).
+
+**States.**
+
+| State | Treatment |
+|---|---|
+| Opening | Swings out of the Action bar's Compare button (Media Ad Modal's swing, reused) while the scrim fades in; focus lands on Close |
+| Scrolled | The hint and right-edge fade show while columns remain to the right; the label column takes Table's frozen-column shadow when scrolled sideways, and the Format row `shadow-1` once pinned |
+| Closing | Folds back into the opener only if it's on screen, otherwise fades; ends fully transparent — Esc mid-opening plays the opening backwards **and fades to 0**. Nothing in the panel responds while it closes, and a fallback timer finishes the close if the animation is cancelled, so the page is never left locked |
+| Narrow (panel ≤640px) | Label column 120px, column floor 180px, horizontal scroll with the labels pinned. At ≤480px the footer buttons stretch and the plan link takes its own row. The table never collapses into stacked cards |
+| Touch | Footer buttons 44px tall; the head's close stays the shipped 32px |
+| Reduced motion | No swing — a plain fade |
+| Forced colours | The Highest cell keeps a 2px `Highlight` edge; the right-edge fade is dropped |
+
+**Interaction contract.**
+
+- **Focus.** Opens on Close. Tab is trapped inside the panel; the
+  scroll region is a Tab stop. On close, focus returns to the Action bar's
+  Compare button, or to a host-supplied fallback if that button has
+  become disabled.
+- **Keys.** Esc closes. Arrow keys scroll the table when the region
+  has focus.
+- **No live region.** Nothing in the panel changes while it is open.
+- **The page is held still**, as Media Ad Modal holds it: `overflow:
+  hidden` on `<html>` (`html.c-modal-compare-locked`, scrollbar width
+  padded back), wheel and touchmove blocked outside the panel, and
+  every other child of `<body>` made `inert` — **except the Toast
+  host**, so export toasts are still announced. (Inert content leaves
+  the accessibility tree.)
+- **Never stacked.** It doesn't open from inside Media Ad Modal, and
+  the two are never open at once.
+
+**Recorded deviations and one-off values.** **Column dividers** — a
+1px Neutral-3 line between format columns, a deviation from Table's
+bottom-rule-only border, because in a comparison the column is the unit
+being read. **The title is an `h4`**, one step below Media Ad Modal's
+`h3`, because the table, not the title, is the content. **Highest's
+badge text** is Badge Success mixed 55/45 toward Neutral-9, scoped to
+this component, because the shipped Badge Success text fails AA (2.11:1 on
+its own tint — see the Task rows contrast note under
+[AI Native](#ai-native)); drop the override once
+Badge Success itself is fixed. One-offs: the 1120px panel cap, the
+150 / 120px label column, the 200 / 180px column floor and its 640px
+container breakpoint, the 16:10 ratio, `z-index: 300`, and Table's
+`rgba(189,189,189,.45)` frozen-column shadow.
+
+**Do** keep all nine fact rows in order for every format, even when
+most are "Not on file". **Do** keep Send to a media plan a real link.
+**Don't** open it with one format — that's Media Ad Modal. **Don't**
+put an ad visual, a form field, a remove control or a confirm step in
+it. **Don't** mark Highest with colour alone. **Don't** collapse the
+table into stacked cards on a phone — scroll it.
 
 ### Notes
 
@@ -7094,6 +7212,117 @@ place for an irreversible decision.
 | Over limit | the copy must be rewritten, not shortened by the component |
 | Rationale | Toast content is system-generated, so character limits are an authoring rule, not a display rule |
 
+### Toolbar
+
+A component group for bars that hold the actions for what the reader is
+working on. Its first member is **Action bar**, below. A Toolbar is a
+**container of shipped controls** — Button, Chip — never a place to
+restyle them.
+
+#### Action bar
+
+A bar that floats at the bottom of the page **while the reader has a
+selection**: it says how much is selected and offers the actions for it.
+Built for Collab:Media — picking influencers for a list, and picking ad
+formats to compare. One panel, one row, **two variants**:
+
+| Variant | Markup | For | Row, left to right | Min / max |
+|---|---|---|---|---|
+| **User select** | `c-action-bar c-action-bar-users` | People (influencers, creators, team members) chosen from [Profile cards](#card) or a roster | Avatar stack → title + description → Cancel, Save to a list, Create new list | 1 / none |
+| **Item select** (chips tray pick) | `c-action-bar c-action-bar-picks` | Items compared or collected by name (ad formats, plans, packages) | Chips → title + description → Clear, Compare | 2 / 4 |
+
+User select also has an **AI shimmer** style (`.c-action-bar-ai` on the
+root) for a selection the AI made or suggested. The host supplies the
+noun, the description, the reason, the region label and the actions;
+nothing in the component is specific to influencers or formats.
+
+**Shared anatomy.**
+
+| Part | Class | Spec |
+|---|---|---|
+| Root | `section.c-action-bar` + a variant class, `aria-label` from the host | A named region at `<body>` level. `position: fixed`, from `--c-action-bar-inset-start` (the host's sidebar width, default 0) to the right edge, `bottom: spacing-24 + env(safe-area-inset-bottom)` (spacing-12 at 640px and below), side insets spacing-16 (spacing-8 on phones), **`z-index: 40`**. `pointer-events: none` so only the panel catches clicks; `visibility: hidden` when empty. A query container |
+| Panel | `.c-action-bar-panel` | Neutral-1, 1px Neutral-3, `radius-lg`, `shadow-4`. Padding spacing-16 / spacing-24. Full width up to **880px**, centred |
+| Row | `.c-action-bar-main` | One line on desktop, **never wraps**. spacing-16 between groups, centred vertically, actions pushed to the end. DOM order is visual order, so Tab follows what the eye reads |
+| Title | `h2.c-action-bar-title`, `tabindex="-1"` | "{n} {noun} selected": label2 (13/18/700), Neutral-9, tabular figures, one line. The count leads, so a truncation only ever cuts the noun. Focus lands here to announce a change |
+| Description | `p.c-action-bar-desc` | Caption, Neutral-5, one line with an ellipsis. Below the variant's minimum it becomes the **reason**, and every gated action points at it with `aria-describedby` |
+| Actions | `.c-action-bar-actions` → `.c-action-bar-clear` + `[data-action]` buttons | Shipped [Buttons](#button), unmodified. **One size rule for both variants:** the Ghost dismiss is sm and the commit buttons are **md on desktop**, **sm at a ≤640px container** — a class swap between two shipped sizes (`data-size-narrow="sm"` on each md button), never a resize and never a duplicate button set. spacing-8 gap. Dismiss first, the one Primary (`.c-action-bar-go`) last — Modal's commit-on-the-right order |
+| Spacer (optional) | `div.c-action-bar-spacer`, `aria-hidden` | In flow at the end of the host's scrolling content; its height is `--c-action-bar-clearance`, so the last row can scroll clear of the bar |
+
+**User select** (`.c-action-bar-users`).
+
+| Part | Class | Spec |
+|---|---|---|
+| Avatar stack | `.c-action-bar-stack` → `.c-action-bar-avatar`, `aria-hidden` | One 32px circle per person, in selection order (Search input's avatar size): Neutral-2 fill, Neutral-9 initials at the label3 size, 700, no uppercase or tracking, a 2px Neutral-1 ring (Campaign card's faces), **overlapping by 10px**. An optional `<img alt="">` sits on top, as on Profile card. Up to **4**, then a "+N" circle (`-avatar-more`); **2** then "+N" on phones; "99+" past 99 |
+| Title | shared | "2 influencers selected" |
+| Description | shared | "Select and generate influencers into a shareable link for your clients" — one line, always truncating; no long form. **Hidden on phones** |
+| Actions | — | **Cancel** (Ghost sm; clears the selection), **Save to a list** (Secondary, `ph-bookmark-simple`), **Create new list** (Primary, `ph-plus`). No chips row |
+| AI shimmer | `+ .c-action-bar-ai` | Only the surface changes. It is [Prompt input bar](#prompt-input-bar)'s glow reused: the elemental pastel gradient at `200% 100%`, animated by the shipped `c-prompt-bar-glow-move 4s linear infinite`, referenced by name as `.c-banner-ai` does. The panel is `isolation: isolate`; `::before` (z −1) draws the Neutral-1 surface through a 1px transparent border for the animated gradient edge, `::after` (z −2) is the outer glow (inset −4px, blur 16px, opacity .7). Reduced motion: static glow. Forced colours: glow hidden, 1px CanvasText edge |
+| Phone (≤640px) | container query | Two rows in both styles. Row 1: two avatars + "+N" and the title (shown in full at 360px). Row 2: Cancel left, Save + Create right, all labelled sm **without their leading icons** (optional content, so Button is untouched), spacing-4 apart. The three need 305px and a 360px phone gives 318px; below that the row wraps rather than overflowing |
+
+**Item select — chips tray pick** (`.c-action-bar-picks`).
+
+| Part | Class | Spec |
+|---|---|---|
+| Chips | `ul.c-action-bar-list`, `role="list"` | The lead. Chip's grouping rule (spacing-4, wraps inside its own column, never scrolls). Coarse pointers: spacing-20 rows, spacing-8 columns |
+| Pick | `li.c-chip.c-chip-input.c-action-bar-pick` → `.c-action-bar-name` + `button.c-chip-remove` | The shipped removable Input Chip, **at most 4**. **A name over 15 characters shows its first 15 + "…"** (a character count, trailing space trimmed): "Interactive Exp…". The cut text is `aria-hidden`; the full name is in `.sr-only`, in `title` and in the ×'s label ("Remove {Name}"). × or Delete / Backspace removes |
+| Title | shared | "3 formats selected" |
+| Description | shared | **1 pick:** the reason, "Minimum 2 formats." **2–4 picks:** "Maximum 4 formats." One line, **truncated at the width of the title above it** — `contain: inline-size` keeps it from widening the head |
+| Actions | — | **Clear** (Ghost sm) and **Compare** (Primary, `ph-columns`). Below two picks Compare is `aria-disabled`, keeps focus and ignores clicks. It opens [Compare modal](#compare-modal) |
+| Phone (≤640px) | container query | Row 1: the chips. Row 2: title and description left, Clear + Compare (sm) right |
+
+**States.**
+
+| State | Treatment |
+|---|---|
+| Hidden | 0 selected. `visibility: hidden`, clearance 0. If focus was inside, it moves first to the host's fallback heading |
+| Below minimum (item select) | 1 pick: the reason shows and Compare is gated |
+| Ready / Full | Every action live. At 4 picks the cap is stated ("Maximum 4 formats."), not alarmed |
+| Fifth pick refused | The card stays unpressed and nothing is evicted; the host raises the shipped [Toast](#toast) "Compare holds four" / "Remove one to add {Name}." with a Ghost "Review picks" action that moves focus to the bar's heading |
+| Removed in the bar | Focus moves to the heading, which reads the new count; the last one out sends focus to the fallback heading |
+| Dismissed / committed | The host empties the selection; focus goes to the fallback heading before the bar hides |
+| Changed from a card | The bar updates without moving focus — the card's `aria-checked` / `aria-pressed` is the announcement |
+| Entering / exiting | Rises and fades in over `duration-slow`, out over `duration-base`, `ease-standard`. Restored on load: `.is-instant`, no entrance |
+| Lift | While a Toast overlaps the panel, the bar rises clear of it by spacing-12 (`--c-action-bar-lift`); the spacer ignores the lift |
+| Modal open | Under Compare modal or Media Ad Modal (300) the bar is `inert` with the rest of the page |
+| Reduced motion | A `duration-fast` opacity fade only |
+| Forced colours | The 1px border carries the edge; a gated action uses GrayText |
+
+**Interaction contract.**
+
+- **The host owns the selection** and calls `render(items)`; cards, bar
+  and storage change together. Persistence (e.g. `sessionStorage`) is
+  the host's job.
+- **No live region.** Focus moves to the title after a change made in
+  the bar; changes made from a card never move focus.
+- **Gating** is `aria-disabled` plus a visible reason in
+  `aria-describedby`, never `disabled` — Media Ad Modal's pattern.
+- **Host duties:** set `--c-action-bar-inset-start`, place the spacer,
+  set `scroll-padding-bottom` from `--c-action-bar-clearance`, supply a
+  fallback heading, and pass the Toast host so the bar can lift clear.
+- **One bar per page.** The two variants never show at once; a page
+  that can make both selections clears one when the other opens.
+
+**Recorded deviations and one-off values.** The User select desktop
+row is matched to its reference with the closest shipped Buttons; the
+remaining differences are **not** overridden — md's 16px label (ref.
+14px), `radius-md` (ref. 14px), Ghost Cancel's Neutral-9 text at 32px
+(ref. #5a5a5a at 36px), and 16px icons (ref. 13px). Input Chip sits in
+a tray with no text field (Filters' `.c-filter-tray` is the
+precedent) and never collapses to "+N", since the cap is four. A gated
+Primary takes Button's disabled colours via `aria-disabled`, scoped to
+the bar. The chip × gets an invisible 44px hit area on coarse
+pointers. One-offs: `z-index: 40`, the 880px cap, the 640px container
+breakpoint, the 10px avatar overlap, 4 / 2 visible avatars and "99+",
+the 15-character name cut, and the × hit lift (`inset: -10px`).
+
+**Do** use User select for people and Item select for things compared
+by name; keep a gated action focusable with its reason; let the host
+own the selection. **Don't** show two bars at once, let the User
+select row wrap on desktop, restyle Button or Chip, pair Default and
+AI shimmer on one page, evict a pick to make room, add a live region,
+or share the screen with a Floating Prompt input bar — both claim
+bottom-centre.
+
 ### Tooltip
 
 **Transcribed from the teammate's `Tooltip.jsx`.**
@@ -7413,6 +7642,66 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.111 — 2026-09-29** — New component group **[Toolbar](#toolbar)**,
+  between Toast and Tooltip, with its first member, **[Action bar](#action-bar)**:
+  a bar that floats at the bottom of the page while the reader has a
+  selection. Promoted from Collab:Media (the Ad formats compare tray
+  and the influencer selection bar), drafted as "Compare tray" and then
+  "Floating action bar".
+
+  **Two variants on one panel.** **User select** (`.c-action-bar-users`):
+  avatar stack, "{n} influencers selected" and a description, then
+  Cancel, Save to a list and Create new list; minimum 1, no maximum;
+  an **AI shimmer** style reusing Prompt input bar's glow and its
+  shipped keyframe. **Item select** (`.c-action-bar-picks`, the chips
+  tray pick): up to four removable Input Chips (names cut at 15
+  characters), "{n} formats selected" with "Minimum 2 formats." /
+  "Maximum 4 formats.", then Clear and Compare; minimum 2, maximum 4;
+  opens Compare modal.
+
+  **Rebuilt, not ported:** a light surface instead of the source's
+  Obsidian pill so every Button and Chip ships unmodified; one Button
+  size rule for both variants (Ghost sm dismiss, md commit buttons that
+  swap to sm on phones by class, never duplicated); real list and
+  region semantics; focus to the title instead of a live region;
+  `aria-disabled` plus a reason for a gated Compare; the bar lifts clear
+  of a Toast; `z-index: 40`, added to Tutorial Modal's stacking table.
+  Compare modal and Media Ad Card now point at it instead of "the
+  compare tray".
+
+  **New:** `.c-action-bar` and its parts in `components.css` (before
+  Tooltip); the gallery's new Toolbar block shows User select and Item
+  select, both in their default state.
+
+- **v0.9.110 — 2026-09-29** — [Modal / dialog](#modal--dialog) gains a
+  third variant, **[Compare modal](#compare-modal)**, promoted from
+  Collab:Media's Ad formats page (`fm-cmodal`), where it was the
+  compare sheet. Two to four formats side by side: a Media row, a
+  Format row that is the column header, nine fact rows, the highest
+  published benchmark marked, then Export PDF / Excel and Send to a
+  media plan.
+
+  **Minimum 2, maximum 4.** One format opens in Media Ad Modal instead;
+  the source's one-column spec sheet is gone. **Refined on the way
+  in:** the Media row sits above the Format row; the family is plain
+  body2 text rather than a Tag; there is no per-column remove and no
+  description under the title. **Fixed on the way in:** real table
+  semantics (column and row headers, a caption); the Format row and the
+  label column stay pinned while the table scrolls, with a scroll hint,
+  an edge fade and a focusable scroll region; missing data uses Media
+  Ad Modal's wording in Neutral-5 (the source's Neutral-4 failed
+  contrast); Highest is a real Badge, needs two published CTRs and
+  marks ties; the close always finishes and ends fully transparent;
+  the Toast host stays outside `inert`. **Recorded:** column dividers,
+  the `h4` title, and a scoped contrast fix on the Highest badge until
+  Badge Success itself is fixed.
+
+  **New:** `.c-modal-compare` and its parts in `components.css`
+  (directly after Media Ad Modal). Media Ad Modal's swing selectors and
+  the media placeholder rule are now grouped with it. **No gallery
+  example**, by decision. Tutorial Modal's stacking table gains a row
+  at 300, and Modal's Don't a third carve-out.
 
 - **v0.9.109 — 2026-09-25** — [Card](#card) gains an **Ad Placement
   Card** variant, promoted from Collab:Media's Ad formats page, where it
