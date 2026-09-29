@@ -502,12 +502,14 @@
 }
 
 /* Placeholder — the default (and only shipped) slot child. Shared with
-   Media Ad Modal's slot and "Also consider" thumbnails, so the two
-   components can never draw different placeholders. */
+   Media Ad Modal's slot and "Also consider" thumbnails and Compare
+   modal's Media row, so the three can never draw different placeholders. */
 .c-card-media-ad-placeholder,
-.c-modal-media-ad-placeholder{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing-4); background:var(--color-neutral-2); color:var(--color-neutral-5); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold);}
+.c-modal-media-ad-placeholder,
+.c-modal-compare-placeholder{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing-4); background:var(--color-neutral-2); color:var(--color-neutral-5); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold);}
 .c-card-media-ad-placeholder i,
-.c-modal-media-ad-placeholder i{font-size:var(--icon-lg); color:var(--color-neutral-4);}
+.c-modal-media-ad-placeholder i,
+.c-modal-compare-placeholder i{font-size:var(--icon-lg); color:var(--color-neutral-4);}
 
 /* Touch hint — "Tap to play", centred on the Frame. Tag metrics
    (24px, caption/700, radius-pill). Shown on hover:none devices or via
@@ -1556,8 +1558,11 @@ html.c-modal-media-ad-locked{overflow:hidden;}
    rest is dropped ("Movement settles; it never bounces"). The close
    ends fully transparent, so the panel never vanishes mid-fade; when
    the card is off-screen the script skips the fold and fades. */
-.c-modal-media-ad.is-swinging-open{animation:c-modal-media-ad-swing-open .8s cubic-bezier(.25,.9,.35,1) both;}
-.c-modal-media-ad.is-swinging-closed{animation:c-modal-media-ad-swing-close .55s cubic-bezier(.3,.6,.35,1) both;}
+/* Shared with Compare modal — rename these keyframes in both places. */
+.c-modal-media-ad.is-swinging-open,
+.c-modal-compare.is-swinging-open{animation:c-modal-media-ad-swing-open .8s cubic-bezier(.25,.9,.35,1) both;}
+.c-modal-media-ad.is-swinging-closed,
+.c-modal-compare.is-swinging-closed{animation:c-modal-media-ad-swing-close .55s cubic-bezier(.3,.6,.35,1) both;}
 @keyframes c-modal-media-ad-swing-open{
   0%{transform:translate(var(--mad-dx,0px), var(--mad-dy,0px)) scale(var(--mad-sx,.2), var(--mad-sy,.2)); opacity:.4;}
   45%{transform:translate(calc(var(--mad-dx,0px) * .5), calc(var(--mad-dy,0px) * .5)) scale(.7) rotateY(calc(48deg * var(--mad-dir,1))) rotateZ(calc(-7deg * var(--mad-dir,1))); opacity:1;}
@@ -1718,6 +1723,160 @@ html.c-modal-media-ad-locked{overflow:hidden;}
 @media (forced-colors: active){
   .c-modal-media-ad-compare[aria-pressed="true"]{outline:2px solid Highlight;}
 }
+
+/* =========================================================
+   Compare modal — Modal / dialog variant. Two to four ad formats side
+   by side: one column per format, one row per fact, the highest
+   published benchmark marked, then export and "Send to a media plan".
+   Opened from a compare tray; a single format is not a comparison and
+   opens in Media Ad Modal instead. Ported from Collab:Media's Ad
+   formats page (fm-cmodal / fm-cbox / fm-ctable).
+
+   Markup: class="c-modal c-modal-compare" on the real panel, inside
+   .c-modal-compare-layer at <body> level. Reuses, unchanged: Modal's
+   panel recipe + head / body / foot; Media Ad Modal's layer, scrim,
+   page lock, z-index tier (300) and swing (its selectors and keyframes
+   are shared — see the grouped rule above); Table's .c-table base and
+   frozen-column shadow; Button (Ghost icon-only sm close, Secondary md
+   exports, Primary md on the plan link); Badge Success (Highest); the
+   shared media placeholder group; .sr-only.
+
+   One-off values, recorded: 1120px panel cap; 150 / 120px label
+   column; 200 / 180px format column floor, switching at a 640px
+   container width; 16:10 media ratio; z-index 300; Table's frozen-
+   column shadow rgba(189,189,189,.45); and the Highest text colour
+   color-mix(green 55%, neutral-9) — see DESIGN-SYSTEM.md's contrast note.
+   ========================================================= */
+
+/* Layer + scrim — Media Ad Modal's recipe under this prefix. */
+.c-modal-compare-layer{position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; padding:var(--spacing-16); perspective:1200px;}
+.c-modal-compare-layer.is-open{display:flex;}
+.c-modal-compare-scrim{position:absolute; inset:0; background:var(--shadow-overlay); opacity:0; transition:opacity var(--duration-slow) var(--ease-standard);}
+.c-modal-compare-layer.is-shown .c-modal-compare-scrim{opacity:1; transition-duration:var(--duration-reveal);}
+html.c-modal-compare-locked{overflow:hidden;}
+
+/* Panel */
+.c-modal.c-modal-compare{
+  --c-modal-compare-label-w:150px;
+  --c-modal-compare-col-min:200px;
+  position:relative; container:c-modal-compare / inline-size; display:flex; flex-direction:column; overflow:hidden;
+  width:100%; max-width:1120px; max-height:min(800px, calc(100dvh - var(--spacing-60))); box-sizing:border-box;
+  border:1px solid var(--color-neutral-3); font-family:var(--font-primary); color:var(--color-neutral-9); transform-origin:top left;
+}
+.c-modal-compare-layer .c-modal-compare{opacity:0; transition:opacity var(--duration-base) var(--ease-standard);}
+.c-modal-compare-layer.is-shown .c-modal-compare{opacity:1;}
+
+/* Head — title + the shipped Ghost icon-only sm close. */
+.c-modal-compare .c-modal-head{flex:none; align-items:flex-start; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
+.c-modal-compare-titles{flex:1; min-width:0;}
+.c-modal-compare .c-modal-compare-title{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight); letter-spacing:var(--text-h4-tracking); color:var(--color-neutral-9);}
+.c-modal-compare-title:focus{outline:none;}
+.c-modal-compare-title:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px; border-radius:var(--radius-sm);}
+.c-modal-compare .c-modal-head .c-btn{flex:none;}
+
+/* Scroll hint — a thin strip under the head, only while the table overflows sideways. */
+.c-modal-compare .c-modal-compare-hint{flex:none; display:flex; align-items:center; gap:var(--spacing-8); margin:0; padding:var(--spacing-8) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3); background:var(--color-canvas-warm-card); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-modal-compare-hint i{flex:none; font-size:var(--icon-micro);}
+.c-modal-compare-hint[hidden]{display:none;}
+
+/* Scroll region — both axes, focusable (tabindex="0", role="region"). */
+.c-modal-compare-scrollwrap{position:relative; flex:1; min-height:0; display:flex; flex-direction:column;}
+.c-modal-compare .c-modal-compare-scroll{flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; padding:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+.c-modal-compare-scroll:focus{outline:none;}
+.c-modal-compare-scroll:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
+/* Right-edge fade: "more columns this way". */
+.c-modal-compare-scrollwrap::after{content:""; position:absolute; top:0; right:0; bottom:0; width:var(--spacing-32); background:linear-gradient(to right, transparent, var(--color-neutral-1)); opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard);}
+.c-modal-compare-scrollwrap.has-more-right::after{opacity:1;}
+
+/* Table — .c-table base; separate borders so sticky cells keep theirs. */
+.c-table.c-modal-compare-table{border-collapse:separate; border-spacing:0; table-layout:fixed; width:100%; min-width:calc(var(--c-modal-compare-label-w) + var(--c-modal-compare-cols, 4) * var(--c-modal-compare-col-min));}
+.c-modal-compare-table th,
+.c-modal-compare-table td{vertical-align:top; overflow-wrap:anywhere;}
+.c-modal-compare-table td{line-height:var(--text-body2-lh); font-variant-numeric:tabular-nums;}
+/* Column dividers — a recorded deviation from Table's bottom-rule-only
+   border: in a comparison the column is the unit being read. */
+.c-modal-compare-table td,
+.c-modal-compare-table th[scope="col"]{border-left:1px solid var(--color-neutral-3);}
+.c-modal-compare-table th[scope="row"] + td,
+.c-modal-compare-table .c-modal-compare-corner + th{border-left:0;}
+.c-modal-compare-table tbody tr:last-child th{border-bottom:none;}
+
+/* Header — two rows in <thead>: the Media row first, then the Format
+   row, which IS the column header. Only the Format row is sticky: a
+   sticky 16:10 media row would eat most of the scroll area. Once the
+   Media row scrolls away, the Format row pins to the top. */
+.c-modal-compare-table th[scope="col"],
+.c-modal-compare-corner{position:sticky; top:0; z-index:2; background:var(--color-neutral-1);}
+/* Two classes deep: .c-table td (0,1,1) would otherwise reset its type. */
+.c-modal-compare-table .c-modal-compare-corner{left:0; z-index:3; border-left:0; width:var(--c-modal-compare-label-w); box-sizing:border-box; background:var(--color-canvas-warm-card); border-right:1px solid var(--color-neutral-3); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+/* Column header: name at h5, then the family as plain body2 text. */
+.c-modal-compare-table .c-modal-compare-colname{display:block; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+.c-modal-compare-table .c-modal-compare-colfamily{display:block; margin-top:var(--spacing-4); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9); text-transform:none; letter-spacing:0;}
+
+/* Row headers — fact labels, sticky left. Media Ad Modal's spec-label recipe. */
+.c-modal-compare-table th[scope="row"]{position:sticky; left:0; z-index:1; background:var(--color-canvas-warm-card); border-right:1px solid var(--color-neutral-3); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+
+/* Scroll shadows — Table's frozen-column value and sticky-header shadow-1. */
+.c-modal-compare-scroll.is-scrolled-left th[scope="row"],
+.c-modal-compare-scroll.is-scrolled-left .c-modal-compare-corner{box-shadow:2px 0 4px rgba(189,189,189,.45);}
+.c-modal-compare-scroll.is-scrolled-top th[scope="col"]{box-shadow:var(--shadow-1);}
+.c-modal-compare-scroll.is-scrolled-top .c-modal-compare-corner{box-shadow:var(--shadow-1);}
+.c-modal-compare-scroll.is-scrolled-top.is-scrolled-left .c-modal-compare-corner{box-shadow:2px 0 4px rgba(189,189,189,.45), var(--shadow-1);}
+
+/* Media row — Media Ad Modal's Frame + Slot contract (ratio + clip). The
+   placeholder is the shared grouped rule above. */
+.c-modal-compare-frame{position:relative; overflow:hidden; border:1px solid var(--color-neutral-3); border-radius:var(--radius-md);}
+.c-modal-compare-slot{position:relative; aspect-ratio:16 / 10; overflow:hidden; background:var(--color-neutral-2);}
+.c-modal-compare-slot > *{position:absolute; inset:0; width:100%; height:100%; box-sizing:border-box;}
+.c-modal-compare-slot > :is(img, video, picture, iframe, canvas){display:block; object-fit:cover; border:0;}
+
+/* Fact cells */
+.c-modal-compare-table .is-empty{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+.c-modal-compare-sizes{margin:0; padding:0; list-style:none;}
+.c-modal-compare-bench{display:flex; flex-wrap:wrap; align-items:center; gap:var(--spacing-4) var(--spacing-8);}
+.c-modal-compare-table td.is-highest{background:var(--color-earth-bg);}
+/* Highest — a real Badge Success. Its shipped text (--color-green) is
+   ~2.1:1 on its own fill; mixed 55/45 toward Neutral-9 (Purple Tag's
+   technique) it clears 5.2:1 on the earth-bg cell. Scoped here until
+   Badge Success itself is fixed — see DESIGN-SYSTEM.md. */
+.c-modal-compare .c-badge-success.c-modal-compare-highest{color:color-mix(in srgb, var(--color-green) 55%, var(--color-neutral-9));}
+
+/* Foot — exports left, the plan link pushed right. */
+.c-modal-compare .c-modal-foot{flex:none; flex-wrap:wrap; align-items:center; justify-content:flex-start; gap:var(--spacing-8); padding:var(--spacing-12) var(--spacing-16);}
+.c-modal-compare .c-modal-foot a.c-btn{text-decoration:none;}
+.c-modal-compare-plan{margin-left:auto;}
+
+/* Narrow — the panel's own width. */
+@container c-modal-compare (max-width: 640px){
+  .c-modal-compare-table{--c-modal-compare-label-w:120px; --c-modal-compare-col-min:180px;}
+}
+@container c-modal-compare (max-width: 480px){
+  .c-modal-compare .c-modal-foot .c-btn{flex:1 1 auto; justify-content:center;}
+  .c-modal-compare-plan{margin-left:0; flex-basis:100%;}
+}
+@media (max-width: 640px){
+  .c-modal-compare-layer{padding:var(--spacing-8);}
+  .c-modal-compare-layer .c-modal-compare{max-height:calc(100dvh - var(--spacing-16));}
+}
+
+/* Touch — Media Ad Modal's rules. */
+@media (hover:none), (pointer:coarse){
+  .c-modal-compare .c-modal-foot .c-btn{height:44px;}
+  .c-modal-compare .c-modal-head{gap:var(--spacing-12);}
+}
+
+/* Reduced motion — no swing (a plain fade); forced colours — the
+   Highest cell keeps an edge and the white fade is dropped. */
+@media (prefers-reduced-motion: reduce){
+  .c-modal-compare.is-swinging-open,
+  .c-modal-compare.is-swinging-closed{animation:none;}
+  .c-modal-compare-scrollwrap::after{transition:none;}
+}
+@media (forced-colors: active){
+  .c-modal-compare-table td.is-highest{outline:2px solid Highlight; outline-offset:-2px;}
+  .c-modal-compare-scrollwrap::after{display:none;}
+}
+
 
 
 /* Empty state — anatomy: icon (optional), heading (optional), body, actions
