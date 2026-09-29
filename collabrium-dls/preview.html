@@ -179,6 +179,12 @@
      so the gallery can show it statically. Not part of the component
      itself, same status as .swatch-group-label above. */
   .adplacement-demo .c-card.c-card-ad-placement{position:relative; top:auto; left:auto; z-index:auto; display:block; opacity:1; visibility:visible; transform:none;}
+  /* Action bar demo only — the real bar is position:fixed at the bottom of
+     the viewport; this puts each variant into flow, visible, so the gallery
+     can show it statically. Not part of the component itself, same status
+     as .swatch-group-label above. */
+  .actionbar-demo .c-action-bar{position:relative; inset:auto; z-index:auto; visibility:visible; padding:0; transform:none;}  /* padding:0 also resets the gallery's own section padding */
+  .actionbar-demo .c-action-bar-panel{opacity:1; transform:none; margin-inline:0;}
   /* Hero Card demo only — a flex row, not a grid, since the Default and Selected examples are
      deliberately different widths (320px vs. up to 560px); a shared grid column would force one to
      the other's size. Not part of the component itself, same status as .swatch-group-label above. */
@@ -495,6 +501,7 @@
             <button class="c-nav-child" type="button" data-nav-target="comp-table">Table</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-tabs">Tabs</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-toast">Toast</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-toolbar">Toolbar</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-tooltip">Tooltip</button>
           </div>
         </div>
@@ -3998,6 +4005,53 @@
             </div>
           </div>
         </div>
+        <div class="comp-block" id="comp-toolbar">
+          <div class="comp-head"><h3>Toolbar</h3><button class="copy-markup-btn" data-target="comp-toolbar" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <!-- Action bar — both variants in their default state, shown statically.
+                 In use the bar is position:fixed at <body> level, bottom-centre, and
+                 appears only while there is a selection; the demo wrapper puts it
+                 into flow. Title tags are h4 here to fit the gallery outline (the
+                 class carries the look). See DESIGN-SYSTEM.md's Toolbar > Action bar. -->
+            <div class="swatch-group-label" style="margin-top:0">Action bar — User select</div>
+            <div class="actionbar-demo">
+              <section class="c-action-bar c-action-bar-users is-open" aria-label="Selected influencers">
+                <div class="c-action-bar-panel">
+                  <div class="c-action-bar-main">
+                    <div class="c-action-bar-stack" aria-hidden="true"><span class="c-action-bar-avatar">AY</span><span class="c-action-bar-avatar">TL</span></div>
+                    <div class="c-action-bar-head">
+                      <h4 class="c-action-bar-title">2 influencers selected</h4>
+                      <p class="c-action-bar-desc">Select and generate influencers into a shareable link for your clients</p>
+                    </div>
+                    <div class="c-action-bar-actions">
+                      <button type="button" class="c-btn c-btn-ghost c-btn-sm c-action-bar-clear">Cancel<span class="sr-only"> selection</span></button>
+                      <button type="button" class="c-btn c-btn-secondary c-btn-md" data-action="save" data-size-narrow="sm"><i class="ph ph-bookmark-simple" aria-hidden="true"></i>Save to a list</button>
+                      <button type="button" class="c-btn c-btn-primary c-btn-md c-action-bar-go" data-action="create" data-size-narrow="sm"><i class="ph ph-plus" aria-hidden="true"></i>Create new list</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="swatch-group-label">Action bar — Item select (chips tray pick)</div>
+            <div class="actionbar-demo">
+              <section class="c-action-bar c-action-bar-picks is-open" aria-label="Formats to compare">
+                <div class="c-action-bar-panel">
+                  <div class="c-action-bar-main">
+                    <ul class="c-action-bar-list" role="list"><li class="c-chip c-chip-input c-action-bar-pick"><span class="c-action-bar-name" title="Swipe Gallery">Swipe Gallery</span><button type="button" class="c-chip-remove" aria-label="Remove Swipe Gallery"><i class="ph ph-x" aria-hidden="true"></i></button></li><li class="c-chip c-chip-input c-action-bar-pick"><span class="c-action-bar-name" title="Scratch &amp; Win">Scratch &amp; Win</span><button type="button" class="c-chip-remove" aria-label="Remove Scratch &amp; Win"><i class="ph ph-x" aria-hidden="true"></i></button></li></ul>
+                    <div class="c-action-bar-head">
+                      <h4 class="c-action-bar-title">2 formats selected</h4>
+                      <p class="c-action-bar-desc">Maximum 4 formats.</p>
+                    </div>
+                    <div class="c-action-bar-actions">
+                      <button type="button" class="c-btn c-btn-ghost c-btn-sm c-action-bar-clear">Clear<span class="sr-only"> all picks</span></button>
+                      <button type="button" class="c-btn c-btn-primary c-btn-md c-action-bar-go" data-action="compare" data-size-narrow="sm" aria-disabled="false"><i class="ph ph-columns" aria-hidden="true"></i>Compare</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
         <div class="comp-block" id="comp-tooltip">
           <div class="comp-head"><h3>Tooltip</h3><button class="copy-markup-btn" data-target="comp-tooltip" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -7443,8 +7497,9 @@ this card came in from Collab:Media.
   label is fixed ("Compare {Name}") and `aria-pressed` carries the
   state — never swap the label as well, or a screen reader announces
   "Remove from compare, pressed". It alone carries
-  `aria-keyshortcuts="c"`. Compared cards feed the compare tray, which
-  opens the [Compare modal](#compare-modal) at two to four picks. The
+  `aria-keyshortcuts="c"`. Compared cards feed the [Action bar](#action-bar)'s
+  Item select variant, which opens the [Compare modal](#compare-modal) at
+  two to four picks. The
   drawn circle is 32px; a transparent
   `::after` at `inset:-6px` makes the hit area 44px for touch.
 - **C** toggles compare while focus is anywhere in the card — not
@@ -9093,6 +9148,7 @@ clears all of it:
 | 300 | [Media Ad Modal](#media-ad-modal)'s layer | **Yes** — a tour can explain a detail view that is already open |
 | 300 | [Compare modal](#compare-modal)'s layer | **Yes.** Shares Media Ad Modal's tier; the two are never open at once |
 | 95 | [Chat window](#chat-window) | **Yes** — so a tour can explain a chat window rather than hide behind one |
+| 40 | [Action bar](#action-bar) | **Yes** — and it sits under both modals (300), which make it `inert` while open |
 | *none* | Modal / dialog | **Yes.** `.c-modal` declares no z-index at all |
 
 **Motion.** Every move is a pose change, so all of them take
@@ -9356,8 +9412,9 @@ another.
 **Two to four** ad formats side by side — one column per format, one
 row per fact, the highest published benchmark marked, then export and
 "Send to a media plan". A planner picks formats with the
-[Media Ad Card](#card)'s round Compare toggle, the compare tray
-collects them, and its Compare button opens this. Built for
+[Media Ad Card](#card)'s round Compare toggle, the
+[Action bar](#action-bar) (Item select) collects them, and its Compare
+button opens this. Built for
 Collab:Media's Ad formats catalogue.
 
 It is a **variant of this component**, as Media Ad Modal is: markup is
@@ -9373,11 +9430,11 @@ fact labels, the same missing-data wording and the same media slot
 contract.
 
 **Minimum 2, maximum 4.** It only ever opens with two to four formats.
-The compare tray enables its Compare button at two and caps picks at
+The Action bar enables its Compare button at two and caps picks at
 four ("Compare holds four"). **One format is not a comparison** — it
 opens in [Media Ad Modal](#media-ad-modal), never in a one-column
 Compare modal. The modal itself never adds or removes a format; that
-happens on the cards and in the tray.
+happens on the cards and in the Action bar.
 
 **Why a modal is allowed here.** The same carve-out as Media Ad Modal:
 it is a **read**. It collects no input and commits nothing in place —
@@ -9415,7 +9472,7 @@ size", "None listed"). All take `.is-empty` (body2 regular, Neutral-5).
 
 | State | Treatment |
 |---|---|
-| Opening | Swings out of the tray's Compare button (Media Ad Modal's swing, reused) while the scrim fades in; focus lands on Close |
+| Opening | Swings out of the Action bar's Compare button (Media Ad Modal's swing, reused) while the scrim fades in; focus lands on Close |
 | Scrolled | The hint and right-edge fade show while columns remain to the right; the label column takes Table's frozen-column shadow when scrolled sideways, and the Format row `shadow-1` once pinned |
 | Closing | Folds back into the opener only if it's on screen, otherwise fades; ends fully transparent — Esc mid-opening plays the opening backwards **and fades to 0**. Nothing in the panel responds while it closes, and a fallback timer finishes the close if the animation is cancelled, so the page is never left locked |
 | Narrow (panel ≤640px) | Label column 120px, column floor 180px, horizontal scroll with the labels pinned. At ≤480px the footer buttons stretch and the plan link takes its own row. The table never collapses into stacked cards |
@@ -9426,7 +9483,7 @@ size", "None listed"). All take `.is-empty` (body2 regular, Neutral-5).
 **Interaction contract.**
 
 - **Focus.** Opens on Close. Tab is trapped inside the panel; the
-  scroll region is a Tab stop. On close, focus returns to the tray's
+  scroll region is a Tab stop. On close, focus returns to the Action bar's
   Compare button, or to a host-supplied fallback if that button has
   become disabled.
 - **Keys.** Esc closes. Arrow keys scroll the table when the region
@@ -11433,6 +11490,117 @@ place for an irreversible decision.
 | Over limit | the copy must be rewritten, not shortened by the component |
 | Rationale | Toast content is system-generated, so character limits are an authoring rule, not a display rule |
 
+### Toolbar
+
+A component group for bars that hold the actions for what the reader is
+working on. Its first member is **Action bar**, below. A Toolbar is a
+**container of shipped controls** — Button, Chip — never a place to
+restyle them.
+
+#### Action bar
+
+A bar that floats at the bottom of the page **while the reader has a
+selection**: it says how much is selected and offers the actions for it.
+Built for Collab:Media — picking influencers for a list, and picking ad
+formats to compare. One panel, one row, **two variants**:
+
+| Variant | Markup | For | Row, left to right | Min / max |
+|---|---|---|---|---|
+| **User select** | `c-action-bar c-action-bar-users` | People (influencers, creators, team members) chosen from [Profile cards](#card) or a roster | Avatar stack → title + description → Cancel, Save to a list, Create new list | 1 / none |
+| **Item select** (chips tray pick) | `c-action-bar c-action-bar-picks` | Items compared or collected by name (ad formats, plans, packages) | Chips → title + description → Clear, Compare | 2 / 4 |
+
+User select also has an **AI shimmer** style (`.c-action-bar-ai` on the
+root) for a selection the AI made or suggested. The host supplies the
+noun, the description, the reason, the region label and the actions;
+nothing in the component is specific to influencers or formats.
+
+**Shared anatomy.**
+
+| Part | Class | Spec |
+|---|---|---|
+| Root | `section.c-action-bar` + a variant class, `aria-label` from the host | A named region at `<body>` level. `position: fixed`, from `--c-action-bar-inset-start` (the host's sidebar width, default 0) to the right edge, `bottom: spacing-24 + env(safe-area-inset-bottom)` (spacing-12 at 640px and below), side insets spacing-16 (spacing-8 on phones), **`z-index: 40`**. `pointer-events: none` so only the panel catches clicks; `visibility: hidden` when empty. A query container |
+| Panel | `.c-action-bar-panel` | Neutral-1, 1px Neutral-3, `radius-lg`, `shadow-4`. Padding spacing-16 / spacing-24. Full width up to **880px**, centred |
+| Row | `.c-action-bar-main` | One line on desktop, **never wraps**. spacing-16 between groups, centred vertically, actions pushed to the end. DOM order is visual order, so Tab follows what the eye reads |
+| Title | `h2.c-action-bar-title`, `tabindex="-1"` | "{n} {noun} selected": label2 (13/18/700), Neutral-9, tabular figures, one line. The count leads, so a truncation only ever cuts the noun. Focus lands here to announce a change |
+| Description | `p.c-action-bar-desc` | Caption, Neutral-5, one line with an ellipsis. Below the variant's minimum it becomes the **reason**, and every gated action points at it with `aria-describedby` |
+| Actions | `.c-action-bar-actions` → `.c-action-bar-clear` + `[data-action]` buttons | Shipped [Buttons](#button), unmodified. **One size rule for both variants:** the Ghost dismiss is sm and the commit buttons are **md on desktop**, **sm at a ≤640px container** — a class swap between two shipped sizes (`data-size-narrow="sm"` on each md button), never a resize and never a duplicate button set. spacing-8 gap. Dismiss first, the one Primary (`.c-action-bar-go`) last — Modal's commit-on-the-right order |
+| Spacer (optional) | `div.c-action-bar-spacer`, `aria-hidden` | In flow at the end of the host's scrolling content; its height is `--c-action-bar-clearance`, so the last row can scroll clear of the bar |
+
+**User select** (`.c-action-bar-users`).
+
+| Part | Class | Spec |
+|---|---|---|
+| Avatar stack | `.c-action-bar-stack` → `.c-action-bar-avatar`, `aria-hidden` | One 32px circle per person, in selection order (Search input's avatar size): Neutral-2 fill, Neutral-9 initials at the label3 size, 700, no uppercase or tracking, a 2px Neutral-1 ring (Campaign card's faces), **overlapping by 10px**. An optional `<img alt="">` sits on top, as on Profile card. Up to **4**, then a "+N" circle (`-avatar-more`); **2** then "+N" on phones; "99+" past 99 |
+| Title | shared | "2 influencers selected" |
+| Description | shared | "Select and generate influencers into a shareable link for your clients" — one line, always truncating; no long form. **Hidden on phones** |
+| Actions | — | **Cancel** (Ghost sm; clears the selection), **Save to a list** (Secondary, `ph-bookmark-simple`), **Create new list** (Primary, `ph-plus`). No chips row |
+| AI shimmer | `+ .c-action-bar-ai` | Only the surface changes. It is [Prompt input bar](#prompt-input-bar)'s glow reused: the elemental pastel gradient at `200% 100%`, animated by the shipped `c-prompt-bar-glow-move 4s linear infinite`, referenced by name as `.c-banner-ai` does. The panel is `isolation: isolate`; `::before` (z −1) draws the Neutral-1 surface through a 1px transparent border for the animated gradient edge, `::after` (z −2) is the outer glow (inset −4px, blur 16px, opacity .7). Reduced motion: static glow. Forced colours: glow hidden, 1px CanvasText edge |
+| Phone (≤640px) | container query | Two rows in both styles. Row 1: two avatars + "+N" and the title (shown in full at 360px). Row 2: Cancel left, Save + Create right, all labelled sm **without their leading icons** (optional content, so Button is untouched), spacing-4 apart. The three need 305px and a 360px phone gives 318px; below that the row wraps rather than overflowing |
+
+**Item select — chips tray pick** (`.c-action-bar-picks`).
+
+| Part | Class | Spec |
+|---|---|---|
+| Chips | `ul.c-action-bar-list`, `role="list"` | The lead. Chip's grouping rule (spacing-4, wraps inside its own column, never scrolls). Coarse pointers: spacing-20 rows, spacing-8 columns |
+| Pick | `li.c-chip.c-chip-input.c-action-bar-pick` → `.c-action-bar-name` + `button.c-chip-remove` | The shipped removable Input Chip, **at most 4**. **A name over 15 characters shows its first 15 + "…"** (a character count, trailing space trimmed): "Interactive Exp…". The cut text is `aria-hidden`; the full name is in `.sr-only`, in `title` and in the ×'s label ("Remove {Name}"). × or Delete / Backspace removes |
+| Title | shared | "3 formats selected" |
+| Description | shared | **1 pick:** the reason, "Minimum 2 formats." **2–4 picks:** "Maximum 4 formats." One line, **truncated at the width of the title above it** — `contain: inline-size` keeps it from widening the head |
+| Actions | — | **Clear** (Ghost sm) and **Compare** (Primary, `ph-columns`). Below two picks Compare is `aria-disabled`, keeps focus and ignores clicks. It opens [Compare modal](#compare-modal) |
+| Phone (≤640px) | container query | Row 1: the chips. Row 2: title and description left, Clear + Compare (sm) right |
+
+**States.**
+
+| State | Treatment |
+|---|---|
+| Hidden | 0 selected. `visibility: hidden`, clearance 0. If focus was inside, it moves first to the host's fallback heading |
+| Below minimum (item select) | 1 pick: the reason shows and Compare is gated |
+| Ready / Full | Every action live. At 4 picks the cap is stated ("Maximum 4 formats."), not alarmed |
+| Fifth pick refused | The card stays unpressed and nothing is evicted; the host raises the shipped [Toast](#toast) "Compare holds four" / "Remove one to add {Name}." with a Ghost "Review picks" action that moves focus to the bar's heading |
+| Removed in the bar | Focus moves to the heading, which reads the new count; the last one out sends focus to the fallback heading |
+| Dismissed / committed | The host empties the selection; focus goes to the fallback heading before the bar hides |
+| Changed from a card | The bar updates without moving focus — the card's `aria-checked` / `aria-pressed` is the announcement |
+| Entering / exiting | Rises and fades in over `duration-slow`, out over `duration-base`, `ease-standard`. Restored on load: `.is-instant`, no entrance |
+| Lift | While a Toast overlaps the panel, the bar rises clear of it by spacing-12 (`--c-action-bar-lift`); the spacer ignores the lift |
+| Modal open | Under Compare modal or Media Ad Modal (300) the bar is `inert` with the rest of the page |
+| Reduced motion | A `duration-fast` opacity fade only |
+| Forced colours | The 1px border carries the edge; a gated action uses GrayText |
+
+**Interaction contract.**
+
+- **The host owns the selection** and calls `render(items)`; cards, bar
+  and storage change together. Persistence (e.g. `sessionStorage`) is
+  the host's job.
+- **No live region.** Focus moves to the title after a change made in
+  the bar; changes made from a card never move focus.
+- **Gating** is `aria-disabled` plus a visible reason in
+  `aria-describedby`, never `disabled` — Media Ad Modal's pattern.
+- **Host duties:** set `--c-action-bar-inset-start`, place the spacer,
+  set `scroll-padding-bottom` from `--c-action-bar-clearance`, supply a
+  fallback heading, and pass the Toast host so the bar can lift clear.
+- **One bar per page.** The two variants never show at once; a page
+  that can make both selections clears one when the other opens.
+
+**Recorded deviations and one-off values.** The User select desktop
+row is matched to its reference with the closest shipped Buttons; the
+remaining differences are **not** overridden — md's 16px label (ref.
+14px), `radius-md` (ref. 14px), Ghost Cancel's Neutral-9 text at 32px
+(ref. #5a5a5a at 36px), and 16px icons (ref. 13px). Input Chip sits in
+a tray with no text field (Filters' `.c-filter-tray` is the
+precedent) and never collapses to "+N", since the cap is four. A gated
+Primary takes Button's disabled colours via `aria-disabled`, scoped to
+the bar. The chip × gets an invisible 44px hit area on coarse
+pointers. One-offs: `z-index: 40`, the 880px cap, the 640px container
+breakpoint, the 10px avatar overlap, 4 / 2 visible avatars and "99+",
+the 15-character name cut, and the × hit lift (`inset: -10px`).
+
+**Do** use User select for people and Item select for things compared
+by name; keep a gated action focusable with its reason; let the host
+own the selection. **Don't** show two bars at once, let the User
+select row wrap on desktop, restyle Button or Chip, pair Default and
+AI shimmer on one page, evict a pick to make room, add a live region,
+or share the screen with a Floating Prompt input bar — both claim
+bottom-centre.
+
 ### Tooltip
 
 **Transcribed from the teammate's `Tooltip.jsx`.**
@@ -11752,6 +11920,37 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.111 — 2026-09-29** — New component group **[Toolbar](#toolbar)**,
+  between Toast and Tooltip, with its first member, **[Action bar](#action-bar)**:
+  a bar that floats at the bottom of the page while the reader has a
+  selection. Promoted from Collab:Media (the Ad formats compare tray
+  and the influencer selection bar), drafted as "Compare tray" and then
+  "Floating action bar".
+
+  **Two variants on one panel.** **User select** (`.c-action-bar-users`):
+  avatar stack, "{n} influencers selected" and a description, then
+  Cancel, Save to a list and Create new list; minimum 1, no maximum;
+  an **AI shimmer** style reusing Prompt input bar's glow and its
+  shipped keyframe. **Item select** (`.c-action-bar-picks`, the chips
+  tray pick): up to four removable Input Chips (names cut at 15
+  characters), "{n} formats selected" with "Minimum 2 formats." /
+  "Maximum 4 formats.", then Clear and Compare; minimum 2, maximum 4;
+  opens Compare modal.
+
+  **Rebuilt, not ported:** a light surface instead of the source's
+  Obsidian pill so every Button and Chip ships unmodified; one Button
+  size rule for both variants (Ghost sm dismiss, md commit buttons that
+  swap to sm on phones by class, never duplicated); real list and
+  region semantics; focus to the title instead of a live region;
+  `aria-disabled` plus a reason for a gated Compare; the bar lifts clear
+  of a Toast; `z-index: 40`, added to Tutorial Modal's stacking table.
+  Compare modal and Media Ad Card now point at it instead of "the
+  compare tray".
+
+  **New:** `.c-action-bar` and its parts in `components.css` (before
+  Tooltip); the gallery's new Toolbar block shows User select and Item
+  select, both in their default state.
 
 - **v0.9.110 — 2026-09-29** — [Modal / dialog](#modal--dialog) gains a
   third variant, **[Compare modal](#compare-modal)**, promoted from

@@ -2404,6 +2404,255 @@ html.c-modal-compare-locked{overflow:hidden;}
   .c-banner-ai::before, .c-banner-ai::after{animation:none;}
 }
 
+/* =========================================================
+   Toolbar → Action bar (.c-action-bar*). A viewport-anchored bar that
+   appears while the reader has a selection, says how much is selected
+   and offers the actions for it. One panel, two variants:
+     .c-action-bar-users  User select — [avatar stack] [title +
+                          description] [Cancel, Save to a list, Create
+                          new list]. Min 1, no max.
+     .c-action-bar-picks  Item select (chips tray pick) — [chips]
+                          [title + description] [Clear, Compare].
+                          Min 2, max 4. Opens Compare modal.
+   Style modifier (users): .c-action-bar-ai — Prompt input bar's glow,
+   its shipped c-prompt-bar-glow-move keyframe referenced by name.
+   Reuses unchanged: Button (Ghost sm dismiss, md commit buttons that
+   swap to sm at a <=640px container), Input Chip + its ×, .sr-only.
+   Recipes: Card/Modal surface on shadow-4; Search input's 32px avatar
+   and Campaign card's overlapping ring; Button's Primary-disabled row
+   via aria-disabled; Prompt bar's safe-area guard. Behaviour (focus,
+   gating, size swap, clearance, lift above Toast) is specified in
+   DESIGN-SYSTEM.md > Toolbar > Action bar.
+   One-offs: z-index 40; 880px panel cap; 640px container breakpoint;
+   10px avatar overlap; 4 / 2 visible avatars then "+N"; 15-character
+   chip name cut; inset:-10px hit lift on the chip × (coarse pointers).
+   ========================================================= */
+/* Root — the fixed layer and query container. Full width between the
+   host's start inset (its sidebar) and the viewport's end edge; the
+   visible surface is the panel inside it, so clicks outside the panel
+   pass straight through to the page. */
+.c-action-bar{
+  position:fixed;
+  left:var(--c-action-bar-inset-start, 0px);
+  right:0;
+  bottom:calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  z-index:40;
+  box-sizing:border-box;
+  padding-inline:max(var(--spacing-16), env(safe-area-inset-left, 0px)) max(var(--spacing-16), env(safe-area-inset-right, 0px));
+  pointer-events:none;
+  container:c-action-bar / inline-size;
+  visibility:hidden;
+  /* --c-action-bar-lift is written by the script when a bottom-anchored
+     layer (the Toast host) would overlap the panel. 0 otherwise. */
+  transform:translateY(calc(var(--c-action-bar-lift, 0px) * -1));
+  transition:visibility 0s linear var(--duration-base), transform var(--duration-base) var(--ease-standard);
+}
+.c-action-bar.is-open{visibility:visible; transition:visibility 0s linear 0s, transform var(--duration-base) var(--ease-standard);}
+@media (max-width:640px){
+  .c-action-bar{
+    bottom:calc(var(--spacing-12) + env(safe-area-inset-bottom, 0px));
+    /* spacing-8 from the screen edge on phones, as Compare modal's layer. */
+    padding-inline:max(var(--spacing-8), env(safe-area-inset-left, 0px)) max(var(--spacing-8), env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Panel — the surface. Card/Modal recipe on shadow-4, capped at 880px
+   and centred. */
+.c-action-bar-panel{
+  box-sizing:border-box;
+  width:100%; max-width:880px;
+  margin-inline:auto;
+  padding:var(--spacing-16) var(--spacing-24);
+  background:var(--color-neutral-1);
+  border:var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-4);
+  font-family:var(--font-primary);
+  color:var(--color-neutral-9);
+  pointer-events:auto;
+  opacity:0;
+  transform:translateY(calc(100% + var(--spacing-24)));
+  transition:transform var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
+}
+.c-action-bar.is-open .c-action-bar-panel{opacity:1; transform:none; transition-duration:var(--duration-slow);}
+/* Restored on page load: appears settled, no entrance. */
+.c-action-bar.is-instant,
+.c-action-bar.is-instant .c-action-bar-panel{transition:none;}
+
+/* The row — one line, never wraps. spacing-16 between its parts.
+   Users: [stack] [head] [actions]. Picks: [list] [head] [actions]. */
+.c-action-bar-main{display:flex; flex-wrap:nowrap; align-items:center; gap:var(--spacing-16); min-width:0;}
+
+/* Width-dependent copies — used only for the users avatar lead, whose
+   phone form differs (2 faces + a different "+N"). Desktop copies are
+   .c-action-bar-wide, phone copies .c-action-bar-narrow; the container
+   query below shows exactly one. They are aria-hidden and never
+   focusable. Buttons are NOT duplicated: the script swaps their size
+   class between two shipped sizes (see data-size-narrow). */
+.c-action-bar .c-action-bar-narrow{display:none;}
+
+/* Lead (users) — the avatar stack. 32px circles (Search input's
+   avatar), 2px Neutral-1 ring (Campaign card's faces) overlapped by
+   10px (the reference's value; a recorded one-off), initials at label3
+   size (11px), weight 700, no uppercase or tracking, Neutral-9 on
+   Neutral-2, and an optional <img> as the top layer (Profile card's
+   avatar). Four, then a "+N" circle in the same recipe; two and "+N" at
+   phone width. Decorative: aria-hidden. */
+.c-action-bar-stack{flex:none; display:flex;}
+.c-action-bar-avatar{position:relative; flex:none; width:32px; height:32px; box-sizing:border-box; overflow:hidden; display:flex; align-items:center; justify-content:center; border:var(--border-width-md) solid var(--color-neutral-1); border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--weight-bold); letter-spacing:0; text-transform:none; font-variant-numeric:tabular-nums;}
+.c-action-bar-avatar + .c-action-bar-avatar{margin-left:-10px;}
+.c-action-bar-avatar img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+
+/* Head — the title over one description line. In users it takes the
+   flexible space and gives it up first: the description truncates, then
+   the title's noun (the count leads, so it is never cut). In picks it
+   keeps its natural width; the chips take the flexible space. */
+.c-action-bar-head{flex:1 1 auto; min-width:0;}
+.c-action-bar-picks .c-action-bar-head{flex:none;}
+/* Picks: the description never widens the head. contain:inline-size
+   takes it out of the head's sizing, so the head is exactly as wide as
+   the title and the description truncates at that width. */
+.c-action-bar-picks .c-action-bar-desc{contain:inline-size;}
+.c-action-bar-title{margin:0; font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-radius:var(--radius-sm);}
+.c-action-bar-title:focus{outline:none;}
+.c-action-bar-title:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.c-action-bar-desc{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+/* Actions — dismiss first, commit last (Modal's commit-on-the-right).
+   Never shrink, never move. */
+.c-action-bar-actions{flex:none; display:flex; align-items:center; gap:var(--spacing-8); margin-left:auto;}
+
+/* Chips (picks) — the first part of the row and its flexible column.
+   Chip's grouping rule (spacing-4, wraps inside its own column, never
+   scrolls) on a native <ul role="list">. */
+.c-action-bar-list{flex:1 1 0; display:flex; flex-wrap:wrap; align-items:center; gap:var(--spacing-4); min-width:0; margin:0; padding:0; list-style:none;}
+/* Layout constraint only — the chip's look is untouched. */
+.c-action-bar-pick{max-width:100%; min-width:0; box-sizing:border-box;}
+/* Names over 15 characters are cut to 15 + "…" by the script (a
+   character rule, not a width). The full name stays in title, in the
+   .sr-only copy and in the ×'s aria-label. */
+.c-action-bar-name{min-width:0; white-space:nowrap;}
+
+/* A gated action below the minimum — Button's documented
+   Primary-disabled row (Neutral-4 fill, Neutral-1 text) via
+   aria-disabled, so it stays focusable and its reason can be reached.
+   Clicks are ignored in script. */
+.c-action-bar .c-btn-primary[aria-disabled="true"],
+.c-action-bar .c-btn-primary[aria-disabled="true"]:hover,
+.c-action-bar .c-btn-primary[aria-disabled="true"]:active{background:var(--color-neutral-4); color:var(--color-neutral-1); cursor:not-allowed;}
+
+/* AI shimmer (users only) — .c-action-bar-ai on the root. Prompt input
+   bar's glow, reused: its pastel gradient at 200% width, animated by
+   the SHIPPED c-prompt-bar-glow-move keyframe (referenced by name, as
+   .c-banner-ai does). Two layers sit BEHIND the content inside the
+   panel's own isolated stacking context, so they travel with the
+   panel's enter/exit transform and never fight another z-index:
+     ::before  the surface — Neutral-1 on the padding box over the
+               gradient on the border box, through a 1px transparent
+               border: the animated 1px gradient edge (-glow-inner's
+               role). It covers the panel's own 1px border line.
+     ::after   the outer blurred glow (-glow-outer's values: inset -4px,
+               blur 16px, opacity .7).
+   Prompt bar's mix-blend-mode is left out: inside an isolated group
+   there is no backdrop to blend with, so it would do nothing. The
+   panel keeps shadow-4. Content, buttons and behaviour are unchanged. */
+.c-action-bar-ai .c-action-bar-panel{position:relative; isolation:isolate; background:transparent; border-color:transparent;}
+.c-action-bar-ai .c-action-bar-panel::before,
+.c-action-bar-ai .c-action-bar-panel::after{content:""; position:absolute; pointer-events:none; animation:c-prompt-bar-glow-move 4s linear infinite;}
+.c-action-bar-ai .c-action-bar-panel::before{
+  z-index:-1;
+  inset:calc(var(--border-width-sm) * -1);
+  border:var(--border-width-sm) solid transparent;
+  border-radius:calc(var(--radius-lg) + var(--border-width-sm));
+  background:
+    linear-gradient(var(--color-neutral-1), var(--color-neutral-1)) padding-box,
+    linear-gradient(90deg, var(--color-fire-pastel) 0%, var(--color-wood-pastel) 20%, var(--color-earth-pastel) 40%, var(--color-water-pastel) 60%, var(--color-gold-pastel) 80%, var(--color-fire-pastel) 100%) border-box;
+  background-size:100% 100%, 200% 100%;
+}
+.c-action-bar-ai .c-action-bar-panel::after{
+  z-index:-2;
+  inset:-4px;
+  border-radius:calc(var(--radius-lg) + 4px);
+  background-image:linear-gradient(90deg, var(--color-fire-pastel) 0%, var(--color-wood-pastel) 20%, var(--color-earth-pastel) 40%, var(--color-water-pastel) 60%, var(--color-gold-pastel) 80%, var(--color-fire-pastel) 100%);
+  background-size:200% 100%;
+  filter:blur(16px);
+  opacity:.7;
+}
+
+/* Spacer — optional, in flow, at the end of the host's scrolling
+   content. --c-action-bar-clearance is written on <html> by the
+   script: panel height + bottom offset + spacing-16 while open, 0
+   when hidden. */
+.c-action-bar-spacer{height:var(--c-action-bar-clearance, 0px);}
+
+/* Phone — 640px or less (Compare modal's breakpoint). Visual order
+   always follows DOM order, so Tab never jumps back.
+   Users: row 1 two avatars + "+N" and the title, which now has the
+   whole row (the description stays hidden); row 2 the three labelled
+   buttons, Cancel left, Save + Create right. The script has swapped
+   Save and Create from Button md to Button sm. Leading icons are
+   dropped here so the row fits at 360px: the three sm labels need
+   305px with no icons (measured), with spacing-4 between them; the bar
+   sits spacing-8 from the screen edge and the panel's side padding is
+   spacing-12, leaving 318px of room at a 360px viewport. The row may
+   wrap as a safety net below that, never overflow.
+   Picks: row 1 the chips (wrapping); row 2 title/description on the
+   left, Clear + Compare on the right. The description truncates at the
+   title's width, as on desktop. */
+@container c-action-bar (max-width: 640px){
+  .c-action-bar-panel{padding:var(--spacing-16);}
+  .c-action-bar .c-action-bar-wide{display:none;}
+  .c-action-bar .c-action-bar-narrow{display:inline-flex;}
+  .c-action-bar-users .c-action-bar-panel{padding:var(--spacing-16) var(--spacing-12);}
+  .c-action-bar-users .c-action-bar-main{display:grid; grid-template-columns:auto minmax(0, 1fr); grid-template-areas:"stack head" "actions actions"; gap:var(--spacing-12);}
+  .c-action-bar-users .c-action-bar-stack{grid-area:stack;}
+  .c-action-bar-users .c-action-bar-head{grid-area:head;}
+  .c-action-bar-users .c-action-bar-desc{display:none;}
+  /* spacing-4 between the three sm buttons so Cancel, Save and Create
+     share one line down to a 360px phone (measured: 305px of buttons
+     in a 318px row). Wrapping stays as a safety net below that. */
+  .c-action-bar-users .c-action-bar-actions{grid-area:actions; margin-left:0; flex-wrap:wrap; justify-content:flex-end; gap:var(--spacing-4);}
+  .c-action-bar-users .c-action-bar-clear{margin-right:auto;}
+  /* Leading icons are optional Button content; the phone form omits
+     them. Button's box, padding and label are untouched. */
+  .c-action-bar-users .c-action-bar-actions .c-btn > i{display:none;}
+  .c-action-bar-picks .c-action-bar-main{display:grid; grid-template-columns:minmax(0, 1fr) auto; grid-template-areas:"list list" "head actions"; gap:var(--spacing-12) var(--spacing-16);}
+  .c-action-bar-picks .c-action-bar-list{grid-area:list;}
+  .c-action-bar-picks .c-action-bar-head{grid-area:head; min-width:0;}
+  .c-action-bar-picks .c-action-bar-actions{grid-area:actions;}
+}
+
+/* Touch — buttons stay sm (32px, above WCAG 2.5.8's 24px). Only the
+   chip × lifts: it keeps the shipped 24px drawn box and a transparent
+   ::after lifts its hit area to 44px. Rows open to spacing-20 and
+   columns to spacing-8, so lifted targets meet at most. */
+@media (hover:none), (pointer:coarse){
+  .c-action-bar-list{gap:var(--spacing-20) var(--spacing-8);}
+  .c-action-bar .c-chip-remove{position:relative;}
+  .c-action-bar .c-chip-remove::after{content:""; position:absolute; inset:-10px; border-radius:var(--radius-pill);}
+}
+
+/* Reduced motion — no travel; a short opacity cross-fade only. */
+@media (prefers-reduced-motion: reduce){
+  .c-action-bar{transition:visibility 0s linear var(--duration-fast);}
+  .c-action-bar.is-open{transition:none;}
+  .c-action-bar-panel,
+  .c-action-bar.is-open .c-action-bar-panel{transform:none; transition:opacity var(--duration-fast) var(--ease-standard);}
+  /* The AI glow stays, static. */
+  .c-action-bar-ai .c-action-bar-panel::before,
+  .c-action-bar-ai .c-action-bar-panel::after{animation:none;}
+}
+
+/* Forced colours — shadow is stripped, the 1px border carries the edge;
+   the aria-disabled action needs an explicit GrayText. The AI glow is
+   hidden and the surface keeps a plain 1px CanvasText edge. */
+@media (forced-colors: active){
+  .c-action-bar .c-btn-primary[aria-disabled="true"]{color:GrayText;}
+  .c-action-bar-ai .c-action-bar-panel::before,
+  .c-action-bar-ai .c-action-bar-panel::after{display:none;}
+  .c-action-bar-ai .c-action-bar-panel{background:Canvas; border-color:CanvasText;}
+}
+
 /* Tooltip — top placement (default). Visibility: opacity 0 → 1 on
    hover or keyboard focus, pointer-events:none at all times, instant
    on both show and hide (no artificial delay) per DESIGN-SYSTEM.md's
