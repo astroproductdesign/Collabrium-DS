@@ -167,6 +167,30 @@
             <td class="why">One card per ad slot on the placement map, shown while a slot is pointed at or focused: what the slot is, its sizes and devices, and how many formats fit it. A light, structured hover card that never takes the pointer — richer than Tooltip's 60-character bubble, and the system has no Popover yet.</td>
           </tr>
 
+          <tr data-status="promoted">
+            <td>Compare modal <span style="color:var(--color-neutral-5)">(drafted as Compare sheet)</span></td>
+            <td class="src"><code>collab-media · pages/formats.html</code></td>
+            <td><span class="c-badge c-badge-success">Promoted</span></td>
+            <td class="draft"><span class="none">Draft removed — now in <code>components.css</code> (<code>.c-modal-compare</code>)</span></td>
+            <td class="why">The side-by-side view of two to four picked formats (one format opens in Media Ad Modal), opened from the compare tray: one column per format, one row per fact, the highest benchmark marked, and export / send-to-plan actions. Reuses the Media Ad Card's compare selection. A Modal variant; media is a placeholder slot, not the live preview.</td>
+          </tr>
+
+          <tr data-status="promoted">
+            <td>Action bar <span style="color:var(--color-neutral-5)">(drafted as Compare tray, then Floating action bar) — in the new Toolbar group</span></td>
+            <td class="src"><code>collab-media · pages/formats.html</code></td>
+            <td><span class="c-badge c-badge-success">Promoted</span></td>
+            <td class="draft"><span class="none">Draft removed — now in <code>components.css</code> (<code>.c-action-bar</code>)</span></td>
+            <td class="why">A bar that floats at the bottom of the page while items are selected, with two variants: User select (avatar stack, list actions) and Chips tray pick (up to four removable name chips; opens the Compare modal at two). Useful anywhere a user picks a few things to compare (formats, influencers, plans), not only on this page.</td>
+          </tr>
+
+          <tr data-status="promoted">
+            <td>Radio Card <span style="color:var(--color-neutral-5)">(planner scan: Selectable big card)</span></td>
+            <td class="src"><code>component-scan-planner.html · #16</code></td>
+            <td><span class="c-badge c-badge-success">Promoted</span></td>
+            <td class="draft"><span class="none">Draft removed — now in <code>components.css</code> (<code>.c-radio-card</code>)</span></td>
+            <td class="why">Two or more large cards, one decision: the whole card is the radio target, with a title, a description and a live meta line pinned to the bottom. Radio + Card composed — the "choose one path" pattern neither component gives alone.</td>
+          </tr>
+
         </tbody>
       </table>
     </div>
