@@ -3325,6 +3325,23 @@
                 <span class="text"><span class="label">Daily digest</span></span>
               </label>
             </div>
+            <div class="swatch-group-label">Radio Card</div>
+            <!-- Radio Card — one card in its default (unselected) state. In use it
+                 sits in a group of 2–3 cards answering one question; the whole card
+                 is the radio. Shown as a static picture (inert): the gallery doesn't
+                 load the small script that keeps the circle in sync with the native
+                 radio. See DESIGN-SYSTEM.md's Radio > Radio Card. -->
+            <fieldset class="c-radio-card-group" inert>
+              <legend class="c-radio-card-legend">Audience</legend>
+              <div class="c-radio-card-grid">
+                <label class="c-card c-radio-card">
+                  <input class="sr-only" type="radio" name="pv-radio-card" value="personas" aria-labelledby="pv-rc-t" aria-describedby="pv-rc-d pv-rc-m" />
+                  <span class="c-radio-card-head"><span class="c-radio-circle"><span class="dot" hidden></span></span><span class="c-radio-card-titles"><span class="c-radio-card-title" id="pv-rc-t">Personas</span></span></span>
+                  <span class="c-radio-card-desc" id="pv-rc-d">Segments from the KULT playbook, built on real viewing behaviour.</span>
+                  <span class="c-radio-card-meta" id="pv-rc-m">12 personas available</span>
+                </label>
+              </div>
+            </fieldset>
           </div>
         </div>
         <div class="comp-block" id="comp-search-input">
@@ -6589,6 +6606,7 @@ the Modal footer's divider, scaled down.
 - **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
 - **Media Ad Card** — one ad format as a gallery tile: a full-bleed 16:10 media Frame (a placeholder slot the consumer fills), a round Compare toggle, the title and family Tag, and a body that trades its tagline for three spec rows (Objective, Sizes, Benchmark) when the card goes Live on hover, focus or first tap. Composes the base Card and Interactive variant rather than redrawing them — see **Media Ad Card**, below, for the slot contract, states and interaction rules.
 - **Ad Placement Card** — a floating hover card describing one ad slot on a placement map while it is pointed at or focused: icon, title and where it sits, a one-sentence description, Sizes and Runs on rows, the count of catalogue units that fit, and an optional CTA hint. A Card by surface and a [Tooltip](#tooltip) by behaviour — see **Ad Placement Card**, below, for the anatomy, positioning and interaction rules.
+- **Radio Card** — lives under [Radio](#radio), not here: a group of large cards where the whole card is one radio option, composing this Card's surface and its Selected treatment. For picking several cards, use Selectable instead.
 
 **Grid layout.** Every card variant follows one universal layout
 contract when placed in a grid — responsive width, equal-height rows,
@@ -10257,6 +10275,95 @@ options; reach for Select once it's more than that. **Don't:** mix Radio
 and Checkbox visuals within the same choice group — the outline-only vs.
 filled-box distinction signals single- vs. multi-select.
 
+#### Radio Card
+
+A group of large cards where **the whole card is one radio option** —
+for choosing one of two or three paths that each need a sentence, or a
+live figure, to explain. Each card carries the shipped radio circle and
+a title, a description, and a meta line pinned to the bottom (for
+example "3 selected · 3.3M"). First drawn on the Collab:Media planner
+("Personas" or "Mass").
+
+It is a **variant of this component**: the semantics are Radio's — real
+native radios grouped by `name`, inside a `fieldset` with a `legend`,
+submitted later with the form — and the surface is [Card](#card)'s,
+composed rather than redrawn (`label.c-card.c-radio-card`). Nothing
+shipped is restyled.
+
+**When to use which.**
+
+| Need | Use |
+|---|---|
+| One of 2–3 paths, each needing a description or a live figure, committed later | **Radio Card** |
+| One of up to 4–5 options whose labels explain themselves | Radio |
+| Switching a view immediately, never inside a form | [Segmented Control](#segmented-control) |
+| Picking several cards for a bulk action | Card's Selectable variant |
+
+**Anatomy.**
+
+| Part | Class | Spec |
+|---|---|---|
+| Group | `fieldset.c-radio-card-group` | Browser chrome reset, `min-width: 0`. It is the size container the grid's columns are measured against, so the grid must sit inside it |
+| Legend | `legend.c-radio-card-legend` | The group's question, label1 (the shipped field-label style). Optional Red `*` (`.c-radio-card-required`) — visual only; `required` on the inputs is the real signal |
+| Helper / error | `.c-helper` / `.c-radio-card-error` | spacing-4 under the legend. The error (caption / 700 / Red) replaces the helper while the group is in error |
+| Grid | `.c-radio-card-grid` (+ `.is-3up`) | spacing-12 below the legend, spacing-16 gap. **1 column, then straight to 2** at a 496px group; `.is-3up` goes **straight from 1 to 3** at 752px — so there is never a 2 + 1 orphan. Rows stretch to equal height |
+| Card | `label.c-card.c-radio-card` | The whole card is the label and the touch target. Card's surface as shipped: Neutral-1, 1px Neutral-3, `radius-lg`, `shadow-1`, spacing-16 padding, spacing-8 gap, 240px floor |
+| Native radio | `input[type=radio].sr-only` | Visually hidden, still focusable. Accessible name = the title (`aria-labelledby`); description, badge, meta and any error through `aria-describedby` |
+| Head | `.c-radio-card-head` → `.c-radio-circle`, `.c-radio-card-titles` → `-title`, optional `.c-badge.c-badge-neutral.c-radio-card-badge` | The shipped circle, unmodified, beside the title (h5). Title and badge share a wrapping column, so a badge that doesn't fit drops **under the title**, not under the circle. At most one badge per group (for example "Recommended") |
+| Description | `.c-radio-card-desc` | Caption, Neutral-5. One or two sentences |
+| Meta | `.c-radio-card-meta` | Caption bold, Neutral-9, tabular figures, **pinned to the bottom** (`margin-top: auto`) so meta lines align across a row. Its content is the host's; when it updates, focus doesn't move and there is no live region — it is read the next time the card is focused |
+
+**States.**
+
+| State | Treatment |
+|---|---|
+| Default | Card surface, `shadow-1`, empty circle |
+| Hover | `shadow-2`, hover-capable pointers only |
+| Focus-visible | `shadow-focus` on the **card**, never the circle, over its current elevation (a focused card still lifts on hover) |
+| Selected | Card Selected's values: 2px Obsidian border, padding reduced by 1px so the card never changes size, `shadow-3`; the circle fills. The shadow and border colour ease on `duration-base` / `ease-settle`, as the Selectable card does |
+| Disabled | Head and description at Radio's 50%, `cursor: not-allowed`, no lift. The meta slot carries the reason, at full strength. Skipped by the arrow keys natively |
+| Group error | `.is-error` on the fieldset when a required group is submitted empty: the error text replaces the helper, every **enabled, unselected** card gets Input field's 1px Red border, `aria-invalid="true"` goes on each enabled radio, and focus moves to the first enabled radio. The host **must** clear all of it on the first selection |
+| Reduced motion | No transition |
+| Forced colours | Selected border in Highlight; focus as a 2px CanvasText outline; a disabled card's border in GrayText |
+
+**Interaction contract.**
+
+- **Native radio behaviour.** Tab enters the group once; the arrow keys
+  move and select; Space selects when nothing is chosen. Clicking
+  anywhere on a card selects it.
+- **Keeping the circle in sync.** The circle is a picture of the native
+  radio, so a few lines of script copy each radio's checked state onto
+  the circle (`.on`, and the dot's `hidden`) on load, on every change,
+  and after a form reset. One documented hook,
+  `window.CollabriumRadioCard.sync(root?)`, re-syncs after a host sets
+  `.checked` from script (which fires no event).
+- **No live region.** The native radio states are the announcement;
+  the meta line is read on the next focus.
+- **`aria-invalid` on the radios** is kept for screen-reader support and
+  to match Input field's wiring, although ARIA 1.3 no longer lists it
+  for `radio`.
+
+**Recorded deviations and one-off values.** The grid uses container
+queries with explicit column counts instead of Card's
+`auto-fill`/`minmax()` pattern, which would orphan the third card at
+mid widths. One-offs: the 240px floor (Card's), the 496px / 752px
+thresholds (literals, since container queries can't read custom
+properties), and Radio's .5 disabled opacity. `.hover` / `.focus` are
+static-preview hooks only.
+
+**Raised against Radio / Input field, not fixed here:** the circle sits
+about 1px low beside an h5 title (its 2px top margin is tuned for
+body1); the unselected circle's Neutral-3 border is about 1.4:1, below
+the 3:1 UI minimum; Red error text is about 3.6:1 at 12px; and the dot
+likely disappears in forced colours (the card's Highlight border covers
+it here, but a standalone Radio shows no state).
+
+**Do** keep a group to 2 or 3 cards with the same anatomy, give a
+disabled card its reason in the meta slot, and pre-select only a real
+default. **Don't** put buttons or links inside a card (it is a label),
+use it for multi-select or immediate view switching, or add a live
+region to the meta line.
+
 ### Search input
 
 ⚠️ **Designed, not sourced** (Default variant absorbs the
@@ -11955,6 +12062,29 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.112 — 2026-09-30** — [Radio](#radio) gains a **Radio Card**
+  variant, promoted from the Collab:Media planner scan's "Selectable big
+  card": a group of large cards where the whole card is one radio
+  option, with the shipped radio circle and title, a description, and a
+  meta line pinned to the bottom.
+
+  **Radio's semantics on Card's surface.** Real native radios in a
+  `fieldset` / `legend`, the whole card a `label.c-card.c-radio-card`,
+  the shipped `.c-radio-circle` unmodified, Card's `radius-lg` /
+  spacing-16 (not the source's `radius-md` / spacing-12) and Card
+  Selected's 2px Obsidian border. **Fixed on the way in:** the selected
+  edge no longer makes a card bigger than its neighbours; a badge wraps
+  under the title instead of crushing it; the group error never marks
+  a selected or disabled card, sets `aria-invalid`, and focuses the
+  first enabled radio; the circle re-syncs after a form reset; and a
+  3-card group goes straight from 3 columns to 1, with no orphan. Card's
+  variant list links to it.
+
+  **New:** `.c-radio-card` and its parts in `components.css` (after the
+  Radio / Switch rules); one card in its default state in the gallery's
+  Radio block. Four problems found in shipped Radio and Input field
+  parts are recorded under the variant, not fixed.
 
 - **v0.9.111 — 2026-09-29** — New component group **[Toolbar](#toolbar)**,
   between Toast and Tooltip, with its first member, **[Action bar](#action-bar)**:

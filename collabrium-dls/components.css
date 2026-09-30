@@ -2305,6 +2305,115 @@ html.c-modal-compare-locked{overflow:hidden;}
 .c-switch-thumb{position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:var(--radius-pill); background:var(--color-neutral-1); box-shadow:var(--shadow-1); transition:left var(--duration-base) var(--ease-settle);}
 .c-switch-track.on .c-switch-thumb{left:19px;}
 
+/* =========================================================
+   Radio Card — Radio variant. A group of large cards where the whole
+   card is one radio option: the shipped radio circle + title, a
+   description, and a meta line pinned to the bottom. Markup:
+   fieldset.c-radio-card-group > legend + .c-radio-card-grid >
+   label.c-card.c-radio-card (with a visually hidden native radio).
+   Reuses unmodified: Card (surface, Interactive hover/focus, Selected's
+   2px Obsidian border + shadow-3), Radio (.c-radio-circle/.dot and its
+   50% disabled convention), Badge, .c-helper, .sr-only, Input field's
+   error recipe. The circle is kept in sync with the native radio by a
+   small script — see DESIGN-SYSTEM.md > Radio > Radio Card.
+   One-offs: 240px floor (Card's); 496px / 752px 2-up / 3-up container
+   thresholds (literals — @container can't read var()); .5 disabled
+   opacity (Radio's). .hover / .focus are static-preview hooks, as
+   elsewhere in this file.
+   ========================================================= */
+/* Group: a real fieldset, browser chrome reset. min-width:0 undoes the
+   fieldset's default min-width:min-content. It is also the size
+   container the grid's column count is measured against. */
+.c-radio-card-group{margin:0; padding:0; border:0; min-width:0; container:c-radio-card / inline-size;}
+.c-radio-card-legend{padding:0; margin:0; font-family:var(--font-primary); font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+.c-radio-card-required{margin-left:var(--spacing-4); color:var(--color-red); font-weight:var(--weight-bold);}
+/* Vertical rhythm, no double counting: the legend carries no margin;
+   helper/error sit spacing-4 under it; the grid always carries exactly
+   spacing-12 above it. Legend-to-grid = 12, helper-to-grid = 12. */
+.c-radio-card-group > .c-helper,
+.c-radio-card-error{margin:var(--spacing-4) 0 0; line-height:var(--text-caption-lh);}
+.c-radio-card-error{font-size:var(--text-caption-size); font-weight:var(--weight-bold); color:var(--color-red);}
+.c-radio-card-error[hidden]{display:none;}
+
+/* Grid: 1 column, then straight to 2 (default) or straight to 3
+   (.is-3up) once every column can hold Card's 240px floor. Explicit
+   column counts via container queries, so there is never a 2 + 1
+   orphan; this deliberately replaces the DS's auto-fill/minmax pattern,
+   which would orphan a 3-card group at mid widths. Rows stretch (grid
+   default) for equal height. */
+.c-radio-card-grid{display:grid; gap:var(--spacing-16); grid-template-columns:minmax(0, 1fr); margin-top:var(--spacing-12);}
+@container c-radio-card (min-width: 496px){
+  .c-radio-card-grid:not(.is-3up){grid-template-columns:repeat(2, minmax(0, 1fr));}
+}
+@container c-radio-card (min-width: 752px){
+  .c-radio-card-grid.is-3up{grid-template-columns:repeat(3, minmax(0, 1fr));}
+}
+
+/* Card: composes .c-card on the same <label>. Only additions here. */
+.c-radio-card{position:relative; cursor:pointer; color:var(--color-neutral-9); font-family:var(--font-primary); transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
+/* Head: circle + text column. The text column wraps, so a badge that
+   doesn't fit drops under the title (not under the circle), and the
+   circle stays on the title's first line. */
+.c-radio-card-head{display:flex; align-items:flex-start; gap:var(--spacing-8);}
+.c-radio-card-titles{flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:flex-start; gap:var(--spacing-4) var(--spacing-8);}
+.c-radio-card-title{flex:1 1 auto; min-width:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); letter-spacing:var(--text-h5-tracking); color:var(--color-neutral-9); overflow-wrap:break-word;}
+.c-radio-card-badge{flex:none;}
+.c-radio-card-desc{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+/* Meta: pinned to the bottom so meta lines align across a row. */
+.c-radio-card-meta{margin-top:auto; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+
+/* Hover: Card Interactive's shadow-2, pointer devices only. */
+@media (hover:hover){
+  .c-radio-card:hover{box-shadow:var(--shadow-2);}
+}
+.c-radio-card.hover{box-shadow:var(--shadow-2);}
+
+/* Selected: Card Selected's shipped values. */
+.c-radio-card:has(input:checked),
+.c-radio-card:has(input:checked):hover,
+.c-radio-card.hover:has(input:checked){border:var(--border-width-md) solid var(--color-obsidian); padding:calc(var(--spacing-16) - 1px); box-shadow:var(--shadow-3);}
+
+/* Focus-visible: Card's Water ring on the whole card, never the circle,
+   layered over the card's current elevation. With the border (not an
+   outline) carrying selection, the full 3px ring shows outside it. */
+.c-radio-card:has(input:focus-visible),
+.c-radio-card.focus{box-shadow:var(--shadow-focus), var(--shadow-1);}
+@media (hover:hover){
+  .c-radio-card:not(:has(input:checked)):has(input:focus-visible):hover{box-shadow:var(--shadow-focus), var(--shadow-2);}
+}
+.c-radio-card.focus.hover:not(:has(input:checked)){box-shadow:var(--shadow-focus), var(--shadow-2);}
+.c-radio-card:has(input:checked):has(input:focus-visible),
+.c-radio-card.focus:has(input:checked){box-shadow:var(--shadow-focus), var(--shadow-3);}
+
+/* Disabled: Radio's 50% + not-allowed, on the indicator/title/desc only.
+   The meta slot carries the reason and stays at full strength. */
+.c-radio-card:has(input:disabled){cursor:not-allowed;}
+.c-radio-card:has(input:disabled):hover{box-shadow:var(--shadow-1);}
+.c-radio-card:has(input:disabled) .c-radio-card-head,
+.c-radio-card:has(input:disabled) .c-radio-card-desc{opacity:.5;}
+
+/* Error (group level): Input field's 1px Red border on each enabled,
+   unchecked card while the required group is unanswered. Never on a
+   checked or disabled card. The host must remove .is-error on the
+   first selection. */
+.c-radio-card-group.is-error .c-radio-card:not(:has(input:checked)):not(:has(input:disabled)){border-color:var(--color-red);}
+
+@media (prefers-reduced-motion:reduce){
+  .c-radio-card{transition:none;}
+}
+
+/* Forced colours strip box-shadow. The 2px selected border survives on
+   its own, recoloured to the system selection colour; focus gets a
+   real outline. */
+@media (forced-colors:active){
+  .c-radio-card:has(input:checked),
+  .c-radio-card:has(input:checked):hover,
+  .c-radio-card.hover:has(input:checked){border-color:Highlight;}
+  .c-radio-card:has(input:focus-visible),
+  .c-radio-card.focus{outline:var(--border-width-md) solid CanvasText; outline-offset:var(--border-width-md);}
+  .c-radio-card:has(input:disabled){border-color:GrayText;}
+}
+
 /* Toast */
 .c-toast{display:flex; align-items:flex-start; gap:var(--spacing-12); min-width:320px; max-width:420px; padding:var(--spacing-12) var(--spacing-16); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3);}
 .c-toast i.tone{margin-top:2px; font-size:var(--icon-base);}
