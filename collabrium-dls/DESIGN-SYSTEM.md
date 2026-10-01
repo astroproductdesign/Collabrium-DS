@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.106** — 2026-09-24 — Sourced from the Collabrium brand deck
+**v0.9.112** — 2026-09-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
