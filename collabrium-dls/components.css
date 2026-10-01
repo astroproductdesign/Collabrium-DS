@@ -2316,7 +2316,8 @@ html.c-modal-compare-locked{overflow:hidden;}
    50% disabled convention), Badge, .c-helper, .sr-only, Input field's
    error recipe. The circle is kept in sync with the native radio by a
    small script — see DESIGN-SYSTEM.md > Radio > Radio Card.
-   One-offs: 240px floor (Card's); 496px / 752px 2-up / 3-up container
+   One-offs: 240px floor (Card's); 18px text indent (the circle's
+   width); 496px / 752px 2-up / 3-up container
    thresholds (literals — @container can't read var()); .5 disabled
    opacity (Radio's). .hover / .focus are static-preview hooks, as
    elsewhere in this file.
@@ -2353,14 +2354,20 @@ html.c-modal-compare-locked{overflow:hidden;}
 .c-radio-card{position:relative; cursor:pointer; color:var(--color-neutral-9); font-family:var(--font-primary); transition:box-shadow var(--duration-base) var(--ease-settle), border-color var(--duration-base) var(--ease-settle);}
 /* Head: circle + text column. The text column wraps, so a badge that
    doesn't fit drops under the title (not under the circle), and the
-   circle stays on the title's first line. */
+   circle stays on the title's first line. Description and meta are
+   indented to the title's left edge — the circle's 18px + the head's
+   spacing-8 gap — so title, description and meta share one left edge
+   and the circle hangs alone. The circle is pinned to border-box here
+   so it is 18px on any host page (a content-box page would make it
+   20px and break the alignment); its look is unchanged. */
 .c-radio-card-head{display:flex; align-items:flex-start; gap:var(--spacing-8);}
+.c-radio-card .c-radio-circle{box-sizing:border-box;}
 .c-radio-card-titles{flex:1; min-width:0; display:flex; flex-wrap:wrap; align-items:flex-start; gap:var(--spacing-4) var(--spacing-8);}
 .c-radio-card-title{flex:1 1 auto; min-width:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); letter-spacing:var(--text-h5-tracking); color:var(--color-neutral-9); overflow-wrap:break-word;}
 .c-radio-card-badge{flex:none;}
-.c-radio-card-desc{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-radio-card-desc{padding-inline-start:calc(18px + var(--spacing-8)); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
 /* Meta: pinned to the bottom so meta lines align across a row. */
-.c-radio-card-meta{margin-top:auto; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-radio-card-meta{margin-top:auto; padding-inline-start:calc(18px + var(--spacing-8)); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
 
 /* Hover: Card Interactive's shadow-2, pointer devices only. */
 @media (hover:hover){

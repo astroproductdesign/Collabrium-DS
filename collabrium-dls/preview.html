@@ -3325,20 +3325,23 @@
                 <span class="text"><span class="label">Daily digest</span></span>
               </label>
             </div>
-            <div class="swatch-group-label">Radio Card</div>
-            <!-- Radio Card — one card in its default (unselected) state. In use it
-                 sits in a group of 2–3 cards answering one question; the whole card
-                 is the radio. Shown as a static picture (inert): the gallery doesn't
-                 load the small script that keeps the circle in sync with the native
-                 radio. See DESIGN-SYSTEM.md's Radio > Radio Card. -->
-            <fieldset class="c-radio-card-group" inert>
-              <legend class="c-radio-card-legend">Audience</legend>
+            <!-- Radio Card — live demo: default (Personas) and selected (Mass).
+                 Click a card (or Tab in and use the arrow keys) to select it; the
+                 circle is kept in sync by the Radio Card script at the end of this
+                 file. See DESIGN-SYSTEM.md's Radio > Radio Card. -->
+            <fieldset class="c-radio-card-group" aria-label="Audience">
               <div class="c-radio-card-grid">
                 <label class="c-card c-radio-card">
                   <input class="sr-only" type="radio" name="pv-radio-card" value="personas" aria-labelledby="pv-rc-t" aria-describedby="pv-rc-d pv-rc-m" />
                   <span class="c-radio-card-head"><span class="c-radio-circle"><span class="dot" hidden></span></span><span class="c-radio-card-titles"><span class="c-radio-card-title" id="pv-rc-t">Personas</span></span></span>
                   <span class="c-radio-card-desc" id="pv-rc-d">Segments from the KULT playbook, built on real viewing behaviour.</span>
                   <span class="c-radio-card-meta" id="pv-rc-m">12 personas available</span>
+                </label>
+                <label class="c-card c-radio-card">
+                  <input class="sr-only" type="radio" name="pv-radio-card" value="mass" checked aria-labelledby="pv-rc2-t" aria-describedby="pv-rc2-d pv-rc2-m" />
+                  <span class="c-radio-card-head"><span class="c-radio-circle on"><span class="dot"></span></span><span class="c-radio-card-titles"><span class="c-radio-card-title" id="pv-rc2-t">Mass</span></span></span>
+                  <span class="c-radio-card-desc" id="pv-rc2-d">The whole Malaysia footprint, no segmentation.</span>
+                  <span class="c-radio-card-meta" id="pv-rc2-m">16,150,000</span>
                 </label>
               </div>
             </fieldset>
@@ -10310,8 +10313,8 @@ shipped is restyled.
 | Card | `label.c-card.c-radio-card` | The whole card is the label and the touch target. Card's surface as shipped: Neutral-1, 1px Neutral-3, `radius-lg`, `shadow-1`, spacing-16 padding, spacing-8 gap, 240px floor |
 | Native radio | `input[type=radio].sr-only` | Visually hidden, still focusable. Accessible name = the title (`aria-labelledby`); description, badge, meta and any error through `aria-describedby` |
 | Head | `.c-radio-card-head` → `.c-radio-circle`, `.c-radio-card-titles` → `-title`, optional `.c-badge.c-badge-neutral.c-radio-card-badge` | The shipped circle, unmodified, beside the title (h5). Title and badge share a wrapping column, so a badge that doesn't fit drops **under the title**, not under the circle. At most one badge per group (for example "Recommended") |
-| Description | `.c-radio-card-desc` | Caption, Neutral-5. One or two sentences |
-| Meta | `.c-radio-card-meta` | Caption bold, Neutral-9, tabular figures, **pinned to the bottom** (`margin-top: auto`) so meta lines align across a row. Its content is the host's; when it updates, focus doesn't move and there is no live region — it is read the next time the card is focused |
+| Description | `.c-radio-card-desc` | Caption, Neutral-5. One or two sentences. **Indented to the title's left edge** (`calc(18px + spacing-8)` — the circle's 18px plus the head's gap; the circle is pinned to `border-box` inside the card so this holds on any host page), so title, description and meta share one left edge and the circle hangs on its own |
+| Meta | `.c-radio-card-meta` | Caption bold, Neutral-9, tabular figures, indented to the title's left edge like the description, **pinned to the bottom** (`margin-top: auto`) so meta lines align across a row. Its content is the host's; when it updates, focus doesn't move and there is no live region — it is read the next time the card is focused |
 
 **States.**
 
@@ -10346,7 +10349,8 @@ shipped is restyled.
 **Recorded deviations and one-off values.** The grid uses container
 queries with explicit column counts instead of Card's
 `auto-fill`/`minmax()` pattern, which would orphan the third card at
-mid widths. One-offs: the 240px floor (Card's), the 496px / 752px
+mid widths. One-offs: the 240px floor (Card's), the 18px text indent
+(the circle's width), the 496px / 752px
 thresholds (literals, since container queries can't read custom
 properties), and Radio's .5 disabled opacity. `.hover` / `.focus` are
 static-preview hooks only.
@@ -12062,6 +12066,17 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.113 — 2026-10-01** — [Radio Card](#radio-card): the
+  description and meta line are now **indented to the title's left
+  edge** (`calc(18px + spacing-8)`: the radio circle's width plus the
+  head's gap; the circle is pinned to `border-box` inside the card so
+  the indent holds on any host page), so title, description and meta share one left
+  edge and the circle hangs on its own. Text wraps about 26px sooner.
+  The gallery's Radio Card pair is now a **live demo** — clicking a card
+  selects it, with the circle kept in sync by a small script that also
+  implements the documented `window.CollabriumRadioCard.sync(root?)`
+  hook.
 
 - **v0.9.112 — 2026-09-30** — [Radio](#radio) gains a **Radio Card**
   variant, promoted from the Collab:Media planner scan's "Selectable big
@@ -20755,6 +20770,31 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
       });
     }
   });
+})();
+</script>
+<script>
+/* Radio Card — keeps each card's circle (.c-radio-circle.on + the dot's
+   hidden) in sync with its native radio: on load, on every change, and
+   after a form reset. window.CollabriumRadioCard.sync(root?) re-syncs
+   after a host sets .checked from script. See DESIGN-SYSTEM.md > Radio >
+   Radio Card. */
+(function(){
+  function sync(root){
+    (root || document).querySelectorAll('.c-radio-card').forEach(function(card){
+      var input = card.querySelector('input[type="radio"]');
+      var circle = card.querySelector('.c-radio-circle');
+      if (!input || !circle) return;
+      circle.classList.toggle('on', input.checked);
+      var dot = circle.querySelector('.dot');
+      if (dot) dot.hidden = !input.checked;
+    });
+  }
+  document.addEventListener('change', function(e){
+    if (e.target.matches && e.target.matches('.c-radio-card input[type="radio"]')) sync(e.target.closest('.c-radio-card-group') || document);
+  });
+  document.addEventListener('reset', function(e){ setTimeout(function(){ sync(e.target); }, 0); });
+  window.CollabriumRadioCard = { sync: sync };
+  sync();
 })();
 </script>
 </body>
