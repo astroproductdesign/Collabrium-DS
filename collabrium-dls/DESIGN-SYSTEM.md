@@ -5980,8 +5980,8 @@ shipped is restyled.
 | Card | `label.c-card.c-radio-card` | The whole card is the label and the touch target. Card's surface as shipped: Neutral-1, 1px Neutral-3, `radius-lg`, `shadow-1`, spacing-16 padding, spacing-8 gap, 240px floor |
 | Native radio | `input[type=radio].sr-only` | Visually hidden, still focusable. Accessible name = the title (`aria-labelledby`); description, badge, meta and any error through `aria-describedby` |
 | Head | `.c-radio-card-head` → `.c-radio-circle`, `.c-radio-card-titles` → `-title`, optional `.c-badge.c-badge-neutral.c-radio-card-badge` | The shipped circle, unmodified, beside the title (h5). Title and badge share a wrapping column, so a badge that doesn't fit drops **under the title**, not under the circle. At most one badge per group (for example "Recommended") |
-| Description | `.c-radio-card-desc` | Caption, Neutral-5. One or two sentences |
-| Meta | `.c-radio-card-meta` | Caption bold, Neutral-9, tabular figures, **pinned to the bottom** (`margin-top: auto`) so meta lines align across a row. Its content is the host's; when it updates, focus doesn't move and there is no live region — it is read the next time the card is focused |
+| Description | `.c-radio-card-desc` | Caption, Neutral-5. One or two sentences. **Indented to the title's left edge** (`calc(18px + spacing-8)` — the circle's 18px plus the head's gap; the circle is pinned to `border-box` inside the card so this holds on any host page), so title, description and meta share one left edge and the circle hangs on its own |
+| Meta | `.c-radio-card-meta` | Caption bold, Neutral-9, tabular figures, indented to the title's left edge like the description, **pinned to the bottom** (`margin-top: auto`) so meta lines align across a row. Its content is the host's; when it updates, focus doesn't move and there is no live region — it is read the next time the card is focused |
 
 **States.**
 
@@ -6016,7 +6016,8 @@ shipped is restyled.
 **Recorded deviations and one-off values.** The grid uses container
 queries with explicit column counts instead of Card's
 `auto-fill`/`minmax()` pattern, which would orphan the third card at
-mid widths. One-offs: the 240px floor (Card's), the 496px / 752px
+mid widths. One-offs: the 240px floor (Card's), the 18px text indent
+(the circle's width), the 496px / 752px
 thresholds (literals, since container queries can't read custom
 properties), and Radio's .5 disabled opacity. `.hover` / `.focus` are
 static-preview hooks only.
@@ -7732,6 +7733,17 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.113 — 2026-10-01** — [Radio Card](#radio-card): the
+  description and meta line are now **indented to the title's left
+  edge** (`calc(18px + spacing-8)`: the radio circle's width plus the
+  head's gap; the circle is pinned to `border-box` inside the card so
+  the indent holds on any host page), so title, description and meta share one left
+  edge and the circle hangs on its own. Text wraps about 26px sooner.
+  The gallery's Radio Card pair is now a **live demo** — clicking a card
+  selects it, with the circle kept in sync by a small script that also
+  implements the documented `window.CollabriumRadioCard.sync(root?)`
+  hook.
 
 - **v0.9.112 — 2026-09-30** — [Radio](#radio) gains a **Radio Card**
   variant, promoted from the Collab:Media planner scan's "Selectable big
