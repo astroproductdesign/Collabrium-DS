@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.106</title>
+<title>Collabrium design system | v0.9.112</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -94,6 +94,141 @@
   .changelog-entry p:last-child{margin-bottom:0;}
   .changelog-entry code{font-family:monospace; background:var(--color-neutral-2); padding:1px 5px; border-radius:3px; font-size:12px;}
   .changelog-empty{color:var(--color-neutral-5); font-size:var(--text-body1-size);}
+
+  /* Site search — this page's own chrome, not a design-system component,
+     so it lives here rather than in components.css. Three triggers, one
+     palette: an icon in the sidebar header (expanded rail), a row above
+     General (collapsed rail), and an icon leading the jump nav (below
+     900px, where the rail is gone). The result rows reuse Search input's
+     real anatomy from components.css — .c-search-input-row / -text /
+     -title / -subtitle / -empty — so the gallery's own component is what
+     the page is actually running. Only the palette shell, the scope
+     chips and the three triggers are local to this file. */
+  .site-search-hdr{
+    position:absolute; top:32px; right:42px; transform:translateY(-50%);
+    width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+    border:none; background:none; border-radius:var(--radius-sm); padding:0;
+    color:var(--color-neutral-5); cursor:pointer;
+  }
+  .site-search-hdr i{font-size:18px;}
+  .site-search-hdr:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+  .site-search-hdr:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+  /* Collapsed, the rail is 72px — sized for the logo and the toggle icon
+     side by side and nothing else (DESIGN-SYSTEM.md, Collapsible state →
+     Collapsed width). So the header trigger hands off to a nav row above
+     General, which the existing is-collapsed rules already centre and
+     label on hover for free. */
+  .c-sidebar.is-collapsed ~ .site-search-hdr{display:none;}
+  .site-search-row{display:none;}
+  .c-sidebar.is-collapsed .site-search-row{display:flex;}
+
+  /* Jump-nav trigger — leads the row, before General. Only ever visible
+     inside the max-width:900px query, since nav.jumpnav is display:none
+     above it. */
+  .site-search-jump{
+    flex:none; width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+    border:none; border-radius:var(--radius-sm); padding:0;
+    background:transparent; color:var(--color-neutral-5); cursor:pointer;
+  }
+  .site-search-jump i{font-size:var(--icon-sm);}
+  .site-search-jump:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+  .site-search-jump:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+
+  /* Palette — body-level, above the Changelog page's own z-index:50 */
+  /* width:100vw, not inset:0 — this page is already wider than the
+     viewport below ~640px (the topbar's Changelog button, the type
+     samples), and a fixed inset:0 box stretches to that document width,
+     which pushes the panel off-centre and past the right edge. A fixed
+     element wider than the viewport adds no scroll of its own. */
+  .site-search-scrim{
+    position:fixed; top:0; bottom:0; left:0; width:100vw; z-index:60; background:var(--shadow-overlay);
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:88px var(--spacing-16) var(--spacing-16);
+    opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);
+  }
+  .site-search-scrim[hidden]{display:none;}
+  .site-search-scrim.is-open{opacity:1;}
+  .site-search-panel{
+    width:100%; max-width:560px; max-height:100%; display:flex; flex-direction:column; overflow:hidden;
+    background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow-3);
+    transform:translateY(-6px) scale(.985); transition:transform var(--duration-fast) var(--ease-standard);
+  }
+  .site-search-scrim.is-open .site-search-panel{transform:none;}
+  .site-search-field{
+    flex:none; display:flex; align-items:center; gap:var(--spacing-12);
+    height:54px; padding:0 var(--spacing-16); border-bottom:1px solid var(--color-neutral-2);
+  }
+  .site-search-field > i{font-size:var(--icon-base); color:var(--color-neutral-5); flex:none;}
+  .site-search-field input{
+    flex:1; min-width:0; height:100%; border:0; outline:none; background:transparent;
+    font-family:inherit; font-size:var(--text-body1-size); font-weight:500; color:var(--color-neutral-9);
+  }
+  .site-search-field input::placeholder{color:var(--color-neutral-4); font-weight:400;}
+  .site-search-esc{
+    flex:none; border:0; border-radius:6px; padding:4px var(--spacing-8); cursor:pointer;
+    background:var(--color-neutral-2); color:var(--color-neutral-5);
+    font-family:inherit; font-size:var(--text-label3-size); font-weight:700;
+  }
+  .site-search-esc:hover{background:var(--color-neutral-3);}
+  .site-search-chips{
+    flex:none; display:flex; gap:6px; padding:var(--spacing-8) var(--spacing-12);
+    border-bottom:1px solid var(--color-neutral-2); overflow-x:auto; scrollbar-width:none;
+  }
+  .site-search-chips::-webkit-scrollbar{display:none;}
+  .site-search-chip{
+    flex:none; display:inline-flex; align-items:center; gap:5px; height:26px; padding:0 11px;
+    border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill);
+    background:var(--color-neutral-1); color:var(--color-neutral-5);
+    font-family:inherit; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;
+    transition:background-color var(--duration-fast) var(--ease-standard),
+               color var(--duration-fast) var(--ease-standard),
+               border-color var(--duration-fast) var(--ease-standard);
+  }
+  .site-search-chip:hover{border-color:var(--color-neutral-4); color:var(--color-neutral-9);}
+  .site-search-chip.is-on{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+  .site-search-chip span{font-size:10px; opacity:.72; font-variant-numeric:tabular-nums;}
+  .site-search-results{flex:1; min-height:140px; overflow-y:auto; padding:var(--spacing-4) 0 var(--spacing-8);}
+  .site-search-grp{
+    padding:var(--spacing-8) var(--spacing-16) var(--spacing-4);
+    font-size:10px; font-weight:700; letter-spacing:var(--tracking-eyebrow);
+    text-transform:uppercase; color:var(--color-neutral-5);
+  }
+  /* Search input's own row anatomy, re-used as-is; these few overrides
+     only widen it to the palette and mark the keyboard cursor. */
+  .site-search-results .c-search-input-row{position:relative; width:100%; border:0; background:transparent;
+    font-family:inherit; text-align:left; padding:var(--spacing-8) var(--spacing-16);}
+  .site-search-results .c-search-input-row.is-cursor{background:var(--color-neutral-2);}
+  .site-search-results .c-search-input-row.is-cursor::before{
+    content:''; position:absolute; left:0; top:50%; margin-top:-16px;
+    width:3px; height:32px; border-radius:0 3px 3px 0; background:var(--color-obsidian);
+  }
+  .site-search-ico{
+    flex:none; width:28px; height:28px; border-radius:9px; display:flex; align-items:center;
+    justify-content:center; background:var(--color-neutral-2); color:var(--color-neutral-5);
+    font-size:var(--icon-sm);
+  }
+  .c-search-input-row.is-cursor .site-search-ico{background:var(--color-obsidian); color:var(--color-neutral-1);}
+  .site-search-results mark{background:rgba(255,164,37,.42); color:inherit; border-radius:2px; padding:0 1px;}
+  .site-search-kind{
+    flex:none; padding:3px 7px; border-radius:var(--radius-pill);
+    background:var(--color-neutral-2); color:var(--color-neutral-5);
+    font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  }
+  .site-search-foot{
+    flex:none; display:flex; align-items:center; gap:var(--spacing-16);
+    padding:var(--spacing-8) var(--spacing-16); border-top:1px solid var(--color-neutral-2);
+    background:var(--color-canvas-warm); font-size:var(--text-label3-size); color:var(--color-neutral-5);
+  }
+  .site-search-foot .count{margin-left:auto; font-variant-numeric:tabular-nums;}
+  .site-search-foot kbd{
+    font-family:inherit; font-size:10px; font-weight:700; margin-right:3px; padding:1px 5px;
+    border:1px solid var(--color-neutral-3); border-radius:5px;
+    background:var(--color-neutral-1); color:var(--color-neutral-9);
+  }
+  @media (prefers-reduced-motion:reduce){
+    .site-search-scrim,.site-search-panel{transition:none;}
+  }
 
   /* App shell — SidebarNav rail beside the existing two-pane layout,
      replacing the old horizontal jumpnav. Follows App Shell's own Main
@@ -406,7 +541,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.106</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.112</span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -414,11 +549,35 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.106</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.112</span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
     <div class="changelog-list" id="changelogList"><p class="changelog-empty">Loading&hellip;</p></div>
+  </div>
+</div>
+
+<!-- Site search palette. Body level, like the Changelog page above it, so
+     it escapes .pane-left's own overflow clipping. Its three triggers live
+     in the sidebar header, the collapsed rail, and the mobile jump nav. -->
+<div class="site-search-scrim" id="siteSearchScrim" hidden>
+  <div class="site-search-panel" role="dialog" aria-modal="true" aria-label="Search the design system">
+    <div class="site-search-field">
+      <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+      <input type="text" id="siteSearchInput" role="combobox" aria-expanded="true"
+             aria-controls="siteSearchResults" aria-autocomplete="list"
+             aria-label="Search the design system" placeholder="Search sections, components, variants&hellip;"
+             autocomplete="off" spellcheck="false" />
+      <button type="button" class="site-search-esc" id="siteSearchEsc">esc</button>
+    </div>
+    <div class="site-search-chips" id="siteSearchChips"></div>
+    <div class="site-search-results" id="siteSearchResults" role="listbox" aria-label="Results"></div>
+    <div class="site-search-foot">
+      <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> move</span>
+      <span><kbd>&crarr;</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
+      <span class="count" id="siteSearchCount"></span>
+    </div>
   </div>
 </div>
 
@@ -431,6 +590,13 @@
           <span class="c-sidebar-logo-live-wrap"><iframe src="logo.html" title="Collabrium" scrolling="no"></iframe></span>
           <img class="c-sidebar-logo-collapsed" src="SVG/coin.svg" alt="Collabrium" />
         </div>
+
+        <!-- Collapsed-rail search trigger. Expanded, the trigger is the
+             header icon beside the collapse toggle (.site-search-hdr,
+             below); the 72px collapsed rail has no room for it there, so
+             it swaps to this row. Carries <i> and .c-sidebar-hover-text
+             because the rail's existing hover-label code reads both. -->
+        <button class="c-sidebar-item site-search-row js-site-search" type="button" aria-haspopup="dialog"><i class="ph ph-magnifying-glass"></i><span class="label">Search</span><span class="c-sidebar-hover-text">Search</span></button>
 
         <button class="c-sidebar-item active" type="button" data-nav-target="collabrium"><i class="ph-fill ph-house"></i><span class="label">General</span><span class="c-sidebar-hover-text">General</span></button>
 
@@ -506,6 +672,12 @@
           </div>
         </div>
       </nav>
+      <!-- Expanded-rail search trigger. A sibling of .c-sidebar, like the
+           collapse toggle below and for the same reason: .c-sidebar has
+           overflow-x:clip, which would cut an absolutely-positioned
+           descendant. Sits 42px from the right edge, immediately left of
+           the toggle's own 8px. -->
+      <button class="site-search-hdr js-site-search" type="button" aria-label="Search the design system" aria-haspopup="dialog" title="Search the design system"><i class="ph ph-magnifying-glass"></i></button>
       <button class="c-sidebar-toggle js-sidebar-toggle" type="button" aria-label="Collapse sidebar" data-sidebar-toggle="siteSidebar">
         <svg class="js-sidebar-toggle-icon" viewBox="0 0 20 20" fill="none">
           <rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
@@ -522,6 +694,7 @@
   <div class="pane pane-left">
     <nav class="jumpnav">
       <div class="shell">
+        <button class="site-search-jump js-site-search" type="button" aria-label="Search the design system" aria-haspopup="dialog"><i class="ph ph-magnifying-glass"></i></button>
         <a href="#collabrium">General</a>
         <a href="#logo">Logo</a>
         <a href="#color">Color Palette</a>
@@ -4330,7 +4503,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.106** — 2026-09-24 — Sourced from the Collabrium brand deck
+**v0.9.112** — 2026-09-30 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -18813,6 +18986,272 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
     scrollHost.scrollTo({ top: offset, behavior: 'smooth' });
   }
 
+  /* ---------- Site search ----------
+     Lives inside this IIFE on purpose: it reuses scrollToTarget,
+     selectChild, selectTopItem and suppressSpyFor directly rather than
+     exposing them on window, so search and a nav click take the exact
+     same code path and can't drift apart.
+
+     The index is read off the live DOM at load, never hand-listed — add
+     a component (nav button + .comp-block, which the standing ordering
+     rule already requires) and it becomes searchable with no extra step.
+     Optional data-search-kw on a .comp-block adds synonyms. */
+  const searchScrim  = document.getElementById('siteSearchScrim');
+  const searchInput  = document.getElementById('siteSearchInput');
+  const searchRes    = document.getElementById('siteSearchResults');
+  const searchChips  = document.getElementById('siteSearchChips');
+  const searchCount  = document.getElementById('siteSearchCount');
+  const changelogPage = document.getElementById('changelogPage');
+
+  // Direct text of an element, ignoring nested spans — .comp-head h3 can
+  // carry a trailing descriptive <span> (Charts, Chart color mapping),
+  // and nav items carry a hidden .c-sidebar-hover-text twin.
+  function ownText(el){
+    return [...el.childNodes]
+      .filter(n => n.nodeType === 3)
+      .map(n => n.textContent)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  function slug(s){
+    return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48);
+  }
+
+  const SEARCH_KIND = {
+    section:   { label: 'Section',   icon: 'ph-fill ph-cube',         group: 'General & Foundation' },
+    component: { label: 'Component', icon: 'ph-fill ph-squares-four', group: 'Components' },
+    variant:   { label: 'Variant',   icon: 'ph ph-git-branch',        group: 'Variants' }
+  };
+
+  const searchIndex = [];
+  function indexAdd(o){
+    o.hay = (o.title + ' ' + o.crumb + ' ' + (o.kw || '')).toLowerCase();
+    searchIndex.push(o);
+  }
+
+  (function buildIndex(){
+    // 1. Every nav destination — General, the 7 Foundation children, and
+    //    every component. One entry each, label straight off the button.
+    sidebar.querySelectorAll('[data-nav-target]').forEach(btn => {
+      const isChild = btn.classList.contains('c-nav-child');
+      const labelEl = btn.querySelector('.label');
+      const title = labelEl ? ownText(labelEl) || labelEl.textContent.trim() : ownText(btn);
+      if(!title) return;
+      let crumb = 'General';
+      if(isChild){
+        const parent = btn.closest('.c-nav-children').previousElementSibling;
+        const pl = parent && parent.querySelector('.label');
+        crumb = pl ? pl.textContent.trim() : 'Foundation';
+      }
+      const block = document.getElementById(btn.dataset.navTarget);
+      indexAdd({
+        kind: isChild && crumb === 'Components' ? 'component' : 'section',
+        scope: crumb === 'Components' ? 'components' : 'foundation',
+        title, crumb,
+        kw: (block && block.dataset.searchKw) || '',
+        target: btn.dataset.navTarget
+      });
+    });
+
+    // 2. Every .swatch-group-label — the sub-headings inside sections and
+    //    comp-blocks (Campaign cards, Warm canvas, Size scale, …). They
+    //    carry no id of their own, so give them a stable one here rather
+    //    than editing 49 elements by hand.
+    document.querySelectorAll('.pane-left .swatch-group-label').forEach(el => {
+      const title = ownText(el) || el.textContent.trim();
+      if(!title) return;
+      const block = el.closest('.comp-block');
+      const section = el.closest('section[id]');
+      if(!block && !section) return;
+      const ownerId = block ? block.id : section.id;
+      const ownerHead = block ? block.querySelector('.comp-head h3') : section.querySelector('.section-title');
+      const ownerName = ownerHead ? (ownText(ownerHead) || ownerHead.textContent.trim()) : ownerId;
+      if(!el.id) el.id = 'sg-' + ownerId + '--' + slug(title);
+      indexAdd({
+        kind: 'variant',
+        scope: block ? 'components' : 'foundation',
+        title,
+        crumb: (block ? 'Components › ' : '') + ownerName,
+        kw: ownerName,
+        target: ownerId,
+        sub: el.id
+      });
+    });
+  })();
+
+  const SEARCH_SCOPES = [['all', 'All'], ['foundation', 'Foundation'], ['components', 'Components']];
+  let searchScope = 'all';
+  let searchRows = [];
+  let searchCursor = 0;
+  let searchOpener = null;
+
+  SEARCH_SCOPES.forEach(([key, label]) => {
+    const n = key === 'all' ? searchIndex.length : searchIndex.filter(i => i.scope === key).length;
+    searchChips.insertAdjacentHTML('beforeend',
+      `<button type="button" class="site-search-chip${key === 'all' ? ' is-on' : ''}" data-scope="${key}">${label} <span>${n}</span></button>`);
+  });
+
+  function searchEsc(s){
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function searchMark(text, q){
+    if(!q) return searchEsc(text);
+    const i = text.toLowerCase().indexOf(q);
+    if(i < 0) return searchEsc(text);
+    return searchEsc(text.slice(0, i)) + '<mark>' + searchEsc(text.slice(i, i + q.length)) +
+           '</mark>' + searchEsc(text.slice(i + q.length));
+  }
+  function searchScore(item, q){
+    const t = item.title.toLowerCase();
+    if(t === q) return 100;
+    if(t.startsWith(q)) return 80;
+    if(new RegExp('\\b' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(t)) return 60;
+    if(t.includes(q)) return 45;
+    if(item.hay.includes(q)) return 20;
+    return 0;
+  }
+  function searchRow(item, q){
+    const k = SEARCH_KIND[item.kind];
+    return `<button type="button" role="option" class="c-search-input-row">
+      <span class="site-search-ico"><i class="${k.icon}"></i></span>
+      <span class="c-search-input-text">
+        <span class="c-search-input-title">${searchMark(item.title, q)}</span>
+        <span class="c-search-input-subtitle">${searchEsc(item.crumb)}</span>
+      </span>
+      <span class="site-search-kind">${k.label}</span>
+    </button>`;
+  }
+
+  function searchRender(){
+    const q = searchInput.value.trim().toLowerCase();
+    const pool = searchIndex.filter(i => searchScope === 'all' || i.scope === searchScope);
+
+    if(!q){
+      searchRows = pool.slice(0, 7);
+      searchRes.innerHTML = '<div class="site-search-grp">Jump to</div>' +
+        searchRows.map(i => searchRow(i, '')).join('');
+      searchCount.textContent = searchIndex.length + ' indexed';
+    } else {
+      const hits = pool.map(i => ({ i, s: searchScore(i, q) }))
+                       .filter(x => x.s > 0)
+                       .sort((a, b) => b.s - a.s || a.i.title.length - b.i.title.length)
+                       .slice(0, 24);
+      if(!hits.length){
+        searchRows = [];
+        searchRes.innerHTML = `<div class="c-search-input-empty">No matches for &ldquo;${searchEsc(searchInput.value.trim())}&rdquo;</div>`;
+        searchCount.textContent = '0 results';
+      } else {
+        // Bucket by kind so each group heading appears once. Relevance
+        // still orders the rows inside a bucket — ranking by score alone
+        // interleaves the kinds and repeats the headings.
+        let html = '';
+        const ordered = [];
+        ['section', 'component', 'variant'].forEach(kind => {
+          const group = hits.filter(x => x.i.kind === kind);
+          if(!group.length) return;
+          html += `<div class="site-search-grp">${SEARCH_KIND[kind].group}</div>`;
+          group.forEach(({ i }) => { html += searchRow(i, q); ordered.push(i); });
+        });
+        searchRes.innerHTML = html;
+        searchRows = ordered;
+        searchCount.textContent = hits.length + (hits.length === 1 ? ' result' : ' results');
+      }
+    }
+    searchCursor = 0;
+    searchPaint();
+  }
+
+  function searchPaint(){
+    searchRes.querySelectorAll('.c-search-input-row').forEach((el, i) => {
+      const on = i === searchCursor;
+      el.classList.toggle('is-cursor', on);
+      el.setAttribute('aria-selected', String(on));
+      if(on) el.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  function searchOpen(trigger){
+    searchOpener = trigger || null;
+    searchScrim.hidden = false;
+    requestAnimationFrame(() => searchScrim.classList.add('is-open'));
+    searchInput.value = '';
+    searchRender();
+    searchInput.focus();
+  }
+  function searchClose(){
+    searchScrim.classList.remove('is-open');
+    setTimeout(() => { searchScrim.hidden = true; }, 140);
+    // Return focus to whichever of the three triggers opened it — which
+    // one is visible depends on rail state and viewport width.
+    const back = (searchOpener && searchOpener.offsetParent) ? searchOpener
+               : [...document.querySelectorAll('.js-site-search')].find(b => b.offsetParent);
+    if(back) back.focus();
+  }
+  function searchGo(item){
+    searchClose();
+    // Same path a nav click takes.
+    const navBtn = sidebar.querySelector(`[data-nav-target="${item.target}"]`);
+    if(navBtn){
+      if(navBtn.classList.contains('c-nav-child')) selectChild(navBtn);
+      else selectTopItem(navBtn);
+    }
+    if(item.sub && document.getElementById(item.sub)){
+      suppressSpyFor(800);
+      document.getElementById(item.sub).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      scrollToTarget(item.target);
+    }
+  }
+
+  document.querySelectorAll('.js-site-search').forEach(btn => {
+    btn.addEventListener('click', () => searchOpen(btn));
+  });
+  document.getElementById('siteSearchEsc').addEventListener('click', searchClose);
+  searchScrim.addEventListener('mousedown', (e) => { if(e.target === searchScrim) searchClose(); });
+  searchInput.addEventListener('input', searchRender);
+
+  searchChips.addEventListener('click', (e) => {
+    const chip = e.target.closest('.site-search-chip');
+    if(!chip) return;
+    searchScope = chip.dataset.scope;
+    searchChips.querySelectorAll('.site-search-chip').forEach(c => c.classList.toggle('is-on', c === chip));
+    searchRender();
+    searchInput.focus();
+  });
+
+  searchRes.addEventListener('click', (e) => {
+    const row = e.target.closest('.c-search-input-row');
+    if(!row) return;
+    const i = [...searchRes.querySelectorAll('.c-search-input-row')].indexOf(row);
+    if(searchRows[i]) searchGo(searchRows[i]);
+  });
+
+  searchInput.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      if(searchRows.length){ searchCursor = (searchCursor + 1) % searchRows.length; searchPaint(); }
+    } else if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(searchRows.length){ searchCursor = (searchCursor - 1 + searchRows.length) % searchRows.length; searchPaint(); }
+    } else if(e.key === 'Enter'){
+      e.preventDefault();
+      if(searchRows[searchCursor]) searchGo(searchRows[searchCursor]);
+    } else if(e.key === 'Escape'){
+      e.preventDefault();
+      searchClose();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(!(e.metaKey || e.ctrlKey) || (e.key !== 'k' && e.key !== 'K')) return;
+    // The Changelog is its own page, not a layer over the gallery, so
+    // search stays out of its way while it's open.
+    if(!changelogPage.hidden) return;
+    e.preventDefault();
+    if(searchScrim.hidden) searchOpen(null); else searchClose();
+  });
+
   function openPanel(navParentToggle, opening){
     const key = navParentToggle.dataset.navParent;
     const panel = navParentToggle.parentElement.querySelector(`[data-nav-panel="${key}"]`);
@@ -18824,6 +19263,11 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
   }
 
   sidebar.addEventListener('click', (e) => {
+    // Search row (collapsed rail only) — a .c-sidebar-item with no
+    // data-nav-target, so it has to bail before the top-level branch
+    // below, which would mark it active and call scrollToTarget(undefined).
+    if(e.target.closest('.site-search-row')) return;
+
     // Parent item (Foundation / Components) — accordion toggle when
     // expanded; collapsed rail routes straight to the first child instead,
     // per SidebarNav's own collapsed-parent-icon rule.
