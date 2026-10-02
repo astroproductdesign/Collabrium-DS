@@ -7734,6 +7734,19 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.114 — 2026-10-02** — **Fix: clicking a Checkbox, Radio,
+  Switch or Dropdown option no longer scrolls the page to a blank
+  area.** Their hidden native input (`.c-choice input`,
+  `.c-dropdown-option input`) is absolutely positioned, but its row had
+  no positioned parent, so the input was placed against the page,
+  sometimes thousands of pixels below the layout. Clicking the label
+  focused it and the browser scrolled the window to it. `.c-choice` and
+  `.c-dropdown-option` now carry `position: relative`; nothing changes
+  visually. The gallery also stops its demo links from leaving the page
+  (follower counts, source rows, citation chips, "Send to a media plan"
+  and so on): they still show hover, focus and press, but a click goes
+  nowhere.
+
 - **v0.9.113 — 2026-10-01** — [Radio Card](#radio-card): the
   description and meta line are now **indented to the title's left
   edge** (`calc(18px + spacing-8)`: the radio circle's width plus the

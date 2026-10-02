@@ -108,7 +108,11 @@
 
   /* Two-pane layout */
   .layout{display:grid; grid-template-columns:7fr 3fr; flex:1; min-height:0;}
-  .pane{overflow-y:auto; min-width:0;}
+  /* position:relative makes the pane the containing block for anything
+     absolutely positioned inside it (visually hidden inputs and status
+     messages), so none of it can stretch the page past the pane and let
+     the window scroll to a blank area. */
+  .pane{position:relative; overflow-y:auto; min-width:0;}
   .pane-left{border-right:1px solid var(--color-neutral-3);}
   .pane-right{display:flex; flex-direction:column; background:var(--color-neutral-1);}
 
@@ -12067,6 +12071,19 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.114 — 2026-10-02** — **Fix: clicking a Checkbox, Radio,
+  Switch or Dropdown option no longer scrolls the page to a blank
+  area.** Their hidden native input (`.c-choice input`,
+  `.c-dropdown-option input`) is absolutely positioned, but its row had
+  no positioned parent, so the input was placed against the page,
+  sometimes thousands of pixels below the layout. Clicking the label
+  focused it and the browser scrolled the window to it. `.c-choice` and
+  `.c-dropdown-option` now carry `position: relative`; nothing changes
+  visually. The gallery also stops its demo links from leaving the page
+  (follower counts, source rows, citation chips, "Send to a media plan"
+  and so on): they still show hover, focus and press, but a click goes
+  nowhere.
+
 - **v0.9.113 — 2026-10-01** — [Radio Card](#radio-card): the
   description and meta line are now **indented to the title's left
   edge** (`calc(18px + spacing-8)`: the radio circle's width plus the
@@ -20795,6 +20812,23 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
   document.addEventListener('reset', function(e){ setTimeout(function(){ sync(e.target); }, 0); });
   window.CollabriumRadioCard = { sync: sync };
   sync();
+})();
+</script>
+<script>
+/* Gallery only: demo links never leave the page. Any link inside the
+   Components section (including ones a demo adds later, like the
+   streaming citation chips) keeps its hover, focus and press states,
+   but a click, Cmd/Ctrl-click or middle-click goes nowhere. The real
+   hrefs stay in the markup so copied components are correct. */
+(function(){
+  var root = document.getElementById('components');
+  if (!root) return;
+  function stop(e){
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (a && root.contains(a)) e.preventDefault();
+  }
+  root.addEventListener('click', stop, true);
+  root.addEventListener('auxclick', stop, true);
 })();
 </script>
 </body>
