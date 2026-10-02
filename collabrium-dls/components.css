@@ -2461,6 +2461,18 @@ html.c-modal-compare-locked{overflow:hidden;}
 @media (max-width:640px){
   .c-toast-host{left:var(--spacing-12); right:var(--spacing-12); bottom:var(--spacing-12); width:auto; max-width:none;}
 }
+/* Stacked above Back to top — while a page's Back to top is showing, its
+   script sets html.c-back-to-top-shown and the stack rises to sit
+   spacing-12 above the 32px button, reading the same --c-back-to-top-y
+   the button itself uses (see Back to top). At the top of the page the
+   button is hidden and the stack keeps its own corner. The glide reuses
+   Toast's own duration-base / ease-standard pairing and is dropped under
+   reduced motion, per Toast's reduced-motion row. */
+.c-toast-host{transition:bottom var(--duration-base) var(--ease-standard);}
+html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px + var(--spacing-12));}
+@media (prefers-reduced-motion:reduce){
+  .c-toast-host{transition:none;}
+}
 
 /* Info Banner — inline, persistent, container-anchored (vs. Toast's
    floating/viewport-level). No Title part — Message is the only text
@@ -4100,6 +4112,43 @@ html.c-modal-compare-locked{overflow:hidden;}
 .c-chat-jump.has-new::before{content:''; position:absolute; top:-2px; right:-2px; width:8px; height:8px; border-radius:var(--radius-pill); background:var(--color-obsidian); box-shadow:0 0 0 2px var(--color-neutral-1);}
 @media (prefers-reduced-motion:reduce){
   .c-chat-jump, .c-chat-jump.is-visible{transform:translateX(-50%);}
+}
+
+/* Back to top — Jump to present's page-level sibling, kept right after it
+   (and inside Chat window's run) so the shared recipe and the three
+   deliberate differences stay visible side by side: bottom-right, not
+   bottom-centre; position:fixed, not absolute in a wrapper; no
+   new-content dot. Per DESIGN-SYSTEM.md, Back to top. */
+:root{
+  /* Resting gap from the viewport's bottom and right edges. spacing-12 on
+     phones, matching Toast and Action bar. */
+  --c-back-to-top-edge:var(--spacing-24);
+  /* The resolved bottom offset, declared once so the button and Toast's
+     stacked rule (see Toast host) can never disagree. The higher of:
+     the resting gap — or a page's own --c-back-to-top-bottom, set on
+     <html> above a permanent bottom bar — plus the phone's safe area; or
+     an open Action bar's --c-action-bar-clearance, which its script
+     writes on <html> (already includes its own gap and safe area, 0 when
+     closed). */
+  --c-back-to-top-y:max(calc(var(--c-back-to-top-bottom, var(--c-back-to-top-edge)) + env(safe-area-inset-bottom, 0px)), var(--c-action-bar-clearance, 0px));
+}
+@media (max-width:640px){
+  :root{--c-back-to-top-edge:var(--spacing-12);}
+}
+.c-back-to-top{--c-back-to-top-move:var(--duration-base); position:fixed; right:calc(var(--c-back-to-top-edge) + env(safe-area-inset-right, 0px)); bottom:var(--c-back-to-top-y); z-index:20; width:32px; height:32px; padding:0; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); box-shadow:var(--shadow-2); color:var(--color-neutral-9); cursor:pointer; opacity:0; visibility:hidden; transform:translateY(8px); transition:opacity var(--duration-base) var(--ease-settle), transform var(--duration-base) var(--ease-settle), visibility 0s linear var(--duration-base), background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), bottom var(--c-back-to-top-move) var(--ease-standard);}
+.c-back-to-top i{font-size:var(--icon-sm);}
+/* Transparent hit-area lift to 44px — the 32px box never changes size. */
+.c-back-to-top::after{content:''; position:absolute; inset:-6px;}
+.c-back-to-top:hover{background:var(--color-neutral-2); box-shadow:var(--shadow-3);}
+.c-back-to-top:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* Visibility flips at 0s on the way in (focusable at once) and is held
+   for the whole fade on the way out, so a hidden button is never left
+   invisible-but-focusable. */
+.c-back-to-top.is-visible{opacity:1; visibility:visible; transform:translateY(0); transition:opacity var(--duration-base) var(--ease-settle), transform var(--duration-base) var(--ease-settle), visibility 0s linear 0s, background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), bottom var(--c-back-to-top-move) var(--ease-standard);}
+/* Reduced motion: no 8px travel and no glide when an Action bar lifts it
+   — but keep the fade, because the visibility timing still matters. */
+@media (prefers-reduced-motion:reduce){
+  .c-back-to-top, .c-back-to-top.is-visible{transform:none; --c-back-to-top-move:0s;}
 }
 
 .c-chat-msg{display:flex; gap:var(--spacing-12);}

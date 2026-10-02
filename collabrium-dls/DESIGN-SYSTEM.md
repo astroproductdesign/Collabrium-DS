@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.112** — 2026-09-30 — Sourced from the Collabrium brand deck
+**v0.9.115** — 2026-10-02 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -889,6 +889,7 @@ undocumented ones is just an inconsistent list.
 - [AI Native](#ai-native)
 - [App Shell](#app-shell)
 - [Back button](#back-button-level-2-navigation)
+- [Back to top](#back-to-top)
 - [Badge & Tag](#badge--tag)
 - [Button](#button)
 - [Card](#card)
@@ -1060,6 +1061,10 @@ do. This control's job is to **re-establish the pin**: it scrolls to
 the bottom and re-attaches, in that order. That's also why the label
 is "Jump to present" rather than "Scroll to bottom" — *bottom* is
 spatial, *present* is temporal, and the reader is thinking temporally.
+
+[Back to top](#back-to-top) reuses this control's box, states and
+entrance at page level, with three deliberate differences listed
+there — a change to one should be checked against the other.
 
 | Part | Spec |
 |---|---|
@@ -2088,6 +2093,10 @@ This does not modify or override [SidebarNav](#sidebarnav) in any way
 instance regardless of Level. The Back button row lives in Content
 region, entirely separate from Sidebar's own placement.
 
+Not the same thing as [Back to top](#back-to-top), which sits next to
+it alphabetically: Back button navigates up to the parent screen; Back
+to top scrolls the current page up and goes nowhere.
+
 | Part | Spec |
 |---|---|
 | Container | full width of Content region — no fill, no border, a transparent layout layer, matching Page header's own full-width rule |
@@ -2119,6 +2128,133 @@ context signal, one level up, is the whole rule. **Don't:** override
 any Button Ghost or SidebarNav state token to make the Back button
 match more closely — if it doesn't fit, that's this component's own
 spec to adjust, not theirs.
+
+### Back to top
+
+**Transcribed from kult-creator's `BackToTop`** (`src/lib/collabrium.jsx`),
+which was itself built on [Chat window](#chat-window)'s **Jump to
+present** control. Every value below resolves to an existing token; the
+component adds none.
+
+Not the same thing as [Back button](#back-button-level-2-navigation):
+that one navigates up to the parent screen; this one scrolls the current
+page back to its top and goes nowhere.
+
+A small floating control that appears once the reader is well down a
+long page and takes them back to the top in one click. It holds still in
+the bottom-right corner while content moves under it, and it is hidden —
+not just transparent — while the page sits near the top.
+
+| Part | Spec |
+|---|---|
+| Box | 32×32px circle, `radius-pill`, Neutral-1 fill, 1px Neutral-3 border, `shadow-2` |
+| Icon | `ph ph-arrow-up` at `icon-sm` (16px), Neutral-9 — **Tier 1, Regular**: a movement, not a disclosure, same as Jump to present's `arrow-down` |
+| Hit area | 44×44px via a transparent `::after` at `inset: -6px` — the 32px box never changes size |
+
+**States**
+
+| State | Class | Fill | Shadow | Other |
+|---|---|---|---|---|
+| Hidden | — | — | — | `opacity: 0`, `visibility: hidden`, `translateY(8px)` — out of the tab order and the accessibility tree |
+| Visible (rest) | `.is-visible` | Neutral-1 | `shadow-2` | `opacity: 1`, `visibility: visible`, `translateY(0)` |
+| Hover | — | Neutral-2 | `shadow-3` | — |
+| Focus-visible | — | — | — | 2px Obsidian outline, 2px offset |
+
+**Placement**
+
+| Property | Spec |
+|---|---|
+| Position | `position: fixed`, bottom-right of the viewport, `z-index: 20` |
+| Edge offset | spacing-24 from the bottom and right edges; **spacing-12 at 640px and below**, matching [Toast](#toast) and [Action bar](#action-bar) (`--c-back-to-top-edge`) |
+| Safe area | `env(safe-area-inset-bottom)` / `env(safe-area-inset-right)` are added to the offset, so on phones with a home indicator the button sits above the swipe area. Zero everywhere else — the same treatment Action bar already gets |
+| Above an Action bar | automatic. While an [Action bar](#action-bar) is open, its script writes `--c-action-bar-clearance` on `<html>` (panel height + its own bottom offset + spacing-16, 0 when closed). The button takes whichever is higher — its own offset or that clearance — and glides back down when the bar closes. No per-page setting |
+| Above a permanent bottom bar | the page sets `--c-back-to-top-bottom` **on `<html>`** (e.g. `96px`), once. On `<html>` rather than the button, because Toast reads the same resolved value and can't see a property set on the button. An override, never a fork |
+| Resolved offset | `--c-back-to-top-y` on `:root` = `max(page offset + safe area, Action bar clearance)`. The button and Toast's stacked rule both read it, so the two can't disagree |
+
+**What it borrows from Jump to present, and the three differences.**
+Box, border, shadow, icon size and tier, hover, focus ring, hit area and
+the whole entrance/exit recipe are Jump to present's, unchanged. Three
+things differ on purpose:
+
+1. **Bottom-right, not bottom-centre.** Jump to present is centred over
+   one chat column; a page is a whole layout, and the corner is where the
+   reader's eye isn't.
+2. **`position: fixed`, not `absolute` in a wrapper.** Same intent — it
+   holds still while content moves under it — without every page needing
+   a positioned ancestor.
+3. **No new-content dot.** Nothing arrives at the top of a page while
+   you read.
+
+**Show / hide behaviour**
+
+| Rule | Spec |
+|---|---|
+| Thresholds | appears once scrolled **past 480px**; disappears only when back **under 240px**. Between the two it keeps whatever state it was in — a single boundary makes it flicker as you scrub either side |
+| On mount | read the position once on mount, not only on scroll, so a page reopened at a restored scroll position shows the button straight away |
+| Listeners | passive `scroll` listeners |
+| Which element scrolls | an [App Shell](#app-shell) with a fixed-height frame scrolls its Content region, not the window — there `window.scrollY` is always 0 and `window.scrollTo` does nothing. Read **both** the scrolling region's `scrollTop` and `window.scrollY`, take the larger (the one not scrolling reports 0), and listen to both |
+| Page flag | in step with `.is-visible`, toggle `c-back-to-top-shown` on `<html>`. Toast's stacked rule keys off it (see Living with Toast, below) |
+
+**Action.** A click scrolls to the top with `behavior: 'smooth'`, or
+`'auto'` under `prefers-reduced-motion: reduce`. Call
+`scrollTo({ top: 0 })` on **both** the window and the scrolling region —
+scrolling something already at 0 costs nothing; guessing the wrong one
+makes the button do nothing.
+
+**Motion**
+
+| What | Duration | Easing |
+|---|---|---|
+| `opacity`, `transform` (enter / exit) | `duration-base` (220ms) | `ease-settle` |
+| `background-color`, `box-shadow` (hover) | `duration-fast` (140ms) | `ease-standard` |
+| `visibility` | `0s` — delay **0s when appearing, `duration-base` when leaving** | `linear` |
+| `bottom` (rising above an Action bar) | `duration-base` | `ease-standard` — the Action bar's own entrance pairing |
+
+The visibility delay is the important bit: on the way in the button is
+focusable immediately; on the way out it stays painted for the whole
+fade, then leaves the tab order and the accessibility tree. Opacity
+alone would leave an invisible, focusable button on screen while the
+page sits at the top.
+
+**Reduced motion:** drop the 8px travel and the Action bar glide, **keep
+the fade**. Don't remove the transition entirely — the visibility timing
+still matters.
+
+**Living with Toast.** [Toast](#toast)'s host uses the same corner and
+paints far above this (1000 against 20), so without a rule a toast would
+cover the button. While the button is showing, the toast stack rises to
+sit **spacing-12 above it** (`html.c-back-to-top-shown .c-toast-host`,
+bottom = `--c-back-to-top-y` + 32px + spacing-12). Near the top of the
+page the button is hidden and toasts keep their own corner. On a page
+that also has an open Action bar, the corner stacks **Action bar → Back
+to top → toasts** from the bottom up. Action bar's own Lift rule — rise
+clear of a toast that overlaps its panel — then never fires, because the
+toasts already sit above it, so the three can't chase each other.
+
+**Accessibility**
+
+- A real `<button type="button">`.
+- Icon-only, so `aria-label="Back to top"` and `title="Back to top"`.
+- The hidden state uses `visibility: hidden`, so it is out of the tab
+  order and the accessibility tree.
+- Focus ring on `:focus-visible` only.
+
+**Implementation contract**
+
+| Piece | Name |
+|---|---|
+| Root | `button.c-back-to-top` (+ `.is-visible`). Mount **once per page** — being `position: fixed`, anywhere in the page tree works |
+| Page flag | `html.c-back-to-top-shown`, toggled by the script in step with `.is-visible` |
+| Edge | `--c-back-to-top-edge` on `:root` — spacing-24, spacing-12 at 640px and below |
+| Page override | `--c-back-to-top-bottom`, set on `<html>` |
+| Resolved offset | `--c-back-to-top-y` on `:root` — read it, don't set it |
+| Reads | `--c-action-bar-clearance` from [Action bar](#action-bar) |
+
+**Do:** mount it once, only on pages long enough to need it, and let the
+Action bar lift happen on its own. **Don't:** set
+`--c-back-to-top-bottom` on the button itself — Toast can't see it
+there. **Don't:** fork the component to move it; every position change
+goes through the offset override.
 
 ### Badge & Tag
 
@@ -4872,6 +5008,7 @@ clears all of it:
 | 300 | [Compare modal](#compare-modal)'s layer | **Yes.** Shares Media Ad Modal's tier; the two are never open at once |
 | 95 | [Chat window](#chat-window) | **Yes** — so a tour can explain a chat window rather than hide behind one |
 | 40 | [Action bar](#action-bar) | **Yes** — and it sits under both modals (300), which make it `inert` while open |
+| 20 | [Back to top](#back-to-top) | **Yes** — and every layer above it covers it, including Chat window (95); [Toast](#toast) (1000) shares its corner but stacks above it rather than over it |
 | *none* | Modal / dialog | **Yes.** `.c-modal` declares no z-index at all |
 
 **Motion.** Every move is a pose change, so all of them take
@@ -7247,6 +7384,7 @@ place for an irreversible decision.
 |---|---|
 | Default position | bottom-right corner of the viewport |
 | Offset | spacing-24 from the bottom edge, spacing-24 from the right edge |
+| With [Back to top](#back-to-top) showing | the stack rises to sit spacing-12 above the button — bottom = `--c-back-to-top-y` + 32px + spacing-12, keyed off `html.c-back-to-top-shown` — and returns to its own offset when the button hides near the top of the page. Applies to the mobile band too. Glides at `duration-base` / `ease-standard`; instant under reduced motion |
 | Mobile | full width, anchored to the bottom of the screen, spacing-12 left/right/bottom margin |
 | Stacking layer | above all page content; below the Modal's `shadow-overlay` scrim (see [Modal](#modal)) — this document has no numeric z-index token scale, so the relationship is stated structurally rather than as a value |
 | Scroll behavior | fixed position — does not scroll with the page |
@@ -7733,6 +7871,64 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.115 — 2026-10-02** — New component **[Back to
+  top](#back-to-top)**: a small floating control that appears once the
+  reader is well down a long page and takes them back to the top in one
+  click. Transcribed from kult-creator's `BackToTop`, which is itself
+  built on [Chat window](#chat-window)'s **Jump to present**.
+
+  **What it borrows, and the three differences.** The box, border,
+  shadow, icon tier, hover, focus ring, 44px hit area and the whole
+  entrance and exit recipe are Jump to present's, unchanged. It differs
+  on purpose in three ways: bottom-right rather than bottom-centre,
+  `position: fixed` rather than absolute inside a wrapper, and no
+  new-content dot. Every value resolves to an existing token; no new
+  tokens.
+
+  **Show and hide.** It appears past 480px of scroll and hides only
+  under 240px, holding its state in between so it never flickers at a
+  single boundary. It reads the position on mount, so a page reopened
+  halfway down shows it at once, and it reads and scrolls both the
+  window and the page's scrolling region, because either can be the one
+  that moves. The visibility timing keeps a hidden button out of the
+  tab order. Reduced motion drops the slide and keeps the fade.
+
+  **Fitted to this system.** Compared with the source spec: the icon is
+  Phosphor's `ph-arrow-up` rather than Lucide's; the edge offset drops
+  to spacing-12 at 640px and below, matching Toast and Action bar; the
+  phone's safe-area insets are added, so it sits above an iPhone's home
+  line; and the per-page override is renamed `--c-back-to-top-bottom`
+  and set on `<html>`, not on the button. While an Action bar is open
+  the button rises above it on its own, reading the
+  `--c-action-bar-clearance` that Action bar already writes, so no page
+  needs a setting for it. The resolved offset lives once, as
+  `--c-back-to-top-y` on `:root`.
+
+  **Toast now stacks above it.** Toast's host uses the same corner and
+  paints above it, so a toast would have covered the button. While the
+  button is showing, the stack now rises to sit spacing-12 above it,
+  keyed off `html.c-back-to-top-shown`, and returns to its own corner
+  when the button hides near the top of the page. It glides at
+  `duration-base` / `ease-standard` and moves instantly under reduced
+  motion. With an Action bar open too, the corner stacks Action bar,
+  then Back to top, then toasts, from the bottom up; Action bar's own
+  Lift rule never fires in that state, so the three can't chase each
+  other.
+
+  **In the gallery** it's a scrollable box on warm canvas that stands
+  in for the page, with the 240px and 480px lines marked and a live
+  readout of the scroll position and state, so nothing floats over the
+  site itself. The demo never sets the `<html>` flag, so it can't lift
+  the site's real toasts. Site search found it with no extra step.
+
+  Files: `components.css` (the Back to top block beside `.c-chat-jump`,
+  and Toast's stacked rule), `DESIGN-SYSTEM.md` (the new section and
+  its contents entry, a row in Toast's Positioning table, a row at 20 in
+  the tour layering table, and cross-references under Jump to present
+  and Back button) and `preview.html`. The version stamps move from
+  v0.9.112 to v0.9.115, catching up with v0.9.113 and v0.9.114 merged
+  from other branches.
 
 - **v0.9.114 — 2026-10-02** — **Fix: clicking a Checkbox, Radio,
   Switch or Dropdown option no longer scrolls the page to a blank
