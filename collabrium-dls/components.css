@@ -2287,8 +2287,11 @@ html.c-modal-compare-locked{overflow:hidden;}
 .c-dropdown-row-check{flex:none; font-size:var(--icon-sm); color:var(--color-obsidian); visibility:hidden;}
 .c-dropdown-row.selected .c-dropdown-row-check{visibility:visible;}
 
-/* Checkbox / Radio / Switch */
-.c-choice{display:flex; align-items:flex-start; gap:var(--spacing-8); cursor:pointer;}
+/* Checkbox / Radio / Switch. position:relative anchors the hidden native
+   input to its own row: without it the input is placed against the page,
+   so clicking the label focuses an input far below the layout and the
+   browser scrolls the window to a blank area. */
+.c-choice{position:relative; display:flex; align-items:flex-start; gap:var(--spacing-8); cursor:pointer;}
 .c-choice.disabled{opacity:.5; cursor:not-allowed;}
 .c-choice input{position:absolute; opacity:0; width:0; height:0;}
 .c-choice .text{display:flex; flex-direction:column;}
@@ -3174,7 +3177,8 @@ html.c-modal-compare-locked{overflow:hidden;}
    component) verbatim rather than a second, ad-hoc checkbox recipe —
    only the row's own padding/hover chrome is new, since Checkbox
    itself (a compact form control, not a list row) never needed it. */
-.c-dropdown-option{display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
+/* position:relative anchors the hidden native input — see .c-choice. */
+.c-dropdown-option{position:relative; display:flex; align-items:center; gap:var(--spacing-8); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
 .c-dropdown-option input{position:absolute; opacity:0; width:0; height:0;}
 .c-dropdown-option:hover, .c-dropdown-option.hover{background:var(--color-neutral-2);}
 .c-dropdown-option.disabled{color:var(--color-neutral-4); cursor:not-allowed; pointer-events:none;}
