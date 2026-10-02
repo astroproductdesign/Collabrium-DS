@@ -1,1 +1,6 @@
 .vercel
+
+# Working files for component building (kept locally, not tracked)
+collabmedia-components.html
+component-backlog.html
+component-scan-planner.html
