@@ -25,7 +25,8 @@ it wherever the mark can animate rather than screenshotting it. Its "O"
 cycles through a fixed 5-frame sequence — **Gold → Water → Wood → Fire →
 Earth**, no decorative extras — with `SVG/coin.svg` as the Gold frame's
 artwork (not `gold.svg`, which is a separate icon used elsewhere in this
-system).
+system). `logo-mark.html` is the same animation with the "O" on its own,
+for spaces too small for the wordmark (SidebarNav's collapsed header).
 `logo-lockups/` holds combined, non-animated wordmark lockups for
 contexts that can't run the animation (favicons, print, email, static
 deck slides) — `collabrium-default-logo.svg` is the **default** mark

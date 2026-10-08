@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.115** — 2026-10-02 — Sourced from the Collabrium brand deck
+**v0.9.116** — 2026-10-08 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -556,25 +556,32 @@ single-element icon on its own, print work).
 ### Department logos
 
 Distinct from the generic single-element lockups in the table above,
-these four are **named product/department lockups** — each one is its
+these five are **named product/department lockups** — each one is its
 own sub-brand wordmark ("Collab" + the department name), tinted to
 that department's element color, not just the base Collabrium mark
 recolored. Live in `preview.html`'s Logo area (Department logos grid,
 after the Element/Usage/Department table), each with a "Download .svg"
 button pulling directly from its file below.
 
-⚠️ **First pass — definitions synthesized from a one-line brief per
-department, not sourced from a deck or product spec.** Confirm scope
-and wording with the product/brand team before treating these as
-final.
+Each definition has a short **hover line** too: the one-line version
+[SidebarNav](#sidebarnav)'s Department strip shows in its hover card.
+The Collabrium row is the group home, not a department, and has no
+lockup of its own here: it uses the default mark (`logo.html` live,
+`logo-lockups/collabrium-default-logo.svg` static).
 
-| File | Department | Element | Definition |
-|---|---|---|---|
-| `logo-lockups/collabContent.svg` | CollabContent | Wood · Salmon Pink `#FF7A90` | The content generation workspace where campaign copy, creative briefs, and content assets get produced, organized, and approved. |
-| `logo-lockups/collabInfluence.svg` | CollabInfluence | Earth · Green `#00C26E` | Influencer management system for sourcing, briefing, and measuring creator partnerships from discovery through payout. |
-| `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Manage the sales pipeline, from lead to close, tracking opportunities, quotes, and forecasting through to account handoff. |
-| `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | Creative studio, hosting creative-output AI agentic tools for visual, video, and design generation for campaigns. |
-| `logo-lockups/collabMedia.svg` | CollabMedia | Water · Navy Blue `#1473E6` | Media planning system that recommends digital media space and channel strategy based on a brand's available revenue — turning budget into a data-driven media plan. |
+| File | Department | Element | Definition | Hover line |
+|---|---|---|---|---|
+| `logo.html` / `logo-lockups/collabrium-default-logo.svg` | Collabrium | All five (animated) · Gold static | The group home that brings every department together: the leadership board, team feedback and the assistant, in one place. | Leadership board, feedback, assistant. |
+| `logo-lockups/collabSales.svg` | CollabSales | Gold · Amber `#FFA425` | Client intelligence and the sales pipeline in one place: research accounts, build campaign proposals, and track opportunities, quotes and forecasts from lead to close and through to account handoff. | Clients, proposals and the pipeline. |
+| `logo-lockups/collabMedia.svg` | CollabMedia | Water · Navy Blue `#1473E6` | Media planning that turns a brand's available budget into a data-driven plan, recommending the channels, ad formats and audiences to match. | Turns budgets into media plans. |
+| `logo-lockups/collabInfluence.svg` | CollabInfluence | Earth · Green `#00C26E` | Influencer management across creators, agencies and brands: source and brief creators, run campaigns, and measure partnerships from discovery through payout. | Creators, agencies and brands. |
+| `logo-lockups/collabStudio.svg` | CollabStudio | Fire · Orange `#FF5825` | The creative production studio where campaign visuals, video and design get made and delivered, with AI agentic tools doing the heavy lifting on generation. | AI-powered creative production. |
+| `logo-lockups/collabContent.svg` | CollabContent | Wood · Salmon Pink `#FF7A90` | The content workspace where campaign copy and assets get approved, scheduled and published across channels. | Approve, schedule and publish content. |
+
+Studio makes, Content ships: CollabStudio produces the creative, and
+CollabContent approves, schedules and publishes it. Keep the two
+definitions on either side of that line so the departments don't
+overlap.
 
 These five now cover all five elements — CollabMedia is the
 Water/Data-Logistics department product this table previously flagged
@@ -1386,7 +1393,7 @@ outright — that toolbar never had anything in this slot before.
 |---|---|
 | Trigger (`.c-prompt-bar-model-trigger`) | The real [Button](#button) Ghost variant, small text size (`c-btn-ghost.c-btn-sm`) — not an icon-only recipe, this one carries a label. Neutral-7 text (one step lighter than the toolbar's Neutral-9 icons, matching the label's lower-emphasis role). Trailing `ph-caret-down`, 12px, Neutral-5. Label (`.c-prompt-bar-model-label`) truncates at `max-width: 160px` with an ellipsis rather than wrapping or pushing Send out of the row |
 | Menu (`.c-prompt-bar-model-menu`) | Opens **upward** — the composer sits at the bottom of its surface, same reasoning as a bottom sheet. Reuses the exact popover shell [Chat window](#ai-native)'s own More options menu already established: `shadow-3`, `radius-md`, 1px Neutral-3 border, Neutral-1 fill, `spacing-4` padding |
-| Row (`.c-prompt-bar-model-item`) | 36px height, `spacing-12` gap, `radius-sm`, transparent fill, Neutral-2 on hover, body2 text, left-aligned — same recipe as `.c-chat-menu-item`. Trailing check icon shown only on the active option, **visibility-toggled rather than added/removed** so every row reserves the same width and the label column never shifts depending on which one is active — the same trailing-check idiom Department switcher's own dropdown already uses for its selected item |
+| Row (`.c-prompt-bar-model-item`) | 36px height, `spacing-12` gap, `radius-sm`, transparent fill, Neutral-2 on hover, body2 text, left-aligned — same recipe as `.c-chat-menu-item`. Trailing check icon shown only on the active option, **visibility-toggled rather than added/removed** so every row reserves the same width and the label column never shifts depending on which one is active |
 | Model names | Placeholder only ("Standard"/"Advanced") — real product naming wasn't specified at time of writing and isn't itself a design-system concern; treat the switcher's own anatomy above as the spec, not these two labels |
 
 **Model switcher — Behavior.** `position: fixed` on the menu,
@@ -1874,7 +1881,7 @@ a sign it belongs in that component's spec, not here.
 
 **Canonical pattern: sidebar-only. No separate Top bar chrome — Page
 header is the top of every screen.** [SidebarNav](#sidebarnav) already
-has its own Header slot (logo/workspace switcher) and Footer slot
+has its own Header slot (logo, with the Department strip below it) and Footer slot
 (account/profile) — that's a complete app frame without a second nav
 surface. No persistent bar runs across the top independent of the page's
 own content. Instead, **Page header**, below, *is* the top of the
@@ -4114,9 +4121,8 @@ checkbox. Each is independently optional; a row can carry any, all, or
 none of them, and the row's own box, padding and hover chrome are
 unchanged by any of them. Precedent rather than invention: [Search
 input](#search-input)'s User Search row is already avatar + name +
-role, [Department switcher](#logo) lists a thumbnail per department,
-and [Prompt input bar](#prompt-input-bar)'s model switcher pairs a model name with
-a one-line descriptor — three components that each had to build their
+role, and [Prompt input bar](#prompt-input-bar)'s model switcher pairs a model name with
+a one-line descriptor — two components that each had to build their
 own row because Dropdown's was a bare string.
 
 | Slot | Spec |
@@ -6380,7 +6386,7 @@ unless explicitly documented as an exception for a specific context.
 | Part | Spec |
 |---|---|
 | Container | 240px width (expanded) / 72px width (collapsed) — hard max-width in both states: `overflow-x: hidden`, never horizontally scrollable at either width, `radius-lg` (20px), 1px Neutral-3 border, Neutral-1 fill, spacing-12 (12px) padding **on all four sides equally**, spacing-4 (4px) gap between items |
-| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — logo lockup or workspace switcher slot, **horizontal padding equal on both sides**; see Header logo rule below. Expanded is a flex row, `align-items: center`, logo left-aligned, toggle right-aligned, both in normal flex flow, same row. Collapsed is not this same flex row — the logo is independently centered as the header's only in-flow content, and the toggle is a separate floating overlay button anchored to the rail's own right edge (see Collapsible state below for both) |
+| Header (optional) | spacing-8 top/right/left, spacing-16 bottom padding — the logo slot, with the [Department strip](#sidebarnav) directly below it, **horizontal padding equal on both sides**; see Header logo rule below. Expanded is a flex row, `align-items: center`, logo left-aligned, toggle right-aligned, both in normal flex flow, same row. Collapsed is not this same flex row — the logo is independently centered as the header's only in-flow content, and the toggle is a separate floating overlay button anchored to the rail's own right edge (see Collapsible state below for both) |
 | Section label (optional) | spacing-16 top, spacing-8 sides, spacing-4 bottom padding; caption size, weight 700, `tracking-eyebrow`, uppercase, Neutral-5. A 1px Neutral-3 hairline sits above every section label except the first one in the list (e.g. between Overview and Workspace), separating one department/area group from the next |
 | Nav item | 40px height minimum (grows to fit a wrapped 2-line label — see the wrapping rule below), full width, 0/spacing-12 padding, `radius-sm` (12px — smaller than the container's own radius, standard for nested interactive rows), spacing-12 gap between icon and label, body1 type (16px) |
 | Nav item — active | Neutral-2 fill, Neutral-9 text, weight 700 |
@@ -6424,8 +6430,8 @@ instead.
 | Collapsed — visible elements | icon only; labels, section labels, and trailing count text are all hidden |
 | Collapsed — alignment | every nav item's icon is center-aligned horizontally within the 72px rail. The header logo/element icon is **independently** centered the same way (not paired with the toggle icon — the toggle is a floating overlay anchored to the rail's own right edge instead, see Toggle trigger — collapsed, above, and doesn't participate in this centered alignment at all). Expanded stays left-aligned throughout |
 | Collapsed — trailing count | converts to an 8px dot badge (matches `spacing-8`) in the item's owning element accent color (same override logic as the Icon row above), overlaid top-right on the icon |
-| Collapsed — logo | collapses to the individual department element icon, `SVG/{element}.svg` (`fire.svg`/`wood.svg`/`earth.svg`/`water.svg`); the default (no department context) collapses to `SVG/coin.svg` specifically — not the expanded-state default (`logo.html` live, or a department lockup — see the Header logo rule above) |
-| Toggle behavior — logo asset | the logo swaps entirely on toggle, not just resizes or repositions. Expanding restores the live `logo.html` embed (default context) or the static lockup (department context); collapsing (either context) swaps to the static element icon/`coin.svg` (`SVG/`). The implementation needs a conditional for "restore the iframe" vs. "restore an img" rather than a single `img.src` swap, since the default expanded state is no longer an `<img>` |
+| Collapsed — logo | a department collapses to its element icon, `SVG/{element}.svg` (`gold.svg`/`water.svg`/`earth.svg`/`fire.svg`/`wood.svg`); Collabrium (no department selected) collapses to the animated "o", `logo-mark.html` — see the Header logo rule below |
+| Toggle behavior — logo asset | the logo swaps entirely on toggle, not just resizes or repositions. Expanding restores the live `logo.html` embed (Collabrium) or the static lockup (department); collapsing swaps to the animated `logo-mark.html` embed (Collabrium) or the static element icon from `SVG/` (department). Both versions stay in the markup and CSS shows one per state off `.is-collapsed`, rather than one element whose `src` is swapped, since either state can be an iframe or an `<img>` |
 | Collapsed — hover label | SidebarNav's own sub-pattern, not a reused [Tooltip](#tooltip) instance. Appears on icon hover **or keyboard focus**, shows the full nav item label, positioned to the right of the icon: same bubble visuals as Tooltip (6px/10px padding, `radius-sm`, Neutral-7 fill, Neutral-1 text, caption/500, opacity-only transition, `pointer-events: none`) but built and owned independently, because Tooltip's own spec assumes a plain relatively-positioned trigger wrapper — that model doesn't survive being placed inside SidebarNav's own scrolling item list (a vertically-scrolling container's `overflow-x` is forced to clip too, per the CSS overflow spec, which silently cuts off anything trying to render past its edge). SidebarNav's hover label is implemented as a single element that positions itself against the hovered icon directly, escaping that scroll container rather than living inside it |
 | Transition | `width` — `var(--duration-slow) var(--ease-standard)` (`duration-slow`'s stated purpose is "panel / section reveals," an exact match; `ease-standard` since a sidebar collapse isn't owned by a specific brand element — per Motion's own rule, "reach for an elemental curve deliberately, not by default") |
 | Persistence | collapsed/expanded state saved to `localStorage`, restored on load |
@@ -6434,88 +6440,129 @@ instead.
 
 | Context | Logo |
 |---|---|
-| Default (expanded, no department context) | the live animated mark, `logo.html`, embedded via `<iframe>` — SidebarNav's header has plenty of room to run the animation at 240px, per [SKILL.md](SKILL.md)'s own rule ("use `logo.html` wherever the mark can animate") |
-| Department-specific (expanded, passed via prop) | still the matching department's element-colored **static** lockup from `logo-lockups/` (see the Logo section's table above — only the Gold/default variant currently exists; the other 4 are flagged not-yet-provided) — `logo.html`'s animation always cycles through all 5 elements in sequence, so it can't freeze on one department's color; a department-specific header needs the static, single-color lockup instead |
-| Collapsed (any context) | individual department element icon, `SVG/{element}.svg`; default collapses to `SVG/coin.svg` specifically — 72px has no room to run the full wordmark animation, matching [SKILL.md](SKILL.md)'s "where it can't [animate], use a static lockup" half of the same rule |
+| Collabrium (expanded, no department selected) | the live animated mark, `logo.html`, embedded via `<iframe>` — SidebarNav's header has plenty of room to run the animation at 240px, per [SKILL.md](SKILL.md)'s own rule ("use `logo.html` wherever the mark can animate") |
+| Department (expanded, selected in the Department strip) | that department's **static** lockup from `logo-lockups/` (see [Department logos](#logo) — all five exist), 30px tall so its "collab" wordmark reads at the same size as the 118px live mark, but laid out at the live mark's 22px (a -4px margin top and bottom) so switching department never changes the header's height or shifts the menu. `logo.html`'s animation always cycles through all 5 elements, so it can't freeze on one department's color. A department with no lockup yet shows its element icon (22px) beside its name as text, weight 800 |
+| Collapsed | a department: its element icon, `SVG/{element}.svg`, static. Collabrium: the animated "o" on its own, `logo-mark.html`, embedded via `<iframe>` at 24px — the same five frames, order and timing as `logo.html`, so the collapsed mark still animates where the full wordmark can't fit. (Was the static `SVG/coin.svg` before v0.9.116.) |
+| Link | the logo is a link to the selected department's home page, in both states: on Collabrium the group home, on CollabSales the Sales dashboard. It never changes department. Hover: Neutral-2 fill on the logo only, not the whole header row |
 | Alignment | Expanded: always left-aligned. Collapsed: **independently** center-aligned within the 72px rail (see the Collapsible state's "Collapsed — alignment" row above) — the toggle trigger sits on the same row but doesn't share this centered alignment, since it's a floating overlay anchored to the rail's own right edge instead (see "Toggle trigger — collapsed," above) |
 
 **Do:** always reference the logo library (`logo.html` embedded live for
-the expanded default, a department lockup from `logo-lockups/` for an
-expanded department-specific header, `SVG/` for collapsed) — never build
-or embed a custom one-off logo asset for a header.
+expanded Collabrium, `logo-mark.html` for collapsed Collabrium, a
+department lockup from `logo-lockups/` for an expanded department,
+`SVG/` for a collapsed department and for strip icons) — never build or
+embed a custom one-off logo asset for a header.
 
-**Department switcher.**
+**Department strip.**
 
-When a SidebarNav instance receives 2 or more departments via the
-`departments[]` prop, the header logo becomes an interactive trigger:
-selecting it opens a dropdown listing each department's logo variant,
-and selecting one switches the entire nav and page context to that
-department. This is what the Header row's "workspace switcher slot"
-(see the main Part/Spec table's Header row, above) was reserved for —
-Department switcher is that slot, not a separate header element. Only
-active in expanded mode — see Collapsed mode, below.
+⚠️ **Replaced the Department switcher dropdown in v0.9.116.** Built from
+the product team's sidebar HTML and reviewed as an interactive
+prototype, not transcribed from a source design file.
 
-**Detection:**
+A row of department icons directly under the header logo. Picking one
+switches the whole sidebar, and the page, to that department in the same
+tab: the white highlight slides to the chip, the header logo changes to
+that department's lockup, and the menu below is replaced. This is the
+Header row's department slot. Expanded mode only.
 
-- Trigger renders when `departments[]` contains 2 or more items.
-- When `departments[]` has 0 or 1 item, no chevron renders and the logo
-  stays static — existing default behavior (see Header logo rule,
-  above), unchanged.
+**Who sees what, and in which order:**
+
+- The strip renders when the person can see 2 or more departments
+  (`departments[]`). With 0 or 1 there's no strip, and the header logo
+  behaves as the Header logo rule above describes.
+- Order is fixed: Collabrium (the group home) first, then live
+  departments, then **coming-soon departments last**.
+- A department the person has no access to is not shown at all.
+- A coming-soon department (confirmed, still being built) is shown
+  greyed and can't be picked.
 
 | Part | Spec |
 |---|---|
-| Department switcher trigger | expanded mode only, not accessible collapsed (see Collapsed mode, below); logo + chevron treated as one paired trigger button, sized to its own content rather than the full header width; chevron `chevron-down`/`chevron-up`, **Tier 1, Regular** (same pair and tier as Second-level navigation's own parent chevron, above), `icon-micro` (14px), Neutral-5 at rest; spacing-8 between logo and chevron; hover: Neutral-2 fill on the trigger itself only (logo + chevron), not the full header zone — a hover target that size would falsely suggest the whole header row is clickable, when only the logo/chevron pairing is; active/open: chevron swaps to `chevron-up`, Neutral-2 fill persists; `aria-haspopup="listbox"`, `aria-expanded` toggles true/false |
+| Track | Neutral-2 fill, **no border**, spacing-4 padding, `radius-md`. Sits right under the header: the header's own spacing-16 bottom padding is the gap. A 1px Neutral-3 divider follows, spacing-8 below the track |
+| Chip | 32px tall, `radius-sm` (one radius tier below the track, the same nesting rule Segmented Control uses), transparent at rest. With 2–6 departments the chips share the track's width equally (`flex: 1`), which makes six chips about 31px wide |
+| Chip icon — department | its element icon from `SVG/` at 18px, full color: `gold.svg` Sales, `water.svg` Media, `earth.svg` Influence, `fire.svg` Studio, `wood.svg` Content |
+| Chip icon — Collabrium | Phosphor `rocket-launch`, **Tier 2, Fill**, `icon-base` (20px), Neutral-9. The group home isn't a department, so it takes a neutral icon rather than a second amber mark beside Sales' gold one |
+| Selected | Neutral-1 highlight with `shadow-1`, `radius-sm`. One shared element (`.c-pod-pill`) slides and resizes to sit behind the selected chip, rather than each chip painting its own fill. `aria-current="true"` on the chip |
+| Hover (not selected) | Neutral-3 at 60% fill. Darker than the track, never white, so it can't be mistaken for the selected chip |
+| Pressed | Neutral-3 fill |
+| Focus-visible | 2px Obsidian outline, **inset** (`-2px` offset): the strip's scroller would clip an outline drawn outside the chip |
+| Coming soon | the same `SVG/` icon flattened to Neutral-4 `#bdbdbd` by a CSS filter (`contrast(0) brightness(1.48)`), not a separate grey file; `cursor: not-allowed`; never selected; still hoverable and focusable so its card can be read; `aria-disabled="true"` |
+| Size on phones | the same as desktop. A deliberate exception to the 44px touch-target rule, accepted to keep six departments on one row |
 
-**Dropdown.**
+Not a [Segmented Control](#segmented-control) instance: that one caps at
+5 options and allows Phosphor icons only. The strip borrows its track,
+its nesting radius and its sliding Pill.
+
+**Hover card.**
 
 | Part | Spec |
 |---|---|
-| Container | 240px width (matches SidebarNav's own Expanded width, above), positioned below the header area flush left with the sidebar container; Neutral-1 fill, 1px Neutral-3 border, `radius-md`, `shadow-3` — same popover convention as Filters/Date picker/Select; max 5 items visible before an internal scroll, same overflow rule as the sidebar itself (scrollbar hidden by default, visible on hover) |
-| Department item | 40px height, 0/spacing-12 padding — matches Nav item exactly; logo-only — department logo lockup (from `logo-lockups/`), left-aligned (matches Nav item's own left-aligned content), no department-name text renders in the list (each option still carries an accessible name via `aria-label` for screen readers, since the visual label is gone); every lockup renders at a **uniform rendered size for its shared "collab" text**, not just a uniform bounding-box height — lockup SVGs aren't all proportioned the same way internally (e.g. the default lockup's own canvas is a different aspect ratio from the 4 department ones), so scaling every asset to the same box height alone can still render the shared wordmark portion at visibly different sizes; correct with a per-asset scale adjustment (tuned by eye against the shared "collab" text, not derived from a formula) rather than a single uniform height rule; hover: Neutral-2 fill; active/selected: Neutral-2 fill, trailing `check` icon (**Tier 1, Regular**); `role="option"`, `aria-selected` on the active department |
-| Default option | always first in the list; its dropdown thumbnail is the **static** default lockup (`logo-lockups/collabrium-default-logo.svg`), not the live `logo.html` mark — a list of thumbnails isn't the place for a live animated embed; the header trigger itself still shows the live `logo.html` mark when Default is the active context, per the Header logo rule, above. Represents no specific department context |
-| Missing asset fallback | if a department's lockup doesn't yet exist in `logo-lockups/` (see the Logo section's table — only the Gold/default variant currently exists), render `SVG/{element}.svg` as a placeholder in place of the missing lockup |
-| List | `role="listbox"`; keyboard: arrow keys navigate options, Enter selects, Escape closes; closes on outside click, Escape, or item selection |
+| Title | the department's name (Collabrium, CollabSales…), body2, weight 700, Neutral-1. A coming-soon department adds a Neutral [Badge](#badge--tag) reading "Soon" beside the name |
+| Description | the department's hover line from [Department logos](#logo), label2 size, weight 400, Neutral-4, **one line** (about 40 characters; truncates with an ellipsis as a safety net, but the copy is written to fit) |
+| Container | as wide as its one line of text, up to 280px; spacing-12 padding, Neutral-7 fill, `radius-sm`, `shadow-3`. A 6px caret on the top edge points at the hovered chip |
+| Placement | below the strip with an 8px gap, its left edge on the strip's left edge, so it reaches past the 240px rail over the page. Built as a sibling of `.c-sidebar` inside `.c-sidebar-shell`, the same as the collapse toggle, so the rail's clip never cuts it |
+| Shows | on mouse hover or keyboard focus, instantly, with Tooltip's `duration-fast` fade. Hides on mouse leave, blur, Escape, or when the strip scrolls |
+| Touch | no card. Phones have no hover; the header logo already names the selected department |
+| Collapsed | no card: the strip is hidden |
 
-**Animation:**
+Not a [Tooltip](#tooltip) instance either: it carries a title and a
+description line, and anchors to the strip, not the chip.
 
-| Property | Spec |
+**More than 6 departments.**
+
+| Part | Spec |
 |---|---|
-| Entrance | fade in + slight slide down from the header's bottom edge |
-| Exit | fade out + slight slide up |
-| Duration/easing | `duration-fast` / `ease-standard` — `duration-fast`'s stated purpose ("hover, focus transitions") is the closest fit for a quick dropdown reveal, and `ease-standard` since, like SidebarNav's own collapse and accordion transitions, a department switcher isn't owned by a specific brand element |
-| Reduced motion | instant appear/disappear when `prefers-reduced-motion` is set |
+| Chip width | a fixed 33px instead of sharing the width (`.c-pod-strip.is-overflow`), so the sixth chip shows about two-thirds of itself, cut off at the right edge — the cue that there's more |
+| Edge fade | a 10px fade down to 45% opacity on any edge with more chips beyond it. Kept light so the cut-off chip stays readable |
+| Scrolling | the strip scrolls sideways: trackpad, touch swipe, or a normal mouse wheel (vertical wheel movement turns sideways while the pointer is over the strip). Scrollbar hidden. Settles on whole chips (`scroll-snap-type: x proximity`) |
+| Selected stays in view | on load and after every switch, the strip scrolls just enough to show the selected chip in full |
+| Keyboard | tabbing onto a chip that's out of view scrolls it into view |
+
+This is the only sideways scrolling SidebarNav allows; see Overflow
+behavior below.
 
 **On switch:**
 
-- The selected department's logo replaces the header logo immediately —
-  the static lockup from `logo-lockups/` for the expanded state,
-  `SVG/{element}.svg` for the collapsed state (per the Header logo rule
-  and Collapsible state's own "Collapsed — logo" row, above).
-- The entire nav item list replaces with the selected department's own
-  navigation structure.
-- The active nav item resets — routing navigates to the selected
-  department's home item.
-- Every accordion's open/closed state resets to all-closed on switch.
-- The selected department is saved to `localStorage` and restored on
-  load — same mechanism as Collapsible state's own Persistence row,
-  above.
-- Outgoing nav items fade out and incoming items fade in, using
-  `duration-fast` (same token as the dropdown's own animation, above).
+- Same tab. The highlight slides to the picked chip (`duration-base`,
+  `ease-standard`).
+- The header logo changes with a short rise-in (`duration-base`): the
+  department's lockup, or the live `logo.html` for Collabrium. The
+  collapsed mark changes to match.
+- The menu is replaced by that department's own menu (fade out and in,
+  `duration-fast`), scrolled to the top with every accordion closed,
+  landing on the department's home item (its Dashboard).
+- The page goes to that department's home, and the address changes.
+- The selected department comes **from the address**, not from
+  `localStorage`: a page load, a refresh or a shared link starts on
+  that department, with its chip already scrolled into view.
+- If the current page has unsaved changes, ask first ("Leave without
+  saving?", Stay / Leave) before switching.
+- While the new department's page loads, show its loading state
+  (skeleton placeholders, as [Table](#table)'s Loading state does).
+- Clicking a coming-soon chip does nothing.
 
 **Collapsed mode:**
 
-- The department switcher is not accessible collapsed.
-- The collapsed element icon (`SVG/{element}.svg`) passively reflects
-  the active department but isn't a trigger.
-- Expanding the sidebar is required to reach the department switcher.
+- The strip and its hover card are hidden.
+- The collapsed logo shows the selected department (Header logo rule,
+  above) but isn't a switcher. Expanding is required to switch.
+
+**Mobile:** collapsed shows the collapsed logo only. Expanded matches
+desktop, strip included, at the same chip size, with no hover card.
+
+**Reduced motion:** the highlight jumps instead of sliding; no logo
+rise-in; no menu fade.
 
 **Accessibility:**
 
-- Trigger: `aria-haspopup="listbox"`, `aria-expanded` reflects open/closed.
-- Dropdown: `role="listbox"`.
-- Each option: `role="option"`, `aria-selected` on the active item.
-- Keyboard: arrow keys navigate, Enter selects, Escape closes and
-  returns focus to the trigger.
+- The strip is a group labelled "Departments" (`role="group"`,
+  `aria-label`). In the product, each chip is a link to that
+  department's home; the selected one carries `aria-current`.
+- Each chip's accessible name is its name plus its hover line, plus
+  "Coming soon." where it applies.
+- Tab moves through the chips one at a time; Enter or a click picks one;
+  Escape hides the card.
+- The card is `role="tooltip"` and `aria-hidden`, since every chip
+  already carries the same text in its own name.
 
 **Second-level navigation.**
 
@@ -6543,13 +6590,18 @@ level deep.
 
 **Overflow behavior.**
 
-- The nav item list scrolls (`overflow-y: auto`) once items exceed the
-  container's available height.
+- Only the menu scrolls. Nav items, section labels and dividers sit
+  inside a menu region (`.c-sidebar-scroll`, `overflow-y: auto`) that
+  scrolls once they exceed the available height. The Header and the
+  Department strip above it, and the Footer below it, sit outside that
+  region, so they stay pinned however long a department's menu gets.
 - Horizontal scroll is never permitted, in either state — the
   container's `overflow-x: hidden` (see Container row above) applies at
   both the 240px expanded and 72px collapsed widths. Content that would
   overflow horizontally (a long label, an unswapped logo asset) must wrap
-  or be resized to fit, never scroll sideways.
+  or be resized to fit, never scroll sideways. **One exception:** the
+  Department strip's own row, with 7 or more departments (see
+  Department strip, above). The sidebar itself never scrolls sideways.
 - Scrollbar is hidden by default, visible on hover of the container as
   a thin overlay scrollbar (e.g. `scrollbar-gutter` left unreserved, or an
   absolutely-positioned custom thumb) that never reserves layout space.
@@ -6575,8 +6627,8 @@ page destination itself.
 | Role | caption (12px), weight 400, Neutral-5, single line, truncates with an ellipsis, directly below Name — spacing-4 (4px) between the two lines, matching Profile card's own Name → Meta line spacing |
 | Hover | Neutral-2 fill — reuses Nav item's own hover token, same row-control precedent as every other clickable row in SidebarNav |
 | Focus-visible | 2px Obsidian outline, 2px offset — reuses Button's exact focus-visible token, same precedent as Nav item's own focus-visible |
-| Open (menu visible) | Neutral-2 fill persists on the trigger — same precedent as Department switcher trigger's own active/open state, above |
-| ARIA | `aria-haspopup="menu"`, `aria-expanded` toggles `true`/`false` — a menu of actions, not a `listbox` of selectable values, so this pairs with `menu`/`menuitem` rather than Department switcher's own `listbox`/`option` pairing |
+| Open (menu visible) | Neutral-2 fill persists on the trigger while the menu is open |
+| ARIA | `aria-haspopup="menu"`, `aria-expanded` toggles `true`/`false` — a menu of actions, not a `listbox` of selectable values, so this pairs with `menu`/`menuitem` rather than `listbox`/`option` |
 
 **Collapsed.**
 
@@ -6590,16 +6642,16 @@ page destination itself.
 
 | Part | Spec |
 |---|---|
-| Container | 240px width — fixed, independent of the rail's own current width (even collapsed at 72px the menu still renders at the full 240px, the same fixed-width precedent Collapsed — hover label already sets for SidebarNav's own overlays); Neutral-1 fill, 1px Neutral-3 border, `radius-md`, `shadow-3` — same popover convention as Department switcher's own dropdown |
-| Placement | left-aligned flush with the trigger's own left edge, same horizontal placement rule as Department switcher's dropdown — but opens **upward**, above the trigger, rather than below it. The trigger sits at the very bottom of the viewport by design (`margin-top: auto`), so a downward-opening panel would routinely overflow the viewport's bottom edge; opening upward is this component's permanent placement rule rather than a one-off viewport-collision fallback, since the trigger's position relative to the viewport bottom never changes |
+| Container | 240px width — fixed, independent of the rail's own current width (even collapsed at 72px the menu still renders at the full 240px, the same fixed-width precedent Collapsed — hover label already sets for SidebarNav's own overlays); Neutral-1 fill, 1px Neutral-3 border, `radius-md`, `shadow-3` — same popover convention as Filters/Date picker/Select |
+| Placement | left-aligned flush with the trigger's own left edge, but opens **upward**, above the trigger, rather than below it. The trigger sits at the very bottom of the viewport by design (`margin-top: auto`), so a downward-opening panel would routinely overflow the viewport's bottom edge; opening upward is this component's permanent placement rule rather than a one-off viewport-collision fallback, since the trigger's position relative to the viewport bottom never changes |
 | Item | 40px height, 0/spacing-12 padding, `radius-sm`, spacing-12 gap between icon and label — matches Nav item's own row proportions, since these are still simple one-tap actions, just menu-presented instead of nav-presented; body2 (14px)/500/Neutral-9 label — one step down from Nav item's own body1, marking this as a secondary/utility list rather than primary navigation; icon `icon-base` (20px), **Tier 2, Fill** — matches Nav item's own Icon treatment verbatim (see Nav item's Icon row, above) rather than following Iconography's general "clickable control → Tier 1, Regular" rule, a deliberate exception for visual consistency between the primary nav list and this menu, since both live inside the same SidebarNav instance |
 | Item — hover | Neutral-2 fill — the same Nav item/Table row hover token reused everywhere else in this document |
 | Divider (optional) | 1px Neutral-3 hairline, spacing-4 (4px) vertical margin — separates Settings from the trailing sign-out action, the same hairline treatment as Section label's own divider rule above |
 | Roles | `role="menu"` on the container; `role="menuitem"` on each item |
-| Keyboard | arrow keys navigate items, Enter/Space activates the focused item, Escape closes and returns focus to the trigger — same keyboard contract as Department switcher's own dropdown, adapted from `listbox`/`option` to `menu`/`menuitem` |
-| Closes on | outside click, Escape, or item selection — same as Department switcher's own dropdown |
+| Keyboard | arrow keys navigate items, Enter/Space activates the focused item, Escape closes and returns focus to the trigger — the standard `menu`/`menuitem` keyboard contract |
+| Closes on | outside click, Escape, or item selection |
 
-**Animation.** Reuses Department switcher's own dropdown animation, mirrored for the opposite opening direction: fade in + slight slide **up** from the trigger's own top edge (exit: fade out + slight slide down); `duration-fast`/`ease-standard`; instant appear/disappear under `prefers-reduced-motion`.
+**Animation.** Fade in + slight slide **up** from the trigger's own top edge (exit: fade out + slight slide down); `duration-fast`/`ease-standard`; instant appear/disappear under `prefers-reduced-motion`.
 
 **Accessibility.**
 
@@ -6618,15 +6670,15 @@ replaced, by this.
 
 Below 768px, SidebarNav stops behaving like a fixed-height column and
 becomes a **content-sized card** instead — the same instance, the same
-interactions (Nav items, Department switcher, the User account
+interactions (Nav items, the Department strip, the User account
 section's own menu all work exactly as documented above); only how
 much space the container itself takes up changes.
 
 | Part | Spec |
 |---|---|
-| Height | `auto` — the card is only ever as tall as its own header + visible items + footer require ("the height shrinks accordingly depending on the number of navigation items"), rather than always stretching to fill the screen. A `max-height: calc(100dvh - 32px)` safety cap plus the existing Overflow behavior's own `overflow-y: auto` scroll (see above) still apply once a genuinely long item list would otherwise push the card off-screen |
+| Height | `auto` — the card is only ever as tall as its own header + visible items + footer require ("the height shrinks accordingly depending on the number of navigation items"), rather than always stretching to fill the screen. A `max-height: calc(100dvh - 32px)` safety cap plus the menu region's own `overflow-y: auto` scroll (see Overflow behavior, above) still apply once a genuinely long item list would otherwise push the card off-screen |
 | Width | unchanged, 240px expanded — additionally capped at `calc(100vw - 32px)` so it can never overflow a narrow phone viewport, the same `min(fixed-value, viewport-minus-gutter)` safety pattern this system already uses elsewhere for fixed-width surfaces on small screens |
-| Elevation | gains `shadow-3` (the same popover-elevation token Department switcher's own dropdown and Filters/Date picker already use) — the desktop rail sits flush in its own layout column and needs no shadow of its own, but once it's positioned as a floating card on top of page content (an [App Shell](#app-shell) placement decision, not this component's own), it needs one to read as elevated above what's behind it |
+| Elevation | gains `shadow-3` (the same popover-elevation token Filters/Date picker already use) — the desktop rail sits flush in its own layout column and needs no shadow of its own, but once it's positioned as a floating card on top of page content (an [App Shell](#app-shell) placement decision, not this component's own), it needs one to read as elevated above what's behind it |
 | Trigger | none separate from the existing [Collapsible state](#sidebarnav)'s own toggle, above — there is no additional hamburger/menu affordance that opens or closes this card. The same expand/collapse toggle does both jobs: the card is always present, just collapsible down to a minimal footprint (see Collapsed, below) rather than dismissed entirely |
 | Backdrop | none. Unlike Chat window's own rail drawer, the page behind stays fully visible and interactive — this is a floating card, not a modal/scrim overlay |
 
@@ -6639,7 +6691,7 @@ shows only the main logo."
 | Part | Spec |
 |---|---|
 | Visible | the header/logo row only |
-| Hidden | every Nav item in full (not just labels — the items themselves), every Section label and divider, and the Footer/User account section in full — Collapsible state's existing "labels hidden" rules extend here to "the whole row hidden" |
+| Hidden | every Nav item in full (not just labels — the items themselves), every Section label and divider, the Department strip, and the Footer/User account section in full — Collapsible state's existing "labels hidden" rules extend here to "the whole row hidden" |
 | Width / height | both `auto`, hugging the header row's own intrinsic size — not desktop's fixed 72px, since there's no icon column left to reserve room for once every item is hidden |
 | Toggle | the same floating overlay toggle already documented in Collapsible state, straddling the card's own edge — unchanged mechanism, repositioned to match the now much shorter card |
 | Collapsed — hover label | doesn't apply in this state — that sub-pattern exists to preview a hidden item's label on hover/focus, and there are no item icons visible here to attach it to |
@@ -6647,6 +6699,11 @@ shows only the main logo."
 ⚠️ **Needs Input — SidebarNav.**
 - Keyboard navigation (arrow keys, `Enter`, `Escape` on the accordion) —
   to be defined in a future accessibility pass.
+- A seventh department has no element. The five departments already use
+  all five element colors and shapes, so a new one needs a brand decision
+  on its color, its `SVG/` icon and its lockup before it can join the
+  Department strip. The gallery's more-than-6 demo uses spare shapes
+  (`cloud.svg`, `sun.svg`) as stand-ins only.
 
 ### Slider
 
@@ -7871,6 +7928,62 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.116 — 2026-10-08** — **SidebarNav: the Department switcher dropdown
+  becomes a [Department strip](#sidebarnav)**, a row of department icons under
+  the header logo. Picking one switches the whole sidebar, and the page, to
+  that department in the same tab. Built from the product team's sidebar HTML
+  and reviewed as an interactive prototype first.
+
+  **How it works.** Collabrium, the group home with a rocket icon, comes
+  first, then live departments, then coming-soon ones last: greyed and never
+  selectable. Departments a person has no access to aren't shown, and with
+  fewer than two there's no strip. A white highlight slides to the picked
+  chip, the header logo changes to that department's lockup, and the menu is
+  replaced by the department's own, landing on its Dashboard. The selected
+  department comes from the page address, not the browser's memory, and
+  unsaved work asks before leaving.
+
+  **Hover card.** Hovering or tabbing onto a chip shows the department's name
+  and a one-line description below the strip, with a Soon badge for
+  coming-soon departments. There's no card on touch screens or when the
+  sidebar is collapsed.
+
+  **More than six.** Chips take a fixed 33px so the sixth shows partly cut
+  off, a light fade marks any edge with more, and the strip scrolls sideways,
+  with a normal mouse wheel too. The selected chip is kept in view. It's the
+  only sideways scrolling SidebarNav allows.
+
+  **Header logo.** The logo now links to the selected department's home page.
+  A department's lockup is drawn 30px tall but takes the live mark's 22px, so
+  switching never shifts the menu. Collapsed, Collabrium now shows the
+  animated "o" from the new `logo-mark.html` instead of the still `coin.svg`;
+  a department still shows its element icon.
+
+  **Only the menu scrolls.** The header, strip and footer sit outside a new
+  menu region, `.c-sidebar-scroll`, so they stay pinned however long a
+  department's menu gets. App Shell, phones and the gallery's own sidebar
+  follow the same rule.
+
+  **Department definitions.** The Logo section's department definitions are
+  rewritten from the brand brief and the product build, with a Collabrium row
+  and a one-line hover line for each. CollabStudio makes the creative and
+  CollabContent approves, schedules and publishes it. The "first pass" warning
+  is removed.
+
+  **In the gallery** the SidebarNav demo has Layout sample chips for 6
+  departments, less than 6 and more than 6, the last with two stand-in
+  departments. App Shell uses the strip, and the gallery's own sidebar
+  collapses to the animated "o". Needs Input now asks what colour a seventh
+  department gets, since all five elements are taken.
+
+  Files: the new `logo-mark.html`; `components.css` (the Department strip and
+  hover card replace the `.c-dept-*` dropdown styles, plus the header logo
+  link, lockup, animated mark and menu region); `DESIGN-SYSTEM.md`
+  (SidebarNav's Department strip, Header logo rule, Overflow and mobile rows,
+  Department logos, and cross-references in Dropdown, Prompt input bar, App
+  Shell and the account menu); `SKILL.md`; and `preview.html`. The version
+  stamps move from v0.9.115 to v0.9.116.
 
 - **v0.9.115 — 2026-10-02** — New component **[Back to
   top](#back-to-top)**: a small floating control that appears once the
