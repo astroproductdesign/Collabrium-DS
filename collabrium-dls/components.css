@@ -1933,12 +1933,34 @@ html.c-modal-compare-locked{overflow:hidden;}
    the header to fit the padded embed at full size. */
 .c-sidebar-logo-live-wrap{width:118px; height:22px; overflow:hidden; position:relative;}
 .c-sidebar-logo-live-wrap iframe{position:absolute; top:-16px; left:0; width:118px; height:53px; border:0; pointer-events:none;}
-/* Collapsed (any context), and expanded department-specific — still a
-   static asset (element icon / coin.svg collapsed, a department
-   lockup expanded) — unchanged by the animated-default switch above. */
+/* Header logo as a link to the current department's home page — the
+   Collabrium wordmark, a department lockup, or (collapsed) a mark.
+   Hover fill covers the logo only, not the whole header row. */
+.c-sidebar-logo-home{display:flex; align-items:center; max-width:170px; padding:2px 4px; margin:-2px -4px; border-radius:var(--radius-sm); color:var(--color-neutral-9); text-decoration:none;}
+.c-sidebar-logo-home:hover{background:var(--color-neutral-2);}
+.c-sidebar-logo-home:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* Expanded, department selected — that department's static lockup from
+   logo-lockups/. 30px tall so its "collab" wordmark reads at the same
+   size as the 118px live mark above, but laid out at the live mark's
+   22px (-4px top and bottom) so switching department never changes
+   the header's height or shifts the menu below it. */
+.c-sidebar-logo-lockup{height:30px; width:auto; display:block; margin:-4px 0;}
+/* Expanded, department with no lockup yet — its element icon plus the
+   name as text (Department strip's Missing asset fallback). */
+.c-sidebar-logo-fallback{display:flex; align-items:center; gap:var(--spacing-8); font-size:18px; line-height:22px; font-weight:800; white-space:nowrap;}
+.c-sidebar-logo-fallback img{width:22px; height:22px; flex:none;}
+/* Collapsed — a department's static element icon (SVG/), or with no
+   department selected, the animated "o" from logo-mark.html, embedded
+   the same way as the live wordmark. */
 .c-sidebar-logo-collapsed{display:none; height:24px; width:24px;}
-.c-sidebar.is-collapsed .c-sidebar-logo-live-wrap{display:none;}
+.c-sidebar-logo-mark-wrap iframe{display:block; width:24px; height:24px; border:0; pointer-events:none;}
+.c-sidebar.is-collapsed .c-sidebar-logo-live-wrap,
+.c-sidebar.is-collapsed .c-sidebar-logo-lockup,
+.c-sidebar.is-collapsed .c-sidebar-logo-fallback{display:none;}
 .c-sidebar.is-collapsed .c-sidebar-logo-collapsed{display:block;}
+/* A department switch swaps the header logo with a short rise-in. */
+.c-sidebar-logo-swap{animation:c-sidebar-logo-in var(--duration-base) var(--ease-standard);}
+@keyframes c-sidebar-logo-in{from{opacity:0; transform:translateY(4px);}to{opacity:1; transform:none;}}
 .c-sidebar-section{padding:var(--spacing-16) var(--spacing-8) var(--spacing-4); font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); flex-shrink:0;}
 .c-sidebar-divider{border:none; border-top:1px solid var(--color-neutral-3); margin:var(--spacing-8) 0 0; flex-shrink:0;}
 .c-sidebar.is-collapsed .c-sidebar-section,
@@ -1960,6 +1982,16 @@ html.c-modal-compare-locked{overflow:hidden;}
 .c-sidebar-item.soon .c-badge{margin-left:auto;}
 .c-sidebar.is-collapsed .c-sidebar-item{justify-content:center; padding:0;} /* every item icon independently centered within the 72px rail */
 .c-sidebar-footer{margin-top:auto; padding-top:var(--spacing-16); border-top:1px solid var(--color-neutral-3); flex-shrink:0;}
+/* Menu region — the only part of the sidebar that scrolls vertically.
+   Header, Department strip and Footer sit outside it, so they stay
+   pinned however long a department's menu gets (Overflow behavior). */
+.c-sidebar{min-height:0;}
+.c-sidebar-scroll{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:var(--spacing-4); overflow-y:auto; overflow-x:hidden; scrollbar-width:none; transition:opacity var(--duration-fast) var(--ease-standard);}
+.c-sidebar-scroll::-webkit-scrollbar{width:0;}
+.c-sidebar-scroll:hover{scrollbar-width:thin;}
+.c-sidebar-scroll:hover::-webkit-scrollbar{width:6px;}
+.c-sidebar-scroll:hover::-webkit-scrollbar-thumb{background:var(--color-neutral-3); border-radius:var(--radius-pill);}
+.c-sidebar-scroll.is-swapping{opacity:0;}
 
 /* Toggle — a sibling of .c-sidebar inside .c-sidebar-shell, not a
    descendant of it: .c-sidebar has overflow-x:clip (never
@@ -1977,33 +2009,57 @@ html.c-modal-compare-locked{overflow:hidden;}
 .c-sidebar-toggle svg{width:18px; height:18px;}
 .c-sidebar.is-collapsed ~ .c-sidebar-toggle svg{width:16px; height:16px;}
 
-/* Department switcher — expanded mode only, per DESIGN-SYSTEM.md
-   SidebarNav, Department switcher. The trigger pairs the header logo
-   with a chevron as one button; the dropdown is a sibling of .c-sidebar
-   inside .c-sidebar-shell (same positioning precedent as .c-sidebar-toggle
-   above), positioned via JS against the header's own rect. */
-.c-dept-trigger{display:inline-flex; align-items:center; gap:var(--spacing-8); width:auto; background:none; border:none; padding:2px 4px; margin:-2px -4px; cursor:pointer; font-family:inherit; border-radius:var(--radius-sm);}
-.c-dept-trigger:hover{background:var(--color-neutral-2);}
-.c-dept-chevron{font-size:var(--icon-micro); color:var(--color-neutral-5); flex:none;}
-.c-dept-logo-static{height:22px; display:block;}
-.c-sidebar.is-collapsed .c-dept-trigger{display:none;} /* no dropdown access collapsed, per Department switcher's Collapsed mode rule; .js-dept-logo-collapsed reuses .c-sidebar-logo-collapsed's own show/hide rule already */
-.c-dept-dropdown{position:absolute; width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4); max-height:220px; overflow-y:auto; z-index:20;}
-.c-dept-dropdown[hidden]{display:none;}
-.c-dept-option{display:flex; align-items:center; gap:var(--spacing-12); height:40px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); cursor:pointer;}
-.c-dept-option:hover{background:var(--color-neutral-2);}
-.c-dept-option.is-active{background:var(--color-neutral-2);}
-.c-dept-option-logo{height:22px; display:flex; align-items:center; justify-content:flex-start; flex:1;}
-/* Each lockup's own SVG canvas isn't uniformly proportioned to its
-   "collab" text — e.g. the default lockup's viewBox is 162 tall vs.
-   269 for the 4 department ones, so scaling every image to the same
-   box height (via height:100%) renders "collab" at visibly different
-   sizes across logos. --logo-scale is a per-image, tuned-by-eye
-   correction (set inline per <img>, defaults to 1 when the lockup's
-   own proportions already match) so every logo's "collab" reads at
-   the same size regardless of its own canvas height. */
-.c-dept-option-logo img{height:calc(100% * var(--logo-scale, 1)); width:auto; object-fit:contain;}
-.c-dept-check{font-size:var(--icon-sm); color:var(--color-neutral-9); visibility:hidden; flex:none;}
-.c-dept-option.is-active .c-dept-check{visibility:visible;}
+/* Department strip — expanded mode only, per DESIGN-SYSTEM.md
+   SidebarNav, Department strip. A row of department icons under the
+   header logo: Collabrium first, live departments, coming-soon ones
+   last. The selected one sits on a white highlight (.c-pod-pill) that
+   slides between chips — Segmented Control's pill, borrowed, not a
+   Segmented Control instance (that caps at 5 and is Phosphor-only).
+   2–6 chips share the width; 7+ switches to .is-overflow: fixed 33px
+   chips so the sixth shows partly cut off, a light fade on any edge
+   with more, and the row scrolls sideways — the one sideways scroller
+   SidebarNav allows. Hidden with 0–1 departments, and when collapsed. */
+.c-pod-strip{flex:none; padding:var(--spacing-4); background:var(--color-neutral-2); border-radius:var(--radius-md);}
+.c-sidebar-header + .c-pod-strip{margin-top:calc(var(--spacing-4) * -1);} /* header's own 16px bottom padding is the gap, not 16 + the rail's 4px item gap */
+.c-pod-strip[hidden]{display:none;}
+.c-pod-scroller{overflow-x:auto; overflow-y:hidden; scrollbar-width:none; overscroll-behavior-x:contain; scroll-snap-type:x proximity; border-radius:var(--radius-sm);}
+.c-pod-scroller::-webkit-scrollbar{display:none;}
+.c-pod-scroller.has-more-end{-webkit-mask-image:linear-gradient(to right, #000 calc(100% - 10px), rgba(0,0,0,.45)); mask-image:linear-gradient(to right, #000 calc(100% - 10px), rgba(0,0,0,.45));}
+.c-pod-scroller.has-more-start{-webkit-mask-image:linear-gradient(to left, #000 calc(100% - 10px), rgba(0,0,0,.45)); mask-image:linear-gradient(to left, #000 calc(100% - 10px), rgba(0,0,0,.45));}
+.c-pod-scroller.has-more-start.has-more-end{-webkit-mask-image:linear-gradient(to right, rgba(0,0,0,.45), #000 10px, #000 calc(100% - 10px), rgba(0,0,0,.45)); mask-image:linear-gradient(to right, rgba(0,0,0,.45), #000 10px, #000 calc(100% - 10px), rgba(0,0,0,.45));}
+.c-pod-row{position:relative; display:flex; gap:var(--spacing-4);}
+.c-pod-pill{position:absolute; top:0; left:0; height:100%; width:0; background:var(--color-neutral-1); box-shadow:var(--shadow-1); border-radius:var(--radius-sm); pointer-events:none; transition:transform var(--duration-base) var(--ease-standard), width var(--duration-base) var(--ease-standard);}
+.c-pod-pill.no-anim{transition:none;}
+.c-pod-chip{position:relative; z-index:1; flex:1 1 0; min-width:0; height:32px; display:flex; align-items:center; justify-content:center; padding:0; border:0; border-radius:var(--radius-sm); background:transparent; cursor:pointer; scroll-snap-align:start; transition:background-color var(--duration-fast) var(--ease-standard);}
+.c-pod-strip.is-overflow .c-pod-chip{flex:0 0 33px;}
+.c-pod-chip img{display:block; width:18px; height:18px;}
+.c-pod-chip i{font-size:var(--icon-base); color:var(--color-neutral-9);} /* Collabrium's rocket-launch, the one Phosphor chip */
+.c-pod-chip:not(.is-current):not(.is-soon):hover{background:color-mix(in srgb, var(--color-neutral-3) 60%, transparent);}
+.c-pod-chip:not(.is-soon):active{background:var(--color-neutral-3);}
+.c-pod-chip:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;} /* inset: the scroller clips anything outside the chip */
+.c-pod-chip.is-soon{cursor:not-allowed;}
+/* Coming soon — the element icon flattened to Neutral-4 #bdbdbd.
+   contrast(0) turns every colour to the same 50% grey, brightness(1.48)
+   lifts that to #bdbdbd, and transparent pixels stay transparent — so
+   the chip keeps using the real SVG/ file instead of a grey copy. */
+.c-pod-chip.is-soon img{filter:contrast(0) brightness(1.48);}
+.c-sidebar.is-collapsed .c-pod-strip{display:none;}
+
+/* Department strip — hover card. One per sidebar, a sibling of
+   .c-sidebar inside .c-sidebar-shell (same precedent as the toggle), so
+   .c-sidebar's clip never cuts it; positioned by JS just below the
+   strip, left edge on the strip's, caret on the hovered chip; sized to
+   its one-line text, up to 280px. Shows on
+   hover or keyboard focus, never on touch, never collapsed. */
+.c-pod-card{position:absolute; z-index:20; width:max-content; max-width:280px; padding:var(--spacing-12); background:var(--color-neutral-7); color:var(--color-neutral-1); border-radius:var(--radius-sm); box-shadow:var(--shadow-3); pointer-events:none; opacity:0; transform:translateY(-2px); transition:opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
+.c-pod-card.is-visible{opacity:1; transform:none;}
+.c-pod-card::before{content:''; position:absolute; top:-6px; left:var(--c-pod-caret-x, 24px); margin-left:-6px; border:6px solid transparent; border-top:0; border-bottom-color:var(--color-neutral-7);}
+.c-pod-card-title{display:flex; align-items:center; gap:var(--spacing-8); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:700;}
+.c-pod-card-desc{margin-top:2px; font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:400; color:var(--color-neutral-4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;} /* one line; the copy is written to fit */
+@media (prefers-reduced-motion:reduce){
+  .c-pod-pill, .c-pod-card, .c-sidebar-scroll{transition:none;}
+  .c-sidebar-logo-swap{animation:none;}
+}
 
 /* Collapsed — hover label. SidebarNav's own sub-pattern (not a
    reused Tooltip instance) — see DESIGN-SYSTEM.md's "Collapsed —
@@ -2012,7 +2068,8 @@ html.c-modal-compare-locked{overflow:hidden;}
 .c-sidebar-hover-label{position:fixed; padding:6px 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard); z-index:20;}
 .c-sidebar-hover-label.is-visible{opacity:1;}
 .c-sidebar-item .c-sidebar-hover-text,
-.c-sidebar-user .c-sidebar-hover-text{display:none;} /* text source only — read by JS, never shown itself */
+.c-sidebar-user .c-sidebar-hover-text,
+.c-sidebar-logo-home .c-sidebar-hover-text{display:none;} /* text source only — read by JS, never shown itself */
 
 /* User account section — lives inside .c-sidebar-footer, per
    DESIGN-SYSTEM.md's own "User account section". Avatar recipe is
@@ -2032,7 +2089,7 @@ html.c-modal-compare-locked{overflow:hidden;}
 .c-sidebar.is-collapsed .c-sidebar-user-text{display:none;}
 
 /* Menu — a sibling of .c-sidebar inside .c-sidebar-shell (same
-   positioning precedent as .c-dept-dropdown), positioned via JS
+   positioning precedent as .c-sidebar-toggle), positioned via JS
    against the trigger's own rect. Opens upward: the trigger sits at
    the bottom of the viewport by design, so a downward panel would
    routinely overflow — see DESIGN-SYSTEM.md's Menu → Placement row. */
@@ -2049,10 +2106,8 @@ html.c-modal-compare-locked{overflow:hidden;}
    collapse"). Clicking anywhere on the parent toggles it, not just
    the chevron. Each parent's open/closed state is independent — no
    single-open-at-a-time grouping. */
-/* Same icon tier/style as the Department switcher's own chevron —
-   Phosphor caret, icon-micro, Neutral-5 — swapped via class rather
-   than rotated/path-swapped, for visual consistency between the two
-   expand/collapse affordances in the same sidebar. */
+/* Phosphor caret, icon-micro, Neutral-5 — swapped via class rather
+   than rotated/path-swapped. */
 .c-sidebar-item .c-nav-parent-toggle{margin-left:auto; display:flex; align-items:center; justify-content:center; flex:none;}
 .c-sidebar-item .c-nav-parent-toggle i{font-size:var(--icon-micro); color:var(--color-neutral-5);}
 /* "Active parent with active child — parent shows weight 700 text,
@@ -2097,12 +2152,13 @@ html.c-modal-compare-locked{overflow:hidden;}
    (see App Shell's own Responsive row), not something this component's
    own CSS should assume. */
 @media (max-width:768px){
-  .c-sidebar{height:auto; max-height:calc(100dvh - 32px); width:min(240px, calc(100vw - 32px)); overflow-y:auto; box-shadow:var(--shadow-3);}
+  .c-sidebar{height:auto; max-height:calc(100dvh - 32px); width:min(240px, calc(100vw - 32px)); box-shadow:var(--shadow-3);}
   /* Collapsed goes further than desktop's fixed 72px icon rail — every
      item and the footer hide entirely, not just their labels, so the
      card shrinks in both dimensions down to just its own header/logo. */
   .c-sidebar.is-collapsed{width:auto; height:auto; max-height:none;}
   .c-sidebar.is-collapsed .c-sidebar-item,
+  .c-sidebar.is-collapsed .c-sidebar-scroll,
   .c-sidebar.is-collapsed .c-sidebar-footer{display:none;}
 }
 
@@ -2129,7 +2185,7 @@ html.c-modal-compare-locked{overflow:hidden;}
    so collapsing to 72px inside App Shell works the same as it does in
    SidebarNav's own standalone demo. */
 .c-shell .c-sidebar-shell{flex:0 0 auto; display:flex; margin:var(--spacing-16) 0 var(--spacing-16) var(--spacing-16);}
-.c-shell .c-sidebar{overflow-y:auto;}
+.c-shell .c-sidebar{overflow-y:hidden;} /* the menu region scrolls (.c-sidebar-scroll), so the header and strip stay pinned */
 .c-shell-main{flex:1; display:flex; flex-direction:column; min-width:0;}
 .c-shell-content{flex:1; overflow-y:auto; padding:var(--page-gutter); padding-top:var(--section-gap);}
 .c-shell .c-pageheader{margin-bottom:var(--section-gap);}
@@ -4026,9 +4082,8 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
 .c-prompt-bar-model-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:36px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); background:transparent; border:none; font-family:inherit; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9); text-align:left; cursor:pointer;}
 .c-prompt-bar-model-item:hover{background:var(--color-neutral-2);}
 .c-prompt-bar-model-item span{flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-/* Trailing check, visibility-toggled rather than added/removed — same
-   idiom Department switcher's own dropdown uses for its selected item
-   — so every row reserves the same width and the label column never
+/* Trailing check, visibility-toggled rather than added/removed, so
+   every row reserves the same width and the label column never
    shifts depending on which one is active. */
 .c-prompt-bar-model-item i{font-size:var(--icon-sm); color:var(--color-neutral-9); visibility:hidden; flex:none;}
 .c-prompt-bar-model-item.is-active i{visibility:visible;}
