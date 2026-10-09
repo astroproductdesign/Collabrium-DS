@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CTA beacon (Button modifier c-btn-beacon) · Draft · Collabrium DLS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<!-- =====================================================================
+     COMPONENT CSS: CTA beacon, Button modifier `c-btn-beacon` (DRAFT)
+     The only block meant for promotion into components.css.
+
+     Reuses, as shipped and untouched:
+       - .c-btn, .c-btn-primary, .c-btn-sm / -md / -lg. Fill, height, padding,
+         radius, hover, active, disabled and the 2px Obsidian focus-visible
+         outline are not redeclared. The beacon only ADDS a box-shadow ring
+         and an icon transform.
+       - --color-neutral-9 (via color-mix) for the ring ink. This is the same
+         Neutral-9 ink as --shadow-overlay (rgba(8,8,8,.56)), the system's
+         only shadow-family value that isn't built on Neutral-4.
+       - --spacing-12 for the ring reach (also the host's clearance rule).
+       - --border-width-md for the reduced-motion static ring. That 2px
+         ring is the Tutorial Modal spotlight's "currently engaged" ring
+         weight.
+       - --ease-standard for the easing.
+       - The .is-static "documentation, print, tests" precedent
+         (.npeek.is-static / .npanel.is-static).
+       - Rule 12 "decoration freezes, information doesn't" (Loading grid,
+         Prompt input bar reduced-motion blocks).
+     Does NOT reuse a step-indicator pulse. None exists: Stepper's indicator
+     is static, and neither components.css nor DESIGN-SYSTEM.md has a ring
+     or pulse @keyframes. This is a new recipe.
+
+     One-off values (each recorded where it is declared):
+       1.4s cycle · 3 cycles · 32% ink · 70% keyframe stop · 3px nod
+     ===================================================================== -->
+<style>
+/* Local knobs. Scoped to the modifier and never read by the shipped
+   Button rules.
+   --c-btn-beacon-dur   1.4s ONE-OFF. No motion token fits. duration-ambient
+                        (900ms) gives a ring every 0.9s, which reads as an
+                        alarm rather than an invitation. duration-reveal (550ms)
+                        and below are transition lengths, not loop cadences.
+                        1.4s is the source's cadence, close to a resting
+                        breath.
+   --c-btn-beacon-count 3 ONE-OFF, a deliberate cut from the source's 6.
+                        6 x 1.4s = 8.4s runs past WCAG 2.2.2's 5-second bound
+                        for motion that starts automatically. 3 x 1.4s = 4.2s
+                        stays under it, so no pause control is needed.
+   --c-btn-beacon-ink   Neutral-9 at 32% ONE-OFF (the source's .32). Shared by
+                        the pulse peak and the reduced-motion ring.
+   --c-btn-beacon-nod   3px ONE-OFF. spacing-4 is 25% of a 16px (icon-sm)
+                        glyph and reads as a jump. 3px reads as a nod. */
+.c-btn-beacon{
+  --c-btn-beacon-dur:1.4s;
+  --c-btn-beacon-count:3;
+  --c-btn-beacon-ink:color-mix(in srgb, var(--color-neutral-9) 32%, transparent);
+  --c-btn-beacon-ink-0:color-mix(in srgb, var(--color-neutral-9) 0%, transparent);
+  --c-btn-beacon-nod:3px;
+}
+
+/* Ring. A box-shadow, not an ::after, because:
+   - Box-shadow never takes part in layout, so nothing shifts.
+   - An ::after would need position:relative on .c-btn, which changes the
+     shipped Button (it would become a containing block).
+   - Primary has no resting box-shadow, so nothing is overwritten. This is
+     also why Secondary (which carries shadow-1) is excluded.
+   - Button's focus indicator is an outline, a different property, so the
+     two can't collide. The ring is masked on focus anyway.
+   Limitation (shared with an ::after): an overflow:hidden ancestor closer
+   than spacing-12 crops the ring. Host rule: keep spacing-12 clear around
+   a beaconed button. If cropped, it degrades to a partial ring and nothing
+   breaks.
+   70% stop (ONE-OFF, from source): the ring is fully out by 70%, and the
+   last 30% is rest, so each ring reads as a separate breath.
+   The 100% frame is transparent at 0 spread, so when the cap runs out the
+   resting look is exactly a plain Primary. */
+@keyframes c-btn-beacon-ring{
+  0%{box-shadow:0 0 0 0 var(--c-btn-beacon-ink);}
+  70%{box-shadow:0 0 0 var(--spacing-12) var(--c-btn-beacon-ink-0);}
+  100%{box-shadow:0 0 0 0 var(--c-btn-beacon-ink-0);}
+}
+/* Nod. The direction follows the arrow. Same cycle and count as the ring,
+   so the two stay in step and stop together. */
+@keyframes c-btn-beacon-nod-down{0%,60%,100%{transform:none;} 30%{transform:translateY(var(--c-btn-beacon-nod));}}
+@keyframes c-btn-beacon-nod-right{0%,60%,100%{transform:none;} 30%{transform:translateX(var(--c-btn-beacon-nod));}}
+/* Reduced-motion hold. A steady ring with no movement, removed when the
+   same time window ends. */
+@keyframes c-btn-beacon-hold{0%,100%{box-shadow:0 0 0 var(--border-width-md) var(--c-btn-beacon-ink);}}
+
+/* Armed. Primary only. :where() keeps the guards at zero specificity, so
+   the whole recipe sits at (0,2,0). Icon-only, :disabled and
+   aria-disabled buttons never match, so they never beacon. */
+.c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])){
+  animation:c-btn-beacon-ring var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);
+}
+/* Nod: trailing arrow only (last child). A leading icon, or any other
+   glyph, stays still. Phosphor icons are already flex items inside the
+   inline-flex .c-btn, so transform applies without a display change. */
+.c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])) > i.ph-arrow-down:where(:last-child){
+  animation:c-btn-beacon-nod-down var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);
+}
+.c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])) > i.ph-arrow-right:where(:last-child){
+  animation:c-btn-beacon-nod-right var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);
+}
+
+/* Interaction mask. Hover, focus or press hides the beacon at once.
+   !important is needed: important author declarations outrank running
+   animations in the cascade, so this hides the ring and nod WITHOUT
+   removing the animation. The animation clock is never reset, so leaving
+   hover cannot replay a fresh set of rings. Removing the animation
+   (animation:none) would restart it on un-hover. The host script then
+   removes the class, which makes the stop permanent. */
+.c-btn-primary.c-btn-beacon:is(:hover, :focus, :active){box-shadow:none !important;}
+.c-btn-primary.c-btn-beacon:is(:hover, :focus, :active) > i{transform:none !important;}
+
+/* Static rendering: documentation, print, tests (the .npeek.is-static
+   precedent). Shows the reduced-motion look steadily, with no cap.
+   Not used at runtime. */
+.c-btn-primary.c-btn-beacon.is-static{animation:none; box-shadow:0 0 0 var(--border-width-md) var(--c-btn-beacon-ink);}
+.c-btn-primary.c-btn-beacon.is-static > i.ph{animation:none;}
+
+/* Reduced motion: no pulse, no nod. A single steady 2px ring at the same
+   32% ink stays for the same 4.2s window, then disappears. The disappearance
+   is a state change, not movement. It needs no JS: the hold is a
+   one-iteration animation, so the cap still holds. */
+@media (prefers-reduced-motion:reduce){
+  .c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])){
+    animation:c-btn-beacon-hold calc(var(--c-btn-beacon-dur) * var(--c-btn-beacon-count)) linear 1;
+  }
+  .c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])) > i.ph{animation:none;}
+}
+
+/* Forced colours: no rule, on purpose. The UA removes box-shadow, so the
+   ring (and the reduced-motion ring) disappears. No outline stands in:
+   in this system an outline on a Button means "focused" (2px Obsidian,
+   2px offset), and showing one on an unfocused button would tell
+   keyboard users that focus is somewhere it isn't. The button keeps its
+   forced-colours button styling and its label, which is enough. The nod
+   (a transform) is not removed and stays governed by reduced motion
+   only. */
+</style>
+
+<!-- =====================================================================
+     SHOWCASE SCAFFOLDING (sc-). Not part of the component.
+     ===================================================================== -->
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:var(--font-primary); background:var(--color-canvas-warm); color:var(--color-neutral-9); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+  code{font-family:inherit; font-weight:700; background:var(--color-neutral-2); padding:0 var(--spacing-4); border-radius:var(--spacing-4);}
+  .sc-page{max-width:1200px; margin:0 auto; padding:var(--spacing-48) var(--page-gutter) var(--spacing-120);}
+  .sc-eyebrow{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); margin:0 0 var(--spacing-8);}
+  .sc-h1{font-size:var(--text-h1-size); line-height:var(--text-h1-lh); font-weight:var(--text-h1-weight); margin:0 0 var(--spacing-8);}
+  .sc-h2{font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); margin:var(--spacing-48) 0 var(--spacing-16);}
+  .sc-h3{font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); margin:0 0 var(--spacing-8);}
+  .sc-lede{font-size:var(--text-body1-size); line-height:var(--text-body1-lh); font-weight:var(--text-body1-weight); color:var(--color-neutral-5); max-width:760px; margin:0;}
+  .sc-panel{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-24);}
+  .sc-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:var(--spacing-16);}
+  .sc-panel p, .sc-panel ul, .sc-panel ol{margin:0 0 var(--spacing-8);}
+  .sc-panel ul, .sc-panel ol{padding-left:var(--spacing-20);}
+  .sc-panel li + li{margin-top:var(--spacing-4);}
+  .sc-wide{grid-column:1 / -1;}
+  .sc-table{width:100%; border-collapse:collapse;}
+  .sc-table th, .sc-table td{text-align:left; vertical-align:top; padding:var(--spacing-8) var(--spacing-12) var(--spacing-8) 0; border-bottom:1px solid var(--color-neutral-3);}
+  .sc-table th{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+  .sc-yes{font-weight:700;}
+  .sc-no{color:var(--color-neutral-5); font-weight:700;}
+  .sc-dodont{display:grid; grid-template-columns:1fr 1fr; gap:var(--spacing-16);}
+  .sc-do, .sc-dont{border-radius:var(--radius-sm); padding:var(--spacing-12) var(--spacing-16); border:1px solid var(--color-neutral-3);}
+  .sc-do{background:var(--color-earth-bg);}
+  .sc-dont{background:var(--color-fire-bg);}
+  .sc-anatomy{display:flex; align-items:center; gap:var(--spacing-24); flex-wrap:wrap; padding:var(--spacing-24); background:var(--color-canvas-warm); border-radius:var(--radius-sm); margin-bottom:var(--spacing-12);}
+  .sc-anatomy ol{margin:0;}
+  /* Specimens. Stages never use overflow:hidden and always pad at least
+     spacing-24, so the ring has its spacing-12 clearance. */
+  .sc-row{display:flex; flex-wrap:wrap; gap:var(--spacing-16);}
+  .sc-spec{margin:0; flex:1 1 240px; display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .sc-stage{min-height:120px; display:flex; align-items:center; justify-content:center; gap:var(--spacing-16); padding:var(--spacing-24); border-radius:var(--radius-sm); border:1px dashed var(--color-neutral-3);}
+  .sc-stage.is-warm{background:var(--color-canvas-warm);}
+  .sc-stage.is-white{background:var(--color-neutral-1);}
+  .sc-stage.is-dark{background:var(--color-neutral-8); border-color:transparent;}
+  .sc-stage .c-card{width:auto; min-width:0; height:auto; padding:var(--spacing-24); align-items:center;}
+  .sc-cap{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+  .sc-cap b{color:var(--color-neutral-9);}
+  .sc-tools{display:flex; flex-wrap:wrap; align-items:center; gap:var(--spacing-8); margin-top:var(--spacing-16);}
+  /* Live demo */
+  .sc-demo{display:grid; grid-template-columns:minmax(0, 2fr) minmax(260px, 1fr); gap:var(--spacing-16); align-items:start;}
+  .sc-form{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-16);}
+  .sc-form-head{display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-12); flex-wrap:wrap;}
+  .sc-form .c-field{width:100%;}
+  .sc-form .c-field input{width:100%;}
+  .sc-form-foot{display:flex; justify-content:flex-end; padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3);}
+  .sc-next{border:1px dashed var(--color-neutral-3); border-radius:var(--radius-sm); padding:var(--spacing-16); color:var(--color-neutral-5);}
+  .sc-next.is-open{border-style:solid; color:var(--color-neutral-9);}
+  .sc-readout{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8);}
+  .sc-readout-state{font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight);}
+  .sc-readout dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:var(--spacing-4) var(--spacing-12);}
+  .sc-readout dt{color:var(--color-neutral-5);}
+  .sc-readout dd{margin:0; font-weight:700;}
+  .sc-log{margin:0; padding-left:var(--spacing-20); color:var(--color-neutral-5); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); max-height:160px; overflow:auto;}
+  @media (max-width:760px){ .sc-demo, .sc-dodont{grid-template-columns:1fr;} }
+</style>
+<!-- =====================================================================
+     EXPLORATION: beacon on Secondary and Ghost (NOT part of the proposal
+     yet). Scoped to .sc-x so it never touches the Primary recipe above.
+     Secondary already rests on shadow-1, so its ring keyframes carry
+     shadow-1 as a second layer (the ring grows on top of the resting
+     shadow instead of replacing it), and its hover/focus mask restores
+     shadow-1 rather than none.
+     ===================================================================== -->
+<style>
+@keyframes sc-x-ring-secondary{
+  0%{box-shadow:0 0 0 0 var(--c-btn-beacon-ink), var(--shadow-1);}
+  70%{box-shadow:0 0 0 var(--spacing-12) var(--c-btn-beacon-ink-0), var(--shadow-1);}
+  100%{box-shadow:0 0 0 0 var(--c-btn-beacon-ink-0), var(--shadow-1);}
+}
+.sc-x .c-btn-secondary.c-btn-beacon{animation:sc-x-ring-secondary var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);}
+.sc-x .c-btn-ghost.c-btn-beacon{animation:c-btn-beacon-ring var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);}
+.sc-x .c-btn-primary.c-btn-beacon{animation:c-btn-beacon-ring var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);}
+.sc-x .c-btn.c-btn-beacon > i.ph-arrow-down:last-child{animation:c-btn-beacon-nod-down var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);}
+.sc-x .c-btn.c-btn-beacon > i.ph-arrow-right:last-child{animation:c-btn-beacon-nod-right var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);}
+.sc-x .c-btn.c-btn-beacon:is(:hover, :focus, :active){box-shadow:none !important;}
+.sc-x .c-btn-secondary.c-btn-beacon:is(:hover, :focus, :active){box-shadow:var(--shadow-1) !important;}
+.sc-x .c-btn.c-btn-beacon:is(:hover, :focus, :active) > i{transform:none !important;}
+.sc-x .c-btn.c-btn-beacon.is-loop{--c-btn-beacon-count:infinite;}
+@media (prefers-reduced-motion:reduce){
+  .sc-x .c-btn.c-btn-beacon{animation:c-btn-beacon-hold calc(var(--c-btn-beacon-dur) * 3) linear 1;}
+  .sc-x .c-btn-secondary.c-btn-beacon{animation:none; box-shadow:0 0 0 var(--border-width-md) var(--c-btn-beacon-ink), var(--shadow-1);}
+  .sc-x .c-btn.c-btn-beacon > i{animation:none;}
+}
+.sc-x-grid{display:grid; grid-template-columns:140px repeat(3, minmax(0, 1fr)); gap:var(--spacing-16); align-items:stretch;}
+.sc-x-grid .sc-stage{min-height:96px;}
+.sc-x-label{display:flex; flex-direction:column; justify-content:center; gap:var(--spacing-4);}
+.sc-x-label b{font-size:var(--text-body1-size);}
+.sc-x-head{font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5); align-self:end;}
+@media (max-width:760px){ .sc-x-grid{grid-template-columns:1fr;} .sc-x-head{display:none;} }
+</style>
+</head>
+<body>
+<main class="sc-page">
+
+  <p class="sc-eyebrow">Draft · Button · state modifier</p>
+  <h1 class="sc-h1">CTA beacon <span style="color:var(--color-neutral-5); font-weight:700;">c-btn-beacon</span></h1>
+  <p class="sc-lede">A temporary "look here next" cue for the single next step, typically right after an AI fill lands. A ring breathes out of a Primary button three times while its trailing arrow nods, and then it stops for good. The button itself is unchanged: same fill, size, radius, hover and focus outline as shipped.</p>
+
+  <!-- ============================== 1. ANATOMY & RULES ============================== -->
+  <h2 class="sc-h2">Anatomy and rules</h2>
+  <div class="sc-grid">
+
+    <section class="sc-panel sc-wide">
+      <h3 class="sc-h3">Anatomy</h3>
+      <div class="sc-anatomy">
+        <button class="c-btn c-btn-primary c-btn-md c-btn-beacon is-static" type="button" tabindex="-1" aria-hidden="true">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+        <ol>
+          <li><b>Host button.</b> A shipped <code>c-btn c-btn-primary c-btn-sm|md|lg</code> with a visible label. Not restyled in any way.</li>
+          <li><b>Ring.</b> A box-shadow from 0 to <code>spacing-12</code>, Neutral-9 at 32% fading to 0, every 1.4s. It never takes up layout space.</li>
+          <li><b>Nod (optional).</b> Only a <em>trailing</em> <code>ph-arrow-down</code> (nods down) or <code>ph-arrow-right</code> (nods right), moving 3px in step with the ring. No arrow means ring only.</li>
+        </ol>
+      </div>
+      <p><b>What it is:</b> a <b>state</b>, not a style variant. It is temporary attention that the host switches on, that ends itself, and that leaves nothing behind. It sits in Button's States table as "Beacon (transient)", and the variants section points to it because it is opted into per instance with a modifier class: <code>c-btn c-btn-primary c-btn-md c-btn-beacon</code>.</p>
+      <p><b>When to use:</b> once, for the single next step, right after something the user started has finished and the next action has become relevant. Examples: "Next: audience" after the AI fills the Brief, or "Confirm booking" once the slot check passes.</p>
+    </section>
+
+    <section class="sc-panel">
+      <h3 class="sc-h3">Allowed on</h3>
+      <table class="sc-table">
+        <thead><tr><th>Button</th><th>Beacon</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Primary sm / md / lg, labelled</td><td class="sc-yes">Yes</td><td>The single main action (Rule 2). The ring is the button's own dark ink breathing out. The reach (spacing-12) and nod (3px) are the same at every size, because the icon is always icon-sm and the clearance rule is a single value.</td></tr>
+          <tr><td>Primary icon-only</td><td class="sc-no">No</td><td>No visible label names the next step. A pulsing square reads as a notification or recording dot. Blocked in CSS.</td></tr>
+          <tr><td>Secondary</td><td class="sc-no">No</td><td>Carries <code>shadow-1</code>, which the ring would overwrite, so the shipped look would change. Also, the next step is never a secondary action.</td></tr>
+          <tr><td>Ghost</td><td class="sc-no">No</td><td>Low emphasis, used for toolbar and row actions. It is never "the" next step.</td></tr>
+          <tr><td>Danger</td><td class="sc-no">Never</td><td>Never draw attention to a destructive commit. (Also, no <code>.c-btn-danger</code> ships in components.css.)</td></tr>
+          <tr><td>Link</td><td class="sc-no">No</td><td>No box or height for a ring to come out of.</td></tr>
+          <tr><td>Any disabled</td><td class="sc-no">Never</td><td><code>:disabled</code> and <code>aria-disabled="true"</code> are excluded in CSS, and the script refuses to arm them.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sc-panel">
+      <h3 class="sc-h3">States</h3>
+      <table class="sc-table">
+        <thead><tr><th>State</th><th>Look</th></tr></thead>
+        <tbody>
+          <tr><td>Idle (not armed)</td><td>A plain Primary. No class.</td></tr>
+          <tr><td>Armed</td><td>Ring plus nod, 3 cycles (4.2s).</td></tr>
+          <tr><td>Masked (hover / focus / press)</td><td>Ring and nod are hidden at once. The script disarms in the same event.</td></tr>
+          <tr><td>Stopped (cap reached)</td><td>The last keyframe is a transparent ring at 0 spread, so it is identical to a plain Primary. The script removes the class.</td></tr>
+          <tr><td>Stopped (interaction / replaced)</td><td>The class is removed. A plain Primary.</td></tr>
+          <tr><td>Armed, reduced motion</td><td>A steady 2px ring at 32% for 4.2s, then nothing. No nod.</td></tr>
+          <tr><td>Disabled</td><td>The shipped disabled look. Never beacons.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sc-panel">
+      <h3 class="sc-h3">Stop conditions</h3>
+      <ul>
+        <li><b>Cap:</b> <code>animation-iteration-count:3</code>. It ends with no JavaScript at all, and the reduced-motion hold is a single 4.2s iteration with the same cap.</li>
+        <li><b>Hover, focus, press:</b> the CSS mask hides it instantly using <code>!important</code>, which outranks the running animation without resetting its clock, so leaving hover cannot replay fresh rings.</li>
+        <li><b>Permanent:</b> the host script removes the class on the first <code>pointerenter</code>, <code>focus</code> or <code>click</code>, and on <code>animationend</code>. Once ended, it never restarts by itself.</li>
+        <li><b>Without JS:</b> the cap still holds. Hover and focus only <em>hide</em> it while they last, and if the 4.2s window is still running it shows again afterwards. Hosts should ship the script.</li>
+        <li><b>Re-arm:</b> host only, for example after the next AI fill lands. <code>CBeacon.arm(btn)</code> removes the class, forces a reflow and adds it again, so the animation restarts from ring 1.</li>
+      </ul>
+    </section>
+
+    <section class="sc-panel">
+      <h3 class="sc-h3">Host contract</h3>
+      <ul>
+        <li><code>CBeacon.arm(btn)</code> refuses unless the button is Primary, not icon-only and not disabled. It disarms any other armed beacon first (one per screen). Then it arms and listens for a stop.</li>
+        <li><code>CBeacon.disarm(btn, reason)</code> removes the class and its listeners.</li>
+        <li>Each change fires a <code>c-btn-beacon-change</code> event on the button with <code>{armed, reason}</code>. Reasons: <code>hover</code>, <code>touch</code>, <code>focus</code>, <code>click</code>, <code>cap</code>, <code>replaced</code>, <code>host</code>.</li>
+        <li>Never call <code>focus()</code> as part of arming.</li>
+      </ul>
+    </section>
+
+    <section class="sc-panel sc-wide">
+      <h3 class="sc-h3">Tokens and one-offs</h3>
+      <table class="sc-table">
+        <thead><tr><th>Part</th><th>Value</th><th>Source / reason</th></tr></thead>
+        <tbody>
+          <tr><td>Ring ink</td><td><code>color-mix(in srgb, var(--color-neutral-9) 32%, transparent)</code></td><td>Token colour, no rgba literal. <b>32% is a one-off</b>, taken from the source. Neutral-9 rather than Neutral-4 on purpose: Elevation's "built on Neutral-4" rule is for depth shadows, while this is a signal ring, and Neutral-4 fades to nothing on canvas-warm. The precedent for Neutral-9 ink is <code>--shadow-overlay</code>.</td></tr>
+          <tr><td>Ring reach</td><td><code>var(--spacing-12)</code></td><td>The source's 12px, tokenised. It is also the host's clearance rule: keep spacing-12 clear and the ring is never cropped.</td></tr>
+          <tr><td>Cycle</td><td><b>1.4s, one-off</b></td><td>No duration token fits a loop cadence. 900ms (ambient) reads as an alarm.</td></tr>
+          <tr><td>Count</td><td><b>3, one-off</b> (4.2s total)</td><td>Cut from the source's 6 (8.4s) to stay under WCAG 2.2.2's 5-second limit for motion that starts automatically.</td></tr>
+          <tr><td>Keyframe stop</td><td><b>70%, one-off</b></td><td>From the source. The ring is out by 70%, and the remaining 30% is rest between breaths.</td></tr>
+          <tr><td>Easing</td><td><code>var(--ease-standard)</code></td><td>I considered <code>ease-flare</code> (Fire, "pulse outward") and rejected it. Elemental curves are for element-owned surfaces, and Obsidian isn't an element.</td></tr>
+          <tr><td>Nod</td><td><b>3px, one-off</b>, peak at 30%</td><td>spacing-4 is 25% of a 16px glyph and reads as a jump.</td></tr>
+          <tr><td>Reduced-motion ring</td><td><code>var(--border-width-md)</code> at the same 32% ink</td><td>The 2px weight matches the Tutorial Modal spotlight's "currently engaged" ring.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sc-panel">
+      <h3 class="sc-h3">Accessibility</h3>
+      <ul>
+        <li><b>Purely visual.</b> No live region, no <code>aria-describedby</code>, and no change to the accessible name. The arrow is <code>aria-hidden</code>.</li>
+        <li><b>Nothing else is needed for assistive tech.</b> The button is already in the tab order, and its label ("Next: audience") already says what comes next. If the AI fill itself needs announcing, that is the fill's job, not the beacon's.</li>
+        <li><b>Never move focus</b> to a beaconed button.</li>
+        <li>WCAG 2.2.2: the motion lasts 4.2s, under 5s. WCAG 2.3.1: a soft fade at about 0.7 per second, with no flashing.</li>
+        <li>The ring carries no information, so 1.4.11 doesn't apply. The button's own contrast is unchanged.</li>
+        <li><b>Reduced motion:</b> a steady 2px ring for the same window (recommended over nothing, because a still cue keeps the intent and adds no motion).</li>
+        <li><b>Forced colours:</b> the ring is removed and nothing replaces it. An outline would falsely signal focus.</li>
+      </ul>
+    </section>
+
+    <section class="sc-panel">
+      <h3 class="sc-h3">Surfaces and limits</h3>
+      <ul>
+        <li><b>Light neutral surfaces only:</b> Neutral-1, Neutral-2, canvas-warm, canvas-warm-card. Verified below on canvas-warm and on a white card.</li>
+        <li><b>Not on dark surfaces</b> (for example Hero Card's AI surface on Neutral-8). Neutral-9 ink on Neutral-8 is invisible (see the Don't specimen), and an inverse ring would be a new colour decision, flagged rather than invented.</li>
+        <li><b>One beacon per screen</b>, enforced by <code>arm()</code>.</li>
+        <li><b>Only the single next step.</b> Never on destructive actions, never permanent, and never on disabled buttons.</li>
+        <li><b>Clipping:</b> an <code>overflow:hidden</code> ancestor closer than spacing-12 crops the ring. It degrades gracefully, but keep the clearance.</li>
+      </ul>
+    </section>
+
+    <section class="sc-panel">
+      <h3 class="sc-h3">Relation to other Button variants</h3>
+      <ul>
+        <li>Works orthogonally to the colour variants and sizes, but is <b>valid only on Primary</b>. Like Loading, it sits on top of a variant rather than replacing one.</li>
+        <li>It does not compete with Primary's one-per-region rule: the beacon marks the Primary that is already there.</li>
+        <li>Focus-visible (2px Obsidian outline) and the beacon never show together. Focus masks and disarms it.</li>
+        <li><b>The step-indicator pulse doesn't exist.</b> The scan note says the rings are "the step indicator's own pulse recipe reused". Stepper's indicator is static, and neither components.css nor DESIGN-SYSTEM.md has a pulse or ring <code>@keyframes</code>. The only "expanding ring" mention is the Fire element motif. So <code>c-btn-beacon-ring</code> is a new recipe.</li>
+      </ul>
+    </section>
+
+    <section class="sc-panel sc-wide">
+      <h3 class="sc-h3">Do / Don't</h3>
+      <div class="sc-dodont">
+        <div class="sc-do">
+          <p><b>Do</b></p>
+          <ul>
+            <li>Arm it on one Primary, right after the step that makes it relevant (for example, an AI fill landing).</li>
+            <li>Pair it with a trailing arrow that points where the next step is.</li>
+            <li>Keep spacing-12 clear around the button.</li>
+            <li>Re-arm only when a new reason arrives.</li>
+          </ul>
+        </div>
+        <div class="sc-dont">
+          <p><b>Don't</b></p>
+          <ul>
+            <li>Put it on page load, on a timer, or on more than one button.</li>
+            <li>Use it on Danger, Secondary, Ghost, icon-only or disabled buttons.</li>
+            <li>Move focus to it, or announce it.</li>
+            <li>Loop it, or raise the count above 3.</li>
+            <li>Use it on dark surfaces.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================== 2. SPECIMENS ============================== -->
+  <h2 class="sc-h2">Specimens</h2>
+  <p class="sc-lede">Specimens play once on load (3 rings) and stop. Hovering one stops it for good. In this gallery, specimens are armed with the one-per-screen rule switched off; the live demo below keeps it on.</p>
+  <div class="sc-tools"><button class="c-btn c-btn-secondary c-btn-sm" type="button" id="sc-replay"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Replay specimens</button></div>
+
+  <div class="sc-row" style="margin-top:var(--spacing-16);">
+    <figure class="sc-spec">
+      <div class="sc-stage is-warm">
+        <button class="c-btn c-btn-primary c-btn-sm" data-sc-spec type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+      </div>
+      <figcaption class="sc-cap"><b>Primary sm</b> · trailing <code>ph-arrow-down</code> · canvas-warm</figcaption>
+    </figure>
+    <figure class="sc-spec">
+      <div class="sc-stage is-warm">
+        <button class="c-btn c-btn-primary c-btn-md" data-sc-spec type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+      </div>
+      <figcaption class="sc-cap"><b>Primary md</b> · trailing <code>ph-arrow-down</code> · canvas-warm</figcaption>
+    </figure>
+    <figure class="sc-spec">
+      <div class="sc-stage is-warm">
+        <button class="c-btn c-btn-primary c-btn-lg" data-sc-spec type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+      </div>
+      <figcaption class="sc-cap"><b>Primary lg</b> · trailing <code>ph-arrow-down</code> · canvas-warm</figcaption>
+    </figure>
+  </div>
+
+  <div class="sc-row" style="margin-top:var(--spacing-16);">
+    <figure class="sc-spec">
+      <div class="sc-stage is-white">
+        <div class="c-card"><button class="c-btn c-btn-primary c-btn-md" data-sc-spec type="button">Confirm booking <i class="ph ph-arrow-right" aria-hidden="true"></i></button></div>
+      </div>
+      <figcaption class="sc-cap"><b>Primary md</b> · trailing <code>ph-arrow-right</code> (nods right) · on a white <code>c-card</code></figcaption>
+    </figure>
+    <figure class="sc-spec">
+      <div class="sc-stage is-white">
+        <div class="c-card"><button class="c-btn c-btn-primary c-btn-md" data-sc-spec type="button">Confirm booking</button></div>
+      </div>
+      <figcaption class="sc-cap"><b>No icon</b>: ring only · on a white <code>c-card</code></figcaption>
+    </figure>
+    <figure class="sc-spec">
+      <div class="sc-stage is-warm">
+        <button class="c-btn c-btn-primary c-btn-md c-btn-beacon is-static" type="button" tabindex="-1">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+      </div>
+      <figcaption class="sc-cap"><b>Reduced-motion look</b>, shown with <code>.is-static</code>: steady 2px ring at 32%, no nod. At runtime it holds for 4.2s, then goes.</figcaption>
+    </figure>
+  </div>
+
+  <div class="sc-row" style="margin-top:var(--spacing-16);">
+    <figure class="sc-spec">
+      <div class="sc-stage is-white">
+        <button class="c-btn c-btn-primary c-btn-md" type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+        <button class="c-btn c-btn-primary c-btn-md" id="sc-stopped" type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+      </div>
+      <figcaption class="sc-cap"><b>Stopped</b>: left is a plain Primary; right was armed and has now stopped (<span id="sc-stopped-note">running…</span>). They are identical.</figcaption>
+    </figure>
+    <figure class="sc-spec">
+      <div class="sc-stage is-white">
+        <button class="c-btn c-btn-primary c-btn-md c-btn-beacon" type="button" disabled>Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+      </div>
+      <figcaption class="sc-cap"><b>Disabled</b> with the class present: CSS guard, never beacons.</figcaption>
+    </figure>
+    <figure class="sc-spec">
+      <div class="sc-stage is-dark">
+        <button class="c-btn c-btn-primary c-btn-md c-btn-beacon is-static" type="button" tabindex="-1">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+      </div>
+      <figcaption class="sc-cap"><b>Don't: dark surface</b> (Neutral-8, Hero Card AI). The ring disappears into the surface. Light neutral surfaces only.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ============================== 2b. OTHER BUTTON TYPES (exploration) ============================== -->
+  <h2 class="sc-h2">Other button types (exploration)</h2>
+  <p class="sc-lede">The same beacon tried on Secondary and Ghost, with Primary for comparison. Each plays 3 rings and stops, and hovering stops it. Use <b>Loop</b> to keep them running while you compare. There is no Tertiary button in the design system (Button ships Primary, Secondary and Ghost only), so it isn't shown.</p>
+  <div class="sc-tools">
+    <button class="c-btn c-btn-secondary c-btn-sm" type="button" id="sc-x-replay"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Replay</button>
+    <button class="c-btn c-btn-ghost c-btn-sm" type="button" id="sc-x-loop" aria-pressed="false"><i class="ph ph-repeat" aria-hidden="true"></i>Loop: off</button>
+  </div>
+
+  <section class="sc-x" aria-label="Beacon on other button types">
+    <h3 class="sc-h3" style="margin-top:var(--spacing-24);">On canvas-warm</h3>
+    <div class="sc-x-grid">
+      <span></span><span class="sc-x-head">sm</span><span class="sc-x-head">md</span><span class="sc-x-head">lg</span>
+      <div class="sc-x-label"><b>Primary</b><span class="sc-cap">Current proposal.</span></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-primary c-btn-sm" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-primary c-btn-md" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-primary c-btn-lg" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+      <div class="sc-x-label"><b>Secondary</b><span class="sc-cap">Ring grows on top of its resting shadow-1.</span></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-secondary c-btn-sm" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-secondary c-btn-md" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-secondary c-btn-lg" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+      <div class="sc-x-label"><b>Ghost</b><span class="sc-cap">No fill or border, so the ring outlines an invisible box.</span></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-ghost c-btn-sm" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-ghost c-btn-md" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+      <div class="sc-stage is-warm"><button class="c-btn c-btn-ghost c-btn-lg" data-sc-x type="button">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button></div>
+    </div>
+
+    <h3 class="sc-h3" style="margin-top:var(--spacing-24);">On a white card</h3>
+    <div class="sc-row">
+      <figure class="sc-spec"><div class="sc-stage is-white"><div class="c-card"><button class="c-btn c-btn-primary c-btn-md" data-sc-x type="button">Confirm booking <i class="ph ph-arrow-right" aria-hidden="true"></i></button></div></div><figcaption class="sc-cap"><b>Primary md</b> · trailing <code>ph-arrow-right</code></figcaption></figure>
+      <figure class="sc-spec"><div class="sc-stage is-white"><div class="c-card"><button class="c-btn c-btn-secondary c-btn-md" data-sc-x type="button">Confirm booking <i class="ph ph-arrow-right" aria-hidden="true"></i></button></div></div><figcaption class="sc-cap"><b>Secondary md</b> · trailing <code>ph-arrow-right</code></figcaption></figure>
+      <figure class="sc-spec"><div class="sc-stage is-white"><div class="c-card"><button class="c-btn c-btn-ghost c-btn-md" data-sc-x type="button">Confirm booking <i class="ph ph-arrow-right" aria-hidden="true"></i></button></div></div><figcaption class="sc-cap"><b>Ghost md</b> · trailing <code>ph-arrow-right</code></figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ============================== 3. LIVE DEMO ============================== -->
+  <h2 class="sc-h2">Live demo</h2>
+  <div class="sc-demo">
+    <section class="sc-form" aria-labelledby="sc-brief-title">
+      <div class="sc-form-head">
+        <div>
+          <p class="sc-eyebrow">Step 1 of 3</p>
+          <h3 class="sc-h3" id="sc-brief-title" style="margin:0;">Brief</h3>
+        </div>
+        <button class="c-btn c-btn-secondary c-btn-sm" type="button" id="sc-fill"><i class="ph ph-sparkle" aria-hidden="true"></i><span>Ask AI to fill</span></button>
+      </div>
+      <div class="c-field"><label for="sc-name">Campaign name</label><input id="sc-name" type="text" placeholder="e.g. Raya savings push" /></div>
+      <div class="c-field"><label for="sc-goal">Objective</label><textarea id="sc-goal" placeholder="What should this campaign achieve?"></textarea></div>
+      <div class="sc-form-foot">
+        <button class="c-btn c-btn-primary c-btn-md" type="button" id="sc-next-btn">Next: audience <i class="ph ph-arrow-down" aria-hidden="true"></i></button>
+      </div>
+      <div class="sc-next" id="sc-audience">
+        <p class="sc-eyebrow" style="margin:0;">Step 2 of 3</p>
+        <p style="margin:0; font-weight:700;">Audience</p>
+        <p style="margin:0;" id="sc-audience-body">Opens when you choose Next.</p>
+      </div>
+    </section>
+
+    <aside class="sc-readout" aria-label="Scaffolding readout (not part of the component)">
+      <p class="sc-eyebrow" style="margin:0;">Scaffolding readout · not a live region</p>
+      <div class="sc-readout-state" id="sc-state">Idle (not armed)</div>
+      <dl>
+        <dt>Ring</dt><dd id="sc-ring">–</dd>
+        <dt>Stopped by</dt><dd id="sc-reason">–</dd>
+        <dt>Motion</dt><dd id="sc-motion">–</dd>
+      </dl>
+      <div class="sc-tools" style="margin-top:0;">
+        <button class="c-btn c-btn-secondary c-btn-sm" type="button" id="sc-rearm"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Re-arm</button>
+        <button class="c-btn c-btn-ghost c-btn-sm" type="button" id="sc-reset">Reset demo</button>
+      </div>
+      <ol class="sc-log" id="sc-log"></ol>
+    </aside>
+  </div>
+</main>
+
+<!-- =====================================================================
+     HOST CONTRACT: reference script (ships with the component)
+     ===================================================================== -->
+<script>
+const CBeacon = (() => {
+  const live = new WeakMap(); // btn -> AbortController
+  const emit = (btn, armed, reason) =>
+    btn.dispatchEvent(new CustomEvent('c-btn-beacon-change', { bubbles: true, detail: { armed, reason } }));
+
+  function canBeacon(btn) {
+    return btn && btn.classList.contains('c-btn-primary') && !btn.classList.contains('c-btn-icon')
+      && !btn.disabled && btn.getAttribute('aria-disabled') !== 'true';
+  }
+
+  function disarm(btn, reason = 'host') {
+    const ctl = live.get(btn);
+    if (ctl) { ctl.abort(); live.delete(btn); }
+    if (!btn.classList.contains('c-btn-beacon')) return;
+    btn.classList.remove('c-btn-beacon');
+    emit(btn, false, reason);
+  }
+
+  function arm(btn, { exclusive = true } = {}) {
+    if (!canBeacon(btn)) return false;
+    // One per screen. Static documentation specimens and disabled buttons are
+    // inert anyway, so they are left alone.
+    if (exclusive) document.querySelectorAll('.c-btn-beacon:not(.is-static):not(:disabled)').forEach(b => {
+      if (b !== btn) disarm(b, 'replaced');
+    });
+    disarm(btn, 'host');
+    void btn.offsetWidth;                 // reflow so the animation restarts at ring 1
+    btn.classList.add('c-btn-beacon');
+    const ctl = new AbortController(); live.set(btn, ctl);
+    const o = { signal: ctl.signal };
+    btn.addEventListener('pointerenter', e => disarm(btn, e.pointerType === 'mouse' ? 'hover' : 'touch'), o);
+    btn.addEventListener('focus', () => disarm(btn, 'focus'), o);
+    btn.addEventListener('click', () => disarm(btn, 'click'), o);
+    btn.addEventListener('animationend', e => {
+      if (e.target === btn && /^c-btn-beacon-(ring|hold)$/.test(e.animationName)) disarm(btn, 'cap');
+    }, o);
+    // Never focus(). Never announce.
+    emit(btn, true, 'host');
+    return true;
+  }
+  return { arm, disarm };
+})();
+</script>
+
+<!-- =====================================================================
+     SHOWCASE SCAFFOLDING SCRIPT (sc-). Not part of the component.
+     ===================================================================== -->
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const COUNT = 3;
+
+  /* Specimens: gallery exemption from one-per-screen */
+  const specs = [...document.querySelectorAll('[data-sc-spec]')];
+  const stopped = document.getElementById('sc-stopped');
+  const stoppedNote = document.getElementById('sc-stopped-note');
+  stopped.addEventListener('c-btn-beacon-change', e => {
+    stoppedNote.textContent = e.detail.armed ? 'running…' : 'stopped: ' + e.detail.reason + ', class removed';
+  });
+  const replay = () => { [...specs, stopped].forEach(b => CBeacon.arm(b, { exclusive: false })); };
+  document.getElementById('sc-replay').addEventListener('click', replay);
+  replay();
+
+  /* Live demo */
+  const fillBtn = document.getElementById('sc-fill');
+  const fillLabel = fillBtn.querySelector('span');
+  const next = document.getElementById('sc-next-btn');
+  const name = document.getElementById('sc-name');
+  const goal = document.getElementById('sc-goal');
+  const audience = document.getElementById('sc-audience');
+  const audienceBody = document.getElementById('sc-audience-body');
+  const $ = id => document.getElementById(id);
+  const log = msg => { const li = document.createElement('li'); li.textContent = msg; $('sc-log').prepend(li); };
+  let ring = 0;
+
+  const motion = () => { $('sc-motion').textContent = reduce.matches ? 'Reduced: static ring, 4.2s' : 'Full: ring + nod'; };
+  motion(); reduce.addEventListener('change', motion);
+
+  next.addEventListener('animationstart', e => { if (e.target === next && e.animationName === 'c-btn-beacon-ring') { ring = 1; $('sc-ring').textContent = `1 of ${COUNT}`; } });
+  next.addEventListener('animationiteration', e => { if (e.target === next) { ring++; $('sc-ring').textContent = `${ring} of ${COUNT}`; } });
+  next.addEventListener('c-btn-beacon-change', e => {
+    const { armed, reason } = e.detail;
+    if (armed) {
+      ring = 0;
+      $('sc-state').textContent = 'Armed';
+      $('sc-reason').textContent = '–';
+      $('sc-ring').textContent = reduce.matches ? 'static hold' : `1 of ${COUNT}`;
+      log('Armed by host');
+    } else if (reason !== 'host') {
+      $('sc-state').textContent = 'Stopped';
+      const why = { cap: `cap reached (${COUNT} rings, 4.2s)`, hover: 'hover', touch: 'touch', focus: 'focus', click: 'click', replaced: 'another beacon was armed' }[reason] || reason;
+      $('sc-reason').textContent = why;
+      $('sc-ring').textContent = '–';
+      log('Stopped: ' + why);
+    }
+  });
+
+  fillBtn.addEventListener('click', () => {
+    fillBtn.disabled = true; fillLabel.textContent = 'Filling…';
+    name.value = ''; goal.value = '';
+    setTimeout(() => {
+      name.value = 'Raya savings push: Maybank Islamic';
+      goal.value = 'Grow new Raya savings accounts among 25 to 40 year-olds in the Klang Valley through a 4-week video and display flight.';
+      fillBtn.disabled = false; fillLabel.textContent = 'Ask AI to fill';
+      log('AI fill landed');
+      CBeacon.arm(next);            // the fill landing is the reason to beacon
+    }, 1200);
+  });
+
+  next.addEventListener('click', () => {
+    audience.classList.add('is-open');
+    audienceBody.textContent = 'Audience step opened. (Demo only; focus is not moved.)';
+  });
+
+  $('sc-rearm').addEventListener('click', () => {
+    if (!CBeacon.arm(next)) log('Re-arm refused (button not eligible)');
+  });
+  $('sc-reset').addEventListener('click', () => {
+    CBeacon.disarm(next, 'host');
+    name.value = ''; goal.value = '';
+    audience.classList.remove('is-open'); audienceBody.textContent = 'Opens when you choose Next.';
+    $('sc-state').textContent = 'Idle (not armed)'; $('sc-ring').textContent = '–'; $('sc-reason').textContent = '–';
+    $('sc-log').textContent = '';
+  });
+})();
+</script>
+<script>
+/* Exploration scaffolding: arms the Secondary / Ghost / Primary
+   comparison directly (CBeacon.arm only accepts Primary today). */
+(() => {
+  const btns = [...document.querySelectorAll('[data-sc-x]')];
+  const loopBtn = document.getElementById('sc-x-loop');
+  let loop = false;
+  const arm = b => {
+    b.classList.remove('c-btn-beacon'); void b.offsetWidth;
+    b.classList.toggle('is-loop', loop); b.classList.add('c-btn-beacon');
+  };
+  btns.forEach(b => {
+    b.addEventListener('animationend', e => { if (e.target === b) b.classList.remove('c-btn-beacon'); });
+    b.addEventListener('pointerenter', () => { if (!loop) b.classList.remove('c-btn-beacon'); });
+  });
+  const replay = () => btns.forEach(arm);
+  document.getElementById('sc-x-replay').addEventListener('click', replay);
+  loopBtn.addEventListener('click', () => {
+    loop = !loop;
+    loopBtn.setAttribute('aria-pressed', String(loop));
+    loopBtn.lastChild.textContent = loop ? 'Loop: on' : 'Loop: off';
+    replay();
+  });
+  replay();
+})();
+</script>
+</body>
+</html>
