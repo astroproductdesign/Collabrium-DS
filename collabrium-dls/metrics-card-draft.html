@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Audience card (Media Ad Card variant c-card-media-ad-audience) · Draft · Collabrium DLS</title>
+<title>Metrics card (Media Ad Card variant c-card-media-ad-metrics) · Draft · Collabrium DLS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -13,13 +13,18 @@
 <link rel="stylesheet" href="components.css" />
 
 <!-- =====================================================================
-     COMPONENT CSS: Audience card, Media Ad Card variant
-     `c-card-media-ad-audience` (DRAFT)
+     COMPONENT CSS: Metrics card, Media Ad Card variant
+     `c-card-media-ad-metrics` (DRAFT)
      The only block meant for promotion into components.css. It would sit
      directly after the Media Ad Card block.
 
-     One audience segment as a gallery tile. Markup is
-     `c-card c-card-interactive c-card-media-ad c-card-media-ad-audience`,
+     One reachable thing as a gallery tile: media, a name, a category Tag,
+     and a Live face with a headline total plus a breakdown of up to five
+     bars. First use case: audience segments (Collab:Media). It could also
+     serve influencers, channels or campaigns. Every data-specific string
+     (size unit, total label, toggle label, bar labels) is host-supplied;
+     the audience strings are the example. Markup is
+     `c-card c-card-interactive c-card-media-ad c-card-media-ad-metrics`,
      so EVERYTHING the shipped Media Ad Card does still applies untouched:
      surface, zeroed padding, Frame + 16:10 Slot + slot contract, shared
      placeholder, Live state (hover / focus-within / .is-live) with the
@@ -28,16 +33,36 @@
      forced-colours outline, tilt, skeleton and reduced motion.
      Ported from Collab:Media's audiences page (.au-card).
 
-     This block only adds what the audience body needs:
+     HOST STRINGS (audience example in brackets)
+       - size unit on the Rest size line      ["audience"]
+       - total label on the Live face         ["total audience"]
+       - toggle label, fixed, names the item  ["Add {Name} to reach tray"]
+       - bar labels                           [Video, Audio, TV, Social, Forums]
+       - "+N more" suffix for screen readers  [" channels in details"]
+       - empty breakdown caption              ["No breakdown on file"]
+
+     BAR COUNT
+       - 1-5 bars: shown in the host's order, top-aligned under the total.
+         The swap keeps the 5-row height, so fewer rows leave empty space
+         at the bottom (rows are never spread out) and every card in a
+         grid stays the same height.
+       - More than 5: the 5 highest values, sorted high to low, and a
+         "+N more" caption at the right end of the total line. It takes no
+         row, so the height holds.
+       - 0 bars: the total, then one caption "No breakdown on file"
+         (-nobars, empty style). The Rest size line drops its top-bar part.
+
+     This block only adds what the metrics body needs:
        0. Deterministic title row: title reserved at exactly 2 lines and
           clamped with an ellipsis; category Tag capped so it never
           squeezes the title (-name, -tag-label)
        1. Still + clip in the Slot (hover video), -still / -clip
        2. A taller Swap and a 3-line tagline (the Spec layer has 6 rows)
        3. Size line on the Rest layer (-size, on the shipped -funnel look)
-       4. Spec layer: total (-total) + five channel bars (-bars) built on
-          Progress Bar's shipped track/fill and trailing-wrap
-       5. Added state (.is-added), the Add-to-tray twin of .is-compared
+       4. Spec layer: total (-total, with optional -more) + 1-5 bars
+          (-bars) built on Progress Bar's shipped track/fill and
+          trailing-wrap, or -nobars when there is no breakdown
+       5. Added state (.is-added), the Add toggle's twin of .is-compared
        6. Forced-colours fallback for the bars
 
      One-off values (each recorded where declared): reserved 2-line title
@@ -54,7 +79,7 @@
      PROGRESS BAR DEVIATIONS (record in Progress Bar on promotion)
        - Fill width is set through --bar-w (clamped 0-100%), not an inline
          width, so CSS can hold it at 0 until Live.
-       - The track is aria-hidden instead of role="progressbar": a channel
+       - The track is aria-hidden instead of role="progressbar": a breakdown
          share is not progress toward a goal. The <dl> text carries the
          value.
        - The fills reset and re-grow every time the card goes Live.
@@ -68,7 +93,7 @@
          selectors in the Media Ad Card block instead of copying (see
          open question on a neutral toggle name).
        - The Add toggle reuses .c-card-media-ad-compare for its look; the
-         -audience-add class is a hook only and carries no CSS.
+         -metrics-add class is a hook only and carries no CSS.
        - The Progress Bar forced-colours rule here is scoped to this card;
          the same fix is proposed for Progress Bar globally in
          hover-peek-card-draft.html. Promote it there, then delete it here.
@@ -91,9 +116,9 @@
    in a grid has the same height. overflow:hidden is a second guard if a
    browser ignores line-clamp; it doesn't clip the button's stretched
    ::after, whose containing block is the card. */
-.c-card-media-ad.c-card-media-ad-audience .c-card-media-ad-title{display:block; height:calc(var(--text-h5-lh) * 2); overflow:hidden;}
-.c-card-media-ad-audience .c-card-media-ad-open{display:block; width:100%;}
-.c-card-media-ad-audience-name{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; overflow-wrap:anywhere;}
+.c-card-media-ad.c-card-media-ad-metrics .c-card-media-ad-title{display:block; height:calc(var(--text-h5-lh) * 2); overflow:hidden;}
+.c-card-media-ad-metrics .c-card-media-ad-open{display:block; width:100%;}
+.c-card-media-ad-metrics-name{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; overflow-wrap:anywhere;}
 /* Tag — stays flex:none (never shrinks below its label) but is capped.
    ONE-OFF: 120px, the measured width of the longest allowed label
    (Entertainment, 112px in Chrome) plus headroom, so every approved label
@@ -105,10 +130,10 @@
    Entertainment, Trendsetter, Shopping, Life stage, Sports. Over the cap,
    the label truncates with an ellipsis as a safety net; the Open
    button's sr-only name still carries the category. */
-.c-card-media-ad-audience .c-card-media-ad-titlerow .c-tag{max-width:120px; min-width:0; overflow:hidden; white-space:nowrap;} /* never wraps to 2 lines */
+.c-card-media-ad-metrics .c-card-media-ad-titlerow .c-tag{max-width:120px; min-width:0; overflow:hidden; white-space:nowrap;} /* never wraps to 2 lines */
 /* Skeleton keeps the same reserved title row, so it's exactly as tall as a loaded card. */
-.c-card-media-ad-audience.c-card-media-ad-skeleton .c-card-media-ad-titlerow{height:calc(var(--text-h5-lh) * 2);}
-.c-card-media-ad-audience-tag-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-card-media-ad-metrics.c-card-media-ad-skeleton .c-card-media-ad-titlerow{height:calc(var(--text-h5-lh) * 2);}
+.c-card-media-ad-metrics-tag-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 
 /* 1. Media — still + clip. Both are ordinary Slot children, so the
    shipped slot contract stretches them, applies object-fit:cover and
@@ -120,51 +145,63 @@
    loop, playsinline, preload="none", aria-hidden, no controls.
    ONE-OFF: the clip's opacity cross-fade (duration-base, ease-standard)
    is the swap layers' own pairing, reused for the media. */
-.c-card-media-ad-slot > .c-card-media-ad-audience-clip{opacity:0; pointer-events:none; transition:opacity var(--duration-base) var(--ease-standard);}
-.c-card-media-ad-slot > .c-card-media-ad-audience-clip.is-playing{opacity:1;}
+.c-card-media-ad-slot > .c-card-media-ad-metrics-clip{opacity:0; pointer-events:none; transition:opacity var(--duration-base) var(--ease-standard);}
+.c-card-media-ad-slot > .c-card-media-ad-metrics-clip.is-playing{opacity:1;}
 
 /* 2. Swap — taller than the shipped box because the Spec layer carries a
-   total line plus five bar rows. Built from type tokens only, like the
+   total line plus up to five bar rows; the 5-row height is kept whatever
+   the bar count (see BAR COUNT). Built from type tokens only, like the
    shipped formula: total (label1 line) + spacing-8 + 5 caption lines +
    4 x spacing-4 = 124px. ONE-OFF: the Rest layer gets a 3-line tagline
    clamp (shipped is 2) so the taller box isn't half empty at rest. */
-.c-card-media-ad-audience .c-card-media-ad-swap{height:calc(var(--text-label1-lh) + var(--spacing-8) + var(--text-caption-lh) * 5 + var(--spacing-4) * 4);}
-.c-card-media-ad-audience .c-card-media-ad-tagline{-webkit-line-clamp:3; line-clamp:3;}
+.c-card-media-ad-metrics .c-card-media-ad-swap{height:calc(var(--text-label1-lh) + var(--spacing-8) + var(--text-caption-lh) * 5 + var(--spacing-4) * 4);}
+.c-card-media-ad-metrics .c-card-media-ad-tagline{-webkit-line-clamp:3; line-clamp:3;}
 
 /* 3. Size line — the shipped -funnel recipe (caption, Neutral-5, one
    line, ellipsis, pinned to the bottom of the Rest layer) with the
    figure picked out. Markup: class="c-card-media-ad-funnel
-   c-card-media-ad-audience-size". */
-.c-card-media-ad-audience-size b{font-weight:var(--weight-bold); color:var(--color-neutral-9);}
+   c-card-media-ad-metrics-size". */
+.c-card-media-ad-metrics-size b{font-weight:var(--weight-bold); color:var(--color-neutral-9);}
 
 /* 4. Spec layer — not the shipped 3-row <dl> grid: a column holding the
    total and the bars. Three classes deep to beat the shipped
    `.c-card-media-ad .c-card-media-ad-spec` grid rule. Opacity/transform
    swap behaviour is inherited unchanged. */
-.c-card-media-ad.c-card-media-ad-audience .c-card-media-ad-spec{display:flex; flex-direction:column; justify-content:flex-start; gap:var(--spacing-8);}
-/* Total — "16M total audience". Two classes deep so `.c-card p` can't reset it. */
-.c-card-media-ad-audience .c-card-media-ad-audience-total{display:flex; align-items:baseline; gap:var(--spacing-4); margin:0; font-size:var(--text-caption-size); line-height:var(--text-label1-lh); color:var(--color-neutral-5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-.c-card-media-ad-audience-total b{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
-.c-card-media-ad-audience-total.is-empty b{font-size:var(--text-caption-size); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-card-media-ad.c-card-media-ad-metrics .c-card-media-ad-spec{display:flex; flex-direction:column; justify-content:flex-start; gap:var(--spacing-8);}
+/* Total — figure + host label (e.g. "16M total audience"). Two classes
+   deep so `.c-card p` can't reset it. */
+.c-card-media-ad-metrics .c-card-media-ad-metrics-total{display:flex; align-items:baseline; gap:var(--spacing-4); margin:0; font-size:var(--text-caption-size); line-height:var(--text-label1-lh); color:var(--color-neutral-5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.c-card-media-ad-metrics-total b{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-card-media-ad-metrics-total.is-empty b{font-size:var(--text-caption-size); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+/* "+N more" — only when more than 5 bars were supplied. Pushed to the
+   right end of the total line, in the bar-value column's colour and size
+   (caption, Neutral-5, regular, the .is-empty look), so it reads as a note
+   rather than as data. It takes no row, so the swap height holds. */
+.c-card-media-ad-metrics-more{margin-left:auto; padding-left:var(--spacing-8); font-size:var(--text-caption-size); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+/* No breakdown on file — 0 bars. One caption in the empty style, top-aligned
+   under the total where the first bar row would be. */
+.c-card-media-ad-metrics .c-card-media-ad-metrics-nobars{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
 
-/* Channel bars — a <dl>: dt = channel, dd = Progress Bar's shipped
-   .c-progress-trailing-wrap holding a .c-progress-track.size-compact +
+/* Bars — a <dl>: dt = bar label (host string), dd = Progress Bar's
+   shipped .c-progress-trailing-wrap holding a .c-progress-track.size-compact +
    .c-progress-fill and the value. Same shared-grid idea as Media Ad
    Card's spec rows: the label column is as wide as the widest label, so
-   every track starts on one line. Rows are display:contents. Always five
-   rows in this order: Video, Audio, TV, Social, Forums. */
-.c-card-media-ad-audience-bars{display:grid; grid-template-columns:max-content minmax(0, 1fr); align-items:center; gap:var(--spacing-4) var(--spacing-8); margin:0;}
-.c-card-media-ad-audience-bar{display:contents;}
-.c-card-media-ad-audience-bar dt{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap;}
-.c-card-media-ad-audience-bar dd{margin:0; min-width:0;}
+   every track starts on one line. Rows are display:contents. 1-5 rows
+   (see BAR COUNT above). Fewer than 5 stay top-aligned: the spec column
+   is flex-start and the grid is only as tall as its rows, so the spare
+   height collects at the bottom of the fixed swap. */
+.c-card-media-ad-metrics-bars{display:grid; grid-template-columns:max-content minmax(0, 1fr); align-items:center; gap:var(--spacing-4) var(--spacing-8); margin:0;}
+.c-card-media-ad-metrics-bar{display:contents;}
+.c-card-media-ad-metrics-bar dt{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap;}
+.c-card-media-ad-metrics-bar dd{margin:0; min-width:0;}
 /* Value — Media Ad Card's value/empty recipe at caption size.
    ONE-OFF: 4ch column ("100%") so every value right-aligns on one edge. */
-.c-card-media-ad-audience-bar-value{flex:none; min-width:4ch; text-align:right; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
-.c-card-media-ad-audience-bar-value.is-empty{font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-card-media-ad-metrics-bar-value{flex:none; min-width:4ch; text-align:right; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-card-media-ad-metrics-bar-value.is-empty{font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
 
 /* Fill — Progress Bar's default Obsidian fill, untouched (Progress Bar:
    the default fill is Obsidian; only the success tone and a department
-   tone override it, and neither applies to a channel share). Width comes
+   tone override it, and neither applies to a breakdown share). Width comes
    from --bar-w (0-100%, clamped) and grows in when the card goes Live,
    rows staggered by --bar-i (0-4). See PROGRESS BAR DEVIATIONS above.
    ONE-OFF: stagger step = duration-instant / 2 (40ms), after a
@@ -172,14 +209,14 @@
    This variant's own rule: a bar is never seen shrinking. Leaving Live,
    the width resets instantly, but only after duration-base, once the
    Spec layer has faded out. */
-.c-card-media-ad-audience .c-progress-fill{width:0; transition:width 0s linear var(--duration-base);}
-.c-card-media-ad-audience.is-live .c-progress-fill,
-.c-card-media-ad-audience:has(:focus-visible) .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--bar-i, 0) * var(--duration-instant) / 2);}
+.c-card-media-ad-metrics .c-progress-fill{width:0; transition:width 0s linear var(--duration-base);}
+.c-card-media-ad-metrics.is-live .c-progress-fill,
+.c-card-media-ad-metrics:has(:focus-visible) .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--bar-i, 0) * var(--duration-instant) / 2);}
 @media (hover:hover){
-  .c-card-media-ad-audience:hover .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--bar-i, 0) * var(--duration-instant) / 2);}
+  .c-card-media-ad-metrics:hover .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--bar-i, 0) * var(--duration-instant) / 2);}
 }
 
-/* 5. Added — in the reach tray. The Add toggle's twin of .is-compared:
+/* 5. Added — picked into the host's tray (audiences: the reach tray). The Add toggle's twin of .is-compared:
    Obsidian border + 1px ring + shadow-3 (Card > Selected's elevation),
    border switches instantly, only the shadow eases. Declarations copied
    verbatim from the shipped .is-compared (see promotion notes), at the
@@ -193,8 +230,8 @@
    loads after the shipped one, the focus outline is restated last so a
    focused Added card shows the CanvasText focus outline, not Highlight. */
 @media (forced-colors:active){
-  .c-card-media-ad-audience .c-progress-track{outline:1px solid CanvasText;}
-  .c-card-media-ad-audience .c-progress-fill{forced-color-adjust:none; background:CanvasText;}
+  .c-card-media-ad-metrics .c-progress-track{outline:1px solid CanvasText;}
+  .c-card-media-ad-metrics .c-progress-fill{forced-color-adjust:none; background:CanvasText;}
   .c-card-media-ad.is-added{outline:2px solid Highlight;}
   .c-card-media-ad.is-added:has(.c-card-media-ad-open:focus-visible){outline:2px solid CanvasText; outline-offset:2px;}
 }
@@ -203,11 +240,11 @@
    slide. Here: the clip never shows (the still stays), and the bars sit
    at full width with no growth. */
 @media (prefers-reduced-motion:reduce){
-  .c-card-media-ad-slot > .c-card-media-ad-audience-clip{display:none;}
-  .c-card-media-ad-audience .c-progress-fill,
-  .c-card-media-ad-audience.is-live .c-progress-fill,
-  .c-card-media-ad-audience:has(:focus-visible) .c-progress-fill,
-  .c-card-media-ad-audience:hover .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:none;}
+  .c-card-media-ad-slot > .c-card-media-ad-metrics-clip{display:none;}
+  .c-card-media-ad-metrics .c-progress-fill,
+  .c-card-media-ad-metrics.is-live .c-progress-fill,
+  .c-card-media-ad-metrics:has(:focus-visible) .c-progress-fill,
+  .c-card-media-ad-metrics:hover .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:none;}
 }
 </style>
 <!-- ===================== END COMPONENT CSS ===================== -->
@@ -258,8 +295,8 @@
 <main class="sc-page">
 
   <span class="sc-flag"><i class="ph ph-warning"></i>Draft · not in components.css or DESIGN-SYSTEM.md yet</span>
-  <h1 class="sc-h1">Audience card</h1>
-  <p class="sc-lede">One audience segment as a gallery tile, for Collab:Media's audiences page. It's a <b>variant of the shipped Media Ad Card</b>: <code>c-card c-card-interactive c-card-media-ad c-card-media-ad-audience</code>. Frame, slot, Live state, round toggle, title, swap and focus all come from the shipped card. This variant adds a slot contract for a still with a hover clip, a fixed 2-line title area, a size line, and a Live layer that shows the total audience and five channel bars. Every card on this page shows the shipped media placeholder: no audience art is rendered.</p>
+  <h1 class="sc-h1">Metrics card</h1>
+  <p class="sc-lede">One item someone can pick or reach, as a gallery tile. At rest it shows media, a name, a category Tag, a tagline and a size line. Live, it shows a headline total and a breakdown of up to five bars. <b>First use case: audience segments</b> on Collab:Media's audiences page. It could also serve influencers, channels or campaigns. It's a <b>variant of the shipped Media Ad Card</b>: <code>c-card c-card-interactive c-card-media-ad c-card-media-ad-metrics</code>. Frame, slot, Live state, round toggle, title, swap and focus all come from the shipped card. This variant adds a slot contract for a still with a hover clip, a fixed 2-line title area, a size line, and the total + bars Live face. Data-specific words (the size unit, the total's label, the toggle's label, the bar labels) are supplied by the host. The demo data on this page is audiences, so the examples read "audience", "total audience" and "Add {Name} to reach tray". Every card shows the shipped media placeholder: no art is rendered.</p>
 
   <div class="sc-cols">
     <div class="sc-note">
@@ -273,11 +310,11 @@
     <div class="sc-note">
       <b>What differs from formats</b>
       <ul>
-        <li><b>Toggle</b>: "Add {Name} to reach tray" instead of Compare. Same look and contract; pressed = <code>.is-added</code>.</li>
-        <li><b>Tag</b> names the audience <i>category</i>, mapped from the character bible's body colours. It doesn't name a format family.</li>
+        <li><b>Toggle</b>: an Add toggle with a host-supplied fixed label (audiences: "Add {Name} to reach tray") instead of Compare. Same look and contract; pressed = <code>.is-added</code>.</li>
+        <li><b>Tag</b> names the item's <i>category</i>, not a format family. For audiences it's mapped from the character bible's body colours.</li>
         <li><b>Title row</b>: the title area is always 2 lines tall (ellipsis on line 2), and the Tag stays on one line, with a 13-character label limit (capped at 120px, which fits every approved label in full), so the heading is never squeezed and every card is the same height.</li>
-        <li><b>Rest</b>: tagline (3 lines, not 2) + a size line ("<b>16M</b> audience · 66% social") instead of funnel stages.</li>
-        <li><b>Live</b>: a total + five channel bars (shipped Progress Bar) instead of the three Objective/Sizes/Benchmark rows. The swap is taller to fit them.</li>
+        <li><b>Rest</b>: tagline (3 lines, not 2) + a size line, "<b>{Size}</b> {unit} · {top %} {top bar}" (audiences: "<b>16M</b> audience · 66% social"), instead of funnel stages.</li>
+        <li><b>Live</b>: a total + 1–5 bars (shipped Progress Bar) instead of the three Objective/Sizes/Benchmark rows. The swap is taller to fit five. See <b>Bar count</b> for 0, fewer than 5, and more than 5.</li>
         <li><b>Media</b>: a still + a muted looping clip that plays only while Live. Media Ad Card leaves media fully to the host.</li>
       </ul>
     </div>
@@ -289,34 +326,34 @@
     <p class="sc-lede">Shown Live (static) so both layers can be described. The numbered parts are listed in the table. Rows marked <i>shipped</i> are Media Ad Card parts, used as they are.</p>
     <div class="sc-anatomy">
       <div class="sc-pin" inert>
-        <article class="c-card c-card-interactive c-card-media-ad c-card-media-ad-audience is-live">
+        <article class="c-card c-card-interactive c-card-media-ad c-card-media-ad-metrics is-live">
           <div class="c-card-media-ad-frame">
             <div class="c-card-media-ad-slot"><div class="c-card-media-ad-placeholder" aria-hidden="true"><i class="ph ph-frame-corners"></i><span>Media</span></div></div>
             <span class="c-card-media-ad-hint" aria-hidden="true"><i class="ph ph-play"></i>Tap to play</span>
           </div>
           <div class="c-card-media-ad-body">
             <div class="c-card-media-ad-titlerow">
-              <h3 class="c-card-media-ad-title"><button type="button" class="c-card-media-ad-open"><span class="c-card-media-ad-audience-name">Foodies</span><span class="sr-only">, Trendsetter, 16M audience. Open details</span></button></h3>
-              <span class="c-tag c-tag-wood"><i class="dot"></i><span class="c-card-media-ad-audience-tag-label">Trendsetter</span></span>
+              <h3 class="c-card-media-ad-title"><button type="button" class="c-card-media-ad-open"><span class="c-card-media-ad-metrics-name">Foodies</span><span class="sr-only">, Trendsetter, 16M audience. Open details</span></button></h3>
+              <span class="c-tag c-tag-wood"><i class="dot"></i><span class="c-card-media-ad-metrics-tag-label">Trendsetter</span></span>
             </div>
             <div class="c-card-media-ad-swap">
               <div class="c-card-media-ad-rest">
                 <p class="c-card-media-ad-tagline">Culinary explorers who seek authentic flavors, quality ingredients, and memorable dining experiences.</p>
-                <p class="c-card-media-ad-funnel c-card-media-ad-audience-size"><b>16M</b> audience · 66% social</p>
+                <p class="c-card-media-ad-funnel c-card-media-ad-metrics-size"><b>16M</b> audience · 66% social</p>
               </div>
               <div class="c-card-media-ad-spec">
-                <p class="c-card-media-ad-audience-total"><b>16M</b><span>total audience</span></p>
-                <dl class="c-card-media-ad-audience-bars">
-                  <div class="c-card-media-ad-audience-bar"><dt>Video</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:57%; --bar-i:0"></div></div><span class="c-card-media-ad-audience-bar-value">57%</span></dd></div>
-                  <div class="c-card-media-ad-audience-bar"><dt>Audio</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:27%; --bar-i:1"></div></div><span class="c-card-media-ad-audience-bar-value">27%</span></dd></div>
-                  <div class="c-card-media-ad-audience-bar"><dt>TV</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:43%; --bar-i:2"></div></div><span class="c-card-media-ad-audience-bar-value">43%</span></dd></div>
-                  <div class="c-card-media-ad-audience-bar"><dt>Social</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:66%; --bar-i:3"></div></div><span class="c-card-media-ad-audience-bar-value">66%</span></dd></div>
-                  <div class="c-card-media-ad-audience-bar"><dt>Forums</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:48%; --bar-i:4"></div></div><span class="c-card-media-ad-audience-bar-value">48%</span></dd></div>
+                <p class="c-card-media-ad-metrics-total"><b>16M</b><span>total audience</span></p>
+                <dl class="c-card-media-ad-metrics-bars">
+                  <div class="c-card-media-ad-metrics-bar"><dt>Video</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:57%; --bar-i:0"></div></div><span class="c-card-media-ad-metrics-bar-value">57%</span></dd></div>
+                  <div class="c-card-media-ad-metrics-bar"><dt>Audio</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:27%; --bar-i:1"></div></div><span class="c-card-media-ad-metrics-bar-value">27%</span></dd></div>
+                  <div class="c-card-media-ad-metrics-bar"><dt>TV</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:43%; --bar-i:2"></div></div><span class="c-card-media-ad-metrics-bar-value">43%</span></dd></div>
+                  <div class="c-card-media-ad-metrics-bar"><dt>Social</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:66%; --bar-i:3"></div></div><span class="c-card-media-ad-metrics-bar-value">66%</span></dd></div>
+                  <div class="c-card-media-ad-metrics-bar"><dt>Forums</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:48%; --bar-i:4"></div></div><span class="c-card-media-ad-metrics-bar-value">48%</span></dd></div>
                 </dl>
               </div>
             </div>
           </div>
-          <button type="button" class="c-card-media-ad-compare c-card-media-ad-audience-add" aria-pressed="false" aria-label="Add Foodies to reach tray" aria-keyshortcuts="a"><i class="ph ph-plus" aria-hidden="true"></i></button>
+          <button type="button" class="c-card-media-ad-compare c-card-media-ad-metrics-add" aria-pressed="false" aria-label="Add Foodies to reach tray" aria-keyshortcuts="a"><i class="ph ph-plus" aria-hidden="true"></i></button>
         </article>
         <span class="sc-pin-n" style="top:8px; right:8px;">1</span>
         <span class="sc-pin-n" style="top:56px; left:56px;">2</span>
@@ -330,14 +367,15 @@
         <thead><tr><th>#</th><th>Part</th><th>Class</th><th>Spec</th></tr></thead>
         <tbody>
           <tr><td>1</td><td>Frame + Slot <i>shipped</i></td><td><code>-frame</code>, <code>-slot</code>, <code>-placeholder</code></td><td>Full-bleed, 16:10, clips, zooms to 1.1 when Live. Accepts any child. The system ships only the placeholder, which is what every card on this page shows.</td></tr>
-          <tr><td>1</td><td>Still <i>new, host-supplied</i></td><td><code>-audience-still</code></td><td>The segment's still (<code>img alt=""</code>, decorative because the title names the segment). Replaces the placeholder when the host has one. Not rendered on this page.</td></tr>
-          <tr><td>1</td><td>Clip <i>new, host-supplied</i></td><td><code>-audience-clip</code></td><td>Optional <code>video</code> on top of the still: <code>muted loop playsinline preload="none" aria-hidden="true" disablepictureinpicture</code>, no controls, no autoplay. The script plays it only while Live. <code>.is-playing</code> (opacity 0 → 1) is set on the video's <code>playing</code> event and removed as soon as it pauses. Never shown under reduced motion. Not rendered on this page.</td></tr>
+          <tr><td>1</td><td>Still <i>new, host-supplied</i></td><td><code>-metrics-still</code></td><td>The item's still (<code>img alt=""</code>, decorative because the title names the item). Replaces the placeholder when the host has one. Not rendered on this page.</td></tr>
+          <tr><td>1</td><td>Clip <i>new, host-supplied</i></td><td><code>-metrics-clip</code></td><td>Optional <code>video</code> on top of the still: <code>muted loop playsinline preload="none" aria-hidden="true" disablepictureinpicture</code>, no controls, no autoplay. The script plays it only while Live. <code>.is-playing</code> (opacity 0 → 1) is set on the video's <code>playing</code> event and removed as soon as it pauses. Never shown under reduced motion. Not rendered on this page.</td></tr>
           <tr><td>–</td><td>Tap hint <i>shipped</i></td><td><code>-hint</code></td><td>"Tap to play", touch only, hidden once Live.</td></tr>
-          <tr><td>2</td><td>Add toggle <i>shipped look</i></td><td><code>-compare</code> + <code>-audience-add</code></td><td>The round 32px Compare toggle, as shipped. Label is fixed: "Add {Name} to reach tray". <code>aria-pressed</code> carries the state. <code>ph-plus</code> → <code>ph-check</code>. Pressed puts <code>.is-added</code> on the card.</td></tr>
-          <tr><td>3</td><td>Title + Open <i>shipped, fixed height</i></td><td><code>-title</code>, <code>-open</code> → <code>-audience-name</code></td><td>h5 look. <b>The title area is always exactly 2 lines tall</b> (2 × h5 line-height), whether the title takes 1 line or 2. Line 2 ends in an ellipsis. The clamp sits on <code>-audience-name</code> inside the button, because a clamp on the h3 can't count lines through a button. <code>flex:1; min-width:0</code>. The real button stretches over the card. Name: "{Name}, {full Category}, {Size} audience. Open details".</td></tr>
-          <tr><td>4</td><td>Category Tag <i>shipped, capped</i></td><td><code>.c-tag .c-tag-*</code> → <code>-audience-tag-label</code></td><td>Category → Tag mapping below. <b>The heading wins over the Tag</b>: <code>flex:none</code>, capped at 120px, which fits every approved label in full; only an over-limit label gets an ellipsis. It <b>never wraps</b> (<code>white-space:nowrap</code>). <b>Label limit for this variant: 13 characters</b>, using these labels: Ethnicity, Income group, Professionals (for Business &amp; professionals), Entertainment, Trendsetter, Shopping (for Shopping intent), Life stage, Sports. Safety net: past the cap, the label ends in an ellipsis. The Open button's sr-only name still carries the category.</td></tr>
-          <tr><td>5</td><td>Rest layer</td><td><code>-rest</code> → <code>-tagline</code>, <code>-funnel</code>+<code>-audience-size</code></td><td>Tagline: body2 Neutral-5, <b>3-line</b> clamp. Size line: "<b>{Size}</b> audience · {top %} {top channel}", using the funnel recipe with the figure in Neutral-9 bold. The top channel is the highest bar value.</td></tr>
-          <tr><td>6</td><td>Spec layer</td><td><code>-spec</code> → <code>-audience-total</code>, <code>-audience-bars</code></td><td>Total: figure at label1 Neutral-9 + "total audience" in caption Neutral-5. Bars: a <code>&lt;dl&gt;</code>, <b>always five rows in this order: Video, Audio, TV, Social, Forums</b>. Each row: channel (caption Neutral-5) │ Progress Bar compact track with an Obsidian fill │ value (caption bold, tabular, 4ch, right-aligned). Fills grow in on Live, staggered.</td></tr>
+          <tr><td>2</td><td>Add toggle <i>shipped look</i></td><td><code>-compare</code> + <code>-metrics-add</code></td><td>The round 32px Compare toggle, as shipped. <b>Host string</b>: a fixed label that names the item (audiences: "Add {Name} to reach tray"). Never swap the label for the state. <code>aria-pressed</code> carries the state. <code>ph-plus</code> → <code>ph-check</code>. Pressed puts <code>.is-added</code> on the card.</td></tr>
+          <tr><td>3</td><td>Title + Open <i>shipped, fixed height</i></td><td><code>-title</code>, <code>-open</code> → <code>-metrics-name</code></td><td>h5 look. <b>The title area is always exactly 2 lines tall</b> (2 × h5 line-height), whether the title takes 1 line or 2. Line 2 ends in an ellipsis. The clamp sits on <code>-metrics-name</code> inside the button, because a clamp on the h3 can't count lines through a button. <code>flex:1; min-width:0</code>. The real button stretches over the card. Name: "{Name}, {Category}, {Size} {unit}. Open details" (audiences: "Foodies, Trendsetter, 16M audience. Open details").</td></tr>
+          <tr><td>4</td><td>Category Tag <i>shipped, capped</i></td><td><code>.c-tag .c-tag-*</code> → <code>-metrics-tag-label</code></td><td>Category → Tag mapping below. <b>The heading wins over the Tag</b>: <code>flex:none</code>, capped at 120px, which fits every approved label in full; only an over-limit label gets an ellipsis. It <b>never wraps</b> (<code>white-space:nowrap</code>). <b>Label limit for this variant: 13 characters</b>, using these labels: Ethnicity, Income group, Professionals (for Business &amp; professionals), Entertainment, Trendsetter, Shopping (for Shopping intent), Life stage, Sports. Safety net: past the cap, the label ends in an ellipsis. The Open button's sr-only name still carries the category.</td></tr>
+          <tr><td>5</td><td>Rest layer</td><td><code>-rest</code> → <code>-tagline</code>, <code>-funnel</code>+<code>-metrics-size</code></td><td>Tagline: body2 Neutral-5, <b>3-line</b> clamp. Size line: "<b>{Size}</b> {unit} · {top %} {top bar}", using the funnel recipe with the figure in Neutral-9 bold. <b>Host string</b>: the unit (audiences: "audience"). The top bar is the highest value among <i>all</i> the bars supplied, including any beyond five. Missing values are ignored. With no bars, or none with a value, the "· top" part is dropped.</td></tr>
+          <tr><td>6</td><td>Spec layer</td><td><code>-spec</code> → <code>-metrics-total</code> (+ <code>-metrics-more</code>), <code>-metrics-bars</code> or <code>-metrics-nobars</code></td><td>Total: figure at label1 Neutral-9 + a <b>host-string label</b> in caption Neutral-5 (audiences: "total audience"). Bars: a <code>&lt;dl&gt;</code> of <b>1–5 rows</b> with host-supplied labels (audiences: Video, Audio, TV, Social, Forums, in that order). Each row: label (caption Neutral-5) │ Progress Bar compact track with an Obsidian fill │ value (caption bold, tabular, 4ch, right-aligned). Fills grow in on Live, staggered. See Bar count below.</td></tr>
+          <tr><td>–</td><td>Bar count</td><td><code>-metrics-more</code>, <code>-metrics-nobars</code></td><td><b>1–5 bars</b>: shown in the host's order, top-aligned under the total. The swap keeps the 5-row height, so the spare space sits empty at the bottom. Rows are never spread out, and the card height never changes. <b>More than 5</b>: the 5 highest values, sorted high to low, plus "+N more" at the right end of the total line (caption, Neutral-5, with an sr-only suffix; audiences: " channels in details"). <b>0 bars</b>: the total, then one caption "No breakdown on file" (host string, empty style). The Rest size line drops its "· top" part.</td></tr>
           <tr><td>–</td><td>Swap <i>resized</i></td><td><code>-swap</code></td><td>Height = label1 line + spacing-8 + 5 caption lines + 4 × spacing-4 (124px). Fixed, so Rest ↔ Live never changes the card's height.</td></tr>
         </tbody>
       </table>
@@ -349,6 +387,33 @@
     <h2 class="sc-h2">States and specimens (static)</h2>
     <p class="sc-lede">These specimens are frozen (<code>inert</code>), so they don't respond to input. Try the real interaction in the live grid below.</p>
     <div class="sc-grid" id="sc-specimens"></div>
+  </section>
+
+  <!-- ============================== BAR COUNT ============================== -->
+  <section class="sc-section">
+    <h2 class="sc-h2">Bar count</h2>
+    <p class="sc-lede">What happens when the host has something other than five bars. All specimens are static and Live, with demo audience data. Every card is the same height: the swap keeps the 5-row height whatever the count, so equal heights in a grid always win.</p>
+    <div class="sc-cols" style="margin-bottom:var(--spacing-24);">
+      <div class="sc-note">
+        <b>Rule</b>
+        <ul>
+          <li><b>1–5 bars</b>: shown in the host's order, top-aligned under the total. With fewer than 5, the leftover space stays empty at the bottom of the swap. Rows are never spread apart, so row spacing is identical on every card.</li>
+          <li><b>More than 5</b>: the 5 highest values, sorted high to low, then "+N more" at the right end of the total line. The full list belongs in the detail view.</li>
+          <li><b>0 bars</b> (no breakdown on file): the total, then one caption, "No breakdown on file", in the empty style. The Rest size line shows the size only.</li>
+          <li><b>Size line</b>: "· {top %} {top bar}" always names the highest value among <i>all</i> the bars supplied, hidden ones included. With 0 bars, or none with a value, it's dropped.</li>
+        </ul>
+      </div>
+      <div class="sc-note">
+        <b>Why "top 5 by value + N more" for more than 5 (option b), not "first 5 in host order" (option a)</b>
+        <ul>
+          <li>The card is a scanning surface. What a planner needs from it is where this item is <i>strongest</i>. Option (a) could hide the biggest value just because the host listed it sixth.</li>
+          <li>"+N more" says out loud that something is missing. Option (a) drops data silently, or moves it into an sr-only string sighted users never see.</li>
+          <li>The ≤5 case keeps the host's order, so the usual fixed order (Video, Audio, TV, Social, Forums) still reads by position across the grid. Sorting only kicks in when rows have to be dropped, and then each card's own list is consistently high to low.</li>
+          <li><b>One change from the suggested form</b>: "+N more" goes at the right end of the total line, not as a caption line under the bars. A sixth line would make the swap taller than the 5-row height and break equal heights. Swapping it in for the fifth bar would show only four. On the total line it costs no height and keeps all five bars.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sc-grid" id="sc-barcount"></div>
   </section>
 
   <!-- ============================== MEASUREMENT ============================== -->
@@ -370,8 +435,8 @@
 
   <!-- ============================== CATEGORIES ============================== -->
   <section class="sc-section">
-    <h2 class="sc-h2">Category → Tag mapping</h2>
-    <p class="sc-lede">The character bible says body colour belongs to the category. Six of the eight categories match a shipped Tag exactly. <b>Two don't</b>, and no new colour was invented for them: they use the plain neutral <code>.c-tag</code> (no dot) until a decision is made.</p>
+    <h2 class="sc-h2">Category → Tag mapping (audience use case)</h2>
+    <p class="sc-lede">Each use case brings its own category list and its own mapping onto the shipped Tags, within the 13-character limit. This is the mapping for audiences. The character bible says body colour belongs to the category. Six of the eight categories match a shipped Tag exactly. <b>Two don't</b>, and no new colour was invented for them: they use the plain neutral <code>.c-tag</code> (no dot) until a decision is made.</p>
     <table class="sc-table" style="max-width:900px;">
       <thead><tr><th>Category</th><th>Bible body colour</th><th>Token</th><th>Tag</th><th>Note</th></tr></thead>
       <tbody>
@@ -391,7 +456,7 @@
   <!-- ============================== LIVE DEMO ============================== -->
   <section class="sc-section">
     <h2 class="sc-h2">Live grid</h2>
-    <p class="sc-lede">Hover, or Tab onto a card, and it goes Live: the slot zooms, the body swaps and the bars grow in. A host clip would also play, but none is rendered here, so the slot shows only the placeholder. The round button (or <kbd>A</kbd> while focus is in the card) adds the segment to the reach tray. Clicking the card would open the segment's details. Here it only writes to the log below. Nothing navigates. Grid: <code>c-cards c-cards-functional</code> (280px floor). "Health &amp; Wellness Buyers" and "Travel &amp; Experience Seekers" are the 2-line test cards (demo data).</p>
+    <p class="sc-lede">Hover, or Tab onto a card, and it goes Live: the slot zooms, the body swaps and the bars grow in. A host clip would also play, but none is rendered here, so the slot shows only the placeholder. The round button (or <kbd>A</kbd> while focus is in the card) adds the item to the host's tray (here, the reach tray). Clicking the card would open the item's details. Here it only writes to the log below. Nothing navigates. Grid: <code>c-cards c-cards-functional</code> (280px floor). "Health &amp; Wellness Buyers" and "Travel &amp; Experience Seekers" are the 2-line test cards (demo data).</p>
     <div class="c-cards c-cards-functional" id="sc-demo"></div>
     <div class="sc-check" id="sc-demo-out">Measuring…</div>
     <div class="sc-log" id="sc-log"><p>Event log (showcase only, not a live region).</p></div>
@@ -410,45 +475,49 @@
   <!-- ============================== HOST MARKUP ============================== -->
   <section class="sc-section">
     <h2 class="sc-h2">Host markup: plugging in a still and a clip</h2>
-    <p class="sc-lede">The system ships no audience art. The host puts its own still and clip in the Slot. Until it has them, it leaves the shipped <code>-placeholder</code> in the Slot, which is what every card on this page shows. The script plays the clip only while the card is Live, never under reduced motion. It sets <code>.is-playing</code> on the video's <code>playing</code> event and removes it as soon as the video pauses.</p>
-<pre class="sc-code">&lt;article class="c-card c-card-interactive c-card-media-ad c-card-media-ad-audience"&gt;   &lt;!-- plain article: no role, no tabindex --&gt;
+    <p class="sc-lede">Audience example. The strings marked <b>host string</b> in the comments change per use case. The system ships no art. The host puts its own still and clip in the Slot. Until it has them, it leaves the shipped <code>-placeholder</code> in the Slot, which is what every card on this page shows. The script plays the clip only while the card is Live, never under reduced motion. It sets <code>.is-playing</code> on the video's <code>playing</code> event and removes it as soon as the video pauses.</p>
+<pre class="sc-code">&lt;article class="c-card c-card-interactive c-card-media-ad c-card-media-ad-metrics"&gt;   &lt;!-- plain article: no role, no tabindex --&gt;
   &lt;div class="c-card-media-ad-frame"&gt;
     &lt;div class="c-card-media-ad-slot"&gt;
-      &lt;img class="c-card-media-ad-audience-still" src="stills/foodies.jpg" alt="" loading="lazy"&gt;
-      &lt;video class="c-card-media-ad-audience-clip" src="clips/foodies.mp4"
+      &lt;img class="c-card-media-ad-metrics-still" src="stills/foodies.jpg" alt="" loading="lazy"&gt;
+      &lt;video class="c-card-media-ad-metrics-clip" src="clips/foodies.mp4"
              muted loop playsinline preload="none" disablepictureinpicture aria-hidden="true"&gt;&lt;/video&gt;
     &lt;/div&gt;
     &lt;span class="c-card-media-ad-hint" aria-hidden="true"&gt;&lt;i class="ph ph-play"&gt;&lt;/i&gt;Tap to play&lt;/span&gt;
   &lt;/div&gt;
   &lt;div class="c-card-media-ad-body"&gt;
     &lt;div class="c-card-media-ad-titlerow"&gt;
-      &lt;h3 class="c-card-media-ad-title"&gt;&lt;button type="button" class="c-card-media-ad-open"&gt;&lt;span class="c-card-media-ad-audience-name"&gt;Foodies&lt;/span&gt;&lt;span class="sr-only"&gt;, Trendsetter, 16M audience. Open details&lt;/span&gt;&lt;/button&gt;&lt;/h3&gt;
-      &lt;span class="c-tag c-tag-wood"&gt;&lt;i class="dot"&gt;&lt;/i&gt;&lt;span class="c-card-media-ad-audience-tag-label"&gt;Trendsetter&lt;/span&gt;&lt;/span&gt;   &lt;!-- label &lt;= 13 chars, one line, never wraps --&gt;
+      &lt;h3 class="c-card-media-ad-title"&gt;&lt;button type="button" class="c-card-media-ad-open"&gt;&lt;span class="c-card-media-ad-metrics-name"&gt;Foodies&lt;/span&gt;&lt;span class="sr-only"&gt;, Trendsetter, 16M audience. Open details&lt;/span&gt;&lt;/button&gt;&lt;/h3&gt;   &lt;!-- "audience" = host string (size unit) --&gt;
+      &lt;span class="c-tag c-tag-wood"&gt;&lt;i class="dot"&gt;&lt;/i&gt;&lt;span class="c-card-media-ad-metrics-tag-label"&gt;Trendsetter&lt;/span&gt;&lt;/span&gt;   &lt;!-- label &lt;= 13 chars, one line, never wraps --&gt;
     &lt;/div&gt;
     &lt;div class="c-card-media-ad-swap"&gt;
       &lt;div class="c-card-media-ad-rest"&gt;
         &lt;p class="c-card-media-ad-tagline"&gt;Culinary explorers who …&lt;/p&gt;
-        &lt;p class="c-card-media-ad-funnel c-card-media-ad-audience-size"&gt;&lt;b&gt;16M&lt;/b&gt; audience · 66% social&lt;/p&gt;
+        &lt;p class="c-card-media-ad-funnel c-card-media-ad-metrics-size"&gt;&lt;b&gt;16M&lt;/b&gt; audience · 66% social&lt;/p&gt;   &lt;!-- {unit} host string; "· top" = highest of all bars, dropped when none --&gt;
       &lt;/div&gt;
       &lt;div class="c-card-media-ad-spec"&gt;
-        &lt;p class="c-card-media-ad-audience-total"&gt;&lt;b&gt;16M&lt;/b&gt;&lt;span&gt;total audience&lt;/span&gt;&lt;/p&gt;
-        &lt;dl class="c-card-media-ad-audience-bars"&gt;
-          &lt;div class="c-card-media-ad-audience-bar"&gt;
+        &lt;p class="c-card-media-ad-metrics-total"&gt;&lt;b&gt;16M&lt;/b&gt;&lt;span&gt;total audience&lt;/span&gt;&lt;/p&gt;   &lt;!-- label = host string --&gt;
+        &lt;!-- More than 5 bars supplied: show the top 5 by value and add, inside the total line:
+             &lt;span class="c-card-media-ad-metrics-more"&gt;+2 more&lt;span class="sr-only"&gt; channels in details&lt;/span&gt;&lt;/span&gt; --&gt;
+        &lt;!-- 0 bars: replace the &lt;dl&gt; with
+             &lt;p class="c-card-media-ad-metrics-nobars"&gt;No breakdown on file&lt;/p&gt; --&gt;
+        &lt;dl class="c-card-media-ad-metrics-bars"&gt;
+          &lt;div class="c-card-media-ad-metrics-bar"&gt;
             &lt;dt&gt;Video&lt;/dt&gt;
             &lt;dd class="c-progress-trailing-wrap"&gt;
               &lt;div class="c-progress-track size-compact" aria-hidden="true"&gt;&lt;div class="c-progress-fill" style="--bar-w:57%; --bar-i:0"&gt;&lt;/div&gt;&lt;/div&gt;
-              &lt;span class="c-card-media-ad-audience-bar-value"&gt;57%&lt;/span&gt;
+              &lt;span class="c-card-media-ad-metrics-bar-value"&gt;57%&lt;/span&gt;
             &lt;/dd&gt;
           &lt;/div&gt;
-          &lt;!-- … Audio (--bar-i:1), TV (2), Social (3), Forums (4). Always all five. --&gt;
+          &lt;!-- … Audio (--bar-i:1), TV (2), Social (3), Forums (4). 1–5 rows; labels are host strings. --&gt;
           &lt;!-- Missing value: track with --bar-w:0%, and
-               &lt;span class="c-card-media-ad-audience-bar-value is-empty"&gt;&lt;span aria-hidden="true"&gt;—&lt;/span&gt;&lt;span class="sr-only"&gt;Not on file&lt;/span&gt;&lt;/span&gt; --&gt;
+               &lt;span class="c-card-media-ad-metrics-bar-value is-empty"&gt;&lt;span aria-hidden="true"&gt;—&lt;/span&gt;&lt;span class="sr-only"&gt;Not on file&lt;/span&gt;&lt;/span&gt; --&gt;
         &lt;/dl&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;button type="button" class="c-card-media-ad-compare c-card-media-ad-audience-add"
-          aria-pressed="false" aria-label="Add Foodies to reach tray" aria-keyshortcuts="a"&gt;
+  &lt;button type="button" class="c-card-media-ad-compare c-card-media-ad-metrics-add"
+          aria-pressed="false" aria-label="Add Foodies to reach tray" aria-keyshortcuts="a"&gt;   &lt;!-- label = host string, fixed --&gt;
     &lt;i class="ph ph-plus" aria-hidden="true"&gt;&lt;/i&gt;
   &lt;/button&gt;
 &lt;/article&gt;</pre>
@@ -463,7 +532,7 @@
         <ul>
           <li>The source's <code>&lt;article role="button" tabindex="0" aria-label="…"&gt;</code> wrapped a real button. That's invalid nesting. This draft fixes it the way Media Ad Card did: a plain article, the Open action is a real button in the title (stretched over the card), and Add is a sibling button above that hit area.</li>
           <li>The source's aria-label moves into the Open button's name: visible "Foodies" plus an <code>.sr-only</code> ", Trendsetter, 16M audience. Open details".</li>
-          <li>The source's "Add to reach tray" label didn't name the segment, so every card read the same. It's now "Add {Name} to reach tray" and stays fixed. Only <code>aria-pressed</code> changes.</li>
+          <li>The source's "Add to reach tray" label didn't name the segment, so every card read the same. The label is now a host string that must name the item and stay fixed (audiences: "Add {Name} to reach tray"). Only <code>aria-pressed</code> changes.</li>
           <li>The video was already <code>aria-hidden</code>. It's now also <code>preload="none"</code>, has no autoplay, and never plays under reduced motion.</li>
         </ul>
       </div>
@@ -482,12 +551,13 @@
       <div class="sc-note">
         <b>Missing data</b>
         <ul>
-          <li>No channel value: the row stays. The track is empty and the value shows "—" (<code>.is-empty</code>). The five rows are the card's shape.</li>
+          <li>A bar with no value: the row stays. The track is empty and the value shows "—" (<code>.is-empty</code>). A row the host supplied is never removed.</li>
+          <li>Fewer than 5 bars, more than 5, or none: see <b>Bar count</b>.</li>
           <li>No size: the size line reads "Size not published" (Neutral-5), and the total shows "Not published" in the empty style.</li>
           <li>No still: the shipped placeholder (as on every card on this page). No clip: leave the video out, and the still just zooms.</li>
           <li>Long title: the title area is always 2 lines tall, and line 2 ends in an ellipsis. Long tagline: 3 lines, then an ellipsis. Neither changes the card's height.</li>
           <li>Long category: use this variant's label (13 characters or fewer). The Tag never wraps. A longer label truncates with an ellipsis at the 120px cap.</li>
-          <li>The top-channel part of the size line ignores missing values. If every channel is missing, the size line shows the size only.</li>
+          <li>The "· top" part of the size line ignores missing values. If every bar is missing, or there are no bars, the size line shows the size only.</li>
         </ul>
       </div>
     </div>
@@ -502,7 +572,9 @@
         <li><b>Life stage and Sports Tag colours.</b> Add a turquoise <code>-bg</code> token + Tag for Life stage? What should Sports use, since red reads as Danger? Both are grey for now.</li>
         <li><b>Tagline: 3 lines or 2?</b> 3 fills the taller swap. 2 matches the shipped card but leaves about 40px empty at rest.</li>
         <li><b>Hint wording.</b> Keep the shipped "Tap to play", or use the source's "Tap to see"?</li>
-        <li><b>What Open leads to.</b> No audience detail view exists yet (formats open the Media Ad Modal).</li>
+        <li><b>What Open leads to.</b> No detail view exists yet for audiences (formats open the Media Ad Modal). "+N more" assumes the detail view lists every bar.</li>
+        <li><b>More than 5 bars.</b> The draft shows the top 5 by value with "+N more" on the total line (option b). Confirm, or prefer the host's first 5 in order (option a)?</li>
+        <li><b>Name.</b> "Metrics card" with class <code>c-card-media-ad-metrics</code>. The draft file is <code>metrics-card-draft.html</code>.</li>
         <li><b>Shipped title clamp.</b> The shipped Media Ad Card probably has the same clamp bug (its clamp sits on an h3 that holds a button). Should the fix go into the shipped card?</li>
       </ul>
     </div>
@@ -513,10 +585,11 @@
     <h2 class="sc-h2">DESIGN-SYSTEM.md edits needed on promotion</h2>
     <div class="sc-note">
       <ul>
-        <li><b>Media Ad Card — When to use it</b>: add audience segments (things you could <i>reach</i>) next to formats, placements and templates, and point to this variant.</li>
-        <li><b>Media Ad Card — Family Tag</b>: it says the format families are "the one place in the system" element colours label kinds of thing. That's no longer true. Audience categories now do too. Reword it and add the category → Tag mapping, plus this variant's label list (Professionals, Shopping), the 13-character label limit, the nowrap rule and the 120px cap.</li>
-        <li><b>Media Ad Card — The media slot contract</b>: it says the component owns only ratio, clip and zoom. Add that the audience variant also styles and plays a clip (<code>-audience-clip</code>: hidden until playing, plays only while Live, never under reduced motion).</li>
-        <li><b>Media Ad Card — Anatomy / States / What this variant borrows</b>: a new sub-section for the audience variant, covering the fixed 2-line title area, the capped Tag, the taller swap, the size line, the total and bars, <code>.is-added</code> and the A shortcut. Record the one-offs (2-line title block, 120px Tag cap, 13-character limit, 3-line tagline, swap formula, 4ch value column, stagger step, clip fade).</li>
+        <li><b>Card — Variants list</b>: add <b>Metrics card</b> as a Media Ad Card variant (<code>c-card-media-ad-metrics</code>).</li>
+        <li><b>Media Ad Card — When to use it</b>: add items someone picks or reaches whose figures matter, for example audience segments (first use case), influencers, channels or campaigns. Point to the Metrics card.</li>
+        <li><b>Media Ad Card — Family Tag</b>: it says the format families are "the one place in the system" element colours label kinds of thing. That's no longer true. Metrics card categories now do too. Reword it, and add the audience category → Tag mapping as the first example, the 13-character label limit, the nowrap rule and the 120px cap.</li>
+        <li><b>Media Ad Card — The media slot contract</b>: it says the component owns only ratio, clip and zoom. Add that the Metrics card also styles and plays a clip (<code>-metrics-clip</code>: hidden until playing, plays only while Live, never under reduced motion).</li>
+        <li><b>Media Ad Card — Anatomy / States / What this variant borrows</b>: a new Metrics card sub-section covering the host strings (unit, total label, toggle label, bar labels, "+N more" suffix, empty-breakdown caption), the fixed 2-line title area, the capped Tag, the taller swap, the size line, the total and bars, the <b>Bar count</b> rule, <code>.is-added</code> and the A shortcut. Record the one-offs (2-line title block, 120px Tag cap, 13-character limit, 3-line tagline, swap formula, 4ch value column, stagger step, clip fade).</li>
         <li><b>Progress Bar</b>: record this card's deviations. The fill width comes from <code>--bar-w</code>, the track is aria-hidden instead of a progressbar, and the bars re-grow on every Live instead of once on mount. Add the forced-colours fix too, if it's promoted globally.</li>
         <li><b>Changelog</b>: a new entry for the variant.</li>
       </ul>
@@ -541,8 +614,9 @@
     'Sports':                   '',
     'Shopping':                 'c-tag-fire'
   };
-  /* DEMO DATA: names, taglines, sizes and channel values are illustrative
-     only. `cat` is this variant's category label (final list, <= 13
+  /* DEMO DATA (audience use case): names, taglines, sizes and channel
+     values are illustrative only. `bars` are values in the order of
+     `channels` (default CHANNELS); any length, see the Bar count rule. `cat` is this variant's category label (final list, <= 13
      chars) and feeds both the Tag and the sr-only name. `tag` overrides
      the Tag text only, used to demo an over-limit label. */
   var DATA = {
@@ -558,44 +632,72 @@
 
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  function topChannel(bars){
-    var best = -1, idx = -1;
-    bars.forEach(function(v, i){ if (v != null && v > best){ best = v; idx = i; } });
-    return idx < 0 ? null : best + '% ' + CHANNELS[idx].toLowerCase().replace('tv', 'TV');
+  /* HOST STRINGS. Everything data-specific the card says. These are the
+     audience use case's strings; another use case (influencers, channels,
+     campaigns) passes its own. */
+  var HOST = {
+    unit:        'audience',                                   /* size line + sr-only name: "16M audience" */
+    totalLabel:  'total audience',                             /* Live face: "16M total audience" */
+    addLabel:    function(name){ return 'Add ' + name + ' to reach tray'; }, /* fixed toggle label, names the item */
+    moreSr:      ' channels in details',                       /* sr-only suffix after "+N more" */
+    noBars:      'No breakdown on file',                       /* Live face with 0 bars */
+    noSize:      'Size not published',
+    noValue:     'Not on file'
+  };
+  var MAX_BARS = 5;
+
+  /* Highest value among ALL supplied bars (hidden ones included). */
+  function topBar(rows){
+    var best = null;
+    rows.forEach(function(r){ if (r.v != null && (best === null || r.v > best.v)) best = r; });
+    return best ? best.v + '% ' + (best.label === 'TV' ? 'TV' : best.label.toLowerCase()) : null;
+  }
+
+  /* Bar count rule: 1-5 in host order; more than 5 -> top 5 by value,
+     high to low, plus "+N more"; 0 -> no-breakdown caption. */
+  function pickBars(rows){
+    if (rows.length <= MAX_BARS) return {rows:rows, more:0};
+    var sorted = rows.slice().sort(function(a, b){ return (b.v == null ? -1 : b.v) - (a.v == null ? -1 : a.v); });
+    return {rows:sorted.slice(0, MAX_BARS), more:rows.length - MAX_BARS};
   }
 
   function card(key, o){
     o = o || {};
     var d = Object.assign({}, DATA[key], o.data || {});
     var c = CATS[d.cat];
-    var label = '<span class="c-card-media-ad-audience-tag-label">' + esc(d.tag || d.cat) + '</span>';
+    var label = '<span class="c-card-media-ad-metrics-tag-label">' + esc(d.tag || d.cat) + '</span>';
     var tag = c ? '<span class="c-tag ' + c + '"><i class="dot"></i>' + label + '</span>' : '<span class="c-tag">' + label + '</span>';
-    var top = topChannel(d.bars);
+    var labels = d.channels || CHANNELS;
+    var all = (d.bars || []).map(function(v, i){ return {label:labels[i], v:v}; });
+    var picked = pickBars(all);
+    var top = topBar(all);
     var sizeLine = d.size
-      ? '<p class="c-card-media-ad-funnel c-card-media-ad-audience-size"><b>' + esc(d.size) + '</b> audience' + (top ? ' · ' + top : '') + '</p>'
-      : '<p class="c-card-media-ad-funnel">Size not published</p>';
+      ? '<p class="c-card-media-ad-funnel c-card-media-ad-metrics-size"><b>' + esc(d.size) + '</b> ' + esc(HOST.unit) + (top ? ' · ' + esc(top) : '') + '</p>'
+      : '<p class="c-card-media-ad-funnel">' + esc(HOST.noSize) + '</p>';
+    var more = picked.more ? '<span class="c-card-media-ad-metrics-more">+' + picked.more + ' more<span class="sr-only">' + esc(HOST.moreSr) + '</span></span>' : '';
     var total = d.size
-      ? '<p class="c-card-media-ad-audience-total"><b>' + esc(d.size) + '</b><span>total audience</span></p>'
-      : '<p class="c-card-media-ad-audience-total is-empty"><b>Not published</b><span>total audience</span></p>';
-    var bars = CHANNELS.map(function(ch, i){
-      var v = d.bars[i];
-      var val = v == null
-        ? '<span class="c-card-media-ad-audience-bar-value is-empty"><span aria-hidden="true">—</span><span class="sr-only">Not on file</span></span>'
-        : '<span class="c-card-media-ad-audience-bar-value">' + v + '%</span>';
-      return '<div class="c-card-media-ad-audience-bar"><dt>' + ch + '</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:' + (v == null ? 0 : v) + '%; --bar-i:' + i + '"></div></div>' + val + '</dd></div>';
-    }).join('');
-    /* Shipped placeholder only: no audience art is rendered on this page. */
+      ? '<p class="c-card-media-ad-metrics-total"><b>' + esc(d.size) + '</b><span>' + esc(HOST.totalLabel) + '</span>' + more + '</p>'
+      : '<p class="c-card-media-ad-metrics-total is-empty"><b>Not published</b><span>' + esc(HOST.totalLabel) + '</span>' + more + '</p>';
+    var breakdown = picked.rows.length
+      ? '<dl class="c-card-media-ad-metrics-bars">' + picked.rows.map(function(r, i){
+          var val = r.v == null
+            ? '<span class="c-card-media-ad-metrics-bar-value is-empty"><span aria-hidden="true">—</span><span class="sr-only">' + esc(HOST.noValue) + '</span></span>'
+            : '<span class="c-card-media-ad-metrics-bar-value">' + r.v + '%</span>';
+          return '<div class="c-card-media-ad-metrics-bar"><dt>' + esc(r.label) + '</dt><dd class="c-progress-trailing-wrap"><div class="c-progress-track size-compact" aria-hidden="true"><div class="c-progress-fill" style="--bar-w:' + (r.v == null ? 0 : r.v) + '%; --bar-i:' + i + '"></div></div>' + val + '</dd></div>';
+        }).join('') + '</dl>'
+      : '<p class="c-card-media-ad-metrics-nobars">' + esc(HOST.noBars) + '</p>';
+    /* Shipped placeholder only: no art is rendered on this page. */
     var media = '<div class="c-card-media-ad-placeholder" aria-hidden="true"><i class="ph ph-frame-corners"></i><span>Media</span></div>';
-    var cls = 'c-card c-card-interactive c-card-media-ad c-card-media-ad-audience' + (o.live ? ' is-live' : '') + (o.added ? ' is-added' : '') + (o.touch ? ' is-touch' : '');
-    var sizeSr = d.size ? ', ' + d.size + ' audience' : '';
-    return '<article class="' + cls + '"' + (o.demo ? ' data-au-demo data-tilt' : '') + (o.inert ? ' inert' : '') + '>' +
+    var cls = 'c-card c-card-interactive c-card-media-ad c-card-media-ad-metrics' + (o.live ? ' is-live' : '') + (o.added ? ' is-added' : '') + (o.touch ? ' is-touch' : '');
+    var sizeSr = d.size ? ', ' + d.size + ' ' + HOST.unit : '';
+    return '<article class="' + cls + '"' + (o.demo ? ' data-metrics-demo data-tilt' : '') + (o.inert ? ' inert' : '') + '>' +
       '<div class="c-card-media-ad-frame"><div class="c-card-media-ad-slot">' + media + '</div>' +
       '<span class="c-card-media-ad-hint" aria-hidden="true"><i class="ph ph-play"></i>Tap to play</span></div>' +
       '<div class="c-card-media-ad-body"><div class="c-card-media-ad-titlerow">' +
-      '<h3 class="c-card-media-ad-title"><button type="button" class="c-card-media-ad-open"><span class="c-card-media-ad-audience-name">' + esc(d.name) + '</span><span class="sr-only">, ' + esc(d.cat) + esc(sizeSr) + '. Open details</span></button></h3>' + tag + '</div>' +
+      '<h3 class="c-card-media-ad-title"><button type="button" class="c-card-media-ad-open"><span class="c-card-media-ad-metrics-name">' + esc(d.name) + '</span><span class="sr-only">, ' + esc(d.cat) + esc(sizeSr) + '. Open details</span></button></h3>' + tag + '</div>' +
       '<div class="c-card-media-ad-swap"><div class="c-card-media-ad-rest"><p class="c-card-media-ad-tagline">' + esc(d.tagline) + '</p>' + sizeLine + '</div>' +
-      '<div class="c-card-media-ad-spec">' + total + '<dl class="c-card-media-ad-audience-bars">' + bars + '</dl></div></div></div>' +
-      '<button type="button" class="c-card-media-ad-compare c-card-media-ad-audience-add" aria-pressed="' + (o.added ? 'true' : 'false') + '" aria-label="Add ' + esc(d.name) + ' to reach tray" aria-keyshortcuts="a"><i class="ph ' + (o.added ? 'ph-check' : 'ph-plus') + '" aria-hidden="true"></i></button>' +
+      '<div class="c-card-media-ad-spec">' + total + breakdown + '</div></div></div>' +
+      '<button type="button" class="c-card-media-ad-compare c-card-media-ad-metrics-add" aria-pressed="' + (o.added ? 'true' : 'false') + '" aria-label="' + esc(HOST.addLabel(d.name)) + '" aria-keyshortcuts="a"><i class="ph ' + (o.added ? 'ph-check' : 'ph-plus') + '" aria-hidden="true"></i></button>' +
       '</article>';
   }
 
@@ -603,8 +705,8 @@
 
   /* Static specimens */
   document.getElementById('sc-specimens').innerHTML = [
-    fig(card('foodies', {inert:true}), '<b>Rest.</b> Shipped placeholder in the slot, a 1-line title in the reserved 2-line area, category Tag, tagline (3 lines max) and size line. The size line names the top channel.'),
-    fig(card('foodies', {inert:true, live:true}), '<b>Live.</b> Lift, 1.1 zoom, and the total and five channel bars replace the Rest layer. The card height doesn\'t change. With a host clip in the slot, the clip would play here. No clip is rendered on this page, so there\'s none to show.'),
+    fig(card('foodies', {inert:true}), '<b>Rest.</b> Shipped placeholder in the slot, a 1-line title in the reserved 2-line area, category Tag, tagline (3 lines max) and size line. The size line names the top bar.'),
+    fig(card('foodies', {inert:true, live:true}), '<b>Live.</b> Lift, 1.1 zoom, and the total and five bars replace the Rest layer. The card height doesn\'t change. With a host clip in the slot, the clip would play here. No clip is rendered on this page, so there\'s none to show.'),
     fig(card('foodies', {inert:true, added:true}), '<b>Added</b> (<code>.is-added</code>, <code>aria-pressed="true"</code>). Obsidian border + ring, shadow-3, filled toggle with a check. Same look as Compared.'),
     fig(card('foodies', {inert:true, added:true, live:true}), '<b>Added + Live.</b> The ring stays while Live.'),
     fig(card('travel', {inert:true}), '<b>2-line title</b> (demo data). "Travel &amp; Experience Seekers" beside a "Shopping" Tag. It should break after "Experience" and fill the reserved area exactly. The card is the same height as the 1-line "Foodies" card.'),
@@ -615,7 +717,19 @@
     fig(card('foodies', {inert:true, touch:true}), '<b>Touch, before the first tap</b> (<code>.is-touch</code> / <code>(hover:none)</code>). The shipped "Tap to play" hint sits over the frame.'),
     fig(card('affluent', {inert:true, data:{name:'Senior Managers', cat:'Professionals', tagline:'Decision makers who read the business press daily and travel for work most months.'}}), '<b>(a) Short label "Professionals"</b> (13 chars), this variant\'s label for "Business &amp; professionals". It\'s within the 13-character limit. It fits within the 120px cap, so it always shows in full.'),
     fig(card('affluent', {inert:true, data:{name:'Senior Managers', cat:'Professionals', tag:'Business & professionals', tagline:'Decision makers who read the business press daily and travel for work most months.'}}), '<b>(b) Over-limit label</b> (24 chars, safety net). The host sent the full "Business &amp; professionals" instead of the short label. The Tag stays on one line, stops at the 120px cap and ends in an ellipsis. The title keeps the rest. The Open button\'s sr-only name still reads the category.'),
-    fig('<article class="c-card c-card-media-ad c-card-media-ad-audience c-card-media-ad-skeleton" aria-hidden="true"><div class="c-card-media-ad-frame"><span class="c-card-media-ad-bone is-media"></span></div><div class="c-card-media-ad-body"><div class="c-card-media-ad-titlerow"><span class="c-card-media-ad-bone is-title"></span><span class="c-card-media-ad-bone is-pill"></span></div><div class="c-card-media-ad-swap"><span class="c-card-media-ad-bone is-line"></span><span class="c-card-media-ad-bone is-line"></span><span class="c-card-media-ad-bone is-line" style="width:70%"></span></div></div></article>', '<b>Loading.</b> The shipped skeleton plus the modifier. The taller swap applies automatically, so the skeleton matches the loaded card\'s height.')
+    fig('<article class="c-card c-card-media-ad c-card-media-ad-metrics c-card-media-ad-skeleton" aria-hidden="true"><div class="c-card-media-ad-frame"><span class="c-card-media-ad-bone is-media"></span></div><div class="c-card-media-ad-body"><div class="c-card-media-ad-titlerow"><span class="c-card-media-ad-bone is-title"></span><span class="c-card-media-ad-bone is-pill"></span></div><div class="c-card-media-ad-swap"><span class="c-card-media-ad-bone is-line"></span><span class="c-card-media-ad-bone is-line"></span><span class="c-card-media-ad-bone is-line" style="width:70%"></span></div></div></article>', '<b>Loading.</b> The shipped skeleton plus the modifier. The taller swap applies automatically, so the skeleton matches the loaded card\'s height.')
+  ].join('');
+
+  /* Bar count specimens (static, Live). DEMO DATA. */
+  document.getElementById('sc-barcount').innerHTML = [
+    fig(card('football', {inert:true, live:true, data:{channels:['TV'], bars:[91]}}), '<b>1 bar.</b> TV only. It sits directly under the total, and the rest of the swap is empty. Size line: "3.1M audience · 91% TV".'),
+    fig(card('football', {inert:true, live:true, data:{channels:['TV','Social'], bars:[91,72]}}), '<b>2 bars.</b> Host order, top-aligned. Same row spacing as five.'),
+    fig(card('football', {inert:true, live:true, data:{channels:['Video','TV','Social'], bars:[69,91,72]}}), '<b>3 bars.</b> Host order. The top bar (TV 91%) is second in the list. The size line still names it.'),
+    fig(card('football', {inert:true, live:true, data:{channels:['Video','Audio','TV','Social'], bars:[69,35,91,72]}}), '<b>4 bars.</b> One row of empty space at the bottom.'),
+    fig(card('football', {inert:true, live:true}), '<b>5 bars (default).</b> Fills the swap exactly.'),
+    fig(card('football', {inert:true, live:true, data:{channels:['Video','Audio','TV','Social','Forums','Outdoor','Cinema'], bars:[69,35,91,72,54,28,61]}}), '<b>7 bars supplied.</b> The 5 highest, high to low (TV 91, Social 72, Video 69, Cinema 61, Forums 54). "+2 more" sits at the right end of the total line, read as "+2 more channels in details". Audio 35 and Outdoor 28 are left for the detail view.'),
+    fig(card('football', {inert:true, live:true, data:{bars:[]}}), '<b>0 bars.</b> The total, then "No breakdown on file" in the empty style.'),
+    fig(card('football', {inert:true, data:{bars:[]}}), '<b>0 bars (Rest).</b> The size line drops its "· top" part: "3.1M audience".')
   ].join('');
 
   /* Live grid + phone */
@@ -638,10 +752,10 @@
 (function(){
   function px(n){ return Math.round(n * 10) / 10 + 'px'; }
   function measure(card){
-    var name = card.querySelector('.c-card-media-ad-audience-name');
+    var name = card.querySelector('.c-card-media-ad-metrics-name');
     var row = card.querySelector('.c-card-media-ad-titlerow');
     var tag = row.querySelector('.c-tag');
-    var label = tag.querySelector('.c-card-media-ad-audience-tag-label');
+    var label = tag.querySelector('.c-card-media-ad-metrics-tag-label');
     var title = card.querySelector('.c-card-media-ad-title');
     var lh = parseFloat(getComputedStyle(name).lineHeight) || 20;
     /* Lines the title would need unclamped: measure a clone with the clamp off. */
@@ -663,7 +777,7 @@
   }
   function report(container, out, heading){
     if (!container || !out) return;
-    var cards = container.querySelectorAll('.c-card-media-ad-audience');
+    var cards = container.querySelectorAll('.c-card-media-ad-metrics');
     var rows = [], heights = [];
     cards.forEach(function(c){ var m = measure(c); heights.push(Math.round(m.height * 10) / 10); rows.push(m); });
     var same = heights.every(function(h){ return h === heights[0]; });
@@ -683,7 +797,7 @@
 </script>
 
 <script>
-/* Audience card behaviour. Mirrors the shipped Media Ad Card script
+/* Metrics card behaviour. Mirrors the shipped Media Ad Card script
    (preview.html) line for line; the additions are marked NEW.
    - Open: title button. On touch, the first tap goes Live, the second
      opens. The pointer type comes from the click itself.
@@ -694,7 +808,7 @@
      this path is wired up but not exercised here.
    - Tilt: mouse only, max 4deg, off under reduced motion. */
 (function(){
-  var cards = Array.prototype.slice.call(document.querySelectorAll('[data-au-demo]'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('[data-metrics-demo]'));
   if (!cards.length) return;
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var canHover = window.matchMedia('(hover: hover)');
@@ -710,7 +824,7 @@
 
   document.addEventListener('pointerdown', function(e){
     lastPointer = e.pointerType || 'mouse';
-    if (lastPointer === 'touch' && !e.target.closest('[data-au-demo]')) clearLive();
+    if (lastPointer === 'touch' && !e.target.closest('[data-metrics-demo]')) clearLive();
   }, true);
   document.addEventListener('keydown', function(){ lastPointer = 'keyboard'; }, true);
 
@@ -729,14 +843,14 @@
      blank or buffering frame), removed immediately on `pause`/`ended`.
      syncClip only asks the video to play or pause. */
   function bindClip(clip){
-    if (!clip || clip.tagName !== 'VIDEO' || clip.__auBound) return;
-    clip.__auBound = true;
+    if (!clip || clip.tagName !== 'VIDEO' || clip.__metricsBound) return;
+    clip.__metricsBound = true;
     clip.addEventListener('playing', function(){ clip.classList.add('is-playing'); });
     clip.addEventListener('pause', function(){ clip.classList.remove('is-playing'); });
     clip.addEventListener('ended', function(){ clip.classList.remove('is-playing'); });
   }
   function syncClip(card){
-    var clip = card.querySelector('video.c-card-media-ad-audience-clip');
+    var clip = card.querySelector('video.c-card-media-ad-metrics-clip');
     if (!clip) return; /* no host clip (as on every card on this page): nothing to do */
     bindClip(clip);
     var on = !reduceMotion.matches && isLive(card);
@@ -746,19 +860,19 @@
   reduceMotion.addEventListener('change', function(){ cards.forEach(syncClip); });
 
   function toggleAdd(card){
-    var btn = card.querySelector('.c-card-media-ad-audience-add');
+    var btn = card.querySelector('.c-card-media-ad-metrics-add');
     var on = btn.getAttribute('aria-pressed') !== 'true';
     btn.setAttribute('aria-pressed', String(on));
     card.classList.toggle('is-added', on);
     var icon = btn.querySelector('i');
     icon.classList.toggle('ph-plus', !on);
     icon.classList.toggle('ph-check', on);
-    log((on ? 'Added <b>' : 'Removed <b>') + nameOf(card) + (on ? '</b> to' : '</b> from') + ' the reach tray (' + document.querySelectorAll('[data-au-demo].is-added').length + ' in tray)');
+    log((on ? 'Added <b>' : 'Removed <b>') + nameOf(card) + (on ? '</b> to' : '</b> from') + ' the reach tray (' + document.querySelectorAll('[data-metrics-demo].is-added').length + ' in tray)');
   }
 
   cards.forEach(function(card){
     var open = card.querySelector('.c-card-media-ad-open');
-    var add = card.querySelector('.c-card-media-ad-audience-add');
+    var add = card.querySelector('.c-card-media-ad-metrics-add');
 
     open.addEventListener('click', function(e){
       if (pointerOf(e) === 'touch' && !card.classList.contains('is-live')){
