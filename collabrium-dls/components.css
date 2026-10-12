@@ -639,6 +639,173 @@
 }
 
 /* =========================================================
+   Metrics card — Media Ad Card variant. One item as a gallery tile:
+   media, a name, a category Tag, and a Live face with a headline total
+   plus a breakdown of up to five bars. First use case: audience segments
+   (Collab:Media's .au-card); it can equally serve influencers, channels
+   or campaigns. Markup: `c-card c-card-interactive c-card-media-ad
+   c-card-media-ad-metrics`, so everything Media Ad Card does applies
+   untouched (surface, Frame + 16:10 Slot + slot contract, placeholder,
+   Live on hover / focus-within / .is-live, lift, zoom, Tap hint, round
+   toggle, stretched Open button, Rest/Spec cross-fade, focus ring, tilt,
+   skeleton, reduced motion). This block only adds what the metrics body
+   needs. Host strings (audience example): size unit ("audience"), total
+   label ("total audience"), fixed toggle label ("Add {Name} to reach
+   tray"), bar labels, "+N more" suffix, empty-breakdown caption.
+   Bar count: 1–5 bars in the host's order, top-aligned, the swap keeping
+   its 5-row height; more than 5 → the 5 highest, sorted, with "+N more"
+   on the total line; 0 → "No breakdown on file". See DESIGN-SYSTEM.md >
+   Card > Metrics card.
+   One-offs (each recorded where declared): reserved 2-line title block,
+   120px Tag cap, 13-character Tag limit (authoring), 3-line tagline,
+   swap height formula, 4ch value column, bar stagger step, clip fade.
+   Duplicated on purpose: .is-added copies .is-compared's declarations
+   at the same 2-class specificity.
+   ========================================================= */
+/* 0. Title row — the heading wins over the Tag.
+   Why the shipped clamp didn't hold: the clamp sits on the h3, but the
+   h3's only child is the Open <button>, an atomic inline box. Its text
+   wraps inside the button, so -webkit-line-clamp sees one "line" and
+   never truncates. Fix: the h3 becomes a plain block of fixed height,
+   the button a full-width block, and the clamp moves onto a span
+   (-name) around the visible text. The sr-only span stays outside it.
+   ONE-OFF: the title block is reserved at exactly 2 lines (height =
+   2 x h5 line-height) whether the title takes 1 line or 2, so every card
+   in a grid has the same height. overflow:hidden is a second guard if a
+   browser ignores line-clamp; it doesn't clip the button's stretched
+   ::after, whose containing block is the card. */
+.c-card-media-ad.c-card-media-ad-metrics .c-card-media-ad-title{display:block; height:calc(var(--text-h5-lh) * 2); overflow:hidden;}
+.c-card-media-ad-metrics .c-card-media-ad-open{display:block; width:100%;}
+.c-card-media-ad-metrics-name{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; overflow-wrap:anywhere;}
+/* Tag — stays flex:none (never shrinks below its label) but is capped.
+   ONE-OFF: 120px, the measured width of the longest allowed label
+   (Entertainment, 112px in Chrome) plus headroom, so every approved label
+   always shows in full. At the 280px floor the title keeps at least 120px
+   (about half the row), and every label except the longest three leaves
+   it more. The Tag never wraps (nowrap). The authoring limit for this
+   variant is 13 characters, the longest label in the final list
+   (Entertainment). Labels: Ethnicity, Income group, Professionals,
+   Entertainment, Trendsetter, Shopping, Life stage, Sports. Over the cap,
+   the label truncates with an ellipsis as a safety net; the Open
+   button's sr-only name still carries the category. */
+.c-card-media-ad-metrics .c-card-media-ad-titlerow .c-tag{max-width:120px; min-width:0; overflow:hidden; white-space:nowrap;} /* never wraps to 2 lines */
+/* Skeleton keeps the same reserved title row, so it's exactly as tall as a loaded card. */
+.c-card-media-ad-metrics.c-card-media-ad-skeleton .c-card-media-ad-titlerow{height:calc(var(--text-h5-lh) * 2);}
+.c-card-media-ad-metrics-tag-label{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+/* 1. Media — still + clip. Both are ordinary Slot children, so the
+   shipped slot contract stretches them, applies object-fit:cover and
+   zooms them with the Slot. The still is always there (until the host
+   has one, the shipped -placeholder takes its place); the clip sits on
+   top at opacity 0 and fades in only while the card is Live AND the
+   video is actually playing (.is-playing, set on the video's `playing`
+   event and removed the moment it pauses). The clip is decorative: muted,
+   loop, playsinline, preload="none", aria-hidden, no controls.
+   ONE-OFF: the clip's opacity cross-fade (duration-base, ease-standard)
+   is the swap layers' own pairing, reused for the media. */
+.c-card-media-ad-slot > .c-card-media-ad-metrics-clip{opacity:0; pointer-events:none; transition:opacity var(--duration-base) var(--ease-standard);}
+.c-card-media-ad-slot > .c-card-media-ad-metrics-clip.is-playing{opacity:1;}
+
+/* 2. Swap — taller than the shipped box because the Spec layer carries a
+   total line plus up to five bar rows; the 5-row height is kept whatever
+   the bar count (see BAR COUNT). Built from type tokens only, like the
+   shipped formula: total (label1 line) + spacing-8 + 5 caption lines +
+   4 x spacing-4 = 124px. ONE-OFF: the Rest layer gets a 3-line tagline
+   clamp (shipped is 2) so the taller box isn't half empty at rest. */
+.c-card-media-ad-metrics .c-card-media-ad-swap{height:calc(var(--text-label1-lh) + var(--spacing-8) + var(--text-caption-lh) * 5 + var(--spacing-4) * 4);}
+.c-card-media-ad-metrics .c-card-media-ad-tagline{-webkit-line-clamp:3; line-clamp:3;}
+
+/* 3. Size line — the shipped -funnel recipe (caption, Neutral-5, one
+   line, ellipsis, pinned to the bottom of the Rest layer) with the
+   figure picked out. Markup: class="c-card-media-ad-funnel
+   c-card-media-ad-metrics-size". */
+.c-card-media-ad-metrics-size b{font-weight:var(--weight-bold); color:var(--color-neutral-9);}
+
+/* 4. Spec layer — not the shipped 3-row <dl> grid: a column holding the
+   total and the bars. Three classes deep to beat the shipped
+   `.c-card-media-ad .c-card-media-ad-spec` grid rule. Opacity/transform
+   swap behaviour is inherited unchanged. */
+.c-card-media-ad.c-card-media-ad-metrics .c-card-media-ad-spec{display:flex; flex-direction:column; justify-content:flex-start; gap:var(--spacing-8);}
+/* Total — figure + host label (e.g. "16M total audience"). Two classes
+   deep so `.c-card p` can't reset it. */
+.c-card-media-ad-metrics .c-card-media-ad-metrics-total{display:flex; align-items:baseline; gap:var(--spacing-4); margin:0; font-size:var(--text-caption-size); line-height:var(--text-label1-lh); color:var(--color-neutral-5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.c-card-media-ad-metrics-total b{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-card-media-ad-metrics-total.is-empty b{font-size:var(--text-caption-size); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+/* "+N more" — only when more than 5 bars were supplied. Pushed to the
+   right end of the total line, in the bar-value column's colour and size
+   (caption, Neutral-5, regular, the .is-empty look), so it reads as a note
+   rather than as data. It takes no row, so the swap height holds. */
+.c-card-media-ad-metrics-more{margin-left:auto; padding-left:var(--spacing-8); font-size:var(--text-caption-size); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); font-variant-numeric:tabular-nums;}
+/* No breakdown on file — 0 bars. One caption in the empty style, top-aligned
+   under the total where the first bar row would be. */
+.c-card-media-ad-metrics .c-card-media-ad-metrics-nobars{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* Bars — a <dl>: dt = bar label (host string), dd = Progress Bar's
+   shipped .c-progress-trailing-wrap holding a .c-progress-track.size-compact +
+   .c-progress-fill and the value. Same shared-grid idea as Media Ad
+   Card's spec rows: the label column is as wide as the widest label, so
+   every track starts on one line. Rows are display:contents. 1-5 rows
+   (see BAR COUNT above). Fewer than 5 stay top-aligned: the spec column
+   is flex-start and the grid is only as tall as its rows, so the spare
+   height collects at the bottom of the fixed swap. */
+.c-card-media-ad-metrics-bars{display:grid; grid-template-columns:max-content minmax(0, 1fr); align-items:center; gap:var(--spacing-4) var(--spacing-8); margin:0;}
+.c-card-media-ad-metrics-bar{display:contents;}
+.c-card-media-ad-metrics-bar dt{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap;}
+.c-card-media-ad-metrics-bar dd{margin:0; min-width:0;}
+/* Value — Media Ad Card's value/empty recipe at caption size.
+   ONE-OFF: 4ch column ("100%") so every value right-aligns on one edge. */
+.c-card-media-ad-metrics-bar-value{flex:none; min-width:4ch; text-align:right; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-card-media-ad-metrics-bar-value.is-empty{font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+
+/* Fill — Progress Bar's default Obsidian fill, untouched (Progress Bar:
+   the default fill is Obsidian; only the success tone and a department
+   tone override it, and neither applies to a breakdown share). Width comes
+   from --bar-w (0-100%, clamped) and grows in when the card goes Live,
+   rows staggered by --bar-i (0-4). See PROGRESS BAR DEVIATIONS above.
+   ONE-OFF: stagger step = duration-instant / 2 (40ms), after a
+   duration-fast wait so the bars grow once the Spec layer has faded in.
+   This variant's own rule: a bar is never seen shrinking. Leaving Live,
+   the width resets instantly, but only after duration-base, once the
+   Spec layer has faded out. */
+.c-card-media-ad-metrics .c-progress-fill{width:0; transition:width 0s linear var(--duration-base);}
+.c-card-media-ad-metrics.is-live .c-progress-fill,
+.c-card-media-ad-metrics:has(:focus-visible) .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--bar-i, 0) * var(--duration-instant) / 2);}
+@media (hover:hover){
+  .c-card-media-ad-metrics:hover .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--bar-i, 0) * var(--duration-instant) / 2);}
+}
+
+/* 5. Added — picked into the host's tray (audiences: the reach tray). The Add toggle's twin of .is-compared:
+   Obsidian border + 1px ring + shadow-3 (Card > Selected's elevation),
+   border switches instantly, only the shadow eases. Declarations copied
+   verbatim from the shipped .is-compared (see promotion notes), at the
+   same 2-class specificity, so the shipped focus rules still win. */
+.c-card-media-ad.is-added{border-color:var(--color-obsidian); box-shadow:var(--shadow-3), 0 0 0 1px var(--color-obsidian);}
+.c-card-media-ad.is-added:has(.c-card-media-ad-open:focus-visible){box-shadow:0 0 0 1px var(--color-obsidian), var(--shadow-focus), var(--shadow-3);}
+
+/* 6. Forced colours — backgrounds are stripped, which would erase every
+   track and fill. Outline the track, paint the fill in CanvasText.
+   Added gets the same Highlight outline as Compared. Because this block
+   loads after the shipped one, the focus outline is restated last so a
+   focused Added card shows the CanvasText focus outline, not Highlight. */
+@media (forced-colors:active){
+  .c-card-media-ad-metrics .c-progress-track{outline:1px solid CanvasText;}
+  .c-card-media-ad-metrics .c-progress-fill{forced-color-adjust:none; background:CanvasText;}
+  .c-card-media-ad.is-added{outline:2px solid Highlight;}
+  .c-card-media-ad.is-added:has(.c-card-media-ad-open:focus-visible){outline:2px solid CanvasText; outline-offset:2px;}
+}
+
+/* Reduced motion — the shipped block already stops lift, zoom, tilt and
+   slide. Here: the clip never shows (the still stays), and the bars sit
+   at full width with no growth. */
+@media (prefers-reduced-motion:reduce){
+  .c-card-media-ad-slot > .c-card-media-ad-metrics-clip{display:none;}
+  .c-card-media-ad-metrics .c-progress-fill,
+  .c-card-media-ad-metrics.is-live .c-progress-fill,
+  .c-card-media-ad-metrics:has(:focus-visible) .c-progress-fill,
+  .c-card-media-ad-metrics:hover .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:none;}
+}
+
+/* =========================================================
    Ad Placement Card — Card variant. A floating hover card describing
    one ad slot (a position on a page where ads run) while that slot is
    pointed at or focused on a placement map: what it is, where it sits,
