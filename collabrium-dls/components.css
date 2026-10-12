@@ -653,7 +653,8 @@
    label ("total audience"), fixed toggle label ("Add {Name} to reach
    tray"), bar labels, "+N more" suffix, empty-breakdown caption.
    Bar count: 1–5 bars in the host's order, top-aligned, the swap keeping
-   its 5-row height; more than 5 → the 5 highest, sorted, with "+N more"
+   its 5-row height; more than 5 → the first 5 in host order (never
+   sorted), with "+N more"
    on the total line; 0 → "No breakdown on file". See DESIGN-SYSTEM.md >
    Card > Metrics card.
    One-offs (each recorded where declared): reserved 2-line title block,
@@ -1889,6 +1890,211 @@ html.c-modal-media-ad-locked{overflow:hidden;}
 }
 @media (forced-colors: active){
   .c-modal-media-ad-compare[aria-pressed="true"]{outline:2px solid Highlight;}
+}
+
+/* =========================================================
+   Metrics modal — Media Ad Modal modifier. One item's detail view:
+   media and a headline size on the side; title, category Tag,
+   description, then a breakdown of bars, where the audience lives,
+   what it reads, and related items. First use: Collab:Media audience
+   segments (.au-drawer). Host strings (audience example): crumb root
+   "Audiences", prev / next labels "Previous audience" / "Next audience",
+   size label "Audience size", source note "published by {publisher}",
+   section headings "Media consumption" / "Where they live" / "What they
+   read about" / "Also see", empty captions "No breakdown on file" /
+   "No platforms on file", toggle "Add to reach tray", primary "Use in a
+   media plan". Markup: `c-modal c-modal-media-ad c-modal-media-ad-metrics`
+   inside the shipped .c-modal-media-ad-layer; everything Media Ad Modal
+   does applies untouched (layer, scrim, z 300, lock, swing, head, slot,
+   Replay, title row, sections, related, foot, Compare toggle look).
+   Bars: every bar, always in the host's order. One-offs (each recorded
+   where declared): 760px panel cap, 220px side column, 640px two-column
+   threshold, fit-content(40%) label column, centred narrow foot.
+   See DESIGN-SYSTEM.md > Modal / dialog > Metrics modal.
+   ========================================================= */
+
+/* Panel — ONE-OFF, 760px cap for the
+   two-column layout (Media Ad Modal is 600px). The source reads as two
+   columns. At 600px a two-column body would leave a main column of
+   roughly 300px, with related thumbnails under 100px wide. At 760 the
+   main column is roughly 460px (760 − 2 border − 48 padding − 220 side
+   − 24 gap). These are approximate: the panel shrinks with the viewport,
+   and below the threshold the layout goes to one column anyway. Three
+   classes deep to beat the shipped
+   `.c-modal.c-modal-media-ad` (0,2,0). The layer's padding still caps it
+   at 100vw − spacing-32. */
+.c-modal.c-modal-media-ad.c-modal-media-ad-metrics{max-width:760px;}
+
+/* Columns — single column by default (media on top, as Media Ad Modal).
+   Two columns only when the PANEL is wider than 640px (container query
+   on the shipped c-modal-media-ad container, so a phone and a narrow
+   panel get the same layout).
+   ONE-OFF: 220px side column (16:10 media at 220 is 137px tall, the
+   headline size fits beneath it). ONE-OFF: 640px, Compare modal's own
+   boundary. Compare's narrow rules are `max-width: 640px` (≤640), so
+   this uses `width > 640px` and the two never both claim 640 exactly.
+   Sticky side (two-column layout only): media + headline size stay in
+   view while the main column scrolls. top = spacing-16, the body's own
+   top padding (the shipped .c-modal-body padding), so the side rests
+   exactly where it starts and never slides under the head's rule. The
+   body is the scroll container, and the side's containing block is the
+   cols grid, which spans the whole body. align-items:start keeps the side
+   at its own height so it has room to stick. In the one-column layout
+   (narrow panel or phone) the side is not sticky: it sits above the
+   content and would cover it. */
+.c-modal-media-ad-metrics-cols{display:flex; flex-direction:column;}
+.c-modal-media-ad-metrics-side{min-width:0; margin:0 0 var(--spacing-20);}
+.c-modal-media-ad-metrics-main{min-width:0;}
+@container c-modal-media-ad (width > 640px){
+  .c-modal-media-ad-metrics-cols{display:grid; grid-template-columns:220px minmax(0, 1fr); gap:var(--spacing-24); align-items:start;}
+  .c-modal-media-ad-metrics-side{margin:0; position:sticky; top:var(--spacing-16);}
+}
+
+/* Clip — the Metrics card's still + clip contract, adapted to the modal:
+   the clip plays ONCE when the modal opens, and again on every swap to
+   an item that has one. It has no `loop`. It stops on its last frame,
+   and the shipped Media Ad Modal Replay button (.c-modal-media-ad-replay,
+   Secondary sm in the Frame corner, a sibling of the Slot) plays it
+   again. Ordinary Slot children (the shipped slot rule stretches them
+   and applies object-fit:cover). Markup: muted playsinline
+   preload="none" aria-hidden, no controls, no autoplay. The script calls
+   play().
+   States: opacity 0 at rest. .is-playing (added on `playing`, removed
+   on `pause` / `ended`) fades it in. .is-ended (added on `ended`,
+   cleared on the next play or rewind) keeps the clip visible on its
+   last frame instead of fading back to the still. The fade pairing
+   (duration-base, ease-standard) is the card's own.
+   Before any swap and on close, the script pauses and rewinds the clip
+   (pause first, so no `ended` fires mid-swap).
+   Reduced motion: play() is never called, the clip is not shown and
+   Replay is hidden (see below). Replay follows Media Ad Modal's rule: it
+   is rendered ONLY when the slot holds a clip, and it fires
+   `c-modal-media-ad:replay` on the panel. The system ships only the
+   placeholder; a product pours its own media in. */
+.c-modal-media-ad-slot > .c-modal-media-ad-metrics-clip{opacity:0; pointer-events:none; transition:opacity var(--duration-base) var(--ease-standard);}
+.c-modal-media-ad-slot > .c-modal-media-ad-metrics-clip.is-playing,
+.c-modal-media-ad-slot > .c-modal-media-ad-metrics-clip.is-ended{opacity:1;}
+
+/* Headline size — "17M" + "Audience size · published by KULT". The
+   figure takes the h3 token (the title's own level, so the two read as
+   one weight class), tabular; the label is caption Neutral-5. Missing
+   size: "Not published" in the shared empty style (body2 regular,
+   Neutral-5), as the card's total. Two classes deep so a host's p
+   reset can't win. An sr-only ", " sits between the figure and the
+   label. The two are flex items with no text between them, so without it
+   the accessible description would run together ("17MAudience size"). */
+.c-modal-media-ad-metrics .c-modal-media-ad-metrics-size{display:flex; flex-direction:column; margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-modal-media-ad-metrics-size b{font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:var(--text-h3-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-modal-media-ad-metrics-size.is-empty b{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+
+/* Tagline — the shipped recipe. There is no separate description here
+   (the card's tagline IS the description), so the gap to the first
+   section is the shipped description's spacing-20, not the tagline's 8. */
+.c-modal-media-ad-metrics .c-modal-media-ad-tagline{margin-bottom:var(--spacing-20);}
+
+/* Bars — the Metrics card's recipe, one type step up to Media Ad
+   Modal's reading size: dt body2 Neutral-5, value body2-strong Neutral-9
+   (the spec-cell vocabulary), DEFAULT track (8px, as the modal's
+   benchmark bar) instead of compact. Same shared grid, so every track
+   starts on one line; rows are display:contents.
+   ONE-OFF: label column fit-content(40%) — the card can use max-content
+   + nowrap because its labels are capped at 13 characters; detail-view
+   labels are longer ("Audio streaming") and host-supplied, so they wrap
+   rather than squeeze the track.
+   ORDER RULE (decided): always the host's original order, so each
+   channel sits in the same position on every card and in the modal.
+   Every bar the host supplied is listed ("the detail view lists them
+   all"). See the promotion note: the card's >5 rule moves to "first 5 in
+   host order + '+N more'". */
+.c-modal-media-ad-metrics-bars{display:grid; grid-template-columns:fit-content(40%) minmax(0, 1fr); align-items:center; gap:var(--spacing-8) var(--spacing-12); margin:0;}
+.c-modal-media-ad-metrics-bar{display:contents;}
+.c-modal-media-ad-metrics-bar dt{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); overflow-wrap:anywhere;}
+.c-modal-media-ad-metrics-bar dd{margin:0; min-width:0;}
+/* Value — the card's 4ch column ("100%"), so values right-align on one edge. */
+.c-modal-media-ad-metrics-bar-value{flex:none; min-width:4ch; text-align:right; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9); font-variant-numeric:tabular-nums;}
+.c-modal-media-ad-metrics-bar-value.is-empty{font-weight:var(--text-body2-weight); color:var(--color-neutral-5);}
+/* Fill — Progress Bar's Obsidian fill, untouched. Width from --bar-w
+   (clamped 0–100%), so with no script the bars simply sit at their
+   value. Grow-in: the script adds .is-reset for one frame on open and on
+   every swap (new nodes, so a bar is never seen shrinking), then removes
+   it. Timing is the Metrics card's exactly: duration-base + ease-standard
+   (Progress Bar's own fill transition), after duration-fast, plus the
+   card's stagger step (duration-instant / 2 per row, via --bar-i).
+   Progress Bar deviations still open here (see the promotion note
+   "Inside the Metrics modal"): the default 8px track, a body2 value, and
+   the re-grow on every swap. */
+.c-modal-media-ad-metrics-bars .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--bar-i, 0) * var(--duration-instant) / 2);}
+.c-modal-media-ad-metrics-bars.is-reset .c-progress-fill{width:0; transition:none;}
+
+/* Where they live — a two-column list, one row per platform, in the
+   host's order. A <dl>: dt = platform name (body2-strong Neutral-9),
+   dd = its categories (body2 Neutral-5, the bar labels' type). Rows are
+   display:contents so dt/dd sit on one shared grid, the Media Ad Card
+   spec-row move, and every category starts on the same vertical line.
+   Name column: fit-content(40%), the same cap as the bar label column
+   above. It is as wide as the widest name, and a very long name wraps
+   inside 40% instead of squeezing the categories. Categories take the
+   rest and wrap under themselves, not under the name. Row gap spacing-8,
+   column gap spacing-16. No row dividers, because Media Ad Modal's lists
+   have none. The same layout holds at every width, phone included. */
+.c-modal-media-ad-metrics-places{display:grid; grid-template-columns:fit-content(40%) minmax(0, 1fr); align-items:baseline; gap:var(--spacing-8) var(--spacing-16); margin:0;}
+.c-modal-media-ad-metrics-place{display:contents;}
+.c-modal-media-ad-metrics-place dt{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-strong-weight); color:var(--color-neutral-9); overflow-wrap:anywhere;}
+.c-modal-media-ad-metrics-place dd{margin:0; min-width:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5); overflow-wrap:anywhere;}
+
+/* Also see — the shipped related button, plus a meta line under the
+   name ("14M · Entertainment"). The shipped name keeps its own padding
+   except at the bottom, which the meta line takes over. The meta line is
+   aria-hidden: the name's sr-only suffix carries the same facts in a
+   readable order. Same size as the name (label3), regular, Neutral-5. */
+.c-modal-media-ad-metrics .c-modal-media-ad-relname{padding-bottom:0;}
+.c-modal-media-ad-metrics-relmeta{display:block; padding:0 var(--spacing-8) var(--spacing-8); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--weight-regular); color:var(--color-neutral-5); font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+/* Add toggle — markup is the shipped Compare toggle plus this hook:
+   `c-btn c-btn-ghost c-btn-md c-modal-media-ad-compare
+   c-modal-media-ad-metrics-add`. Look, pressed state, icon swap, far-
+   left placement and forced-colour Highlight all come from
+   .c-modal-media-ad-compare; nothing is declared for it here. (Same move
+   as the card: -compare + -metrics-add.) */
+
+/* Narrow foot (panel ≤480px, the shipped narrow breakpoint) — ONE-OFF
+   for this variant. The shipped Media Ad Modal narrow foot does NOT
+   centre: Compare keeps `margin-right:auto` (pushed left), and the other
+   buttons stretch with `flex:1 1 auto` and wrap only when they run out
+   of room, so the toggle sits left-aligned above the Primary. Here the
+   foot always stacks: the Add toggle is centred at its natural width,
+   above a full-width Primary. The reason is that with only two actions,
+   a lone toggle pinned to the left of a stacked column reads as
+   misaligned, while centred over the CTA it reads as that CTA's
+   companion. DOM order (toggle, then Primary) is unchanged, so reading
+   and Tab order still match the visual order. The selector for the
+   Primary is four classes deep to beat the shipped
+   `.c-modal-media-ad .c-modal-foot .c-btn:not(.c-modal-media-ad-compare)`
+   (0,4,0). Its `flex:none` keeps the column's main axis (height) from
+   growing. */
+@container c-modal-media-ad (max-width: 480px){
+  .c-modal-media-ad-metrics .c-modal-foot{flex-direction:column; align-items:center;}
+  .c-modal-media-ad-metrics .c-modal-foot .c-modal-media-ad-metrics-add{margin:0;}
+  .c-modal-media-ad.c-modal-media-ad-metrics .c-modal-foot .c-modal-media-ad-plan{flex:none; align-self:stretch; width:100%; justify-content:center;}
+}
+
+/* Reduced motion — the shipped block already removes the swing. Here:
+   no clip (the still stays), no Replay (nothing to replay; the script
+   also never calls play()), and no bar growth. Scoped to
+   -metrics so the shipped Media Ad Modal Replay is unaffected. */
+@media (prefers-reduced-motion: reduce){
+  .c-modal-media-ad-slot > .c-modal-media-ad-metrics-clip{display:none;}
+  .c-modal-media-ad-metrics .c-modal-media-ad-replay{display:none;}
+  .c-modal-media-ad-metrics-bars .c-progress-fill,
+  .c-modal-media-ad-metrics-bars.is-reset .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:none;}
+}
+
+/* Forced colours — backgrounds are stripped, which would erase every
+   track and fill: the Metrics card's treatment (track outlined, fill
+   painted CanvasText). */
+@media (forced-colors: active){
+  .c-modal-media-ad-metrics-bars .c-progress-track{outline:1px solid CanvasText;}
+  .c-modal-media-ad-metrics-bars .c-progress-fill{forced-color-adjust:none; background:CanvasText;}
 }
 
 /* =========================================================

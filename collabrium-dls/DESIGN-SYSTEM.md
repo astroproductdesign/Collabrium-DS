@@ -3461,7 +3461,7 @@ details") and the empty-breakdown caption ("No breakdown on file").
 | Bars supplied | What shows |
 |---|---|
 | 1–5 | In the host's order, top-aligned under the total. The swap keeps its 5-row height, so fewer rows leave the spare space empty at the bottom; rows are never spread apart |
-| More than 5 | The **5 highest**, sorted high to low, plus "+N more" at the right end of the total line (no extra row, so the height holds). The detail view lists them all |
+| More than 5 | The **first 5 in the host's order**, plus "+N more" at the right end of the total line (no extra row, so the height holds). Bars are **never sorted**, so each channel sits in the same position on every card and in the [Metrics modal](#metrics-modal), which lists them all |
 | 0 | The total, then "No breakdown on file" (`-metrics-nobars`, caption Neutral-5). The Rest size line drops its "· top" part |
 
 A bar with no value keeps its row: an empty track and "—" (`.is-empty`,
@@ -5011,6 +5011,9 @@ second is [Media Ad Modal](#media-ad-modal)**, a detail view stepped
 through with previous / next, on the same ground: it collects no input,
 commits nothing in the panel itself, and can be left at any point. **The third is [Compare modal](#compare-modal)**, two to four formats
 read side by side: it collects no input and commits nothing in place.
+**[Metrics modal](#metrics-modal)** is a Media Ad Modal modifier and
+inherits its carve-out on the same ground: a read stepped through with
+previous / next that collects no input and commits nothing in place.
 No other multi-step flow inherits this.
 
 #### Tutorial Modal
@@ -5294,7 +5297,7 @@ one that holds still.
 | Replay (optional) | `-replay` | A real `.c-btn-secondary.c-btn-sm`, bottom-right of the Frame. Rendered **only** when the slot holds something replayable; fires `c-modal-media-ad:replay` |
 | Title row | `-titlerow`, `-title` | Title is an **`h3`** at the h3 token — Modal's title level — wrapping, never clamped, `tabindex="-1"` so focus can land on it. The family Tag sits beside it and never shrinks |
 | Tagline / description | `-tagline`, `-desc` | Tagline required (body1, Neutral-5); description optional (body2, Neutral-9) |
-| Specs | `-specs` → `-spec` (a `<dl>`) | **Always six cells, always this order:** Objective, Runs on, Best for, Funnel, CPM on file, Monthly inventory. 2 columns (1 when narrow) on the warm-card fill. Label and value vocabulary match the card's spec rows; a missing value takes `.is-empty` |
+| Specs | `-specs` → `-spec` (a `<dl>`) | **In the base Media Ad Modal, always six cells, always this order** (the [Metrics modal](#metrics-modal) modifier has no spec grid): Objective, Runs on, Best for, Funnel, CPM on file, Monthly inventory. 2 columns (1 when narrow) on the warm-card fill. Label and value vocabulary match the card's spec rows; a missing value takes `.is-empty` |
 | Catalogue note (optional) | `.c-banner.c-banner-neutral` | "Standard display unit. Copy and sizes here are catalogue defaults — verify before quoting." For units with no gallery page of their own |
 | Sections | `-section`, `-section-title` | `h4` titles in the eyebrow recipe, **spacing-16 to their content**, spacing-20 between sections |
 | Supported sizes | `-sizes` → `-size`, `-size-box`, `-size-label`, `-size-chip` | **A sample, not a ruler.** All boxes share one scale, fitted so the widest size fits 96px and the tallest 64px, and every box keeps its exact aspect ratio (a very thin size grows evenly to a 6px short side rather than being stretched). Water-bg-strong fill, 1px Navy, 2px radius, `aria-hidden`; the label reads "970 by 250 pixels". A size that isn't W×H ("16:9 in-content") is a dashed text chip. No sizes → "No fixed size — this unit is built to the placement." |
@@ -5350,8 +5353,8 @@ them: the 16:10 ratio (shared with the card), the swing's timings,
 curves, angles and 1200px perspective, the 96 × 64px size sample and
 6px swatch minimum, the 2px swatch radius, and `z-index: 300`.
 
-**Do** keep all six spec cells in order on every format, even when
-most are "Not on file". **Do** let the consumer own the slot's content.
+**Do** keep all six spec cells in order on every format (base
+variant), even when most are "Not on file". **Do** let the consumer own the slot's content.
 **Don't** put an ad visual in the component, or add a form, a field or
 a confirm step to this panel — the moment it commits something in
 place, it stops being a read and loses the carve-out above; that
@@ -5362,6 +5365,96 @@ another.
 > the spec's spacing-8, while `.c-modal-foot` in `components.css`
 > ships spacing-12. Recorded here, not resolved — the same kind of
 > drift Tutorial Modal notes above, and Modal's to fix.
+
+#### Metrics modal
+
+The detail view a [Metrics card](#card) opens into, exactly as Media
+Ad Modal is Media Ad Card's: one item at a time, with its media and a
+headline size on the side, then its title and category Tag, its
+description, a full breakdown of bars, where the audience lives, what
+it reads about, and related items. Previous and next step through the
+list the card came from. First built for Collab:Media's audience
+segments; every data-specific string is host-supplied, so it can serve
+influencers, channels or campaigns too.
+
+It is a **modifier on [Media Ad Modal](#media-ad-modal)**, the naming
+mirroring the card one for one: `class="c-modal c-modal-media-ad
+c-modal-media-ad-metrics"` inside the shipped `.c-modal-media-ad-layer`.
+Everything Media Ad Modal does applies unless listed here: layer,
+scrim, z-index 300 (one tier, no new stacking row), page lock, the
+swing out of the opening card and back, the head (crumbs, previous /
+next, Close), Frame + Slot + placeholder, Replay, title row, tagline,
+section titles, "Also consider" related buttons, the foot and the
+Compare toggle's pressed look (used for Add).
+
+**Metrics modal — Host strings.** Crumb root ("Audiences"), previous /
+next labels and tooltips, size label and source note ("Audience size ·
+published by {publisher}"), missing size ("Not published"), section
+headings ("Media consumption", "Where they live", "What they read
+about", "Also see"), bar labels, empty captions ("No breakdown on
+file", "No platforms on file"), the related items' screen-reader
+suffix, the Add toggle ("Add to reach tray") and the Primary ("Use in a
+media plan").
+
+**Metrics modal — Anatomy.** What differs from Media Ad Modal:
+
+| Part | Class | Spec |
+|---|---|---|
+| Columns | `-metrics-cols` → `-metrics-side`, `-metrics-main` | One column by default (media on top). **Two columns when the panel is wider than 640px** (container query): a **220px** side column and the main column, spacing-24 apart. In two columns the side is **sticky** at `top: spacing-16`, so the media and size stay in view while the main column scrolls; in one column it is not |
+| Panel width | — | **760px** cap (Media Ad Modal is 600px), for the two-column body |
+| Media | `-frame` / `-slot`, `-metrics-still`, `-metrics-clip`, `-replay` | The card's still + clip contract. The clip (`muted playsinline preload="none" aria-hidden`, **no `loop`**) plays **once** on open and on every swap, fades in on `.is-playing`, holds its last frame (`.is-ended`), and the shipped Replay plays it again. Prev, next, related and close pause and rewind it first. No clip → no Replay |
+| Headline size | `-metrics-size` | Figure at the h3 token, tabular, over the size label in caption Neutral-5. An `.sr-only` ", " separates them for screen readers. Missing → "Not published" in the empty style. Part of the dialog's `aria-describedby`, since it sits before the title |
+| Breakdown | `-metrics-bars` | The card's bar recipe one step up: label body2 Neutral-5 in a `fit-content(40%)` column that wraps, Progress Bar's **default** 8px track + Obsidian fill (`--bar-w`, `--bar-i`), value body2 strong in a 4ch column. **Every bar the host supplied, in the host's order** |
+| Where they live | `-metrics-places` (a `<dl>`) | A two-column list, one row per platform, in the host's order: name (body2 strong, Neutral-9) in a `fit-content(40%)` column, categories (body2, Neutral-5) beside it, wrapping under themselves. spacing-8 rows, spacing-16 columns, no dividers. Two columns at every width |
+| What they read about | `.c-chip-group` → `.c-chip.c-chip-input` | Static chips |
+| Also see | `-related` → `-relcard` + `-metrics-relmeta` | The shipped related button plus an `aria-hidden` meta line ("14M · Entertainment", label3 regular, Neutral-5); the name's `.sr-only` suffix carries the same facts |
+| Foot | `-compare` + `-metrics-add`, `-plan` | Add toggle far left (fixed label, `aria-pressed`, synced both ways with the card's `.is-added`), Primary far right. **At a panel of 480px or less the foot always stacks: Add centred at its natural width above a full-width Primary** |
+
+**Metrics modal — Missing data.** Media Ad Modal's split: a section is
+kept with a sentence when its absence changes a planning decision, and
+omitted when an empty list says nothing usable. **Kept:** headline size
+("Not published"), Media consumption ("No breakdown on file"), Where
+they live ("No platforms on file"). **Omitted when empty:** What they
+read about, Also see. A bar with no value keeps its row ("—", with an
+`.sr-only` "Not on file").
+
+**Metrics modal — Interaction.** As Media Ad Modal, with these
+differences. **Focus on open goes to the title** (`h3`, `tabindex="-1"`),
+not Close: the house rule that focus goes to a heading, with no live
+regions; stepping moves focus to the new title too. ← / → step and
+wrap (never with a modifier held or from a text field); related items
+swap the content and the bars re-grow. On close, focus returns to the
+card for the item now showing (then the last list card shown, then the
+opener) and scrolls it into view; the swing folds back into the first
+of those that is on screen. The host may pass `keepLive` elements (a
+Toast host) to keep them out of the inert sweep. The Add toggle
+re-reads the host's state after toggling. Reduced motion: no swing, no
+bar growth, no clip, no Replay. Forced colours: tracks outlined, fills
+in `CanvasText`.
+
+> ⚠️ **Needs Input: focus on open.** Media Ad Modal and Compare modal
+> document "Opens on Close"; this modifier focuses the title, per the
+> heading rule. The family should behave one way — bring the two
+> parents into line, or record why they differ.
+
+**Recorded deviations.** From the Collab:Media source: the footer
+reorders to Modal's (Add left, Primary right); `.c-icon-btn` becomes
+Ghost icon-only sm; the title h2 becomes h3 and the h5 section headings
+h4; the category tint on the body is dropped (colour lives on the Tag
+only). From Media Ad Modal: focus on open (above), the always-stacked
+centred narrow foot, the 760px cap, two columns, the sticky side and
+bars on the default track at body2.
+
+Values with no token, kept as deliberate one-offs: the **760px** panel
+cap, the **220px** side column, the **640px** two-column threshold
+(Compare modal's own boundary), the `fit-content(40%)` label column and
+the centred narrow foot.
+
+**Do** keep the breakdown, size and "Where they live" on every item,
+even when they read "Not on file". **Do** list every bar in the host's
+order. **Don't** add a form, a field or a confirm step (it would lose
+the read-only carve-out), open it from inside another Media Ad Modal
+family modal, or use the category Tag colours to mean departments.
 
 #### Compare modal
 
@@ -5987,6 +6080,14 @@ reuse the Compact track and Obsidian fill with three recorded
 deviations: width set through `--bar-w`, an `aria-hidden` track (a
 share, not progress), and a re-grow on every Live. They reset only
 after they are hidden, so they are never seen going backward.
+
+**Inside the Metrics modal.** The [Metrics modal](#metrics-modal)'s
+breakdown carries the same three deviations plus three more: the
+**default 8px** track instead of Compact, a **body2** (strong) value
+instead of caption, and a **re-grow on every swap** (open, previous /
+next, related), each time on fresh nodes so a bar is never seen
+shrinking. Grow-in timing is the card's: `duration-base` +
+`ease-standard` after `duration-fast`, staggered.
 
 ### Progress-to-Goal Bar
 
@@ -8024,6 +8125,28 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.117 — 2026-10-12** — [Modal / dialog](#modal--dialog) gains the
+  **[Metrics modal](#metrics-modal)**, a Media Ad Modal modifier and the
+  detail view the [Metrics card](#card) opens (from Collab:Media's
+  audience drawer): media and a headline size in a sticky side column,
+  then title and category Tag, description, a full bar breakdown, a
+  two-column "Where they live" list, topic chips and related items,
+  with previous / next and an Add toggle synced to the card.
+
+  **Fixed on the way in:** the clip looped with no way to stop it (now
+  plays once, with Replay); the footer order (Add left, Primary right);
+  heading levels; focus lands on the title, returns to the card for the
+  item showing and scrolls it into view. Bars are always in the host's
+  order. **Changed:** the Metrics card's more-than-5 rule is now "first
+  5 in the host's order + '+N more'" (was the 5 highest, sorted), so
+  channels hold their positions across cards and the modal.
+
+  **New:** `.c-modal-media-ad-metrics` and its parts in `components.css`
+  (after Media Ad Modal); a Metrics modal section; Modal's carve-out and
+  Media Ad Modal's six-cell rule updated; a Progress Bar note; one
+  static default specimen in the gallery's Modal block. Needs Input:
+  aligning focus-on-open across the Media Ad Modal family.
 
 - **v0.9.116 — 2026-10-08** — **SidebarNav: the Department switcher dropdown
   becomes a [Department strip](#sidebarnav)**, a row of department icons under
