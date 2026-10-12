@@ -2418,6 +2418,7 @@ the Modal footer's divider, scaled down.
 - **Hero Card** — a promotional/insight tile: Eyebrow, Heading, Body, a media placeholder, optional Recommendation text, and a CTA, in four states (Default, Risk, AI Dark, Selected). Extends the base Card (Neutral-1, radius-lg, shadow-1) rather than inventing new structure, but is the first Card variant with its own corner ribbon, a dark surface, and a fixed/centered modal state — see **Hero Card**, below, for the full anatomy.
 - **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
 - **Media Ad Card** — one ad format as a gallery tile: a full-bleed 16:10 media Frame (a placeholder slot the consumer fills), a round Compare toggle, the title and family Tag, and a body that trades its tagline for three spec rows (Objective, Sizes, Benchmark) when the card goes Live on hover, focus or first tap. Composes the base Card and Interactive variant rather than redrawing them — see **Media Ad Card**, below, for the slot contract, states and interaction rules.
+- **Metrics card** — a [Media Ad Card](#card) variant for an item whose figures matter more than its spec: the same tile, with a category Tag and a Live face showing a headline total and a breakdown of up to five bars. First used for audience segments. See **Metrics card**, below.
 - **Ad Placement Card** — a floating hover card describing one ad slot on a placement map while it is pointed at or focused: icon, title and where it sits, a one-sentence description, Sizes and Runs on rows, the count of catalogue units that fit, and an optional CTA hint. A Card by surface and a [Tooltip](#tooltip) by behaviour — see **Ad Placement Card**, below, for the anatomy, positioning and interaction rules.
 - **Radio Card** — lives under [Radio](#radio), not here: a group of large cards where the whole card is one radio option, composing this Card's surface and its Selected treatment. For picking several cards, use Selectable instead.
 
@@ -3289,6 +3290,9 @@ has room for a visual on every tile. **Don't** use it for a person
 (Profile card), a campaign moving through stages (Campaign card), or a
 metric against a target (Pacing Card). If a tile has no media at all,
 it wants the base Interactive card, not this one with an empty Frame.
+When the tile is an item someone picks or reaches and its *figures*
+matter more than its spec (audience segments, influencers, channels,
+campaigns), use the [Metrics card](#card) variant below.
 
 **Media Ad Card — Anatomy.** Top to bottom:
 
@@ -3314,7 +3318,10 @@ whatever sits inside zooms with it). Everything else is the
 consumer's. Any child is stretched to fill it, and `img`, `video`,
 `picture`, `iframe` and `canvas` get `object-fit: cover`. The system
 never ships an ad visual in this card — the Placeholder is the whole
-of what it provides, and a product pours its own preview in.
+of what it provides, and a product pours its own preview in. One
+exception: the Metrics card variant styles and plays a clip
+(`-metrics-clip`): hidden until it is actually playing, played only
+while the card is Live, never under reduced motion.
 
 **Media Ad Card — Family Tag.** The Tag names the format's family
 using the elemental Tag colours, one fixed mapping: **Interactive** →
@@ -3323,9 +3330,9 @@ using the elemental Tag colours, one fixed mapping: **Interactive** →
 `c-tag-gold`, **Display** → `c-tag-purple`. Display has no element,
 so it takes the Purple secondary accent's Tag (see
 [Badge & Tag](#badge--tag)). Here the element colours label *kinds of
-format*, not departments — the one place in the system they do, and
-recorded as such so it isn't copied as a precedent for department
-ownership.
+format*, not departments — and, with the Metrics card's category
+Tags, one of only two places in the system they do. Recorded as such so
+neither is copied as a precedent for department ownership.
 
 **Media Ad Card — States.**
 
@@ -3418,6 +3425,89 @@ content — the component's job ends at ratio, clip and zoom.
 Frame beyond the Compare toggle, the Built-for-this-slot badge and the
 Tap hint. **Don't** use the family Tag colours to mean departments on
 this card, or this card's family mapping to colour anything else.
+
+**Metrics card.** A Media Ad Card variant for an item whose figures
+matter more than its spec. Same tile, same behaviour; the body changes.
+At rest it shows the tagline and a size line ("**16M** audience · 66%
+social"); Live, the size becomes a headline total and the tagline gives
+way to a breakdown of up to five bars. First built for Collab:Media's
+audience segments; named for what it shows, not the use case, so it
+can equally serve influencers, channels or campaigns. Markup is
+`class="c-card c-card-interactive c-card-media-ad c-card-media-ad-metrics"`;
+every Media Ad Card part, state and rule above applies unless listed
+here.
+
+**Metrics card — Host strings.** Everything data-specific is supplied
+by the host; the audience wording is the example. Size unit
+("audience"), total label ("total audience"), the toggle's fixed label
+("Add {Name} to reach tray"), bar labels (Video, Audio, TV, Social,
+Forums), the screen-reader suffix after "+N more" (" channels in
+details") and the empty-breakdown caption ("No breakdown on file").
+
+**Metrics card — Anatomy.** What differs from Media Ad Card:
+
+| Part | Class | Spec |
+|---|---|---|
+| Still + clip | `-metrics-still`, `-metrics-clip` | Ordinary Slot children (stretched, `object-fit: cover`, zoomed). The clip (`muted loop playsinline preload="none" aria-hidden`, no controls, no autoplay) sits at opacity 0 and fades in (`duration-base`) only while Live **and** actually playing (`.is-playing`, set on the video's `playing` event, removed on pause). No still yet → the shipped Placeholder |
+| Add toggle | `-compare` + `-metrics-add` | Media Ad Card's round toggle, unchanged in look. Fixed label naming the item; `aria-pressed` carries the state; `ph-plus` → `ph-check`. `aria-keyshortcuts="a"` |
+| Title | `-title` → `-open` → `-metrics-name` | The title block is **always exactly 2 lines tall** (2 × h5 line-height), whether the title takes 1 line or 2, and the 2-line clamp with ellipsis sits on the `-metrics-name` span inside the button, so every card in a grid is the same height |
+| Category Tag | `.c-tag` → `-metrics-tag-label` | **The heading wins over the Tag.** The Tag never wraps (`nowrap`) and is capped at **120px**, which fits every approved label in full. **Label limit: 13 characters.** Over the cap, an ellipsis as a safety net; the category still rides in the Open button's `.sr-only` name |
+| Swap | `-swap` | Taller than Media Ad Card's: label1 line + spacing-8 + 5 caption lines + 4 × spacing-4 (124px), kept whatever the bar count |
+| Rest layer | `-tagline`, `-funnel` + `-metrics-size` | Tagline clamped at **3 lines**. Size line: "**{size}** {unit} · {top bar}", the figure bold Neutral-9; "· top" names the highest value among all bars supplied and is dropped when there are none |
+| Spec layer | `-spec` → `-metrics-total`, `-metrics-bars` | Total: figure at label1 + host label in caption Neutral-5, optional `-metrics-more` ("+N more") pushed right. Bars: a `<dl>`, `dt` = label (caption Neutral-5), `dd.c-progress-trailing-wrap` = Progress Bar's compact track + Obsidian fill (`--bar-w`, `--bar-i`) + value (caption bold, 4ch column). Labels share one column so every track starts on the same line |
+
+**Metrics card — Bar count.**
+
+| Bars supplied | What shows |
+|---|---|
+| 1–5 | In the host's order, top-aligned under the total. The swap keeps its 5-row height, so fewer rows leave the spare space empty at the bottom; rows are never spread apart |
+| More than 5 | The **5 highest**, sorted high to low, plus "+N more" at the right end of the total line (no extra row, so the height holds). The detail view lists them all |
+| 0 | The total, then "No breakdown on file" (`-metrics-nobars`, caption Neutral-5). The Rest size line drops its "· top" part |
+
+A bar with no value keeps its row: an empty track and "—" (`.is-empty`,
+with an `.sr-only` "Not on file"). No size: the size line reads "Size
+not published" and the total "Not published" in the empty style.
+
+**Metrics card — Category Tag mapping (audience use case).**
+Ethnicity → `c-tag-earth`, Income group → `c-tag-gold`, Professionals
+→ `c-tag-water`, Entertainment → `c-tag-purple`, Trendsetter →
+`c-tag-wood`, Shopping → `c-tag-fire`. **Life stage** and **Sports**
+use the plain neutral `.c-tag`: their illustration colours (turquoise
+and red) have no Tag — there is no turquoise Tag, and red reads as
+Danger. Labels are this variant's short forms ("Professionals" for
+Business & professionals, "Shopping" for Shopping intent).
+
+**Metrics card — States and interaction.** As Media Ad Card, with:
+**Added** (`.is-added`, `aria-pressed="true"`) uses Compared's exact
+treatment, at the same specificity so the focus rules still win;
+**A** toggles Add while focus is in the card (no modifier, no repeat,
+never from a text field); the bars grow in when the card goes Live,
+staggered (`duration-fast` wait, then `duration-instant / 2` per row)
+and reset only after the Spec layer has faded out, so a bar is never
+seen shrinking. Reduced motion: no clip and no growth (bars sit at
+their value). Forced colours: tracks outlined and fills painted in
+`CanvasText`; Added takes a `Highlight` outline, and a focused Added
+card keeps the `CanvasText` focus outline. No live regions; focus is
+never moved.
+
+**Metrics card — Progress Bar deviations.** Recorded here and under
+[Progress Bar](#progress-bar): the fill width comes from `--bar-w`
+(clamped 0–100%) so CSS can hold it at 0 until Live; the track is
+`aria-hidden` rather than `role="progressbar"`, because a breakdown
+share isn't progress toward a goal and the `<dl>` already reads
+"Video, 57%"; and the fills re-grow on every Live instead of once on
+mount.
+
+Values with no token, kept as deliberate one-offs: the reserved
+**2-line title block**, the **120px** Tag cap, the **13-character**
+label limit, the **3-line** tagline, the swap formula, the **4ch**
+value column, the stagger step and the clip cross-fade.
+
+**Do** keep labels within 13 characters and keep every bar the host
+supplied, even when its value is missing. **Do** keep every card in a
+grid the same height — never let content change it. **Don't** use the
+category Tag colours to mean departments, or put text over the Frame
+beyond the Add toggle and the Tap hint.
 
 **Ad Placement Card.** A floating hover card that describes one ad
 slot — a position on a page where ads run — while that slot is pointed
@@ -5892,6 +5982,12 @@ put a label inside a Compact (4px) track or a stacked fill; use a
 department elemental color as a single-fill bar's default — department
 colors classify ownership, not progress.
 
+**Inside the Metrics card.** The [Metrics card](#card)'s breakdown bars
+reuse the Compact track and Obsidian fill with three recorded
+deviations: width set through `--bar-w`, an `aria-hidden` track (a
+share, not progress), and a re-grow on every Live. They reset only
+after they are hidden, so they are never seen going backward.
+
 ### Progress-to-Goal Bar
 
 ⚠️ **Designed from scratch — no source in either the original brand
@@ -7984,6 +8080,30 @@ rather than maintaining two token sources by hand:
   Department logos, and cross-references in Dropdown, Prompt input bar, App
   Shell and the account menu); `SKILL.md`; and `preview.html`. The version
   stamps move from v0.9.115 to v0.9.116.
+
+- **v0.9.116 — 2026-10-12** — [Card](#card) gains the **Metrics card**,
+  a [Media Ad Card](#card) variant (drafted as "Audience card" from
+  Collab:Media's audience segment tiles): the same tile with a category
+  Tag, a size line at rest, and a Live face showing a headline total
+  plus a breakdown of up to five bars. Named for what it shows, not the
+  use case, so it can serve audiences, influencers, channels or
+  campaigns; every data-specific string is host-supplied.
+
+  **Fixed on the way in:** the source's `role="button"` article wrapping
+  a real button (now a plain article with a stretched Open button and a
+  sibling Add toggle); an Add label that didn't name the item; a title
+  clamp that never held (it now sits on a span inside the button); and
+  uneven card heights (title block reserved at 2 lines, fixed swap, so
+  every card in a grid is the same height). Category labels are capped
+  at 13 characters and never wrap. Bar count is defined for 0, 1–5 and
+  more than 5 bars.
+
+  **New:** `.c-card-media-ad-metrics` and its parts in `components.css`
+  (after Media Ad Card); a Metrics card section under Media Ad Card;
+  Media Ad Card's "When to use", slot contract and Family Tag wording
+  updated; a Progress Bar note recording the bar deviations; one live
+  Foodies card in the gallery's Card block. Open: Life stage and Sports
+  Tag colours, and what Open leads to (no audience detail view yet).
 
 - **v0.9.115 — 2026-10-02** — New component **[Back to
   top](#back-to-top)**: a small floating control that appears once the
