@@ -2527,6 +2527,7 @@ the Modal footer's divider, scaled down.
 - **Pacing Card** — one metric's progress against a target it's racing a deadline to hit: Label, headline KPI, a [Progress-to-Goal Bar](#progress-to-goal-bar) minibar, a status Badge, and a required Footer carrying the time boundary. Extends the base Card and its Footer unmodified, and reuses two existing components whole rather than redrawing them. Gated on three conditions being present in the data — see **Pacing Card**, below, for the usage rules and the full anatomy.
 - **Media Ad Card** — one ad format as a gallery tile: a full-bleed 16:10 media Frame (a placeholder slot the consumer fills), a round Compare toggle, the title and family Tag, and a body that trades its tagline for three spec rows (Objective, Sizes, Benchmark) when the card goes Live on hover, focus or first tap. Composes the base Card and Interactive variant rather than redrawing them — see **Media Ad Card**, below, for the slot contract, states and interaction rules.
 - **Metrics card** — a [Media Ad Card](#card) variant for an item whose figures matter more than its spec: the same tile, with a category Tag and a Live face showing a headline total and a breakdown of up to five bars. First used for audience segments. See **Metrics card**, below.
+- **Entry Card** — a compact "start here" tile in a set of a few: a decorative media slot, a title, a one-line hint and a corner chevron, where the whole card is one real button that opens one thing. Ships as two named variants, **Entry Card · Character** (a figure that rises above the card's top edge, still image plus a scheduled clip) and **Entry Card · Artefact** (an 84px tile with a pure-CSS drawing of what the entry makes); a set uses one variant at a time. Composes the base Card and Interactive variant rather than redrawing them — see **Entry Card**, below, for the variants, the media contract, the playback rules and the set layout.
 - **Ad Placement Card** — a floating hover card describing one ad slot on a placement map while it is pointed at or focused: icon, title and where it sits, a one-sentence description, Sizes and Runs on rows, the count of catalogue units that fit, and an optional CTA hint. A Card by surface and a [Tooltip](#tooltip) by behaviour — see **Ad Placement Card**, below, for the anatomy, positioning and interaction rules.
 - **Radio Card** — lives under [Radio](#radio), not here: a group of large cards where the whole card is one radio option, composing this Card's surface and its Selected treatment. For picking several cards, use Selectable instead.
 
@@ -2573,6 +2574,7 @@ grids if that floor would waste space for the narrower variants.
 | Price summary card | 280px | Line-item list, RM pricing, and the CTA need more room to stay readable |
 | Campaign card | 240px | Matches base. The binding constraint is the identity row — a 32px brand mark, a truncating name and up to two 22px owner faces — plus a 2-column metric grid that must not wrap "RM 72,500" |
 | Pacing Card | 240px | Matches base. The binding constraint is the minibar's label row — "Total …" and "Target …" must share one line, which holds down to 240px for realistic figures; see **Pacing Card — Width** |
+| Entry Card | ~150px | Set by the container steps (280 / 640 / 860px), not `auto-fill`: a two-word title and a truncating hint fit; the set, not the card, sets the column count, and skipping 4-up avoids a 4 + 1 orphan row — see **Entry Card — Width** |
 | Ad Placement Card | *n/a — fixed 268px* | The one exception: it floats at `<body>` level and never sits in a grid, so it has a fixed width instead of a floor; see **Ad Placement Card — What this variant borrows and what it overrides** |
 
 Every variant keeps `width: 100%` of its grid cell regardless of its
@@ -3616,6 +3618,450 @@ supplied, even when its value is missing. **Do** keep every card in a
 grid the same height — never let content change it. **Don't** use the
 category Tag colours to mean departments, or put text over the Frame
 beyond the Add toggle and the Tap hint.
+
+**Entry Card.** A compact "start here" tile, built to sit in a small
+set of starting points — one per kind of work a person can begin.
+Each card has a decorative media slot, a title, a one-line hint and a
+corner chevron, and the **whole card is one real `<button>`**: it
+opens one thing, so there is nothing to nest. Ported from Collab:Sales
+Home's "door" cards. Classes are `.c-card-entry` and its `-*` parts;
+markup is `class="c-card c-card-interactive c-card-entry
+c-card-entry-character"` (or `-artefact`).
+
+**Entry Card — When to use it.** Use it for a short menu of starting
+points (two to six, five in the source: Brief, Research, Big idea,
+Package, Deck) where each card opens one flow straight away and a
+picture of the outcome helps someone choose. Content is host-supplied;
+the component isn't tied to those five. **Don't** use it for a
+promotional or insight tile with body copy and a CTA (Hero Card), for
+a thing someone could buy or compare (Media Ad Card), for a choice
+that's submitted later (Radio Card) or for anything that feeds a
+bulk action (Selectable). It is an Interactive, hover-only card under
+**Interactive card — Hover-only vs. Selectable**.
+
+**Entry Card — The two variants.**
+
+| Variant | Class | Media slot |
+|---|---|---|
+| **Entry Card · Character** | `.c-card-entry-character` | A figure drawn bigger than the card, cropped at the slot's bottom edge, its head rising above the card's top edge. A still image at rest; a looped or one-beat clip per the playback rules |
+| **Entry Card · Artefact** | `.c-card-entry-artefact` | An 84px Neutral-2 tile, `radius-sm`, holding a pure-CSS drawing of what the entry makes, with one small hover motion per kind |
+
+Both share the shell, title, hint, chevron, states and accessibility
+contract; only the media slot and one modifier differ.
+
+- **One variant per set.** Every card in a set takes the same
+  modifier. A mixed row reads as broken: heads rise over some cards
+  and not others, and the headroom is only right for half the row.
+  The class lives on the card (so a card renders correctly anywhere),
+  but the rule applies to the set.
+- **Switching is a page-level pattern, not part of the component.** A
+  page that lets someone switch a set between the two variants places
+  the shipped compact [Segmented Control](#segmented-control) beside
+  the set; on selection the host flips every card's modifier at once
+  and swaps each media child **on the existing buttons** — never a
+  re-render, so focus and screen-reader position are kept. The
+  component only provides the transition hooks (`.is-swapping`,
+  `.is-entering`, below). A page that offers one variant shows no
+  switch. The switch's labels are parked — see Needs Input.
+
+**Entry Card — Anatomy.** Top to bottom:
+
+| Part | Class | Spec |
+|---|---|---|
+| Set | `.c-card-entry-set` | The query container (`container: c-card-entry-set / inline-size`). Wraps the grid |
+| Grid | `.c-card-entry-grid` | A `<ul>` with a host-string `aria-label`; one `<li>` per card. Columns and headroom, see **Set and grid** |
+| Card | `.c-card.c-card-interactive.c-card-entry` + a variant class | A `<button type="button">` (or an `<a href>`, see **Class API**). Base Card surface; spacing-12 gap; its own inline-size container so the character stage sizes in `cqw` of the card. Character: padding-top 0 |
+| Media slot | `-media` | Always decorative: `aria-hidden="true"`, `pointer-events: none`, `forced-color-adjust: none`. Character: a stage `clamp(76px, 43.4cqw, 132px)` tall that bleeds spacing-8 into the side padding, with a clip open above and beside and closed at its bottom edge. Artefact: the 84px Neutral-2 tile, `radius-sm`, clipping |
+| Figure | `-figure` (Character) | The 4:3 art board, 112% of the slot's width, bottom-anchored `clamp(-28px, -9.3cqw, -20px)` below the slot. Holds `-still` + `-clip`, or `-figure-placeholder` |
+| Drawing | `-art` + `-art-{kind}` (Artefact) | A pure-CSS drawing built from spans, never `b`/`i`/`em` |
+| Text | `-text` | Column, spacing-4 gap |
+| Title | `-title` | The Card title style (h5, 16/20/700), Neutral-9, one line with an ellipsis |
+| Separator | `.sr-only` | ", " between title and hint, so the accessible name doesn't run them together |
+| Hint | `-hint` | Card subtitle style (caption, Neutral-5), one line with an ellipsis, `spacing-24` right reserve (Selectable's reserve) so the chevron never sits on the text |
+| Chevron | `-go` | `ph-caret-right`, **Tier 1, Regular**, `icon-sm`, Neutral-4, `aria-hidden`, pinned to the card's padding corner (`--card-padding` from right and bottom) |
+
+Markup:
+
+```html
+<div class="c-card-entry-set">
+  <ul class="c-card-entry-grid" aria-label="Start from any piece">
+    <li>
+      <button type="button" class="c-card c-card-interactive c-card-entry c-card-entry-character"
+              style="--c-card-entry-i:0; --c-card-entry-figure-x:4px">
+        <span class="c-card-entry-media" aria-hidden="true">
+          <span class="c-card-entry-figure">
+            <img class="c-card-entry-still" src="brief.png" alt="" width="480" height="360">
+            <video class="c-card-entry-clip" muted playsinline preload="none" tabindex="-1"
+                   disablepictureinpicture disableremoteplayback
+                   data-src-webm="brief.webm" data-src-hevc="brief.mov"></video>
+          </span>
+        </span>
+        <span class="c-card-entry-text">
+          <span class="c-card-entry-title">Brief</span><span class="sr-only">, </span>
+          <span class="c-card-entry-hint">Turn an email into a brief</span>
+        </span>
+        <i class="ph ph-caret-right c-card-entry-go" aria-hidden="true"></i>
+      </button>
+    </li>
+    <!-- … -->
+  </ul>
+</div>
+```
+
+For Entry Card · Artefact, the card takes `c-card-entry-artefact` and
+the media slot holds `<span class="c-card-entry-art
+c-card-entry-art-brief">…</span>`. With no character assets, the
+figure holds `<span class="c-card-entry-figure-placeholder"></span>` —
+the only figure the system ships.
+
+**Entry Card — Class API.**
+
+| Hook | Where | Purpose |
+|---|---|---|
+| `.c-card-entry-character` / `.c-card-entry-artefact` | Card | The variant. Required, one per card, the same on every card in a set |
+| `.is-playing` | `.c-card-entry-figure` | Set by the host once the clip fires `playing`; hard-switches still to clip |
+| `.is-swapping` / `.is-entering` | Set | Variant-switch transition: cards fade down and out, then rise back in, staggered |
+| `--c-card-entry-i` | Card | Stagger index (0, 1, 2…) for `.is-entering` |
+| `--c-card-entry-figure-x` | Card | Per-character horizontal nudge of the figure. Default 0 |
+| `--c-card-entry-headroom` | Set or grid | Optional fixed override of the computed headroom (all three uses) |
+| `--c-card-entry-cols` | Grid | Column count at full width, for sets of 4 or 6. Default 5 |
+
+- **Element.** A real `<button type="button">` when the entry opens
+  something in place (the source opens a start sheet). If an entry
+  goes to a URL, use the same classes on an `<a href>`; the card resets
+  `text-decoration`. All content is phrasing (spans, `<i>`, `<img>`,
+  `<video>` without controls), so nothing interactive is nested.
+- **A link entry is never disabled.** An unavailable entry uses the
+  button form with `disabled`. There is deliberately no `aria-disabled`
+  link styling.
+- **Why the variant class is on the card.** The variant changes the
+  card itself (padding-top, slot height, clip, slot fill), not just
+  the slot's content. Inferring it from the slot child with `:has()`
+  would hide the API in a selector; a set-level class would leave a
+  card outside a set unstyled.
+
+**Entry Card — Set and grid.** The set, not the viewport, decides
+the column count, so a set behaves the same in a hero, a modal or a
+side panel.
+
+| Set width | Columns |
+|---|---|
+| Under 280px | 1 |
+| 280–639px | 2 |
+| 640–859px | 3 |
+| 860px and wider | 5 (or `--c-card-entry-cols`) |
+
+Column gap is spacing-12. There is **no 4-up step**: a 4 + 1 row reads
+as one entry left over. This is why the set doesn't use the universal
+`repeat(auto-fill, minmax(…))` Card grid, which produces exactly that
+orphan; it also releases the base Card's 240px `min-width` (an entry
+needs about 150px: a two-word title and a truncating hint). Cards keep
+`width: 100%` and `height: 100%` of their cell, per **Grid layout**.
+
+**Headroom (Character only).** Whenever a set holds character cards
+(`:has(.c-card-entry-character)`), the grid reserves room above every
+row for the rising heads:
+
+```
+headroom = clamp(24px, 0.31 × c + 21px, 112px)
+```
+
+where **c** is the card's content width (card − 2 × `--card-padding` −
+2px border). 0.31c + 13px is the measured rise of the head above the
+card; +6px covers the hover rise and +2px the card lift. The same value
+is used three times so they can never disagree:
+
+1. **padding-top on the grid** — room above the first row;
+2. **row-gap on the grid** — room above every later row, including at
+   1 column, so no figure covers the card above;
+3. **the slot's clip ceiling** — a figure can never paint past it.
+
+On the grid, c is derived from `100cqw` of the set for each column
+step; inside the card, c is simply `100cqw` of the card. Typical
+values: about 77px at a 1440px viewport (5-up), 88px at 1100 (3-up),
+105px at 760 (2-up, wide cards), 58px at 390 (2-up). The headroom and
+row gap ease on `duration-slow` / `ease-settle` when a set switches
+variant. An Artefact set has no headroom and a spacing-12 row gap.
+
+**Entry Card — States.**
+
+| State | Trigger | Treatment |
+|---|---|---|
+| Rest | — | Base Card surface, `shadow-1`. Chevron Neutral-4. Character shows its still |
+| Hover | Pointer, hover-capable devices only | `shadow-2` (Interactive). Card lifts **2px**; chevron turns Neutral-9 and moves **2px** right; the figure rises **6px** and its clip loops; the Artefact drawing runs its one micro-motion. Card takes `z-index: 1` so a lifted figure draws over neighbours |
+| Focus-visible | Keyboard focus | `shadow-focus` on the card (with `shadow-2` if also hovered), plus the same motion and playback as hover, so keyboard users get the same preview |
+| Pressed | `:active` | `shadow-1`, lift collapses to 0, on `duration-instant` |
+| Disabled | `disabled` (button form only) | Media at 40% opacity (Button Ghost / Segmented Control's convention), title and hint Neutral-4, chevron removed (it promises a destination), no hover response, `cursor: not-allowed` |
+| Playing | `.is-playing` on the figure (Character) | Clip shown, still hidden — a hard switch, see the media contract |
+| Switching | `.is-swapping`, then `.is-entering` on the set | Cards fade to 0 and drop spacing-8 on `duration-base` / `ease-standard`; the variant changes in place; cards rise back in on `duration-morph` / `ease-settle`, **50ms** apart by `--c-card-entry-i` |
+
+Transitions: card `box-shadow` and `transform` on `duration-base` /
+`ease-settle`; chevron colour on `duration-fast` / `ease-standard`.
+
+**Entry Card — The five artefact drawings.** Each drawing has exactly
+**one** hover (and focus-visible) micro-motion, on `duration-slow` /
+`ease-settle`. Colour-only changes run under reduced motion too;
+movement doesn't.
+
+| Kind | Class | Drawing | Hover micro-motion |
+|---|---|---|---|
+| Brief | `-art-brief` | Three form rows: a Neutral-5 label bar and a Neutral-1 field (1px Neutral-3, 4px corner) | The first field "types": a Neutral-4 bar (55% wide, 33% of the field's height) grows from the left (`scaleX` 0 → 1) |
+| Research | `-art-research` | A 32px Neutral-1 lens (`shadow-1`, `ph-fill ph-magnifying-glass`) beside three findings, each a 6px dot (Salmon pink, Amber, Navy) and a bar | The lens scans: moves spacing-4 right |
+| Big idea | `-art-idea` | A `ph-fill ph-lightbulb` at `icon-lg` beside three lines, the first a stronger Neutral-6 heading bar | The bulb lights: Neutral-5 → Amber (colour only) |
+| Package | `-art-package` | Two line items (Neutral-6 label and bar) above a channel-mix bar of three segments (Obsidian, Navy, Neutral-4) | The mix rebalances: segment weights 3 / 2 / 1.5 → 2 / 3 / 1.5 |
+| Deck | `-art-deck` | Three 16:9 slides at 58% of the tile's width: an Obsidian front slide (two bars, 80% and 45% wide, at Neutral-1 85% and 40%) over two Neutral-1 back slides rotated ±7deg and offset spacing-8 | The deck fans: back slides to ±12deg and spacing-16 |
+
+Drawing parts share a 6px line weight (Tag's 6px dot) and a 4px
+mini-UI corner (a card's `radius-lg` at drawing scale), scoped as
+custom properties on `.c-card-entry-art`. The research dots use
+element colours as **decoration only**, not department ownership.
+
+**Entry Card — Character media contract.** The component owns the
+stage, the crop, the clip ceiling and the hard switch. The art is the
+product's; the system ships only the placeholder.
+
+| Part | Rule |
+|---|---|
+| Art board | Every still and clip is drawn on the same **4:3 board**, shown at 112% of the slot's width and bottom-anchored `clamp(-28px, -9.3cqw, -20px)` below it, so the slot edge crops the feet and the head rises above the card. Keep the head inside the top of the board and the character centred; use `--c-card-entry-figure-x` for a per-character offset, never the art file |
+| Still | `<img class="c-card-entry-still" alt="">`, PNG or WebP **with alpha**, at 2x the largest board (about 720 × 540). Always present: it's what shows at rest, on touch and under reduced motion |
+| Clip | `<video class="c-card-entry-clip">`: alpha **VP9 WebM** plus alpha **HEVC** for Safari, the same board, first frame identical to the still. `muted playsinline preload="none" tabindex="-1" disablepictureinpicture disableremoteplayback`, no `controls`, no audio track. Sources wait in `data-src-webm` / `data-src-hevc` until the first play request, so nothing downloads under reduced motion or for a card that never plays |
+| Hard switch | The clip stays at opacity 0 until its `playing` event fires; then the host adds `.is-playing` and the still hides in the same frame. On stop: pause, rewind to 0, remove `.is-playing`. **No cross-fade** — two alpha layers in the same framing ghost into a double image mid-fade. This is the Metrics card's hidden-until-playing rule |
+| Failure | If `play()` rejects (autoplay policy, codec), stay on the still silently — no error, poster frame or spinner |
+| Placeholder | `.c-card-entry-figure-placeholder`: a neutral head and shoulders (Neutral-3 head with Neutral-5 eyes, Neutral-4 body) on the same 4:3 board, so it shows the real crop and rise |
+
+**Entry Card — Playback rules.** These are the host's to run; the
+component only renders `.is-playing`.
+
+| Rule | Behaviour |
+|---|---|
+| At rest | Stills. Only one card in a set plays at a time |
+| Hover / focus | Pointer enters (mouse or pen) or keyboard focus-visible: that card's clip **loops** until the pointer leaves or focus goes. User-started, so not auto-play under WCAG 2.2.2. Touch never plays; a tap opens the entry. Hovering a card mid-beat hands the running clip to hover without restarting it |
+| Idle tour | After **8s with no interaction** anywhere on the page, the next card in reading order plays **one 4s beat, once** (not looped), then the set is still again. The next beat needs another full 8s idle period — beats never chain. A press, key, wheel, scroll, touch or focus change stops a beat at once; pointer movement only restarts the idle count and lets a running beat finish. After every card has had one turn, the tour is over **for that page view** |
+| Visibility | Nothing plays unless at least 50% of the card is in view and the tab is visible. Leaving view stops playback at once. If the next card can't play when an idle period ends (off-screen, or the set is Artefact), the timer restarts for another full idle period — the tour waits, never skips. Hiding the tab stops playback and clears the idle timer; the count restarts from zero when the tab is visible again |
+| Reduced motion | No hover play, no idle tour, clip sources never assigned. A change to the setting mid-session stops everything at once |
+| Variant switch | Stops any playback. The idle pass keeps its position; an Artefact set has no clips, so the tour waits |
+
+**Why this meets WCAG 2.2.2 without a pause control.** Each automatic
+episode is a single 4s beat — under the 5s threshold — that stops on
+its own; episodes are separated by at least 8s of stillness and never
+chain; any deliberate input cancels one; and the tour ends after one
+pass, so it can't read as ongoing motion. The source's back-to-back
+tour (5 × 4s = 20s, repeated on every idle) failed 2.2.2. A visible
+"Pause animations" control was the alternative, rejected as clutter
+for a deliberately calm start screen.
+
+**EntryPlayback — host scheduler reference.** A condensed version of
+the reference scheduler; it implements every rule above.
+
+```js
+function EntryPlayback(set, { idleMs = 8000, beatMs = 4000 } = {}) {
+  const rm = matchMedia('(prefers-reduced-motion: reduce)');
+  const visible = new WeakMap();
+  let current = null, mode = null, beatT = 0, idleT = 0, turn = 0;
+  const cards = () => [...set.querySelectorAll('.c-card-entry')];
+  const canPlay = (c) => !rm.matches && !document.hidden && !c.disabled &&
+    c.classList.contains('c-card-entry-character') && visible.get(c) === true;
+
+  function start(card, m) {
+    if (!canPlay(card) || (current === card && mode === m)) return;
+    if (current === card && mode === 'beat' && m === 'hover') {   // keep the clip running
+      clearTimeout(beatT); mode = 'hover';
+      const v = card.querySelector('.c-card-entry-clip'); if (v) v.loop = true;
+      return;
+    }
+    stop();
+    const fig = card.querySelector('.c-card-entry-figure');
+    const v = fig && fig.querySelector('video.c-card-entry-clip');
+    if (!v) return;
+    current = card; mode = m;
+    if (!v.querySelector('source')) {                              // first request only
+      [['srcHevc', 'video/mp4; codecs="hvc1"'], ['srcWebm', 'video/webm']].forEach(([k, type]) => {
+        if (v.dataset[k]) v.append(Object.assign(document.createElement('source'), { src: v.dataset[k], type }));
+      });
+      v.load();
+    }
+    v.loop = m === 'hover'; v.muted = true; v.currentTime = 0;
+    v.onplaying = () => { if (current === card) fig.classList.add('is-playing'); };  // hard switch
+    v.play().catch(() => {});                                      // stay on the still
+    if (m === 'beat') beatT = setTimeout(() => { stop(); armIdle(); }, beatMs);
+  }
+  function stop() {
+    clearTimeout(beatT);
+    if (!current) return;
+    const fig = current.querySelector('.c-card-entry-figure');
+    const v = fig.querySelector('video');
+    fig.classList.remove('is-playing');
+    if (v) { v.onplaying = null; v.pause(); v.currentTime = 0; }
+    current = null; mode = null;
+  }
+  function armIdle() {
+    clearTimeout(idleT);
+    if (rm.matches || document.hidden || turn >= cards().length) return;
+    idleT = setTimeout(() => {
+      if (current) return;
+      const c = cards()[turn];
+      if (!c) return;
+      if (!canPlay(c)) return armIdle();                           // wait, never skip
+      turn += 1; start(c, 'beat');
+    }, idleMs);
+  }
+  const activity = () => { if (mode === 'beat') stop(); armIdle(); };
+  ['pointerdown', 'keydown', 'wheel', 'touchstart', 'focusin'].forEach((t) =>
+    document.addEventListener(t, activity, { passive: true, capture: true }));
+  addEventListener('scroll', activity, { passive: true, capture: true });
+  document.addEventListener('pointermove', () => { if (!current) armIdle(); }, { passive: true, capture: true });
+
+  cards().forEach((card) => {
+    card.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'touch') start(card, 'hover'); });
+    card.addEventListener('pointerleave', () => { if (current === card && mode === 'hover') stop(); });
+    card.addEventListener('focus', () => { if (card.matches(':focus-visible')) start(card, 'hover'); });
+    card.addEventListener('blur', () => { if (current === card && mode === 'hover') stop(); });
+  });
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    visible.set(e.target, e.intersectionRatio >= 0.5);
+    if (e.intersectionRatio < 0.5 && current === e.target) stop();
+  }), { threshold: [0, 0.5, 1] });
+  cards().forEach((c) => io.observe(c));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { stop(); clearTimeout(idleT); } else armIdle();
+  });
+  rm.addEventListener('change', () => { if (rm.matches) { stop(); clearTimeout(idleT); } else armIdle(); });
+
+  armIdle();
+  return { stop, variantChanged() { stop(); armIdle(); } };
+}
+```
+
+Call `variantChanged()` after a page-level variant switch.
+
+**Entry Card — Reduced motion and forced colours.**
+
+- **Reduced motion** (`prefers-reduced-motion: reduce`): no lift,
+  chevron nudge, figure rise, typing, scan, rebalance, fan or switch
+  animation; the headroom changes without easing. Shadow and colour
+  changes stay (the Big idea bulb still lights). Clips never load or
+  play, and CSS hides `.c-card-entry-clip` as a backstop in case a
+  host script forgets to check. All movement is written behind
+  `no-preference`, and hover movement additionally behind
+  `(hover:hover)`, so a tap never leaves a card stuck lifted.
+- **Forced colours**, which strip box-shadow: a 2px `CanvasText`
+  outline (2px offset) stands in for the focus ring; a disabled card
+  takes a `GrayText` border and text. The media slot keeps its own
+  colours (`forced-color-adjust: none`) — it is decorative and
+  `aria-hidden`.
+
+**Entry Card — Accessibility.**
+
+- **One accessible name per card**, from its content: "Brief, Turn an
+  email into a brief" — the `.sr-only` ", " separates the two lines. No
+  `aria-label`: a visible title missing from the name fails 2.5.3, and
+  a duplicate name drifts out of sync. A truncated hint is still read
+  in full.
+- **Decorative media**: the slot is `aria-hidden="true"`, the still has
+  `alt=""`, the clip has `tabindex="-1"`, and the chevron is
+  `aria-hidden`.
+- **The set** is a `<ul>` with a host-string `aria-label`, so "list, 5
+  items" is announced.
+- **Focus.** `shadow-focus` on the card, the Card family ring. The
+  component never moves focus. When an entry opens a sheet or dialog,
+  focus goes to **that view's heading**, and returns to the card on
+  close (the Modal contract). A variant switch keeps the same buttons,
+  so focus and position survive it.
+- **No live regions.** A variant switch is announced by the Segmented
+  Control's radio state; playback is decorative and silent.
+- **Motion** follows the reduced-motion rules above, and auto-play
+  follows the WCAG 2.2.2 rule.
+- **Contrast.** Title Neutral-9 and hint Neutral-5 on Neutral-1 pass
+  AA. The rest-state chevron (Neutral-4) is decorative and repeats
+  what the button's name already says, so it doesn't need 3:1.
+
+**Entry Card — Width.** Follows the universal responsive-width rule
+(`width: 100%` of the cell) but with its own **150px** floor and the
+container steps above instead of `auto-fill` (see the min-width
+floor table).
+
+**Entry Card — What this variant borrows and what it overrides.**
+Borrows, verbatim: the base Card surface (fill, border, `radius-lg`,
+`shadow-1`, `--card-padding`), Interactive's `shadow-2` hover and
+`shadow-focus`, the Card title and subtitle styles, Selectable's
+`spacing-24` right reserve, `.sr-only`, Media Ad Card's 2px lift, its
+`(hover:hover)` gate and its reduced-motion and forced-colours
+conventions, the Metrics card's hidden-until-playing clip rule, and the
+40% disabled convention of Button Ghost and Segmented Control. Motion
+uses `duration-instant` (press), `duration-fast` (colour),
+`duration-base` (shadow, lift, fade-out), `duration-slow` (drawings,
+headroom) and `duration-morph` (the rise back in); easing is
+`ease-settle` and `ease-standard`. Overrides, on purpose:
+
+- **The base 240px `min-width` is released** — the set's container
+  steps decide width.
+- **Character opens at the top edge** (padding-top 0) and its slot
+  bleeds spacing-8 into the side padding, so the figure can rise above
+  the card.
+- **The media can overflow the card** (Character), unlike every other
+  Card variant's media slot, bounded by the headroom clip ceiling.
+
+Replaced on the way in, from the source page: radius-md and 12/20px
+padding → `radius-lg` and `--card-padding`; translucent 86% white with
+a 6px blur → solid Neutral-1; hover `shadow-3` and a Neutral-4 border →
+`shadow-2`; a 2px Obsidian focus outline → `shadow-focus`; a 3px lift →
+2px; a label1/800 title → h5; the up-right arrow → `ph-caret-right`
+with a rightward nudge; the artefact's 10px radius → `radius-sm`;
+7/6/10/14px drawing gaps → spacing-8 / spacing-12; 3px and 2px drawing
+radii → `radius-pill`; the deck's `#0f1f44 → #1d3a78` gradient →
+Obsidian, and its white rgba → `color-mix` of Neutral-1; `.42s` →
+`duration-morph`; a fixed 100px headroom → the width-scaled formula.
+
+Values with no token, kept as deliberate one-offs:
+
+| Value | Why |
+|---|---|
+| Headroom `clamp(24px, 0.31c + 21px, 112px)` | Tracks the measured head rise (0.31c + 13px) plus the 6px hover rise and 2px lift. A fixed value left an empty band over small cards and cut the head flat on wide ones |
+| Stage `clamp(76px, 43.4cqw, 132px)` | Tuned to the character art: the figure's scale tracks card width between a floor and a cap |
+| Foot crop `clamp(-28px, -9.3cqw, -20px)`, 112% width, 4:3 board | The art board contract every still and clip is drawn to |
+| 6px figure rise | Reads as stepping forward without leaving the headroom |
+| 2px chevron nudge | Matches the 2px card lift; spacing-4 is a quarter of a 16px glyph and reads as a jump |
+| 84px artefact tile | Fits three 6px rows with spacing-8 gaps, or a fanned deck, at 2 columns |
+| 6px drawing line, 4px mini-UI corner | Illustration scale; scoped to `.c-card-entry-art` |
+| Deck 58% / 16:9 / ±7deg / ±12deg; front-slide bars 80% / 45% at Neutral-1 85% / 40% | The deck drawing's geometry and fan |
+| Typed bar 55% wide / 33% tall; mix weights 3 / 2 / 1.5; placeholder proportions | Drawing values |
+| 50ms stagger | No stagger token exists — see Needs Input |
+| Container steps 280 / 640 / 860px | Set widths where 1, 3 and 5 columns each keep cards at least ~150px wide |
+| Idle 8s, beat 4s | Behaviour constants of the 2.2.2 rule (beat under 5s); set in the scheduler, not CSS |
+
+**Do** give every card in a set the same variant, and swap variants on
+the existing buttons. **Do** make the whole card the one action — a
+`<button>`, or an `<a href>` for a URL. **Do** keep the still in every
+Character card, and hard-switch to the clip only once it is playing.
+**Do** keep the hint to one line of host copy and the title to about
+two words. **Do** use the headroom formula (or one fixed override) for
+the top padding, the row gap and the clip ceiling together, never one
+without the others. **Don't** mix Character and Artefact cards in one
+set. **Don't** nest a button or link inside the card, or give it an
+`aria-label`. **Don't** chain idle beats, loop them, or restart the
+tour after its one pass. **Don't** cross-fade still and clip. **Don't**
+disable a link entry — use the button form. **Don't** treat the
+research drawing's element colours as department ownership. **Don't**
+build the variant switch into the component — it's a page pattern made
+from the Segmented Control.
+
+⚠️ **Needs Input (Entry Card).**
+- **Variant switch labels — parked, user to confirm.** The Segmented
+  Control spec forbids mixing icons and text in one instance, caps text
+  labels at 6 characters and requires Tier 1 Regular icons, so the
+  source's "Characters" / "Simple" with Fill icons can't ship as is.
+  Options: (a) icon only with tooltips — `ph-smiley` /
+  `ph-squares-four`, an `aria-label` on each segment, tooltips
+  "Characters" / "Artefacts"; (b) short uppercase text labels, e.g.
+  "CAST" / "SIMPLE".
+- **Frosted surface.** The source card was 86% white with a 6px blur
+  so the hero glow showed through; this ships the solid Card surface.
+  Is a "frosted" Card modifier wanted for cards over a glow?
+- **Segmented Control role.** Its spec says `role="group"` around
+  `role="radio"` segments; ARIA prefers `radiogroup`. A Segmented
+  Control question, raised here because the variant switch uses it.
+- **Stagger token.** Add `--stagger-step: 50ms` for this, the Sales
+  Home arrival cascade and future list entrances?
 
 **Ad Placement Card.** A floating hover card that describes one ad
 slot — a position on a page where ads run — while that slot is pointed
@@ -8233,6 +8679,39 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.119 — 2026-10-13** — [Card](#card) gains the **Entry Card**
+  (`.c-card-entry`), a compact "start here" tile from Collab:Sales
+  Home's door cards: a decorative media slot, a title, a one-line hint
+  and a corner chevron, where the whole card is one real button. Ships
+  as two named variants, **Entry Card · Character** (a figure that
+  rises above the card, still plus a scheduled clip) and **Entry Card ·
+  Artefact** (an 84px tile with a pure-CSS drawing per kind and one
+  hover micro-motion each). A set uses one variant at a time; switching
+  is a page-level pattern using the compact Segmented Control.
+
+  **Changed from the source:** an idle tour that played every card back
+  to back and repeated (failing WCAG 2.2.2) is now one 4s beat per 8s
+  idle period, never chained, one pass per page view, cancelled by
+  input, and never off-screen, in a hidden tab or under reduced motion.
+  A fixed 100px headroom becomes `clamp(24px, 0.31c + 21px, 112px)`,
+  used for the top padding, a matching row gap (figures no longer cover
+  the card above when a set wraps) and the clip ceiling. The looks are
+  swapped on the existing buttons instead of re-rendered, so focus
+  survives. Surface, focus, lift, title and radii move to the Card
+  family's tokens; the deck's raw navy gradient becomes Obsidian; the
+  up-right arrow becomes a `ph-caret-right` chevron with a 2px
+  rightward nudge; the switch drops its mixed icon + text labels.
+
+  **New:** the `.c-card-entry` block in `components.css` (after
+  Metrics card); an Entry Card bullet in Card's Variants list and a
+  row in the min-width floor table; an
+  **Entry Card** section with the variants, set grid and headroom,
+  states, drawings, character media contract, playback rules and host
+  scheduler reference; and two sets (Character, Artefact) in the
+  gallery's Card block. Needs Input: the switch labels (parked), a
+  frosted modifier, Segmented Control's `group` vs `radiogroup`, and a
+  `--stagger-step` token.
 
 - **v0.9.118 — 2026-10-13** — [Button](#button) gains the **CTA
   beacon** (`.c-btn-beacon`), a transient state for the single next
