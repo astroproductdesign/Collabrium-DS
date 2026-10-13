@@ -877,6 +877,302 @@
 }
 
 /* =========================================================
+   Entry Card — Card variant (`c-card-entry`)
+
+   A compact "start here" tile: one decorative media slot, a title, a
+   one-line hint and a corner chevron. The whole card is ONE real <button>.
+   Ported from Collab:Sales Home's "door" cards (.hm-door). One component,
+   two named variants (both ship):
+
+     Entry Card · Character   .c-card-entry-character
+                              a figure drawn bigger than the card, rising
+                              above its top edge, cropped at the slot's
+                              bottom edge (still image + looped clip)
+     Entry Card · Artefact    .c-card-entry-artefact
+                              an 84px Neutral-2 tile with a pure-CSS
+                              drawing of the thing the entry makes
+
+   A set uses ONE variant at a time. Switching a set between variants is
+   a host/page-level pattern (the shipped compact Segmented Control), not
+   part of this component; .is-swapping / .is-entering only provide the
+   transition.
+
+   Markup: `<button type="button" class="c-card c-card-interactive
+   c-card-entry c-card-entry-{character|artefact}">`, inside
+   `.c-card-entry-set > ul.c-card-entry-grid > li`.
+
+   Reuses, as shipped and untouched:
+     - .c-card surface: Neutral-1 fill, 1px Neutral-3 border, radius-lg,
+       shadow-1, --card-padding, column flexbox, width/height 100%.
+     - .c-card-interactive: shadow-2 hover, pointer cursor, shadow-focus.
+     - Media Ad Card's 2px lift, its "hover only on (hover:hover)" gate,
+       its reduced-motion and forced-colours conventions, and its
+       hidden-until-playing clip rule (Metrics card's -metrics-clip).
+     - Card title style (h5) and Card subtitle style (caption, Neutral-5).
+     - Selectable's spacing-24 right reserve (here: for the chevron).
+     - .sr-only for the ", " between title and hint in the accessible name.
+     - Segmented Control (compact, icon-only + tooltips) as the look switch,
+       untouched (lives outside this block).
+
+   One-off values (each recorded where it is declared):
+     headroom clamp(24px, 0.31c + 21px, 112px) · clamp(76px, 43.4cqw,
+     132px) stage · clamp(-28px, -9.3cqw, -20px) foot crop · 112% / 4:3
+     figure box · 6px figure rise · 2px chevron nudge · 84px tile · 6px
+     drawing bar · 4px mini-UI corner · 58% / 16:9 / 7deg / 12deg deck ·
+     front-slide bars 80% / 45% at Neutral-1 85% / 40% · 50ms stagger ·
+     280 / 640 / 860px container steps · placeholder proportions · typed
+     bar 55% wide / 33% tall
+
+   Link form: the same classes work on <a href> for an entry that goes to
+   a URL. A link entry is never disabled; an unavailable entry uses the
+   button form (:disabled). No aria-disabled styling exists on purpose.
+   ========================================================= */
+/* ---------- Set: container + headroom ----------
+   The set is the query container, so the column count follows the space
+   the set actually gets (a hero, a modal, a side panel), not the viewport.
+   A character set reserves headroom above the row for the rising figures;
+   :has() means the host never sets a second class to get it. */
+.c-card-entry-set{container:c-card-entry-set / inline-size;}
+/* Headroom: ONE-OFF formula, scaled to card width.
+     headroom = clamp(24px, 0.31 x c + 21px, 112px)
+   where c is the card's CONTENT width (card - 2 x --card-padding - 2px
+   border). 0.31c + 13px is the measured rise of the figure's head above
+   the card top; +6px for the hover rise, +2px for the card lift. The
+   floor keeps a sliver for the smallest cards; the cap is the 5-col /
+   2-col maximum (c ~ 280px).
+   The SAME value is used three times, so they can never disagree:
+     1. padding-top on the grid (room above the first row),
+     2. row-gap on the grid (room above every later row, incl. 1-up),
+     3. the clip ceiling on the slot (a figure never paints past it).
+   It lives on the grid, not the set, because container units on the set
+   itself would resolve against the set's ancestor; inside it, cqw is the
+   set's width. Each column step derives c for its own column count.
+   --c-card-entry-headroom still overrides all three with a fixed value. */
+.c-card-entry-grid{
+  --c-card-entry-c:calc((100cqw - var(--spacing-12)) / 2 - var(--card-padding) * 2 - 2px);
+  display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--spacing-12); margin:0; padding:0; list-style:none;
+}
+.c-card-entry-grid > li{display:flex; min-width:0;}
+.c-card-entry-set:has(.c-card-entry-character) .c-card-entry-grid{
+  padding-top:var(--c-card-entry-headroom, clamp(24px, calc(var(--c-card-entry-c) * .31 + 21px), 112px));
+  row-gap:var(--c-card-entry-headroom, clamp(24px, calc(var(--c-card-entry-c) * .31 + 21px), 112px));
+}
+/* Steps measured on the SET, not the viewport. 5 -> 3 -> 2 as the source
+   (no 4-up: a 4 + 1 orphan row reads as "one left over"). 1-up only when
+   the set is narrower than two readable cards. --c-card-entry-cols lets a
+   set of 4 or 6 use its own count at full width. */
+@container c-card-entry-set (max-width:279.98px){ .c-card-entry-grid{grid-template-columns:minmax(0, 1fr); --c-card-entry-c:calc(100cqw - var(--card-padding) * 2 - 2px);} } /* ONE-OFF step */
+@container c-card-entry-set (min-width:640px){ .c-card-entry-grid{grid-template-columns:repeat(3, minmax(0, 1fr)); --c-card-entry-c:calc((100cqw - var(--spacing-12) * 2) / 3 - var(--card-padding) * 2 - 2px);} } /* ONE-OFF step */
+@container c-card-entry-set (min-width:860px){ .c-card-entry-grid{grid-template-columns:repeat(var(--c-card-entry-cols, 5), minmax(0, 1fr)); --c-card-entry-c:calc((100cqw - var(--spacing-12) * (var(--c-card-entry-cols, 5) - 1)) / var(--c-card-entry-cols, 5) - var(--card-padding) * 2 - 2px);} } /* ONE-OFF step */
+
+/* ---------- Card ----------
+   Base .c-card + .c-card-interactive supply surface, padding, hover shadow
+   and focus ring. This adds the button reset, its own container (the
+   character stage sizes in cqw of the card), and a lower floor: the
+   grid's container steps decide width, so the base 240px min-width is
+   released (an entry needs ~150px: a two-word title, a truncating hint). */
+.c-card.c-card-entry{
+  position:relative;
+  container-type:inline-size;
+  min-width:0;
+  gap:var(--spacing-12);
+  margin:0;
+  -webkit-appearance:none; appearance:none;
+  font:inherit; font-family:var(--font-primary);
+  color:var(--color-neutral-9);
+  text-align:left;
+  text-decoration:none;                         /* for the <a href> form */
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:box-shadow var(--duration-base) var(--ease-settle), transform var(--duration-base) var(--ease-settle);
+}
+.c-card.c-card-entry:hover{z-index:1;} /* a lifted card's figure draws over its neighbours */
+.c-card.c-card-entry:focus-visible{z-index:1;} /* ring + outline:none come from .c-card-interactive */
+.c-card.c-card-entry:hover:focus-visible{box-shadow:var(--shadow-2), var(--shadow-focus);}
+/* Pressed: the lift collapses and the shadow drops back to rest, on
+   duration-instant (Motion table: micro feedback, press). */
+.c-card.c-card-entry:active{box-shadow:var(--shadow-1); transition-duration:var(--duration-instant);}
+.c-card.c-card-entry:active:focus-visible{box-shadow:var(--shadow-1), var(--shadow-focus);}
+/* Disabled: Button Ghost / Segmented Control's 40% convention on the
+   media; text to Neutral-4; chevron removed (it promises a destination). */
+.c-card.c-card-entry:disabled{cursor:not-allowed; box-shadow:var(--shadow-1); transform:none;}
+.c-card.c-card-entry:disabled .c-card-entry-media{opacity:.4;}
+.c-card.c-card-entry:disabled :is(.c-card-entry-title, .c-card-entry-hint){color:var(--color-neutral-4);}
+.c-card.c-card-entry:disabled .c-card-entry-go{display:none;}
+
+/* ---------- Shared parts ---------- */
+/* Media slot: always decorative (aria-hidden in markup), never a hit
+   target. Drawings keep their own colours under forced colours. */
+.c-card-entry-media{position:relative; display:block; flex:none; pointer-events:none; forced-color-adjust:none;}
+.c-card-entry-text{display:flex; flex-direction:column; gap:var(--spacing-4); min-width:0;}
+/* Title: base Card title (h5). One line; content rule keeps it to ~2 words. */
+.c-card-entry-title{display:block; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+/* Hint: base Card subtitle (caption, Neutral-5). One line + ellipsis; the
+   full text stays in the accessible name. Right reserve = Selectable's
+   spacing-24, so the chevron never sits on the text. */
+.c-card-entry-hint{display:block; padding-right:var(--spacing-24); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+/* Chevron: Tier 1 Regular, icon-sm, pinned to the card's padding corner. */
+.c-card-entry-go{position:absolute; right:var(--card-padding); bottom:var(--card-padding); font-size:var(--icon-sm); line-height:1; color:var(--color-neutral-4); transition:transform var(--duration-base) var(--ease-settle), color var(--duration-fast) var(--ease-standard);}
+@media (hover:hover){
+  .c-card.c-card-entry:not(:disabled):hover .c-card-entry-go{color:var(--color-neutral-9);}
+}
+.c-card.c-card-entry:focus-visible .c-card-entry-go{color:var(--color-neutral-9);}
+
+/* ---------- Variant: Entry Card · Character ----------
+   The card opens at its top edge (padding-top 0) and the slot bleeds
+   spacing-8 into the side padding. The figure box is bigger than the slot
+   and bottom-anchored below it; the clip is open above and beside, closed
+   at the slot's bottom edge, so the figure is cut where the title begins
+   and its head rises above the card. */
+.c-card.c-card-entry-character{padding-top:0;}
+.c-card-entry-character .c-card-entry-media{
+  height:clamp(76px, 43.4cqw, 132px);          /* ONE-OFF, from source: stage height tuned to the mascot art at 2-5 columns */
+  margin-inline:calc(var(--spacing-8) * -1);
+  /* Clip ceiling = the set's headroom formula. Here the card is the
+     container, so 100cqw IS c (its content width): 0.31c + 21px. */
+  clip-path:inset(calc(var(--c-card-entry-headroom, clamp(24px, calc(31cqw + 21px), 112px)) * -1) calc(var(--spacing-40) * -1) 0 calc(var(--spacing-40) * -1));
+}
+.c-card-entry-figure{
+  position:absolute; left:50%;
+  bottom:clamp(-28px, -9.3cqw, -20px);         /* ONE-OFF, from source: how much of the feet the slot edge crops */
+  width:112%; aspect-ratio:4 / 3;              /* ONE-OFF, from source: the art board every still and clip is drawn on */
+  transform:translateX(calc(-50% + var(--c-card-entry-figure-x, 0px))); /* per-character x nudge, host-set */
+  transition:transform var(--duration-base) var(--ease-settle);
+}
+.c-card-entry-figure > :is(img, video){position:absolute; inset:0; display:block; width:100%; height:100%; max-width:none; object-fit:contain; border:0;}
+/* Still <-> clip is a HARD switch (no cross-fade): two alpha layers with
+   the same framing ghost into a double image mid-fade. The clip stays
+   hidden until it is actually playing (Metrics card's rule). */
+.c-card-entry-clip{opacity:0;}
+.c-card-entry-figure.is-playing .c-card-entry-clip{opacity:1;}
+.c-card-entry-figure.is-playing .c-card-entry-still{opacity:0;}
+/* Placeholder: the only shipped figure. A neutral head-and-shoulders on
+   the same 4:3 board, so it shows the real crop and rise. Proportions are
+   ONE-OFF drawing values. */
+.c-card-entry-figure-placeholder{position:absolute; inset:0;}
+.c-card-entry-figure-placeholder::before{content:""; position:absolute; left:50%; bottom:0; width:50%; height:58%; transform:translateX(-50%); border-radius:var(--radius-pill) var(--radius-pill) 0 0; background:var(--color-neutral-4);}
+.c-card-entry-figure-placeholder::after{content:""; position:absolute; left:50%; bottom:52%; width:34%; aspect-ratio:1; transform:translateX(-50%); border-radius:var(--radius-pill);
+  background:
+    radial-gradient(circle at 36% 52%, var(--color-neutral-5) 0 6%, transparent 7%),
+    radial-gradient(circle at 64% 52%, var(--color-neutral-5) 0 6%, transparent 7%),
+    var(--color-neutral-3);}
+
+/* ---------- Variant: Entry Card · Artefact ----------
+   An 84px Neutral-2 tile, radius-sm (source 10px, snapped to the token),
+   holding a pure-CSS drawing per kind. Drawing parts are spans (valid
+   inside <button>), never b/i/em. */
+.c-card-entry-artefact .c-card-entry-media{
+  height:84px;                                  /* ONE-OFF, from source: fits three 6px rows + gaps, or a fanned deck, at the 2-column width */
+  border-radius:var(--radius-sm);
+  background:var(--color-neutral-2);
+  overflow:hidden;
+}
+.c-card-entry-art{
+  --c-card-entry-art-bar:6px;                   /* ONE-OFF: drawing line weight (= Tag's 6px dot) */
+  --c-card-entry-art-r:4px;                     /* ONE-OFF: mini-UI corner, a card's radius-lg at drawing scale */
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; justify-content:center; gap:var(--spacing-8);
+  padding:0 var(--spacing-12);
+}
+.c-card-entry-art-row{display:flex; align-items:center; gap:var(--spacing-8);}
+.c-card-entry-art-col{flex:1; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-card-entry-art-bar{display:block; width:100%; height:var(--c-card-entry-art-bar); border-radius:var(--radius-pill); background:var(--color-neutral-4);}
+.c-card-entry-art-bar.is-short{width:55%;}
+.c-card-entry-art-bar.is-strong{height:var(--spacing-8); background:var(--color-neutral-6);}
+.c-card-entry-art-row > .c-card-entry-art-bar{flex:1; width:auto;}
+.c-card-entry-art-row > .c-card-entry-art-bar.is-short{flex:.55;}
+.c-card-entry-art-label{flex:none; width:var(--spacing-20); height:var(--c-card-entry-art-bar); border-radius:var(--radius-pill); background:var(--color-neutral-5);}
+.c-card-entry-art-dot{flex:none; width:var(--c-card-entry-art-bar); height:var(--c-card-entry-art-bar); border-radius:var(--radius-pill);}
+.c-card-entry-art-dot.is-wood{background:var(--color-salmon-pink);}
+.c-card-entry-art-dot.is-gold{background:var(--color-amber);}
+.c-card-entry-art-dot.is-water{background:var(--color-navy);}
+
+/* Brief: three form rows; on hover the first field "types". */
+.c-card-entry-art-field{position:relative; flex:1; height:var(--spacing-12); box-sizing:border-box; border:1px solid var(--color-neutral-3); border-radius:var(--c-card-entry-art-r); background:var(--color-neutral-1);}
+.c-card-entry-art-row:first-child .c-card-entry-art-field::after{content:""; position:absolute; left:var(--spacing-4); top:50%; width:55%; height:33%; border-radius:var(--radius-pill); background:var(--color-neutral-4); transform:translateY(-50%) scaleX(0); transform-origin:left center; transition:transform var(--duration-slow) var(--ease-settle);}
+/* Research: a lens and three colour-keyed findings; the lens scans. */
+.c-card-entry-art-research,
+.c-card-entry-art-idea{flex-direction:row; align-items:center; gap:var(--spacing-12);}
+.c-card-entry-art-lens{flex:none; display:grid; place-items:center; width:var(--icon-lg); height:var(--icon-lg); border-radius:var(--radius-pill); background:var(--color-neutral-1); box-shadow:var(--shadow-1); color:var(--color-neutral-5); font-size:var(--icon-sm); transition:transform var(--duration-slow) var(--ease-settle);}
+/* Big idea: a bulb that lights (colour only, so it also runs under reduced motion). */
+.c-card-entry-art-bulb{flex:none; font-size:var(--icon-lg); line-height:1; color:var(--color-neutral-5); transition:color var(--duration-slow) var(--ease-settle);}
+/* Package: two line items and a channel-mix bar that re-balances. */
+.c-card-entry-art-package .c-card-entry-art-label{width:var(--spacing-24); background:var(--color-neutral-6);}
+.c-card-entry-art-mix{display:flex; gap:var(--spacing-4); height:var(--c-card-entry-art-bar);}
+.c-card-entry-art-seg{display:block; border-radius:var(--radius-pill); transition:flex-grow var(--duration-slow) var(--ease-settle);}
+.c-card-entry-art-seg:nth-child(1){flex:3 1 0; background:var(--color-obsidian);}
+.c-card-entry-art-seg:nth-child(2){flex:2 1 0; background:var(--color-navy);}
+.c-card-entry-art-seg:nth-child(3){flex:1.5 1 0; background:var(--color-neutral-4);}
+/* Deck: three slides, the back two fan out. Source navy gradient
+   (#0f1f44 -> #1d3a78) replaced by Obsidian; white rgba by color-mix. */
+.c-card-entry-art-deck{padding:0;}
+.c-card-entry-art-slide{position:absolute; left:50%; top:50%; width:58%; aspect-ratio:16 / 9; box-sizing:border-box; border-radius:var(--c-card-entry-art-r); transform-origin:50% 100%; transition:transform var(--duration-slow) var(--ease-settle);} /* 58% / 16:9 ONE-OFF, from source */
+.c-card-entry-art-slide.is-back1,
+.c-card-entry-art-slide.is-back2{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);}
+.c-card-entry-art-slide.is-back1{transform:translate(-50%, -50%) rotate(-7deg) translateX(calc(var(--spacing-8) * -1));} /* 7deg ONE-OFF */
+.c-card-entry-art-slide.is-back2{transform:translate(-50%, -50%) rotate(7deg) translateX(var(--spacing-8));}
+.c-card-entry-art-slide.is-front{display:flex; flex-direction:column; justify-content:center; gap:var(--spacing-4); padding:0 var(--spacing-8); background:var(--color-obsidian); box-shadow:var(--shadow-2); transform:translate(-50%, -50%);}
+.c-card-entry-art-slide.is-front .c-card-entry-art-bar{width:80%; background:color-mix(in srgb, var(--color-neutral-1) 85%, transparent);}
+.c-card-entry-art-slide.is-front .c-card-entry-art-bar.is-short{width:45%; background:color-mix(in srgb, var(--color-neutral-1) 40%, transparent);}
+
+/* Colour-only hover changes (not motion, so not behind reduced motion). */
+@media (hover:hover){
+  .c-card-entry:not(:disabled):hover .c-card-entry-art-bulb{color:var(--color-amber);}
+}
+.c-card-entry:focus-visible .c-card-entry-art-bulb{color:var(--color-amber);}
+
+/* ---------- Motion (only with no-preference) ----------
+   Hover motion is gated to (hover:hover) so a tap never leaves a card
+   stuck lifted; keyboard focus gets the same motion as hover. */
+@media (prefers-reduced-motion:no-preference) and (hover:hover){
+  .c-card.c-card-entry:not(:disabled):hover{transform:translateY(-2px);}       /* Media Ad Card's 2px lift (source: 3px) */
+  .c-card.c-card-entry:not(:disabled):hover:active{transform:none;}
+  .c-card-entry:not(:disabled):hover .c-card-entry-go{transform:translateX(2px);}                 /* ONE-OFF, from source */
+  .c-card-entry:not(:disabled):hover .c-card-entry-figure{transform:translateX(calc(-50% + var(--c-card-entry-figure-x, 0px))) translateY(-6px);} /* ONE-OFF, from source */
+  .c-card-entry:not(:disabled):hover .c-card-entry-art-row:first-child .c-card-entry-art-field::after{transform:translateY(-50%) scaleX(1);}
+  .c-card-entry:not(:disabled):hover .c-card-entry-art-lens{transform:translateX(var(--spacing-4));}
+  .c-card-entry:not(:disabled):hover .c-card-entry-art-seg:nth-child(1){flex-grow:2;}
+  .c-card-entry:not(:disabled):hover .c-card-entry-art-seg:nth-child(2){flex-grow:3;}
+  .c-card-entry:not(:disabled):hover .c-card-entry-art-slide.is-back1{transform:translate(-50%, -50%) rotate(-12deg) translateX(calc(var(--spacing-16) * -1));} /* 12deg ONE-OFF */
+  .c-card-entry:not(:disabled):hover .c-card-entry-art-slide.is-back2{transform:translate(-50%, -50%) rotate(12deg) translateX(var(--spacing-16));}
+}
+@media (prefers-reduced-motion:no-preference){
+  .c-card.c-card-entry:focus-visible{transform:translateY(-2px);}
+  .c-card.c-card-entry:focus-visible:active{transform:none;}
+  .c-card-entry:focus-visible .c-card-entry-go{transform:translateX(2px);}
+  .c-card-entry:focus-visible .c-card-entry-figure{transform:translateX(calc(-50% + var(--c-card-entry-figure-x, 0px))) translateY(-6px);}
+  .c-card-entry:focus-visible .c-card-entry-art-row:first-child .c-card-entry-art-field::after{transform:translateY(-50%) scaleX(1);}
+  .c-card-entry:focus-visible .c-card-entry-art-lens{transform:translateX(var(--spacing-4));}
+  .c-card-entry:focus-visible .c-card-entry-art-seg:nth-child(1){flex-grow:2;}
+  .c-card-entry:focus-visible .c-card-entry-art-seg:nth-child(2){flex-grow:3;}
+  .c-card-entry:focus-visible .c-card-entry-art-slide.is-back1{transform:translate(-50%, -50%) rotate(-12deg) translateX(calc(var(--spacing-16) * -1));}
+  .c-card-entry:focus-visible .c-card-entry-art-slide.is-back2{transform:translate(-50%, -50%) rotate(12deg) translateX(var(--spacing-16));}
+
+  /* Look swap (host toggles the classes): cards fade down out
+     (duration-base), the look changes in place, then they rise back in on
+     duration-morph (a pose-to-pose change of the same cards; source .42s
+     = 420ms exactly), 50ms apart. Headroom eases with it. */
+  .c-card-entry-grid{transition:padding-top var(--duration-slow) var(--ease-settle), row-gap var(--duration-slow) var(--ease-settle);}
+  .c-card-entry-set.is-swapping .c-card-entry{opacity:0; transform:translateY(var(--spacing-8)); transition:opacity var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);}
+  .c-card-entry-set.is-entering .c-card-entry{animation:c-card-entry-in var(--duration-morph) var(--ease-settle) both; animation-delay:calc(var(--c-card-entry-i, 0) * 50ms);} /* 50ms stagger ONE-OFF: no stagger token */
+}
+@keyframes c-card-entry-in{from{opacity:0; transform:translateY(var(--spacing-8));} to{opacity:1; transform:none;}}
+
+/* Reduced motion: stills only. Belt and braces for a host script that
+   forgets to check: a clip can never show. */
+@media (prefers-reduced-motion:reduce){
+  .c-card-entry-clip{display:none;}
+  .c-card-entry-figure.is-playing .c-card-entry-still{opacity:1;}
+}
+
+/* Forced colours strip box-shadow, which takes the focus ring with it. */
+@media (forced-colors:active){
+  .c-card.c-card-entry:focus-visible{outline:2px solid CanvasText; outline-offset:2px;}
+  .c-card.c-card-entry:disabled{border-color:GrayText;}
+  .c-card.c-card-entry:disabled :is(.c-card-entry-title, .c-card-entry-hint){color:GrayText;}
+}
+
+/* =========================================================
    Ad Placement Card — Card variant. A floating hover card describing
    one ad slot (a position on a page where ads run) while that slot is
    pointed at or focused on a placement map: what it is, where it sits,
