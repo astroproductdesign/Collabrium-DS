@@ -55,6 +55,76 @@
    this line. */
 .c-btn[hidden]{display:none;}
 
+/* =========================================================
+   CTA beacon — Button state modifier (.c-btn-beacon)
+   A temporary "look here next" cue on the single next step: a ring
+   breathes out of a Primary three times while its trailing arrow nods,
+   then it stops for good. Primary only, labelled only, never disabled.
+   One beacon at a time per page, across every button type (the host's
+   CBeacon.arm() disarms any other first). Only ADDS a box-shadow ring
+   and an icon transform; fill, size, radius, hover, active, disabled and
+   the focus outline are the shipped Button's, untouched.
+   Box-shadow, not ::after: never takes layout, needs no position:relative
+   on .c-btn, and Primary has no resting shadow to overwrite (why
+   Secondary, which carries shadow-1, is excluded). Keep spacing-12 clear
+   around the button; an overflow:hidden ancestor closer than that crops
+   the ring (degrades to a partial ring, nothing breaks).
+   One-offs: 1.4s cycle (no motion token is a loop cadence; ambient 900ms
+   reads as an alarm) · 3 cycles = 4.2s (under WCAG 2.2.2's 5s for
+   auto-started motion) · 32% Neutral-9 ink (signal ring, not a depth
+   shadow — same Neutral-9 ink as --shadow-overlay) · 70% keyframe stop ·
+   3px nod (spacing-4 is 25% of an icon-sm glyph and reads as a jump).
+   Forced colours: no rule, on purpose — the UA drops box-shadow and an
+   outline stand-in would falsely signal focus. */
+.c-btn-beacon{
+  --c-btn-beacon-dur:1.4s;
+  --c-btn-beacon-count:3;
+  --c-btn-beacon-ink:color-mix(in srgb, var(--color-neutral-9) 32%, transparent);
+  --c-btn-beacon-ink-0:color-mix(in srgb, var(--color-neutral-9) 0%, transparent);
+  --c-btn-beacon-nod:3px;
+}
+/* Ring out by 70%, rest for the last 30%; the 100% frame is transparent
+   at 0 spread, so the resting look after the cap is a plain Primary. */
+@keyframes c-btn-beacon-ring{
+  0%{box-shadow:0 0 0 0 var(--c-btn-beacon-ink);}
+  70%{box-shadow:0 0 0 var(--spacing-12) var(--c-btn-beacon-ink-0);}
+  100%{box-shadow:0 0 0 0 var(--c-btn-beacon-ink-0);}
+}
+/* Nod follows the arrow's direction; same cycle and count as the ring. */
+@keyframes c-btn-beacon-nod-down{0%,60%,100%{transform:none;} 30%{transform:translateY(var(--c-btn-beacon-nod));}}
+@keyframes c-btn-beacon-nod-right{0%,60%,100%{transform:none;} 30%{transform:translateX(var(--c-btn-beacon-nod));}}
+/* Reduced-motion hold: a steady 2px ring for the same window. */
+@keyframes c-btn-beacon-hold{0%,100%{box-shadow:0 0 0 var(--border-width-md) var(--c-btn-beacon-ink);}}
+/* Armed. :where() keeps the guards at zero specificity; icon-only,
+   :disabled and aria-disabled never match. */
+.c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])){
+  animation:c-btn-beacon-ring var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);
+}
+/* Nod: trailing arrow only (last child). Any other glyph stays still. */
+.c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])) > i.ph-arrow-down:where(:last-child){
+  animation:c-btn-beacon-nod-down var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);
+}
+.c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])) > i.ph-arrow-right:where(:last-child){
+  animation:c-btn-beacon-nod-right var(--c-btn-beacon-dur) var(--ease-standard) var(--c-btn-beacon-count);
+}
+/* Interaction mask. !important outranks the running animation WITHOUT
+   resetting its clock, so leaving hover can't replay fresh rings
+   (animation:none would). The host script then removes the class. */
+.c-btn-primary.c-btn-beacon:is(:hover, :focus, :active){box-shadow:none !important;}
+.c-btn-primary.c-btn-beacon:is(:hover, :focus, :active) > i{transform:none !important;}
+/* Static rendering: documentation, print, tests (.npeek.is-static
+   precedent). The reduced-motion look, held steadily. Not for runtime. */
+.c-btn-primary.c-btn-beacon.is-static{animation:none; box-shadow:0 0 0 var(--border-width-md) var(--c-btn-beacon-ink);}
+.c-btn-primary.c-btn-beacon.is-static > i.ph{animation:none;}
+/* Reduced motion: no pulse, no nod — a steady 2px ring for the same 4.2s,
+   then gone (a one-iteration animation, so the cap holds without JS). */
+@media (prefers-reduced-motion:reduce){
+  .c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])){
+    animation:c-btn-beacon-hold calc(var(--c-btn-beacon-dur) * var(--c-btn-beacon-count)) linear 1;
+  }
+  .c-btn-primary.c-btn-beacon:where(:not(.c-btn-icon, :disabled, [aria-disabled="true"])) > i.ph{animation:none;}
+}
+
 .c-field{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
 .c-field label{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight);}
 .c-field label .required-mark{color:var(--color-red); font-weight:700; margin-left:var(--spacing-4);}

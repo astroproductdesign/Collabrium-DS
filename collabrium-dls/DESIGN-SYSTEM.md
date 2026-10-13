@@ -2360,6 +2360,7 @@ a component-specific override, not a scale mismatch to "fix" elsewhere.
 | Focus-visible | above + 2px Obsidian outline, 2px offset | same | same |
 | Disabled | Neutral-4 `#bdbdbd` fill, Neutral-1 text | Neutral-3 border, Neutral-4 text | Neutral-4 text |
 | Loading | Primary fill, centered spinner replaces label, button width unchanged | same pattern | same pattern |
+| Beacon (transient) | a Neutral-9 32% ring breathes out 3× (4.2s) and the trailing arrow nods, then stops — see **CTA beacon**, below | — never | — never |
 
 Leading icon optional, `icon-sm` (16px), same color as label — weight
 follows the icon's own [Iconography](#iconography) tier, not the button
@@ -2377,6 +2378,113 @@ is already the control action; a Tier 2 icon there would double up a
 status/decorative mark where an action mark belongs. Always requires an
 `aria-label` describing the action (e.g. "More options"), since there's
 no visible text for assistive tech to read.
+
+**CTA beacon.** A temporary "look here next" cue for the **single next
+step**, typically right after something the user started has finished
+(e.g. "Next: audience" once the AI fills the Brief, "Confirm booking"
+once the slot check passes). A ring breathes out of a Primary button
+three times while its trailing arrow nods, then it stops for good. It is
+a **state, not a style variant**: opted into per instance with
+`c-btn c-btn-primary c-btn-md c-btn-beacon`, switched on by the host,
+ends itself, and leaves a plain Primary behind. The button is not
+restyled — fill, size, radius, hover, active, disabled and the focus
+outline are the shipped Button's.
+
+**One at a time, per page.** A page never has more than one beacon
+running — across every button type and every region. Several pulses at
+once compete, and none of them reads as "the next step". If a second
+becomes relevant, the first stops before the second starts;
+`CBeacon.arm()` does this automatically (reason `replaced`), so a host
+can't break the rule by accident.
+
+| Part | Spec |
+|---|---|
+| Host button | `c-btn c-btn-primary` at sm / md / lg, with a visible label |
+| Ring | `box-shadow` from 0 to `spacing-12`, Neutral-9 at **32%** (`color-mix`, one-off) fading to 0 by the 70% keyframe, every **1.4s** (one-off), `ease-standard`. Never takes layout space |
+| Nod (optional) | a trailing `ph-arrow-down` (nods down) or `ph-arrow-right` (nods right) only, **3px** (one-off), in step with the ring. No arrow → ring only |
+| Cap | **3 cycles = 4.2s** (`animation-iteration-count:3`), under WCAG 2.2.2's 5s bound for motion that starts automatically. Ends with no JavaScript |
+| Reduced motion | no pulse, no nod — a steady `border-width-md` (2px) ring at the same ink for the same 4.2s, then gone |
+| Forced colours | the UA removes the ring; nothing replaces it (an outline on a Button means "focused") |
+| Static (`.is-static`) | the reduced-motion ring held steadily — documentation, print and tests only |
+
+| Allowed on | |
+|---|---|
+| Primary sm / md / lg, labelled | **Yes** — the single main action |
+| Primary icon-only | No — no label names the step (blocked in CSS) |
+| Secondary, Ghost, Link | No — Secondary's `shadow-1` would be overwritten; Ghost and Link are never "the" next step |
+| Danger | **Never** — don't draw attention to a destructive commit |
+| Any disabled / `aria-disabled` | **Never** — blocked in CSS, refused by the script |
+
+**Stop conditions.** The cap (above). **Hover, focus or press** hides it
+at once — an `!important` mask that outranks the running animation
+without resetting its clock, so leaving hover can't replay fresh rings —
+and the host script removes the class in the same event, so the stop is
+permanent. **Re-arm** is host-only, when a new reason arrives (e.g. the
+next AI fill lands).
+
+**Host contract.** `CBeacon.arm(btn)` refuses unless the button is
+Primary, not icon-only and not disabled; disarms any other beacon on the
+page; forces a reflow so the animation restarts at ring 1; adds the
+class; and disarms on the first `pointerenter`, `focus`, `click` or the
+ring's `animationend`. `CBeacon.disarm(btn, reason)` removes the class
+and its listeners. Each change fires `c-btn-beacon-change` on the button
+with `{armed, reason}` — reasons `hover`, `touch`, `focus`, `click`,
+`cap`, `replaced`, `host`.
+
+```js
+const CBeacon = (() => {
+  const live = new WeakMap();
+  const emit = (btn, armed, reason) =>
+    btn.dispatchEvent(new CustomEvent('c-btn-beacon-change', { bubbles: true, detail: { armed, reason } }));
+  const canBeacon = btn => btn && btn.classList.contains('c-btn-primary') && !btn.classList.contains('c-btn-icon')
+    && !btn.disabled && btn.getAttribute('aria-disabled') !== 'true';
+  function disarm(btn, reason = 'host') {
+    const ctl = live.get(btn);
+    if (ctl) { ctl.abort(); live.delete(btn); }
+    if (!btn.classList.contains('c-btn-beacon')) return;
+    btn.classList.remove('c-btn-beacon');
+    emit(btn, false, reason);
+  }
+  function arm(btn) {
+    if (!canBeacon(btn)) return false;
+    document.querySelectorAll('.c-btn-beacon:not(.is-static)').forEach(b => { if (b !== btn) disarm(b, 'replaced'); });
+    disarm(btn, 'host');
+    void btn.offsetWidth;
+    btn.classList.add('c-btn-beacon');
+    const ctl = new AbortController(); live.set(btn, ctl);
+    const o = { signal: ctl.signal };
+    btn.addEventListener('pointerenter', e => disarm(btn, e.pointerType === 'mouse' ? 'hover' : 'touch'), o);
+    btn.addEventListener('focus', () => disarm(btn, 'focus'), o);
+    btn.addEventListener('click', () => disarm(btn, 'click'), o);
+    btn.addEventListener('animationend', e => {
+      if (e.target === btn && /^c-btn-beacon-(ring|hold)$/.test(e.animationName)) disarm(btn, 'cap');
+    }, o);
+    emit(btn, true, 'host');
+    return true;
+  }
+  return { arm, disarm };
+})();
+```
+
+**Accessibility.** Purely visual: no live region, no
+`aria-describedby`, no change to the accessible name; the arrow stays
+`aria-hidden`. The label already says what comes next. **Never move
+focus to a beaconed button**, and never announce it — if the AI fill
+needs announcing, that's the fill's job. No flashing (a soft fade at
+about 0.7 per second).
+
+**Surfaces.** Light neutral surfaces only — Neutral-1, Neutral-2,
+`canvas-warm`, `canvas-warm-card`. Not on dark surfaces: Neutral-9 ink
+vanishes on Neutral-8 (dark is out of scope for now). Keep `spacing-12`
+clear around the button so the ring isn't cropped.
+
+**Beacon do:** arm it on one Primary right after the step that makes it
+relevant; pair it with a trailing arrow pointing where the next step
+is; re-arm only when a new reason arrives. **Beacon don't:** put it on page
+load or on a timer; run more than one at a time on a page, on any mix
+of button types; use it on Danger, Secondary, Ghost, icon-only or
+disabled buttons; move focus to it or announce it; loop it or raise the
+count above 3; use it on dark surfaces.
 
 **Do:** keep one Primary button per screen/card region. **Don't:** use an
 element/department color as a button fill — that's a classification color,
@@ -8125,6 +8233,23 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.118 — 2026-10-13** — [Button](#button) gains the **CTA
+  beacon** (`.c-btn-beacon`), a transient state for the single next
+  step: a ring breathes out of a Primary three times (4.2s) while its
+  trailing arrow nods, then stops for good. **Primary only** (labelled,
+  never disabled), and **one at a time per page** across every button
+  type — the host's `CBeacon.arm()` disarms any other first. Hover,
+  focus or press stops it permanently; reduced motion gets a steady 2px
+  ring for the same window; forced colours drop it.
+
+  **Changed from the source:** 3 rings instead of 6 (stays under WCAG
+  2.2.2's 5s); ink tokenised as Neutral-9 at 32%. **New:** the
+  `.c-btn-beacon` block in `components.css` (after Button), a
+  "Beacon (transient)" row in Button's States table, a **CTA beacon**
+  section with the host contract, and one looping Primary specimen in
+  the gallery's Button block (looped for the gallery only). Dark
+  surfaces and the Secondary / Ghost exploration are out of scope.
 
 - **v0.9.117 — 2026-10-12** — [Modal / dialog](#modal--dialog) gains the
   **[Metrics modal](#metrics-modal)**, a Media Ad Modal modifier and the
