@@ -453,6 +453,9 @@
      padding keeps the ring clear. Reduced motion keeps the shipped
      one-off steady ring. */
   .beacon-demo{padding-block:var(--spacing-12);}
+  /* FileUploader gallery: the mobile layout at 320px, file-type icons off and on. */
+  .fu-demo{display:flex; flex-wrap:wrap; gap:var(--spacing-24);}
+  .fu-demo > div{width:320px; max-width:100%;}
   /* Entry Card gallery specimens: a narrower set (2-col step, ~204px
      card) so the character figure scales down with the card; the
      narrowest width where "Turn an email into a brief" still fits. */
@@ -3064,56 +3067,10 @@
         <div class="comp-block" id="comp-fileuploader">
           <div class="comp-head"><h3>FileUploader</h3><button class="copy-markup-btn" data-target="comp-fileuploader" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
-
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Default &mdash; idle, no files</p>
-            <div class="c-uploader">
-              <div class="c-uploader-zone">
-                <i class="ph ph-upload-simple" aria-hidden="true"></i>
-                <span class="c-uploader-label">Drag files here, or click to browse</span>
-                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
-              </div>
+            <div class="fu-demo">
+              <div><p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Icons off</p><div class="c-uploader"><div class="c-uploader-zone"><span class="c-uploader-text"><span class="c-uploader-title" id="fu-off-1"><span class="c-uploader-msg-rest c-uploader-msg-fine">Drop files here</span><span class="c-uploader-msg-rest c-uploader-msg-coarse">Add files</span><span class="c-uploader-msg-drag" aria-hidden="true">Let go to add them</span></span><span class="c-uploader-hint" id="fu-off-2"><span data-hint="">PDF, Word, images or MP4. Up to 10 files, 100 MB each, 250 MB in total.</span></span></span><button type="button" class="c-btn c-btn-secondary c-btn-sm c-uploader-trigger" aria-describedby="fu-off-1 fu-off-2"><i class="ph ph-paperclip" aria-hidden="true"></i>Choose files</button></div><p class="c-uploader-error" id="fu-off-3" tabindex="-1" hidden=""><i class="ph-fill ph-warning-circle" aria-hidden="true"></i><span data-error-text=""></span></p><div class="c-uploader-files"></div><button type="button" class="c-btn c-btn-ghost c-btn-sm c-uploader-show-all" hidden="">Show 0 more</button><input type="file" class="sr-only" tabindex="-1" aria-hidden="true"></div></div>
+              <div><p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Icons on</p><div class="c-uploader"><div class="c-uploader-zone"><span class="c-uploader-types" aria-hidden="true"><i class="ph-fill ph-file-pdf"></i><i class="ph-fill ph-file-doc"></i><i class="ph-fill ph-file-image"></i></span><span class="c-uploader-text"><span class="c-uploader-title" id="fu-on-1"><span class="c-uploader-msg-rest c-uploader-msg-fine">Drop files here</span><span class="c-uploader-msg-rest c-uploader-msg-coarse">Add files</span><span class="c-uploader-msg-drag" aria-hidden="true">Let go to add them</span></span><span class="c-uploader-hint" id="fu-on-2"><span data-hint="">PDF, Word, images or MP4. Up to 10 files, 100 MB each, 250 MB in total.</span></span></span><button type="button" class="c-btn c-btn-secondary c-btn-sm c-uploader-trigger" aria-describedby="fu-on-1 fu-on-2"><i class="ph ph-paperclip" aria-hidden="true"></i>Choose files</button></div><p class="c-uploader-error" id="fu-on-3" tabindex="-1" hidden=""><i class="ph-fill ph-warning-circle" aria-hidden="true"></i><span data-error-text=""></span></p><div class="c-uploader-files"></div><button type="button" class="c-btn c-btn-ghost c-btn-sm c-uploader-show-all" hidden="">Show 0 more</button><input type="file" class="sr-only" tabindex="-1" aria-hidden="true"></div></div>
             </div>
-
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Drag-over</p>
-            <div class="c-uploader">
-              <div class="c-uploader-zone dragover">
-                <i class="ph ph-upload-simple" aria-hidden="true"></i>
-                <span class="c-uploader-label">Drag files here, or click to browse</span>
-                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
-              </div>
-            </div>
-
-            <hr class="comp-divider" />
-            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Has files</p>
-            <div class="c-uploader">
-              <div class="c-uploader-zone">
-                <i class="ph ph-upload-simple" aria-hidden="true"></i>
-                <span class="c-uploader-label">Drag files here, or click to browse</span>
-                <span class="c-uploader-hint">MP4, PDF, Word, images</span>
-              </div>
-              <div class="c-uploader-files">
-                <div class="c-uploader-row">
-                  <span class="c-uploader-kind">PDF</span>
-                  <span class="c-uploader-name">Q3-media-plan-100plus.pdf</span>
-                  <span class="c-uploader-size">2.4 MB</span>
-                  <button type="button" class="c-uploader-remove" aria-label="Remove Q3-media-plan-100plus.pdf"><i class="ph ph-x"></i></button>
-                </div>
-                <div class="c-uploader-row">
-                  <span class="c-uploader-kind">MP4</span>
-                  <span class="c-uploader-name">client-call-recording-19jun.mp4</span>
-                  <span class="c-uploader-size">86.1 MB</span>
-                  <button type="button" class="c-uploader-remove" aria-label="Remove client-call-recording-19jun.mp4"><i class="ph ph-x"></i></button>
-                </div>
-                <div class="c-uploader-row">
-                  <span class="c-uploader-kind">DOCX</span>
-                  <span class="c-uploader-name">brand-brief-v2.docx</span>
-                  <span class="c-uploader-size">340 KB</span>
-                  <button type="button" class="c-uploader-remove" aria-label="Remove brand-brief-v2.docx"><i class="ph ph-x"></i></button>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
         <div class="comp-block" id="comp-filters">
@@ -9683,35 +9640,317 @@ failed to load.
 
 ### FileUploader
 
-⚠️ **Designed from scratch — no source in either the original
-brand deck or the teammate's build.** Built from this document's own
-token system by reusing Badge-Neutral's box model, Table row's/
-SidebarNav's active-state recipe, and the Filters/Date picker popover
-pattern — not transcribed. Treat as a first pass needing real
-design/brand review.
+⚠️ **Designed, not transcribed.** Rebuilt in v0.9.120 from the shipped
+first pass, adopting Collab:Sales Home's start-sheet brief drop zone as
+its one layout. Still needs real design/brand review.
 
-Click-to-browse or drag-and-drop file attachment; attached files list
-as rows below the drop zone.
+A drop zone with a title, a caption and one real **Choose a file**
+button, followed by a list of file rows. It does **file intake only**:
+pick or drop → validate → show the row → hand the File to the page
+(`onAccept(file)`, called at once). The page then drives each row
+(uploading, failed, done) and owns everything after that. **One
+component, no variants.** Desktop and mobile layouts are picked by the
+uploader's own width, not the viewport.
+
+**Use it** wherever someone attaches one or more files: a client brief
+that starts a flow, attachments on a record, documents in a form. Every
+placement sets its own copy and limits. **Don't use it** for pasting
+text or links, or for picking from files already in the product (that's
+a selection list, not an upload).
+
+#### Anatomy
 
 | Part | Spec |
 |---|---|
-| Drop zone | `radius-lg` (20px), spacing-24 padding, centered content, 1px dashed Neutral-3 border, Neutral-1 fill |
-| Drop zone — drag-over | 2px dashed Obsidian border, Neutral-2 fill — the same Obsidian-border/Neutral-2-fill pairing Table row's selected state and SidebarNav's active item already use for "currently engaged," reused here rather than inventing a new tint |
-| Upload icon | `upload-simple`, `icon-md` (20px), Neutral-5, **Tier 1, Regular** per its explicit listing in Iconography |
-| Label | body2 (14px/20px), weight 700, Neutral-5 |
-| Hint (optional) | caption (12px), Neutral-5 |
-| File row | flex row, spacing-12 gap, spacing-8/spacing-12 padding, 1px Neutral-3 border, `radius-sm`, Neutral-1 fill — the same bordered "panel" recipe Filters'/Date picker's popover uses |
-| Kind badge | reuses Badge-Neutral's exact box model — 22px tall, spacing-8 padding, `radius-pill`, Neutral-2 fill, Neutral-3 border, `--font-primary` |
-| File name | body2, Neutral-9, truncates with ellipsis |
-| File size | caption, Neutral-5 |
-| Remove (×) | `icon-sm` (16px) `x` glyph, **Tier 1, Regular** (a remove affordance, per Iconography) — 24×24px hit target, Neutral-5, hover fill Neutral-2 |
+| Root `.c-uploader` | Flex column, spacing-12 gap, no max-width (the page sets the width). An inline-size container named `c-uploader`, so its own width picks the layout. Carries the zone states |
+| Zone `div.c-uploader-zone` | A plain drop target, **not a button**: `radius-lg` (20px), spacing-24 padding, 1px dashed Neutral-3, Neutral-1 fill, spacing-16 gap. A pointer click anywhere on it forwards to the button (a convenience; it has no role and takes no focus) |
+| File-type icons `.c-uploader-types` (optional, **off by default**) | When the page includes it: the first three `rules.types[].icon`, `icon-md` (24px), Neutral-5, **Tier 2, Fill** (decorative), spacing-4 apart, `aria-hidden`. Left of the text on desktop, above it on mobile. Leave the span out and the zone is just text and button |
+| Text `.c-uploader-text` | Flex column, spacing-4 gap, holding the title and caption |
+| Title `.c-uploader-title` | label1 (14/20, 700), Neutral-9. Holds three page-supplied message slots (see Copy contract) |
+| Caption `.c-uploader-hint` | caption (12/16), Neutral-5. The page's sentence, then a `[data-hint]` span with the limits sentence |
+| Button `.c-uploader-trigger` | The real [Button](#button) Secondary sm (`c-btn c-btn-secondary c-btn-sm`) with a leading `ph-paperclip` at `icon-sm` (**Tier 1, Regular**). The only control in the zone, and the keyboard / screen-reader way in. Described by the title and caption (and the error while one shows) |
+| Hidden input | `input[type=file].sr-only`, `tabindex="-1"`, `aria-hidden="true"`. `accept`, `multiple` and `capture` come from the rules |
+| Error `p.c-uploader-error` | `tabindex="-1"`, hidden until needed. caption, **Neutral-9 text** with a Red `ph-warning-circle` (**Tier 2, Fill**, `icon-sm`). Never red text: Red on white is about 3.6:1, under the 4.5:1 that 12px text needs |
+| Files `.c-uploader-files` | Flex column, spacing-8 gap; takes no space when empty |
+| Row `.c-uploader-row` | Flex row, spacing-12 gap, spacing-8 / spacing-12 padding, 1px Neutral-3 border, `radius-sm`, Neutral-1 fill (the shipped row recipe) |
+| Show more `.c-uploader-show-all` | Button Ghost sm, "Show N more", after the list |
 
-**Variants:** Default (idle, no files), Drag-over, Has files.
+#### Class API and markup
 
-**Do:** keep the drop zone visible even once files are attached, so more
-can be added without a separate "add more" affordance. **Don't:** style
-the kind badge as a status Badge variant (Success/Danger/Warning) — it's
-always Neutral; file type isn't a status.
+```html
+<div class="c-uploader">
+  <div class="c-uploader-zone">
+    <!-- optional, off by default -->
+    <span class="c-uploader-types" aria-hidden="true"><i class="ph-fill ph-file-pdf"></i><i class="ph-fill ph-file-doc"></i><i class="ph-fill ph-file-ppt"></i></span>
+    <span class="c-uploader-text">
+      <span class="c-uploader-title" id="up-title">
+        <span class="c-uploader-msg-rest c-uploader-msg-fine">{title}</span>
+        <span class="c-uploader-msg-rest c-uploader-msg-coarse">{touchTitle}</span>
+        <span class="c-uploader-msg-drag" aria-hidden="true">{dragTitle}</span>
+      </span>
+      <span class="c-uploader-hint" id="up-hint">{caption} <span data-hint>{hint}</span></span>
+    </span>
+    <button type="button" class="c-btn c-btn-secondary c-btn-sm c-uploader-trigger" aria-describedby="up-title up-hint">
+      <i class="ph ph-paperclip" aria-hidden="true"></i>{button}
+    </button>
+  </div>
+  <p class="c-uploader-error" id="up-err" tabindex="-1" hidden><i class="ph-fill ph-warning-circle" aria-hidden="true"></i><span data-error-text></span></p>
+  <div class="c-uploader-files"><!-- rows --></div>
+  <button type="button" class="c-btn c-btn-ghost c-btn-sm c-uploader-show-all" hidden>Show 2 more</button>
+  <input type="file" class="sr-only" tabindex="-1" aria-hidden="true">
+</div>
+```
+
+A row (the controller builds these):
+
+```html
+<div class="c-uploader-row is-done">            <!-- or is-uploading (+ is-indeterminate), is-failed -->
+  <span class="c-uploader-kind">PDF</span>       <!-- or <img class="c-uploader-thumb" alt=""> -->
+  <span class="c-uploader-name" title="Raya-deck-v3.pdf"><span class="c-uploader-name-stem">Raya-deck-v3</span><span class="c-uploader-name-ext">.pdf</span></span>
+  <span class="c-uploader-size">5.2 MB</span>
+  <span class="c-uploader-done"><i class="ph-fill ph-check-circle" aria-hidden="true"></i>Uploaded</span>
+  <button type="button" class="c-uploader-row-more" aria-label="More actions, Raya-deck-v3.pdf" aria-haspopup="menu" aria-expanded="false" aria-controls="m1"><i class="ph ph-dots-three" aria-hidden="true"></i></button>
+  <div class="c-uploader-menu" id="m1" role="menu" aria-label="Actions for Raya-deck-v3.pdf" hidden>
+    <button type="button" role="menuitem" tabindex="-1" class="c-uploader-menu-item" data-action="preview"><i class="ph ph-eye" aria-hidden="true"></i>Preview<span class="sr-only"> Raya-deck-v3.pdf, opens in a new tab</span><i class="ph ph-arrow-square-out c-uploader-menu-ext" aria-hidden="true"></i></button>
+    <button type="button" role="menuitem" tabindex="-1" class="c-uploader-menu-item" data-action="download"><i class="ph ph-download-simple" aria-hidden="true"></i>Download<span class="sr-only"> Raya-deck-v3.pdf</span></button>
+  </div>
+  <button type="button" class="c-btn c-btn-ghost c-btn-sm c-uploader-retry">Try again<span class="sr-only">, Raya-deck-v3.pdf</span></button>
+  <button type="button" class="c-uploader-remove" aria-label="Remove Raya-deck-v3.pdf"><i class="ph ph-x" aria-hidden="true"></i></button>
+</div>
+<!-- after a failed row only: -->
+<p class="c-uploader-row-msg" id="row-msg-1"><i class="ph-fill ph-warning-circle" aria-hidden="true"></i><span>Upload failed. Please check your connection and try again.</span></p>
+```
+
+| Class | Role |
+|---|---|
+| `.is-dragover` `.is-error` `.is-full` `.is-readonly` `.is-disabled` | Zone states, on the root |
+| `.c-uploader-msg-rest` / `-msg-drag` | Shown at rest / only during drag-over |
+| `.c-uploader-msg-fine` / `-msg-coarse` | Shown on pointer devices / on touch devices (`(hover:none) and (pointer:coarse)`) |
+| `.c-uploader-row` + `.is-uploading` (`.is-indeterminate`), `.is-failed`, `.is-done` | Row states, set by the page through the controller |
+| `--c-uploader-progress` | 0–1 on an uploading row; drives the progress bar |
+| `.c-uploader-kind` / `.c-uploader-thumb` | Row media: the shipped kind chip, or a 32px image thumbnail |
+| `.c-uploader-name` › `-name-stem` + `-name-ext` | Middle ellipsis: the stem truncates, the extension always shows; `title` holds the full name |
+| `.c-uploader-row-more`, `.c-uploader-menu`, `.c-uploader-menu-item`, `.c-uploader-menu-ext` | "More actions" button and its menu (an uploader part) |
+| `.c-uploader-retry`, `.c-uploader-remove`, `.c-uploader-done`, `p.c-uploader-row-msg` | Try again, ×, the done label, the failed message |
+
+#### Copy contract
+
+All copy is **supplied by the page for each placement**. Nothing is
+built in.
+
+| Field | Slot | Rule |
+|---|---|---|
+| `title` | `-msg-rest` + `-msg-fine` | Required. The pointer (drag) wording, e.g. "Drop the client's brief here", "Drop files here" |
+| `touchTitle` | `-msg-rest` + `-msg-coarse` | Optional; falls back to `title`. Picker wording for touch devices, which have no file drag, e.g. "Add the client's brief", "Add files" |
+| `dragTitle` | `-msg-drag` | Optional; falls back to `title`. Shown only during drag-over, e.g. "Let go to add it". `aria-hidden` |
+| `caption` | `.c-uploader-hint` | Optional. What happens to the file, e.g. "Collab AI finds the brand in it…" |
+| `hint` | `[data-hint]` | The limits sentence. Must state the backend's **real** limits. The controller offers `hintFor(rules)` as a helper; the page can always override the whole sentence |
+| `button` | trigger label | Required. "Choose a file" (one file) or "Choose files" (many). Say "choose", never "click" |
+
+#### Rules config
+
+Every instance passes its own rules, **matching its real backend**.
+**There are no system defaults** for types or limits, for briefs or
+attachments; the numbers in this section and in the gallery are example
+limits only.
+
+| Field | Meaning |
+|---|---|
+| `noun` | "brief", "file", … (used in error copy) |
+| `many` | `false`: one file; a new pick or drop replaces it. `true`: a list |
+| `maxFiles` | Multi-file only. At the limit the uploader is `.is-full` |
+| `maxBytes` | Per file |
+| `maxTotalBytes` | Multi-file only; the sum of all files |
+| `types: [{ext, mime, icon}]` | Accepted by extension **or** MIME (list MIME aliases, e.g. CSV reported as the Excel MIME on Windows). `icon` feeds the optional file-type icons |
+| `label`, `sizeTip` | Words for the types ("PDF, Word or images") and a size tip ("Try a smaller copy") used by the helper and error copy |
+| `capture` | Passed to the input (e.g. `"environment"`), so a phone can offer its camera |
+
+Error messages read their numbers from the same rules, so they quote
+the same limits as the hint.
+
+#### Desktop, mobile and touch
+
+| Layout | Behaviour |
+|---|---|
+| Desktop (uploader 480px wide or more) | One row: icons (if on) \| title and caption \| button. Left-aligned |
+| Mobile (under 480px) | `@container c-uploader (max-width:479.98px)`: stacked and centred: icons (if on), title, caption, then a full-width button. Measured on the **uploader**, so it also applies in narrow panels and modals on desktop |
+| Touch (`(hover:none) and (pointer:coarse)`) | The title shows `touchTitle`; the button is at least 44px tall; row buttons get 44px hit areas |
+
+#### Zone states
+
+| State | Treatment |
+|---|---|
+| Rest | 1px dashed Neutral-3, Neutral-1 |
+| Hover (pointer devices, at rest) | Neutral-2 fill, Neutral-4 dash |
+| Focus-visible | On the button only: Button's ring (2px Obsidian, 2px offset). The zone never takes focus |
+| Drag-over | 2px dashed Obsidian, Neutral-2 fill, padding reduced by 1px so nothing moves; the title shows `dragTitle`. **The same for every drag**: a wrong file is not shown as an error while dragging; it's checked on drop |
+| Error | 2px dashed Red plus the inline error under the zone |
+| Full (`maxFiles` reached) | Neutral-2 zone, Neutral-3 dash, icons Neutral-4. The button is `aria-disabled` (not `disabled`), styled with Button's `:disabled` values; the hint reads "10 of 10 files added. Remove one to add another." **Nothing is blocked silently**: a drop is still validated and pressing the button shows the `count` error |
+| Read-only | Zone and error hidden; rows lose ×. "More actions" stays |
+| Disabled | Neutral-2 zone, Neutral-3 dash, text and icons Neutral-4; the button and row buttons are `disabled` |
+
+#### Row states
+
+All set by the page with `setRowState(file, state, options)`.
+
+| State | Treatment |
+|---|---|
+| Accepted | The shipped row: media, name, size, "More actions" (if any actions are enabled), × |
+| Uploading | `'uploading', {progress: 0.4}`: the name drops to Neutral-5; the size slot reads "Uploading 40%"; a 2px Obsidian bar fills along the row's bottom edge, inside its straight segment (the row never clips, so the ×'s hit area is never cut). × is named "Cancel upload, {name}" and calls `onRemove`. No "More actions" |
+| Indeterminate | `'uploading'` with no progress: `.is-indeterminate`, "Uploading…", a segment sliding along the bar on a 1.8s cycle. Static Neutral-3 track under reduced motion |
+| Done | `'done'`: the size, then an Obsidian `ph-check-circle` (`aria-hidden`) and the word "Uploaded", always visible, so the state never rests on colour |
+| Failed | `'failed', {message}`: the row stays in place on one line with a Red border and its size hidden, plus "Try again" (Button Ghost sm held to 24px, calls `onRetry`) and ×. The message is **outside the row**: a `p.c-uploader-row-msg` directly after it, spacing-4 below, caption Neutral-9 with a Red `ph-warning-circle`, wrapping freely. Default text "Upload failed. Please check your connection and try again."; the page may pass its own (e.g. "Blocked by a security scan. Contact IT."). Both row buttons are `aria-describedby` the message |
+
+The page restarts after **Try again** by calling
+`setRowState(file, 'uploading', {progress: 0})`.
+
+#### Row actions
+
+| Rule | Spec |
+|---|---|
+| Actions | **Preview** and **Download** only, enabled per instance with `actions: ['preview', 'download']` (either or both). With none, no "More actions" button is drawn |
+| Where | **Always** inside the "More actions" menu, never inline. × always stays outside the menu |
+| Button | `.c-uploader-row-more`: 24px, `ph-dots-three` (**Tier 1, Regular**), Neutral-5, Neutral-2 hover; named "More actions, {name}", `aria-haspopup="menu"`, `aria-expanded`. Hidden while uploading or failed |
+| Menu | `.c-uploader-menu`: fixed position, placed from the button with flip-up near the bottom of the window, so no ancestor's overflow can clip it. Popover shell (Neutral-1, 1px Neutral-3, `radius-md`, `shadow-3`, spacing-4 padding), 180px min, 36px items with a leading `icon-sm` Neutral-5 icon. Item focus: Neutral-2 plus a 2px inset Obsidian outline |
+| Preview | Opens the file in a **new browser tab**. Trailing `ph-arrow-square-out` (`aria-hidden`); its name reads "Preview {name}, opens in a new tab". The item is a `button role="menuitem"`, not a link, because the URL is usually made by the page. The page's `onPreview(file)` calls `window.open(url, '_blank', 'noopener')` **synchronously in the click** (popup blockers allow it then); fetch signed URLs ahead of time |
+| Download | "Download {name}", calls `onDownload(file)` |
+| Keys and closing | Opening focuses the first item; Up/Down, Home/End move; Escape closes and returns focus to the button; Tab closes. It also closes on an outside click (this uploader only), focus leaving the menu, scroll, resize, and any row-state, disabled, read-only or destroy change |
+
+#### Validation and errors
+
+Validation runs **on drop or pick only**, in this order: folder →
+nothing came through → too many for a one-file uploader → per file:
+type → empty (0 bytes) → size → duplicate (name + size + lastModified)
+→ over `maxFiles` → over `maxTotalBytes`. Valid files are added; every
+rejection is reported in **one** message.
+
+**Errors are always inline**, under the uploader, in
+`.c-uploader-error`; there is no Toast case. The message clears on the
+next pick, drop or drag start.
+
+| Code | Inline copy (numbers from the instance's rules) | Reason in a batch |
+|---|---|---|
+| `folder` | That's a folder. Drop the {noun} file itself. | a folder |
+| `nothing` | Nothing came through. Try dropping the {noun} again, or choose it. | — |
+| `empty` | "name.pdf" is empty. Try another copy. | empty |
+| `count` | One file: "Drop one brief at a time. You dropped 2 files." · Full: "Only 10 files can be added. Remove one to add another." · Over the limit in a drop: "Only 10 files can be added. "name.pdf" wasn't added." | over the 10-file limit |
+| `type` | "name.mp4" can't be used. Briefs can be PDF, Word, PowerPoint, Excel, CSV or text. | file type not accepted |
+| `size` | "name.pdf" is over 25 MB. {sizeTip} | over 25 MB |
+| `total` | "name.mp4" would take the total over 250 MB. Remove a file first. | over the 250 MB total |
+| `duplicate` | "deck.pdf" is already added. | already added |
+| `required` | Add a file to continue. (One file: "Add the {noun} to continue.") | — |
+| batch | 2 files weren't added: "rate-card.xlsx" (file type not accepted), "client-call.mp4" (over 100 MB). | — |
+
+Upload failure is a **row** state, not an error code (see Row states).
+Anything that goes wrong after the upload (e.g. Collab AI can't read a
+brief) is the page's own in-page UI.
+
+#### One file vs many
+
+| | `many: false` | `many: true` |
+|---|---|---|
+| Picker | Single selection | Multiple |
+| A new pick or drop | Replaces the row | Adds rows |
+| Two files dropped at once | `count` error | Both checked; valid ones added |
+| `maxFiles`, `maxTotalBytes`, `duplicate`, Full | Not used | Used |
+| Long lists | — | 5 rows, then "Show N more", which reveals the rest and focuses the first revealed row |
+
+#### Controller
+
+```js
+const up = createUploader({
+  root,                          // the .c-uploader element
+  rules,                         // per instance, matching the backend (no defaults)
+  actions: ['preview', 'download'],   // optional; [] = no "More actions"
+  thumbnails: true,              // optional: image files get a 32px thumbnail
+  required: true,                // optional: validate() needs at least one live file
+  onAccept(file)   {},           // called at once for each accepted File; start the upload
+  onRetry(file)    {},           // "Try again"
+  onRemove(file)   {},           // × (cancels while uploading)
+  onPreview(file)  { window.open(urlFor(file), '_blank', 'noopener'); },
+  onDownload(file) {}
+});
+
+up.setRowState(file, 'uploading', { progress: 0.4 }); // omit progress for indeterminate
+up.setRowState(file, 'done');
+up.setRowState(file, 'failed', { message: 'Blocked by a security scan. Contact IT.' });
+up.validate();          // false + inline "required" error (focus moves to it) when empty
+up.take(files);         // feed files from elsewhere, same validation
+up.showError(code, info); up.clearError();
+up.setDisabled(true); up.setReadOnly(true);
+up.reset();             // clears rows and errors
+up.destroy();           // removes listeners, closes menus, revokes thumbnails, restores
+                        // the hint / full / collapsed state; a host's own disabled state is kept
+```
+
+Thumbnail object URLs are revoked on remove, reset and destroy. A
+module-level guard cancels any unhandled file drop on the page, so a
+dropped file never opens in the browser (only `input[type=file]` is
+exempt).
+
+#### Accessibility
+
+| Rule | Spec |
+|---|---|
+| One real button | The button is the only control in the zone. The zone has no role and isn't focusable. At the limit the button stays focusable (`aria-disabled`) and pressing it explains why |
+| No live regions | None. Errors are inline; focus moves to the error after a picker error, a mixed batch or `validate()`, and does **not** move after a drop or an upload failure. When the page takes over after an upload, it moves focus to its own heading |
+| Focus after picking | A successful pick moves focus to the newest row's first button ("More actions" or ×), so its name is read. After ×, focus goes to the next row's ×, or to the button. After Try again, to the same row's × |
+| Names | "Remove {name}", "Cancel upload, {name}", "Try again, {name}", "More actions, {name}", "Preview {name}, opens in a new tab", "Download {name}". A failed row's buttons are described by its message |
+| Drag is extra | Drag wording is `aria-hidden`; the hint says the same in words; touch devices get `touchTitle` |
+| Targets | On coarse pointers the button is at least 44px tall; ×, "More actions" and Try again get 44px hit areas (transparent `::before`, look unchanged), spaced so neighbouring areas don't overlap |
+| Contrast | Text is Neutral-9 or Neutral-5. Red appears only on icons and borders. The done state is an Obsidian check plus the word "Uploaded" |
+
+**Reduced motion:** the progress bar's width easing and the
+indeterminate slide run only under `prefers-reduced-motion:
+no-preference`; under reduce, progress jumps and the indeterminate bar
+is a static Neutral-3 track.
+
+**Forced colours:** rest stays dashed, drag-over turns **solid**, error
+and the failed row turn **dotted** (so state never relies on colour).
+Disabled and full use GrayText. Icons, the progress and indeterminate
+bars and the menu border use CanvasText; menu item focus uses
+Highlight.
+
+#### Tokens and one-offs
+
+**Tokens:** `--border-width-md`; Obsidian, Red, Neutral-1…9;
+`--radius-sm/md/lg/pill`; `--spacing-4…24`; `--icon-sm` (16px),
+`--icon-md` (24px); label1, body2 and caption type; `--shadow-3`;
+`--duration-base`, `--duration-ambient`; `--ease-standard`. Reuses
+Button (Secondary sm, Ghost sm, focus ring, `:disabled` values) and
+`.sr-only`.
+
+**Corrected:** the first-pass spec said the upload icon was "`icon-md`
+(20px)", but `icon-md` is 24px. The shipped 20px was `icon-base`; the
+new zone's file-type icons are `icon-md` (24px) and the button icon is
+`icon-sm` (16px).
+
+| One-off | Why |
+|---|---|
+| `calc(var(--spacing-24) - 1px)` | Padding compensation when the border goes 1px → 2px |
+| 480px container step | Where icons, two lines and the button stop fitting in one row |
+| 1.8s indeterminate cycle (`2 × --duration-ambient`); 300% / 45–55% gradient | A calm "still working" pace; a segment about 30% of the bar |
+| 32px thumbnail | The list's media size |
+| 44px coarse-pointer targets | The touch minimum |
+| 180px / 36px menu, z-index 60 | The menu's own size and stacking |
+| 22px kind chip with `font-weight:700`, 24px row buttons | Shipped values, unchanged |
+
+#### Legacy (deprecated)
+
+Kept until pages and the gallery migrate, then removed:
+
+- **`.c-uploader-zone.dragover`** → use `.c-uploader.is-dragover` on the root.
+- **`.c-uploader-zone i`** (a literal 20px, Neutral-5) → the new parts set their own icon sizes.
+- **Shipped markup** (a zone containing `.c-uploader-label`) keeps its stacked, centred, 360px-wide look through `:has(.c-uploader-label)`-scoped rules. Migrate it to the anatomy above.
+
+**Do:** pass rules that match the backend and say the same limits in
+the hint; write a `touchTitle` for placements used on phones; keep the
+uploader visible once files are attached, so more can be added; let the
+page drive every row state it knows about. **Don't:** put a second
+button or link inside the zone; show an error look while a file is
+being dragged; put Preview or Download inline in the row; use a Toast
+for uploader errors; style the kind chip as a status Badge (file type
+isn't a status).
 
 ### Filters
 
@@ -13302,6 +13541,43 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.120 — 2026-10-13** — [FileUploader](#fileuploader) is rebuilt
+  as one component, adopting Collab:Sales Home's start-sheet brief drop
+  zone as its only layout: a zone with a title, a caption and one real
+  Secondary sm "Choose a file" button (optional file-type icons, off by
+  default), then a file list. Desktop (a row) and mobile (a centred
+  stack with a full-width button) are picked by the uploader's own
+  width at 480px, not the viewport. All copy (`title`, `touchTitle`,
+  `dragTitle`, `caption`, `hint`, `button`) and all rules (types,
+  `maxBytes`, `maxFiles`, `maxTotalBytes`) come from the page and must
+  match its backend; there are no system defaults.
+
+  **Fixed:** the zone was a plain `<div>` no keyboard could reach (the
+  button and a hidden file input are now the way in); there were no
+  error states, rules or error copy (validation now runs on drop or
+  pick, with one inline message per batch); the spec's "`icon-md`
+  (20px)" mismatch (icon sizes are now `icon-base` / `icon-md` /
+  `icon-sm` as stated).
+
+  **New:** the rebuilt `.c-uploader` block in `components.css`
+  (replacing the old one); zone states (drag-over, error, full,
+  read-only, disabled, hover) with no error look during a drag; touch
+  wording and 44px targets on coarse pointers; host-driven row states
+  (uploading with a percentage, indeterminate, done with an Obsidian
+  check and "Uploaded", failed with the message outside the row, an
+  optional page message and Try again); a "More actions" menu per row
+  (`.c-uploader-menu`) with Preview (opens in a new tab) and Download;
+  middle-ellipsis names, optional image thumbnails, "Show N more" after
+  5 rows; validation codes (`folder`, `nothing`, `empty`, `count`,
+  `type`, `size`, `total`, `duplicate`, `required`) with inline copy;
+  `required` with `validate()`; and the `createUploader` controller.
+  Errors are always inline; there is no Toast case.
+
+  **Deprecated:** `.c-uploader-zone.dragover`, `.c-uploader-zone i`
+  and the shipped `.c-uploader-label` markup (kept at its 360px stacked
+  look through `:has()` until migrated). Two 320px mobile specimens in
+  the gallery's FileUploader block (file-type icons on and off).
 
 - **v0.9.119 — 2026-10-13** — [Card](#card) gains the **Entry Card**
   (`.c-card-entry`), a compact "start here" tile from Collab:Sales

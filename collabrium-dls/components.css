@@ -3864,29 +3864,215 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
 .c-chartmap-swatch{width:28px; height:20px; border-radius:4px; flex:none;}
 .c-chartmap-ramp{flex:1; min-width:160px; height:20px; border-radius:4px;}
 
-/* FileUploader — designed not transcribed
-   Drag-over reuses the Obsidian-border + Neutral-2-fill recipe this
-   system already uses for "currently engaged" states (Table
-   selected, SidebarNav active) — there's no Obsidian tint token to
-   invent a new background from. Kind badge reuses Badge-Neutral's box
-   model (22px, radius-pill, Neutral-2/Neutral-3), --font-primary same
-   as every other piece of text in the component. File rows reuse the
-   Filters/Date picker "panel" recipe (Neutral-1 fill, 1px Neutral-3
-   border), not Neutral-2, so the remove button's hover stays visually
-   distinct against the row. */
-.c-uploader{display:flex; flex-direction:column; gap:var(--spacing-12); max-width:360px;}
-.c-uploader-zone{cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:var(--spacing-8); padding:var(--spacing-24); text-align:center; border-radius:var(--radius-lg); border:1px dashed var(--color-neutral-3); background:var(--color-neutral-1);}
+/* =========================================================
+   FileUploader (v2, one component; replaces the v1 block)
+
+   Host-supplied, per instance: the rules (types, maxBytes, maxFiles,
+   maxTotalBytes — matching the real backend; there are no system
+   defaults) and all copy (title, touch title, drag title, caption).
+
+   ONE component, no variants. The zone is a plain drop target holding
+   optional file-type icons (off by default), a title + caption (host copy),
+   and one real Secondary sm "Choose a file" button. Desktop and mobile
+   layouts are picked by the uploader's OWN width (container query).
+
+   It does file intake: pick or drop -> validate (on drop or pick, never
+   during a drag) -> file row -> onAccept(file) at once. The host then
+   drives the row (uploading / failed / done). Errors are ALWAYS inline.
+
+   Root states: .is-dragover .is-error .is-full .is-readonly .is-disabled
+   Message slots: .c-uploader-msg-rest / -drag (drag-over),
+                  .c-uploader-msg-fine / -coarse (pointer type)
+   Row: .c-uploader-row (+ .is-uploading .is-indeterminate .is-failed
+        .is-done), p.c-uploader-row-msg after a failed row, and a
+        "More actions" menu (Preview / Download): .c-uploader-menu, an
+        uploader part.
+
+   Legacy: the shipped markup (zone containing .c-uploader-label) keeps
+   its stacked 360px look through :has()-scoped rules, plus the two
+   DEPRECATED aliases .c-uploader-zone.dragover and .c-uploader-zone i,
+   for markup that has not migrated yet.
+
+   One-off values: 1px padding compensation · 480px desktop/mobile step
+   · 1.8s indeterminate cycle (2 x --duration-ambient) · 300% / 45-55%
+   indeterminate gradient · 32px thumbnail · 44px coarse-pointer targets
+   · 180px / 36px menu · z-index 60 menu · font-weight:700 on the kind
+   chip (shipped, unchanged)
+   ========================================================= */
+/* ---------- 1. "More actions" menu (.c-uploader-menu, an uploader part) ----------
+   Fixed, positioned in JS from the "More actions" button's rect with
+   flip-up near the bottom of the window, so no ancestor's overflow can
+   clip it. Popover shell: Neutral-1, 1px Neutral-3, radius-md, shadow-3,
+   spacing-4 padding. ONE-OFF 180px / 36px rows, z-index 60. */
+.c-uploader-menu{position:fixed; z-index:60; box-sizing:border-box; min-width:180px; padding:var(--spacing-4); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); font-family:var(--font-primary);}
+.c-uploader-menu[hidden]{display:none;}
+.c-uploader-menu-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:36px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); text-align:left; cursor:pointer;}
+.c-uploader-menu-item i{flex:none; font-size:var(--icon-sm); color:var(--color-neutral-5);}
+/* Preview opens in a new tab: a trailing arrow-square-out (aria-hidden);
+   the accessible name adds ", opens in a new tab". */
+.c-uploader-menu-item .c-uploader-menu-ext{margin-left:auto;}
+.c-uploader-menu-item:hover{background:var(--color-neutral-2);}
+.c-uploader-menu-item:focus{outline:none;}
+.c-uploader-menu-item:focus-visible{background:var(--color-neutral-2); outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:calc(var(--border-width-md) * -1);}
+
+/* ---------- 2. Uploader: root and zone ---------- */
+.c-uploader{container:c-uploader / inline-size; display:flex; flex-direction:column; gap:var(--spacing-12); max-width:none;} /* replaces the shipped 360px cap; the host sets the width (legacy markup keeps 360px below) */
+/* The zone is a plain drop target (not a button). Clicks on it forward
+   to the trigger, as a pointer convenience. */
+.c-uploader-zone{cursor:pointer; display:flex; flex-direction:row; align-items:center; gap:var(--spacing-16); padding:var(--spacing-24); text-align:left; border-radius:var(--radius-lg); border:1px dashed var(--color-neutral-3); background:var(--color-neutral-1);}
+.c-uploader-types{flex:none; display:flex; align-items:center; justify-content:center; gap:var(--spacing-4); line-height:1;}
+.c-uploader-zone .c-uploader-types i{font-size:var(--icon-md); line-height:1; color:var(--color-neutral-5);} /* Tier 2 Fill, decorative */
+.c-uploader-text{flex:1; min-width:0; display:flex; flex-direction:column; gap:var(--spacing-4);}
+.c-uploader-title{display:block; font-family:var(--font-primary); font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-9);}
+.c-uploader-hint{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
+.c-uploader-trigger{flex:none;}
+.c-uploader-zone .c-uploader-trigger i{font-size:var(--icon-sm); color:inherit;} /* beats the legacy zone-icon alias */
+@media (hover:hover){
+  .c-uploader:not(.is-dragover, .is-error, .is-disabled, .is-full) .c-uploader-zone:hover{background:var(--color-neutral-2); border-color:var(--color-neutral-4);}
+}
+
+/* Mobile / narrow: under 480px of the UPLOADER's own width (not the
+   viewport). Stacked and centred; the button goes full width.
+   ONE-OFF 480px: icons + two lines + button stop fitting in a row. */
+@container c-uploader (max-width:479.98px){
+  .c-uploader-zone{flex-direction:column; text-align:center; gap:var(--spacing-12);}
+  .c-uploader-zone .c-uploader-trigger{align-self:stretch; justify-content:center;}
+}
+
+/* ---------- 3. Message slots ---------- */
+.c-uploader:not(.is-dragover) .c-uploader-msg-drag,
+.c-uploader.is-dragover .c-uploader-msg-rest{display:none;}
+/* Touch (no hover + coarse pointer): picker wording instead of drag
+   wording, e.g. "Drop the client's brief here" -> "Add the client's brief". */
+@media not all and (hover:none) and (pointer:coarse){ .c-uploader-msg-coarse{display:none;} }
+@media (hover:none) and (pointer:coarse){ .c-uploader-msg-fine{display:none;} }
+
+/* ---------- 4. Drag-over and error (no error look during a drag) ---------- */
+.c-uploader:is(.is-dragover, .is-error) .c-uploader-zone{border-width:var(--border-width-md); padding:calc(var(--spacing-24) - 1px);}
+.c-uploader.is-dragover .c-uploader-zone{border-color:var(--color-obsidian); background:var(--color-neutral-2);}
+.c-uploader.is-error .c-uploader-zone{border-color:var(--color-red);}
+
+/* Disabled, and Full (rules.maxFiles reached). Full keeps the trigger
+   focusable (aria-disabled) and still validates drops: a drop or a press
+   shows the count error instead of doing nothing. */
+.c-uploader:is(.is-disabled, .is-full) .c-uploader-zone{cursor:not-allowed; background:var(--color-neutral-2); border-color:var(--color-neutral-3);}
+.c-uploader.is-disabled :is(.c-uploader-title, .c-uploader-hint, .c-uploader-types i){color:var(--color-neutral-4);}
+.c-uploader.is-full .c-uploader-types i{color:var(--color-neutral-4);}
+/* Button's own :disabled values on the aria-disabled trigger (duplicated). */
+.c-uploader.is-full .c-uploader-trigger{background:var(--color-neutral-4); color:var(--color-neutral-1); border-color:var(--color-neutral-3); box-shadow:none; cursor:not-allowed;}
+
+/* Read-only: no zone, no remove. Preview / Download stay. */
+.c-uploader.is-readonly :is(.c-uploader-zone, .c-uploader-error, .c-uploader-remove){display:none;}
+
+/* ---------- 5. Inline error (the only error surface) ----------
+   Caption, Neutral-9 text, Red Fill icon (not red text: Red on white is
+   about 3.6:1). tabindex="-1": focus moves here after a picker error and
+   after validate(). */
+.c-uploader-error{display:flex; align-items:flex-start; gap:var(--spacing-4); margin:0; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-9);}
+.c-uploader-error[hidden]{display:none;}
+.c-uploader-error:focus{outline:none;}
+.c-uploader-error:focus-visible{outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:var(--border-width-md);}
+.c-uploader-error i{flex:none; font-size:var(--icon-sm); line-height:1; color:var(--color-red);}
+
+/* ---------- 6. File list and row ---------- */
+.c-uploader-files{display:flex; flex-direction:column; gap:var(--spacing-8);}
+.c-uploader-files:empty{display:none;}
+.c-uploader-row{position:relative; display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
+.c-uploader-kind{flex:none; height:22px; display:inline-flex; align-items:center; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;} /* shipped, unchanged */
+.c-uploader-thumb{flex:none; width:32px; height:32px; box-sizing:border-box; border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); background:var(--color-neutral-2); object-fit:cover;} /* ONE-OFF 32px */
+.c-uploader-name{flex:1; min-width:0; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* Middle ellipsis: the stem truncates, the extension never does. */
+.c-uploader-name:has(.c-uploader-name-stem){display:flex;}
+.c-uploader-name-stem{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.c-uploader-name-ext{flex:none; white-space:nowrap;}
+.c-uploader-size{flex:none; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* Row buttons: x, "More actions", "Try again". Same 24px box and hover. */
+.c-uploader-remove,
+.c-uploader-row-more{flex:none; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; padding:0; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); font-size:var(--icon-sm); cursor:pointer;}
+.c-uploader-remove:hover, .c-uploader-row-more:hover, .c-uploader-row-more[aria-expanded="true"]{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.c-uploader-remove:focus-visible, .c-uploader-row-more:focus-visible{outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:var(--border-width-md);}
+.c-uploader-row:is(.is-uploading, .is-failed) .c-uploader-row-more{display:none;}
+
+/* Uploading (host-driven). The bar is drawn INSIDE the row's straight
+   bottom edge (inset by the row's spacing-12 padding, which equals its
+   radius-sm corner), so the row never needs overflow:hidden and the
+   x's hit area is never clipped. */
+.c-uploader-row.is-uploading::after{content:""; position:absolute; left:var(--spacing-12); bottom:0; height:var(--border-width-md); width:calc((100% - var(--spacing-24)) * var(--c-uploader-progress, 0)); background:var(--color-obsidian);}
+.c-uploader-row.is-uploading .c-uploader-name{color:var(--color-neutral-5);}
+/* Indeterminate: "Uploading..."; a static Neutral-3 track under reduced
+   motion, otherwise a segment sliding left to right inside the bar's own
+   box (animated background, so nothing leaves the row).
+   ONE-OFF 1.8s cycle (2 x --duration-ambient): slow enough to read as
+   "still working", not as an alert. ONE-OFF 300% / 45-55%: a segment
+   about 30% of the bar wide. */
+.c-uploader-row.is-uploading.is-indeterminate::after{width:calc(100% - var(--spacing-24)); background:var(--color-neutral-3);}
+@media (prefers-reduced-motion:no-preference){
+  .c-uploader-row.is-uploading::after{transition:width var(--duration-base) var(--ease-standard);}
+  .c-uploader-row.is-uploading.is-indeterminate::after{transition:none; background:linear-gradient(90deg, transparent 0 45%, var(--color-obsidian) 45% 55%, transparent 55%) 100% 0 / 300% 100% no-repeat; animation:c-uploader-indeterminate calc(var(--duration-ambient) * 2) linear infinite;}
+}
+@keyframes c-uploader-indeterminate{from{background-position:100% 0;} to{background-position:0% 0;}}
+
+/* Done: an Obsidian check (aria-hidden) and "Uploaded", always visible,
+   so the state never rests on colour. */
+.c-uploader-done{display:none; flex:none; align-items:center; gap:var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-uploader-row.is-done .c-uploader-done{display:inline-flex;}
+.c-uploader-done i{font-size:var(--icon-sm); line-height:1; color:var(--color-obsidian);}
+
+/* Failed: one line, Red border, "Try again" + x; the message is a sibling
+   <p> after the row, outside its border, spacing-4 below it. */
+.c-uploader-retry{display:none;}
+.c-uploader-row.is-failed{border-color:var(--color-red);}
+.c-uploader-row.is-failed .c-uploader-size{display:none;}
+.c-uploader-row.is-failed .c-uploader-retry{display:inline-flex; flex:none; height:24px; padding:0 var(--spacing-8); font-size:var(--text-caption-size);}
+.c-uploader-row-msg{display:flex; align-items:flex-start; gap:var(--spacing-4); margin:0; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-9);}
+.c-uploader-row.is-failed + .c-uploader-row-msg{margin-top:calc(var(--spacing-4) - var(--spacing-8));}
+.c-uploader-row-msg i{flex:none; font-size:var(--icon-sm); line-height:1; color:var(--color-red);}
+
+/* Long lists: 5 rows, then "Show N more". */
+.c-uploader-files.is-collapsed > .c-uploader-row:nth-of-type(n+6),
+.c-uploader-files.is-collapsed > .c-uploader-row:nth-of-type(n+6) + .c-uploader-row-msg{display:none;}
+.c-uploader-show-all{align-self:flex-start;}
+.c-uploader-show-all[hidden]{display:none;}
+
+/* ---------- 7. Coarse pointers ----------
+   The trigger is at least 44px tall. Row buttons get 44px hit areas
+   (transparent ::before, look unchanged); the "More actions" and "Try
+   again" buttons gain spacing-8 on their right, so with the row's
+   spacing-12 gap the 44px areas of neighbouring buttons don't overlap
+   (24 + 20 = 44). ONE-OFF 44px. */
+@media (pointer:coarse){
+  .c-uploader-zone .c-uploader-trigger{min-height:44px;}
+  .c-uploader-remove, .c-uploader-row-more, .c-uploader-retry{position:relative;}
+  .c-uploader-remove::before, .c-uploader-row-more::before, .c-uploader-retry::before{content:""; position:absolute; inset:-10px;}
+  .c-uploader-row-more, .c-uploader-row.is-failed .c-uploader-retry{margin-right:var(--spacing-8);}
+}
+
+/* ---------- 8. Legacy (shipped) markup, until migrated ----------
+   A zone containing .c-uploader-label is the shipped stacked uploader. */
+.c-uploader:has(.c-uploader-label){max-width:360px;}
+.c-uploader-zone:has(> .c-uploader-label){flex-direction:column; align-items:center; gap:var(--spacing-8); text-align:center;}
+.c-uploader-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-5);}
+/* DEPRECATED aliases. */
 .c-uploader-zone.dragover{border:2px dashed var(--color-obsidian); background:var(--color-neutral-2);}
 .c-uploader-zone i{font-size:20px; color:var(--color-neutral-5);}
-.c-uploader-label{font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-label1-weight); color:var(--color-neutral-5);}
-.c-uploader-hint{font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5);}
-.c-uploader-files{display:flex; flex-direction:column; gap:var(--spacing-8);}
-.c-uploader-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); border:1px solid var(--color-neutral-3); border-radius:var(--radius-sm); background:var(--color-neutral-1);}
-.c-uploader-kind{flex:none; height:22px; display:inline-flex; align-items:center; padding:0 var(--spacing-8); border-radius:var(--radius-pill); background:var(--color-neutral-2); border:1px solid var(--color-neutral-3); color:var(--color-neutral-5); font-family:var(--font-primary); font-size:var(--text-caption-size); font-weight:700; white-space:nowrap;}
-.c-uploader-name{flex:1; min-width:0; font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.c-uploader-size{flex:none; font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
-.c-uploader-remove{flex:none; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; border-radius:var(--radius-sm); color:var(--color-neutral-5); cursor:pointer;}
-.c-uploader-remove:hover{background:var(--color-neutral-2);}
+
+/* ---------- 9. Forced colours ----------
+   Rest dashed; drag-over SOLID; error and failed DOTTED. */
+@media (forced-colors:active){
+  .c-uploader.is-dragover .c-uploader-zone, .c-uploader-zone.dragover{border-style:solid;}
+  .c-uploader.is-error .c-uploader-zone{border-style:dotted;}
+  .c-uploader:is(.is-disabled, .is-full) .c-uploader-zone{border-color:GrayText;}
+  .c-uploader.is-disabled :is(.c-uploader-title, .c-uploader-hint, .c-uploader-types i), .c-uploader.is-full .c-uploader-types i{color:GrayText;}
+  .c-uploader.is-full .c-uploader-trigger{color:GrayText; border-color:GrayText;}
+  .c-uploader-error i, .c-uploader-row-msg i, .c-uploader-done i{color:CanvasText;}
+  .c-uploader-row.is-failed{border-color:CanvasText; border-style:dotted;}
+  .c-uploader-row.is-uploading::after{forced-color-adjust:none; background:CanvasText;}
+  .c-uploader-row.is-uploading.is-indeterminate::after{forced-color-adjust:none; background:linear-gradient(90deg, transparent 0 45%, CanvasText 45% 55%, transparent 55%) 100% 0 / 300% 100% no-repeat;}
+  .c-uploader-menu{border-color:CanvasText;}
+  .c-uploader-menu-item:focus-visible{outline-color:Highlight;}
+}
+
 
 /* Dropdown — Multiple select (designed not transcribed — renamed from
    the standalone MultiSelect component; every property value below is
