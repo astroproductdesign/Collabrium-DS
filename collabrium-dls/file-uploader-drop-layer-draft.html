@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Page drop layer (FileUploader variant c-uploader-page-drop) · Draft · Collabrium DLS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+
+<!-- =====================================================================
+     COMPONENT CSS: Page drop layer, FileUploader variant
+     `c-uploader-page-drop` (DRAFT)
+     The only block meant for promotion into components.css.
+
+     A full-surface drop target that is invisible until the user drags a
+     FILE over the page. It then veils the page and shows one dashed
+     target with "Drop the brief to start". Dropping validates the file,
+     shows a short "Reading the brief…" moment, and hands the file to the
+     host through a callback. The AI hand-off is the host's job, never
+     the component's.
+
+     Ported from Collab:Sales Home's drop layer (drop-layer.js +
+     brief-import.js; scan item #17).
+
+     Named for its parent, the way Card's and Modal's variants are: the
+     shipped FileUploader prefix is .c-uploader, so this is
+     .c-uploader-page-drop, not .c-file-uploader-*.
+
+     Markup: `<div class="c-uploader-page-drop" aria-hidden="true">` as a
+     direct child of <body> (or of the region container, with
+     .is-contained), holding one .c-uploader-page-drop-target with three
+     .c-uploader-page-drop-msg-{drag|invalid|reading} groups. The state
+     class on the root picks which group shows.
+
+     States (root class, set by the controller, one at a time):
+       (none)        hidden: opacity 0, visibility hidden, no pointer events
+       .is-dragging  a drag carrying Files is over the page
+       .is-invalid   the drag is detectably wrong (2+ files, or a known
+                     MIME type that isn't accepted). Best effort: Safari
+                     exposes no item details during a drag
+       .is-reading   a valid file was dropped; host is taking over
+
+     Modifier:
+       .is-contained position:absolute instead of fixed, for a named region
+                     or a showcase stage. The container must be positioned
+                     and should create a stacking context.
+
+     Host hook:
+       --c-uploader-page-drop-start  width of whatever sits at the inline
+                     start edge and is NOT the target region (the sidebar).
+                     Set it on the layer or any ancestor. The veil still
+                     covers the sidebar; only the dashed target and its
+                     message move over to centre on the main pane.
+
+     Reuses, as shipped and untouched:
+       - FileUploader drag-over recipe: 2px dashed Obsidian border on a
+         Neutral-2 fill, radius-lg. Here the fill is translucent.
+       - .c-uploader-hint (caption, Neutral-5) for the supporting line.
+       - .c-uploader-row / -kind / -name / -size for the dropped file in
+         the reading state (no remove button: nothing to remove).
+       - Search input's ambient spinner recipe (duration-ambient, linear,
+         off under reduced motion), with its own keyframe name.
+       - Motion: duration-fast + ease-standard (Toast / Command brief scrim).
+
+     One-off values (each recorded where it is declared):
+       88% veil mix · z-index 1050 · 360px file row (= .c-uploader's own
+       max-width) · behaviour constants in the controller: 1000ms dragover
+       watchdog, 25 MB limit
+     ===================================================================== -->
+<style>
+/* ---------- Root: the veil ----------
+   Covers the whole viewport (or the contained region) so the page reads
+   as "behind" the drop. A LIGHT veil, not Modal's dark --shadow-overlay:
+   this is transient drag feedback, not a blocking decision, and the
+   target recipe it reuses (FileUploader drag-over) is drawn for a light
+   surface. Neutral-2 is the drag-over fill; 88% lets the layout ghost
+   through. ONE-OFF: 88%.
+   z-index 1050: ONE-OFF, picked against the survey in Tutorial Modal's
+   comment (Toast host 1000, Command brief scrim 400, Chat window 95,
+   Tutorial 1100). Above Toast, so a lingering toast never floats over
+   the target; below Tutorial, which disables the layer anyway. */
+.c-uploader-page-drop{
+  position:fixed; inset:0; z-index:1050;
+  box-sizing:border-box;
+  display:flex;
+  padding:var(--spacing-16) var(--spacing-16) var(--spacing-16) calc(var(--c-uploader-page-drop-start, 0px) + var(--spacing-16));
+  background:color-mix(in srgb, var(--color-neutral-2) 88%, transparent);
+  font-family:var(--font-primary);
+  color:var(--color-neutral-9);
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity var(--duration-fast) var(--ease-standard), visibility 0s linear var(--duration-fast);
+}
+.c-uploader-page-drop.is-contained{position:absolute; z-index:2;}
+/* Showing: the layer CATCHES pointer events, so during a drag every
+   dragenter/dragleave lands on the layer root (its children are
+   pointer-events:none). That removes most child-to-child flicker before
+   the controller's counter even has to deal with it. */
+.c-uploader-page-drop:is(.is-dragging, .is-invalid, .is-reading){
+  opacity:1; visibility:visible; pointer-events:auto;
+  transition:opacity var(--duration-fast) var(--ease-standard), visibility 0s linear 0s;
+}
+.c-uploader-page-drop.is-reading{cursor:progress;}
+
+/* ---------- Target ----------
+   FileUploader's drag-over border (2px dashed Obsidian, radius-lg),
+   stretched to the region. The source drew it in Neutral-5; Obsidian is
+   what "drag-over" already means in this system. */
+.c-uploader-page-drop-target{
+  flex:1; min-width:0; min-height:0;
+  box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center;
+  padding:var(--spacing-24);
+  border:var(--border-width-md) dashed var(--color-obsidian);
+  border-radius:var(--radius-lg);
+  text-align:center;
+  pointer-events:none;
+  transition:border-color var(--duration-fast) var(--ease-standard);
+}
+.c-uploader-page-drop.is-invalid .c-uploader-page-drop-target{border-color:var(--color-red);}
+/* Dropped: the "drop here" dashes no longer apply; the frame settles to
+   the system panel border. */
+.c-uploader-page-drop.is-reading .c-uploader-page-drop-target{border-style:solid; border-color:var(--color-neutral-3);}
+
+/* ---------- Messages: one group per state ---------- */
+.c-uploader-page-drop-msg{display:none; flex-direction:column; align-items:center; gap:var(--spacing-8); max-width:100%;}
+.c-uploader-page-drop.is-dragging .c-uploader-page-drop-msg-drag,
+.c-uploader-page-drop.is-invalid .c-uploader-page-drop-msg-invalid,
+.c-uploader-page-drop.is-reading .c-uploader-page-drop-msg-reading{display:flex;}
+
+/* Icon: icon-lg, Tier 2 Fill. It is a feature highlight, not a control,
+   so it does NOT take FileUploader's Tier 1 upload-simple affordance. */
+.c-uploader-page-drop-icon{font-size:var(--icon-lg); line-height:1; color:var(--color-neutral-9);}
+.c-uploader-page-drop-msg-invalid .c-uploader-page-drop-icon{color:var(--color-red);}
+/* Title: h5, as the source ("Drop the brief to start"). */
+.c-uploader-page-drop-title{margin:0; font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
+.c-uploader-page-drop .c-uploader-hint{margin:0;}
+/* Dropped file: the shipped file row, at .c-uploader's own max-width.
+   ONE-OFF: 360px (copied from .c-uploader, not new). */
+.c-uploader-page-drop .c-uploader-row{width:360px; max-width:100%; box-sizing:border-box; margin-top:var(--spacing-4); text-align:left;}
+
+/* Spinner (reading): Tier 1 Regular glyph, Neutral-5, Search input's
+   ambient spin. Static under reduced motion; the title carries it. */
+.c-uploader-page-drop-spinner{font-size:var(--icon-lg); line-height:1; color:var(--color-neutral-5);}
+@media (prefers-reduced-motion:no-preference){
+  .c-uploader-page-drop.is-reading .c-uploader-page-drop-spinner{animation:c-uploader-page-drop-spin var(--duration-ambient) linear infinite;}
+}
+@keyframes c-uploader-page-drop-spin{to{transform:rotate(360deg);}}
+
+/* ---------- Reduced motion: appear and disappear instantly (Toast's rule) ---------- */
+@media (prefers-reduced-motion:reduce){
+  .c-uploader-page-drop,
+  .c-uploader-page-drop:is(.is-dragging, .is-invalid, .is-reading),
+  .c-uploader-page-drop-target{transition:none;}
+}
+
+/* ---------- Forced colours ----------
+   The translucent veil becomes an opaque Canvas; borders become
+   CanvasText. Invalid adds a dotted border so the state is not carried by
+   colour alone (its icon and copy also change). */
+@media (forced-colors:active){
+  .c-uploader-page-drop{background:Canvas; color:CanvasText;}
+  .c-uploader-page-drop-target{border-color:CanvasText;}
+  .c-uploader-page-drop.is-invalid .c-uploader-page-drop-target{border-color:CanvasText; border-style:dotted;}
+  .c-uploader-page-drop.is-reading .c-uploader-page-drop-target{border-color:CanvasText;}
+  .c-uploader-page-drop-icon,
+  .c-uploader-page-drop-msg-invalid .c-uploader-page-drop-icon,
+  .c-uploader-page-drop-spinner,
+  .c-uploader-page-drop-title{color:CanvasText;}
+}
+/* ===================== END COMPONENT CSS ===================== */
+</style>
+
+<!-- =====================================================================
+     SHOWCASE SCAFFOLDING (sc-*). Not for promotion.
+     k-* classes are the "before" specimen, copied from the scan.
+     ===================================================================== -->
+<style>
+body{margin:0; background:var(--color-canvas-warm); color:var(--color-neutral-9); font-family:var(--font-primary);}
+.sc-page{max-width:1240px; margin:0 auto; padding:var(--spacing-48) var(--page-gutter) var(--spacing-120);}
+@media (max-width:480px){ .sc-page{padding-left:var(--spacing-16); padding-right:var(--spacing-16);} }
+.sc-kicker{font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.sc-page h1{margin:var(--spacing-8) 0 var(--spacing-12); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); font-weight:800;}
+.sc-lede{max-width:72ch; margin:0; font-size:var(--text-body1-size); line-height:var(--text-body1-lh); color:var(--color-neutral-6);}
+.sc-section{margin-top:var(--spacing-60);}
+.sc-section > h2{margin:0 0 var(--spacing-8); font-size:var(--text-h3-size); line-height:var(--text-h3-lh); font-weight:800;}
+.sc-section h3{margin:var(--spacing-32) 0 var(--spacing-8); font-size:var(--text-h5-size); line-height:var(--text-h5-lh); font-weight:700;}
+.sc-note{max-width:80ch; margin:0 0 var(--spacing-16); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-5);}
+.sc-note b{color:var(--color-neutral-9);}
+.sc-code{margin:0; padding:var(--spacing-16); border-radius:var(--radius-md); background:var(--color-neutral-2); font-family:var(--font-primary); font-size:var(--text-footnote-size); line-height:var(--text-body2-lh); white-space:pre-wrap; overflow-wrap:anywhere; color:var(--color-neutral-7);}
+code{font-family:var(--font-primary); font-weight:700; font-size:.95em; color:var(--color-neutral-7);}
+.sc-table{width:100%; border-collapse:collapse; font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+.sc-table th, .sc-table td{padding:var(--spacing-8) var(--spacing-12); border-bottom:1px solid var(--color-neutral-3); text-align:left; vertical-align:top;}
+.sc-table th{font-size:var(--text-caption-size); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.sc-table td:first-child{font-weight:700; width:26%; min-width:150px;}
+.sc-table-wrap{overflow-x:auto; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1);}
+.sc-list{margin:var(--spacing-8) 0 0; padding-left:var(--spacing-20); max-width:80ch; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-6);}
+.sc-list li + li{margin-top:var(--spacing-8);}
+.sc-list b{color:var(--color-neutral-9);}
+
+/* Before -> After */
+.sc-ba{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap:var(--spacing-24); align-items:start;}
+.sc-ba-label{display:flex; align-items:center; gap:var(--spacing-8); margin-bottom:var(--spacing-8); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.sc-ba-label i{font-size:var(--icon-sm);}
+.sc-ba-foot{margin:var(--spacing-8) 0 0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+
+/* Mock page stages */
+.sc-stage{position:relative; isolation:isolate; overflow:hidden; height:220px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-canvas-warm);}
+.sc-ghost{display:flex; height:100%;}
+.sc-ghost-side{flex:none; box-sizing:border-box; width:var(--c-uploader-page-drop-start, 48px); padding:var(--spacing-12) var(--spacing-8); display:flex; flex-direction:column; gap:var(--spacing-8); background:var(--color-neutral-1); border-right:1px solid var(--color-neutral-3);}
+.sc-ghost-side i{display:block; height:8px; border-radius:var(--radius-pill); background:var(--color-neutral-3);}
+.sc-ghost-side i:first-child{height:20px; margin-bottom:var(--spacing-8); border-radius:var(--radius-sm); background:var(--color-neutral-4);}
+.sc-ghost-main{flex:1; min-width:0; padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-12); overflow:hidden;}
+.sc-bar{display:block; height:8px; border-radius:var(--radius-pill); background:var(--color-neutral-3);}
+.sc-blk{display:block; height:40px; border-radius:var(--radius-md); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1);}
+.sc-cards{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:var(--spacing-8);}
+.sc-cards span{display:block; height:56px; border-radius:var(--radius-md); border:1px solid var(--color-neutral-3); background:var(--color-neutral-1);}
+.sc-specs{display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap:var(--spacing-24); align-items:start;}
+.sc-spec-label{display:block; margin-top:var(--spacing-8); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; color:var(--color-neutral-5);}
+.sc-spec-label span{font-weight:400;}
+/* Toasts inside a stage: Toast's own mobile rule (full width with margins)
+   applied to the stage, since a stage is narrower than Toast's 320px min. */
+.sc-stage-toasts{position:absolute; left:var(--spacing-12); right:var(--spacing-12); bottom:var(--spacing-12); z-index:1; display:flex; flex-direction:column-reverse; align-items:flex-end; gap:var(--spacing-8); pointer-events:none;}
+.sc-stage-toasts .c-toast{min-width:0; width:100%; max-width:420px; box-sizing:border-box; pointer-events:auto;}
+.sc-stage-toasts .c-toast .c-icon-btn{flex:none; margin:calc(var(--spacing-4) * -1) calc(var(--spacing-8) * -1) 0 0;}
+
+/* Anatomy pins */
+.sc-anat{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap:var(--spacing-32); align-items:start;}
+.sc-anat-stage{position:relative; padding-right:var(--spacing-40);}
+.sc-anat-stage .sc-stage{height:300px;}
+.sc-pin{position:absolute; right:0; display:grid; place-items:center; width:20px; height:20px; border-radius:var(--radius-pill); background:var(--color-obsidian); color:var(--color-neutral-1); font-size:var(--text-label3-size); font-weight:800;}
+.sc-pin::before{content:""; position:absolute; right:100%; top:50%; width:var(--spacing-16); height:1px; background:var(--color-neutral-4);}
+.sc-anat-list{margin:0; padding-left:var(--spacing-20); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-6);}
+.sc-anat-list li + li{margin-top:var(--spacing-8);}
+.sc-anat-list b{color:var(--color-neutral-9);}
+
+/* Live demo */
+.sc-demo{height:440px;}
+.sc-demo .c-uploader-page-drop,
+.sc-demo .sc-ghost-side{--c-uploader-page-drop-start:160px;}
+.sc-demo .sc-ghost-side{padding:var(--spacing-16) var(--spacing-12);}
+.sc-demo .sc-ghost-main{padding:var(--spacing-24);}
+@media (max-width:640px){
+  .sc-demo .sc-ghost-side{display:none;}
+  .sc-demo .c-uploader-page-drop{--c-uploader-page-drop-start:0px;}
+  .sc-demo .sc-ghost-main{padding:var(--spacing-16);}
+}
+.sc-mock-h{margin:0; font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:800;}
+.sc-mock-h:focus{outline:none;}
+.sc-mock-h:focus-visible{outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:var(--spacing-4); border-radius:var(--spacing-4);}
+.sc-mock-prompt{display:flex; align-items:center; gap:var(--spacing-12); flex-wrap:wrap; padding:var(--spacing-12) var(--spacing-12) var(--spacing-12) var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); background:var(--color-neutral-1); box-shadow:var(--shadow-1);}
+.sc-mock-prompt .sc-bar{flex:1; min-width:var(--spacing-60);}
+.sc-mock-cap{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.sc-mock-body{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-6); max-width:60ch;}
+.sc-tools{display:flex; flex-wrap:wrap; align-items:center; gap:var(--spacing-8); margin-top:var(--spacing-16);}
+.sc-check{display:inline-flex; align-items:center; gap:var(--spacing-8); font-size:var(--text-body2-size); font-weight:600; cursor:pointer;}
+.sc-check input{width:16px; height:16px; margin:0; accent-color:var(--color-obsidian);}
+.sc-status{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:var(--spacing-16); margin-top:var(--spacing-16);}
+.sc-status-box{padding:var(--spacing-12) var(--spacing-16); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); background:var(--color-neutral-1); font-size:var(--text-body2-size); line-height:var(--text-body2-lh);}
+.sc-status-box > b{display:block; font-size:var(--text-caption-size); letter-spacing:var(--tracking-eyebrow); text-transform:uppercase; color:var(--color-neutral-5);}
+.sc-log{margin:var(--spacing-4) 0 0; padding:0; list-style:none; color:var(--color-neutral-7); max-height:160px; overflow-y:auto;}
+.sc-log li{padding:2px 0;}
+/* Simulated reduced motion for the demo. */
+.sc-reduced .c-uploader-page-drop,
+.sc-reduced .c-uploader-page-drop-target{transition:none !important;}
+.sc-reduced .c-uploader-page-drop-spinner{animation:none !important;}
+
+/* Phone frame */
+.sc-phone-scroll{overflow-x:auto; padding-bottom:var(--spacing-8);}
+.sc-phone{box-sizing:border-box; width:390px; padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-16); border:1px dashed var(--color-neutral-4); border-radius:var(--radius-lg); background:var(--color-canvas-warm);}
+.sc-phone-h{margin:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:700;}
+.sc-phone .c-btn{width:100%; justify-content:center;}
+.sc-phone .sc-stage{height:300px;}
+
+/* ===== BEFORE specimen: copied verbatim from component-scan-sales-home.html (#17) ===== */
+.k-bar{height:8px; border-radius:var(--radius-pill); background:var(--color-neutral-3);}
+.k-cap{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.k-dropstage{position:relative; height:180px; border-radius:var(--radius-md); overflow:hidden; background:var(--color-canvas-warm);}
+.k-dropstage .ghostpage{position:absolute; inset:var(--spacing-12); display:flex; flex-direction:column; gap:var(--spacing-8); opacity:.5;}
+.k-droplayer{position:absolute; inset:var(--spacing-8); border:2px dashed var(--color-neutral-5); border-radius:var(--radius-lg);
+  background:color-mix(in srgb, var(--color-neutral-1) 82%, transparent); backdrop-filter:blur(3px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing-8); text-align:center; padding:var(--spacing-12);
+  animation:k-drop 3s var(--ease-standard) infinite;}
+.k-droplayer i{font-size:var(--icon-lg); color:var(--color-neutral-9);}
+.k-droplayer b{font-size:var(--text-h5-size);}
+@keyframes k-drop{0%,15%{opacity:0;} 30%,85%{opacity:1;} 100%{opacity:0;}}
+.k-file{position:absolute; right:22%; top:12%; width:28px; height:36px; border-radius:4px; background:var(--color-neutral-1);
+  border:1px solid var(--color-neutral-4); box-shadow:var(--shadow-2); z-index:2; animation:k-file 3s var(--ease-standard) infinite;}
+@keyframes k-file{0%{transform:translate(40px,-40px) rotate(8deg);} 30%{transform:translate(0,30px) rotate(-4deg);} 85%{transform:translate(0,30px) rotate(-4deg); opacity:1;} 100%{transform:translate(0,40px); opacity:0;}}
+@media (prefers-reduced-motion:reduce){ .k-droplayer, .k-file{animation:none;} }
+</style>
+</head>
+<body>
+<main class="sc-page">
+
+  <span class="sc-kicker">Collabrium DLS · FileUploader variant · Draft, not promoted</span>
+  <h1>Page drop layer</h1>
+  <p class="sc-lede">A drop target the size of the page. It is invisible until someone drags a file over the page, then it veils the layout and says "Drop the brief to start". Dropping a brief checks it, shows "Reading the brief…" for a moment, and hands the file to the page, which starts the campaign with Collab AI. It ports Sales Home's "Drop-a-brief" layer (scan item #17) as a variant of the shipped FileUploader: <code>.c-uploader-page-drop</code>. Only the <code>COMPONENT CSS</code> block is meant for components.css. Everything with the <code>sc-</code> prefix is showcase scaffolding, and <code>k-</code> classes are the "before" copied from the scan.</p>
+
+  <!-- ============ WHAT EXISTS ============ -->
+  <section class="sc-section" aria-labelledby="h-exists">
+    <h2 id="h-exists">What already ships, and what is actually new</h2>
+    <p class="sc-note">FileUploader ships drag-and-drop, but only inside its own box. This variant covers the page, appears only during a drag, and hands off to the host. It reuses everything it can. While checking, three gaps turned up in the shipped FileUploader that change what can be reused:</p>
+    <div class="sc-table-wrap">
+      <table class="sc-table">
+        <thead><tr><th>Shipped piece</th><th>What this variant takes from it</th><th>What is new or missing</th></tr></thead>
+        <tbody>
+          <tr><td>FileUploader drag-over<br><code>.c-uploader-zone.dragover</code></td><td>The 2px dashed Obsidian border, the Neutral-2 fill and radius-lg. "Drag-over" already means this in the system, so the target uses it instead of the source's Neutral-5 border.</td><td>New: the full-surface layout, the translucent veil, and showing up only during a drag.</td></tr>
+          <tr><td>FileUploader hint and file row<br><code>.c-uploader-hint</code>, <code>.c-uploader-row</code></td><td>The caption line as is. In the reading state, the shipped file row (kind badge, name, size), without the remove button.</td><td>None.</td></tr>
+          <tr><td>FileUploader rules for errors, file types and size</td><td><b>Nothing, because none ship.</b> FileUploader has no error state, no accepted-type or size rule, and no error copy, in either the spec or the CSS.</td><td><b>Gap 1.</b> This draft defines the brief rules and copy (see Validation), and shows errors in the shipped Danger Toast instead of inventing a FileUploader error state. FileUploader should adopt the same rules in a separate change.</td></tr>
+          <tr><td>FileUploader zone markup</td><td>Not used as the keyboard path.</td><td><b>Gap 2.</b> In preview.html the zone is a plain <code>&lt;div&gt;</code> with no button or file input, so a keyboard can't reach it. The accessible way in on this page is therefore a shipped Button with a hidden file input.</td></tr>
+          <tr><td>FileUploader icon size</td><td>Not used here (this variant uses icon-lg).</td><td><b>Gap 3, noted only.</b> The spec says "<code>icon-md</code> (20px)", but icon-md is 24px in tokens.css, and the CSS sets a literal <code>20px</code>.</td></tr>
+          <tr><td>Modal scrim <code>--shadow-overlay</code></td><td>Considered and not used (see Open questions). The value is dark, and it means "the page is blocked for a decision".</td><td>The veil is a translucent mix of the drag-over fill.</td></tr>
+          <tr><td>Toast (Danger)</td><td>The error surface after a drop, used as shipped: it doesn't auto-dismiss, and its action slot holds "Choose a file".</td><td>None.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ BEFORE / AFTER ============ -->
+  <section class="sc-section" aria-labelledby="h-ba">
+    <h2 id="h-ba">Before → After</h2>
+    <p class="sc-note">Left: the scan's stand-in (its CSS copied verbatim; the source's real visuals live in a shared script and aren't available). Right: the same moment built with <code>.c-uploader-page-drop.is-contained.is-dragging</code>, held still.</p>
+    <div class="sc-ba">
+      <div>
+        <div class="sc-ba-label"><i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>Before · .k-droplayer</div>
+        <div class="k-dropstage">
+          <div class="ghostpage" aria-hidden="true"><div class="k-bar" style="height:40px; border-radius:var(--radius-md);"></div><div class="k-bar" style="width:60%"></div><div class="k-bar" style="width:80%"></div></div>
+          <span class="k-file" aria-hidden="true"></span>
+          <div class="k-droplayer" aria-hidden="true"><i class="ph-fill ph-file-arrow-down"></i><b>Drop the brief to start</b><span class="k-cap">Collab AI reads it and sets up the campaign.</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="sc-ba-label"><i class="ph ph-arrow-right" aria-hidden="true"></i>After · c-uploader-page-drop</div>
+        <div data-spec="dragging" data-h="180" data-side="0"></div>
+        <p class="sc-ba-foot">Changes: border Neutral-5 → Obsidian (FileUploader drag-over). Veil 82% white with a 3px blur → 88% Neutral-2 with no blur (a full-page blur is expensive on every frame of a drag, and the drag-over fill is Neutral-2). The veil covers the whole surface and the dashed target is inset by spacing-16 within it, instead of one dashed box drawn on the page. No looping demo animation: the real layer only appears during a real drag.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCOPE ============ -->
+  <section class="sc-section" aria-labelledby="h-scope">
+    <h2 id="h-scope">Scope: whole window to detect, main pane to aim</h2>
+    <p class="sc-note"><b>Recommendation:</b> the whole <b>window</b> listens for the drag and accepts the drop, and the veil covers everything, sidebar included. The dashed <b>target and its message sit over the main pane</b> (App Shell's Content region), not the sidebar.</p>
+    <ul class="sc-list">
+      <li><b>Why detect on the whole window:</b> the layer appears wherever the drag enters, so it has to accept the drop wherever it ends. If a brief released 20px to the left, over the sidebar, either did nothing or opened in the browser tab, that would be a trap.</li>
+      <li><b>Why aim at the main pane:</b> the campaign opens in the main pane, so that is where the eye goes. Centring the message on the full window would put it under the sidebar's edge on wide screens. The sidebar is navigation and has nothing to do with the drop.</li>
+      <li><b>How:</b> the host sets <code>--c-uploader-page-drop-start</code> to the sidebar's current width (expanded or collapsed), on the layer or on any ancestor. When the sidebar is off-canvas (under 768px), it is <code>0</code>.</li>
+      <li><b>Region use:</b> the same component with <code>.is-contained</code> covers just one positioned container (a panel or a modal body), with that container as the drag zone. The demos on this page use that mode, so the "page" is a contained stage rather than your real window.</li>
+    </ul>
+  </section>
+
+  <!-- ============ ANATOMY ============ -->
+  <section class="sc-section" aria-labelledby="h-anat">
+    <h2 id="h-anat">Anatomy</h2>
+    <div class="sc-anat">
+      <div class="sc-anat-stage">
+        <div data-spec="dragging" data-h="300" data-side="56"></div>
+        <span class="sc-pin" style="top:-2px" aria-hidden="true">1</span>
+        <span class="sc-pin" style="top:28px" aria-hidden="true">2</span>
+        <span class="sc-pin" style="top:114px" aria-hidden="true">3</span>
+        <span class="sc-pin" style="top:148px" aria-hidden="true">4</span>
+        <span class="sc-pin" style="top:174px" aria-hidden="true">5</span>
+      </div>
+      <ol class="sc-anat-list">
+        <li><b>Veil</b>: <code>.c-uploader-page-drop</code>, the root. It is fixed to the viewport (or absolute with <code>.is-contained</code>), with an 88% Neutral-2 fill over everything, sidebar included. It is <code>aria-hidden="true"</code> and never focusable. While it is showing, it catches pointer events so the drag events land on it.</li>
+        <li><b>Target</b>: <code>.c-uploader-page-drop-target</code>, inset spacing-16, with its start edge pushed past <code>--c-uploader-page-drop-start</code>. It has a 2px dashed Obsidian border at radius-lg, which turns Red while invalid and solid Neutral-3 once dropped.</li>
+        <li><b>Icon</b>: <code>.c-uploader-page-drop-icon</code>, icon-lg, Tier 2 Fill, Neutral-9. It is <code>ph-file-arrow-down</code> while dragging and <code>ph-file-x</code> (Red) while invalid. While reading, <code>.c-uploader-page-drop-spinner</code> (<code>ph-spinner-gap</code>, Regular, Neutral-5) takes its place.</li>
+        <li><b>Title</b>: <code>.c-uploader-page-drop-title</code>, h5, Neutral-9. "Drop the brief to start", then the invalid reason, then "Reading the brief…".</li>
+        <li><b>Hint</b>: the shipped <code>.c-uploader-hint</code>, caption, Neutral-5. "Collab AI reads it and sets up the campaign." While reading, the shipped <code>.c-uploader-row</code> takes its place to show the dropped file.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ API ============ -->
+  <section class="sc-section" aria-labelledby="h-api">
+    <h2 id="h-api">Class API</h2>
+    <div class="sc-table-wrap">
+      <table class="sc-table">
+        <thead><tr><th>Class / hook</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td><code>.c-uploader-page-drop</code></td><td>Root and veil. One per page, a direct child of <code>&lt;body&gt;</code>. Always <code>aria-hidden="true"</code>.</td></tr>
+          <tr><td><code>.is-dragging</code> / <code>.is-invalid</code> / <code>.is-reading</code></td><td>State, on the root, set by the controller only, one at a time. No class means hidden.</td></tr>
+          <tr><td><code>.is-contained</code></td><td>Modifier: absolute instead of fixed, for a region. The container must be positioned.</td></tr>
+          <tr><td><code>--c-uploader-page-drop-start</code></td><td>Host hook: width of the non-target strip at the inline start (the sidebar). Default 0.</td></tr>
+          <tr><td><code>.c-uploader-page-drop-target</code></td><td>The dashed frame. Holds the three message groups.</td></tr>
+          <tr><td><code>.c-uploader-page-drop-msg</code> + <code>-msg-drag</code> / <code>-msg-invalid</code> / <code>-msg-reading</code></td><td>One group per state. CSS shows the one that matches the root state, so swapping state never rewrites markup (except the invalid reason and the file row, which the controller fills in).</td></tr>
+          <tr><td><code>.c-uploader-page-drop-icon</code>, <code>-spinner</code>, <code>-title</code></td><td>Parts. The hint and file row are the shipped <code>.c-uploader-hint</code> and <code>.c-uploader-row</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Markup</h3>
+<pre class="sc-code">&lt;!-- Last child of &lt;body&gt;. Host sets the sidebar width on any ancestor:
+     .c-shell { --c-uploader-page-drop-start: 240px; } --&gt;
+&lt;div class="c-uploader-page-drop" aria-hidden="true"&gt;
+  &lt;div class="c-uploader-page-drop-target"&gt;
+    &lt;div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-drag"&gt;
+      &lt;i class="ph-fill ph-file-arrow-down c-uploader-page-drop-icon"&gt;&lt;/i&gt;
+      &lt;p class="c-uploader-page-drop-title"&gt;Drop the brief to start&lt;/p&gt;
+      &lt;p class="c-uploader-hint"&gt;Collab AI reads it and sets up the campaign.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-invalid"&gt;
+      &lt;i class="ph-fill ph-file-x c-uploader-page-drop-icon"&gt;&lt;/i&gt;
+      &lt;p class="c-uploader-page-drop-title" data-invalid-title&gt;This file can't be read&lt;/p&gt;
+      &lt;p class="c-uploader-hint" data-invalid-hint&gt;Briefs can be PDF, Word or PowerPoint files.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-reading"&gt;
+      &lt;i class="ph ph-spinner-gap c-uploader-page-drop-spinner"&gt;&lt;/i&gt;
+      &lt;p class="c-uploader-page-drop-title"&gt;Reading the brief…&lt;/p&gt;
+      &lt;div class="c-uploader-row"&gt;
+        &lt;span class="c-uploader-kind" data-file-kind&gt;PDF&lt;/span&gt;
+        &lt;span class="c-uploader-name" data-file-name&gt;MILO Raya brief.pdf&lt;/span&gt;
+        &lt;span class="c-uploader-size" data-file-size&gt;2.4 MB&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+    <h3>Controller contract (for hosts)</h3>
+<pre class="sc-code">const drop = createPageDrop({
+  layer:     document.querySelector('.c-uploader-page-drop'),
+  zone:      window,                    // or the region element, with .is-contained
+  accept:    BRIEF_TYPES,               // ext + MIME list (see Validation)
+  maxBytes:  25 * 1024 * 1024,
+  multiple:  false,
+  onDrop:    file =&gt; host.startCampaignFromBrief(file),  // returns a Promise.
+             // Host opens its surface, moves focus to its heading, then resolves.
+             // The layer stays in "reading" until then, and hides after.
+  onError:   (code, info) =&gt; host.showDropErrorToast(code, info) // 'type' | 'size' | 'count' | 'empty' | 'read'
+});
+drop.take(fileList);   // the visible "Upload a brief" button calls this too: one path
+drop.disable();        // while any Modal / Tutorial / sheet is open
+drop.enable();
+drop.destroy();</pre>
+    <p class="sc-note">The AI hand-off lives entirely in <code>onDrop</code>. The component knows nothing about campaigns, Collab AI or routing.</p>
+  </section>
+
+  <!-- ============ BEHAVIOUR ============ -->
+  <section class="sc-section" aria-labelledby="h-beh">
+    <h2 id="h-beh">Behaviour</h2>
+    <div class="sc-table-wrap">
+      <table class="sc-table">
+        <thead><tr><th>Rule</th><th>Behaviour</th></tr></thead>
+        <tbody>
+          <tr><td>Files only</td><td>The layer reacts only when <code>dataTransfer.types</code> includes <code>"Files"</code>. Text, link and image-URL drags are ignored completely: no layer and no <code>preventDefault</code>, so dropping text into an input still works.</td></tr>
+          <tr><td>Not from this page</td><td>A drag that starts inside the page (<code>dragstart</code> on the document, such as dragging an <code>&lt;img&gt;</code> or a sortable row) sets an "internal" flag until <code>dragend</code>, and the layer ignores it. In Chrome, dragging a page image also carries "Files".</td></tr>
+          <tr><td>No flicker</td><td>Three guards. (1) While it is showing, the layer catches pointer events and its children don't, so almost every enter and leave lands on one element. (2) A depth counter goes up on <code>dragenter</code> and down on <code>dragleave</code>, and the layer only hides at 0. (3) When <code>relatedTarget</code> is set and lies outside the zone, the layer hides at once. When it is <code>null</code> and the pointer is at the window edge (in window mode), the drag has left the window. Safari often reports <code>null</code> everywhere, so the counter is the main rule and <code>relatedTarget</code> is only a shortcut.</td></tr>
+          <tr><td>Watchdog</td><td><code>dragover</code> keeps firing while a drag is over the zone, even with the pointer held still (about every 50ms in Chrome; the HTML spec allows gaps of up to 550ms, 350ms ±200ms). If none arrives for <b>1000ms</b>, the drag has ended somewhere the page couldn't see (cancelled over another app, or a missed <code>dragleave</code>), so the layer resets. This is what stops it getting stuck on.</td></tr>
+          <tr><td>Dismiss</td><td>Dragging out of the window (counter reaches 0) hides it. <b>Escape</b> hides it and ignores the rest of that drag. Note that during a real OS file drag, most browsers send Escape to the OS, which cancels the drag, so the page gets <code>dragleave</code> instead. The key handler is a backstop for that, and for stuck states. A hidden tab also resets it.</td></tr>
+          <tr><td>Never opens the file</td><td>A guard on window <code>dragover</code> and <code>drop</code> calls <code>preventDefault()</code> on every Files drag the layer didn't already handle (and sets <code>dropEffect = "none"</code> there). So the browser never navigates to a dropped file, even when the layer is disabled or the zone is a region.</td></tr>
+          <tr><td>Invalid while dragging</td><td>Best effort. If <code>dataTransfer.items</code> is readable during the drag (Chrome, Edge, Firefox) and holds 2+ files, or one file whose MIME type is known and not accepted, the layer shows <code>.is-invalid</code> with the reason, and <code>dropEffect = "none"</code> so the cursor shows "not allowed" and releasing does nothing. If Safari exposes no details, or the MIME type is empty, the layer shows the normal state and the check runs on drop. Size can only be checked on drop.</td></tr>
+          <tr><td>Drop</td><td>Validate (see below). On failure, hide the layer and call <code>onError</code>; the host shows a Danger Toast. On success, show <code>.is-reading</code> with the file row and call <code>onDrop(file)</code>. When the host's promise resolves, the layer hides. If it rejects, the layer hides and <code>onError('read')</code> fires.</td></tr>
+          <tr><td>Reading → hand-off</td><td>Inside <code>onDrop</code> the host opens whatever it opens (Sales Home: the start sheet, prefilled by Collab AI), moves focus to that surface's heading, and resolves. The layer fades out over it. The component has no minimum time; the "moment" is the host's real work. The demo waits 1.6s.</td></tr>
+          <tr><td>One path in</td><td><code>drop.take(files)</code> is also what the visible "Upload a brief" button calls after its file picker, so typed and dropped briefs get the same checks, the same reading moment and the same hand-off.</td></tr>
+          <tr><td>Off while something is open</td><td>The host calls <code>disable()</code> while any Modal, Tutorial or sheet is open, and while reading. A brief dropped behind a dialog would start something the user can't see. The window guard still stops the file opening.</td></tr>
+          <tr><td>No competing zones</td><td>A page with a page drop layer offers a Button as its visible fallback, not a second inline <code>.c-uploader-zone</code>, so two drop targets never compete for the same drag.</td></tr>
+          <tr><td>Touch</td><td>Phones have no file drag, so the layer simply never appears there. On an iPad, dragging from Files in Split View works and behaves exactly as on desktop.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ VALIDATION ============ -->
+  <section class="sc-section" aria-labelledby="h-val">
+    <h2 id="h-val">Validation and error copy</h2>
+    <p class="sc-note">FileUploader ships no rules or messages to reuse (Gap 1), so these are proposed here for briefs. They are written to Toast's limits (title up to 50 characters, message up to 100) and shown in the shipped <b>Danger Toast</b>, which stays until it is dismissed. Its action slot holds "Choose a file", which opens the same picker as the page's Upload button.</p>
+    <div class="sc-table-wrap">
+      <table class="sc-table">
+        <thead><tr><th>Check (in order)</th><th>While dragging (if detectable)</th><th>Toast after a drop</th></tr></thead>
+        <tbody>
+          <tr><td>count: more than one file</td><td>"Drop one brief at a time" / "That's 2 files. Drop just the brief."</td><td><b>Drop one brief at a time</b><br>You dropped 2 files. Drop just the brief.</td></tr>
+          <tr><td>type: not PDF, DOC/DOCX, PPT/PPTX (by extension or MIME)</td><td>"This file can't be read" / "Briefs can be PDF, Word or PowerPoint files."</td><td><b>Can't read that file type</b><br>Briefs can be PDF, Word or PowerPoint files. Try another file.</td></tr>
+          <tr><td>empty: 0 bytes, or a folder</td><td>Not detectable</td><td><b>Couldn't open that file</b><br>It looks empty, or it's a folder. Drop the brief file itself.</td></tr>
+          <tr><td>size: over 25 MB</td><td>Not detectable</td><td><b>That brief is too big</b><br>Briefs can be up to 25 MB. Try a smaller copy, or a PDF.</td></tr>
+          <tr><td>read: host's <code>onDrop</code> rejected</td><td>n/a</td><td><b>Collab AI couldn't read the brief</b><br>It may be locked or a scan. Try another copy, or type the brief instead.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ STATES ============ -->
+  <section class="sc-section" aria-labelledby="h-states">
+    <h2 id="h-states">States, side by side</h2>
+    <p class="sc-note">Static specimens in contained stages, with a 48px sidebar set as <code>--c-uploader-page-drop-start</code>, so you can see the target centre on the main pane.</p>
+    <div class="sc-specs">
+      <div><div data-spec="hidden"></div><span class="sc-spec-label">Hidden <span>· no state class. The page is untouched and the layer is invisible and click-through.</span></span></div>
+      <div><div data-spec="dragging"></div><span class="sc-spec-label">Dragging <span>· .is-dragging. Veil, dashed Obsidian target, icon, title, hint.</span></span></div>
+      <div><div data-spec="invalid"></div><span class="sc-spec-label">Invalid while dragging <span>· .is-invalid. Red dashes and icon, reason as the title. Where detectable only.</span></span></div>
+      <div><div data-spec="reading"></div><span class="sc-spec-label">Dropped / reading <span>· .is-reading. Solid Neutral-3 frame, spinner, shipped file row.</span></span></div>
+      <div><div data-spec="error"></div><span class="sc-spec-label">Error <span>· layer hidden again. The shipped Danger Toast explains, with "Choose a file".</span></span></div>
+    </div>
+    <div class="sc-table-wrap" style="margin-top:var(--spacing-24)">
+      <table class="sc-table">
+        <thead><tr><th>Transition</th><th>Motion</th></tr></thead>
+        <tbody>
+          <tr><td>Hidden → any shown state</td><td>Opacity fades in over duration-fast with ease-standard (the Command brief scrim's pairing). Nothing moves.</td></tr>
+          <tr><td>Dragging ↔ invalid ↔ reading</td><td>Message swaps instantly; the border colour eases over duration-fast.</td></tr>
+          <tr><td>Shown → hidden</td><td>Fades out over duration-fast. Visibility flips at the end, so the layer can't be clicked while it fades.</td></tr>
+          <tr><td>Reduced motion</td><td>Appears and disappears instantly (Toast's rule). The spinner is static; "Reading the brief…" carries the state.</td></tr>
+          <tr><td>Forced colours</td><td>The veil becomes opaque Canvas and borders become CanvasText. Invalid also turns dotted, so it doesn't rely on colour, and its icon and copy change too.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ LIVE DEMO ============ -->
+  <section class="sc-section" aria-labelledby="h-demo" id="demo">
+    <h2 id="h-demo">Live demo</h2>
+    <p class="sc-note">The stage below stands in for the window. <b>Drag a real file from your desktop onto it</b> to see the layer; drop it to see the reading moment and the hand-off, or a Toast if it fails a check. Try a PDF, a .docx, an image, two files at once, and dragging in and out across the sidebar and cards to check for flicker. The buttons under it show every state without a file. Nothing navigates, and a file dropped anywhere on this page, inside or outside the stage, never opens in the browser.</p>
+    <div class="sc-stage sc-demo" id="stage">
+      <div class="sc-ghost">
+        <div class="sc-ghost-side" aria-hidden="true"><i></i><i></i><i style="width:70%"></i><i></i><i style="width:55%"></i><i style="width:80%"></i></div>
+        <div class="sc-ghost-main">
+          <div id="home" style="display:flex; flex-direction:column; gap:var(--spacing-16);">
+            <h3 class="sc-mock-h" id="homeH" tabindex="-1">Good morning, Aina</h3>
+            <div class="sc-mock-prompt">
+              <span class="sc-bar" aria-hidden="true"></span>
+              <button type="button" class="c-btn c-btn-secondary c-btn-sm" id="uploadBtn"><i class="ph ph-upload-simple" aria-hidden="true"></i>Upload a brief</button>
+              <input type="file" id="fileInput" class="sr-only" tabindex="-1" aria-hidden="true" accept=".pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" />
+            </div>
+            <p class="sc-mock-cap">Or drag a client's brief from your desktop anywhere on this page.</p>
+            <div class="sc-cards" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="sc-cards" aria-hidden="true"><span></span><span></span><span></span></div>
+          </div>
+          <section id="campaign" hidden aria-labelledby="campH" style="display:none; flex-direction:column; gap:var(--spacing-12);">
+            <h3 class="sc-mock-h" id="campH" tabindex="-1">New campaign</h3>
+            <p class="sc-mock-body" id="campBody">The host's surface. Collab AI would be filling the campaign from the brief here.</p>
+            <p class="sc-mock-cap">The drop layer is off while this is open.</p>
+            <div><button type="button" class="c-btn c-btn-secondary c-btn-sm" id="campClose"><i class="ph ph-arrow-left" aria-hidden="true"></i>Back to Home</button></div>
+          </section>
+        </div>
+      </div>
+      <div class="c-uploader-page-drop is-contained" aria-hidden="true" id="layer">
+        <div class="c-uploader-page-drop-target">
+          <div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-drag">
+            <i class="ph-fill ph-file-arrow-down c-uploader-page-drop-icon"></i>
+            <p class="c-uploader-page-drop-title">Drop the brief to start</p>
+            <p class="c-uploader-hint">Collab AI reads it and sets up the campaign.</p>
+          </div>
+          <div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-invalid">
+            <i class="ph-fill ph-file-x c-uploader-page-drop-icon"></i>
+            <p class="c-uploader-page-drop-title" data-invalid-title>This file can't be read</p>
+            <p class="c-uploader-hint" data-invalid-hint>Briefs can be PDF, Word or PowerPoint files.</p>
+          </div>
+          <div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-reading">
+            <i class="ph ph-spinner-gap c-uploader-page-drop-spinner"></i>
+            <p class="c-uploader-page-drop-title">Reading the brief…</p>
+            <div class="c-uploader-row"><span class="c-uploader-kind" data-file-kind>PDF</span><span class="c-uploader-name" data-file-name>brief.pdf</span><span class="c-uploader-size" data-file-size>0 KB</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="sc-stage-toasts" id="toasts"></div>
+    </div>
+    <div class="sc-tools">
+      <button type="button" class="c-btn c-btn-secondary c-btn-sm" data-sim="drag"><i class="ph ph-hand-grabbing" aria-hidden="true"></i>Simulate drag</button>
+      <button type="button" class="c-btn c-btn-secondary c-btn-sm" data-sim="drag-bad">Simulate drag (wrong type)</button>
+      <button type="button" class="c-btn c-btn-secondary c-btn-sm" data-sim="drop-ok">Simulate drop (valid)</button>
+      <button type="button" class="c-btn c-btn-secondary c-btn-sm" data-sim="drop-type">Simulate drop (wrong type)</button>
+      <button type="button" class="c-btn c-btn-secondary c-btn-sm" data-sim="drop-two">Simulate drop (two files)</button>
+      <button type="button" class="c-btn c-btn-secondary c-btn-sm" data-sim="drop-big">Simulate drop (too big)</button>
+      <button type="button" class="c-btn c-btn-ghost c-btn-sm" data-sim="reset"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i>Reset</button>
+      <label class="sc-check"><input type="checkbox" id="simReduce" /> Simulate reduced motion</label>
+    </div>
+    <p class="sc-note" style="margin-top:var(--spacing-12)">After "Simulate drag", press <b>Escape</b> to dismiss, or press a drop button. A simulated drag has no dragover stream, so the watchdog is off for it.</p>
+    <div class="sc-status">
+      <div class="sc-status-box"><b>Layer</b><span id="stateOut">hidden · depth 0</span></div>
+      <div class="sc-status-box"><b>Event log</b><ul class="sc-log" id="log"><li>Waiting for a drag.</li></ul></div>
+    </div>
+  </section>
+
+  <!-- ============ A11Y ============ -->
+  <section class="sc-section" aria-labelledby="h-a11y">
+    <h2 id="h-a11y">Accessibility</h2>
+    <div class="sc-table-wrap">
+      <table class="sc-table">
+        <tbody>
+          <tr><td>Never the only way in</td><td>Drag and drop needs a pointer. <b>A page that uses this layer must keep a visible, keyboard-reachable way to upload a brief</b>: a shipped Button ("Upload a brief") that opens a file picker and calls the same <code>take()</code>. The shipped FileUploader zone can't fill this role until it becomes a real control (Gap 2).</td></tr>
+          <tr><td>Decoration only</td><td>The layer is <code>aria-hidden="true"</code> in every state, has nothing focusable, and never takes or traps focus. Nobody who can't see it can drag onto it, so there is nothing to announce during the drag.</td></tr>
+          <tr><td>No live regions</td><td>The component adds none. <b>Success</b> is announced the system's way: the host moves focus to the heading of whatever it opens (a <code>tabindex="-1"</code> heading, as Tutorial Modal does), which makes a screen reader read it. <b>Errors</b> use the shipped Danger Toast unchanged; the Toast keeps its own <code>role="status"</code>, which is part of Toast's contract and not something this variant adds. Focus stays where it was.</td></tr>
+          <tr><td>Keyboard path errors</td><td>When the Upload button's picker returns a bad file, the same Toast appears. Its "Choose a file" action is a real button, reachable in the Toast as usual.</td></tr>
+          <tr><td>Contrast</td><td>Title (Neutral-9) and hint (Neutral-5) on the veil (about Neutral-2) pass AA, at roughly 6:1 for the hint. The Obsidian dashes pass 3:1. The Red border and icon on Neutral-2 are about 3.3:1, which passes the 3:1 bar for UI graphics, and the invalid reason is also spelled out in Neutral-9 text.</td></tr>
+          <tr><td>Motion</td><td>An opacity fade only, off under reduced motion. The spinner stops under reduced motion.</td></tr>
+          <tr><td>Forced colours</td><td>Canvas veil, CanvasText borders and text, dotted border while invalid.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ PHONE ============ -->
+  <section class="sc-section" aria-labelledby="h-phone">
+    <h2 id="h-phone">Phone width check (390)</h2>
+    <p class="sc-note">On a phone there is no file drag, so the layer never appears. What matters is the always-visible Upload button. The second frame shows the layer at 390px anyway (a narrow desktop window, or an iPad in Split View): the sidebar is off-canvas, so <code>--c-uploader-page-drop-start</code> is 0, and the copy and file row wrap or truncate inside the frame.</p>
+    <div class="sc-phone-scroll">
+      <div class="sc-phone">
+        <p class="sc-phone-h">Phone: what a touch user gets</p>
+        <div class="sc-mock-prompt"><span class="sc-bar" aria-hidden="true"></span></div>
+        <button type="button" class="c-btn c-btn-secondary c-btn-md" data-phone-upload><i class="ph ph-upload-simple" aria-hidden="true"></i>Upload a brief</button>
+        <p class="sc-mock-cap" style="margin-top:calc(var(--spacing-8) * -1)">No drag on touch: the drop layer never shows here.</p>
+        <p class="sc-phone-h">Narrow window, while dragging and reading</p>
+        <div data-spec="dragging" data-h="300" data-side="0"></div>
+        <div data-spec="reading" data-h="300" data-side="0"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TOKENS ============ -->
+  <section class="sc-section" aria-labelledby="h-tokens">
+    <h2 id="h-tokens">Tokens, reused patterns and literals</h2>
+    <h3>Reused</h3>
+    <ul class="sc-list">
+      <li><b>FileUploader</b>: drag-over border (<code>--border-width-md</code> dashed <code>--color-obsidian</code>), fill (<code>--color-neutral-2</code>), <code>--radius-lg</code>; <code>.c-uploader-hint</code>; <code>.c-uploader-row</code> / <code>-kind</code> / <code>-name</code> / <code>-size</code>.</li>
+      <li><b>Type</b>: <code>--text-h5-*</code> for the title (the source's h5), caption via the shipped hint.</li>
+      <li><b>Icons</b>: <code>--icon-lg</code>, Tier 2 Fill for the expressive icon, Tier 1 Regular for the spinner.</li>
+      <li><b>Spacing</b>: <code>--spacing-16</code> inset, <code>--spacing-24</code> target padding, <code>--spacing-8</code> message gap, <code>--spacing-4</code> above the row.</li>
+      <li><b>Colour</b>: <code>--color-red</code> for invalid (Toast Danger's tone), <code>--color-neutral-3</code> for the settled frame, Neutral-9 / Neutral-5 text.</li>
+      <li><b>Motion</b>: <code>--duration-fast</code> + <code>--ease-standard</code> (the Command brief scrim's pairing), <code>--duration-ambient</code> linear for the spinner (Search input's recipe).</li>
+      <li><b>Shipped components</b>: Toast (Danger) for errors, Button for the keyboard path, <code>.sr-only</code> for the hidden file input.</li>
+    </ul>
+    <h3>Remaining literals (flagged)</h3>
+    <div class="sc-table-wrap">
+      <table class="sc-table">
+        <thead><tr><th>Value</th><th>Why it stays</th></tr></thead>
+        <tbody>
+          <tr><td>88% veil (<code>color-mix</code> of Neutral-2)</td><td>No translucent surface token exists. The same need shows up in the source (82% white) and Entry card's open "frosted surface" question. A candidate for a <code>--surface-veil</code> token if a second use appears.</td></tr>
+          <tr><td><code>z-index: 1050</code></td><td>There is no z-index scale. The value is chosen against the survey of what actually paints (see the CSS comment).</td></tr>
+          <tr><td>360px file row</td><td>Copied from <code>.c-uploader</code>'s own max-width, so the row is the same size as everywhere else.</td></tr>
+          <tr><td>1000ms watchdog, 25 MB limit</td><td>Behaviour constants in the controller, not CSS. 1000ms clears the longest dragover gap the HTML spec allows (550ms) with margin, so a still pointer never trips it; 25 MB is a proposed brief cap (open question).</td></tr>
+          <tr><td>1.6s demo read time</td><td>Showcase only. The real moment lasts as long as the host's work.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ DECIDED / OPEN ============ -->
+  <section class="sc-section" aria-labelledby="h-open">
+    <h2 id="h-open">Decided, open and what this replaces</h2>
+    <h3>Decided (recommendations)</h3>
+    <ol class="sc-list">
+      <li><b>A FileUploader variant, <code>.c-uploader-page-drop</code></b>, named for the shipped <code>.c-uploader</code> prefix. It adds only the full-surface layer, the veil and the enter/leave behaviour; everything visual inside comes from FileUploader.</li>
+      <li><b>Scope: detect on the whole window, aim at the main pane.</b> The veil covers everything, and the drop is accepted anywhere. The dashed target centres on the Content region via <code>--c-uploader-page-drop-start</code>. <code>.is-contained</code> covers a single region when a host needs that.</li>
+      <li><b>A light veil, not the Modal scrim.</b> The veil is 88% Neutral-2, with no blur. The target uses FileUploader's Obsidian drag-over border instead of the source's Neutral-5.</li>
+      <li><b>Robust drag handling</b>: Files only; drags that start inside the page are ignored; the layer catches the pointer and its children don't; a depth counter, plus a <code>relatedTarget</code> shortcut where it is reliable; a 1000ms dragover watchdog; Escape and a hidden tab also reset it. Window <code>dragover</code> and <code>drop</code> always call <code>preventDefault</code> on Files drags, so a file never opens.</li>
+      <li><b>Invalid while dragging is best effort</b> (count and known MIME, where readable), with <code>dropEffect = "none"</code>. Everything is checked again on drop.</li>
+      <li><b>Brief rules: one file, PDF / Word / PowerPoint, up to 25 MB.</b> Failures go to the shipped Danger Toast with "Choose a file". Copy is in the Validation table.</li>
+      <li><b>Hand-off is a host callback.</b> <code>onDrop(file)</code> returns a promise; the layer shows "Reading the brief…" with the shipped file row until it settles. The host moves focus to the heading of what it opens.</li>
+      <li><b>One path in.</b> The visible "Upload a brief" Button calls the same <code>take()</code>, and it is required on every page that uses the layer. No second inline drop zone on the same page.</li>
+      <li><b>Accessibility</b>: the layer is <code>aria-hidden</code>, never focusable, and adds no live regions. The layer is off while any Modal, Tutorial or sheet is open.</li>
+      <li><b>Motion</b>: an opacity fade over duration-fast, and nothing at all under reduced motion. In forced colours the veil is opaque Canvas, borders are CanvasText, and invalid is dotted.</li>
+    </ol>
+    <h3>Open questions</h3>
+    <ol class="sc-list">
+      <li><b>Light veil or the dark Modal scrim?</b> This draft uses a light veil, because the page isn't blocked for a decision and the target is drawn for a light surface. The dark scrim would match Modal, but it would need white text and a white dashed border, which no FileUploader state has.</li>
+      <li><b>Where should drop errors appear?</b> This draft uses the Danger Toast, which stays until dismissed. The other option is an inline error under the page's "Upload a brief" button, which would need a new error state there. Is the Toast's own built-in announcement acceptable under the "no live regions" rule?</li>
+      <li><b>Which files can Collab AI actually read, and how big?</b> PDF, Word and PowerPoint up to 25 MB is a guess. Should emails (.eml / .msg), plain text or scanned images count as briefs?</li>
+      <li><b>Several files at once:</b> reject them (as drafted), take only the first, or read them together as one brief?</li>
+      <li><b>Should FileUploader itself be fixed alongside this?</b> That means the same type, size and error rules, a real button and file input inside its zone so a keyboard can reach it, and the icon-size mismatch. This would be a separate change, but this variant leans on it.</li>
+    </ol>
+    <h3>What this replaces</h3>
+    <p class="sc-note">On Sales Home: the page-local drop layer from <code>drop-layer.js</code> and its markup and styles in the shared script (scan #17, stood in by <code>.k-droplayer</code> / <code>.k-dropstage</code>), and the file checks at the start of <code>brief-import.js</code>. The rest of <code>brief-import.js</code>, which reads the brief with Collab AI and opens the start sheet, stays with the host as the <code>onDrop</code> callback. The start sheet itself is scan #16 (a Modal variant), not part of this.</p>
+  </section>
+</main>
+
+<script>
+/* Showcase behaviour only: nothing navigates, nothing opens, nothing is
+   announced by this script. createPageDrop is the reference controller
+   for hosts (the Behaviour table above). The rest builds specimens and
+   wires the demo. */
+(function(){
+  'use strict';
+
+  /* ---------- Brief rules (proposed; see Validation) ---------- */
+  var BRIEF_TYPES = [
+    {ext:['pdf'],        mime:['application/pdf']},
+    {ext:['doc','docx'], mime:['application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document']},
+    {ext:['ppt','pptx'], mime:['application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation']}
+  ];
+  var MAX_BYTES = 25 * 1024 * 1024;
+
+  var COPY = {
+    drag: {
+      count: function(n){ return ['Drop one brief at a time', 'That’s ' + n + ' files. Drop just the brief.']; },
+      type:  function(){ return ['This file can’t be read', 'Briefs can be PDF, Word or PowerPoint files.']; }
+    },
+    toast: {
+      count: function(i){ return ['Drop one brief at a time', 'You dropped ' + i.count + ' files. Drop just the brief.']; },
+      type:  function(){ return ['Can’t read that file type', 'Briefs can be PDF, Word or PowerPoint files. Try another file.']; },
+      empty: function(){ return ['Couldn’t open that file', 'It looks empty, or it’s a folder. Drop the brief file itself.']; },
+      size:  function(){ return ['That brief is too big', 'Briefs can be up to 25 MB. Try a smaller copy, or a PDF.']; },
+      read:  function(){ return ['Collab AI couldn’t read the brief', 'It may be locked or a scan. Try another copy, or type the brief instead.']; }
+    }
+  };
+
+  function extOf(name){ var m = /\.([a-z0-9]+)$/i.exec(name || ''); return m ? m[1].toLowerCase() : ''; }
+  function mimeOk(accept, t){ for (var i = 0; i < accept.length; i++) if (accept[i].mime.indexOf(t) > -1) return true; return false; }
+  function fileOk(accept, f){
+    var e = extOf(f.name), t = (f.type || '').toLowerCase();
+    for (var i = 0; i < accept.length; i++){
+      if (accept[i].ext.indexOf(e) > -1 || (t && accept[i].mime.indexOf(t) > -1)) return true;
+    }
+    return false;
+  }
+  function fmtSize(b){ return b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'; }
+
+  /* ---------- Reference controller ---------- */
+  function createPageDrop(o){
+    var layer = o.layer, zone = o.zone || window, isWin = zone === window;
+    var accept = o.accept || BRIEF_TYPES, maxBytes = o.maxBytes || MAX_BYTES;
+    var WATCHDOG_MS = 1000;                      /* ONE-OFF behaviour constant */
+    var depth = 0, state = 'hidden', internal = false, disabled = false, dismissed = false, watch = 0;
+    var q = function(s){ return layer.querySelector(s); };
+    var note = o.onLog || function(){};
+
+    function setState(s){
+      state = s;
+      layer.classList.toggle('is-dragging', s === 'dragging');
+      layer.classList.toggle('is-invalid',  s === 'invalid');
+      layer.classList.toggle('is-reading',  s === 'reading');
+      if (o.onState) o.onState(s, depth);
+    }
+    function hasFiles(dt){
+      if (!dt || !dt.types) return false;
+      for (var i = 0; i < dt.types.length; i++) if (dt.types[i] === 'Files') return true;
+      return false;
+    }
+    /* Best-effort check during the drag. null = looks fine or unknown. */
+    function precheck(dt){
+      var items = dt && dt.items;
+      if (!items || !items.length) return null;
+      var n = 0, bad = false;
+      for (var i = 0; i < items.length; i++){
+        if (items[i].kind !== 'file') continue;
+        n++;
+        var t = (items[i].type || '').toLowerCase();
+        if (t && !mimeOk(accept, t)) bad = true;
+      }
+      if (n > 1) return {code:'count', n:n};
+      if (bad) return {code:'type'};
+      return null;
+    }
+    function show(dt){
+      var bad = precheck(dt);
+      if (bad){
+        var c = COPY.drag[bad.code](bad.n);
+        q('[data-invalid-title]').textContent = c[0];
+        q('[data-invalid-hint]').textContent = c[1];
+        setState('invalid');
+      } else {
+        setState('dragging');
+      }
+      note('show: ' + state);
+    }
+    /* Full reset of a drag episode. Never interrupts "reading". */
+    function end(why){
+      clearTimeout(watch); watch = 0;
+      depth = 0; dismissed = false;
+      if (state === 'dragging' || state === 'invalid'){ setState('hidden'); note('hide: ' + why); }
+      else if (o.onState) o.onState(state, depth);
+    }
+    function arm(){
+      clearTimeout(watch);
+      watch = setTimeout(function(){ watch = 0; end('watchdog (no dragover for ' + WATCHDOG_MS + 'ms)'); }, WATCHDOG_MS);
+    }
+
+    function onEnter(e){
+      if (internal || !hasFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      depth++;
+      if (o.onState) o.onState(state, depth);
+      if (disabled || dismissed || state === 'reading') return;
+      if (state === 'hidden') show(e.dataTransfer);
+    }
+    function onOver(e){
+      if (internal || !hasFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      arm();
+      if (disabled || dismissed || state === 'reading'){ e.dataTransfer.dropEffect = 'none'; return; }
+      if (state === 'hidden') show(e.dataTransfer);   /* entered without a dragenter we saw */
+      e.dataTransfer.dropEffect = state === 'invalid' ? 'none' : 'copy';
+    }
+    function onLeave(e){
+      if (internal || !hasFiles(e.dataTransfer)) return;
+      depth = Math.max(0, depth - 1);
+      var out = isWin
+        ? (e.relatedTarget === null && (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= innerWidth || e.clientY >= innerHeight))
+        : (!!e.relatedTarget && !zone.contains(e.relatedTarget));
+      if (depth === 0 || out) end(out ? 'left the zone' : 'counter reached 0');
+      else if (o.onState) o.onState(state, depth);
+    }
+    function onDrop(e){
+      if (internal || !hasFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      var wasDismissed = dismissed, s = state;
+      clearTimeout(watch); watch = 0; depth = 0; dismissed = false;
+      if (disabled || s === 'reading'){ note('drop ignored (layer off)'); return; }
+      if (wasDismissed || s === 'invalid'){ end('drop after dismiss / invalid'); return; }
+      take(e.dataTransfer.files);
+    }
+    /* Window guard: no Files drag is ever handed to the browser. Runs after
+       the zone's own handlers (bubbling), so it only acts on drags the zone
+       didn't take. */
+    function guard(e){
+      if (!hasFiles(e.dataTransfer)) return;
+      if (!e.defaultPrevented){ e.preventDefault(); e.dataTransfer.dropEffect = 'none'; }
+    }
+    function onKey(e){
+      if (e.key !== 'Escape' || (state !== 'dragging' && state !== 'invalid')) return;
+      setState('hidden');
+      note('hide: Escape');
+      if (watch) dismissed = true;   /* a real drag is still in progress: ignore the rest of it */
+      else depth = 0;                /* simulated / stuck: fully reset */
+    }
+    function onDragStart(){ internal = true; }
+    function onDragEnd(){ internal = false; end('dragend'); }
+    function onVis(){ if (document.hidden) end('tab hidden'); }
+
+    function validate(files){
+      if (!files || !files.length) return {error:'empty'};
+      if (files.length > 1) return {error:'count', count:files.length};
+      var f = files[0];
+      if (!fileOk(accept, f)) return {error:'type', file:f};
+      if (!f.size) return {error:'empty', file:f};
+      if (f.size > maxBytes) return {error:'size', file:f};
+      return {file:f};
+    }
+    function take(files){
+      if (state === 'reading') return;
+      var r = validate(files);
+      if (r.error){
+        setState('hidden');
+        note('rejected: ' + r.error);
+        o.onError(r.error, r);
+        return;
+      }
+      var f = r.file;
+      q('[data-file-kind]').textContent = (extOf(f.name) || 'file').toUpperCase();
+      q('[data-file-name]').textContent = f.name;
+      q('[data-file-size]').textContent = fmtSize(f.size);
+      setState('reading');
+      note('reading: ' + f.name);
+      Promise.resolve().then(function(){ return o.onDrop(f); }).then(
+        function(){ setState('hidden'); note('handed off'); },
+        function(){ setState('hidden'); note('host could not read it'); o.onError('read', {file:f}); }
+      );
+    }
+
+    var zl = [['dragenter', onEnter], ['dragover', onOver], ['dragleave', onLeave], ['drop', onDrop]];
+    zl.forEach(function(p){ zone.addEventListener(p[0], p[1]); });
+    window.addEventListener('dragover', guard);
+    window.addEventListener('drop', guard);
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('dragstart', onDragStart);
+    document.addEventListener('dragend', onDragEnd);
+    document.addEventListener('visibilitychange', onVis);
+
+    return {
+      take: take,
+      disable: function(){ disabled = true; end('disabled'); },
+      enable: function(){ disabled = false; },
+      destroy: function(){
+        zl.forEach(function(p){ zone.removeEventListener(p[0], p[1]); });
+        window.removeEventListener('dragover', guard);
+        window.removeEventListener('drop', guard);
+        document.removeEventListener('keydown', onKey);
+        document.removeEventListener('dragstart', onDragStart);
+        document.removeEventListener('dragend', onDragEnd);
+        document.removeEventListener('visibilitychange', onVis);
+      },
+      /* Showcase only: a drag with no dragover stream, so no watchdog. */
+      simulateEnter: function(dt){ if (disabled || state === 'reading') { note('simulated drag ignored (layer off)'); return; } clearTimeout(watch); watch = 0; dismissed = false; depth = 1; show(dt); },
+      reset: function(){ clearTimeout(watch); watch = 0; depth = 0; dismissed = false; setState('hidden'); },
+      get state(){ return state; },
+      get depth(){ return depth; }
+    };
+  }
+  window.createPageDrop = createPageDrop; /* exposed for inspection in the console */
+
+  /* ---------- Static specimens ---------- */
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function layerHTML(stateCls){
+    return '<div class="c-uploader-page-drop is-contained' + (stateCls ? ' ' + stateCls : '') + '" aria-hidden="true">' +
+      '<div class="c-uploader-page-drop-target">' +
+        '<div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-drag"><i class="ph-fill ph-file-arrow-down c-uploader-page-drop-icon"></i><p class="c-uploader-page-drop-title">Drop the brief to start</p><p class="c-uploader-hint">Collab AI reads it and sets up the campaign.</p></div>' +
+        '<div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-invalid"><i class="ph-fill ph-file-x c-uploader-page-drop-icon"></i><p class="c-uploader-page-drop-title">This file can’t be read</p><p class="c-uploader-hint">Briefs can be PDF, Word or PowerPoint files.</p></div>' +
+        '<div class="c-uploader-page-drop-msg c-uploader-page-drop-msg-reading"><i class="ph ph-spinner-gap c-uploader-page-drop-spinner"></i><p class="c-uploader-page-drop-title">Reading the brief…</p><div class="c-uploader-row"><span class="c-uploader-kind">PDF</span><span class="c-uploader-name">MILO Raya 2027 campaign brief.pdf</span><span class="c-uploader-size">2.4 MB</span></div></div>' +
+      '</div></div>';
+  }
+  function toastHTML(title, msg, live){
+    return '<div class="c-toast"' + (live ? ' role="status"' : '') + '>' +
+      '<i class="ph-fill ph-x-circle tone tone-danger" aria-hidden="true"></i>' +
+      '<div class="body"><div class="title">' + esc(title) + '</div><div class="message">' + esc(msg) + '</div>' +
+      '<div class="action"><button type="button" class="c-btn c-btn-ghost c-btn-sm" data-toast-pick>Choose a file</button></div></div>' +
+      '<button type="button" class="c-icon-btn" aria-label="Dismiss" data-toast-close><i class="ph ph-x" aria-hidden="true"></i></button>' +
+    '</div>';
+  }
+  function ghostHTML(){
+    return '<div class="sc-ghost" aria-hidden="true"><div class="sc-ghost-side"><i></i><i></i><i style="width:70%"></i><i></i></div>' +
+      '<div class="sc-ghost-main"><span class="sc-bar" style="width:40%; height:12px"></span><span class="sc-blk"></span><span class="sc-bar" style="width:70%"></span><div class="sc-cards"><span></span><span></span><span></span></div></div></div>';
+  }
+  var STATE_CLS = {hidden:'', dragging:'is-dragging', invalid:'is-invalid', reading:'is-reading', error:''};
+  document.querySelectorAll('[data-spec]').forEach(function(el){
+    var s = el.getAttribute('data-spec');
+    var h = el.getAttribute('data-h') || 220, side = el.getAttribute('data-side');
+    side = side === null ? 48 : +side;
+    var t = s === 'error' ? COPY.toast.type() : null;
+    el.innerHTML = '<div class="sc-stage" style="height:' + h + 'px; --c-uploader-page-drop-start:' + side + 'px">' +
+      ghostHTML().replace('<div class="sc-ghost-side">', side ? '<div class="sc-ghost-side">' : '<div class="sc-ghost-side" style="display:none">') +
+      layerHTML(STATE_CLS[s]) +
+      (t ? '<div class="sc-stage-toasts">' + toastHTML(t[0], t[1], false) + '</div>' : '') +
+      '</div>';
+  });
+  /* Specimen toasts are static: their buttons do nothing. */
+  document.querySelectorAll('[data-spec] [data-toast-pick], [data-spec] [data-toast-close]').forEach(function(b){ b.setAttribute('tabindex', '-1'); b.setAttribute('aria-hidden', 'true'); });
+
+  /* ---------- Live demo host ---------- */
+  var stage = document.getElementById('stage');
+  var layer = document.getElementById('layer');
+  var toasts = document.getElementById('toasts');
+  var input = document.getElementById('fileInput');
+  var home = document.getElementById('home'), camp = document.getElementById('campaign');
+  var campH = document.getElementById('campH'), campBody = document.getElementById('campBody');
+  var logEl = document.getElementById('log'), stateOut = document.getElementById('stateOut');
+  var READ_MS = 1600;                             /* showcase only */
+  var lastTrigger = null;
+
+  function log(msg){
+    if (logEl.firstElementChild && logEl.firstElementChild.textContent === 'Waiting for a drag.') logEl.innerHTML = '';
+    var li = document.createElement('li');
+    li.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}) + '  ' + msg;
+    logEl.insertBefore(li, logEl.firstChild);
+    while (logEl.children.length > 30) logEl.removeChild(logEl.lastChild);
+  }
+
+  function showToast(code, info){
+    var c = COPY.toast[code](info || {});
+    toasts.innerHTML = toastHTML(c[0], c[1], true);  /* one at a time: a new drop error replaces the last */
+    var t = toasts.firstElementChild;
+    t.classList.add('is-entering');
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ t.classList.remove('is-entering'); }); });
+  }
+  toasts.addEventListener('click', function(e){
+    var t = toasts.firstElementChild; if (!t) return;
+    if (e.target.closest('[data-toast-close]')){ toasts.innerHTML = ''; log('toast dismissed'); }
+    else if (e.target.closest('[data-toast-pick]')){ toasts.innerHTML = ''; openPicker(); }
+  });
+
+  function openCampaign(file){
+    lastTrigger = document.activeElement && stage.contains(document.activeElement) ? document.activeElement : document.getElementById('uploadBtn');
+    toasts.innerHTML = '';
+    campH.textContent = 'New campaign from ' + file.name;
+    campBody.textContent = 'The host’s surface. Collab AI would be filling the campaign from “' + file.name + '” here (' + fmtSize(file.size) + ').';
+    home.style.display = 'none';
+    camp.hidden = false; camp.style.display = 'flex';
+    campH.focus();                                 /* the announcement: focus on a heading */
+    drop.disable();
+    log('host opened its surface; focus moved to its heading; layer disabled');
+  }
+  document.getElementById('campClose').addEventListener('click', closeCampaign);
+  function closeCampaign(){
+    camp.hidden = true; camp.style.display = 'none';
+    home.style.display = 'flex';
+    drop.enable();
+    (lastTrigger && document.contains(lastTrigger) && lastTrigger.offsetParent ? lastTrigger : document.getElementById('uploadBtn')).focus();
+    log('back to Home; layer enabled');
+  }
+
+  var drop = createPageDrop({
+    layer: layer,
+    zone: stage,
+    accept: BRIEF_TYPES,
+    maxBytes: MAX_BYTES,
+    onDrop: function(file){
+      return new Promise(function(res){ setTimeout(function(){ openCampaign(file); res(); }, READ_MS); });
+    },
+    onError: function(code, info){ showToast(code, info); },
+    onState: function(s, d){ stateOut.textContent = s + ' · depth ' + d; },
+    onLog: log
+  });
+
+  /* Keyboard / screen reader path: the visible button, same take(). */
+  function openPicker(){ input.value = ''; input.click(); }
+  document.getElementById('uploadBtn').addEventListener('click', openPicker);
+  input.addEventListener('change', function(){ if (input.files && input.files.length){ log('picked via Upload a brief'); drop.take(input.files); } });
+  document.querySelectorAll('[data-phone-upload]').forEach(function(b){ b.addEventListener('click', function(){ log('phone Upload a brief pressed (specimen; opens the picker in a real page)'); }); });
+
+  /* Simulation (no file needed). */
+  function fake(name, type, size){ return {name:name, type:type, size:size}; }
+  var MB = 1048576;
+  var SIM = {
+    'drag':      function(){ drop.simulateEnter({types:['Files'], items:[{kind:'file', type:'application/pdf'}]}); log('simulated drag: one PDF'); },
+    'drag-bad':  function(){ drop.simulateEnter({types:['Files'], items:[{kind:'file', type:'video/mp4'}]}); log('simulated drag: one MP4'); },
+    'drop-ok':   function(){ drop.take([fake('MILO Raya 2027 campaign brief.pdf', 'application/pdf', 2.4 * MB)]); },
+    'drop-type': function(){ drop.take([fake('raya-moodboard.mp4', 'video/mp4', 48 * MB)]); },
+    'drop-two':  function(){ drop.take([fake('brief.pdf', 'application/pdf', MB), fake('rate-card.xlsx', '', 0.3 * MB)]); },
+    'drop-big':  function(){ drop.take([fake('MILO brand book.pdf', 'application/pdf', 62 * MB)]); },
+    'reset':     function(){ drop.reset(); toasts.innerHTML = ''; if (!camp.hidden) closeCampaign(); log('reset'); }
+  };
+  document.querySelectorAll('[data-sim]').forEach(function(b){
+    b.addEventListener('click', function(){ SIM[b.getAttribute('data-sim')](); });
+  });
+  document.getElementById('simReduce').addEventListener('change', function(e){ stage.classList.toggle('sc-reduced', e.target.checked); });
+})();
+</script>
+</body>
+</html>
