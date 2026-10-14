@@ -5968,3 +5968,263 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
   .c-permission-prompt,.c-permission-prompt-resolved{animation:none;}
   .c-permission-prompt-detail,.c-permission-prompt-toggle i{transition:none;}
 }
+
+/* =========================================================
+   Lists — List item `c-list-item` in `c-list`, plus its Section
+   header `c-list-subheader`.
+   Kept at the END of this file on purpose: its trailing-slot overrides
+   of shipped Badge / Checkbox / Switch / Button rules must come after them.
+
+   One base row with three slots: Leading, Content, Trailing. Stat
+   lists, campaign rows and activity logs are PRESETS of it (markup
+   recipes), not separate components.
+
+   Markup:
+     <h3 class="c-list-subheader" id="g-today">Today</h3>      (optional)
+     <ul role="list" class="c-list [c-list-no-divider] [c-list-timeline]
+                [c-list-bleed]" aria-labelledby="g-today">
+       <li>
+         <{a href | button type=button | div | label} class="c-list-item">
+           <span class="c-list-item-lead is-{icon|avatar|thumb|logo} [is-s|is-l]" aria-hidden="true">…</span>
+           <span class="c-list-item-content">
+             <span class="c-list-item-heading [is-rich] [is-2-line]">…</span>
+             <span class="sr-only">, </span><span class="c-list-item-desc [is-2-line]">…</span>
+             <span class="sr-only">, </span><span class="c-list-item-caption"><i …></i>2h ago</span>
+           </span>
+           <span class="c-list-item-trailing">value | badge | control | chevron</span>
+         </…>
+       </li>
+     </ul>
+
+   Row element = behaviour:
+     <a href>    opens a page (may show the chevron)
+     <button>    acts in place (no chevron)
+     <label>     a control row: the whole row toggles its checkbox/switch
+     <div>       static: no hover, focus or pressed; not focusable
+
+   Reuses, as shipped and untouched: .c-badge, .c-checkbox-box,
+   .c-switch-track/.c-switch-thumb, .c-btn (ghost/secondary, sm, icon),
+   .sr-only, the Search input avatar recipe (Neutral-2, 700 initials),
+   the c-progress-shimmer keyframe (Table / Media Ad skeletons), Table's
+   selected recipe (Neutral-2 + 2px Obsidian start mark), the control
+   focus ring (2px Obsidian, inset: Nav child, Pod chip), Neutral-3
+   pressed (Sidebar item, Tab, Page button), Dropdown's 2px text gap and
+   its empty-state values.
+
+   One-off values (each recorded where it is declared):
+     6px / 8px leading corners (S / M) · 2px content line gap (shipped Dropdown literal) ·
+     6px status dot (Tag dot) · 0.4 disabled leading opacity · 50%
+     trailing cap · skeleton bone widths
+   ========================================================= */
+/* ---------- List ---------- */
+.c-list{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; font-family:var(--font-primary); color:var(--color-neutral-9);}
+/* Leading size lives on the <li> as one variable, so the lead box, the
+   skeleton bone and the timeline all read the same number. */
+.c-list > li{--c-list-lead:var(--spacing-32); position:relative; display:block; margin:0; padding:0; min-width:0;}
+.c-list > li:has(.c-list-item-lead.is-s){--c-list-lead:var(--spacing-24);}
+.c-list > li:has(.c-list-item-lead.is-l){--c-list-lead:var(--spacing-48);}
+/* The skeleton bone has no lead element, so it reads the corner from the
+   <li>: 8px by default, 6px / 12px when the row's size is set to S / L
+   (on a skeleton row, put .is-s / .is-l on the bone). */
+.c-list > li{--c-list-bone-r:8px;}
+.c-list > li:has(.c-list-item-bone.is-lead.is-s){--c-list-lead:var(--spacing-24); --c-list-bone-r:6px;}
+.c-list > li:has(.c-list-item-bone.is-lead.is-l){--c-list-lead:var(--spacing-48); --c-list-bone-r:var(--radius-sm);}
+/* Corner scales with the leading box: a quarter of its size, so the shape
+   reads the same at every size (24 -> 6, 32 -> 8, 48 -> 12). ONE-OFF 6px
+   and 8px (no radius token below radius-sm); L uses radius-sm. */
+.c-list-item-lead{--c-list-lead-r:8px;}
+.c-list-item-lead.is-s{--c-list-lead-r:6px;}
+.c-list-item-lead.is-l{--c-list-lead-r:var(--radius-sm);}
+/* On page (no card): pull out by the row padding so row content lines up
+   with page text; rows get radius-sm so the fill floats on the canvas.
+   In a card the list runs edge to edge (card padding-block only) and the
+   card clips the square fill. Also valid on .c-list-subheader. */
+.c-list-bleed{margin-inline:calc(var(--spacing-16) * -1);}
+.c-list.c-list-bleed .c-list-item{border-radius:var(--radius-sm);}
+
+/* ---------- Divider (showDivider, default ON) ----------
+   Between rows only, inset spacing-16 to the content edges, system
+   divider grey. Fades on both sides of a filled row. */
+.c-list > li + li::before{
+  content:""; position:absolute; top:0; inset-inline:var(--spacing-16);
+  height:var(--border-width-sm); background:var(--color-neutral-3);
+  pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard);
+}
+.c-list-no-divider > li + li::before,
+.c-list-timeline > li + li::before{display:none;}   /* timeline forces dividers off */
+.c-list > li:has(> :is(a[href], button).c-list-item:focus-visible)::before,
+.c-list > li:has(> :is(a[href], button).c-list-item:focus-visible) + li::before,
+.c-list > li:has(> label.c-list-item .c-list-item-input:focus-visible)::before,
+.c-list > li:has(> label.c-list-item .c-list-item-input:focus-visible) + li::before,
+.c-list > li:has(> :is(a[href], button, label).c-list-item:not(:disabled):active)::before,
+.c-list > li:has(> :is(a[href], button, label).c-list-item:not(:disabled):active) + li::before,
+.c-list > li:has(> .c-list-item[aria-current]:not([aria-current="false"]))::before,
+.c-list > li:has(> .c-list-item[aria-current]:not([aria-current="false"])) + li::before{opacity:0;}
+@media (hover:hover){
+  .c-list > li:has(> :is(a[href], button, label).c-list-item:not(:disabled):hover)::before,
+  .c-list > li:has(> :is(a[href], button, label).c-list-item:not(:disabled):hover) + li::before{opacity:0;}
+}
+
+/* ---------- Item ---------- */
+.c-list-item{
+  position:relative; box-sizing:border-box;
+  display:flex; align-items:center; gap:var(--spacing-12);
+  width:100%; min-height:var(--spacing-48);              /* heading only = 48; >= 44 touch target */
+  margin:0; padding:var(--spacing-12) var(--spacing-16);
+  border:0; border-radius:0; background:transparent;
+  -webkit-appearance:none; appearance:none;
+  font:inherit; font-family:var(--font-primary); color:var(--color-neutral-9);
+  text-align:start; text-decoration:none; -webkit-tap-highlight-color:transparent;
+  transition:background-color var(--duration-fast) var(--ease-standard);
+}
+/* Alignment rule: 1 line of content -> everything centred. 2+ lines ->
+   the LEADING top-aligns with the heading; the TRAILING (chevron, value,
+   badge, checkbox, switch, button) always stays vertically centred. */
+.c-list-item:has(.c-list-item-desc, .c-list-item-caption, .c-list-item-heading.is-2-line) .c-list-item-lead{align-self:flex-start;}
+.c-list-item-trailing{align-self:center;}
+
+/* Interactive rows */
+:is(a[href], button, label).c-list-item{cursor:pointer;}
+@media (hover:hover){
+  :is(a[href], button, label).c-list-item:not(:disabled):not(:focus-visible):not(:has(.c-list-item-input:disabled)):hover{background:var(--color-neutral-2);}
+}
+/* Focus: black (Obsidian) control ring, inset (cards clip outside). */
+:is(a[href], button).c-list-item:focus-visible,
+label.c-list-item:has(.c-list-item-input:focus-visible){
+  background:var(--color-neutral-2);
+  outline:var(--border-width-md) solid var(--color-obsidian);
+  outline-offset:calc(var(--border-width-md) * -1);
+}
+:is(a[href], button, label).c-list-item:not(:disabled):active{background:var(--color-neutral-3); transition-duration:var(--duration-instant);}
+/* Selected: aria-current, open item in a list/detail layout only. */
+.c-list-item[aria-current]:not([aria-current="false"]){background:var(--color-neutral-2);}
+.c-list-item[aria-current]:not([aria-current="false"])::after{
+  content:""; position:absolute; inset-inline-start:0; inset-block:var(--spacing-8);
+  width:var(--border-width-md); border-radius:var(--radius-pill); background:var(--color-obsidian); pointer-events:none;
+}
+/* Disabled: button rows and control rows (disabled input). Never links. */
+:is(button.c-list-item:disabled, label.c-list-item:has(.c-list-item-input:disabled)){cursor:not-allowed;}
+:is(button.c-list-item:disabled, label.c-list-item:has(.c-list-item-input:disabled)) :is(.c-list-item-heading, .c-list-item-desc, .c-list-item-caption, .c-list-item-value, .c-list-item-chevron){color:var(--color-neutral-4);}
+:is(button.c-list-item:disabled, label.c-list-item:has(.c-list-item-input:disabled)) :is(.c-list-item-lead, .c-badge, .c-switch-track, .c-checkbox-box){opacity:.4;}  /* ONE-OFF: 40% disabled convention */
+
+/* ---------- Leading ---------- */
+.c-list-item-lead{
+  flex:none; box-sizing:border-box; position:relative;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:var(--c-list-lead); height:var(--c-list-lead); overflow:hidden;
+  font-family:var(--font-primary); font-style:normal; line-height:1;
+}
+.c-list-item-lead > img{display:block; width:100%; height:100%;}
+/* icon: a Neutral-2 chip at every size, glyph icon-micro / icon-sm /
+   icon-md (14 / 16 / 24) for S / M / L. Corners scale: 6 / 8 / 12px. */
+.c-list-item-lead.is-icon{border-radius:var(--c-list-lead-r); background:var(--color-neutral-2); color:var(--color-neutral-8); font-size:var(--icon-sm);}
+.c-list-item-lead.is-icon.is-l{font-size:var(--icon-md);}
+.c-list-item-lead.is-icon.is-s{font-size:var(--icon-micro);}   /* chip at every size; glyph steps 14 / 16 / 24 so S < M < L */
+/* avatar: the Search input avatar recipe, scaled per size. */
+.c-list-item-lead.is-avatar{border-radius:var(--radius-pill); background:var(--color-neutral-2); color:var(--color-neutral-9); font-size:var(--text-caption-size); font-weight:var(--weight-bold);}
+.c-list-item-lead.is-avatar.is-s{font-size:var(--text-label3-size);}
+.c-list-item-lead.is-avatar.is-l{font-size:var(--text-body2-size);}
+.c-list-item-lead.is-avatar > img{object-fit:cover;}
+/* thumbnail: an image, cropped to fill. */
+.c-list-item-lead.is-thumb{border-radius:var(--c-list-lead-r); background:var(--color-neutral-2);}
+.c-list-item-lead.is-thumb > img{object-fit:cover;}
+/* logo: brand mark. Corner scales with size (6 / 8 / 12), 1px Neutral-3 ring, logo image
+   contained on Neutral-1, or initials on Neutral-2. */
+.c-list-item-lead.is-logo{border-radius:var(--c-list-lead-r); border:var(--border-width-sm) solid var(--color-neutral-3); background:var(--color-neutral-2); color:var(--color-neutral-9); font-size:var(--text-caption-size); font-weight:var(--weight-extrabold); letter-spacing:var(--text-label3-tracking);}
+.c-list-item-lead.is-logo.is-s{font-size:var(--text-label3-size);}
+.c-list-item-lead.is-logo.is-l{font-size:var(--text-label1-size);}
+.c-list-item-lead.is-logo:has(> img){background:var(--color-neutral-1);}
+.c-list-item-lead.is-logo > img{object-fit:contain;}
+
+/* ---------- Content: fills the width and shrinks first ---------- */
+.c-list-item-content{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px;}  /* ONE-OFF 2px: Dropdown option text gap, as shipped */
+.c-list-item-heading{display:block; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--weight-semibold); color:var(--color-neutral-9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+/* headingRich: a sentence in regular weight with bold names/items. */
+.c-list-item-heading.is-rich{font-weight:var(--text-body2-weight);}
+.c-list-item-heading :is(b, strong){font-weight:var(--text-body2-strong-weight);}
+.c-list-item-desc{display:block; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); color:var(--color-neutral-5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+:is(.c-list-item-heading, .c-list-item-desc).is-2-line{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; white-space:normal; overflow-wrap:anywhere;}
+/* Caption: always one line. Optional leading icon or status dot. */
+.c-list-item-caption{display:flex; align-items:center; gap:var(--spacing-4); min-width:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); white-space:nowrap;}
+.c-list-item-caption > i{flex:none; font-size:var(--icon-micro);}
+.c-list-item-caption-text{min-width:0; overflow:hidden; text-overflow:ellipsis;}
+.c-list-item-dot{flex:none; width:6px; height:6px; border-radius:var(--radius-pill); background:var(--color-neutral-5);}  /* ONE-OFF 6px: Tag's dot */
+.c-list-item-dot.is-success{background:var(--color-green);}
+.c-list-item-dot.is-warning{background:var(--color-amber);}
+.c-list-item-dot.is-error{background:var(--color-red);}
+.c-list-item-dot.is-info{background:var(--color-navy);}
+
+/* ---------- Trailing: never shrinks; content truncates first ---------- */
+.c-list-item-trailing{flex:0 0 auto; max-width:50%; min-width:0; padding-inline:var(--spacing-16); display:flex; align-items:center; justify-content:flex-end; gap:var(--spacing-8);}  /* 50% cap: a runaway value can't eat the heading */
+.c-list-item-value{min-width:0; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--weight-semibold); font-variant-numeric:tabular-nums; text-align:end; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--color-neutral-9);}
+.c-list-item-value.is-large{font-size:var(--text-h4-size); line-height:var(--text-h4-lh); font-weight:var(--text-h4-weight);}  /* h4 20/28/800: the Stat preset's large value */
+.c-list-item-chevron{flex:none; font-size:var(--icon-sm); line-height:1; color:var(--color-neutral-5); transition:transform var(--duration-base) var(--ease-standard);}
+@media (prefers-reduced-motion:no-preference) and (hover:hover){
+  a[href].c-list-item:hover .c-list-item-chevron{transform:translateX(var(--spacing-4));}
+}
+@media (prefers-reduced-motion:no-preference){
+  a[href].c-list-item:focus-visible .c-list-item-chevron{transform:translateX(var(--spacing-4));}
+}
+.c-list-item-trailing .c-checkbox-box{margin-top:0;}       /* shipped 2px nudge is for .c-choice; reset as Dropdown does */
+.c-list-item-input{position:absolute; opacity:0; width:0; height:0; margin:0;}
+
+/* ---------- Loading (skeleton row) ----------
+   Same box as a loaded heading + caption row, so nothing jumps. Shimmer
+   is the shipped c-progress-shimmer keyframe (Table, Media Ad). */
+.c-list-item.is-loading{pointer-events:none; align-items:center;}
+.c-list-item.is-loading .c-list-item-content{gap:var(--spacing-8);}
+.c-list-item-bone{position:relative; display:block; overflow:hidden; height:var(--spacing-12); border-radius:var(--radius-pill); background:var(--color-neutral-2);}
+.c-list-item-bone.is-lead{flex:none; width:var(--c-list-lead); height:var(--c-list-lead); border-radius:var(--c-list-bone-r);}  /* 6 / 8 / 12px, matching the leading corners */
+.c-list-item-bone.is-lead.is-round{border-radius:var(--radius-pill);}
+.c-list-item-bone.is-heading{width:62%;}                  /* ONE-OFF bone widths */
+.c-list-item-bone.is-line{width:38%; height:var(--spacing-8);}
+.c-list-item-bone.is-value{flex:none; width:var(--spacing-32);}
+.c-list-item-bone::after{content:""; position:absolute; inset:0; background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) 40%, transparent), transparent); animation:c-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;}
+
+/* ---------- Timeline (showTimeline) ----------
+   A 2px Neutral-3 line from under one leading element to the top of the
+   next, through the leading centre. Rows are top-aligned (activity rows
+   always have a caption), so the lead top is always spacing-12. */
+.c-list-timeline > li:not(:last-child)::after{
+  content:""; position:absolute; pointer-events:none;
+  inset-inline-start:calc(var(--spacing-16) + var(--c-list-lead) / 2 - var(--border-width-md) / 2);
+  top:calc(var(--spacing-12) + var(--c-list-lead) + var(--spacing-4));
+  bottom:calc(var(--spacing-4) - var(--spacing-12));
+  width:var(--border-width-md); border-radius:var(--radius-pill); background:var(--color-neutral-3);
+}
+
+/* ---------- Section header (c-list-subheader) ----------
+   Groups an Activity Log by day. caption / semibold / Neutral-5. A real
+   heading element; the list after it points at it with aria-labelledby. */
+.c-list-subheader{margin:0; padding:var(--spacing-8) var(--spacing-16) var(--spacing-4); font-family:var(--font-primary); font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-semibold); color:var(--color-neutral-5);}
+.c-list-subheader.is-upper{text-transform:uppercase; letter-spacing:var(--tracking-eyebrow);}
+.c-list-subheader.is-sticky{position:sticky; top:0; z-index:1; background:var(--c-list-subheader-bg, var(--color-neutral-1));}
+
+/* ---------- List-level states (Activity Log) ---------- */
+.c-list-empty, .c-list-error{display:flex; flex-direction:column; align-items:center; text-align:center; gap:var(--spacing-4); padding:var(--spacing-24) var(--spacing-16); font-family:var(--font-primary);}
+.c-list-empty > i, .c-list-error > i{font-size:var(--icon-md); color:var(--color-neutral-4);}
+.c-list-error > i{color:var(--color-red);}
+.c-list-state-title{font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--weight-bold); color:var(--color-neutral-9);}
+.c-list-state-hint{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.c-list-error .c-btn{margin-top:var(--spacing-8);}
+.c-list-footer{display:flex; justify-content:center; padding:var(--spacing-8) var(--spacing-16);}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  .c-list-item-bone::after{animation:none; background:none;}
+}
+
+/* ---------- Forced colours ---------- */
+@media (forced-colors:active){
+  :is(a[href], button).c-list-item:focus-visible,
+  label.c-list-item:has(.c-list-item-input:focus-visible){outline-color:Highlight;}
+  .c-list > li + li::before, .c-list-timeline > li::after{forced-color-adjust:none; background:GrayText;}
+  .c-list-item[aria-current]:not([aria-current="false"])::after{forced-color-adjust:none; background:Highlight;}
+  .c-list-item-lead.is-icon, .c-list-item-lead.is-avatar, .c-list-item-lead.is-thumb, .c-list-item-bone{border:var(--border-width-sm) solid CanvasText;}
+  .c-list-item-dot{forced-color-adjust:none;}
+  :is(button.c-list-item:disabled, label.c-list-item:has(.c-list-item-input:disabled)) :is(.c-list-item-heading, .c-list-item-desc, .c-list-item-caption, .c-list-item-value){color:GrayText;}
+}
+@media (forced-colors:active) and (hover:hover){
+  :is(a[href], button, label).c-list-item:not(:disabled):not(:focus-visible):hover{outline:var(--border-width-sm) solid CanvasText; outline-offset:calc(var(--border-width-sm) * -1);}
+}
+

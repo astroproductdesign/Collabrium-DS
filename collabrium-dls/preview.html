@@ -453,6 +453,11 @@
      padding keeps the ring clear. Reduced motion keeps the shipped
      one-off steady ring. */
   .beacon-demo{padding-block:var(--spacing-12);}
+  /* Lists gallery: three showcase cards (leading, content, trailing). The
+     card is demo chrome; lists inside run edge to edge, as specced. */
+  .lists-demo{display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap:var(--spacing-24); align-items:start;}
+  .lists-demo-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-8) 0; overflow:hidden; min-width:0;}
+  .lists-demo-title{margin:0; padding:var(--spacing-8) var(--spacing-16) var(--spacing-4); font-size:var(--text-label3-size); line-height:var(--text-label3-lh); font-weight:var(--text-label3-weight); letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
   /* FileUploader gallery: the mobile layout at 320px, file-type icons off and on. */
   .fu-demo{display:flex; flex-wrap:wrap; gap:var(--spacing-24);}
   .fu-demo > div{width:320px; max-width:100%;}
@@ -695,6 +700,7 @@
             <button class="c-nav-child" type="button" data-nav-target="comp-filters">Filters</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-info-banner">Info Banner</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-input">Input field</button>
+            <button class="c-nav-child" type="button" data-nav-target="comp-lists">Lists</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-modal">Modal / dialog</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-notes">Notes</button>
             <button class="c-nav-child" type="button" data-nav-target="comp-pageheader">PageHeader</button>
@@ -3250,6 +3256,29 @@
 
           </div>
         </div>
+        <div class="comp-block" id="comp-lists">
+          <div class="comp-head"><h3>Lists</h3><button class="copy-markup-btn" data-target="comp-lists" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
+          <div class="comp-demo">
+            <div class="lists-demo">
+              <div class="lists-demo-card"><p class="lists-demo-title">Leading types and sizes</p><ul role="list" class="c-list" aria-label="Leading types and sizes"><li><div class="c-list-item"><span class="c-list-item-lead is-icon is-s" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Icon · S 24</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Icon · M 32 (default)</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-icon is-l" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Icon · L 48</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-avatar" aria-hidden="true">NK</span><span class="c-list-item-content"><span class="c-list-item-heading">Avatar · M 32</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-thumb" aria-hidden="true"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Crect width='56' height='56' fill='%23f0f0f0'/%3E%3Ccircle cx='38' cy='18' r='6' fill='%23bdbdbd'/%3E%3Cpath d='M0 44 L18 26 L32 40 L40 32 L56 48 V56 H0Z' fill='%23d8d8d8'/%3E%3C/svg%3E"></span><span class="c-list-item-content"><span class="c-list-item-heading">Thumbnail · M 32</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-logo" aria-hidden="true"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%23bdbdbd'/%3E%3C/svg%3E"></span><span class="c-list-item-content"><span class="c-list-item-heading">Logo · M 32</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-content"><span class="c-list-item-heading">None</span></span></div></li></ul></div>
+              <div class="lists-demo-card"><p class="lists-demo-title">Content lines</p><ul role="list" class="c-list" aria-label="Content combinations"><li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Heading only</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Heading + description</span><span class="sr-only">, </span><span class="c-list-item-desc">3 packages · RM 420k proposed</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Heading + caption</span><span class="sr-only">, </span><span class="c-list-item-caption"><span class="c-list-item-caption-text">Updated 2h ago</span></span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Heading + description + caption</span><span class="sr-only">, </span><span class="c-list-item-desc">3 packages · RM 420k proposed</span><span class="sr-only">, </span><span class="c-list-item-caption"><span class="c-list-item-caption-text">Nicky · Updated 2h ago</span></span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Two-line description</span><span class="sr-only">, </span><span class="c-list-item-desc is-2-line">The MILO Raya package moved two placements to Astro Ria and is waiting on a new quote from finance before it goes out</span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Caption with icon</span><span class="sr-only">, </span><span class="c-list-item-caption"><i class="ph-fill ph-clock" aria-hidden="true"></i><span class="c-list-item-caption-text">12 Oct, 3:40pm</span></span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Caption with status dot</span><span class="sr-only">, </span><span class="c-list-item-caption"><span class="c-list-item-dot is-warning" aria-hidden="true"></span><span class="c-list-item-caption-text">Waiting on legal</span></span></span></div></li><li><div class="c-list-item"><span class="c-list-item-lead is-avatar" aria-hidden="true">AS</span><span class="c-list-item-content"><span class="c-list-item-heading is-rich is-2-line"><b>Aisyah</b> uploaded 3 files to <b>Raya Campaign</b> and asked <b>Nicky</b> to check the rate card</span><span class="sr-only">, </span><span class="c-list-item-caption"><span class="c-list-item-caption-text">2h ago</span></span></span></div></li>
+      </ul></div>
+              <div class="lists-demo-card"><p class="lists-demo-title">Trailing types and allowed combos</p><ul role="list" class="c-list" aria-label="Trailing types">
+        <li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-folder"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">None</span></span></div></li>
+        <li><a href="#" class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-folder"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Chevron · opens a page</span></span><span class="c-list-item-trailing"><i class="ph ph-caret-right c-list-item-chevron" aria-hidden="true"></i></span></a></li>
+        <li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-folder"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Value · heading style</span><span class="sr-only">, 12</span></span><span class="c-list-item-trailing"><span class="c-list-item-value" aria-hidden="true">12</span></span></div></li>
+        <li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-coins"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Value · large</span><span class="sr-only">, RM 1.2M</span></span><span class="c-list-item-trailing"><span class="c-list-item-value is-large" aria-hidden="true">RM 1.2M</span></span></div></li>
+        <li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-folder"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Badge · status</span></span><span class="sr-only">, </span><span class="c-list-item-trailing"><span class="c-badge c-badge-success">Approved</span></span></div></li>
+        <li><label class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-envelope-simple"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Control · checkbox</span><span class="sr-only">, </span><span class="c-list-item-desc">Include in the weekly digest</span></span><span class="c-list-item-trailing"><input type="checkbox" class="c-list-item-input" data-visual="check" checked=""><span class="c-checkbox-box on" aria-hidden="true"><i class="ph ph-check"></i></span></span></label></li>
+        <li><label class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-bell"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Control · switch</span><span class="sr-only">, </span><span class="c-list-item-desc">Tell me when a brief lands</span></span><span class="c-list-item-trailing"><input type="checkbox" role="switch" class="c-list-item-input" data-visual="switch"><span class="c-switch-track" aria-hidden="true"><span class="c-switch-thumb"></span></span></span></label></li>
+        <li><div class="c-list-item"><span class="c-list-item-lead is-avatar" aria-hidden="true">HR</span><span class="c-list-item-content"><span class="c-list-item-heading">Control · button</span><span class="sr-only">, </span><span class="c-list-item-desc">Hafiz Rahman isn't in the pod yet</span></span><span class="c-list-item-trailing"><button type="button" class="c-btn c-btn-secondary c-btn-sm">Invite</button></span></div></li>
+        <li><div class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-folder"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Control · more menu</span></span><span class="c-list-item-trailing"><button type="button" class="c-btn c-btn-ghost c-btn-sm c-btn-icon" aria-label="More actions for Control · more menu"><i class="ph ph-dots-three" aria-hidden="true"></i></button></span></div></li>
+        <li><a href="#" class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Combo · value + chevron</span><span class="sr-only">, 6</span></span><span class="c-list-item-trailing"><span class="c-list-item-value is-large" aria-hidden="true">6</span><i class="ph ph-caret-right c-list-item-chevron" aria-hidden="true"></i></span></a></li>
+        <li><a href="#" class="c-list-item"><span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-presentation"></i></span><span class="c-list-item-content"><span class="c-list-item-heading">Combo · badge + chevron</span></span><span class="sr-only">, </span><span class="c-list-item-trailing"><span class="c-badge c-badge-warning">Out of date</span><i class="ph ph-caret-right c-list-item-chevron" aria-hidden="true"></i></span></a></li>
+      </ul></div>
+            </div>
+          </div>
+        </div>
         <div class="comp-block" id="comp-modal">
           <div class="comp-head"><h3>Modal / dialog</h3><button class="copy-markup-btn" data-target="comp-modal" type="button"><i class="ph ph-copy"></i> Copy markup</button></div>
           <div class="comp-demo">
@@ -4999,12 +5028,17 @@ rest, not just a border. Every shadow is built on **Neutral-4
 | shadow-3 | `0 8px 24px rgba(189,189,189,.40)` | Popovers, dropdowns |
 | shadow-4 | `0 16px 48px rgba(189,189,189,.44)` | Dialogs / modals |
 | shadow-inset | `inset 0 1px 0 rgba(255,255,255,.6)` | Optional top-edge highlight |
-| shadow-focus | `0 0 0 3px rgba(20,115,230,.28)` | Focus ring (Water-based) |
+| shadow-focus | `0 0 0 3px rgba(20,115,230,.28)` | Card-family focus halo (Water-tinted); controls use the 2px Obsidian ring |
 | shadow-overlay | `rgba(8,8,8,.56)` | Modal scrim (a fill, not a shadow) |
 
-**Focus rings are Water (Navy), not Obsidian.** This
-is the one place an element color legitimately drives an interactive
-state.
+**Focus rings are Obsidian.** Interactive controls draw a 2px Obsidian
+(`#2B2B2C`) outline at `--border-width-md`: offset 2px on standalone
+controls, inset (−2px) where a container would clip it (list rows, nav
+children, chips in a scroller). Under forced colours it maps to
+Highlight. `shadow-focus` remains only as the Card family's focus halo
+(Interactive, Profile and Campaign cards), where a halo around the
+whole surface reads better than an outline; it isn't an element-colour
+signal.
 
 ### Motion
 
@@ -5412,7 +5446,7 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-32 components: the original 7 basics
+33 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table, Modal / dialog,
 Empty state), 8 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
@@ -5436,7 +5470,7 @@ Single select/Multiple select variants — the former, separately
 transcribed **Select** and designed-from-scratch **MultiSelect**,
 consolidated into one component), and **Info Banner** (an inline,
 persistent, container-anchored notification — distinct from Toast's
-floating/viewport-level/auto-dismissing behavior). The Stat/KPI card
+floating/viewport-level/auto-dismissing behavior), plus **Lists** (one List item with presets — Navigation, Stat, Activity Log — and a Section header). The Stat/KPI card
 batch, App Shell, **Back button**, Stepper, FileUploader, Dropdown, Search input, Info
 Banner, **Segmented Control**, **Slider**, **Chip**, and **Progress
 Bar** have **no source in
@@ -5492,6 +5526,7 @@ undocumented ones is just an inconsistent list.
 - [Filters](#filters)
 - [Info Banner](#info-banner)
 - [Input field](#input-field)
+- [Lists](#lists)
 - [Modal / dialog](#modal--dialog)
 - [Notes](#notes)
 - [PageHeader](#pageheader)
@@ -10405,6 +10440,371 @@ not tied to a viewport breakpoint. Don't swap an input's size at a media
 query; if a form needs to adapt on a narrow screen, change the layout
 (stack fields, go full-width) and keep the chosen size fixed.
 
+### Lists
+
+⚠️ **Designed, not transcribed.** Built in v0.9.121 from Collab:Sales
+Home's stat rows, client rows and activity feed, against a written
+spec from the design team. Still needs real design/brand review.
+
+One base **List item** (`.c-list-item`) inside a **List** (`.c-list`),
+with three slots: **Leading**, **Content** and **Trailing**. Stat
+lists, campaign rows and activity logs are **presets**: markup recipes
+of this one component, not separate components and not separate
+classes. A small **Section header** (`.c-list-subheader`) groups an
+Activity Log by day.
+
+**Use it** for any vertical run of same-shaped rows: a list of pages to
+open, a short set of figures inside a card, a who-did-what feed, a
+settings list with switches. **Don't use it** for a single figure
+standing alone on a dashboard (that's a [Stat / KPI card](#stat--kpi-card)),
+for options inside a popover (that's [Dropdown](#dropdown)'s own option
+rows, which stay separate), or for tabular data with columns (that's
+[Table](#table)).
+
+#### Anatomy
+
+| Part | Spec |
+|---|---|
+| List `ul.c-list` | `role="list"` (required: Safari drops list semantics once `list-style:none` is set). Flex column, no padding. Labelled with `aria-labelledby` pointing at its visible heading, or `aria-label` only when there is no visible heading |
+| Row `.c-list-item` | One element per `<li>`, filling it. Flex row, spacing-12 gap between slots, spacing-12 / spacing-16 padding, min-height `--spacing-48`. Square corners in a card; `radius-sm` on page (`.c-list-bleed`) |
+| Leading `.c-list-item-lead` | Optional. Always `aria-hidden="true"`. Icon, avatar, thumbnail or logo at S 24 / M 32 / L 48 |
+| Content `.c-list-item-content` | Fills the remaining width and **shrinks first**. Flex column, 2px between lines |
+| Heading `.c-list-item-heading` | Required. body2 size (14/20), `--weight-semibold`, Neutral-9 |
+| Description `.c-list-item-desc` | Optional. body2 (14/20), 400, Neutral-5 |
+| Caption `.c-list-item-caption` | Optional. caption (12/16), 400, Neutral-5. Always one line |
+| Trailing `.c-list-item-trailing` | Optional. Value, badge, control or chevron. **Never shrinks** (capped at 50% of the row). spacing-16 padding left and right, spacing-8 between combo parts. Always vertically centred |
+| Divider | On by default. 1px Neutral-3 between rows (never above the first or below the last), inset spacing-16 to the content edges |
+
+#### Class API and markup
+
+The row's **element** carries its behaviour:
+
+| Element | Means |
+|---|---|
+| `<a href class="c-list-item">` | Opens a page. The only row that may show a chevron |
+| `<button type="button" class="c-list-item">` | Acts in place (opens a panel, a sheet). No chevron |
+| `<label class="c-list-item">` | A control row: the whole row toggles its checkbox or switch |
+| `<div class="c-list-item">` | Static. No hover, focus or pressed state; not focusable |
+
+```html
+<h4 id="pod-pulse-title">Pod pulse</h4>
+<ul role="list" class="c-list" aria-labelledby="pod-pulse-title">
+  <li>
+    <a href="/campaigns?month=current" class="c-list-item">
+      <span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-briefcase"></i></span>
+      <span class="c-list-item-content">
+        <span class="c-list-item-heading">Total campaigns this month</span><span class="sr-only">, 6</span>
+        <span class="sr-only">, </span><span class="c-list-item-caption"><span class="c-list-item-caption-text">vs last month: up 2</span></span>
+      </span>
+      <span class="c-list-item-trailing">
+        <span class="c-list-item-value is-large" aria-hidden="true">6</span>
+        <i class="ph ph-caret-right c-list-item-chevron" aria-hidden="true"></i>
+      </span>
+    </a>
+  </li>
+</ul>
+```
+
+An Activity Log row (static, a person did it):
+
+```html
+<li><div class="c-list-item">
+  <span class="c-list-item-lead is-avatar" aria-hidden="true">AS</span>
+  <span class="c-list-item-content">
+    <span class="c-list-item-heading is-rich is-2-line"><b>Aisyah</b> uploaded 3 files to <b>Raya Campaign</b></span>
+    <span class="sr-only">, </span><span class="c-list-item-desc">brief-v3.pdf, rate-card.xlsx, moodboard.png</span>
+    <span class="sr-only">, </span><span class="c-list-item-caption"><span class="c-list-item-caption-text">2h ago</span></span>
+  </span>
+</div></li>
+```
+
+A control row (the whole row toggles):
+
+```html
+<li><label class="c-list-item">
+  <span class="c-list-item-lead is-icon" aria-hidden="true"><i class="ph-fill ph-bell"></i></span>
+  <span class="c-list-item-content">
+    <span class="c-list-item-heading">Brief alerts</span>
+    <span class="sr-only">, </span><span class="c-list-item-desc">Tell me when a brief lands</span>
+  </span>
+  <span class="c-list-item-trailing">
+    <input type="checkbox" role="switch" class="c-list-item-input">
+    <span class="c-switch-track" aria-hidden="true"><span class="c-switch-thumb"></span></span>
+  </span>
+</label></li>
+```
+
+| Class | Role |
+|---|---|
+| `.c-list-no-divider` | Dividers off |
+| `.c-list-timeline` | Timeline line through the leading elements; turns dividers off |
+| `.c-list-bleed` | On-page surface: pulls the list out by spacing-16 so row content lines up with page text, and rounds row fills to `radius-sm`. Also valid on `.c-list-subheader` |
+| `.c-list-item.is-loading` | Skeleton row |
+| `.c-list-item-lead` + `.is-icon` / `.is-avatar` / `.is-thumb` / `.is-logo`, + `.is-s` / `.is-l` | Leading type and size (M needs no class) |
+| `.c-list-item-heading.is-rich` / `.is-2-line` | Sentence heading with bold names and items / two-line maximum |
+| `.c-list-item-desc.is-2-line` | Two-line description |
+| `.c-list-item-caption-text`, `.c-list-item-dot.is-success / .is-warning / .is-error / .is-info` | Caption text (truncates) and optional status dot |
+| `.c-list-item-value` (`.is-large`) | Trailing value |
+| `.c-list-item-chevron` | Trailing chevron |
+| `.c-list-item-input` | The visually hidden native input in a control row |
+| `.c-list-item-bone` + `.is-lead` (+ `.is-s` / `.is-l`) / `.is-round` / `.is-heading` / `.is-line` / `.is-value` | Skeleton pieces |
+| `.c-list-subheader` (`.is-upper`, `.is-sticky`), `--c-list-subheader-bg` | Section header |
+| `.c-list-empty`, `.c-list-error`, `.c-list-state-title`, `.c-list-state-hint`, `.c-list-footer` | Activity Log list states and footer |
+
+#### Props → markup
+
+The spec's props are a design-tool and framework surface. In CSS each
+one becomes an element choice, a class or an attribute.
+
+| Prop (default) | Markup |
+|---|---|
+| `leadingType` (icon) | `.c-list-item-lead.is-icon / .is-avatar / .is-thumb / .is-logo`; none = leave the span out |
+| `leadingSize` (M) | Nothing for M; `.is-s` (24) or `.is-l` (48) on the lead. Sets `--c-list-lead` on the `<li>`, which the skeleton and timeline read too |
+| `leadingSrc` | `<img src alt="">` inside the lead. Avatar and thumbnail crop (cover); a logo is contained on Neutral-1. Without an image: initials (avatar, logo) or a Phosphor Fill icon |
+| `heading` (required) | `.c-list-item-heading` |
+| `headingRich` (false) | `.is-rich` on the heading, `<b>` around names and items |
+| `description` (hidden if empty) | `.c-list-item-desc`, after an `.sr-only` ", " |
+| `caption` (hidden if empty) | `.c-list-item-caption > .c-list-item-caption-text`, after an `.sr-only` ", " |
+| `captionIcon` | `<i class="ph-fill ph-clock" aria-hidden="true">` or a `.c-list-item-dot` first inside the caption |
+| `trailingType` (none) | What goes inside `.c-list-item-trailing`; none = leave it out |
+| `trailingValue` | `.c-list-item-value` (`aria-hidden`), plus an `.sr-only` ", {value}" straight after the heading |
+| `showChevron` (false) | `.c-list-item-chevron` last in the trailing slot, on `<a href>` rows only |
+| `onClick` | `<a href>` (goes to a page) or `<button type="button">` (acts in place); not set = `<div>` |
+| `state` | hover / focus / pressed: the browser. disabled: `disabled` on the button or control input. selected: `aria-current` |
+| `isLoading` | `<div class="c-list-item is-loading" aria-hidden="true">` with bones; the list gets `aria-busy="true"` and one `.sr-only` "Loading…" |
+| `showDivider` (true) | Default on; `.c-list-no-divider` on the list (a list-level choice: rows in one list share it) |
+| `showTimeline` (false) | `.c-list-timeline` on the list |
+
+#### Leading
+
+| Type | M (32, default) | S (24) | L (48) |
+|---|---|---|---|
+| Icon `.is-icon` | Neutral-2 chip, Neutral-8 glyph at `icon-sm` (16px), **Tier 2, Fill** | Chip with an `icon-micro` (14px) glyph, so the glyph steps 14 / 16 / 24 and S never looks bigger than M | Chip with an `icon-md` (24px) glyph |
+| Avatar `.is-avatar` | The [Search input](#search-input) avatar recipe: round, Neutral-2, Neutral-9 initials at 700, caption size | label3 size initials | body2 size initials |
+| Thumbnail `.is-thumb` | Neutral-2 box, image cropped to fill | | |
+| Logo `.is-logo` | 1px Neutral-3 ring. Initials on Neutral-2 (caption size, 800, label3 tracking), or a logo image contained on Neutral-1 | label3 size initials | label1 size initials |
+
+**Corners scale with size**, a quarter of the box, so the shape reads
+the same at every size: **6px at S, 8px at M, `radius-sm` (12px) at L**,
+on the icon chip, thumbnail and logo. Avatars stay round.
+
+**Alignment.** With one line of content, the leading element is
+vertically centred. With two or more lines (a description, a caption or
+a two-line heading), the **leading** top-aligns with the heading. The
+row switches by itself through `:has()`; authors never set it. The
+trailing slot is **always** vertically centred.
+
+#### Content
+
+| Line | Required | Style | Max lines | Use |
+|---|---|---|---|---|
+| Heading | Yes | body2 size (14/20), semibold, Neutral-9 | 1 (`.is-2-line`: 2) | The main label |
+| Description | No | body2 (14/20), regular, Neutral-5 | 1 (`.is-2-line`: 2) | Supporting detail |
+| Caption | No | caption (12/16), regular, Neutral-5 | Always 1 | Meta: timestamp, author, status ("Updated 2h ago") |
+
+- Lines sit 2px apart.
+- Every line truncates with "…". A two-line heading or description
+  clamps at two lines and breaks an unbroken word rather than
+  overflowing.
+- The caption can sit straight under the heading when there's no
+  description.
+- The caption can start with an icon (`icon-micro`, 14px, Tier 2 Fill,
+  e.g. `ph-clock`) or a 6px status dot. The dot never carries meaning
+  alone: the caption text always says the status.
+- **`headingRich`** (`.is-rich`): the heading is a sentence in regular
+  weight, with names and items in `<b>` at 700 ("**Aisyah** uploaded 3
+  files to **Raya Campaign**").
+
+#### Trailing
+
+| Type | Spec |
+|---|---|
+| Chevron `.c-list-item-chevron` | `ph-caret-right`, `icon-sm`, **Tier 1, Regular**, Neutral-5, always visible. Only on an `<a href>` row that opens a page. Moves 4px right on hover and focus |
+| Value `.c-list-item-value` | A number or status, no navigation. Right-aligned, tabular figures. Heading style by default (body2 size, 600); `.is-large` = h4 (20/28/800) for the Stat preset. Truncates with "…" past the 50% cap |
+| Badge | The shipped [Badge](#badge--tag) (`.c-badge` + tone), as is |
+| Control | The shipped [Checkbox](#checkbox) box or [Switch](#switch) track in a `<label>` row; or a shipped [Button](#button) (Secondary sm, or Ghost sm icon-only "more" with `ph-dots-three`) on a static row |
+| None | Leave the slot out |
+
+**Allowed combos:** value + chevron, badge + chevron. There is **no
+unread dot**.
+
+#### Rules
+
+1. **Chevron only when the whole row is tappable and opens a new
+   page**, so only on `<a href>` rows. Never on an Activity Log row.
+2. **Tappable rows without a chevron still show hover and pressed**
+   (button rows, and Activity Log rows that link to an item). Static
+   rows show neither and aren't focusable.
+3. **Timestamps go in the caption, never in trailing.** Under 24h,
+   relative ("2h ago"); otherwise a date ("12 Oct, 3:40pm").
+4. **Each data type has one location across the product:** names and
+   items in the heading (bold when rich), detail in the description,
+   timestamp / author / status meta in the caption, numbers in the
+   trailing value, status pills in a trailing badge.
+5. **A row is one target.** A checkbox or switch row is a `<label>`;
+   the whole row toggles. A row with a trailing button or "more" menu
+   is static, and the button is its only target. A control row is
+   never also `onClick`.
+6. **A Stat row standing alone on a dashboard is a Stat card**, not a
+   one-row list.
+7. **Label every list:** `aria-labelledby` to its visible heading (a
+   section title or a Section header), `aria-label` only when there's
+   no visible heading.
+
+#### States
+
+| State | Treatment |
+|---|---|
+| Default | Transparent; dividers visible |
+| Hover | Neutral-2 fill on `--duration-fast`. Dividers above and below fade so the fill reads as one shape. A link's chevron moves 4px. Only on `(hover:hover)` devices, and never on top of focus |
+| Focus-visible | Neutral-2 fill plus a 2px **Obsidian** ring (`--border-width-md`), **inset** by 2px, because cards and scrollers clip anything outside the row. A control row shows it when its input has focus. Dividers fade |
+| Pressed | Neutral-3 fill on `--duration-instant` |
+| Disabled | `<button>` rows (`disabled`) and control rows (disabled input) only; **a link row is never disabled**. Text, value and chevron Neutral-4; leading, badge and control at 40%; no hover; not-allowed cursor |
+| Selected | `aria-current` (any value but "false"), **only** for the open item in a list/detail layout. Neutral-2 fill plus a 2px Obsidian bar at the start edge, inset spacing-8 top and bottom ([Table](#table)'s selected mark, drawn as a rounded bar). A row that toggles uses `aria-pressed`; a disclosure uses `aria-expanded`; neither gets the selected look |
+| Loading | `.is-loading` skeleton row: a leading bone whose corner matches the leading corners — 8px at M, 6px / 12px with `.is-s` / `.is-l` on the bone — or round with `.is-round`, a heading bone (62%) and a line bone (38%), Neutral-2, with the shipped `c-progress-shimmer` keyframe on `--duration-ambient`. Same height as a loaded heading + caption row. `aria-hidden`; the list gets `aria-busy="true"` and one `.sr-only` "Loading…" text |
+| Divider on / off | On by default; `.c-list-no-divider` or `.c-list-timeline` turns it off |
+
+There is no read / unread state.
+
+#### Timeline
+
+`.c-list-timeline` draws a 2px (`--border-width-md`) Neutral-3 line
+through the leading centres, from 4px under one leading element to 4px
+above the next, and turns dividers off. It reads the same
+`--c-list-lead` value as the leading box, so it lines up at every size.
+It assumes the leading element's top sits at the row's top padding,
+which holds for Activity Log rows (they always have a caption, so the
+leading top-aligns).
+
+#### Presets
+
+**Navigation.** Icon or thumbnail leading (a logo for brands); heading
++ description; chevron; an `<a href>` row that opens a detail page.
+E.g. "MILO Raya 2026 / 3 packages · RM 420k proposed ›", or a brand
+"100Plus / Researched 3 days ago ›" (a timestamp, so it's a caption).
+
+**Stat.** Icon leading; a heading such as "Total campaigns this month";
+an optional caption ("vs last month: up 2"); a `.is-large` value ("6").
+Static by default; when the row opens a filtered view it becomes an
+`<a href>` with the value + chevron combo. On its own on a dashboard,
+use a Stat / KPI card instead.
+
+**Activity Log.**
+
+| Part | Rule |
+|---|---|
+| Leading | Avatar when a person did it; icon when the system did (Collab AI, a deck, an import). Top-aligned |
+| Heading | An action sentence with `headingRich` and `.is-2-line`: "**Aisyah** uploaded 3 files to **Raya Campaign**" |
+| Description | Optional detail: file names, or old → new ("RM 380,000 → RM 420,000") |
+| Caption | The timestamp: relative under 24h ("2h ago"), otherwise a date ("12 Oct, 3:40pm") |
+| Trailing | None by default, or a Badge for status ("Approved", "Failed") |
+| Row element | `<div>` (static) by default. An `<a href>` only when the activity links to an item, and **never a chevron** |
+| Timeline | Optional (`.c-list-timeline`); dividers are off when it's on |
+
+#### Section header
+
+`.c-list-subheader` groups an Activity Log by day.
+
+| Part | Spec |
+|---|---|
+| Element | A real heading at the level that fits the page. The list after it points at it with `aria-labelledby` |
+| Text | "Today", "Yesterday" or a date ("12 Oct 2026") |
+| Type | caption (12/16), semibold, Neutral-5. `.is-upper` adds uppercase at `--tracking-eyebrow` |
+| Padding | spacing-16 horizontal, spacing-8 top, spacing-4 bottom, so its text lines up with row content |
+| Sticky | `.is-sticky`: `position:sticky; top:0`, background `--c-list-subheader-bg` (default Neutral-1; set it to the surface behind, e.g. Canvas warm on page). Wrap each header and its list in one element, so the next day's header pushes the previous one off |
+
+It's named `-subheader` so it doesn't clash with a page-level section
+header (a title with an "All …" link).
+
+#### Activity Log list states
+
+| State | Spec |
+|---|---|
+| Empty | `.c-list-empty`: `ph-clock-counter-clockwise` (Tier 2 Fill, `icon-md`, Neutral-4), `.c-list-state-title` "No activity yet" (body2, 700, Neutral-9), `.c-list-state-hint` "When someone in the pod moves a campaign, it shows up here." (caption, Neutral-5). spacing-24 / spacing-16 padding, centred |
+| Loading | 3–5 skeleton rows (`.is-loading`), list `aria-busy="true"`, one `.sr-only` "Loading activity" |
+| Load more | `.c-list-footer` (centred, spacing-8 / spacing-16 padding) with a Button Ghost sm: "Load more" or "View all activity" with a trailing `ph-arrow-right` |
+| Error | `.c-list-error`: `ph-warning-circle` in Red (icon only, never red text), "Couldn't load activity", a hint, and a Button Secondary sm "Retry" (`ph-arrow-clockwise`), spacing-8 above it |
+
+The host swaps one state for another in place. No live regions, and
+focus stays where it was.
+
+#### Sizing
+
+| Content | Height |
+|---|---|
+| Heading only, S or no leading | 48 (the min-height) |
+| Heading only, M leading | 56 (32 + 24 padding) |
+| Heading + caption | 62 |
+| Heading + description | 66 |
+| Heading + description + caption | 84 |
+| L leading (48), short content | 72 |
+
+Padding is spacing-12 vertical and spacing-16 horizontal; the gap
+between slots is spacing-12. Every row is at least 48px tall, over the
+44px touch minimum.
+
+**Surfaces.** In a [Card](#card), the list runs **edge to edge**: give
+the card padding top and bottom only (spacing-8) and `overflow:hidden`,
+so row content lands at --card-padding (16) from the card edge and the
+card clips the square row fill. On the page, add `.c-list-bleed`: the
+list pulls out by spacing-16 so row content lines up with the page text
+above it, and row fills round to `radius-sm`.
+
+#### Accessibility
+
+| Rule | Spec |
+|---|---|
+| One target | A tappable row is one `<a>` or `<button>` filling its `<li>`. Everything inside is phrasing content, so nothing interactive is nested. Never `div role="button"` |
+| Name | Built from the content: the heading, an `.sr-only` ", {value}", then the description and caption, each after an `.sr-only` ", ". The visible value is `aria-hidden`, so the row reads "Total campaigns this month, 6, vs last month: up 2". No `aria-label` on rows (it drifts from the visible text, 2.5.3). Leading and chevron are `aria-hidden`; a badge is read as text |
+| Lists | `role="list"`, labelled by a visible heading where there is one |
+| Focus | 2px Obsidian ring, inset, plus the Neutral-2 fill. Hover never overrides it. Never moved by the component |
+| Targets | Every row at least 48px tall, full width |
+| Contrast | Heading Neutral-9. Description, caption, chevron and the small bare icon are Neutral-5: 6.9:1 on white, 6.1:1 on the Neutral-2 fill, about 4.8:1 on the pressed Neutral-3. Badges keep their shipped values |
+| Loading | Skeleton rows `aria-hidden`; the list is `aria-busy` with one hidden "Loading…" text. No live region |
+
+**Reduced motion:** the chevron's 4px move only runs under
+`prefers-reduced-motion: no-preference`; under reduce the shimmer stops
+and the bones are plain Neutral-2. Colour changes stay.
+
+**Forced colours:** the focus ring maps to Highlight; hover draws a 1px
+CanvasText outline (fills disappear); the selected bar is Highlight;
+dividers and the timeline are GrayText; icon chips, avatars, thumbnails
+and skeleton bones get a 1px CanvasText border so their shape survives;
+status dots keep their colour; disabled text is GrayText.
+
+#### Tokens and one-offs
+
+**Tokens:** Neutral-1…9, Obsidian, Green, Amber, Red, Navy;
+`--spacing-4…48`; `--radius-sm`, `--radius-pill`; `--border-width-sm`,
+`--border-width-md`; body2, label1, label3, caption and h4 type;
+`--weight-semibold`, `--weight-bold`, `--weight-extrabold`;
+`--icon-micro`, `--icon-sm`, `--icon-md`; `--tracking-eyebrow`;
+`--duration-instant`, `--duration-fast`, `--duration-base`,
+`--duration-ambient`; `--ease-standard`. Reuses Badge, Checkbox,
+Switch, Button (Secondary sm, Ghost sm, icon-only), `.sr-only`, the
+Search input avatar recipe, Table's selected mark, the
+`c-progress-shimmer` keyframe, and the control focus ring.
+
+| One-off | Why |
+|---|---|
+| 6px / 8px leading corners (S / M) | A quarter of the box, so the shape reads the same at every size. No radius token below `radius-sm`; L uses `radius-sm` |
+| 2px content line gap | Dropdown option text gap, as shipped. Keeps two-line rows near 64 |
+| 6px status dot | Tag's dot |
+| 0.4 disabled opacity | The existing 40% disabled convention (Entry card, Button Ghost) |
+| 50% trailing cap | A runaway value can't take the whole row |
+| 62% / 38% skeleton bone widths | Drawing values |
+
+**Do:** pick the row element by what the row does (`<a>` opens a page,
+`<button>` acts in place, `<label>` toggles, `<div>` does nothing);
+keep timestamps in the caption; put a value's text next to its heading
+in an `.sr-only` span so it's read together; label every list with its
+visible heading; group an Activity Log by day with Section headers.
+**Don't:** put a chevron on a button, static or Activity Log row; make
+a static row look or act clickable with `role="button"`; nest a link or
+button inside a tappable row; put a timestamp in trailing; add an
+unread dot; use `aria-current` for a toggle; mix leading sizes in one
+list; use a one-row list where a Stat card belongs.
+
 ### Modal / dialog
 
 | Part | Spec |
@@ -13541,6 +13941,40 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+- **v0.9.121 — 2026-10-14** — New [Lists](#lists) component: one
+  base List item (`.c-list-item` in `.c-list`) with three slots,
+  Leading, Content and Trailing, where stat lists, campaign rows and
+  activity logs are presets (Navigation, Stat, Activity Log), not
+  separate components. Leading comes as icon, avatar, thumbnail or logo
+  at S 24 / M 32 / L 48, with corners that scale with size (6 / 8 /
+  12px; avatars round). It centres for one line of content and
+  top-aligns with the heading for two or more; the trailing slot always
+  centres. Content is a heading (14px semibold), an optional
+  description (14px, Neutral-5) and an optional one-line caption (12px)
+  for meta; trailing is a value (heading style, or h4 for the Stat
+  preset), a Badge, a control or a chevron, with value + chevron and
+  badge + chevron allowed. The row's element carries its behaviour
+  (`<a>` opens a page, `<button>` acts in place, `<label>` toggles,
+  `<div>` is static); chevrons only on link rows; timestamps only in
+  the caption; no unread dot and no read/unread state.
+
+  **New:** the `.c-list` block in `components.css`: list, row, leading,
+  content and trailing slots; dividers on by default (Neutral-3, inset
+  16, fading next to a filled row) with `.c-list-no-divider`; the
+  `.c-list-timeline` and `.c-list-bleed` modifiers; hover, focus,
+  pressed, disabled and selected (`aria-current`) states; the
+  `.is-loading` skeleton row; the Section header (`.c-list-subheader`,
+  optional uppercase and sticky); and the Activity Log list states
+  (`.c-list-empty`, `.c-list-error`, `.c-list-footer`). The Lists
+  section in this document. One showcase card in the gallery's Lists
+  block (leading types and sizes, content lines, trailing types).
+
+  **Corrected:** the Elevation section's "Focus rings are Water (Navy),
+  not Obsidian" line was out of date: interactive controls already ship
+  a 2px Obsidian outline, and Lists uses the same ring. It now says
+  focus rings are Obsidian, with `shadow-focus` kept only as the Card
+  family's focus halo.
 
 - **v0.9.120 — 2026-10-13** — [FileUploader](#fileuploader) is rebuilt
   as one component, adopting Collab:Sales Home's start-sheet brief drop
