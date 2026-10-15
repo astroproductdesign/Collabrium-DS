@@ -460,7 +460,9 @@
 /* Scoped two-class deep on purpose: `.c-card h5` (and any future
    `.c-card h4`) out-specifies a bare class and would reset the size. */
 .c-card-campaign .c-card-campaign-title{margin:0; font-family:var(--font-primary); font-size:var(--text-label2-size); line-height:var(--text-label2-lh); font-weight:var(--text-label2-weight); color:var(--color-neutral-9); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.c-card-campaign-brand{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* Two classes deep for the same reason: `.c-card p` (0,1,1) beat the bare
+   class and reset the brand line to body2 14px. */
+.c-card-campaign .c-card-campaign-brand{margin:0; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight); color:var(--color-neutral-5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 /* Lead tag — dashed, transparent, uppercase. A lead is a campaign that
    isn't settled yet; the dashed edge says provisional without spending
    a colour on it, which is what keeps it from reading as a status. */
@@ -854,13 +856,11 @@
 .c-card-media-ad.is-added:has(.c-card-media-ad-open:focus-visible){box-shadow:0 0 0 1px var(--color-obsidian), var(--shadow-focus), var(--shadow-3);}
 
 /* 6. Forced colours — backgrounds are stripped, which would erase every
-   track and fill. Outline the track, paint the fill in CanvasText.
+   track and fill; Progress Bar's own block handles the bars now.
    Added gets the same Highlight outline as Compared. Because this block
    loads after the shipped one, the focus outline is restated last so a
    focused Added card shows the CanvasText focus outline, not Highlight. */
 @media (forced-colors:active){
-  .c-card-media-ad-metrics .c-progress-track{outline:1px solid CanvasText;}
-  .c-card-media-ad-metrics .c-progress-fill{forced-color-adjust:none; background:CanvasText;}
   .c-card-media-ad.is-added{outline:2px solid Highlight;}
   .c-card-media-ad.is-added:has(.c-card-media-ad-open:focus-visible){outline:2px solid CanvasText; outline-offset:2px;}
 }
@@ -2453,14 +2453,6 @@ html.c-modal-media-ad-locked{overflow:hidden;}
   .c-modal-media-ad-metrics .c-modal-media-ad-replay{display:none;}
   .c-modal-media-ad-metrics-bars .c-progress-fill,
   .c-modal-media-ad-metrics-bars.is-reset .c-progress-fill{width:clamp(0%, var(--bar-w, 0%), 100%); transition:none;}
-}
-
-/* Forced colours — backgrounds are stripped, which would erase every
-   track and fill: the Metrics card's treatment (track outlined, fill
-   painted CanvasText). */
-@media (forced-colors: active){
-  .c-modal-media-ad-metrics-bars .c-progress-track{outline:1px solid CanvasText;}
-  .c-modal-media-ad-metrics-bars .c-progress-fill{forced-color-adjust:none; background:CanvasText;}
 }
 
 /* =========================================================
@@ -4615,6 +4607,17 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
 @media (prefers-reduced-motion: reduce){
   .c-progress-indeterminate-fill{ animation:none; position:static; width:60%; background:var(--color-neutral-4); }
   .c-progress-fill{ transition:none; }
+}
+
+/* Forced colours — backgrounds are stripped, which would erase every
+   track and fill. Outline the track and paint the fill in CanvasText;
+   the in-bar label flips to Canvas so it stays readable on that fill.
+   Lives here once for every Progress Bar (Media Ad Card, Media Ad Modal
+   and Preview card used to carry scoped copies). */
+@media (forced-colors:active){
+  .c-progress-track{outline:var(--border-width-sm) solid CanvasText;}
+  .c-progress-fill, .c-progress-stack-segment, .c-progress-indeterminate-fill{forced-color-adjust:none; background:CanvasText;}
+  .c-progress-fill-label{forced-color-adjust:none; color:Canvas;}
 }
 
 /* Legend — Stacked-only. Per DESIGN-SYSTEM.md's Label placement rules, a

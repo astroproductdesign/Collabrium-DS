@@ -11865,6 +11865,11 @@ level, not inline on the bar itself.
   status message via `aria-live="polite"` on the parent.
 - Motion: the indeterminate animation respects
   `prefers-reduced-motion` per the Transition rules, above.
+- Forced colours (Windows High Contrast): backgrounds are stripped, so
+  the track gets a CanvasText outline and the fill, stacked segments and
+  indeterminate shimmer are painted CanvasText. The in-bar label flips
+  to Canvas. This lives once in Progress Bar's own block; components
+  that embed a bar don't add their own copy.
 
 **Placement:**
 
@@ -13942,6 +13947,16 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.122 — 2026-10-14** — Two fixes to shipped components. Progress
+  Bar: forced colours (Windows High Contrast) now has one rule in
+  Progress Bar's own block. The track is outlined in CanvasText; the
+  fill, stacked segments and indeterminate shimmer are painted
+  CanvasText; the in-bar label flips to Canvas. Before, only Media Ad
+  Card and Media Ad Modal carried scoped copies, and every other bar
+  disappeared. Those copies are removed. Campaign card: the brand line
+  is scoped `.c-card-campaign .c-card-campaign-brand`, because Card's
+  `.c-card p` reset out-specified the bare class and showed the brand at
+  body2 14px where caption 12px was specified.
 - **v0.9.121 — 2026-10-14** — New [Lists](#lists) component: one
   base List item (`.c-list-item` in `.c-list`) with three slots,
   Leading, Content and Trailing, where stat lists, campaign rows and
