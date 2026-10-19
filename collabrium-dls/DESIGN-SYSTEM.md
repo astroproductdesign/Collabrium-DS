@@ -837,7 +837,7 @@ static gallery) is out of scope for a component reference — the panel
 just stays permanently visible so you can see it.
 
 **Scope note.**
-33 components: the original 7 basics
+34 components: the original 7 basics
 (Button, Input field, Card, Badge & Tag, Table, Modal / dialog,
 Empty state), 8 transcribed directly from the teammate's real
 component source (SidebarNav, Tabs, Checkbox, Radio,
@@ -861,7 +861,7 @@ Single select/Multiple select variants — the former, separately
 transcribed **Select** and designed-from-scratch **MultiSelect**,
 consolidated into one component), and **Info Banner** (an inline,
 persistent, container-anchored notification — distinct from Toast's
-floating/viewport-level/auto-dismissing behavior), plus **Lists** (one List item with presets — Navigation, Stat, Activity Log — and a Section header). The Stat/KPI card
+floating/viewport-level/auto-dismissing behavior), plus **Lists** (one List item with presets — Navigation, Stat, Activity Log — and a Section header), plus **Quantity selector** (a number field with − and + buttons for quantities and big numbers). The Stat/KPI card
 batch, App Shell, **Back button**, Stepper, FileUploader, Dropdown, Search input, Info
 Banner, **Segmented Control**, **Slider**, **Chip**, and **Progress
 Bar** have **no source in
@@ -925,6 +925,7 @@ undocumented ones is just an inconsistent list.
 - [Password field](#password-field)
 - [Progress Bar](#progress-bar)
 - [Progress-to-Goal Bar](#progress-to-goal-bar)
+- [Quantity selector](#quantity-selector)
 - [Radio](#radio)
 - [Search input](#search-input)
 - [Segmented Control](#segmented-control)
@@ -5705,6 +5706,9 @@ the same section at once.
 
 ### Input field
 
+For a whole-number quantity with − and + buttons, use
+[Quantity selector](#quantity-selector), which is built on this box.
+
 Anatomy, top to bottom: label → input box → helper or error text.
 
 | Part | Spec |
@@ -7474,6 +7478,169 @@ category breakdown in a Small bar and expect the categories to be
 identifiable, or add a Target row to the legend — it's already labelled
 once, under the bar.
 
+### Quantity selector
+
+⚠️ **Designed, not transcribed.** Built in v0.9.123 from the
+Collab:Sales package builder's quantity control on a package line
+(`.cs-qty`: markup only, no source CSS). Its box is Input field's recipe
+and its buttons are the shipped Ghost icon-only Button. Still needs real
+design/brand review.
+
+A number field with **−** and **+** buttons, for whole-number quantities
+the user sets: ad spots on a package line, flight weeks, screens, and
+**big numbers** such as impressions or an RM budget. You can type the
+number, press the buttons (press and hold to repeat) or use the arrow
+keys. Classes are `.c-quantity-selector` and its `-*` parts.
+
+Not the [Stepper](#stepper) (step-progress). "Stepper" is a common
+industry name for this pattern, which is why the two names are kept
+apart.
+
+**Use it** when the user sets a count or amount inside a known range
+and nudging by a step is useful. **Don't use it** for free-form numbers
+with no range (a plain [Input field](#input-field)), for choosing among
+a few named options ([Segmented Control](#segmented-control) or
+[Radio](#radio)), for a position on a continuous scale
+([Slider](#slider)), or for decimals (whole numbers only).
+
+#### Anatomy
+
+| Part | Spec |
+|---|---|
+| Field `.c-quantity-selector-field` | Optional wrapper: label, box, helper or error. Inline flex column, spacing-4 gap, intrinsic width. Not `.c-field`, whose `input` rule would restyle the inner input |
+| Label `.c-quantity-selector-label` | label1 (14/20/700), Neutral-9, the same as `.c-field label`. Always present: `.sr-only` in rows and table cells |
+| Box `.c-quantity-selector` | Input field's box: 40px (compact 32px), `radius-sm`, 1px Neutral-3 border, Neutral-1 fill. **Always hugs its content** (`width:fit-content`), so no flex or grid parent can stretch it |
+| Decrease / Increase `.c-quantity-selector-btn[data-dir="-1" / "1"]` | Shipped Ghost icon-only sm (`.c-btn .c-btn-ghost .c-btn-sm .c-btn-icon`, 32×32; compact 24×24) with `ph-minus` / `ph-plus` at `icon-sm` (compact `icon-micro`). Inset (box − button) / 2 − border = 3px at both sizes |
+| Value `.c-quantity-selector-value` | One tight group, spacing-4 between its parts: [lock] [prefix] number [unit]. Clicking anywhere in it focuses the input |
+| Lock `.c-quantity-selector-lock` | Read-only only. `ph-lock-simple` (Regular), Neutral-5, `icon-sm` (compact `icon-micro`), **before** the number, `aria-hidden` |
+| Prefix `.c-quantity-selector-prefix` | Optional currency ("RM"), set with `data-unit-prefix`. caption (12/16), Neutral-5, `aria-hidden`. **Hugs the number** at spacing-4 |
+| Input `.c-quantity-selector-input` | `type="text" inputmode="numeric" role="spinbutton"`. body2 (14/20/400), Neutral-9, `tabular-nums`. As wide as its current text |
+| Unit `.c-quantity-selector-unit` | Optional suffix ("spots"), singular / plural from `data-unit-one` / `data-unit-other`. caption, Neutral-5, `aria-hidden`. The longer form's width is reserved, so "1 spot" ↔ "2 spots" never moves the + button |
+| Helper / error | Shipped `.c-helper` (range hint, e.g. "1–50 spots"); the error `.c-helper.c-quantity-selector-error` replaces it |
+
+**Width.** The box reserves the width of the **formatted max**,
+separators included (10,000,000 → 10 digits; at least 2 digits; no max →
+6). The number inside is only as wide as its text, and the unused width
+becomes padding around the value group: centred when there are buttons,
+at the end for type-only. So the box never changes width as the value
+changes, the buttons never move, and "RM" never drifts away from the
+digits. A host can pin the reserve with `--c-quantity-selector-ch: n`.
+
+#### Class API and markup
+
+| Modifier | Effect |
+|---|---|
+| `.is-compact` | 32px box, 24px buttons, `icon-micro`. For table and list rows |
+| `.is-type-only` | No buttons; value at Input field's 12px inset, grouped at the end. Same spinbutton and keys. Use it where a step is too small to be a useful nudge (impressions, reach) and in dense table columns, so digits line up |
+| `.is-error`, `.is-disabled`, `.is-readonly` | Set by the script from validation, `disabled` and `readonly`. Don't set them by hand |
+
+```html
+<div class="c-quantity-selector-field">
+  <label class="c-quantity-selector-label" for="spots">Spots</label>
+  <div class="c-quantity-selector" data-unit-one="spot" data-unit-other="spots">
+    <button type="button" class="c-btn c-btn-ghost c-btn-sm c-btn-icon c-quantity-selector-btn" data-dir="-1" tabindex="-1" aria-label="Fewer spots" aria-controls="spots"><i class="ph ph-minus" aria-hidden="true"></i></button>
+    <span class="c-quantity-selector-value"><input id="spots" class="c-quantity-selector-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" role="spinbutton" value="10" aria-valuemin="1" aria-valuemax="50" aria-valuenow="10" aria-valuetext="10 spots" data-step="1" aria-describedby="spots-help"><span class="c-quantity-selector-unit" aria-hidden="true">spots</span></span>
+    <button type="button" class="c-btn c-btn-ghost c-btn-sm c-btn-icon c-quantity-selector-btn" data-dir="1" tabindex="-1" aria-label="More spots" aria-controls="spots"><i class="ph ph-plus" aria-hidden="true"></i></button>
+  </div>
+  <span class="c-helper" id="spots-help">1–50 spots</span>
+  <span class="c-helper c-quantity-selector-error" id="spots-err" hidden></span>
+</div>
+```
+
+With a currency prefix, put `data-unit-prefix="RM"` on the box and
+`<span class="c-quantity-selector-prefix" aria-hidden="true">RM</span>`
+before the input. Read-only adds `readonly` to the input, keeps both
+buttons with `aria-disabled="true"`, puts
+`<i class="ph ph-lock-simple c-quantity-selector-lock" aria-hidden="true"></i>`
+first in the value group (the script adds it if missing), and points
+`aria-describedby` at the reason ("Locked by the package").
+
+**Script.** The component needs `CQuantitySelector.init(box)` once per
+box (the reference script ships in `preview.html`). It returns
+`{ get(), set(n) }` and emits two bubbling events on the box:
+`c-quantity-selector-change` (`detail: { value, previous, source }`,
+source `button` / `hold` / `key` / `type` / `enter` / `blur` / `host`)
+and `c-quantity-selector-invalid` (`detail: { reason, raw, value }`).
+Inputs: `aria-valuemin` / `aria-valuemax`, `data-step` (default 1),
+`data-big-step` (default 10 × step), `data-shorthand` (opt-in). The
+script only adds and removes its own helper / error ids in
+`aria-describedby`; ids the host adds are kept.
+
+#### Behaviour
+
+| Topic | Rule |
+|---|---|
+| Typing | Free. Checked on **blur or Enter**, never per keystroke. Accepts "1250000", "1,250,000", "1 250 000" and a pasted "RM 25,000". Formatted with comma thousands (en-MY) on commit, step and load, never while typing, so nothing moves under the caret |
+| Invalid input | **Shows an error and is never silently clamped**: changing a quantity that drives a price behind the user's back is worse than asking. Messages: "Enter a number of spots." · "Use digits only, like 10." · "Use a whole number." · "The minimum is 1 spot." · "The maximum is 50 spots." What was typed stays. Focus never moves. Enter blocks a form submit only while invalid. Escape restores the last valid value |
+| Off-step values | A typed value between steps (75 with step 50) is **accepted as typed**. The next button press or arrow key snaps to the grid in that direction |
+| Keys (on the input) | ↑ / ↓ one step · PageUp / PageDown the big step · Home / End min / max · Enter commit · Escape undo typing (it isn't handled when there's nothing to undo, so an enclosing Modal still closes) · Tab commits on blur and skips the buttons |
+| Buttons | Out of the tab order (`tabindex="-1"`): each selector is one tab stop and the arrow keys do everything the buttons do. Named for what they change ("Fewer spots" / "More spots"; "Decrease budget" without a unit; add the row name when they repeat in rows). Press and hold: one step, then after 400ms one every 100ms; stops on release, on dragging off, at the limit, and on window blur. No acceleration: PageUp / PageDown covers big jumps |
+| Limits | At min, − gets `aria-disabled="true"` (Neutral-4, no hover); at max, + does. `aria-disabled`, not `disabled`, so the button stays readable to screen readers and a hold isn't cut off by a disabled element |
+| Big numbers | Automatic from `max`, no class. Buttons nudge by `step`; typing is the main input |
+| Shorthand | `data-shorthand`, **off by default**: "250k" → 250,000, "1.2m" → 1,200,000 (k and m only). Switches the input to `inputmode="text"`, since a numeric keypad has no k or m, and the helper must say shorthand is allowed. Turn it on only where people already type this way, such as budgets |
+| Read-only | White box, Neutral-3 border, Neutral-9 value that stays focusable and selectable. − and + stay visible but `aria-disabled` and never step, and a lock leads the value ("🔒 RM 25,000"), so it reads as locked and never as disabled. **Always give the reason** through `aria-describedby` ("Locked by the package"). Type-only read-only shows the lock alone |
+| Disabled | Native `disabled` on the input: Neutral-2 fill, Neutral-5 text, Neutral-4 icons, no lock |
+
+#### States
+
+| State | Look |
+|---|---|
+| Default | 1px Neutral-3 border. The box has no hover of its own (Input field defines none) |
+| Button hover / pressed | Ghost Neutral-2 fill / Neutral-3, held for the whole press-and-hold |
+| Focus | 2px Obsidian border on plain `:focus` (`:focus-within` on the box), Input field's exception to the Water focus ring. The inset drops 1px so nothing moves |
+| At min / at max | That button Neutral-4, no hover |
+| Error | 2px Red border, red error text, `aria-invalid`. Focus still wins over error, as in Input field |
+| Read-only | As above: lock, disabled buttons, white box |
+| Disabled | Neutral-2 fill, Neutral-5 text |
+
+#### Accessibility
+
+- `role="spinbutton"` on a text input (not `type="number"`, which
+  returns an empty value for text it can't read, accepts "e", "+" and
+  ".", changes on mouse-wheel scroll and draws its own spinner).
+  `aria-valuenow` is the raw number; `aria-valuetext` carries the unit
+  ("10 spots", "1 spot", "RM 25,000", "1,250,000 impressions"). While
+  invalid, `aria-valuenow` is removed and `aria-valuetext` is what was
+  typed.
+- Screen readers hear, for example: "Spots, spin button, 10 spots".
+  Read-only: "Spots, spin button, read-only, 10 spots, Locked by the
+  package."
+- No live region (system rule). A button press doesn't announce the new
+  value; the arrow keys on the focused spinbutton do, so keyboard and
+  screen-reader users should use the arrow keys.
+- Coarse pointers: a transparent `::after` lifts each button to 44×44
+  without changing its painted size; compact widens its value padding so
+  the lift doesn't cover the digits.
+- Forced colours: CanvasText border, Highlight focus border, GrayText
+  for disabled parts, limit buttons and the lock. The error keeps its
+  2px width and relies on the error text, because colour is gone.
+  Pressed adds a 1px Highlight outline, since the fill is dropped.
+
+#### Deviations
+
+1. Error border **2px** and error text **regular weight**, matching the
+   shipped Input field CSS. The Input field section above still says 1px
+   and 700; the CSS is the source of truth here.
+2. Ghost pressed (Neutral-3) and Ghost `aria-disabled` (Neutral-4 icon,
+   no hover) are applied in this component's own block: shipped Button
+   has no Ghost `:active` rule, and `.c-btn:disabled` paints Primary's
+   fill. The 24px compact icon button and the `icon-sm` glyph size are
+   also local. All three belong in Button long-term.
+3. Default-size button corners aren't concentric (12px radius at a 4px
+   inset; concentric would be 8px). Visible on hover and press only, and
+   left as is, since changing it would restyle Button.
+4. Number-to-unit and prefix-to-number gaps are spacing-4, not the
+   adornment rule's spacing-8: the value reads as one phrase.
+5. The displayed value is formatted text ("1,250,000"). Read
+   `aria-valuenow`, `get()` or the change event for the number.
+
+**One-off values:** 40 / 32px box heights (Input field md / sm), 24px
+compact button with an 8px radius, 44px touch target, a 2px caret
+allowance on the input width, typing may run 4 digits past the reserve,
+hold timing 400ms / 100ms, big step 10 × step, shorthand k = 1,000 and
+m = 1,000,000, and the script's measuring span
+(`.c-quantity-selector-measure`).
+
 ### Radio
 
 **Transcribed from the teammate's `Radio.jsx`.**
@@ -8319,6 +8486,9 @@ falling — it marks values below zero, not bad news; a declining
 positive number is exactly what the trend row is for.
 
 ### Stepper
+
+Not the [Quantity selector](#quantity-selector), the number field with
+− and + buttons that some products also call a "stepper".
 
 ⚠️ **Designed from scratch — no source in either the original
 brand deck or the teammate's build.** Built from this document's own
@@ -9338,6 +9508,20 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.123 — 2026-10-19** — New [Quantity selector](#quantity-selector)
+  component (`.c-quantity-selector`): a number field with − and +
+  buttons, from the Collab:Sales package builder's quantity control. Its
+  box is Input field's recipe and its buttons the shipped Ghost
+  icon-only Button. It always hugs its content and reserves the width of
+  the formatted max, so the buttons never move; "RM" and units hug the
+  number. Default and compact sizes, an optional currency prefix and
+  singular / plural unit, comma-thousand formatting on commit, optional
+  "250k" / "1.2m" shorthand (off by default), a type-only variant, and a
+  read-only state with disabled buttons and a leading lock. Typed values
+  out of range show an error and are never silently clamped; keys,
+  press-and-hold and limits follow the spinbutton pattern with no live
+  region. Needs its script (`CQuantitySelector.init`). Cross-referenced
+  from Input field and Stepper; scope note now 34 components.
 - **v0.9.122 — 2026-10-14** — Two fixes to shipped components. Progress
   Bar: forced colours (Windows High Contrast) now has one rule in
   Progress Bar's own block. The track is outlined in CanvasText; the

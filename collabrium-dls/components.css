@@ -5973,6 +5973,137 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
 }
 
 /* =========================================================
+   Quantity selector — `c-quantity-selector`. A number field with − and +
+   buttons for whole-number quantities: ad spots on a package line, weeks,
+   screens, and big numbers (impressions, RM budgets). Box = Input field's
+   recipe (40 / compact 32, radius-sm, 1px Neutral-3, 2px focus / error);
+   buttons = shipped Ghost icon-only sm, untouched. Not the Stepper
+   (step-progress); "stepper" is a common industry name for this pattern.
+   Needs its script (CQuantitySelector.init, see DESIGN-SYSTEM.md
+   "Quantity selector"): it measures the value so the box hugs its
+   content and "RM" hugs the digits, formats comma thousands on commit,
+   and wires keys, hold-to-repeat, limits, validation and read-only.
+   ========================================================= */
+.c-quantity-selector-field{display:inline-flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-4); max-width:100%; font-family:var(--font-primary); color:var(--color-neutral-9);}
+.c-quantity-selector-label{font-size:var(--text-label1-size); line-height:var(--text-label1-lh); font-weight:var(--text-label1-weight);}  /* = shipped .c-field label */
+.c-quantity-selector-field.is-error .c-helper{color:var(--color-red);}                                                                        /* = shipped .c-field-error .c-helper */
+
+/* The box. Input field's recipe; border width/colour run through two
+   custom properties so focus/error/disabled change one value each and
+   the inset compensates automatically. */
+.c-quantity-selector{
+  --c-quantity-selector-h:40px;                 /* Input field md */
+  --c-quantity-selector-btn:32px;               /* Button icon-only sm */
+  --c-quantity-selector-pad:calc((var(--c-quantity-selector-h) - var(--c-quantity-selector-btn)) / 2);
+  --c-quantity-selector-bw:var(--border-width-sm);
+  --c-quantity-selector-bc:var(--color-neutral-3);
+  box-sizing:border-box; display:inline-flex; align-items:center; flex:none; vertical-align:middle;
+  /* Always hugs its content. inline-flex alone isn't enough: as a flex or
+     grid item it's blockified and a column-flex / grid parent stretches
+     it. An explicit width switches stretch off in any host. */
+  width:fit-content; height:var(--c-quantity-selector-h); max-width:100%;
+  padding:0 calc(var(--c-quantity-selector-pad) - var(--c-quantity-selector-bw));
+  border:var(--c-quantity-selector-bw) solid var(--c-quantity-selector-bc);
+  border-radius:var(--radius-sm);
+  background:var(--color-neutral-1);
+  font-family:var(--font-primary); color:var(--color-neutral-9);
+}
+.c-quantity-selector.is-compact{--c-quantity-selector-h:32px; --c-quantity-selector-btn:24px;}  /* Input field sm; 24px one-off */
+.c-quantity-selector.is-error{--c-quantity-selector-bw:var(--border-width-md); --c-quantity-selector-bc:var(--color-red);}
+/* After .is-error on purpose: focus wins over error, as shipped Input field. */
+.c-quantity-selector:focus-within{--c-quantity-selector-bw:var(--border-width-md); --c-quantity-selector-bc:var(--color-obsidian);}
+.c-quantity-selector.is-disabled{--c-quantity-selector-bw:var(--border-width-sm); --c-quantity-selector-bc:var(--color-neutral-3); background:var(--color-neutral-2); color:var(--color-neutral-5); cursor:not-allowed;}
+/* Type-only drops the buttons and sits at Input field's 12px text inset.
+   Read-only KEEPS them, aria-disabled (Neutral-4, inert), plus a lock. */
+.c-quantity-selector.is-type-only{--c-quantity-selector-pad:calc(var(--spacing-12) + var(--border-width-sm));}
+.c-quantity-selector.is-type-only .c-quantity-selector-btn{display:none;}
+
+/* The value group is ONE tight cluster: [prefix] 4px [number] 4px [suffix].
+   The input shrinks to fit its current text (--c-quantity-selector-w, set by
+   the script), so the prefix always hugs the digits. The width the number
+   does NOT use (formatted max − current) goes into the group's padding as
+   --c-quantity-selector-slack: split both sides (centred) when there are
+   buttons (incl. read-only's disabled ones), all on the start side
+   (cluster at the end) for type-only. So the box keeps the width of the
+   formatted max, the buttons never move, and a short value never opens a
+   gap after "RM". */
+.c-quantity-selector-value{
+  --c-quantity-selector-vpad:var(--spacing-8);
+  position:relative; display:flex; align-items:center; gap:var(--spacing-4); min-width:0; height:100%;
+  padding-block:0;
+  padding-inline:calc(var(--c-quantity-selector-vpad) + var(--c-quantity-selector-slack, 0px) / 2);
+  cursor:text;
+}
+.c-quantity-selector.is-type-only .c-quantity-selector-value{padding-inline:var(--c-quantity-selector-slack, 0px) 0;}
+.c-quantity-selector.is-readonly .c-quantity-selector-value{cursor:default;}
+/* Lock (read-only only): Phosphor lock-simple, Regular (Tier 1), LEADING
+   in the value group (lock · prefix · number · unit), spacing-4 gap (the
+   group's own gap) so the locked state is read before the value,
+   Neutral-5, icon-sm (Input field's trailing-icon size); compact
+   icon-micro. Part of the tight group, so the reserve includes it.
+   Decorative: aria-hidden. Fill and border stay Neutral-1 / Neutral-3 and
+   the value stays Neutral-9, so read-only never reads as disabled. */
+.c-quantity-selector-lock{flex:none; display:inline-flex; font-size:var(--icon-sm); line-height:1; color:var(--color-neutral-5);}
+.c-quantity-selector-lock[hidden]{display:none;}
+.c-quantity-selector.is-compact .c-quantity-selector-lock{font-size:var(--icon-micro);}
+.c-quantity-selector.is-disabled .c-quantity-selector-value{cursor:not-allowed;}
+.c-quantity-selector-input{
+  box-sizing:content-box; flex:none; min-width:0; height:100%;
+  /* Script: measured current text + 2px (ONE-OFF caret allowance, 1px each
+     side via text-align:center). No script: the ch fallback. */
+  width:var(--c-quantity-selector-w, calc(var(--c-quantity-selector-ch, 3) * 1ch + 2px));
+  margin:0; padding:0; border:0; outline:none; background:transparent; border-radius:0;
+  font:inherit; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--weight-regular);
+  font-variant-numeric:tabular-nums; color:inherit; text-align:center;
+}
+/* Hidden measuring span (script-created): same type as the input. */
+.c-quantity-selector-measure{position:absolute; top:0; left:0; visibility:hidden; white-space:pre; pointer-events:none; font-family:var(--font-primary); font-size:var(--text-body2-size); font-weight:var(--weight-regular); font-variant-numeric:tabular-nums;}
+/* Prefix unit (currency): Input field's prefix adornment, caption Neutral-5,
+   HUGS the number at spacing-4 ("RM 25,000"). aria-hidden; aria-valuetext
+   says "RM 25,000". */
+.c-quantity-selector-prefix{flex:none; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap; user-select:none; -webkit-user-select:none;}
+.c-quantity-selector-input:disabled{color:inherit; -webkit-text-fill-color:currentColor; opacity:1; cursor:not-allowed;}
+.c-quantity-selector-unit{flex:none; display:inline-flex; flex-direction:column; font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5); white-space:nowrap; user-select:none; -webkit-user-select:none;}
+/* Width reserve: the longer unit form (data-unit-reserve, set by the
+   script) is stacked invisibly at zero height, so "1 spot" ↔ "2 spots"
+   never moves the + button or resizes the box. */
+.c-quantity-selector-unit[data-unit-reserve]::after{content:attr(data-unit-reserve); height:0; overflow:hidden; visibility:hidden;}
+
+/* Buttons. Default size is the shipped Ghost icon-only sm, untouched.
+   These rules only add what the host needs: icon size (Button leaves the
+   glyph at the inherited 14px; spec says icon-sm), touch behaviour,
+   pressed/holding and the aria-disabled look. */
+.c-quantity-selector-btn{position:relative; flex:none; touch-action:manipulation; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;}
+.c-quantity-selector-btn > i{font-size:var(--icon-sm);}
+.c-quantity-selector.is-compact .c-quantity-selector-btn{width:var(--c-quantity-selector-btn); height:var(--c-quantity-selector-btn); border-radius:8px;}  /* ONE-OFF 8px: Lists' leading corner */
+.c-quantity-selector.is-compact .c-quantity-selector-btn > i{font-size:var(--icon-micro);}
+.c-quantity-selector-btn:not([aria-disabled="true"]):is(:active, .is-holding){background:var(--color-neutral-3); transition-duration:var(--duration-instant);}  /* Button Ghost pressed */
+.c-quantity-selector-btn[aria-disabled="true"]{color:var(--color-neutral-4); cursor:not-allowed;}                                                         /* Button Ghost disabled */
+.c-quantity-selector-btn[aria-disabled="true"]:hover{background:transparent;}
+
+/* Touch: transparent hit area to 44x44, painted size unchanged (the
+   ::after recipe the shipped modals and Chat use). Compact gets more
+   inner padding so its larger lift doesn't cover the digits. */
+@media (hover:none), (pointer:coarse){
+  .c-quantity-selector-btn::after{content:""; position:absolute; inset:calc((44px - var(--c-quantity-selector-btn)) / -2); border-radius:inherit;}
+  .c-quantity-selector.is-compact .c-quantity-selector-value{--c-quantity-selector-vpad:var(--spacing-12);}
+}
+
+/* Forced colours. The UA keeps author system colours, so focus can be
+   Highlight; disabled parts go GrayText. Error keeps its 2px width and
+   relies on the error text (colour is gone). */
+@media (forced-colors:active){
+  .c-quantity-selector{--c-quantity-selector-bc:CanvasText;}
+  .c-quantity-selector.is-error{--c-quantity-selector-bc:CanvasText;}
+  .c-quantity-selector:focus-within{--c-quantity-selector-bc:Highlight;}
+  .c-quantity-selector.is-disabled{--c-quantity-selector-bc:GrayText; color:GrayText;}
+  .c-quantity-selector.is-disabled :is(.c-quantity-selector-unit, .c-quantity-selector-prefix){color:GrayText;}
+  .c-quantity-selector-btn[aria-disabled="true"]{color:GrayText;}
+  .c-quantity-selector-lock{color:GrayText;}
+  .c-quantity-selector-btn:not([aria-disabled="true"]):is(:active, .is-holding){outline:var(--border-width-sm) solid Highlight; outline-offset:calc(var(--border-width-sm) * -1);}
+}
+
+/* =========================================================
    Lists — List item `c-list-item` in `c-list`, plus its Section
    header `c-list-subheader`.
    Kept at the END of this file on purpose: its trailing-slot overrides
