@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.116</title>
+<title>Collabrium design system | v0.9.124</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -588,7 +588,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.116</span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> <span class="js-version-flag">v0.9.124</span></span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -596,7 +596,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> v0.9.116</span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> <span class="js-version-flag">v0.9.124</span></span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -4727,7 +4727,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.116** — 2026-10-08 — Sourced from the Collabrium brand deck
+**v0.9.124** — 2026-10-22 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -14617,6 +14617,17 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+**Version rule.** The newest entry below is the system's version, and
+every version stamp follows it. Whenever you add an entry, add it at the
+top, numbered one past the newest entry already on `main` (check `main`
+first: other branches add entries too). In the same change, set the stamp
+at the top of this file to that entry's version and date. `preview.html`
+reads its page title and both version flags from the newest entry each
+time it loads, so those can't fall behind; its hard-coded values are only
+a fallback for the moment before the script runs, and should match too.
+If the top stamp or a fallback is behind, the gallery says so in the
+browser console.
+
 - **v0.9.124 — 2026-10-22** — New [Timeline](#timeline), a **variant of
   Stepper** (`.c-timeline`): a read-only plan of items with per-item
   status (completed, current, upcoming, overdue, at risk, skipped,
@@ -21502,6 +21513,34 @@ function renderChangelog(){
     </article>`;
   }).join('');
 }
+
+/* ---------- Version stamps — always the newest changelog entry ----------
+   Per DESIGN-SYSTEM.md's Changelog → Version rule: the page title and both
+   version flags are set from the newest changelog entry on every load, so
+   they can't fall behind when another branch adds an entry. The values
+   hard-coded in the HTML are only a fallback for before this runs. The
+   stamp at the top of DESIGN-SYSTEM.md can't update itself, so a mismatch
+   there (or in the fallbacks) is reported in the console. */
+(function syncVersionStamps(){
+  const full = src.mdExtended;
+  const start = full.indexOf('## Changelog');
+  if(start === -1) return;
+  const newest = full.slice(start).match(/\n-\s+\*\*(v\d+\.\d+\.\d+)\s+—\s+(\d{4}-\d{2}-\d{2})\*\*/);
+  if(!newest) return;
+  const version = newest[1];
+  const behind = [];
+  const docStamp = full.match(/^\*\*(v\d+\.\d+\.\d+)\*\*\s+—/m);
+  if(docStamp && docStamp[1] !== version) behind.push(`DESIGN-SYSTEM.md's top stamp (${docStamp[1]})`);
+  const titleStamp = document.title.match(/v\d+\.\d+\.\d+/);
+  if(titleStamp && titleStamp[0] !== version) behind.push(`preview.html's <title> fallback (${titleStamp[0]})`);
+  document.querySelectorAll('.js-version-flag').forEach(el => {
+    if(el.textContent.trim() !== version) behind.push(`a version flag fallback (${el.textContent.trim()})`);
+    el.textContent = version;
+  });
+  if(titleStamp) document.title = document.title.replace(titleStamp[0], version);
+  else document.title += ' | ' + version;
+  if(behind.length) console.warn(`Version stamps behind the newest changelog entry (${version}): ${behind.join(', ')}. See DESIGN-SYSTEM.md → Changelog → Version rule.`);
+})();
 
 let changelogRendered = false;
 document.getElementById('changelogOpenBtn').addEventListener('click', () => {
