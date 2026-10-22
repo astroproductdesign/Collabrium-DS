@@ -4169,6 +4169,75 @@
               </div>
             </div>
 
+            <hr class="comp-divider" />
+            <p style="margin:0 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Timeline</p>
+            <div>
+              <!-- Timeline (Stepper variant, read-only plan view) · Medium (default) · icon dots · horizontal · date above (default, no class) -->
+              <ol class="c-timeline c-timeline-icon c-timeline-horizontal" role="list" aria-label="MILO Raya 2027">
+                <li class="c-timeline-item is-completed">
+                  <span class="c-timeline-separator" aria-hidden="true">
+                    <span class="c-timeline-dot"><span class="c-timeline-mark"><i class="ph ph-check"></i></span></span>
+                    <span class="c-timeline-connector"></span>
+                  </span>
+                  <div class="c-timeline-content">
+                    <div class="c-timeline-body">
+                      <span class="c-timeline-title"><span class="c-timeline-heading"><span class="sr-only">Step 1 of 5, </span>Brief</span><span class="sr-only">, </span><span class="c-timeline-date">9 Oct</span></span>
+                      <span class="sr-only">, </span><span class="c-timeline-caption"><span class="c-timeline-status">Done</span></span>
+                    </div>
+                  </div>
+                </li>
+                <li class="c-timeline-item is-completed">
+                  <span class="c-timeline-separator" aria-hidden="true">
+                    <span class="c-timeline-dot"><span class="c-timeline-mark"><i class="ph ph-check"></i></span></span>
+                    <span class="c-timeline-connector"></span>
+                  </span>
+                  <div class="c-timeline-content">
+                    <div class="c-timeline-body">
+                      <span class="c-timeline-title"><span class="c-timeline-heading"><span class="sr-only">Step 2 of 5, </span>Research</span><span class="sr-only">, </span><span class="c-timeline-date">16 Oct</span></span>
+                      <span class="sr-only">, </span><span class="c-timeline-caption"><span class="c-timeline-status">Done</span></span>
+                    </div>
+                  </div>
+                </li>
+                <li class="c-timeline-item is-current" aria-current="step">
+                  <span class="c-timeline-separator" aria-hidden="true">
+                    <span class="c-timeline-dot"><span class="c-timeline-mark"><i class="ph-fill ph-lightbulb"></i></span></span>
+                    <span class="c-timeline-connector is-partial" style="--c-timeline-progress:60%"></span>
+                  </span>
+                  <div class="c-timeline-content">
+                    <div class="c-timeline-body">
+                      <span class="c-timeline-title"><span class="c-timeline-heading"><span class="sr-only">Step 3 of 5, </span>Big idea</span><span class="sr-only">, </span><span class="c-timeline-date">Due 23 Oct</span></span>
+                      <span class="sr-only">, current</span>
+                      
+                      <span class="sr-only">, </span><span class="c-timeline-caption"><span class="c-timeline-status">In progress</span></span>
+                    </div>
+                  </div>
+                </li>
+                <li class="c-timeline-item is-upcoming">
+                  <span class="c-timeline-separator" aria-hidden="true">
+                    <span class="c-timeline-dot"><span class="c-timeline-mark"><i class="ph-fill ph-package"></i></span></span>
+                    <span class="c-timeline-connector"></span>
+                  </span>
+                  <div class="c-timeline-content">
+                    <div class="c-timeline-body">
+                      <span class="c-timeline-title"><span class="c-timeline-heading"><span class="sr-only">Step 4 of 5, </span>Package</span><span class="sr-only">, </span><span class="c-timeline-date">Due 30 Oct</span></span>
+                      <span class="sr-only">, upcoming</span>
+                    </div>
+                  </div>
+                </li>
+                <li class="c-timeline-item is-upcoming">
+                  <span class="c-timeline-separator" aria-hidden="true">
+                    <span class="c-timeline-dot"><span class="c-timeline-mark"><i class="ph-fill ph-presentation-chart"></i></span></span>
+                  </span>
+                  <div class="c-timeline-content">
+                    <div class="c-timeline-body">
+                      <span class="c-timeline-title"><span class="c-timeline-heading"><span class="sr-only">Step 5 of 5, </span>Deck</span><span class="sr-only">, </span><span class="c-timeline-date">Due 4 Nov</span></span>
+                      <span class="sr-only">, upcoming</span>
+                    </div>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
           </div>
         </div>
         <div class="comp-block" id="comp-switch">
@@ -10719,7 +10788,10 @@ unread dot**.
 
 There is no read / unread state.
 
-#### Timeline
+#### Timeline line (Activity Log)
+
+Not the [Timeline](#timeline) component (Stepper's plan variant): this
+is the quiet line through an Activity Log's leading elements.
 
 `.c-list-timeline` draws a 2px (`--border-width-md`) Neutral-3 line
 through the leading centres, from 4px under one leading element to 4px
@@ -13158,6 +13230,10 @@ review.
 Tracks progress through a multi-step flow — onboarding, a multi-page
 form, a checkout — as an ordered list of steps.
 
+**Variant:** [Timeline](#timeline), a read-only plan view (campaign
+phases, milestones, approvals, deliverables, roadmaps) where each item
+has its own status. Use Stepper itself when the steps drive a flow.
+
 **State model.** Every step derives one base state from a single
 `currentStep` index — before it is Completed, at it is Active, after
 it is Upcoming — never tracked per step. Error and Warning are flags
@@ -13175,7 +13251,7 @@ acts.
 |---|---|
 | Indicator | 24×24px circle, `radius-pill` |
 | Indicator — Completed | `--color-green` fill, Neutral-1 `ph-check` icon — swaps the step number for the glyph outright rather than keeping a numbered look |
-| Indicator — Active | Neutral-1 fill, 2px Obsidian border, Obsidian step number |
+| Indicator — Active | Obsidian fill, Neutral-1 step number (as shipped in `components.css`; corrected in v0.9.124 — this row previously said a Neutral-1 fill with a 2px Obsidian border) |
 | Indicator — Upcoming | Neutral-1 fill, 1px Neutral-3 border, Neutral-5 step number |
 | Indicator — Error (flag) | `--color-red` fill, Neutral-1 `ph-x` icon — a fill even though a fill elsewhere in this indicator means "settled," since Error has to be the loudest thing in the row |
 | Indicator — Warning (flag) | `--color-amber` fill, Obsidian `ph-fill ph-warning` icon |
@@ -13221,6 +13297,381 @@ the connector's length or spacing depend on label or description
 length; both orientations keep it fixed/equal on purpose (see the
 Connector rows above). Don't auto-advance a step when its Error
 resolves — resolving and advancing are two separate acts.
+
+#### Timeline
+
+⚠️ **Designed, not transcribed.** Built in v0.9.124 from the design
+team's written spec (based on MUI Timeline, extended for Collabrium).
+Still needs real design/brand review.
+
+Stepper's **read-only plan variant**. Stepper is the control that drives
+a multi-step flow from one `currentStep`; Timeline shows a plan as an
+ordered list of items, each with its own status, connected by a line.
+Same family language (one current step, completed / upcoming, Obsidian
+for "now"), different job: nothing in a Timeline advances a flow.
+
+**Use it** for campaign phases, project milestones, approval flows,
+deliverable schedules and roadmaps. **Don't use it** for activity
+history (that's [Lists](#lists)' Activity Log with `.c-list-timeline`)
+or for a numbered step-by-step flow (that's Stepper's default variant).
+
+Timeline is built from Lists parts (avatar lead, skeleton bones, Section
+header, footer), so its CSS sits in `components.css` **after Lists**, for
+cascade reasons. Classes are `.c-timeline*`.
+
+##### Timeline vs Lists' Activity Log
+
+| | Lists' Activity Log + `.c-list-timeline` | Timeline `.c-timeline` |
+|---|---|---|
+| Answers | What happened, and who did it (history) | What's the plan, and where are we |
+| Order | Newest first; relative time under 24h | Oldest first for plans; dates or ranges |
+| Status | None on the row (optional trailing Badge) | Every item; exactly one current |
+| Line | Quiet 2px Neutral-3, always solid, decoration | 2px, colour follows the item above; solid (done), dashed (not yet), partial (in progress); ends at the last item |
+
+Lists' own subsection is named "Timeline line (Activity Log)" so the two
+don't get confused.
+
+##### Anatomy
+
+| Part | Class | Spec |
+|---|---|---|
+| Timeline | `ol.c-timeline` | `role="list"`, labelled by its visible heading (`aria-labelledby`). Flex column; a size container named `c-timeline`, so the mobile rules follow its own width. Inline-size containment collapses it inside an auto-sized flex/grid item: give that item a width |
+| Item | `li.c-timeline-item.is-{status}` | Grid: opposite (96) · separator · content. Column gap spacing-12 (spacing-16 in an interactive timeline). `aria-current="step"` on the one current item |
+| Separator | `.c-timeline-separator` | `aria-hidden="true"`. Dot + connector |
+| Dot | `.c-timeline-dot` > `.c-timeline-mark` \| `.c-list-item-lead.is-avatar` | Positioner (carries the current ring + pulse). The mark is the painted circle (plain, icon); avatars reuse Lists' lead as shipped. Avatar status: `.c-timeline-mark.c-timeline-badge` on its corner |
+| Connector | `.c-timeline-connector` (`.is-partial`) | 2px (`--border-width-md`), 4px off each dot; none on the last item (or an `.is-end` item) |
+| Content | `.c-timeline-content` > `.c-timeline-body` | Body is a `<div>` (static), `<a href>` (opens) or `<button>` (acts in place). Lines 2px apart |
+| Title (date above) | `.c-timeline-title` > `.c-timeline-heading` + `.c-timeline-date` | Wraps heading and date; the date is drawn above the heading |
+| Heading | `.c-timeline-heading` | Required. Semibold, Neutral-9, 2 lines max (can't expand: keep it short) |
+| Description | `.c-timeline-desc` | Optional. Neutral-5, 3 lines max, "Show more" when longer |
+| Caption | `.c-timeline-caption` + `.c-timeline-status` | Optional. caption / Neutral-5, one line; the status word is semibold Neutral-9 |
+| Date | `.c-timeline-date` | caption / Neutral-5, tabular figures, no wrap |
+| Slot | `.c-timeline-slot` | Badge (status), Tag (type), static file chip `.c-timeline-file`, avatar, Button (static items only) |
+| Show more | `.c-btn.c-btn-ghost.c-btn-sm.c-timeline-more` (+ `.c-timeline-more-label`) | After the body, outside it |
+| Details | `.c-timeline-details-toggle` (+ `.c-timeline-details-caret`), `.c-timeline-details[hidden]` (+ `-label`, `-files`) | After the body, outside it. M and L only |
+| Opposite | `.c-timeline-opposite` | `aria-hidden`; its text is repeated as `.sr-only` in the body |
+| Loading | `li.c-timeline-item.is-loading[aria-hidden]` | Lists' `.c-list-item-bone` (content style) or `.c-timeline-bone` (block style) |
+| Around the list | `.c-list-footer > .c-timeline-reveal` (+ `-label`); `.c-timeline-state > .c-empty.is-section` | Partial-list toggles; empty / error host |
+
+**Alignment:** the dot's centre sits on the centre of the heading's
+**first line**, at every size and dot type (the spec's "content top at
+dot centre" was dropped). Any extra line above the heading (a date above,
+a stacked opposite) is absorbed by `--c-timeline-lead`.
+
+##### Sizes
+
+`.c-timeline-sm` / (md, default; `.c-timeline-md` alias) /
+`.c-timeline-lg`, following Button's component-level size classes.
+
+| Size | Dots (plain / icon / avatar) | Dot column | Item gap | Heading | Description |
+|---|---|---|---|---|---|
+| S | 12 / – / – | 16 | 12 | body2 14/20, 600 | caption 12/16 |
+| **M** (default) | 12 / 24 / 24 | 16 / 24 | 16 | body2 14/20, 600 | body2 14/20 |
+| L | 12 / 32 / 32 | 16 / 32 | 24 | body1 16/22, 600 | body2 14/20 |
+
+Caption, opposite and connector don't change. Icon glyph: `icon-micro`
+(14) at M, `icon-sm` (16) at L. Avatar: Lists' S lead (add `.is-s`) at
+M, M lead at L; status badge 14px at M, 16px at L. M is the default
+because it matches Lists' heading and S leading, which a timeline usually
+sits next to.
+
+##### Dot types
+
+| Type | Class | Sizes | Spec |
+|---|---|---|---|
+| Plain | (default) | S, M, L | 12px circle, 16px column. Neutral-5 fill, or `.is-outlined` (2px Neutral-5 ring) for items without a status |
+| Icon | `.c-timeline-icon` | M, L | Round Lists icon chip (Neutral-2, Neutral-8 glyph), Tier 2 Fill. A status glyph replaces the item icon for completed / overdue / at risk / skipped / blocked |
+| Avatar | `.c-timeline-avatar` | M, L | Lists' avatar lead as shipped; status on a corner badge |
+
+**No number dots.** Numbered steps imply a step-by-step flow, which is
+Stepper's default variant. Timeline doesn't reuse `.c-step-indicator`.
+Don't mix dot types in one timeline (status glyphs replacing icons are
+fine).
+
+##### Statuses
+
+| Status | Dot | Connector after | Text |
+|---|---|---|---|
+| completed `.is-completed` | Green fill, Neutral-1 `ph-check` | Solid Green | "9 Oct · Done" |
+| current `.is-current` | Obsidian fill, 2px Obsidian ring, short pulse | Obsidian dashed, or partial | Heading 700; hidden ", current" |
+| upcoming `.is-upcoming` | 2px Neutral-5 ring | Dashed Neutral-4 | Heading Neutral-5 |
+| overdue `.is-overdue` | Red fill, Neutral-1 `ph-exclamation-mark` | Dashed Red | "Due 15 Oct · **Overdue**" |
+| at risk `.is-at-risk` | Amber fill, Obsidian `ph-fill ph-warning` | Dashed Amber | "Due 27 Oct · **At risk:** reason" |
+| skipped `.is-skipped` | 2px Neutral-4 ring, `ph-minus` | Dashed Neutral-4 | Heading Neutral-5 + "**Skipped**" (no strikethrough) |
+| blocked `.is-blocked` | 2px Red ring, Red `ph-fill ph-lock` | Dashed Red | "**Blocked:** blocker" |
+
+Bare marks (check, exclamation, minus) are Regular, as in Stepper;
+warning and lock are Tier 2 Fill. Plain dots have no glyph, so every
+plain-dot item states its status in the caption. The status word appears
+once: in the caption **or** a Badge. Accent for current is Obsidian
+(Stepper's Active step, Lists' selected row).
+
+##### Connectors
+
+2px borders, so solid vs dashed survives forced colours. Colour follows
+the item **above**. Partial (current, optional): `.is-partial` +
+`--c-timeline-progress` (default 50%) draws the solid part in the item's
+colour and a Neutral-4 dashed remainder. Items without a status use
+Neutral-3 solid (Lists' timeline grey). The line ends at the last item
+of every `<ol>`; a host marks an earlier item `.is-end` when later ones
+are hidden.
+
+##### Date
+
+One date location per timeline: a content date **or** the opposite
+column, never both.
+
+| Position | Markup | Example |
+|---|---|---|
+| **Above** (default, no class; `.c-timeline-date-above` is an optional alias) | `.c-timeline-title` wraps the heading, then `.c-timeline-date` (drawn above). Every item in the list carries one; the list detects it (`:has()`) and sets the dot offset | "Due 30 Oct" / "Package" / status line |
+| Below `.c-timeline-date-below` | `.c-timeline-date` first in the caption, then " · " and the status | "Package" / "Due 30 Oct · In progress · 3 routes" |
+
+Below is for dense lists and lists with Badges (it saves a line). DOM
+order is always heading, then date, then status.
+
+**"Due" rule.** A single date on an item that isn't done (current,
+upcoming, at risk, blocked, overdue) reads "Due 30 Oct"; overdue reads
+"Due 15 Oct · Overdue". Completed and skipped show the plain date ("9 Oct
+· Done"). Date **ranges** (phase spans like "19–23 Oct") stay plain.
+Approval flows keep their decision captions ("14 Oct · Approved",
+"Waiting").
+
+##### Opposite content
+
+`.c-timeline-has-opposite` + `.c-timeline-opposite` in every item:
+caption / Neutral-5, 96px column, right-aligned when it's left of the
+line. **Right and left positions only.** In alternate / alternate-reverse
+the same markup is drawn as a date line **above the heading** on the
+content's side (the far side stays empty). Below 400px of timeline width
+it always stacks above the heading.
+
+##### Positions and orientation
+
+| Class | Spec |
+|---|---|
+| (right, default) | Dots left, content right |
+| `.c-timeline-left` | Content left of the line, text right-aligned |
+| `.c-timeline-alternate` / `-alternate-reverse` | Sides swap each item; **600px and up** of the timeline's own width, right below that |
+| `.c-timeline-horizontal` | Items share the row (max ~6); content under the dot row. **Below 600px it falls back to vertical** (no side-scrolling region). Ignores position classes; don't combine them |
+
+Positions and the mobile rules key off the timeline's own width
+(container query), so they hold in narrow cards and drawers too.
+
+##### Presets
+
+| Preset | Recipe |
+|---|---|
+| Campaign Phases | M, icon dots (Brief `ph-file-text`, Research `ph-magnifying-glass`, Big idea `ph-lightbulb`, Package `ph-package`, Deck `ph-presentation-chart`), opposite = date range |
+| Milestones | L, icon dots, date below, status in a Badge |
+| Approval Flow | M, avatar dots, date below with decision captions ("14 Oct · Approved"), Details = approver comment |
+| Deliverables | M, plain dots, opposite = due date, file chips, Details = version history |
+| Roadmap | M, icon dots, date above, one `<ol>` per quarter under `.c-list-subheader`, a Tag per item for its type (Pitch, Launch, Campaign, Renewal) |
+
+##### Details disclosure (M and L)
+
+Extra content that isn't part of the summary: comments, files, version
+history. A Button Ghost sm `.c-timeline-details-toggle` ("Details" + an
+`.sr-only` " for {heading}") with `aria-expanded` + `aria-controls`, then
+`.c-timeline-details[hidden]` (Neutral-2, `radius-sm`, spacing-12
+padding). Collapsed by default; focus stays on the toggle; the caret
+rotates (flips without animating under reduced motion). It sits after the
+body, below the clickable box on clickable items. **Not at S**: an S item
+that needs more opens a panel.
+
+**Show more vs Details:** Show more un-clamps the description (part of
+the summary, just long); its toggle only appears when the text is
+actually clipped. Labels come from `data-label-collapsed` /
+`data-label-expanded` (default "Show more" / "Show less").
+
+##### Clickable content
+
+Only the body is clickable, never the dot or line. In an interactive
+timeline (any link or button body, detected with `:has()`;
+`.c-timeline-interactive` forces it) the line → content gap is
+**spacing-16**, on whichever side the line is, and every body gets
+spacing-8 inline padding, so heading text lines up across clickable and
+static items. States copy Lists' row values: Neutral-2 hover, Neutral-3
+pressed, 2px Obsidian inset focus ring, selected = `aria-current="true"`
+on the body (Neutral-2 + 2px Obsidian start bar). Clickable bodies can't
+hold interactive slots. 44px min height on coarse pointers.
+
+##### Whole-component states
+
+| State | Spec |
+|---|---|
+| Loading | 3–5 `.is-loading` items; content style = round dot bone + 62% / 38% bars; block style = `.c-timeline-bone` (40 / 48 / 60px). List `aria-busy="true"` + one `li.sr-only` "Loading…" |
+| Empty | `.c-timeline-state > .c-empty.is-section` with a Primary action ("Add milestone") |
+| Error | `.c-empty.is-section.is-error` with Retry. The host moves focus to the timeline heading when the skeleton goes in, to the error title only if it fails again |
+| Partial | `.c-list-footer` with `button.c-timeline-reveal` toggles ("Show 5 earlier items" ↔ "Hide earlier items", "Show more" ↔ "Show fewer"), `aria-expanded` + `aria-controls`, labels/icons from `data-label-*` / `data-icon-*`. Hidden items carry `hidden` + `data-c-timeline-collapsed="earlier\|later"`. The last visible item carries `.is-end`. Collapse past ~20 items |
+
+**Grouping:** long spans group by month or quarter with Lists'
+`.c-list-subheader.c-list-bleed`, one `<ol>` per group labelled by its
+header; the line ends cleanly at each group; "Step N of M" keeps counting;
+alternate sides restart per group.
+
+##### Card widget pattern
+
+A composition recipe, not a class (apart from `.is-end`): an M Timeline
+inside a shipped `.c-card`, all parts as shipped.
+
+| Part | Spec |
+|---|---|
+| Header | `.c-card-header`: h5 title, caption count ("5 phases · due 4 Nov"), one Button Ghost sm "View all" + `ph-arrow-right` with an `.sr-only` object |
+| Toolbar | Segmented Control, compact, text: All / Open (current, upcoming, overdue, at risk, blocked) / Late (overdue) / Done (completed). Skipped is in All only |
+| Count | Caption updates in place: "{shown} of {total} phases · {filter}". No live region |
+| Filtered line | Hidden items get `hidden`; the last visible item gets `.is-end` |
+| Empty result | Lists' `.c-list-empty` with copy per filter ("No late phases") |
+| Limits | 5–6 items, then "View all". M only. No horizontal below ~560px |
+| Keyboard / touch | Segmented Control's roving focus; 44px targets via transparent `::after` |
+
+Host CSS (copy into the product; not in `components.css`):
+
+```css
+.timeline-widget .c-card-header{align-items:center; margin-bottom:0;}
+.timeline-widget .c-card-header .c-btn{flex:none;}
+.timeline-widget-titles{display:flex; flex-direction:column; gap:2px; flex:1 1 auto; min-width:0;}
+.timeline-widget-cap{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); color:var(--color-neutral-5);}
+.timeline-widget-tools{display:flex; align-items:center; gap:var(--spacing-8); margin-bottom:var(--spacing-8);}
+.timeline-widget .c-segctl{flex:1 1 auto; max-width:100%;}
+@media (pointer:coarse){
+  .timeline-widget .c-seg, .timeline-widget .c-card-header .c-btn{position:relative;}
+  .timeline-widget .c-seg::after{content:""; position:absolute; inset-block:-9px; inset-inline:0;}          /* 26 + 18 = 44 */
+  .timeline-widget .c-card-header .c-btn::after{content:""; position:absolute; inset:-6px; border-radius:inherit;} /* 32 + 12 = 44 */
+}
+```
+
+##### Script
+
+`window.cTimeline.init(root)` (runs once on load for the document; call
+it after inserting timeline markup). It:
+
+- shows each "Show more" toggle only when its description is clipped
+  (ResizeObserver, re-checked when fonts load) and swaps its label;
+- runs the partial-list toggles and moves `.is-end` to the last visible
+  item on load and on every reveal / hide;
+- runs the Details disclosure (`aria-expanded` + `hidden`).
+
+It never moves focus and uses no live regions. Filtering (the Card
+widget) and Retry are host code.
+
+##### Markup
+
+```html
+<h4 id="milo">MILO Raya 2027</h4>
+<ol class="c-timeline c-timeline-icon" role="list" aria-labelledby="milo">
+  <li class="c-timeline-item is-current" aria-current="step">
+    <span class="c-timeline-separator" aria-hidden="true">
+      <span class="c-timeline-dot"><span class="c-timeline-mark"><i class="ph-fill ph-lightbulb"></i></span></span>
+      <span class="c-timeline-connector is-partial" style="--c-timeline-progress:60%"></span>
+    </span>
+    <div class="c-timeline-content">
+      <div class="c-timeline-body">   <!-- or <a href> / <button type="button"> -->
+        <span class="c-timeline-title"><span class="c-timeline-heading"><span class="sr-only">Step 3 of 5, </span>Big idea</span><span class="sr-only">, </span><span class="c-timeline-date">Due 23 Oct</span></span>
+        <span class="sr-only">, current</span>
+        <span class="sr-only">, </span><span class="c-timeline-caption"><span class="c-timeline-status">In progress</span></span>
+      </div>
+    </div>
+  </li>
+</ol>
+```
+
+##### Props → markup
+
+| Prop (default) | Markup |
+|---|---|
+| `size` (md) | `.c-timeline-sm` / none / `.c-timeline-lg` |
+| `dotType` (plain) | none / `.c-timeline-icon` / `.c-timeline-avatar` |
+| `dotFill` (filled) | `.is-outlined` on the mark, items without a status only |
+| `position` (right) | none / `.c-timeline-left` / `.c-timeline-alternate` / `.c-timeline-alternate-reverse` |
+| `orientation` (vertical) | `.c-timeline-horizontal` |
+| `showOpposite` (false) | `.c-timeline-has-opposite` + `.c-timeline-opposite` per item |
+| `datePosition` (above) | Title markup (no class) / `.c-timeline-date-below` |
+| `isLoading`, `skeletonStyle` (content) | `.is-loading` items with `.c-list-item-bone` or `.c-timeline-bone`; `aria-busy` |
+| `maxVisible` (20) | `hidden` + `data-c-timeline-collapsed`, footer `.c-timeline-reveal`, `.is-end` |
+| `emptyText` | `.c-timeline-state > .c-empty.is-section` |
+| `onItemClick` / item `href` | Body becomes `<button type="button">` / `<a href>`; selected = `aria-current="true"` |
+| Item `status` | `.is-completed / .is-current / .is-upcoming / .is-overdue / .is-at-risk / .is-skipped / .is-blocked`; current adds `aria-current="step"` |
+| Item `details` | `.c-timeline-details-toggle` + `.c-timeline-details[hidden]` (M, L) |
+
+##### Accessibility
+
+| Rule | Spec |
+|---|---|
+| List | `<ol role="list">`, labelled by its visible heading |
+| Decorative | Separator `aria-hidden`; opposite `aria-hidden`, repeated as `.sr-only` in the body |
+| Reading order | Heading, then date, then status. Hidden "Step N of M" before the heading |
+| Status once | From the visible status word or Badge; a hidden ", completed / upcoming" only when nothing visible says it. Hidden ", current" always (VoiceOver doesn't reliably announce `aria-current` on an `<li>`); a selected current item says ", current step" |
+| Keyboard | Tab reaches only clickable bodies, Show more / Details toggles and footer buttons. No `aria-label` on bodies |
+| Focus | 2px Obsidian inset ring + Neutral-2. The component never moves focus; no live regions |
+| Targets | 44px on coarse pointers (bodies min-height; sm/md buttons via transparent `::after`) |
+| Contrast | Heading Neutral-9; description, caption, date, opposite Neutral-5 (6.9:1). Green (2.35:1) and Amber (1.98:1) fills, the Neutral-1 check on Green, and Neutral-4 rings / connectors (1.88:1) are under 3:1, so status is always carried by a glyph or a word too |
+
+Sample announcements: "Step 3 of 5, Big idea, Due 23 October, current,
+In progress"; "Milestone 2 of 7, Talent shortlist, Due 15 October · 2
+agencies outstanding, Overdue"; "Step 1 of 5, Aisyah Rahman, Account
+Lead, 14 October · Approved"; "Details for Priya Nair, button,
+collapsed".
+
+**Reduced motion:** the current pulse (3 runs, about 4s, grown by
+`outline-offset` so it never causes sideways scroll) only runs under
+`no-preference`; the skeleton shimmer stops; the Details caret flips
+without animating.
+
+**Forced colours:** filled dots → CanvasText discs with Canvas glyphs;
+outlined → CanvasText rings; skipped → GrayText ring; current →
+Highlight disc, ring and pulse. Connectors → CanvasText (current
+Highlight, upcoming / skipped GrayText), solid vs dashed kept. Only
+Timeline's own marks and connectors opt out (`forced-color-adjust:none`),
+never the dot wrapper, so reused Lists avatars aren't restyled. Focus =
+Highlight, hover = 1px CanvasText outline, selected bar = Highlight;
+bones, file chips and the Details panel get a 1px CanvasText border.
+
+##### Rules
+
+- One current item; order oldest → newest for plans.
+- Badge = status, Tag = type.
+- Never both the opposite column and a content date.
+- Don't mix dot types; no number dots (use Stepper).
+- S is plain-dot only and has no Details.
+- Max ~20 visible items; collapse or paginate beyond.
+- Alternate timelines put the date above the heading; the opposite
+  column is for right / left only.
+- Interactive slots only on static items; never nest a button in a
+  clickable body.
+
+##### Deviations from the spec
+
+1. Dot centre on the heading's first line, not "content top at dot centre".
+2. `density` → `size` (S / M / L); no number dot type.
+3. Current: heading 700 + Obsidian dot + ring + 3-run pulse + spoken "current".
+4. Skipped: a "Skipped" word, not strikethrough.
+5. Horizontal falls back to vertical below 600px; mobile rules use the timeline's width.
+6. Opposite stacks above the heading below 400px, and always in alternate.
+7. Partial connector remainder is Neutral-4 dashed.
+8. `dotFill` only applies to items without a status.
+9. Date position (above / below) and the "Due" wording are additions.
+10. Interactive timelines use a 16px line → content gap (spec: 12px).
+11. Show earlier / Show more are in-place toggles; focus never moves.
+12. `aria-current="step"` on the `<li>`; selected uses `aria-current="true"` on the body.
+13. Empty and error use Empty state (section), because the spec's empty state has an action.
+
+##### Tokens and one-offs
+
+**Tokens:** Neutral-1/2/3/4/5/8/9, Obsidian, Green, Amber, Red;
+`--spacing-4…60`; `--radius-sm`, `--radius-pill`; `--border-width-sm/md`;
+body1, body2, caption and label3 type; `--weight-semibold`,
+`--weight-bold`; `--icon-micro`, `--icon-sm`; `--duration-instant`,
+`--duration-fast`, `--duration-ambient`, `--ease-standard`. No new tokens.
+
+| One-off | Why |
+|---|---|
+| 96px opposite column (2 × spacing-48) | The spec's fixed width, so dots line up |
+| 2px content line gap | Lists' shipped literal |
+| 44px coarse min-height; 6px / 2px button `::after` | WCAG touch target (shipped modal / pip recipe) |
+| Pulse: 1.5 × `--duration-ambient`, 3 runs, 0.6 → 0 opacity, outline grows 6px | Under WCAG 2.2.2's 5s; CTA beacon's run count |
+| Avatar badge glyph 11px (M) / 12px (L); overhang a quarter of the badge | Regular weight below `icon-micro` |
+| `.c-timeline-file` static file chip | Input Chip container recipe without the ×; no shipped static file chip |
+| Clamps 2 (heading) / 3 (description) | The spec's max lines |
 
 ### Switch
 
@@ -14166,6 +14617,21 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.124 — 2026-10-22** — New [Timeline](#timeline), a **variant of
+  Stepper** (`.c-timeline`): a read-only plan of items with per-item
+  status (completed, current, upcoming, overdue, at risk, skipped,
+  blocked) and a 2px connector whose colour and dash follow status.
+  Built from the design team's spec (based on MUI Timeline). Sizes S / M
+  (default) / L; plain, icon or avatar dots (no number dots — numbered
+  flows stay Stepper's default variant); date above (default) or below
+  with a "Due" rule; right / left / alternate / horizontal, keyed to the
+  timeline's own width; Campaign Phases, Milestones, Approval Flow,
+  Deliverables and Roadmap presets; Details disclosure; partial-list
+  toggles; a Card widget recipe. Built from Lists parts, so its CSS sits
+  after Lists. Needs its script (`window.cTimeline.init`). Also: Lists'
+  "Timeline" subsection renamed "Timeline line (Activity Log)", and
+  Stepper's "Indicator — Active" row corrected to the shipped Obsidian
+  fill.
 - **v0.9.123 — 2026-10-19** — New [Quantity selector](#quantity-selector)
   component (`.c-quantity-selector`): a number field with − and +
   buttons, from the Collab:Sales package builder's quantity control. Its
@@ -24112,6 +24578,115 @@ const CQuantitySelector = (() => {
   return { init };
 })();
 document.querySelectorAll('#comp-quantity .c-quantity-selector').forEach(box => CQuantitySelector.init(box));
+</script>
+<script>
+/* Timeline (Stepper variant) — reference script (DESIGN-SYSTEM.md
+   "Stepper > Timeline"): Show more / less, partial-list toggles and
+   .is-end, Details disclosure. Never moves focus; no live regions. */
+(function(){
+  function descFor(btn){ return document.getElementById(btn.getAttribute('aria-controls')); }
+  function syncMore(btn){
+    var desc = descFor(btn);
+    if(!desc) return;
+    if(btn.getAttribute('aria-expanded') === 'true'){ btn.hidden = false; return; }
+    btn.hidden = desc.scrollHeight <= desc.clientHeight + 1;
+  }
+  function setMore(btn, open){
+    var desc = descFor(btn);
+    if(!desc) return;
+    desc.classList.toggle('is-expanded', open);
+    btn.setAttribute('aria-expanded', String(open));
+    var label = btn.querySelector('.c-timeline-more-label');
+    var text = btn.getAttribute(open ? 'data-label-expanded' : 'data-label-collapsed') || (open ? 'Show less' : 'Show more');
+    if(label) label.textContent = text;
+    var icon = btn.querySelector('i');
+    if(icon) icon.className = open ? 'ph ph-caret-up' : 'ph ph-caret-down';
+  }
+  function syncAll(root){ (root || document).querySelectorAll('.c-timeline-more').forEach(syncMore); }
+
+  /* Re-check a description's clip whenever its box changes size (container
+     resize, font load, reveal from hidden). Falls back to window resize. */
+  var ro = ('ResizeObserver' in window) ? new ResizeObserver(function(entries){
+    entries.forEach(function(entry){
+      document.querySelectorAll('.c-timeline-more[aria-controls="' + entry.target.id + '"]').forEach(syncMore);
+    });
+  }) : null;
+  function observe(root){
+    if(!ro) return;
+    (root || document).querySelectorAll('.c-timeline-more').forEach(function(btn){
+      var desc = descFor(btn);
+      if(desc) ro.observe(desc);
+    });
+  }
+
+  /* Move .is-end to the last visible item, so the line always stops at
+     the last item the user can see (partial lists, after every reveal /
+     hide). */
+  function markEnd(list){
+    var items = Array.prototype.filter.call(list.children, function(li){ return li.classList.contains('c-timeline-item'); });
+    var last = null;
+    items.forEach(function(li){ li.classList.remove('is-end'); if(!li.hidden) last = li; });
+    if(last && last !== items[items.length - 1]) last.classList.add('is-end');
+  }
+
+  function toggleReveal(btn){
+    var list = document.getElementById(btn.getAttribute('aria-controls'));
+    if(!list) return;
+    var which = btn.getAttribute('data-c-timeline-reveal');
+    var open = btn.getAttribute('aria-expanded') !== 'true';
+    Array.prototype.forEach.call(list.children, function(li){
+      if(li.getAttribute('data-c-timeline-collapsed') === which){
+        li.hidden = !open;
+        if(open) syncAll(li);
+      }
+    });
+    markEnd(list);
+    btn.setAttribute('aria-expanded', String(open));
+    var label = btn.querySelector('.c-timeline-reveal-label');
+    var text = btn.getAttribute(open ? 'data-label-expanded' : 'data-label-collapsed');
+    if(label && text) label.textContent = text;
+    var icon = btn.querySelector('i');
+    var iconClass = btn.getAttribute(open ? 'data-icon-expanded' : 'data-icon-collapsed');
+    if(icon && iconClass) icon.className = iconClass;
+  }
+
+  /* Details disclosure: flips aria-expanded and the panel's hidden. Focus
+     stays on the toggle; the caret rotation is pure CSS. */
+  function toggleDetails(btn){
+    var panel = document.getElementById(btn.getAttribute('aria-controls'));
+    if(!panel) return;
+    var open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(open));
+    panel.hidden = !open;
+  }
+
+  document.addEventListener('click', function(e){
+    var det = e.target.closest('.c-timeline-details-toggle');
+    if(det){ toggleDetails(det); return; }
+    var more = e.target.closest('.c-timeline-more');
+    if(more){ setMore(more, more.getAttribute('aria-expanded') !== 'true'); return; }
+    var rev = e.target.closest('[data-c-timeline-reveal]');
+    if(rev){ toggleReveal(rev); }
+  });
+
+  if(!ro){
+    var raf = 0;
+    window.addEventListener('resize', function(){
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(function(){ syncAll(); });
+    });
+  }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ syncAll(); }); }
+  syncAll();
+  observe();
+  document.querySelectorAll('[data-c-timeline-reveal]').forEach(function(btn){
+    var list = document.getElementById(btn.getAttribute('aria-controls'));
+    if(list) markEnd(list);
+  });
+
+  /* Hosts call this after inserting timeline markup (e.g. after Retry). */
+  window.cTimeline = { init: function(root){ syncAll(root); observe(root); } };
+})();
 </script>
 </body>
 </html>

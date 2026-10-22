@@ -6362,3 +6362,440 @@ label.c-list-item:has(.c-list-item-input:focus-visible){
   :is(a[href], button, label).c-list-item:not(:disabled):not(:focus-visible):hover{outline:var(--border-width-sm) solid CanvasText; outline-offset:calc(var(--border-width-sm) * -1);}
 }
 
+/* =========================================================
+   Timeline — Stepper variant (read-only plan view), `c-timeline`.
+   An ordered plan of items, each with its own status (completed, current,
+   upcoming, overdue, at risk, skipped, blocked), connected by a 2px line
+   whose colour and dash follow status. Sizes sm / md (default) / lg;
+   plain, icon or avatar dots (no number dots: numbered flows are
+   Stepper's default variant); date above (default) or below; right /
+   left / alternate positions and a horizontal orientation, all keyed to
+   the timeline's own width. Built from Lists parts (avatar lead, bones,
+   Section header, footer), so it sits AFTER Lists for cascade reasons.
+   Script: window.cTimeline.init (Show more, partial-list toggles, Details).
+   See DESIGN-SYSTEM.md "Stepper > Timeline".
+   ========================================================= */
+/* ---------- Root ---------- */
+.c-timeline{
+  /* size: md is the default (no class needed; .c-timeline-md is an explicit alias) */
+  --c-timeline-gap:var(--spacing-16);                       /* between S's 12 and L's 24 */
+  --c-timeline-dot:var(--spacing-12);                       /* dotType: plain (12px at every size) */
+  --c-timeline-col:var(--spacing-16);
+  --c-timeline-glyph:var(--icon-micro);                     /* glyph in a 24px dot: Lists' S icon chip pairing */
+  --c-timeline-h-size:var(--text-body2-size);               /* heading: body2 14/20 semibold (= Lists' heading) */
+  --c-timeline-lh:var(--text-body2-lh);                     /* heading first line: drives alignment */
+  --c-timeline-d-size:var(--text-body2-size);               /* description */
+  --c-timeline-d-lh:var(--text-body2-lh);
+  --c-timeline-badge:var(--icon-micro);                     /* avatar status badge: 14 at M, 16 at L */
+  --c-timeline-badge-glyph:var(--text-label3-size);         /* ONE-OFF 11px glyph at M (Regular, below icon-micro) */
+  --c-timeline-bone-h:var(--spacing-48);                    /* block skeleton height */
+  --c-timeline-opp-w:calc(var(--spacing-48) * 2);           /* ONE-OFF 96px: fixed opposite column so dots line up */
+  --c-timeline-content-gap:var(--spacing-12);               /* separator -> content (static timeline) */
+  --c-timeline-body-pad:0px;                                /* inner inline padding of every body */
+  --c-timeline-row:max(var(--c-timeline-dot), var(--c-timeline-lh));
+  --c-timeline-dot-top:calc((var(--c-timeline-row) - var(--c-timeline-dot)) / 2);
+  container:c-timeline / inline-size;
+  display:flex; flex-direction:column; min-width:0;
+  margin:0; padding:0; list-style:none;
+  font-family:var(--font-primary); color:var(--color-neutral-9);
+}
+.c-timeline[hidden]{display:none;}
+/* dotType at M (default): icon and avatar dots are 24px in a 24px column.
+   Avatar = Lists' S lead (add .is-s). No number dots: use Stepper. */
+.c-timeline-icon, .c-timeline-avatar{--c-timeline-dot:var(--spacing-24); --c-timeline-col:var(--spacing-24);}
+/* Size S: plain dots only, 12px gap, caption description. */
+.c-timeline-sm{
+  --c-timeline-gap:var(--spacing-12);
+  --c-timeline-d-size:var(--text-caption-size); --c-timeline-d-lh:var(--text-caption-lh);
+  --c-timeline-bone-h:var(--spacing-40);
+}
+/* Size L: body1 heading, 24px gap, 32px icon / avatar dots. */
+.c-timeline-lg{
+  --c-timeline-gap:var(--spacing-24);
+  --c-timeline-h-size:var(--text-body1-size); --c-timeline-lh:var(--text-body1-lh);
+  --c-timeline-glyph:var(--icon-sm);
+  --c-timeline-badge:var(--icon-sm); --c-timeline-badge-glyph:var(--text-caption-size);  /* ONE-OFF 12px glyph at L */
+  --c-timeline-bone-h:var(--spacing-60);
+}
+.c-timeline-lg:is(.c-timeline-icon, .c-timeline-avatar){--c-timeline-dot:var(--spacing-32); --c-timeline-col:var(--spacing-32);}
+
+/* Interactive timeline: any clickable body in the list (auto via :has(),
+   or .c-timeline-interactive set by the host). The clickable box sits
+   spacing-16 from the separator, on whichever side the line is, and EVERY
+   body (static ones too) gets spacing-8 inner padding, so heading text
+   lines up across clickable and static items at separator + 24. */
+.c-timeline:has(:is(a[href], button).c-timeline-body),
+.c-timeline-interactive{--c-timeline-content-gap:var(--spacing-16); --c-timeline-body-pad:var(--spacing-8);}
+
+/* ---------- Item: a grid, opp | sep | content ---------- */
+.c-timeline-item{
+  --c-timeline-lead:0px;                                    /* extra space above the first line (narrow stack only) */
+  --c-timeline-line:var(--color-neutral-3);                 /* no status: Lists' timeline grey */
+  --c-timeline-line-style:solid;
+  position:relative; min-width:0; margin:0; padding:0;
+  display:grid; column-gap:var(--c-timeline-content-gap);
+  grid-template-columns:var(--c-timeline-col) minmax(0, 1fr);
+  grid-template-areas:"sep content";
+}
+.c-timeline-item[hidden]{display:none;}
+.c-timeline-has-opposite > .c-timeline-item{grid-template-columns:var(--c-timeline-opp-w) var(--c-timeline-col) minmax(0, 1fr); grid-template-areas:"opp sep content";}
+.c-timeline-left > .c-timeline-item{grid-template-columns:minmax(0, 1fr) var(--c-timeline-col); grid-template-areas:"content sep";}
+.c-timeline-left.c-timeline-has-opposite > .c-timeline-item{grid-template-columns:minmax(0, 1fr) var(--c-timeline-col) var(--c-timeline-opp-w); grid-template-areas:"content sep opp";}
+
+/* ---------- Separator ---------- */
+.c-timeline-separator{grid-area:sep; display:flex; flex-direction:column; align-items:center; min-width:0;}
+.c-timeline-dot{
+  --c-list-lead:var(--c-timeline-dot);                      /* sizes a reused Lists avatar / bone */
+  position:relative; flex:none; box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center;
+  width:var(--c-timeline-dot); height:var(--c-timeline-dot);
+  margin-top:calc(var(--c-timeline-lead) + var(--c-timeline-dot-top));
+  border-radius:var(--radius-pill);
+}
+/* Connector: from 4px under this dot to 4px above the next one. */
+.c-timeline-connector{
+  position:relative; flex:1 1 auto; box-sizing:border-box;
+  width:0; min-height:var(--spacing-8);
+  margin-top:var(--spacing-4);
+  margin-bottom:calc(var(--spacing-4) - var(--c-timeline-lead) - var(--c-timeline-dot-top));
+  border-inline-start:var(--border-width-md) var(--c-timeline-line-style) var(--c-timeline-line);
+}
+/* Partial fill (current, optional): solid up to --c-timeline-progress, dashed after. */
+.c-timeline-connector.is-partial{border-inline-start:0; width:var(--border-width-md);}
+.c-timeline-connector.is-partial::before,
+.c-timeline-connector.is-partial::after{content:""; position:absolute; inset-inline-start:0; width:0;}
+.c-timeline-connector.is-partial::before{top:0; height:var(--c-timeline-progress, 50%); border-inline-start:var(--border-width-md) solid var(--c-timeline-line);}
+.c-timeline-connector.is-partial::after{top:var(--c-timeline-progress, 50%); bottom:0; border-inline-start:var(--border-width-md) dashed var(--color-neutral-4);}
+
+/* ---------- Mark: the painted circle (plain + icon dots) ---------- */
+.c-timeline-mark{
+  box-sizing:border-box; display:flex; align-items:center; justify-content:center;
+  width:100%; height:100%; border-radius:var(--radius-pill);
+  background:var(--color-neutral-5); color:var(--color-neutral-1);
+  font-size:var(--c-timeline-glyph); line-height:1;         /* 14 at M, 16 at L */
+}
+.c-timeline-icon .c-timeline-mark{background:var(--color-neutral-2); color:var(--color-neutral-8);}   /* Lists' icon chip, round */
+.c-timeline-mark.is-outlined{background:var(--color-neutral-1); border:var(--border-width-md) solid var(--color-neutral-5); color:var(--color-neutral-5);}
+
+/* Avatar status badge: a small mark on the avatar's corner, scaled per
+   size (14px at M, 16px at L), overhanging by a quarter of itself. */
+.c-timeline-badge{
+  position:absolute; inset-inline-end:calc(var(--c-timeline-badge) / -4); bottom:calc(var(--c-timeline-badge) / -4);
+  width:var(--c-timeline-badge); height:var(--c-timeline-badge);
+  box-shadow:0 0 0 var(--border-width-md) var(--color-neutral-1);
+  font-size:var(--c-timeline-badge-glyph);                  /* Regular weight: below icon-micro */
+}
+
+/* ---------- Status: dot paint, connector after, text ----------
+   Filled glyphs: Neutral-1 on Green (Stepper's pairing), Neutral-1 on
+   Red (3.66:1), Obsidian on Amber (7.13:1), Neutral-1 on Obsidian. */
+.c-timeline-item.is-completed{--c-timeline-line:var(--color-green);}
+.c-timeline-item.is-current{--c-timeline-line:var(--color-obsidian); --c-timeline-line-style:dashed;}
+.c-timeline-item:is(.is-upcoming, .is-skipped){--c-timeline-line:var(--color-neutral-4); --c-timeline-line-style:dashed;}
+.c-timeline-item:is(.is-overdue, .is-blocked){--c-timeline-line:var(--color-red); --c-timeline-line-style:dashed;}
+.c-timeline-item.is-at-risk{--c-timeline-line:var(--color-amber); --c-timeline-line-style:dashed;}
+
+.c-timeline-item.is-completed .c-timeline-mark{background:var(--color-green); border:0; color:var(--color-neutral-1);}
+.c-timeline-item.is-current .c-timeline-mark{background:var(--color-obsidian); border:0; color:var(--color-neutral-1);}
+.c-timeline-item.is-upcoming .c-timeline-mark{background:var(--color-neutral-1); border:var(--border-width-md) solid var(--color-neutral-5); color:var(--color-neutral-5);}
+.c-timeline-item.is-overdue .c-timeline-mark{background:var(--color-red); border:0; color:var(--color-neutral-1);}
+.c-timeline-item.is-at-risk .c-timeline-mark{background:var(--color-amber); border:0; color:var(--color-obsidian);}
+.c-timeline-item.is-skipped .c-timeline-mark{background:var(--color-neutral-1); border:var(--border-width-md) solid var(--color-neutral-4); color:var(--color-neutral-5);}
+.c-timeline-item.is-blocked .c-timeline-mark{background:var(--color-neutral-1); border:var(--border-width-md) solid var(--color-red); color:var(--color-red);}
+
+/* Current: 2px Obsidian ring, 2px off the dot (on the positioner, so a
+   reused Lists avatar is never restyled). */
+.c-timeline-item.is-current .c-timeline-dot{outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:var(--border-width-md);}
+/* Pulse: an OUTLINE on a box the size of the dot, growing by
+   outline-offset. Outlines never add scrollable overflow, so the pulse
+   can't cause sideways scroll (e.g. left position at a page edge). */
+.c-timeline-item.is-current .c-timeline-dot::after{
+  content:""; position:absolute; inset:0; border-radius:var(--radius-pill);
+  outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:var(--border-width-md);
+  opacity:0; pointer-events:none;
+}
+@media (prefers-reduced-motion:no-preference){
+  /* 1.35s x 3 runs = about 4s, under WCAG 2.2.2's 5s; then rests as the static ring. */
+  .c-timeline-item.is-current .c-timeline-dot::after{animation:c-timeline-pulse calc(var(--duration-ambient) * 1.5) var(--ease-standard) 3;}  /* ONE-OFF 1.5x, 3 runs (CTA beacon's count) */
+}
+@keyframes c-timeline-pulse{0%{opacity:.6; outline-offset:var(--border-width-md);} 100%{opacity:0; outline-offset:var(--spacing-8);}}  /* ONE-OFF 0.6 opacity; grows 6px */
+
+/* Text by status */
+.c-timeline-item.is-current .c-timeline-heading{font-weight:var(--weight-bold);}
+.c-timeline-item:is(.is-upcoming, .is-skipped) .c-timeline-heading{color:var(--color-neutral-5);}
+
+/* ---------- Content ---------- */
+.c-timeline-content{
+  --c-timeline-justify:flex-start;
+  grid-area:content; min-width:0;
+  display:flex; flex-direction:column; align-items:stretch;
+  padding-top:calc((var(--c-timeline-row) - var(--c-timeline-lh)) / 2);
+  padding-bottom:var(--c-timeline-gap);
+  text-align:start;
+}
+.c-timeline-item:last-child > .c-timeline-content{padding-bottom:0;}
+/* The line ends cleanly at the last item of every <ol> (incl. each month
+   group), even if the markup carries a connector there. */
+.c-timeline-item:last-child > .c-timeline-separator > .c-timeline-connector{display:none;}
+.c-timeline-left > .c-timeline-item > .c-timeline-content{text-align:end; --c-timeline-justify:flex-end;}
+.c-timeline-body{
+  position:relative; box-sizing:border-box; min-width:0;
+  display:flex; flex-direction:column; gap:2px;             /* ONE-OFF 2px: Lists' content line gap */
+  margin:0; padding:0 var(--c-timeline-body-pad); border:0; background:transparent;
+  font:inherit; color:inherit; text-align:inherit; text-decoration:none;
+}
+.c-timeline-heading{
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden;
+  font-size:var(--c-timeline-h-size); line-height:var(--c-timeline-lh); font-weight:var(--weight-semibold);   /* S/M body2, L body1 */
+  color:var(--color-neutral-9); overflow-wrap:anywhere;
+}
+.c-timeline-desc{
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; overflow:hidden;
+  font-size:var(--c-timeline-d-size); line-height:var(--c-timeline-d-lh); font-weight:var(--text-body2-weight);   /* S caption, M/L body2 */
+  color:var(--color-neutral-5); overflow-wrap:anywhere;
+}
+.c-timeline-desc.is-expanded{display:block; -webkit-line-clamp:unset; line-clamp:none; overflow:visible;}
+.c-timeline-caption{
+  display:block; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight);
+  color:var(--color-neutral-5);
+}
+.c-timeline-status{font-weight:var(--weight-semibold); color:var(--color-neutral-9);}
+.c-timeline-slot{display:flex; flex-wrap:wrap; align-items:center; justify-content:var(--c-timeline-justify); gap:var(--spacing-8); margin-top:var(--spacing-8); min-width:0;}
+.c-timeline-more{align-self:var(--c-timeline-justify); margin:var(--spacing-4) calc(var(--c-timeline-body-pad) - var(--spacing-12)) 0;}  /* ghost padding pulled back so the label lines up with the text */
+
+/* ---------- Date in the content (datePosition: above | below) ----------
+   One date location per timeline: the content date (this), OR the
+   opposite-content column, never both.
+   ABOVE (the default; no class needed, .c-timeline-date-above is an
+     optional explicit alias): <span class="c-timeline-title"> wraps the
+     heading + .c-timeline-date; the date shows on its own line ABOVE the
+     heading. DOM order stays heading, then date, then the caption status,
+     so it reads "Brief, 1 Oct, Done". The extra line goes into
+     --c-timeline-lead, so the dot still centres on the HEADING line. The
+     lead is set on EVERY item of a list that contains a .c-timeline-title
+     (connector maths needs one lead per list), so give every item in an
+     "above" list a date line.
+   .c-timeline-date-below: the date opens the caption line, before the
+     status: <caption><date>Due 30 Oct</date> · <status>In progress</status>
+     · extra. No layout change, so no lead; the class names the option. */
+.c-timeline-date{
+  white-space:nowrap;
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight);
+  color:var(--color-neutral-5); font-variant-numeric:tabular-nums;
+}
+.c-timeline-title{display:flex; flex-direction:column; row-gap:2px; min-width:0;}   /* 2px = content line gap */
+.c-timeline-title > .c-timeline-date{order:-1;}
+.c-timeline:not(.c-timeline-date-below):has(> .c-timeline-item .c-timeline-title) > .c-timeline-item,
+.c-timeline-date-above > .c-timeline-item{--c-timeline-lead:calc(var(--text-caption-lh) + 2px);}
+
+/* ---------- Details disclosure (optional, M and L) ----------
+   Extra, secondary content revealed inline: notes, files, comments. A
+   Button Ghost sm after the body (never inside a clickable body), with
+   aria-expanded + aria-controls; focus stays on it. Collapsed by default. */
+.c-timeline-details-toggle{align-self:var(--c-timeline-justify); margin:var(--spacing-4) calc(var(--c-timeline-body-pad) - var(--spacing-12)) 0;}
+.c-timeline-details-caret{transition:transform var(--duration-fast) var(--ease-standard);}
+.c-timeline-details-toggle[aria-expanded="true"] .c-timeline-details-caret{transform:rotate(180deg);}
+.c-timeline-details{
+  display:flex; flex-direction:column; gap:var(--spacing-8);
+  margin:var(--spacing-4) var(--c-timeline-body-pad) 0; padding:var(--spacing-12);
+  border-radius:var(--radius-sm); background:var(--color-neutral-2);
+  font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9);
+  text-align:start; overflow-wrap:anywhere;
+}
+.c-timeline-details[hidden]{display:none;}
+.c-timeline-details-label{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-semibold); color:var(--color-neutral-5);}
+.c-timeline-details p{margin:0;}
+.c-timeline-details-files{display:flex; flex-wrap:wrap; gap:var(--spacing-8); margin:0; padding:0; list-style:none;}
+.c-timeline-details-files > li{min-width:0; max-width:100%;}
+
+/* Host-set end of a filtered / partial list: the line stops here even
+   though more (hidden) items follow in the DOM. */
+.c-timeline-item.is-end > .c-timeline-separator > .c-timeline-connector{display:none;}
+.c-timeline-item.is-end > .c-timeline-content{padding-bottom:0;}
+
+/* Static file chip for the slot. ONE-OFF: Input Chip's container recipe
+   (24px, Neutral-2, 1px Neutral-3, pill) with a Tier 2 file icon and no x. */
+.c-timeline-file{
+  display:inline-flex; align-items:center; gap:var(--spacing-4); max-width:100%; box-sizing:border-box;
+  height:var(--spacing-24); padding:0 var(--spacing-8);
+  border:var(--border-width-sm) solid var(--color-neutral-3); border-radius:var(--radius-pill);
+  background:var(--color-neutral-2); color:var(--color-neutral-9);
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--weight-semibold);
+}
+.c-timeline-file > i{flex:none; font-size:var(--icon-micro); color:var(--color-neutral-5);}
+.c-timeline-file > span{min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+/* ---------- Opposite content ---------- */
+.c-timeline-opposite{
+  grid-area:opp; min-width:0;
+  padding-top:calc((var(--c-timeline-row) - var(--text-caption-lh)) / 2);
+  font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:var(--text-caption-weight);
+  color:var(--color-neutral-5); text-align:end; overflow-wrap:anywhere;
+}
+.c-timeline-left > .c-timeline-item > .c-timeline-opposite{text-align:start;}
+
+/* ---------- Clickable content (href / onItemClick) ----------
+   Only the body is clickable, never the dot or line. The box edge sits
+   spacing-16 from the separator (--c-timeline-content-gap) and never
+   reaches into that gap. Inline: spacing-8 padding, no negative margin.
+   Block: spacing-8 padding + matching negative margin, so the dot still
+   centres on the heading's first line. Lists' row states, as values. */
+:is(a[href], button).c-timeline-body{
+  margin-block:calc(var(--spacing-8) * -1); margin-inline:0; padding:var(--spacing-8);
+  border-radius:var(--radius-sm); cursor:pointer;
+  -webkit-appearance:none; appearance:none; -webkit-tap-highlight-color:transparent;
+  transition:background-color var(--duration-fast) var(--ease-standard);
+}
+@media (hover:hover){
+  :is(a[href], button).c-timeline-body:not(:focus-visible):hover{background:var(--color-neutral-2);}
+}
+:is(a[href], button).c-timeline-body:focus-visible{
+  background:var(--color-neutral-2);
+  outline:var(--border-width-md) solid var(--color-obsidian); outline-offset:calc(var(--border-width-md) * -1);
+}
+:is(a[href], button).c-timeline-body:active{background:var(--color-neutral-3); transition-duration:var(--duration-instant);}
+.c-timeline-body[aria-current]:not([aria-current="false"]){background:var(--color-neutral-2);}
+.c-timeline-body[aria-current]:not([aria-current="false"])::after{
+  content:""; position:absolute; inset-inline-start:0; inset-block:var(--spacing-8);
+  width:var(--border-width-md); border-radius:var(--radius-pill); background:var(--color-obsidian); pointer-events:none;
+}
+@media (pointer:coarse){
+  :is(a[href], button).c-timeline-body{min-height:calc(var(--spacing-40) + var(--spacing-4));}  /* ONE-OFF 44px touch minimum */
+  .c-timeline-more, .c-timeline-details-toggle, .c-timeline-reveal, .c-timeline-state .c-btn, .c-timeline-slot .c-btn{position:relative;}
+  .c-timeline-more::after, .c-timeline-details-toggle::after, .c-timeline-reveal::after, .c-timeline-slot .c-btn-sm::after{content:""; position:absolute; inset:-6px; border-radius:inherit;}  /* 32 + 6 + 6 = 44 */
+  .c-timeline-slot .c-btn-md::after{content:""; position:absolute; inset:-2px; border-radius:inherit;}                                                   /* md 40 + 2 + 2 = 44 */
+  .c-timeline-state .c-btn::after{content:""; position:absolute; inset:-2px; border-radius:inherit;}                     /* md 40 + 2 + 2 = 44 */
+}
+
+/* ---------- Loading ---------- */
+.c-timeline-item.is-loading{pointer-events:none;}
+.c-timeline-item.is-loading .c-timeline-body{gap:var(--spacing-8); padding-top:calc((var(--c-timeline-lh) - var(--spacing-12)) / 2);}
+.c-timeline-bone{position:relative; display:block; overflow:hidden; height:var(--c-timeline-bone-h); border-radius:var(--radius-sm); background:var(--color-neutral-2);}  /* 40 / 48 / 60 for S / M / L */
+.c-timeline-bone::after{content:""; position:absolute; inset:0; background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) 40%, transparent), transparent); animation:c-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;}
+.c-timeline-item.is-loading .c-timeline-bone{margin-top:calc((var(--spacing-12) - var(--c-timeline-lh)) / 2);}
+
+/* ---------- Narrow: opposite stacks above the heading (< 400px) ---------- */
+@container c-timeline (max-width:399px){
+  .c-timeline-has-opposite > .c-timeline-item{
+    --c-timeline-lead:calc(var(--text-caption-lh) + 2px);   /* same as date-above: caption line + 2px content gap */
+    grid-template-columns:var(--c-timeline-col) minmax(0, 1fr);
+    grid-template-rows:auto 1fr;
+    grid-template-areas:"sep opp" "sep content";
+  }
+  .c-timeline-left.c-timeline-has-opposite > .c-timeline-item{grid-template-columns:minmax(0, 1fr) var(--c-timeline-col); grid-template-areas:"opp sep" "content sep";}
+  .c-timeline-has-opposite > .c-timeline-item > .c-timeline-opposite{padding-top:0; margin-bottom:2px; text-align:start; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .c-timeline-left.c-timeline-has-opposite > .c-timeline-item > .c-timeline-opposite{text-align:end;}
+  .c-timeline-has-opposite > .c-timeline-item > .c-timeline-content{grid-row:2;}
+}
+
+/* ---------- Alternate / alternate-reverse (600px and up only) ----------
+   Scoped with :not(.c-timeline-horizontal): horizontal ignores position
+   classes (and you shouldn't combine them anyway). */
+@container c-timeline (min-width:600px){
+  :is(.c-timeline-alternate, .c-timeline-alternate-reverse):not(.c-timeline-horizontal) > .c-timeline-item{grid-template-columns:minmax(0, 1fr) var(--c-timeline-col) minmax(0, 1fr);}
+  .c-timeline-alternate:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(odd),
+  .c-timeline-alternate-reverse:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(even){grid-template-areas:"opp sep content";}
+  .c-timeline-alternate:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(even),
+  .c-timeline-alternate-reverse:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(odd){grid-template-areas:"content sep opp";}
+  .c-timeline-alternate:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(even) > .c-timeline-content,
+  .c-timeline-alternate-reverse:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(odd) > .c-timeline-content{text-align:end; --c-timeline-justify:flex-end;}
+  .c-timeline-alternate:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(even) > .c-timeline-opposite,
+  .c-timeline-alternate-reverse:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(odd) > .c-timeline-opposite{text-align:start;}
+}
+
+/* ---------- Alternate + opposite: the date goes ABOVE the heading ----------
+   Rule: alternate timelines put the date above the heading, on the
+   content's side; the opposite COLUMN is for right / left positions only.
+   CSS only: the same .c-timeline-opposite element is placed into a row
+   above the content (same markup as every other position). The far side
+   of the line stays empty. The extra line goes into --c-timeline-lead,
+   exactly like .c-timeline-date-above, so the dot centres on the heading.
+   Below 600px (alternate -> right) the date stays above the heading. */
+:is(.c-timeline-alternate, .c-timeline-alternate-reverse).c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item{
+  --c-timeline-lead:calc(var(--text-caption-lh) + 2px);
+  grid-template-columns:var(--c-timeline-col) minmax(0, 1fr);
+  grid-template-rows:auto 1fr;
+  grid-template-areas:"sep opp" "sep content";
+}
+:is(.c-timeline-alternate, .c-timeline-alternate-reverse).c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item > .c-timeline-opposite{
+  padding-top:0; margin-bottom:2px; text-align:start;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+:is(.c-timeline-alternate, .c-timeline-alternate-reverse).c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item > .c-timeline-content{grid-row:2;}
+@container c-timeline (min-width:600px){
+  :is(.c-timeline-alternate, .c-timeline-alternate-reverse).c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item{grid-template-columns:minmax(0, 1fr) var(--c-timeline-col) minmax(0, 1fr);}
+  .c-timeline-alternate.c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(odd),
+  .c-timeline-alternate-reverse.c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(even){grid-template-areas:". sep opp" ". sep content";}
+  .c-timeline-alternate.c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(even),
+  .c-timeline-alternate-reverse.c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(odd){grid-template-areas:"opp sep ." "content sep .";}
+  .c-timeline-alternate.c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(even) > .c-timeline-opposite,
+  .c-timeline-alternate-reverse.c-timeline-has-opposite:not(.c-timeline-horizontal) > .c-timeline-item:nth-child(odd) > .c-timeline-opposite{text-align:end;}
+}
+
+/* ---------- Horizontal (600px and up; vertical below) ----------
+   Items wrap at 100% width below 600px, so they stack like the default
+   right position; at 600px+ they share the row equally. */
+.c-timeline-horizontal{flex-direction:row; flex-wrap:wrap;}
+.c-timeline-horizontal > .c-timeline-item{flex:0 0 100%;}
+@container c-timeline (min-width:600px){
+  .c-timeline-horizontal > .c-timeline-item{flex:1 1 0; grid-template-columns:minmax(0, 1fr); grid-template-rows:auto auto 1fr; grid-template-areas:"sep" "content";}
+  .c-timeline-horizontal.c-timeline-has-opposite > .c-timeline-item{grid-template-columns:minmax(0, 1fr); grid-template-areas:"opp" "sep" "content";}
+  .c-timeline-horizontal .c-timeline-separator{flex-direction:row; align-items:center;}
+  .c-timeline-horizontal .c-timeline-dot{margin-top:0;}
+  .c-timeline-horizontal .c-timeline-connector{
+    width:auto; height:0; min-height:0; min-width:var(--spacing-8);
+    margin:0 var(--spacing-4);
+    border-inline-start:0; border-block-start:var(--border-width-md) var(--c-timeline-line-style) var(--c-timeline-line);
+  }
+  .c-timeline-horizontal .c-timeline-connector.is-partial{border-block-start:0; height:var(--border-width-md);}
+  .c-timeline-horizontal .c-timeline-connector.is-partial::before,
+  .c-timeline-horizontal .c-timeline-connector.is-partial::after{top:0; bottom:auto; width:auto; height:0; border-inline-start:0;}
+  .c-timeline-horizontal .c-timeline-connector.is-partial::before{inset-inline-start:0; width:var(--c-timeline-progress, 50%); border-block-start:var(--border-width-md) solid var(--c-timeline-line);}
+  .c-timeline-horizontal .c-timeline-connector.is-partial::after{inset-inline-start:var(--c-timeline-progress, 50%); inset-inline-end:0; border-block-start:var(--border-width-md) dashed var(--color-neutral-4);}
+  .c-timeline-horizontal > .c-timeline-item > .c-timeline-content{padding-block:var(--spacing-12) 0; padding-inline:0 var(--spacing-16); text-align:start; --c-timeline-justify:flex-start;}
+  .c-timeline-horizontal > .c-timeline-item > .c-timeline-opposite{padding-block:0 var(--spacing-8); padding-inline:0 var(--spacing-16); text-align:start;}
+}
+
+/* ---------- Whole-component states host ---------- */
+.c-timeline-state{min-width:0;}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  .c-timeline-bone::after{animation:none; background:none;}
+  .c-timeline-details-caret{transition:none;}   /* the caret flips instantly instead of rotating */
+}
+
+/* ---------- Forced colours ----------
+   Fills disappear, so status rides on shape + glyph + text: filled =
+   CanvasText disc, outlined = ring, current = Highlight, skipped =
+   GrayText ring. Lines: solid vs dashed survives (they are borders). */
+@media (forced-colors:active){
+  /* Only Timeline's OWN parts opt out. Never .c-timeline-dot: the property
+     inherits, and would restyle a reused Lists avatar. */
+  .c-timeline-mark, .c-timeline-connector, .c-timeline-connector::before, .c-timeline-connector::after{forced-color-adjust:none;}
+  /* Same specificity as the status rules, declared later, so every brand
+     line colour is replaced; solid vs dashed still carries the meaning. */
+  .c-timeline-item,
+  .c-timeline-item:is(.is-completed, .is-overdue, .is-blocked, .is-at-risk){--c-timeline-line:CanvasText;}
+  .c-timeline-item.is-current{--c-timeline-line:Highlight;}
+  .c-timeline-item:is(.is-upcoming, .is-skipped){--c-timeline-line:GrayText;}
+  .c-timeline-connector.is-partial::after{border-color:GrayText;}
+  .c-timeline-mark, .c-timeline-icon .c-timeline-mark,
+  .c-timeline-item:is(.is-completed, .is-overdue, .is-at-risk) .c-timeline-mark{background:CanvasText; color:Canvas; border-color:CanvasText;}
+  .c-timeline-mark.is-outlined,
+  .c-timeline-item:is(.is-upcoming, .is-blocked) .c-timeline-mark{background:Canvas; color:CanvasText; border-color:CanvasText;}
+  .c-timeline-item.is-skipped .c-timeline-mark{background:Canvas; color:GrayText; border-color:GrayText;}
+  .c-timeline-item.is-current .c-timeline-mark{background:Highlight; color:HighlightText;}
+  .c-timeline-badge{box-shadow:0 0 0 var(--border-width-md) Canvas;}
+  /* Avatars need nothing extra: Lists already gives them a 1px CanvasText
+     border in forced colours. */
+  .c-timeline-item.is-current .c-timeline-dot{outline:var(--border-width-md) solid Highlight; outline-offset:var(--border-width-md);}
+  .c-timeline-item.is-current .c-timeline-dot::after{outline-color:Highlight;}
+  :is(a[href], button).c-timeline-body:focus-visible{outline-color:Highlight;}
+  .c-timeline-body[aria-current]:not([aria-current="false"])::after{forced-color-adjust:none; background:Highlight;}
+  .c-timeline-bone, .c-timeline-file, .c-timeline-details{border:var(--border-width-sm) solid CanvasText;}
+}
+@media (forced-colors:active) and (hover:hover){
+  :is(a[href], button).c-timeline-body:not(:focus-visible):hover{outline:var(--border-width-sm) solid CanvasText; outline-offset:calc(var(--border-width-sm) * -1);}
+}
