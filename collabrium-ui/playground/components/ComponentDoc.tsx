@@ -2,6 +2,9 @@
 
 // The component page template. Every component page has the same
 // sections, in the same order, and reads only from <Name>.docs.tsx.
+// A section with nothing in its docs field still shows its heading, with
+// "Coming soon." under it, so every page has the same structure.
+import { Badge } from '../../src';
 import { componentDocs } from '../app/_generated/components-docs';
 import { componentsMeta } from '../app/_generated/components-meta';
 import type { ComponentDocs, DocsAnatomyNode } from '../../src/components/docs.types';
@@ -24,7 +27,7 @@ function Anatomy({ nodes }: { nodes: DocsAnatomyNode[] }) {
           <div className="docs-tree-row">
             <span className="docs-tree-name">{n.name}</span>
             {n.element && <code>{n.element}</code>}
-            {n.when && <span className="c-badge c-badge-neutral">{n.when}</span>}
+            {n.when && <Badge variant="neutral">{n.when}</Badge>}
           </div>
           <p className="docs-tree-desc">
             <Prose text={n.description} />
@@ -34,6 +37,12 @@ function Anatomy({ nodes }: { nodes: DocsAnatomyNode[] }) {
       ))}
     </ul>
   );
+}
+
+const SOON = 'Coming soon.';
+
+function ComingSoon() {
+  return <p className="docs-p">{SOON}</p>;
 }
 
 function SectionHead({ id, title }: { id: string; title: string }) {
@@ -48,6 +57,8 @@ function SectionHead({ id, title }: { id: string; title: string }) {
 
 /** The whole page as Markdown, for the Copy page button. */
 function toMarkdown(d: ComponentDocs): string {
+  const examples = d.examples ?? [];
+  const keyboard = d.accessibility?.keyboard;
   const t = (rows: string[][]) => rows.map(r => `| ${r.join(' | ')} |`).join('\n');
   const tree = (nodes: DocsAnatomyNode[], depth = 0): string =>
     nodes
@@ -57,13 +68,13 @@ function toMarkdown(d: ComponentDocs): string {
     `# ${d.title}`,
     d.description,
     `## Installation\n\n\`\`\`bash\n${INSTALL}\n\`\`\`\n\n\`\`\`tsx\n${STYLES}\n\`\`\``,
-    `## Usage\n\n\`\`\`tsx\n${d.usage}\n\`\`\``,
-    `## Anatomy\n\n${tree(d.anatomy)}`,
-    `## Examples\n\n${d.examples.map(e => `### ${e.title}\n\n${e.description}\n\n\`\`\`tsx\n${e.code}\n\`\`\``).join('\n\n')}`,
-    `## Props\n\n${t([['Prop', 'Options', 'Default', 'Description'], ['---', '---', '---', '---'], ...d.props.map(p => [`\`${p.name}\`${p.required ? ' (required)' : ''}`, `\`${p.options}\``, p.default, p.description])])}`,
-    `## Usage rules\n\n**Do**\n${d.rules.do.map(r => `- ${r}`).join('\n')}\n\n**Don't**\n${d.rules.dont.map(r => `- ${r}`).join('\n')}`,
-    `## Accessibility\n\n${t([['Keys', 'Action'], ['---', '---'], ...d.accessibility.keyboard.map(k => [k.keys, k.action])])}\n\n${d.accessibility.notes.map(n => `- ${n}`).join('\n')}`,
-    `## Motion\n\n${t([['Interaction', 'Motion', 'Token'], ['---', '---', '---'], ...d.motion.map(m => [m.interaction, m.motion, m.token])])}`,
+    `## Usage\n\n${d.usage ? `\`\`\`tsx\n${d.usage}\n\`\`\`` : SOON}`,
+    `## Anatomy\n\n${d.anatomy?.length ? tree(d.anatomy) : SOON}`,
+    `## Examples\n\n${examples.length ? examples.map(e => `### ${e.title}\n\n${e.description}\n\n\`\`\`tsx\n${e.code}\n\`\`\``).join('\n\n') : SOON}`,
+    `## Props\n\n${d.props?.length ? t([['Prop', 'Options', 'Default', 'Description'], ['---', '---', '---', '---'], ...d.props.map(p => [`\`${p.name}\`${p.required ? ' (required)' : ''}`, `\`${p.options}\``, p.default, p.description])]) : SOON}`,
+    `## Usage rules\n\n${d.rules ? `**Do**\n${d.rules.do.map(r => `- ${r}`).join('\n')}\n\n**Don't**\n${d.rules.dont.map(r => `- ${r}`).join('\n')}` : SOON}`,
+    `## Accessibility\n\n${d.accessibility ? `${typeof keyboard === 'string' ? keyboard : t([['Keys', 'Action'], ['---', '---'], ...(keyboard ?? []).map(k => [k.keys, k.action])])}\n\n${d.accessibility.notes.map(n => `- ${n}`).join('\n')}` : SOON}`,
+    `## Motion\n\n${typeof d.motion === 'string' ? d.motion : d.motion?.length ? t([['Interaction', 'Motion', 'Token'], ['---', '---', '---'], ...d.motion.map(m => [m.interaction, m.motion, m.token])]) : SOON}`,
   ].join('\n\n');
 }
 
@@ -115,7 +126,9 @@ export function ComponentDoc({ slug }: { slug: string }) {
   const docs = componentDocs[slug];
   const meta = componentsMeta.find(c => c.slug === slug)!;
   const current: PageKey = `components/${slug}`;
-  const [main, ...rest] = docs.examples;
+  const examples = docs.examples ?? [];
+  const main = examples[0];
+  const keyboard = docs.accessibility?.keyboard;
 
   const toc: TocItem[] = [
     { id: 'preview', label: 'Preview' },
@@ -123,7 +136,7 @@ export function ComponentDoc({ slug }: { slug: string }) {
     { id: 'usage', label: 'Usage' },
     { id: 'anatomy', label: 'Anatomy' },
     { id: 'examples', label: 'Examples' },
-    ...docs.examples.map(e => ({ id: `example-${e.id}`, label: e.title, level: 2 as const })),
+    ...examples.map(e => ({ id: `example-${e.id}`, label: e.title, level: 2 as const })),
     { id: 'props', label: 'Props' },
     { id: 'usage-rules', label: 'Usage rules' },
     { id: 'accessibility', label: 'Accessibility' },
@@ -156,8 +169,8 @@ export function ComponentDoc({ slug }: { slug: string }) {
             <Prose text={docs.description} />
           </p>
           <div className="docs-labels">
-            <span className="c-badge c-badge-neutral">@collabrium/ui</span>
-            {meta.client && <span className="c-badge c-badge-neutral">Client component</span>}
+            <Badge variant="neutral">@collabrium/ui</Badge>
+            {meta.client && <Badge variant="neutral">Client component</Badge>}
           </div>
         </header>
 
@@ -165,7 +178,7 @@ export function ComponentDoc({ slug }: { slug: string }) {
           <h2 id="preview-title" className="sr-only">
             Preview
           </h2>
-          <ExampleBlock title={main.title} preview={main.render()} code={main.code} toolbar />
+          {main ? <ExampleBlock title={main.title} preview={main.render()} code={main.code} toolbar /> : <ComingSoon />}
         </section>
 
         <section id="installation" aria-labelledby="installation-title" className="docs-section">
@@ -179,17 +192,18 @@ export function ComponentDoc({ slug }: { slug: string }) {
 
         <section id="usage" aria-labelledby="usage-title" className="docs-section">
           <SectionHead id="usage" title="Usage" />
-          <CodeBlock code={docs.usage} label="tsx" />
+          {docs.usage ? <CodeBlock code={docs.usage} label="tsx" /> : <ComingSoon />}
         </section>
 
         <section id="anatomy" aria-labelledby="anatomy-title" className="docs-section">
           <SectionHead id="anatomy" title="Anatomy" />
-          <Anatomy nodes={docs.anatomy} />
+          {docs.anatomy?.length ? <Anatomy nodes={docs.anatomy} /> : <ComingSoon />}
         </section>
 
         <section id="examples" aria-labelledby="examples-title" className="docs-section">
           <SectionHead id="examples" title="Examples" />
-          {[main, ...rest].map(ex => (
+          {examples.length === 0 && <ComingSoon />}
+          {examples.map(ex => (
             <div key={ex.id} id={`example-${ex.id}`} className="docs-example">
               <h3 className="docs-h3">{ex.title}</h3>
               <p className="docs-p">
@@ -202,6 +216,9 @@ export function ComponentDoc({ slug }: { slug: string }) {
 
         <section id="props" aria-labelledby="props-title" className="docs-section">
           <SectionHead id="props" title="Props" />
+          {!docs.props?.length ? (
+            <ComingSoon />
+          ) : (
           <div className="c-table-standalone-wrap docs-table-wrap">
             <table className="c-table c-table-standalone">
               <thead>
@@ -217,7 +234,11 @@ export function ComponentDoc({ slug }: { slug: string }) {
                   <tr key={p.name}>
                     <td>
                       <code>{p.name}</code>
-                      {p.required && <span className="c-badge c-badge-neutral docs-required">required</span>}
+                      {p.required && (
+                        <span className="docs-required">
+                          <Badge variant="neutral">required</Badge>
+                        </span>
+                      )}
                     </td>
                     <td>
                       <code>{p.options}</code>
@@ -231,10 +252,14 @@ export function ComponentDoc({ slug }: { slug: string }) {
               </tbody>
             </table>
           </div>
+          )}
         </section>
 
         <section id="usage-rules" aria-labelledby="usage-rules-title" className="docs-section">
           <SectionHead id="usage-rules" title="Usage rules" />
+          {!docs.rules ? (
+            <ComingSoon />
+          ) : (
           <div className="docs-rules">
             <div className="c-card">
               <div className="guide-col do">
@@ -267,10 +292,20 @@ export function ComponentDoc({ slug }: { slug: string }) {
               </div>
             </div>
           </div>
+          )}
         </section>
 
         <section id="accessibility" aria-labelledby="accessibility-title" className="docs-section">
           <SectionHead id="accessibility" title="Accessibility" />
+          {!docs.accessibility ? (
+            <ComingSoon />
+          ) : (
+          <>
+          {typeof keyboard === 'string' ? (
+            <p className="docs-p">
+              <Prose text={keyboard} />
+            </p>
+          ) : (
           <div className="c-table-standalone-wrap docs-table-wrap">
             <table className="c-table c-table-standalone">
               <thead>
@@ -280,7 +315,7 @@ export function ComponentDoc({ slug }: { slug: string }) {
                 </tr>
               </thead>
               <tbody>
-                {docs.accessibility.keyboard.map(k => (
+                {(keyboard ?? []).map(k => (
                   <tr key={k.keys}>
                     <td className="docs-nowrap">
                       {k.keys.split(' / ').map((key, i) => (
@@ -296,6 +331,7 @@ export function ComponentDoc({ slug }: { slug: string }) {
               </tbody>
             </table>
           </div>
+          )}
           <ul className="docs-notes">
             {docs.accessibility.notes.map(n => (
               <li key={n}>
@@ -303,10 +339,19 @@ export function ComponentDoc({ slug }: { slug: string }) {
               </li>
             ))}
           </ul>
+          </>
+          )}
         </section>
 
         <section id="motion" aria-labelledby="motion-title" className="docs-section">
           <SectionHead id="motion" title="Motion" />
+          {typeof docs.motion === 'string' ? (
+            <p className="docs-p">
+              <Prose text={docs.motion} />
+            </p>
+          ) : !docs.motion?.length ? (
+            <ComingSoon />
+          ) : (
           <div className="c-table-standalone-wrap docs-table-wrap">
             <table className="c-table c-table-standalone">
               <thead>
@@ -329,6 +374,7 @@ export function ComponentDoc({ slug }: { slug: string }) {
               </tbody>
             </table>
           </div>
+          )}
         </section>
 
         <PrevNext current={current} />

@@ -41,7 +41,7 @@ export function HomePage() {
           <div className="c-cards">
             {components.map(c => {
               const d = componentDocs[c.slug];
-              const thumb = d.thumbnail ? d.thumbnail() : d.examples[0]?.render();
+              const thumb = d.thumbnail ? d.thumbnail() : d.examples?.[0]?.render() ?? <span className="docs-p">Coming soon.</span>;
               return (
                 <div key={c.slug} className="c-card c-card-interactive docs-comp-card">
                   {/* inert: the thumbnail is a picture of the component, not a control */}

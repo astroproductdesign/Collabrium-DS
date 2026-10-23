@@ -11,6 +11,7 @@ export * from './motion';
 
 // Components
 export * from './components/Button';
+export * from './components/Badge';
 
 // Utilities
 export type { WithoutStyling } from './utils';
