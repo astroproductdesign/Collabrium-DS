@@ -8,8 +8,9 @@ import { Badge } from '../../src';
 import { componentDocs } from '../app/_generated/components-docs';
 import { componentsMeta } from '../app/_generated/components-meta';
 import type { ComponentDocs, DocsAnatomyNode } from '../../src/components/docs.types';
-import { hrefTo, neighbours, type PageKey } from '../lib/site';
+import { componentKey, groups, hrefTo, type PageKey } from '../lib/site';
 import { CodeBlock } from './CodeBlock';
+import { ComingSoon, PrevNext, SectionHead, SOON } from './DocParts';
 import { CopyButton } from './CopyButton';
 import { ExampleBlock } from './ExampleBlock';
 import { OnThisPage, type TocItem } from './OnThisPage';
@@ -39,22 +40,6 @@ function Anatomy({ nodes }: { nodes: DocsAnatomyNode[] }) {
   );
 }
 
-const SOON = 'Coming soon.';
-
-function ComingSoon() {
-  return <p className="docs-p">{SOON}</p>;
-}
-
-function SectionHead({ id, title }: { id: string; title: string }) {
-  return (
-    <div className="comp-head">
-      <h2 id={`${id}-title`} className="docs-h2">
-        {title}
-      </h2>
-    </div>
-  );
-}
-
 /** The whole page as Markdown, for the Copy page button. */
 function toMarkdown(d: ComponentDocs): string {
   const examples = d.examples ?? [];
@@ -78,54 +63,11 @@ function toMarkdown(d: ComponentDocs): string {
   ].join('\n\n');
 }
 
-function PrevNext({ current, compact }: { current: PageKey; compact?: boolean }) {
-  const { prev, next } = neighbours(current);
-  if (compact) {
-    return (
-      <div className="docs-pn-compact">
-        {prev && (
-          <a className="c-back-button" href={hrefTo(current, prev.key)} aria-label={`Previous: ${prev.title}`} title={`Previous: ${prev.title}`}>
-            <i className="ph ph-arrow-left" aria-hidden="true" />
-          </a>
-        )}
-        {next && (
-          <a className="c-back-button" href={hrefTo(current, next.key)} aria-label={`Next: ${next.title}`} title={`Next: ${next.title}`}>
-            <i className="ph ph-arrow-right" aria-hidden="true" />
-          </a>
-        )}
-      </div>
-    );
-  }
-  return (
-    <nav className="docs-pn" aria-label="Previous and next pages">
-      {prev ? (
-        <a className="c-back-button docs-pn-link" href={hrefTo(current, prev.key)}>
-          <i className="ph ph-arrow-left" aria-hidden="true" />
-          <span>
-            <span className="docs-pn-dir">Previous</span>
-            {prev.title}
-          </span>
-        </a>
-      ) : (
-        <span />
-      )}
-      {next && (
-        <a className="c-back-button docs-pn-link is-next" href={hrefTo(current, next.key)}>
-          <span>
-            <span className="docs-pn-dir">Next</span>
-            {next.title}
-          </span>
-          <i className="ph ph-arrow-right" aria-hidden="true" />
-        </a>
-      )}
-    </nav>
-  );
-}
-
 export function ComponentDoc({ slug }: { slug: string }) {
   const docs = componentDocs[slug];
   const meta = componentsMeta.find(c => c.slug === slug)!;
-  const current: PageKey = `components/${slug}`;
+  const current: PageKey = componentKey(meta);
+  const group = groups.find(g => g.slug === meta.group);
   const examples = docs.examples ?? [];
   const main = examples[0];
   const keyboard = docs.accessibility?.keyboard;
@@ -155,16 +97,22 @@ export function ComponentDoc({ slug }: { slug: string }) {
               <li>
                 <a href={hrefTo(current, '', 'components')}>Components</a>
               </li>
+              {group && (
+                <li>
+                  <a href={hrefTo(current, `components/${group.slug}`)}>{group.title}</a>
+                </li>
+              )}
               <li aria-current="page">{docs.title}</li>
             </ol>
           </nav>
           <div className="docs-title-row">
             <div className="docs-title-group">
+              <PrevNext current={current} compact="prev" />
               <h1 className="section-title docs-title">{docs.title}</h1>
-              <PrevNext current={current} compact />
             </div>
             <div className="docs-title-actions">
               <CopyButton text={() => toMarkdown(docs)} label="Copy page" />
+              <PrevNext current={current} compact="next" />
             </div>
           </div>
           <p className="lede docs-lede">

@@ -25,6 +25,8 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 1 | Button (incl. CTA beacon) | **review** | Step 3. See Decisions D-1 to D-9 and Open questions Q-BTN-*. |
 | 2 | Badge | **review** | Converted 2026-10-23. Tag stays separate (DS: "two separate components"). See BADGE-1 to BADGE-6, Decisions D-13 to D-16 and Open questions Q-BADGE-*. |
 | 3 | Checkbox | **review** | Converted 2026-10-23. Radio and Switch share its CSS block in the DLS but are separate components, left for their own review. See CHK-1 to CHK-6, Decisions D-17 to D-21 and Open questions Q-CHK-*. |
+| 4 | Loading State (AI Native, 1 of 8) | **review** | Converted 2026-10-23. AI Native has eight parts; the other seven (Chat window, Permission Prompt, Prompt input bar, Streaming Text, Task Rows, Thinking, Tool approval) are not started. See LOAD-1 to LOAD-5, Decisions D-22 to D-26 and Open questions Q-LOAD-*. |
+| 5 | Thinking (AI Native, 2 of 8) | **review** | Converted 2026-10-23. See THINK-1 to THINK-8, Decisions D-27 to D-33 and Open questions Q-THINK-*. Six AI Native parts remain (Chat window, Permission Prompt, Prompt input bar, Streaming Text, Task Rows, Tool approval). |
 | — | everything else | todo | Not started. |
 
 ---
@@ -198,6 +200,29 @@ None of these is "fixed" in the React port. Visuals follow components.css, and a
 | CHK-4 | Indeterminate has no rule of its own: it is `.on` plus a `ph-minus` glyph in markup (preview.html 2922). The unchecked example keeps a hidden minus (`visibility:hidden`) in the box | 3088 | 4357 |
 | CHK-5 | Cards and tables use `span.c-checkbox-box[role="checkbox"][tabindex="0"]` with a hand-written `aria-checked`, not a native input (preview.html 1789, 1890, 1936) | 298, 395, 1713 | — |
 | CHK-6 | The 2px top nudge is for a box beside a label. Dropdown (4240, 4253), Lists (6302) and the Table reset it to 0 | 3087 | 4358 |
+
+### Loading State (affects the Loading State conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| LOAD-1 | Most of the thirteen rules cannot be written in CSS: the 400ms hold-back, the timer from a start timestamp, vanish at first token, one per view, the required Stop, the hand-off to Thinking. CSS only owns the grid, the colour cycle, label, timer styles and reduced motion | 5274–5375 | 1208–1223 |
+| LOAD-2 | The Orbit centre cell is dimmed by a markup class (`.is-off`), not by the Orbit selector, which only stops its animation. Drive and Dots never use it | 5301, 5326 | 1206 |
+| LOAD-3 | The gallery only demos Orbit. Drive and Dots are "fully styled but not demoed", so there is no source markup for them beyond the CSS | — | preview.html 1349 |
+| LOAD-4 | The gallery's timer formatter prints "1m 60.0s" for the last 50ms before each whole minute (`(totalSeconds % 60).toFixed(1)` rounds up to 60.0). Seconds under a minute are unaffected | preview.html 22306 | — |
+| LOAD-5 | No forced-colours rule, and the DS says nothing about it. Tested in Chrome: the grid is background-colour only, so forced-colours mode paints every cell the page colour and the grid disappears; the label and timer still show | 5274–5375 | — |
+
+### Thinking (affects the Thinking conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| THINK-1 | Rule 14 says a timer shows from the first frame and folds into the past-tense header. The anatomy, the CSS and the gallery have no timer: the header is mark, status, chevron | none | 1765, 1712 |
+| THINK-2 | Reduced motion: Rule 20 says "the spinner still turns on the current step". The CSS stops it (`.c-thinking-row-icon.is-spin{animation:none}`) | 5477 | 1771 |
+| THINK-3 | The status spans get `grid-area:1/1` "so the header never reflows", but their container is `display:inline-flex`, so it has no effect. The swap is `display:none` / `inline`, so the header can change width when it flips | 5407–5408 | 1716 |
+| THINK-4 | Rule 19 puts the live region on "the header only". The gallery puts `role="status" aria-live="polite"` on both status spans, which sit inside the header `<button>`. A button's children are presentational, so announcement support varies by browser and screen reader | gallery 1508 | 1770 |
+| THINK-5 | A closed trace is `grid-template-rows:0fr` plus `opacity:0`, so its links and buttons (search and coding rows) stay in the tab order while hidden | 5428–5434 | — |
+| THINK-6 | Rows have no focus-visible rule (the header has one). Links and buttons fall back to the browser's default focus ring | 5444–5448 | — |
+| THINK-7 | The "+N more" line is only demoed in the Search variant, hidden until the run is done. Rule 11 applies to every variant | gallery 1564 | 1762 |
+| THINK-8 | The timeline line's `-1px` is a correction for the web-font sparkle glyph's visual centre. The React glyph is an SVG; its centre was measured separately (see Q-THINK-1) | 5440 | — |
 
 ### Tokens and global
 
@@ -407,6 +432,19 @@ Grouped by component. Line numbers are CSS / DS.
 | D-13 | Badge follows components.css for colours, type size and height (BADGE-1 to BADGE-3, BADGE-5); the variant is named `error`, as in CSS, not "Danger" | D-1 |
 | D-14 | Badge tints keep the source's raw `rgba()` values, declared once as component-scoped custom properties (D-3) | `color-mix()` from the tokens was tried: it renders one RGB step off in Chrome (224,248,238 vs 224,248,237), so it would not match components.css exactly. Relative colour syntax gives the same result |
 | D-15 | Badge `variant` is required; `iconWeight` defaults to `fill` | DS names no default tone (same reasoning as D-6). Every badge icon in preview.html is `ph-fill`, and DS says status icons are Tier 2 Fill |
+| D-22 | The component owns Rule 2's 400ms hold-back, measured from `startedAt`. The host owns the other host-side rules (see the usage doc) | The rule says to hold "the whole component" back and that the timer still counts from the true start; both need the start timestamp, which the component already takes. Flagged Q-LOAD-3 |
+| D-23 | The root `role="status" aria-live="polite"` is always in the page; only its content waits for the 400ms | A live region that is created together with its text is often not announced. DS Rule 11 puts the live region on `.c-loading`; keeping it mounted makes that work as written |
+| D-24 | The timer is built from whole tenths of a second, so it never shows "60.0s" | LOAD-4. Output is identical everywhere else |
+| D-25 | `label` is a required string; the timer has no prop to hide it | DS Rule 4 (label is live) and Rule 5 (timer from the first frame, never withheld) |
+| D-26 | `startedAt` is optional and defaults to the moment the component mounted | Matches the gallery demo, which starts its clock on load. Hosts whose work started earlier pass the real timestamp |
+| D-27 | Rows are data, not children: `steps`, `paragraphs`, `query` + `sources`, `toolCalls`, chosen by `variant` (a union). The icons are derived: the last step spins while working, every other step is a check | Rules 8, 9 and 12 (append only, one spinner, variant follows the data) become impossible to break from the props. The gallery hard-codes each icon class |
+| D-28 | The component owns Rule 6: it opens while `working`, closes when `done`, and the first click on the header makes the reader's choice win for that instance. `defaultExpanded` counts as that choice. A new run is a new instance (`key`) | The gallery script resets `manual` on Replay; in React that is a remount |
+| D-29 | The closed trace is `inert` | THINK-5. Invisible change: hidden links and buttons must not be reachable. Flagged Q-THINK-5 |
+| D-30 | The header gets `aria-controls` pointing at the trace | Correct ARIA for a disclosure; not in the source markup. No visual effect |
+| D-31 | `workingLabel` and `doneLabel` are required strings from the host; the duration is folded into `doneLabel` | THINK-1: no timer exists to build. Rule 7 gives the copy ("Thought for 4 seconds") |
+| D-32 | Row entrance stagger is position × 120ms through `--cui-thinking-row-index` | The gallery writes `animation-delay` 0, 120, 240, 360ms by hand on each row. Same values for the first four rows |
+| D-33 | The spinner keyframe is copied into Thinking.css as `cui-thinking-spin` | Search input (which owns `c-search-input-spin`) is not converted. Share one keyframe when it is |
+| D-34 | Docs site only: AI Native's parts are grouped under one sidebar item with an overview page and a page per part (`components/ai-native/<part>`). A docs file opts in with `export const group = 'AI Native'`. The package's exports stay flat (`LoadingState`, `Thinking`) | The DLS lists AI Native as one nav entry and says not to give a part its own nav-child. Keeps pages short as the other six parts arrive, and the sidebar at two levels like the DLS |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -454,6 +492,26 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-CHK-4 | Focus ring on the box (D-19, CHK-2): confirm the standard 2px Obsidian ring, or specify another | `Checkbox.css` Focus |
 | Q-CHK-5 | Error / required state and a checkbox group (fieldset + legend, group error): not in the DLS. Needed? | not built |
 | Q-CHK-6 | The 2px top nudge is always on. When Dropdown, Lists, Table and Card are converted, how should an embedded Checkbox drop it (CHK-6)? | `Checkbox.css` |
+
+### Loading State
+
+| ID | Question | Where |
+|---|---|---|
+| Q-LOAD-1 | Should the DLS add tokens for the 4px cell, 1.5px gap, 1px cell radius, and the loop cadences (650ms, 950ms, 5s) and cell staggers (90ms, 110ms)? Local custom properties until then. No motion token is a loop | `LoadingState.css` top |
+| Q-LOAD-2 | Forced colours (LOAD-5): the grid vanishes and only the label and timer show. Leave it, or add a rule (for example cell colour from `CanvasText`) so the grid stays visible? | `LoadingState.css` |
+| Q-LOAD-3 | Should the component own the 400ms hold-back (D-22), or leave it to the host? | `LoadingState.tsx` |
+| Q-LOAD-4 | A long label never wraps or truncates (`nowrap`). Is there a maximum length or an ellipsis rule? The DS is silent | `LoadingState.css` label |
+
+### Thinking
+
+| ID | Question | Where |
+|---|---|---|
+| Q-THINK-1 | Should the DLS add tokens for the 380px width, 176px active height, 6px hit-target padding, 28px / 26px row heights, 6px row radius, 11px diff size and the 1.4s shimmer / 120ms stagger? Local custom properties until then. Also: does the timeline line still centre under the SVG sparkle (the `-1px`, THINK-8)? | `Thinking.css` top |
+| Q-THINK-2 | Rule 14's timer (THINK-1): should the header show a running timer? It needs anatomy and CSS. Until then the host folds the duration into `doneLabel` | `Thinking.tsx` |
+| Q-THINK-3 | Reduced motion: should the spinner keep turning (Rule 20 text) or stop (the CSS)? Shipped as the CSS (THINK-2) | `Thinking.css` reduced motion |
+| Q-THINK-4 | Live region: keep it on the status spans inside the button as the gallery has it, or move it outside the button (THINK-4)? | `Thinking.tsx` header |
+| Q-THINK-5 | Confirm the closed trace is `inert` (D-29), and that rows keep the browser's default focus ring (THINK-6) rather than the Obsidian ring | `Thinking.tsx`, `Thinking.css` |
+| Q-THINK-6 | "+N more" fades in "once every rendered row has settled" (Rule 11 / anatomy). It shows as soon as `moreCount` is given; should the component wait for the rows' entrance to finish (THINK-7)? | `Thinking.tsx` |
 
 ### Global
 

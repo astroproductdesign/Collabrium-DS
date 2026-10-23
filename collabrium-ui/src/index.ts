@@ -13,6 +13,8 @@ export * from './motion';
 export * from './components/Button';
 export * from './components/Badge';
 export * from './components/Checkbox';
+export * from './components/LoadingState';
+export * from './components/Thinking';
 
 // Utilities
 export type { WithoutStyling } from './utils';

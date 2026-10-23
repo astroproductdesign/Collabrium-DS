@@ -6,7 +6,7 @@
 // on the rail, collapsed parent opens its first child). The only change:
 // items are links to pages instead of buttons that scroll one long page.
 import { useEffect, useRef } from 'react';
-import { assetHref, components, foundationPages, hrefTo, type PageKey } from '../lib/site';
+import { assetHref, foundationPages, hrefTo, navItems, type PageKey } from '../lib/site';
 import { openSearch } from './SearchDialog';
 
 const COLLAPSE_KEY = 'collabrium-sidebar-collapsed';
@@ -191,11 +191,12 @@ export function Sidebar({ current }: { current: PageKey }) {
               <hr className="c-sidebar-divider" />
 
               <Parent id="components" icon="squares-four" label="Components" activeChild={inComponents}>
-                {components.map(c => {
+                {navItems.map(c => {
                   const key = `components/${c.slug}`;
-                  const active = current === key;
+                  // A group (AI Native) stays highlighted on its overview and on every part under it.
+                  const active = current === key || (c.kind === 'group' && current.startsWith(`${key}/`));
                   return (
-                    <a key={c.slug} className={`c-nav-child${active ? ' active' : ''}`} href={link(key)} aria-current={active ? 'page' : undefined}>
+                    <a key={c.slug} className={`c-nav-child${active ? ' active' : ''}`} href={link(key)} aria-current={current === key ? 'page' : active ? 'true' : undefined}>
                       {c.title}
                     </a>
                   );
