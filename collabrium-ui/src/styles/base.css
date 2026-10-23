@@ -1,0 +1,46 @@
+/*
+  Base styles — @collabrium/ui
+
+  Deliberately minimal. Every line below is backed by the DLS:
+  - box-sizing: the DLS gallery (preview.html) renders every component
+    under `*{box-sizing:border-box}`, so components were tuned against it.
+  - Canvas: DESIGN-SYSTEM.md "Warm canvas" — canvas-warm is "the default
+    page canvas everywhere" / "the default background for every screen".
+  - Font: DESIGN-SYSTEM.md "Typography" — Mulish (--font-primary) carries
+    everything functional.
+  - Text colour: Neutral-9, as in the DLS gallery.
+
+  Not set on purpose (see MIGRATION-LOG.md, Open questions): body font
+  size, weight and line-height. The DLS has no body rule, and setting
+  body1 (16/22/500) here would change the weight that components inherit.
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas-warm);
+  color: var(--color-neutral-9);
+  font-family: var(--font-primary);
+}
+
+/*
+  Reduced motion. The DLS has no global rule: each component specifies its
+  own, and the shared principle is "drop the travel, keep the
+  information". Some components must keep a fade (Back to top: "Don't
+  remove the transition entirely; keep the fade") and some keep an
+  animation running (Button's CTA beacon swaps its pulse for a steady ring
+  that lasts 4.2s). A blanket "kill all motion" rule would break both, so
+  there is none here. Each component's CSS handles its own case, and
+  enter/exit motion goes through src/motion, which reads the same
+  preference. The only global effect is smooth scrolling.
+*/
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

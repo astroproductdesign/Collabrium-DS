@@ -1,0 +1,67 @@
+{
+  "name": "@collabrium/ui",
+  "version": "0.1.0",
+  "description": "Collabrium design language system as React components for Next.js (App Router).",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./charts": {
+      "types": "./dist/charts/index.d.ts",
+      "import": "./dist/charts/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./tokens.css": "./dist/tokens.css"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "check:tokens": "node scripts/check-tokens.mjs",
+    "playground:dev": "next dev playground --port 3100",
+    "playground:build": "next build playground && node scripts/relative-export.mjs playground/out",
+    "check": "npm run check:tokens && npm run typecheck && npm run build && npm run playground:build"
+  },
+  "peerDependencies": {
+    "chart.js": "^4.4.0",
+    "react": ">=18",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "chart.js": {
+      "optional": true
+    },
+    "react-chartjs-2": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "motion": "^12.43.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "chart.js": "^4.6.1",
+    "next": "15.5.28",
+    "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.1",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

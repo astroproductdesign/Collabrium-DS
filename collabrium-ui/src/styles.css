@@ -1,0 +1,10 @@
+/*
+  @collabrium/ui — the single stylesheet, built to dist/styles.css.
+  Import it once at the root of the app:  import '@collabrium/ui/styles.css';
+  Order matters: tokens, then base, then components.
+*/
+@import './tokens/tokens.css';
+@import './styles/base.css';
+
+/* Components (one line per component, in catalogue order) */
+@import './components/Button/Button.css';
