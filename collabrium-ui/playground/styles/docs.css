@@ -140,7 +140,12 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 /* ---------- Color Palette ---------- */
 .docs-color-group { margin-top: var(--spacing-32); }
 .docs-color-group:first-of-type { margin-top: var(--spacing-8); }
-h2.swatch-group-label { margin-top: 0; }
+.docs-color-group > .swatch-group-label { margin-top: 0; }
+/* The DLS resets the first group label with :first-of-type, which with real
+   headings also catches labels that sit after a table (Spacing › Elevation).
+   Keep the 32px gap above every label except one straight after the lede. */
+.docs-foundation > .swatch-group-label:first-of-type { margin-top: var(--spacing-32); }
+.docs-foundation > .lede + .swatch-group-label { margin-top: 0; }
 .docs-group-note { text-transform: none; letter-spacing: 0; font-weight: var(--weight-regular); color: var(--color-neutral-5); }
 .swatch .meta .hex { font-family: var(--font-primary); }
 .swatch .meta .hex code { font-size: var(--text-caption-size); }
