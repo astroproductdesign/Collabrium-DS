@@ -1,0 +1,246 @@
+/*
+  Copied verbatim from collabrium-dls/preview.html's own <style> (the DLS
+  site chrome: not design-system components, so they never lived in
+  components.css). Same class names, same rules, dedented only.
+  Do not edit here; playground-specific overrides live in docs.css.
+*/
+
+/* ===== Page base and .shell — preview.html lines 16–22 ===== */
+*{box-sizing:border-box;}
+html,body{margin:0; height:100%;}
+body{
+  background:var(--color-neutral-1); color:var(--color-neutral-9);
+  font-family:var(--font-primary); display:flex; flex-direction:column;
+}
+.shell{padding:0 32px;}
+
+/* ===== Top bar and version flag — preview.html lines 24–41 ===== */
+/* Top bar */
+.topbar{
+  flex:none; height:60px; display:flex; align-items:center; gap:10px; padding:0 24px;
+  border-bottom:1px solid var(--color-neutral-3);
+}
+.topbar .mark{
+  width:28px; height:28px; border-radius:50%; border:1.5px solid var(--color-neutral-9);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-secondary);
+  font-weight:600; font-size:14px; flex:none;
+}
+.topbar .crumb{font-size:14px; color:var(--color-neutral-5); display:flex; align-items:center; gap:8px;}
+.topbar .crumb b{color:var(--color-neutral-9); font-weight:600;}
+.flag{
+  display:inline-flex; align-items:center; gap:6px; background:rgba(255,164,37,.16);
+  color:var(--color-neutral-9); font-size:var(--text-label3-size); font-weight:600;
+  letter-spacing:var(--text-label3-tracking); padding:2px var(--spacing-8); border-radius:var(--radius-pill);
+  margin-left:auto;
+}
+
+/* ===== Site search palette — preview.html lines 98–231 ===== */
+/* Site search — this page's own chrome, not a design-system component,
+   so it lives here rather than in components.css. Three triggers, one
+   palette: an icon in the sidebar header (expanded rail), a row above
+   General (collapsed rail), and an icon leading the jump nav (below
+   900px, where the rail is gone). The result rows reuse Search input's
+   real anatomy from components.css — .c-search-input-row / -text /
+   -title / -subtitle / -empty — so the gallery's own component is what
+   the page is actually running. Only the palette shell, the scope
+   chips and the three triggers are local to this file. */
+.site-search-hdr{
+  position:absolute; top:32px; right:42px; transform:translateY(-50%);
+  width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+  border:none; background:none; border-radius:var(--radius-sm); padding:0;
+  color:var(--color-neutral-5); cursor:pointer;
+}
+.site-search-hdr i{font-size:18px;}
+.site-search-hdr:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.site-search-hdr:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+/* Collapsed, the rail is 72px — sized for the logo and the toggle icon
+   side by side and nothing else (DESIGN-SYSTEM.md, Collapsible state →
+   Collapsed width). So the header trigger hands off to a nav row above
+   General, which the existing is-collapsed rules already centre and
+   label on hover for free. */
+.c-sidebar.is-collapsed ~ .site-search-hdr{display:none;}
+.site-search-row{display:none;}
+.c-sidebar.is-collapsed .site-search-row{display:flex;}
+
+/* Jump-nav trigger — leads the row, before General. Only ever visible
+   inside the max-width:900px query, since nav.jumpnav is display:none
+   above it. */
+.site-search-jump{
+  flex:none; width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+  border:none; border-radius:var(--radius-sm); padding:0;
+  background:transparent; color:var(--color-neutral-5); cursor:pointer;
+}
+.site-search-jump i{font-size:var(--icon-sm);}
+.site-search-jump:hover{background:var(--color-neutral-2); color:var(--color-neutral-9);}
+.site-search-jump:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+
+/* Palette — body-level, above the Changelog page's own z-index:50 */
+/* width:100vw, not inset:0 — this page is already wider than the
+   viewport below ~640px (the topbar's Changelog button, the type
+   samples), and a fixed inset:0 box stretches to that document width,
+   which pushes the panel off-centre and past the right edge. A fixed
+   element wider than the viewport adds no scroll of its own. */
+.site-search-scrim{
+  position:fixed; top:0; bottom:0; left:0; width:100vw; z-index:60; background:var(--shadow-overlay);
+  display:flex; align-items:flex-start; justify-content:center;
+  padding:88px var(--spacing-16) var(--spacing-16);
+  opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);
+}
+.site-search-scrim[hidden]{display:none;}
+.site-search-scrim.is-open{opacity:1;}
+.site-search-panel{
+  width:100%; max-width:560px; max-height:100%; display:flex; flex-direction:column; overflow:hidden;
+  background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-3);
+  transform:translateY(-6px) scale(.985); transition:transform var(--duration-fast) var(--ease-standard);
+}
+.site-search-scrim.is-open .site-search-panel{transform:none;}
+.site-search-field{
+  flex:none; display:flex; align-items:center; gap:var(--spacing-12);
+  height:54px; padding:0 var(--spacing-16); border-bottom:1px solid var(--color-neutral-2);
+}
+.site-search-field > i{font-size:var(--icon-base); color:var(--color-neutral-5); flex:none;}
+.site-search-field input{
+  flex:1; min-width:0; height:100%; border:0; outline:none; background:transparent;
+  font-family:inherit; font-size:var(--text-body1-size); font-weight:500; color:var(--color-neutral-9);
+}
+.site-search-field input::placeholder{color:var(--color-neutral-4); font-weight:400;}
+.site-search-esc{
+  flex:none; border:0; border-radius:6px; padding:4px var(--spacing-8); cursor:pointer;
+  background:var(--color-neutral-2); color:var(--color-neutral-5);
+  font-family:inherit; font-size:var(--text-label3-size); font-weight:700;
+}
+.site-search-esc:hover{background:var(--color-neutral-3);}
+.site-search-chips{
+  flex:none; display:flex; gap:6px; padding:var(--spacing-8) var(--spacing-12);
+  border-bottom:1px solid var(--color-neutral-2); overflow-x:auto; scrollbar-width:none;
+}
+.site-search-chips::-webkit-scrollbar{display:none;}
+.site-search-chip{
+  flex:none; display:inline-flex; align-items:center; gap:5px; height:26px; padding:0 11px;
+  border:1px solid var(--color-neutral-3); border-radius:var(--radius-pill);
+  background:var(--color-neutral-1); color:var(--color-neutral-5);
+  font-family:inherit; font-size:var(--text-caption-size); font-weight:700; cursor:pointer;
+  transition:background-color var(--duration-fast) var(--ease-standard),
+             color var(--duration-fast) var(--ease-standard),
+             border-color var(--duration-fast) var(--ease-standard);
+}
+.site-search-chip:hover{border-color:var(--color-neutral-4); color:var(--color-neutral-9);}
+.site-search-chip.is-on{background:var(--color-obsidian); border-color:var(--color-obsidian); color:var(--color-neutral-1);}
+.site-search-chip span{font-size:10px; opacity:.72; font-variant-numeric:tabular-nums;}
+.site-search-results{flex:1; min-height:140px; overflow-y:auto; padding:var(--spacing-4) 0 var(--spacing-8);}
+.site-search-grp{
+  padding:var(--spacing-8) var(--spacing-16) var(--spacing-4);
+  font-size:10px; font-weight:700; letter-spacing:var(--tracking-eyebrow);
+  text-transform:uppercase; color:var(--color-neutral-5);
+}
+/* Search input's own row anatomy, re-used as-is; these few overrides
+   only widen it to the palette and mark the keyboard cursor. */
+.site-search-results .c-search-input-row{position:relative; width:100%; border:0; background:transparent;
+  font-family:inherit; text-align:left; padding:var(--spacing-8) var(--spacing-16);}
+.site-search-results .c-search-input-row.is-cursor{background:var(--color-neutral-2);}
+.site-search-results .c-search-input-row.is-cursor::before{
+  content:''; position:absolute; left:0; top:50%; margin-top:-16px;
+  width:3px; height:32px; border-radius:0 3px 3px 0; background:var(--color-obsidian);
+}
+.site-search-ico{
+  flex:none; width:28px; height:28px; border-radius:9px; display:flex; align-items:center;
+  justify-content:center; background:var(--color-neutral-2); color:var(--color-neutral-5);
+  font-size:var(--icon-sm);
+}
+.c-search-input-row.is-cursor .site-search-ico{background:var(--color-obsidian); color:var(--color-neutral-1);}
+.site-search-results mark{background:rgba(255,164,37,.42); color:inherit; border-radius:2px; padding:0 1px;}
+.site-search-kind{
+  flex:none; padding:3px 7px; border-radius:var(--radius-pill);
+  background:var(--color-neutral-2); color:var(--color-neutral-5);
+  font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+}
+.site-search-foot{
+  flex:none; display:flex; align-items:center; gap:var(--spacing-16);
+  padding:var(--spacing-8) var(--spacing-16); border-top:1px solid var(--color-neutral-2);
+  background:var(--color-canvas-warm); font-size:var(--text-label3-size); color:var(--color-neutral-5);
+}
+.site-search-foot .count{margin-left:auto; font-variant-numeric:tabular-nums;}
+.site-search-foot kbd{
+  font-family:inherit; font-size:10px; font-weight:700; margin-right:3px; padding:1px 5px;
+  border:1px solid var(--color-neutral-3); border-radius:5px;
+  background:var(--color-neutral-1); color:var(--color-neutral-9);
+}
+@media (prefers-reduced-motion:reduce){
+  .site-search-scrim,.site-search-panel{transition:none;}
+}
+
+/* ===== App shell and nav rail — preview.html lines 233–242 ===== */
+/* App shell — SidebarNav rail beside the existing two-pane layout,
+   replacing the old horizontal jumpnav. Follows App Shell's own Main
+   nav placement rule (inset spacing-16 top/left/bottom, no inset on
+   the right — the content region's own gutter provides that gap
+   instead), adapted to sit below .topbar rather than the viewport's
+   own top edge, since .topbar is the page's pre-existing chrome. */
+.app-shell{display:flex; flex:1; min-height:0;}
+.nav-rail{flex:none; padding:var(--spacing-16) 0 var(--spacing-16) var(--spacing-16);}
+.nav-rail .c-sidebar-shell{height:100%;}
+.nav-rail .c-sidebar{height:100%;} /* the menu region (.c-sidebar-scroll) scrolls; the header stays pinned */
+
+/* ===== Mobile jump nav (hidden above 900px) — preview.html lines 262–265 ===== */
+nav.jumpnav{display:none;}
+nav.jumpnav .shell{display:flex; align-items:center; gap:var(--spacing-24); height:52px; overflow-x:auto;}
+nav.jumpnav a{color:var(--color-neutral-5); text-decoration:none; font-size:var(--text-label2-size); font-weight:600; white-space:nowrap;}
+nav.jumpnav a:hover{color:var(--color-neutral-9);}
+
+/* ===== Section, kicker, section title, lede — preview.html lines 267–271 ===== */
+section{padding:var(--spacing-60) 0; border-bottom:1px solid var(--color-neutral-2);}
+section:last-of-type{border-bottom:none;}
+.kicker{font-size:var(--text-label3-size); text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-5); font-weight:600; margin:0 0 var(--spacing-8);}
+h2.section-title{font-family:var(--font-secondary); font-weight:600; margin:0 0 var(--spacing-24); font-size:var(--text-h1-size); line-height:var(--text-h1-lh); letter-spacing:var(--text-h1-tracking);}
+.lede{color:var(--color-neutral-5); font-size:var(--text-body1-size); line-height:1.6; max-width:65ch; margin:0 0 var(--spacing-32);}
+
+/* ===== Swatch group label — preview.html lines 311–312 ===== */
+.swatch-group-label{font-size:var(--text-label3-size); text-transform:uppercase; letter-spacing:var(--text-label3-tracking); color:var(--color-neutral-5); font-weight:700; margin:var(--spacing-32) 0 var(--spacing-12);}
+.swatch-group-label:first-of-type{margin-top:0;}
+
+/* ===== Swatches — preview.html lines 355–364, minus the two `.swatch .fill button` lines (358–359): the copy action is the React Button here ===== */
+.swatches{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:var(--spacing-16);}
+.swatch{border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); overflow:hidden;}
+.swatch .fill{height:80px; position:relative;}
+.swatch .meta{padding:var(--spacing-12); background:var(--color-neutral-1);}
+.swatch .meta b{display:block; font-size:var(--text-label1-size); margin-bottom:2px;}
+.swatch .meta .hex{font-family:monospace; font-size:12px; color:var(--color-neutral-5); display:block; margin-bottom:var(--spacing-8);}
+.swatch .meta p{margin:0; font-size:var(--text-body2-size); color:var(--color-neutral-5); line-height:1.5;}
+.swatch .meta .tag{display:inline-block; margin-top:var(--spacing-8); font-size:11px; font-weight:600; color:var(--color-neutral-9); background:var(--color-neutral-2); padding:2px 8px; border-radius:var(--radius-pill);}
+
+/* ===== Below 900px: rail hidden, jump nav shown — preview.html lines 556, 562–563 ===== */
+@media (max-width:900px){
+    .nav-rail{display:none;}
+    nav.jumpnav{display:block; position:sticky; top:0; z-index:10; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--color-neutral-3);}
+}
+
+/* ===== Do / Don't columns — preview.html lines 417–425 ===== */
+.guide-cols{display:grid; grid-template-columns:1fr; gap:var(--spacing-32);}
+.guide-col h3{display:flex; align-items:center; gap:8px; font-size:var(--text-h4-size); margin:0 0 var(--spacing-16);}
+.guide-col.do h3{color:var(--color-green);}
+.guide-col.dont h3{color:var(--color-red);}
+.guide-col ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--spacing-12);}
+.guide-col li{position:relative; padding-left:24px; font-size:var(--text-body2-size); line-height:1.55; color:var(--color-neutral-9);}
+.guide-col li i{position:absolute; left:0; top:3px; font-size:14px;}
+.guide-col.do li i{color:var(--color-green);}
+.guide-col.dont li i{color:var(--color-red);}
+
+/* ===== Component demo frame — preview.html lines 434–436 ===== */
+.comp-demo{border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); padding:var(--spacing-24); background:var(--color-neutral-1);}
+.comp-row{display:flex; flex-wrap:wrap; gap:var(--spacing-12); align-items:center;}
+.comp-row + .comp-row{margin-top:var(--spacing-16);}
+
+/* ===== Code area — preview.html lines 547–547 ===== */
+.codearea{flex:1; overflow:auto; padding:24px; font-family:'SF Mono', Menlo, Consolas, monospace; font-size:12.5px; line-height:1.7; white-space:pre-wrap; word-break:break-word; color:var(--color-neutral-9);}
+
+/* ===== Home hero logo — preview.html lines 273–274 ===== */
+.hero-logo{padding:var(--spacing-32) 0 var(--spacing-16);}
+.hero-logo iframe{width:100%; height:160px; border:none; display:block;}
+
+/* ===== Home hero tagline — preview.html lines 304–304 ===== */
+.hero-tagline{color:var(--color-neutral-5); font-size:var(--text-body1-size); margin:0 0 var(--spacing-32);}
+
+/* ===== Component block heading — preview.html lines 430–431 ===== */
+.comp-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--spacing-16);}
+.comp-head h3{font-size:var(--text-h4-size); font-weight:var(--text-h4-weight); margin:0;}

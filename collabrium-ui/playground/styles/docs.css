@@ -1,0 +1,145 @@
+/*
+  Docs site layout — new playground CSS. Token variables only.
+  Everything visual that the DLS already defines comes from
+  dls-components.css and dls-site.css (copied, same class names). This
+  file only lays those pieces out and covers what the DLS has no style
+  for (listed in the playground report): the page grid, the "On this
+  page" column, code blocks, the anatomy tree, breadcrumbs, inline code
+  and kbd.
+*/
+
+:root {
+  /* Preview toolbar "Mobile width". No token exists for a phone width. */
+  --docs-mobile-width: 390px;
+}
+
+/* ---------- Shell ---------- */
+.docs-pane { position: relative; flex: 1; min-width: 0; overflow-y: auto; }
+a.c-sidebar-item, a.c-nav-child, a.c-back-button { text-decoration: none; }
+[id] { scroll-margin-top: var(--spacing-24); }
+
+/* ---------- Page grid: article + "On this page" ---------- */
+.docs-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--spacing-48); max-width: var(--content-max-width); padding-bottom: var(--spacing-120); }
+.docs-page.has-toc { grid-template-columns: minmax(0, 1fr) calc(var(--spacing-120) * 2); }
+.docs-article { min-width: 0; }
+.docs-aside { min-width: 0; }
+@media (max-width: 1200px) {
+  .docs-page.has-toc { grid-template-columns: minmax(0, 1fr); }
+  .docs-aside { display: none; }
+}
+
+/* ---------- Page header ---------- */
+/* The DLS rule is written for h2 (h2.section-title); pages use one h1 as the title, with the same look. */
+h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight-semibold); margin: 0 0 var(--spacing-24); font-size: var(--text-h1-size); line-height: var(--text-h1-lh); letter-spacing: var(--text-h1-tracking); }
+.docs-header { padding-top: var(--spacing-48); }
+.docs-title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-16); margin-bottom: var(--spacing-16); }
+.docs-title-row .section-title { margin: 0; }
+.docs-title-actions { display: flex; align-items: center; gap: var(--spacing-8); }
+.docs-lede { margin-bottom: var(--spacing-16); }
+.docs-labels { display: flex; flex-wrap: wrap; gap: var(--spacing-8); }
+.docs-breadcrumb ol { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-8); margin: 0 0 var(--spacing-16); padding: 0; list-style: none; font-size: var(--text-label2-size); line-height: var(--text-label2-lh); color: var(--color-neutral-5); }
+.docs-breadcrumb li + li::before { content: '/'; margin-right: var(--spacing-8); color: var(--color-neutral-4); }
+.docs-breadcrumb a { color: var(--color-neutral-5); text-decoration: none; border-radius: var(--spacing-4); }
+.docs-breadcrumb a:hover { color: var(--color-neutral-9); text-decoration: underline; }
+.docs-breadcrumb a:focus-visible { outline: var(--border-width-md) solid var(--color-obsidian); outline-offset: var(--border-width-md); }
+.docs-breadcrumb [aria-current] { color: var(--color-neutral-9); font-weight: var(--weight-bold); }
+
+/* ---------- Sections ---------- */
+.docs-h2 { margin: 0; font-size: var(--text-h4-size); line-height: var(--text-h4-lh); font-weight: var(--text-h4-weight); }
+.docs-h3 { margin: 0 0 var(--spacing-4); font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--text-h5-weight); }
+.docs-p { margin: 0 0 var(--spacing-12); max-width: 68ch; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
+.docs-stack { display: grid; gap: var(--spacing-16); }
+.docs-stack > .docs-p { margin: 0; }
+.docs-example + .docs-example { margin-top: var(--spacing-40); }
+.docs-tabpanel { margin-top: var(--spacing-16); }
+
+/* ---------- Preview ---------- */
+.docs-preview-toolbar { display: flex; flex-wrap: wrap; gap: var(--spacing-24); margin-bottom: var(--spacing-12); }
+.docs-switch .text .label { font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--weight-bold); }
+/* The DLS Switch has no focus style (MIGRATION-LOG); the DLS control focus recipe, applied to its track. */
+.docs-switch:has(input:focus-visible) .c-switch-track { outline: var(--border-width-md) solid var(--color-obsidian); outline-offset: var(--border-width-md); }
+.docs-stage { min-width: 0; }
+.docs-stage[data-mobile] { max-width: var(--docs-mobile-width); margin-inline: auto; }
+.docs-stage-inner { min-width: 0; }
+.docs-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-12); }
+.docs-row--beacon { padding-block: var(--spacing-12); }
+.docs-status { font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); }
+
+/* ---------- Code ---------- */
+.docs-code { overflow: hidden; background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); }
+.docs-code-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-12); padding: var(--spacing-8) var(--spacing-8) var(--spacing-8) var(--spacing-16); border-bottom: var(--border-width-sm) solid var(--color-neutral-2); background: var(--color-canvas-warm); }
+.docs-code-label { font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--weight-bold); color: var(--color-neutral-5); }
+/* .codearea (copied) sets a monospace face; the DLS font rule is Mulish only. */
+.docs-code-body.codearea { margin: 0; padding: var(--spacing-16); font-family: var(--font-primary); font-size: var(--text-body2-size); line-height: var(--text-body2-lh-lg); white-space: pre; overflow-x: auto; }
+.docs-code-body:focus-visible { outline: var(--border-width-md) solid var(--color-obsidian); outline-offset: calc(var(--border-width-md) * -1); }
+.docs-article code, .docs-toc code { font-family: var(--font-primary); font-size: var(--text-label2-size); font-weight: var(--weight-semibold); padding: 0 var(--spacing-4); border-radius: var(--spacing-4); background: var(--color-neutral-2); color: var(--color-neutral-9); }
+.docs-code-body code { padding: 0; background: none; font-size: inherit; font-weight: inherit; }
+.docs-kbd { display: inline-block; padding: 0 var(--spacing-4); font-family: var(--font-primary); font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--weight-bold); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--spacing-4); background: var(--color-neutral-1); color: var(--color-neutral-9); }
+
+/* ---------- Anatomy tree ---------- */
+.docs-tree { margin: 0; padding: 0; list-style: none; }
+.docs-tree .docs-tree { margin-top: var(--spacing-8); padding-left: var(--spacing-20); border-left: var(--border-width-sm) solid var(--color-neutral-3); }
+.docs-tree-node + .docs-tree-node { margin-top: var(--spacing-8); }
+.docs-tree-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-8); }
+.docs-tree-name { font-size: var(--text-body2-size); line-height: var(--text-body2-lh); font-weight: var(--weight-bold); }
+.docs-tree-desc { margin: var(--spacing-4) 0 0; max-width: 68ch; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
+
+/* ---------- Tables, rules, notes ---------- */
+.docs-table-wrap { overflow-x: auto; }
+.docs-table-wrap td { vertical-align: top; }
+.docs-required { margin-left: var(--spacing-8); }
+.docs-nowrap { white-space: nowrap; }
+.docs-rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--spacing-120) * 2.5)), 1fr)); gap: var(--spacing-16); }
+.docs-rules .c-card { min-width: 0; }
+.docs-rules .guide-col h3 { font-size: var(--text-h5-size); line-height: var(--text-h5-lh); }
+.docs-notes { margin: var(--spacing-16) 0 0; padding-left: var(--spacing-20); display: grid; gap: var(--spacing-8); font-size: var(--text-body2-size); line-height: var(--text-body2-lh); }
+
+/* ---------- Previous / next ---------- */
+.docs-pn { display: flex; justify-content: space-between; gap: var(--spacing-16); margin-top: var(--spacing-48); }
+.docs-pn-link { padding: var(--spacing-12) var(--spacing-16); border: var(--border-width-sm) solid var(--color-neutral-3); text-align: left; }
+.docs-pn-link.is-next { text-align: right; margin-left: auto; }
+.docs-pn-dir { display: block; font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--text-caption-weight); color: var(--color-neutral-5); }
+.docs-pn-compact { display: flex; gap: var(--spacing-4); }
+.docs-pn-compact .c-back-button { padding: var(--spacing-8); }
+
+/* ---------- On this page ---------- */
+.docs-toc { position: sticky; top: var(--spacing-24); padding-top: var(--spacing-48); }
+.docs-toc-title { margin: 0 0 var(--spacing-8); padding-left: var(--spacing-16); font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--text-label3-weight); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--color-neutral-5); }
+.docs-toc-list { display: flex; flex-direction: column; gap: var(--spacing-4); }
+.docs-toc-link.is-sub { padding-left: var(--spacing-32); }
+
+/* ---------- Home ---------- */
+.docs-card-link { color: inherit; text-decoration: none; }
+.docs-card-head { display: flex; align-items: center; gap: var(--spacing-12); }
+.docs-card-icon { font-size: var(--icon-md); color: var(--color-neutral-9); }
+.docs-card-title { margin: 0; font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--text-h5-weight); }
+.docs-comp-card { position: relative; }
+.docs-comp-thumb { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--spacing-8); min-height: var(--spacing-120); padding: var(--spacing-16); margin-bottom: var(--spacing-4); border-radius: var(--radius-md); background: var(--color-canvas-warm-card); }
+.docs-stretched { color: inherit; text-decoration: none; }
+.docs-stretched::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-lg); }
+.docs-stretched:focus-visible { outline: none; }
+.docs-comp-card:has(.docs-stretched:focus-visible) { box-shadow: var(--shadow-focus); }
+
+/* ---------- Color Palette ---------- */
+.docs-color-group { margin-top: var(--spacing-32); }
+.docs-color-group:first-of-type { margin-top: var(--spacing-8); }
+h2.swatch-group-label { margin-top: 0; }
+.docs-group-note { text-transform: none; letter-spacing: 0; font-weight: var(--weight-regular); color: var(--color-neutral-5); }
+.swatch .meta .hex { font-family: var(--font-primary); }
+.swatch .meta .hex code { font-size: var(--text-caption-size); }
+.docs-swatch-copy { position: absolute; top: var(--spacing-8); right: var(--spacing-8); opacity: 0; transition: opacity var(--duration-fast) var(--ease-standard); }
+.swatch .fill:hover .docs-swatch-copy, .docs-swatch-copy:focus-within { opacity: 1; }
+@media (hover: none) { .docs-swatch-copy { opacity: 1; } }
+
+/* Top bar: on phones the crumb keeps only the product name, so it never wraps under the version flag. */
+.topbar .crumb { white-space: nowrap; }
+.docs-crumb-prefix { display: contents; }
+@media (max-width: 600px) { .docs-crumb-prefix { display: none; } }
+
+/* ---------- Below 900px: the page scrolls, not the pane (as on the DLS site) ---------- */
+@media (max-width: 900px) {
+  html, body { height: auto; }
+  .app-shell { display: block; }
+  .docs-pane { overflow-y: visible; }
+  .shell { padding: 0 var(--spacing-16); }
+}

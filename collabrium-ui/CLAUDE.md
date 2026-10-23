@@ -26,10 +26,11 @@ If the source is missing something (a state, a value, a rule):
 2. Create the folder `src/components/<Name>/` with exactly these files:
    - `<Name>.tsx`: the component
    - `<Name>.css`: styles ported from components.css
-   - `<Name>.usage.md`: usage doc (template below)
-   - `<Name>.preview.tsx`: every variant, size and state, with the old HTML + CSS rendered beside it
+   - `<Name>.usage.md`: usage doc (template below), the written reference for AI and developers
+   - `<Name>.docs.tsx`: **every component must have a docs file.** It is the only source the docs site (playground) reads for the component page. It exports `title`, `description`, `usage`, `anatomy`, `examples` (`{ id, title, description, render, code }`), `props`, `rules` (`do` / `dont`), `accessibility` and `motion`, typed by `src/components/docs.types.ts`. Keep it consistent with `<Name>.usage.md`, and keep each example's `code` identical to what its `render` shows.
+   - `<Name>.preview.tsx`: every variant, size and state, with the old HTML + CSS rendered beside it, for your own side-by-side check against components.css. The docs site does not show it.
    - `index.ts`: exports
-3. Add the CSS import to `src/styles.css`, the export to `src/index.ts`, the preview to `playground/app/registry.ts`, a row to `CATALOG.md`, and an entry to `CHANGELOG.md`. Update `MIGRATION-LOG.md`: status, decisions, open questions.
+3. Add the CSS import to `src/styles.css`, the export to `src/index.ts`, a row to `CATALOG.md`, and an entry to `CHANGELOG.md`. The docs site picks the component up by itself: `scripts/gen-docs-registry.mjs` finds every `<Name>.docs.tsx` and adds it to the sidebar (alphabetical by title; Charts sits directly above Chart color mapping), the home grid, search and previous/next. Update `MIGRATION-LOG.md`: status, decisions, open questions.
 4. Run `npm run check`. It checks tokens, typechecks, builds the package, and builds and exports the playground. Fix every error.
 5. Compare the two columns in a real browser:
    - Computed styles of every specimen pair: size, padding, colours, border, radius, type, shadow.
@@ -66,6 +67,12 @@ If the source is missing something (a state, a value, a rule):
   - Enter/exit animations use the `motion` library (`import { motion } from 'motion/react'`), through `src/motion` where possible.
   - Always respect `prefers-reduced-motion`, following the component's own DLS rule. The shared principle is "drop the travel, keep the information". There is deliberately no global kill switch.
 - **Previews never navigate away.** No real links or form submits inside demos.
+
+## Docs site (playground)
+
+- Built with the design system itself: `@collabrium/ui` components imported from `../src` wherever one exists. For DLS components not converted yet, it uses the DLS markup and CSS copied into `playground/styles/` (`dls-components.css`, `dls-site.css`, same class names, source lines in each block's header). New playground CSS goes in `playground/styles/docs.css`, tokens only. When a component is converted, replace its copied markup in the playground with the React component and delete its block from the copied CSS.
+- It shows the finished library only: no migration status, no old-versus-new comparison, no open questions.
+- Keep the static export working: `npm run playground:build` writes `playground/out`, pages are `index.html`, `foundation/<slug>.html` and `components/<slug>.html`, and every link is relative so the same files work from disk and on Vercel. Build links with `hrefTo()` in `playground/lib/site.ts`, never with absolute paths.
 
 ## Usage doc template (`<Name>.usage.md`)
 

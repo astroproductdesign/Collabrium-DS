@@ -5,3 +5,4 @@ playground/out/
 playground/next-env.d.ts
 *.tsbuildinfo
 .DS_Store
+playground/app/_generated/
