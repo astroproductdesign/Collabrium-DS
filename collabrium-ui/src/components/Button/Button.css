@@ -1,0 +1,217 @@
+/*
+  Button — ported from collabrium-dls/components.css lines 31–126
+  (.c-btn, sizes, variants, states, [hidden], CTA beacon).
+
+  Mapping from the old classes:
+    .c-btn                          -> .cui-button
+    .c-btn-sm / -md / -lg           -> [data-size="sm" | "md" | "lg"]
+    .c-btn-primary / -secondary / -ghost -> [data-variant="..."]
+    .c-btn-icon                     -> [data-icon-only]
+    .c-btn-beacon / .is-static      -> [data-beacon="on" | "static"]
+
+  Specificity is kept in the same order as the source so the same rule
+  wins in every state: base (0,1,0) < size / variant (0,2,0) < icon-only
+  width and variant :hover / :active (0,3,0) <= :disabled (0,3,0, later
+  in the file, so it wins over hover and active exactly as in the source).
+*/
+
+.cui-button {
+  /*
+    TODO(open-question Q-BTN-1): no design token exists for these values.
+    They are copied verbatim from components.css and kept in one place so
+    they can be swapped for tokens if the DLS adds them. DESIGN-SYSTEM.md
+    (Button, Sizes) records the 16px type size as "a component-specific
+    override, not a scale mismatch".
+  */
+  --cui-button-gap: 6px;
+  --cui-button-height-sm: 32px;
+  --cui-button-height-md: 40px;
+  --cui-button-height-lg: 48px;
+  --cui-button-font-size-sm: 14px;
+  --cui-button-font-size-md: 16px;
+  --cui-button-font-size-lg: 16px;
+  --cui-button-focus-offset: 2px;
+
+  font-family: inherit;
+  font-weight: var(--weight-bold);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cui-button-gap);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-instant) var(--ease-standard);
+}
+
+/* Sizes */
+.cui-button[data-size="md"] {
+  height: var(--cui-button-height-md);
+  padding: 0 var(--spacing-16);
+  font-size: var(--cui-button-font-size-md);
+  border-radius: var(--radius-md);
+}
+.cui-button[data-size="sm"] {
+  height: var(--cui-button-height-sm);
+  padding: 0 var(--spacing-12);
+  font-size: var(--cui-button-font-size-sm);
+  border-radius: var(--radius-sm);
+}
+.cui-button[data-size="lg"] {
+  height: var(--cui-button-height-lg);
+  padding: 0 var(--spacing-20);
+  font-size: var(--cui-button-font-size-lg);
+  border-radius: var(--radius-md);
+}
+
+/* Icon-only: square, no padding */
+.cui-button[data-icon-only] {
+  padding: 0;
+  justify-content: center;
+}
+.cui-button[data-icon-only][data-size="sm"] { width: var(--cui-button-height-sm); }
+.cui-button[data-icon-only][data-size="md"] { width: var(--cui-button-height-md); }
+.cui-button[data-icon-only][data-size="lg"] { width: var(--cui-button-height-lg); }
+
+/* Variants */
+.cui-button[data-variant="primary"] {
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+}
+.cui-button[data-variant="primary"]:hover { background: var(--color-neutral-8); }
+.cui-button[data-variant="primary"]:active { background: var(--color-neutral-7); }
+
+.cui-button[data-variant="secondary"] {
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-9);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  box-shadow: var(--shadow-1);
+}
+.cui-button[data-variant="secondary"]:hover { background: var(--color-neutral-2); }
+
+.cui-button[data-variant="ghost"] {
+  background: transparent;
+  color: var(--color-neutral-9);
+}
+.cui-button[data-variant="ghost"]:hover { background: var(--color-neutral-2); }
+
+/*
+  Disabled — one treatment for every variant, as components.css ships it.
+  DESIGN-SYSTEM.md's States table describes a different Secondary/Ghost
+  disabled look; see MIGRATION-LOG.md, Inconsistencies (BTN-2).
+*/
+.cui-button[data-variant]:disabled {
+  background: var(--color-neutral-4);
+  color: var(--color-neutral-1);
+  border-color: var(--color-neutral-3);
+  cursor: not-allowed;
+}
+
+.cui-button:focus-visible {
+  outline: var(--border-width-md) solid var(--color-obsidian);
+  outline-offset: var(--cui-button-focus-offset);
+}
+
+/* .c-btn declares its own display, so the UA's zero-specificity
+   [hidden]{display:none} would lose. Kept from the source. */
+.cui-button[hidden] { display: none; }
+
+/* Icons: Phosphor glyphs at 1em, so they follow the button's type size
+   exactly as the old <i class="ph"> icons did. */
+.cui-button__icon {
+  flex: none;
+}
+
+/*
+  Loading — DESIGN-SYSTEM.md Button States: "centered spinner replaces
+  label, button width unchanged", fill unchanged. components.css has no
+  Loading CSS; the spinner reuses the system's only spinner idiom (Search
+  input: spinner-gap, Tier 1 Regular, duration-ambient linear infinite).
+  The content stays in the layout (so the width holds) and in the
+  accessibility tree (opacity, not visibility), so the button keeps its
+  name. Spinner size and hover-while-loading: TODO(open-question Q-BTN-3).
+*/
+.cui-button[data-loading] {
+  position: relative;
+  cursor: progress;
+}
+.cui-button[data-loading] > :not(.cui-button__spinner) {
+  opacity: 0;
+}
+.cui-button__spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  font-size: var(--icon-sm);
+  width: 1em;
+  height: 1em;
+  animation: cui-button-spin var(--duration-ambient) linear infinite;
+}
+@keyframes cui-button-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   CTA beacon — Button state (data-beacon). Ported verbatim from
+   components.css lines 58–126; see that comment for the reasoning.
+   Primary only, labelled only, never disabled. One at a time per page
+   (enforced by Button.tsx). Only adds a box-shadow ring and an icon
+   transform; fill, size, radius, hover, active, disabled and the focus
+   outline stay the Button's own.
+   One-offs recorded in DESIGN-SYSTEM.md (CTA beacon): 1.4s cycle, 3
+   cycles = 4.2s, 32% Neutral-9 ink, 70% keyframe stop, 3px nod.
+   Forced colours: no rule, on purpose.
+   ========================================================= */
+.cui-button[data-beacon] {
+  --cui-button-beacon-dur: 1.4s;
+  --cui-button-beacon-count: 3;
+  --cui-button-beacon-ink: color-mix(in srgb, var(--color-neutral-9) 32%, transparent);
+  --cui-button-beacon-ink-0: color-mix(in srgb, var(--color-neutral-9) 0%, transparent);
+  --cui-button-beacon-nod: 3px;
+}
+@keyframes cui-button-beacon-ring {
+  0% { box-shadow: 0 0 0 0 var(--cui-button-beacon-ink); }
+  70% { box-shadow: 0 0 0 var(--spacing-12) var(--cui-button-beacon-ink-0); }
+  100% { box-shadow: 0 0 0 0 var(--cui-button-beacon-ink-0); }
+}
+@keyframes cui-button-beacon-nod-down {
+  0%, 60%, 100% { transform: none; }
+  30% { transform: translateY(var(--cui-button-beacon-nod)); }
+}
+@keyframes cui-button-beacon-nod-right {
+  0%, 60%, 100% { transform: none; }
+  30% { transform: translateX(var(--cui-button-beacon-nod)); }
+}
+@keyframes cui-button-beacon-hold {
+  0%, 100% { box-shadow: 0 0 0 var(--border-width-md) var(--cui-button-beacon-ink); }
+}
+
+/* Armed. :where() keeps the guards at zero specificity. */
+.cui-button[data-variant="primary"][data-beacon="on"]:where(:not([data-icon-only], :disabled, [aria-disabled="true"])) {
+  animation: cui-button-beacon-ring var(--cui-button-beacon-dur) var(--ease-standard) var(--cui-button-beacon-count);
+}
+/* Nod: the trailing arrow only. */
+.cui-button[data-variant="primary"][data-beacon="on"]:where(:not([data-icon-only], :disabled, [aria-disabled="true"])) > .cui-button__arrow[data-arrow="down"]:where(:last-child) {
+  animation: cui-button-beacon-nod-down var(--cui-button-beacon-dur) var(--ease-standard) var(--cui-button-beacon-count);
+}
+.cui-button[data-variant="primary"][data-beacon="on"]:where(:not([data-icon-only], :disabled, [aria-disabled="true"])) > .cui-button__arrow[data-arrow="right"]:where(:last-child) {
+  animation: cui-button-beacon-nod-right var(--cui-button-beacon-dur) var(--ease-standard) var(--cui-button-beacon-count);
+}
+/* Interaction mask: !important outranks the running animation without
+   resetting its clock. Button.tsx then removes the state. */
+.cui-button[data-variant="primary"][data-beacon="on"]:is(:hover, :focus, :active) { box-shadow: none !important; }
+.cui-button[data-variant="primary"][data-beacon="on"]:is(:hover, :focus, :active) > .cui-button__icon { transform: none !important; }
+/* Static: documentation, print and tests only. The reduced-motion look, held. */
+.cui-button[data-variant="primary"][data-beacon="static"] {
+  animation: none;
+  box-shadow: 0 0 0 var(--border-width-md) var(--cui-button-beacon-ink);
+}
+.cui-button[data-variant="primary"][data-beacon="static"] > .cui-button__icon { animation: none; }
+/* Reduced motion: no pulse, no nod; a steady 2px ring for the same 4.2s. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-button[data-variant="primary"][data-beacon="on"]:where(:not([data-icon-only], :disabled, [aria-disabled="true"])) {
+    animation: cui-button-beacon-hold calc(var(--cui-button-beacon-dur) * var(--cui-button-beacon-count)) linear 1;
+  }
+  /* Same specificity as the nod rules above, and later, so it wins (as in the source). */
+  .cui-button[data-variant="primary"][data-beacon="on"]:where(:not([data-icon-only], :disabled, [aria-disabled="true"])) > .cui-button__arrow[data-arrow] { animation: none; }
+}
