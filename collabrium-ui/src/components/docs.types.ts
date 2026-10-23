@@ -48,7 +48,8 @@ export interface DocsKeyboard {
 }
 
 export interface DocsAccessibility {
-  keyboard: DocsKeyboard[];
+  /** Key table, or one sentence when there is no keyboard interaction. */
+  keyboard: DocsKeyboard[] | string;
   notes: string[];
 }
 
@@ -62,6 +63,11 @@ export interface DocsMotion {
 /**
  * Everything a component docs file exports. Inline `code` in any string
  * field is written with backticks and rendered as code.
+ *
+ * Only `title` and `description` are required. Every page shows every
+ * section; a section whose field is missing (or empty) shows its heading
+ * with "Coming soon." under it. When there is genuinely nothing to say
+ * (no motion, no keyboard interaction), write that in a sentence instead.
  */
 export interface ComponentDocs {
   /** Sidebar and page title. */
@@ -69,14 +75,15 @@ export interface ComponentDocs {
   /** One line under the title. */
   description: string;
   /** Minimal import + example for the Usage section. */
-  usage: string;
+  usage?: string;
   /** Small live preview for the home page grid. Defaults to the first example. */
   thumbnail?: () => ReactNode;
-  anatomy: DocsAnatomyNode[];
+  anatomy?: DocsAnatomyNode[];
   /** The first example is also the main preview at the top of the page. */
-  examples: DocsExample[];
-  props: DocsProp[];
-  rules: DocsRules;
-  accessibility: DocsAccessibility;
-  motion: DocsMotion[];
+  examples?: DocsExample[];
+  props?: DocsProp[];
+  rules?: DocsRules;
+  accessibility?: DocsAccessibility;
+  /** Motion table, or one sentence when the component doesn't animate. */
+  motion?: DocsMotion[] | string;
 }

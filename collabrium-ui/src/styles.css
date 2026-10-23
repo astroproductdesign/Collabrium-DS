@@ -8,3 +8,4 @@
 
 /* Components (one line per component, in catalogue order) */
 @import './components/Button/Button.css';
+@import './components/Badge/Badge.css';

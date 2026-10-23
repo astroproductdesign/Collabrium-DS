@@ -23,7 +23,8 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | # | Component | Status | Notes |
 |---|---|---|---|
 | 1 | Button (incl. CTA beacon) | **review** | Step 3. See Decisions D-1 to D-9 and Open questions Q-BTN-*. |
-| — | everything else | todo | Not started. Waiting for Button review. |
+| 2 | Badge | **review** | Converted 2026-10-23. Tag stays separate (DS: "two separate components"). See BADGE-1 to BADGE-6, Decisions D-13 to D-16 and Open questions Q-BADGE-*. |
+| — | everything else | todo | Not started. |
 
 ---
 
@@ -174,6 +175,17 @@ None of these is "fixed" in the React port. Visuals follow components.css, and a
 | BTN-6 | `gap:6px`, the 32/40/48px heights and the 14/16px type sizes have no tokens. DS records the 16px as a deliberate override | 31–34 | 2348–2352 |
 | BTN-7 | `[aria-disabled="true"]` has no base styling; Action bar and Media Ad Modal patch it locally | 2222, 3458 | — |
 | BTN-8 | `.c-icon-btn` is cited as "Button's own" but the Button section never defines it, and it has no focus-visible, active or disabled state | 1784–1785 | 6240, 6808 |
+
+### Badge (affects the Badge conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| BADGE-1 | Text colours differ. Neutral: CSS Neutral-9, DS Neutral-5. Success: CSS full Green `#00C26E`, DS `#00854c` ("darkened for AA"). Warning: CSS Neutral-9, DS `#9a5c00` | 1642, 1643, 1645 | 2286–2289 |
+| BADGE-2 | Height: DS says 22px; CSS sets no height or line-height, so the badge renders 20px in the DLS gallery (line-height normal) | 1641 | 2277 |
+| BADGE-3 | Type: CSS uses label3 size (11px); DS says caption (12px) | 1641 | 2278 |
+| BADGE-4 | Info variant (Water tint, Water text) is documented but has no CSS | none | 2290 |
+| BADGE-5 | Icon size: DS says `icon-micro` (14px); CSS has no icon rule, so icons inherit 11px (measured in the gallery) | 1641 | 2312–2313 |
+| BADGE-6 | Contrast: Success text is about 2.1:1 and Error text about 3.2:1 on their tints (white page), both below AA 4.5:1 for 11px. DS fixes Success with a darker green but keeps full Red for Danger. DS also names the variant "Danger"; CSS names it `error` | 1643–1644 | 2287–2288 |
 
 ### Tokens and global
 
@@ -380,6 +392,10 @@ Grouped by component. Line numbers are CSS / DS.
 | D-10 | base.css has no blanket reduced-motion rule | DS requires some fades and the beacon's reduced-motion ring to keep running (TOK-7); each component handles its own |
 | D-11 | base.css sets no body font size, weight or line-height | No DS rule (TOK-8). Setting body1 (500) would change the weight components inherit |
 | D-12 | `chart-setup.ts` uses Chart color mapping's series order and leaves Chart.js defaults where DS is silent | TOK-1. Unspecified values listed in Q-CHART-* |
+| D-13 | Badge follows components.css for colours, type size and height (BADGE-1 to BADGE-3, BADGE-5); the variant is named `error`, as in CSS, not "Danger" | D-1 |
+| D-14 | Badge tints keep the source's raw `rgba()` values, declared once as component-scoped custom properties (D-3) | `color-mix()` from the tokens was tried: it renders one RGB step off in Chrome (224,248,238 vs 224,248,237), so it would not match components.css exactly. Relative colour syntax gives the same result |
+| D-15 | Badge `variant` is required; `iconWeight` defaults to `fill` | DS names no default tone (same reasoning as D-6). Every badge icon in preview.html is `ph-fill`, and DS says status icons are Tier 2 Fill |
+| D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 
 ---
 
@@ -399,6 +415,17 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-BTN-6 | Icon size: keep the inherited 14px at sm (shipped), or the DS's icon-sm 16px everywhere (BTN-5)? | `Button.css` icons |
 | Q-BTN-7 | Should `aria-disabled` get a shared base style (BTN-7)? | — |
 | Q-BTN-8 | In forced-colours mode, Primary and Ghost buttons show no outline (no border in the source), so they read as plain text. Shipped the same way; should they get a forced-colours border? | `Button.css` |
+
+### Badge
+
+| ID | Question | Where |
+|---|---|---|
+| Q-BADGE-1 | Should the DLS add tokens for the 2px vertical padding and the tinted fills and borders (Green 12/32%, Red 10/30%, Amber 14/38%)? Local custom properties until then | `Badge.css` top |
+| Q-BADGE-2 | Height: keep the shipped 20px (inherited line-height), or set the DS's 22px (BADGE-2)? | `Badge.css` header |
+| Q-BADGE-3 | Info variant: add the CSS from the DS table (Water at 10% fill, Water text, Water at 28% border)? Not built until then (BADGE-4) | `Badge.tsx` `BadgeVariant` |
+| Q-BADGE-4 | Icon size: keep the inherited 11px (shipped), or the DS's icon-micro 14px (BADGE-5)? | `Badge.css` icon |
+| Q-BADGE-5 | Contrast: adopt the DS's darker Success (and Warning) text colours, and what should Error text be to pass AA (BADGE-1, BADGE-6)? | `Badge.css` variants |
+| Q-BADGE-6 | Type size: label3 11px (shipped) or caption 12px (DS) (BADGE-3)? | `Badge.css` base |
 
 ### Global
 

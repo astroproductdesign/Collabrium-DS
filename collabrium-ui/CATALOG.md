@@ -9,6 +9,7 @@ list of components still to convert is in MIGRATION-LOG.md.
 | A compact action with no visible label | `Button iconOnly icon={…} aria-label="…"` (Tier 1 icon) | An icon with no `aria-label`; a Fill (Tier 2) icon |
 | Show that an action is running | `Button loading` | Disabling the button; swapping the label for "Loading…" |
 | Point to the single next step after something finishes | `Button variant="primary" beacon="on" trailingArrow="down"` | Beacon on page load or a timer; more than one beacon on a page; beacon on Secondary, Ghost, icon-only or disabled |
+| Show the status or tone of something (Active, Pending, Failed) | `Badge variant="success" \| "warning" \| "error" \| "neutral"`; `"selected"` for the chosen item in a set | A Badge for ownership (that is Tag); a clickable or removable Badge (use Chip or Button); a solid brand fill with white text |
 | Fade content in and out | `FadeIn` | CSS keyframes per screen |
 | Slide content up into place | `SlideUp` | Custom transforms with other distances or springs |
 | Expand and collapse a region | `Collapse` | `max-height` hacks |

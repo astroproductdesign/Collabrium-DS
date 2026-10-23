@@ -1,0 +1,93 @@
+/*
+  Badge — ported from collabrium-dls/components.css lines 1641–1646
+  (.c-badge and its five variants).
+
+  Mapping from the old classes:
+    .c-badge                                   -> .cui-badge
+    .c-badge-neutral / -success / -error /
+    -warning / -selected                       -> [data-variant="..."]
+    <i class="ph-fill ..."> inside the badge   -> svg.cui-badge__icon
+
+  Specificity is kept in the same order as the source: base (0,1,0) sets a
+  transparent border, and each variant (0,2,0 here, 0,1,0 later in the
+  source file) replaces its colour. Nothing is interactive, so there are no
+  state rules.
+
+  Not set, exactly as in the source: line-height and height. The badge
+  takes the line-height it inherits ("normal" in the DLS gallery and in
+  this package's base.css), which renders 20px tall, not the 22px that
+  DESIGN-SYSTEM.md states. TODO(open-question Q-BADGE-2).
+*/
+
+.cui-badge {
+  /*
+    TODO(open-question Q-BADGE-1): no token exists for the 2px vertical
+    padding or for the tinted fills and borders. Copied verbatim from
+    components.css and kept in one place so they can become tokens if the
+    DLS adds them. The tints are the token colours at an alpha (Green
+    #00C26E = 0,194,110; Red #FD3343 = 253,51,67; Amber #FFA425 =
+    255,164,37). color-mix() from the tokens was tried and renders one
+    step off in Chrome, so the source values are kept for an exact match.
+  */
+  --cui-badge-padding-block: 2px;
+  --cui-badge-success-bg: rgba(0, 194, 110, 0.12);
+  --cui-badge-success-border: rgba(0, 194, 110, 0.32);
+  --cui-badge-error-bg: rgba(253, 51, 67, 0.1);
+  --cui-badge-error-border: rgba(253, 51, 67, 0.3);
+  --cui-badge-warning-bg: rgba(255, 164, 37, 0.14);
+  --cui-badge-warning-border: rgba(255, 164, 37, 0.38);
+
+  /* TODO(open-question Q-BADGE-6): label3 (11px) as shipped; DESIGN-SYSTEM.md says caption (12px). */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--text-label3-size);
+  font-weight: var(--weight-bold);
+  padding: var(--cui-badge-padding-block) var(--spacing-8);
+  border-radius: var(--radius-pill);
+  border: var(--border-width-sm) solid transparent;
+  white-space: nowrap;
+}
+
+/*
+  Variants.
+
+  TODO(open-question Q-BADGE-5): Success (≈2.1:1) and Error (≈3.2:1) text
+  are below AA on their tints. DESIGN-SYSTEM.md gives darker Success and
+  Warning text colours and none for Error. Shipped as components.css.
+*/
+.cui-badge[data-variant="neutral"] {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  border-color: var(--color-neutral-3);
+}
+.cui-badge[data-variant="success"] {
+  background: var(--cui-badge-success-bg);
+  color: var(--color-green);
+  border-color: var(--cui-badge-success-border);
+}
+.cui-badge[data-variant="error"] {
+  background: var(--cui-badge-error-bg);
+  color: var(--color-red);
+  border-color: var(--cui-badge-error-border);
+}
+.cui-badge[data-variant="warning"] {
+  background: var(--cui-badge-warning-bg);
+  color: var(--color-neutral-9);
+  border-color: var(--cui-badge-warning-border);
+}
+.cui-badge[data-variant="selected"] {
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-9);
+  border-color: var(--color-obsidian);
+}
+
+/*
+  Icon: a Phosphor glyph at 1em, so it follows the badge's 11px type
+  exactly as the old <i class="ph-fill"> did. The source has no icon size
+  rule; DESIGN-SYSTEM.md asks for icon-micro (14px).
+  TODO(open-question Q-BADGE-4). Same colour as the text (currentColor).
+*/
+.cui-badge__icon {
+  flex: none;
+}
