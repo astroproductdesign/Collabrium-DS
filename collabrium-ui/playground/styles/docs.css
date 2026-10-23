@@ -120,6 +120,23 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-stretched:focus-visible { outline: none; }
 .docs-comp-card:has(.docs-stretched:focus-visible) { box-shadow: var(--shadow-focus); }
 
+/* ---------- Foundation sections ---------- */
+/* Overrides for copied DLS rules that set a monospace face: the DLS font rule is Mulish only. */
+.type-meta, .fontcard dd, table.spec td.token, .elevation-swatch .label, .icon-sample span { font-family: var(--font-primary); }
+.docs-foundation code { font-family: var(--font-primary); font-size: var(--text-label2-size); font-weight: var(--weight-semibold); padding: 0 var(--spacing-4); border-radius: var(--spacing-4); background: var(--color-neutral-2); color: var(--color-neutral-9); }
+/* Inline styles on the DLS site, as classes. */
+.docs-flush { margin: 0; }
+.docs-flush-icon { margin-right: 0; }
+.docs-lede-inline { margin: var(--spacing-16) 0; }
+.docs-lede-tight { margin: 0 0 var(--spacing-16); }
+.docs-elevation-name { display: block; color: var(--color-neutral-9); }
+.docs-bar-cell { width: calc(var(--spacing-120) + var(--spacing-20)); }
+.docs-type-toggle { margin-top: var(--spacing-16); }
+/* Below 600px the copied rule stacks each type row (align-items:flex-start), so the sample no longer
+   shrinks and pushes the page sideways (the DLS site has the same overflow). Let it fill the row and truncate. */
+@media (max-width: 600px) { .type-sample { align-self: stretch; max-width: 100%; } }
+.docs-foundation-page > section { padding-top: var(--spacing-48); border-bottom: none; }
+
 /* ---------- Color Palette ---------- */
 .docs-color-group { margin-top: var(--spacing-32); }
 .docs-color-group:first-of-type { margin-top: var(--spacing-8); }

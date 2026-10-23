@@ -33,7 +33,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               <button className="site-search-jump js-site-search" type="button" aria-label="Search the design system" aria-haspopup="dialog" onClick={e => openSearch(e.currentTarget)}>
                 <i className="ph ph-magnifying-glass" aria-hidden="true" />
               </button>
-              <a href={hrefTo(current, '')}>General</a>
+              <a href={hrefTo(current, '')}>Home</a>
               {foundationPages.map(p => (
                 <a key={p.slug} href={hrefTo(current, `foundation/${p.slug}`)}>
                   {p.title}
