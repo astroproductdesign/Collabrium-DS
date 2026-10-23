@@ -1,0 +1,132 @@
+/*
+  Checkbox — ported from collabrium-dls/components.css lines 3077–3088
+  (the shared .c-choice row, its text styles, .c-checkbox-box and .on).
+  The Radio and Switch rules in the same block (3089–3096) belong to
+  those components and are not ported here.
+
+  Mapping from the old classes:
+    label.c-choice                  -> label.cui-checkbox
+    .c-choice.disabled              -> [data-disabled]
+    .c-choice input                 -> .cui-checkbox__input (still hidden, still focusable)
+    .c-choice .text                 -> .cui-checkbox__text
+    .c-choice .text .label / .desc  -> .cui-checkbox__label / .cui-checkbox__desc
+    .c-checkbox-box                 -> .cui-checkbox__box
+    .c-checkbox-box.on              -> input:checked + .cui-checkbox__box
+    .c-checkbox-box.on + ph-minus   -> input:indeterminate + .cui-checkbox__box
+    <i class="ph ph-check|ph-minus">-> svg.cui-checkbox__glyph
+
+  The source toggles `.on` from script. Here the look is driven by the real
+  input's :checked and :indeterminate state, so it can never disagree with
+  the form value, and uncontrolled checkboxes work without React state.
+
+  Specificity is kept in the same order as the source: base box (0,1,0),
+  then the checked / indeterminate fill replaces it (0,3,0 here, 0,2,0 in
+  the source, same winner). Disabled is one rule on the row, as in the
+  source.
+*/
+
+.cui-checkbox {
+  /*
+    TODO(open-question Q-CHK-1): no tokens exist for these values. They are
+    copied verbatim from components.css and kept in one place so they can
+    be swapped for tokens if the DLS adds them. DESIGN-SYSTEM.md flags the
+    6px radius as "a one-off literal value ... a compact control gets its
+    own smaller radius", and says not to reuse it anywhere else.
+  */
+  --cui-checkbox-size: 18px;
+  --cui-checkbox-radius: 6px;
+  --cui-checkbox-nudge: 2px;
+  --cui-checkbox-focus-offset: 2px;
+  /*
+    TODO(open-question Q-CHK-2): the source draws the glyph at 12px.
+    DESIGN-SYSTEM.md says icon-micro (14px). Shipped as components.css.
+  */
+  --cui-checkbox-glyph-size: 12px;
+
+  /* position:relative anchors the hidden native input to its own row, so
+     clicking the label never scrolls the page to a stray input. */
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  cursor: pointer;
+}
+
+.cui-checkbox[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hidden, not removed: it is the real control, so it keeps focus, Space,
+   form value and the accessibility tree. */
+.cui-checkbox__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cui-checkbox__text {
+  display: flex;
+  flex-direction: column;
+}
+.cui-checkbox__label {
+  font-size: var(--text-body1-size);
+  font-weight: var(--weight-medium);
+  color: var(--color-neutral-9);
+}
+.cui-checkbox__desc {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+}
+
+.cui-checkbox__box {
+  width: var(--cui-checkbox-size);
+  height: var(--cui-checkbox-size);
+  flex: none;
+  margin-top: var(--cui-checkbox-nudge);
+  border-radius: var(--cui-checkbox-radius);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--cui-checkbox-glyph-size);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+/* Checked and indeterminate share one fill. */
+.cui-checkbox__input:is(:checked, :indeterminate) + .cui-checkbox__box {
+  border-color: var(--color-obsidian);
+  background: var(--color-obsidian);
+}
+
+/* Glyphs: Phosphor Regular (Tier 1) at 1em of the box's type size, in the
+   box's text colour (Neutral-1). Check when checked, minus when partly
+   selected (indeterminate wins), nothing when empty. */
+.cui-checkbox__glyph {
+  display: none;
+}
+.cui-checkbox__input:checked + .cui-checkbox__box .cui-checkbox__check {
+  display: block;
+}
+.cui-checkbox__input:indeterminate + .cui-checkbox__box .cui-checkbox__check {
+  display: none;
+}
+.cui-checkbox__input:indeterminate + .cui-checkbox__box .cui-checkbox__minus {
+  display: block;
+}
+
+/*
+  Focus. NOT in the source: components.css hides the native input and
+  styles no focus state, so a keyboard user sees nothing. Added with the
+  system's standard ring (2px Obsidian, 2px offset, the same as Button),
+  drawn on the visible box. TODO(open-question Q-CHK-4).
+*/
+.cui-checkbox__input:focus-visible + .cui-checkbox__box {
+  outline: var(--border-width-md) solid var(--color-obsidian);
+  outline-offset: var(--cui-checkbox-focus-offset);
+}

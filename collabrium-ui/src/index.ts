@@ -12,6 +12,7 @@ export * from './motion';
 // Components
 export * from './components/Button';
 export * from './components/Badge';
+export * from './components/Checkbox';
 
 // Utilities
 export type { WithoutStyling } from './utils';

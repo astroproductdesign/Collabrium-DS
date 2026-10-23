@@ -159,10 +159,12 @@ export function ComponentDoc({ slug }: { slug: string }) {
             </ol>
           </nav>
           <div className="docs-title-row">
-            <h1 className="section-title docs-title">{docs.title}</h1>
+            <div className="docs-title-group">
+              <h1 className="section-title docs-title">{docs.title}</h1>
+              <PrevNext current={current} compact />
+            </div>
             <div className="docs-title-actions">
               <CopyButton text={() => toMarkdown(docs)} label="Copy page" />
-              <PrevNext current={current} compact />
             </div>
           </div>
           <p className="lede docs-lede">

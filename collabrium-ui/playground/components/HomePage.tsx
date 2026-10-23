@@ -5,6 +5,7 @@
 // components grid, which is generated from the docs registry.
 import { componentDocs } from '../app/_generated/components-docs';
 import { components, foundationPages, hrefTo } from '../lib/site';
+import { BackToTop } from './BackToTop';
 import { CodeBlock } from './CodeBlock';
 import { foundationSections } from './foundation';
 
@@ -59,6 +60,7 @@ export function HomePage() {
           </div>
         </section>
       </article>
+      <BackToTop />
     </div>
   );
 }

@@ -24,6 +24,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 |---|---|---|---|
 | 1 | Button (incl. CTA beacon) | **review** | Step 3. See Decisions D-1 to D-9 and Open questions Q-BTN-*. |
 | 2 | Badge | **review** | Converted 2026-10-23. Tag stays separate (DS: "two separate components"). See BADGE-1 to BADGE-6, Decisions D-13 to D-16 and Open questions Q-BADGE-*. |
+| 3 | Checkbox | **review** | Converted 2026-10-23. Radio and Switch share its CSS block in the DLS but are separate components, left for their own review. See CHK-1 to CHK-6, Decisions D-17 to D-21 and Open questions Q-CHK-*. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -186,6 +187,17 @@ None of these is "fixed" in the React port. Visuals follow components.css, and a
 | BADGE-4 | Info variant (Water tint, Water text) is documented but has no CSS | none | 2290 |
 | BADGE-5 | Icon size: DS says `icon-micro` (14px); CSS has no icon rule, so icons inherit 11px (measured in the gallery) | 1641 | 2312–2313 |
 | BADGE-6 | Contrast: Success text is about 2.1:1 and Error text about 3.2:1 on their tints (white page), both below AA 4.5:1 for 11px. DS fixes Success with a darker green but keeps full Red for Danger. DS also names the variant "Danger"; CSS names it `error` | 1643–1644 | 2287–2288 |
+
+### Checkbox (affects the Checkbox conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| CHK-1 | Glyph size: CSS draws the check and minus at 12px (`font-size:12px` on the box); DS says `icon-micro` (14px) | 3087 | 4358 |
+| CHK-2 | No focus-visible rule. The native input is hidden (`opacity:0; width:0; height:0`) and nothing is drawn on the box, so a keyboard user sees no focus. DS lists no focus state either | 3083, 3087 | 4345–4363 |
+| CHK-3 | No hover, pressed or error state in CSS or DS. Dropdown rows add their own hover | — | 4345–4363 |
+| CHK-4 | Indeterminate has no rule of its own: it is `.on` plus a `ph-minus` glyph in markup (preview.html 2922). The unchecked example keeps a hidden minus (`visibility:hidden`) in the box | 3088 | 4357 |
+| CHK-5 | Cards and tables use `span.c-checkbox-box[role="checkbox"][tabindex="0"]` with a hand-written `aria-checked`, not a native input (preview.html 1789, 1890, 1936) | 298, 395, 1713 | — |
+| CHK-6 | The 2px top nudge is for a box beside a label. Dropdown (4240, 4253), Lists (6302) and the Table reset it to 0 | 3087 | 4358 |
 
 ### Tokens and global
 
@@ -396,6 +408,11 @@ Grouped by component. Line numbers are CSS / DS.
 | D-14 | Badge tints keep the source's raw `rgba()` values, declared once as component-scoped custom properties (D-3) | `color-mix()` from the tokens was tried: it renders one RGB step off in Chrome (224,248,238 vs 224,248,237), so it would not match components.css exactly. Relative colour syntax gives the same result |
 | D-15 | Badge `variant` is required; `iconWeight` defaults to `fill` | DS names no default tone (same reasoning as D-6). Every badge icon in preview.html is `ph-fill`, and DS says status icons are Tier 2 Fill |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
+| D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
+| D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
+| D-19 | A keyboard focus ring (2px Obsidian, 2px offset, the Button token) is drawn on the box | CHK-2. The component rules require a visible focus ring. It only appears on keyboard focus, so rest, hover and checked looks are unchanged. Flagged Q-CHK-4 |
+| D-20 | Props are a union: `label` (with optional `description`), or `aria-label` alone. One of the two is required | DS: "pair every checkbox with a real `<label>`". Cards and tables need a name without a visible label (CHK-5) |
+| D-21 | `indeterminate` is a prop that sets the DOM property; the parent clears it in `onChange` | It is a DOM property with no attribute, and browsers clear it on click. Matches the native model |
 
 ---
 
@@ -426,6 +443,17 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-BADGE-4 | Icon size: keep the inherited 11px (shipped), or the DS's icon-micro 14px (BADGE-5)? | `Badge.css` icon |
 | Q-BADGE-5 | Contrast: adopt the DS's darker Success (and Warning) text colours, and what should Error text be to pass AA (BADGE-1, BADGE-6)? | `Badge.css` variants |
 | Q-BADGE-6 | Type size: label3 11px (shipped) or caption 12px (DS) (BADGE-3)? | `Badge.css` base |
+
+### Checkbox
+
+| ID | Question | Where |
+|---|---|---|
+| Q-CHK-1 | Should the DLS add tokens for the 18px box, the 6px radius (DS calls it a one-off), the 2px top nudge and the 2px focus offset? Local custom properties until then | `Checkbox.css` top |
+| Q-CHK-2 | Glyph size: keep the shipped 12px, or the DS's icon-micro 14px (CHK-1)? | `Checkbox.css` top |
+| Q-CHK-3 | Hover and pressed: none in CSS or DS (CHK-3). Keep none, or add Neutral-2 / Neutral-3 like Button Ghost? | `Checkbox.css` |
+| Q-CHK-4 | Focus ring on the box (D-19, CHK-2): confirm the standard 2px Obsidian ring, or specify another | `Checkbox.css` Focus |
+| Q-CHK-5 | Error / required state and a checkbox group (fieldset + legend, group error): not in the DLS. Needed? | not built |
+| Q-CHK-6 | The 2px top nudge is always on. When Dropdown, Lists, Table and Card are converted, how should an embedded Checkbox drop it (CHK-6)? | `Checkbox.css` |
 
 ### Global
 
