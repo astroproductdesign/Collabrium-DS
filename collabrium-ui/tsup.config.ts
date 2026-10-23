@@ -14,7 +14,8 @@ function sourceFiles(dir: string): string[] {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) return sourceFiles(p);
     if (!/\.(ts|tsx)$/.test(name)) return [];
-    if (/\.(preview|test|stories)\.tsx?$/.test(name) || name.endsWith('.d.ts')) return [];
+    // Previews, docs and their types are for the docs site only, never shipped.
+    if (/\.(preview|docs|test|stories)\.tsx?$/.test(name) || name === 'docs.types.ts' || name.endsWith('.d.ts')) return [];
     return [p];
   });
 }

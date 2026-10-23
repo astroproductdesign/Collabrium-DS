@@ -22,4 +22,23 @@ for (const file of walk(outDir).filter(f => f.endsWith('.html'))) {
   writeFileSync(file, html);
   count++;
 }
-console.log(`Rewrote ${count} HTML files in ${outDir} for file:// use`);
+// The webpack runtime loads later chunks from an absolute "/_next/" public
+// path, which points at the filesystem root when a page is opened from
+// disk. Derive it from the runtime script's own address instead; over
+// http that resolves to the same "/_next/" as before.
+const chunksDir = join(outDir, '_next', 'static', 'chunks');
+const runtime = readdirSync(chunksDir).filter(f => /^webpack-.*\.js$/.test(f));
+for (const f of runtime) {
+  const file = join(chunksDir, f);
+  const src = readFileSync(file, 'utf8');
+  const out = src.replace(
+    /\.p="\/_next\/"/,
+    '.p=(function(){var s=document.currentScript&&document.currentScript.src;var i=s?s.indexOf("/_next/"):-1;return i>-1?s.slice(0,i+7):"/_next/"})()',
+  );
+  if (out === src && !src.includes('document.currentScript&&document.currentScript.src')) {
+    throw new Error(`relative-export: public path not found in ${f}; Next's runtime changed`);
+  }
+  writeFileSync(file, out);
+}
+
+console.log(`Rewrote ${count} HTML files and ${runtime.length} runtime chunk(s) in ${outDir} for file:// use`);
