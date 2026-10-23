@@ -34,6 +34,7 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-header { padding-top: var(--spacing-48); }
 .docs-title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-16); margin-bottom: var(--spacing-16); }
 .docs-title-row .section-title { margin: 0; }
+.docs-title-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-12); min-width: 0; }
 .docs-title-actions { display: flex; align-items: center; gap: var(--spacing-8); }
 .docs-lede { margin-bottom: var(--spacing-16); }
 .docs-labels { display: flex; flex-wrap: wrap; gap: var(--spacing-8); }

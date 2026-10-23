@@ -22,4 +22,5 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
   - States: disabled, loading.
   - CTA beacon: on and static.
 - **Badge** (in review). Five tones (Neutral, Success, Error, Warning, Selected) and an optional leading icon. Info is not built yet (no CSS in the DLS).
+- **Checkbox** (in review). Real native checkbox with a label, an optional description, a partial (indeterminate) state, disabled, and a keyboard focus ring. Radio and Switch (same CSS block in the DLS) come next.
 - Docs site: every component page now shows all its sections. A section with no content yet says "Coming soon." Only `title` and `description` are required in a docs file.

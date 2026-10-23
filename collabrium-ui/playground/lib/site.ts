@@ -60,10 +60,17 @@ export function pageOrder(): { key: PageKey; title: string; group: string }[] {
   ];
 }
 
+/**
+ * Previous and next component, in sidebar order, for the arrows on a
+ * component page. They move between components only and wrap around, so
+ * the last component's Next is the first, and every component page can
+ * reach another one. With a single component there is nowhere to go.
+ */
 export function neighbours(key: PageKey) {
-  const order = pageOrder();
-  const i = order.findIndex(p => p.key === key);
-  return { prev: i > 0 ? order[i - 1] : null, next: i > -1 && i < order.length - 1 ? order[i + 1] : null };
+  const list = components.map(c => ({ key: `components/${c.slug}` as PageKey, title: c.title, group: 'Components' }));
+  const i = list.findIndex(p => p.key === key);
+  if (i < 0 || list.length < 2) return { prev: null, next: null };
+  return { prev: list[(i - 1 + list.length) % list.length], next: list[(i + 1) % list.length] };
 }
 
 /** A file in playground/public (logo.html, logo-mark.html), relative to the current page. */
