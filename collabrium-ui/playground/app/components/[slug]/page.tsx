@@ -1,21 +1,25 @@
 import { notFound } from 'next/navigation';
-import { componentsMeta } from '../../_generated/components-meta';
+import { componentsMeta, groupsMeta, navMeta } from '../../_generated/components-meta';
 import { ComponentDoc } from '../../../components/ComponentDoc';
+import { GroupOverview } from '../../../components/GroupOverview';
 
 export const dynamicParams = false;
 
+// A stand-alone component, or a group's overview page (AI Native). The parts
+// of a group live one level down, in components/[slug]/[part].
 export function generateStaticParams() {
-  return componentsMeta.map(c => ({ slug: c.slug }));
+  return navMeta.map(n => ({ slug: n.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const meta = componentsMeta.find(c => c.slug === slug);
-  return { title: meta ? `${meta.title} · Collabrium UI` : 'Collabrium UI' };
+  const title = navMeta.find(n => n.slug === slug)?.title;
+  return { title: title ? `${title} · Collabrium UI` : 'Collabrium UI' };
 }
 
 export default async function ComponentRoute({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  if (!componentsMeta.some(c => c.slug === slug)) notFound();
+  if (groupsMeta.some(g => g.slug === slug)) return <GroupOverview slug={slug} />;
+  if (!componentsMeta.some(c => c.slug === slug && !c.group)) notFound();
   return <ComponentDoc slug={slug} />;
 }

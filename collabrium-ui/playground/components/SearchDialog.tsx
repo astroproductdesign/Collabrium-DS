@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { componentDocs } from '../app/_generated/components-docs';
 import { colorGroups } from '../lib/colors';
-import { components, foundationPages, hrefTo, type PageKey } from '../lib/site';
+import { componentKey, components, foundationPages, groups, hrefTo, navItems, type PageKey } from '../lib/site';
 
 type Kind = 'section' | 'component' | 'variant';
 type Scope = 'all' | 'foundation' | 'components';
@@ -47,15 +47,20 @@ function buildIndex(): Item[] {
   const items: Omit<Item, 'hay'>[] = [
     { kind: 'section', scope: 'foundation', title: 'Home', crumb: 'Home', to: '' },
     ...foundationPages.map(p => ({ kind: 'section' as const, scope: 'foundation' as const, title: p.title, crumb: 'Foundation', to: `foundation/${p.slug}` })),
-    ...components.map(c => ({ kind: 'component' as const, scope: 'components' as const, title: c.title, crumb: 'Components', to: `components/${c.slug}` })),
+    // Stand-alone components and each group's overview (AI Native) ...
+    ...navItems.map(n => ({ kind: 'component' as const, scope: 'components' as const, title: n.title, crumb: 'Components', to: `components/${n.slug}` })),
+    // ... and every part of a group, found on its own under the group's name.
+    ...components
+      .filter(c => c.group)
+      .map(c => ({ kind: 'component' as const, scope: 'components' as const, title: c.title, crumb: `Components › ${groups.find(g => g.slug === c.group)!.title}`, to: componentKey(c) })),
     ...colorGroups.map(g => ({ kind: 'variant' as const, scope: 'foundation' as const, title: g.title, crumb: 'Color Palette', to: 'foundation/color-palette', hash: g.id })),
     ...components.flatMap(c =>
       (componentDocs[c.slug]?.examples ?? []).map(ex => ({
         kind: 'variant' as const,
         scope: 'components' as const,
         title: ex.title,
-        crumb: `Components › ${c.title}`,
-        to: `components/${c.slug}`,
+        crumb: `Components › ${c.group ? `${groups.find(g => g.slug === c.group)!.title} › ` : ''}${c.title}`,
+        to: componentKey(c),
         hash: `example-${ex.id}`,
       })),
     ),

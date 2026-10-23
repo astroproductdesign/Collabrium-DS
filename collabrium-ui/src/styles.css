@@ -10,3 +10,5 @@
 @import './components/Button/Button.css';
 @import './components/Badge/Badge.css';
 @import './components/Checkbox/Checkbox.css';
+@import './components/LoadingState/LoadingState.css';
+@import './components/Thinking/Thinking.css';

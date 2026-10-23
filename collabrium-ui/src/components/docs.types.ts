@@ -72,6 +72,17 @@ export interface DocsMotion {
 export interface ComponentDocs {
   /** Sidebar and page title. */
   title: string;
+  /**
+   * Puts the component under a group, for a family the DLS documents as one
+   * component with several parts (AI Native). Write the group's name, for
+   * example `export const group = 'AI Native'`. The part then drops out of the
+   * sidebar and home grid, and its page lives at
+   * `components/<group-slug>/<part-slug>`, reached from the group's overview
+   * page. The group needs an overview file at
+   * `playground/content/groups/<group-slug>.tsx`. Leave it out for a
+   * component that stands alone.
+   */
+  group?: string;
   /** One line under the title. */
   description: string;
   /** Minimal import + example for the Usage section. */
