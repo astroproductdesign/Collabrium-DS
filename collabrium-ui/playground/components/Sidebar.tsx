@@ -170,8 +170,8 @@ export function Sidebar({ current }: { current: PageKey }) {
 
               <a className={`c-sidebar-item${current === '' ? ' active' : ''}`} href={link('')} aria-current={current === '' ? 'page' : undefined}>
                 <i className="ph-fill ph-house" aria-hidden="true" />
-                <span className="label">General</span>
-                <span className="c-sidebar-hover-text">General</span>
+                <span className="label">Home</span>
+                <span className="c-sidebar-hover-text">Home</span>
               </a>
 
               <hr className="c-sidebar-divider" />

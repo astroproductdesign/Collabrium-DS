@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import { ColorPalette } from '../../../components/ColorPalette';
-import { FoundationIntro } from '../../../components/FoundationIntro';
+import { foundationSections } from '../../../components/foundation';
 import { foundationPages } from '../../../lib/site';
 
 export const dynamicParams = false;
@@ -17,8 +16,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function FoundationRoute({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const index = foundationPages.findIndex(p => p.slug === slug);
-  if (index < 0) notFound();
-  if (slug === 'color-palette') return <ColorPalette />;
-  return <FoundationIntro page={foundationPages[index]} index={index} />;
+  const Content = foundationSections[slug];
+  if (!Content) notFound();
+  return (
+    <div className="docs-page">
+      <article className="docs-article docs-foundation-page">
+        {/* Foundation pages sit one folder down, so public files are one level up. */}
+        <Content base="../" level={1} />
+      </article>
+    </div>
+  );
 }

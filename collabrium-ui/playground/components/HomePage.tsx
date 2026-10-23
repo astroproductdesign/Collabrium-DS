@@ -1,10 +1,12 @@
 'use client';
 
-// General (home): title, intro, install, Foundation shortcuts and the
-// All components grid. The grid is generated from the docs registry.
+// Home: the logo, a short intro and install, then every Foundation
+// section in full (as on the DLS site, not behind cards), then the All
+// components grid, which is generated from the docs registry.
 import { componentDocs } from '../app/_generated/components-docs';
 import { components, foundationPages, hrefTo } from '../lib/site';
 import { CodeBlock } from './CodeBlock';
+import { foundationSections } from './foundation';
 
 const INSTALL = `npm install @collabrium/ui
 
@@ -18,34 +20,24 @@ export function HomePage() {
         <div className="hero-logo">
           <iframe src="logo.html" title="Collabrium animated logo" scrolling="no" tabIndex={-1} />
         </div>
-        <h1 className="section-title">Collabrium UI</h1>
+        {/* Not shown: the logo above is the visual title. Kept for screen readers and the page outline. */}
+        <h1 className="sr-only">Collabrium UI</h1>
         <p className="hero-tagline">
           The Collabrium design system as React components for Next.js. Plain CSS on the Collabrium tokens, typed props
           for every visual choice, and accessibility and motion built in.
         </p>
         <CodeBlock code={INSTALL} label="Install" />
 
-        <section id="foundation" aria-labelledby="foundation-title" className="docs-section">
-          <div className="comp-head">
-            <h2 id="foundation-title" className="docs-h2">Foundation</h2>
-          </div>
-          <div className="c-cards">
-            {foundationPages.map(p => (
-              <a key={p.slug} className="c-card c-card-interactive docs-card-link" href={hrefTo('', `foundation/${p.slug}`)}>
-                <div className="docs-card-head">
-                  <i className={`ph-fill ph-${p.icon} docs-card-icon`} aria-hidden="true" />
-                  <h3 className="docs-card-title">{p.title}</h3>
-                </div>
-                <p>{p.summary}</p>
-              </a>
-            ))}
-          </div>
-        </section>
+        {foundationPages.map(p => {
+          const Content = foundationSections[p.slug];
+          return <Content key={p.slug} base="" level={2} />;
+        })}
 
         <section id="components" aria-labelledby="components-title" className="docs-section">
-          <div className="comp-head">
-            <h2 id="components-title" className="docs-h2">All components</h2>
-          </div>
+          <p className="kicker">Components</p>
+          <h2 id="components-title" className="section-title">
+            All components
+          </h2>
           <div className="c-cards">
             {components.map(c => {
               const d = componentDocs[c.slug];

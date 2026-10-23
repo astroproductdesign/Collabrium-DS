@@ -25,7 +25,7 @@ interface Item {
 }
 
 const KIND: Record<Kind, { label: string; icon: string; group: string }> = {
-  section: { label: 'Section', icon: 'ph-fill ph-cube', group: 'General & Foundation' },
+  section: { label: 'Section', icon: 'ph-fill ph-cube', group: 'Home & Foundation' },
   component: { label: 'Component', icon: 'ph-fill ph-squares-four', group: 'Components' },
   variant: { label: 'Variant', icon: 'ph ph-git-branch', group: 'Variants' },
 };
@@ -45,7 +45,7 @@ export function openSearch(trigger?: HTMLElement | null) {
 
 function buildIndex(): Item[] {
   const items: Omit<Item, 'hay'>[] = [
-    { kind: 'section', scope: 'foundation', title: 'General', crumb: 'General', to: '' },
+    { kind: 'section', scope: 'foundation', title: 'Home', crumb: 'Home', to: '' },
     ...foundationPages.map(p => ({ kind: 'section' as const, scope: 'foundation' as const, title: p.title, crumb: 'Foundation', to: `foundation/${p.slug}` })),
     ...components.map(c => ({ kind: 'component' as const, scope: 'components' as const, title: c.title, crumb: 'Components', to: `components/${c.slug}` })),
     ...colorGroups.map(g => ({ kind: 'variant' as const, scope: 'foundation' as const, title: g.title, crumb: 'Color Palette', to: 'foundation/color-palette', hash: g.id })),
