@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.116** — 2026-10-08 — Sourced from the Collabrium brand deck
+**v0.9.126** — 2026-10-26 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -9973,6 +9973,17 @@ rather than maintaining two token sources by hand:
 ---
 
 ## Changelog
+
+**Version rule.** The newest entry below is the system's version, and
+every version stamp follows it. Whenever you add an entry, add it at the
+top, numbered one past the newest entry already on `main` (check `main`
+first: other branches add entries too). In the same change, set the stamp
+at the top of this file to that entry's version and date. `preview.html`
+reads its page title and both version flags from the newest entry each
+time it loads, so those can't fall behind; its hard-coded values are only
+a fallback for the moment before the script runs, and should match too.
+If the top stamp or a fallback is behind, the gallery says so in the
+browser console.
 
 - **v0.9.126 — 2026-10-26** — `components.css` now uses the tokens added
   in v0.9.125, with no visual change except the intended ones: the focus
