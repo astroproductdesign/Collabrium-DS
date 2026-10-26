@@ -45,6 +45,17 @@ export const tokens = {
     earthPastel: '#8CE4BE',
     waterPastel: '#95C0F4',
     goldPastel: '#FFD69D',
+    greenTint: 'rgba(0, 194, 110, .12)',
+    greenTintBorder: 'rgba(0, 194, 110, .32)',
+    redTint: 'rgba(253, 51, 67, .10)',
+    redTintBorder: 'rgba(253, 51, 67, .30)',
+    amberTint: 'rgba(255, 164, 37, .14)',
+    amberTintBorder: 'rgba(255, 164, 37, .38)',
+    navyTint: 'rgba(20, 115, 230, .10)',
+    navyTintBorder: 'rgba(20, 115, 230, .28)',
+    greenText: '#007d47',
+    amberText: '#9a5c00',
+    redText: '#D4001A',
   },
   font: {
     primary: '\'Mulish\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif',
@@ -169,7 +180,9 @@ export const tokens = {
     eyebrow: '0.12em',
   },
   spacing: {
+    2: 2,
     4: 4,
+    6: 6,
     8: 8,
     12: 12,
     16: 16,
@@ -189,6 +202,7 @@ export const tokens = {
     contentMaxWidth: 1200,
   },
   radius: {
+    xs: 6,
     sm: 12,
     md: 16,
     lg: 20,
@@ -198,6 +212,28 @@ export const tokens = {
   borderWidth: {
     sm: 1,
     md: 2,
+  },
+  focus: {
+    width: 2,
+    color: '#2B2B2C',
+    offset: 2,
+    offsetInset: -2,
+  },
+  control: {
+    heightXs: 24,
+    heightSm: 32,
+    heightMd: 40,
+    heightLg: 48,
+    hitTargetMin: 44,
+    choiceSize: 18,
+  },
+  measure: {
+    sm: 360,
+    md: 420,
+    lg: 440,
+  },
+  leading: {
+    prose: 1.65,
   },
   shadow: {
     1: '0 1px 2px rgba(189, 189, 189, .45)',
@@ -218,6 +254,12 @@ export const tokens = {
     ambient: 900,
     morph: 420,
     reveal: 550,
+    pulse: 1400,
+    blink: 500,
+  },
+  stagger: {
+    sm: 80,
+    md: 120,
   },
   ease: {
     standard: [0.2, 0.6, 0.2, 1],
@@ -230,6 +272,7 @@ export const tokens = {
     reveal: [0.16, 1, 0.3, 1],
   },
   icon: {
+    xs: 12,
     micro: 14,
     sm: 16,
     base: 20,

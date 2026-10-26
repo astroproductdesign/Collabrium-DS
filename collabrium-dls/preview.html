@@ -918,6 +918,12 @@
 
         <div class="swatch-group-label">Elemental background tints <span style="text-transform:none;font-weight:400;color:var(--color-neutral-5)">&mdash; the only permitted coloured backgrounds</span></div>
         <div class="swatches" id="swatches-elbg"></div>
+
+        <div class="swatch-group-label">Status tints <span style="text-transform:none;font-weight:400;color:var(--color-neutral-5)">&mdash; fill and 1px border for Badge, Banner, Toast and error states (not the element tints above)</span></div>
+        <div class="swatches" id="swatches-status"></div>
+
+        <div class="swatch-group-label">Text on status tints <span style="text-transform:none;font-weight:400;color:var(--color-neutral-5)">&mdash; darkened for contrast; fills, borders and icons keep the full colour</span></div>
+        <div class="swatches" id="swatches-status-text"></div>
       </div>
     </section>
 
@@ -1039,6 +1045,7 @@
         <div class="swatch-group-label">Size scale</div>
         <table class="spec">
           <tr><th>Preview</th><th>Token</th><th>Size</th><th>Usage</th></tr>
+          <tr><td class="icon-preview"><i class="ph-fill ph-star" style="font-size:12px"></i></td><td class="token">icon-xs</td><td>12px</td><td>Letters and glyphs inside a 14px mark; never standalone</td></tr>
           <tr><td class="icon-preview"><i class="ph-fill ph-star" style="font-size:14px"></i></td><td class="token">icon-micro</td><td>14px</td><td>Table cells, tag labels, badge indicators</td></tr>
           <tr><td class="icon-preview"><i class="ph-fill ph-star" style="font-size:16px"></i></td><td class="token">icon-sm</td><td>16px</td><td>Inline with body text, buttons, form fields, status</td></tr>
           <tr><td class="icon-preview"><i class="ph-fill ph-star" style="font-size:20px"></i></td><td class="token">icon-base</td><td>20px</td><td>Sidebar nav, card actions, standard UI</td></tr>
@@ -1058,6 +1065,18 @@
 
         <table class="spec" id="spacingTable"></table>
         <table class="spec" id="radiusTable"></table>
+
+        <div class="swatch-group-label">Control sizes</div>
+        <p class="lede" style="margin-bottom:var(--spacing-16)">The height of an interactive control, by density. Button and Input field use 32, 40 and 48px; Chip uses 24px. <code>spacing-32/40/48</code> hold the same numbers but mean spacing, not control height.</p>
+        <table class="spec" id="controlTable"></table>
+
+        <div class="swatch-group-label">Measures</div>
+        <p class="lede" style="margin-bottom:var(--spacing-16)">Max-widths for self-contained AI Native surfaces. A host narrower than the measure just fills it.</p>
+        <table class="spec" id="measureTable"></table>
+
+        <div class="swatch-group-label">Focus ring</div>
+        <p class="lede" style="margin-bottom:var(--spacing-16)">One keyboard-focus treatment: a 2px Obsidian outline, 2px clear of the element; inset (&minus;2px) where a container would clip it. Written once as four tokens.</p>
+        <table class="spec" id="focusTable"></table>
 
         <div class="swatch-group-label">Elevation</div>
         <p class="lede" style="margin-bottom:var(--spacing-16)">A real shadow ladder &mdash; not "flat by default." Every shadow is built on Neutral-4 (soft grey), never black. Cards and dialogs use these regularly.</p>
@@ -1082,7 +1101,7 @@
               <li><i class="ph-fill ph-check"></i>Use the warm canvas (#FCFAF5) as the page background for every screen &mdash; product/dashboard and brand/editorial alike. Component fills (cards, inputs, etc.) keep their own values, mostly Neutral-1 white.</li>
               <li><i class="ph-fill ph-check"></i>Use Mulish for 100% of UI text <b>and every heading</b> &mdash; headings at weight 800, letter-spacing 0.</li>
               <li><i class="ph-fill ph-check"></i>Reserve Source Serif 4 for genuine brand-statement moments only (deck ledes, pull quotes, hero numerals), never as a heading-token swap, never below ~18&ndash;20px.</li>
-              <li><i class="ph-fill ph-check"></i>Use the tinted-fill + bordered pattern for every Badge, and darken Success/Warning text (<code>#00854c</code>, <code>#9a5c00</code>) so it clears AA.</li>
+              <li><i class="ph-fill ph-check"></i>Use the tinted-fill + bordered pattern for every Badge, and darken Success/Warning text (<code>#007d47</code>, <code>#9a5c00</code>) so it clears AA.</li>
               <li><i class="ph-fill ph-check"></i>Map department/element colors 1:1 from the Color Palette table &mdash; don't invent one.</li>
               <li><i class="ph-fill ph-check"></i>Tint a surface only with the element that already owns its content, and only at the -bg (8%) or -bg-strong (16%) step.</li>
               <li><i class="ph-fill ph-check"></i>Use Regular weight for functional/control icons (Tier 1) and Fill for expressive/status icons (Tier 2) &mdash; the weight is decided by what the icon does, not by taste.</li>
@@ -1731,6 +1750,7 @@
               <span class="c-badge c-badge-success"><i class="ph-fill ph-check-circle"></i>Success</span>
               <span class="c-badge c-badge-error"><i class="ph-fill ph-x-circle"></i>Error</span>
               <span class="c-badge c-badge-warning"><i class="ph-fill ph-warning"></i>Warning</span>
+              <span class="c-badge c-badge-info"><i class="ph-fill ph-info"></i>Info</span>
               <span class="c-badge c-badge-selected">Selected</span>
             </div>
             <p style="margin:var(--spacing-16) 0 var(--spacing-8);font-size:12px;color:var(--color-neutral-5)">Tag &mdash; element/department labeling, dot indicator</p>
@@ -4854,6 +4874,35 @@ extraction):
 | Red | `#FD3343` | Errors, destructive actions, invalid input |
 | Green | `#00C26E` | Success icons, valid input. Canonical value (Needs Input #2, resolved — deck's stated hex duplicated Red) |
 
+#### Status tints
+
+The fill and border a status surface (Badge, Banner, Toast, error and
+required states) takes: the functional colour at a low alpha, and a
+stronger tint of the same hue for the 1px border. These are **not** the
+[element background tints](#elemental-background-tints): those colour a
+surface by the *element that owns its content*; these say what *state*
+something is in.
+
+| Token | Value | Use |
+|---|---|---|
+| `--color-green-tint` / `-tint-border` | Green at 12% / 32% | Success |
+| `--color-red-tint` / `-tint-border` | Red at 10% / 30% | Danger, error |
+| `--color-amber-tint` / `-tint-border` | Amber at 14% / 38% | Warning |
+| `--color-navy-tint` / `-tint-border` | Navy (Water) at 10% / 28% | Info |
+
+#### Text colours on tints
+
+Full-strength Green, Amber and Red fail AA at caption size on their own
+tints (2.1:1, 1.8:1 and 3.2:1). Text on a status tint, and status-coloured
+text on white at small sizes, uses the darker value; **fills, borders and
+icons stay on the full-strength colour.**
+
+| Token | Hex | On its own tint | On white |
+|---|---|---|---|
+| `--color-green-text` | `#007d47` | 4.7:1 | 5.2:1 |
+| `--color-amber-text` | `#9a5c00` | 4.9:1 | 5.4:1 |
+| `--color-red-text` | `#D4001A` | 4.8:1 | 5.5:1 |
+
 ### Neutrals
 
 | Token | Hex | Usage |
@@ -4998,6 +5047,11 @@ at letter-spacing 0, `display` uses the Primary font, and there's a
 uppercase labels above a heading. This is the only other place tracking
 is applied besides `label3`.
 
+**Prose line height:** `1.65` (`--leading-prose`) for running prose that
+wraps over several lines (AI answers, reasoning text). Every size in the
+scale above is for UI text and carries its own line-height; prose takes
+this unitless value instead so it scales with the size it is set in.
+
 Note: the deck's two usage-matrix slides disagree on the pitch-deck/
 marketing row (one says Secondary font for "pitch deck title slides" and
 "quote/testimonial callouts," the other broadens this to general marketing
@@ -5074,6 +5128,7 @@ surface where that element's color is already established.
 
 | Token | Size | Usage |
 |---|---|---|
+| icon-xs | 12px | Letters and glyphs inside a 14px mark (a source avatar's initial); never a standalone icon |
 | icon-micro | 14px | Table cells, tag labels, badge indicators |
 | icon-sm | 16px | Inline with body text, buttons, form field icons, status indicators |
 | icon-base | 20px | Sidebar navigation, card action buttons, standard UI |
@@ -5093,7 +5148,9 @@ than step-numbered, matching the source scale exactly.
 
 | Token | Value | Purpose |
 |---|---|---|
+| spacing-2 | 2px | Half-step for tight composites only: a hairline offset, chip padding, a gap between two small marks |
 | spacing-4 | 4px | Base unit |
+| spacing-6 | 6px | Half-step for tight composites only: an icon-to-label gap |
 | spacing-8 | 8px | Element gap — default gap between elements |
 | spacing-12 | 12px | Tight internal padding (button horizontal padding, table cells) |
 | spacing-16 | 16px | Card padding — the deck's stated default |
@@ -5105,6 +5162,10 @@ than step-numbered, matching the source scale exactly.
 | spacing-60 | 60px | Large section gap — between major page regions |
 | spacing-120 | 120px | Full-page / hero-level spacing |
 
+`spacing-2` and `spacing-6` are the two half-steps. They exist for the
+inside of a single small control, where 4px is too coarse; never use them
+for layout between components, which stays on the 4px scale.
+
 **Semantic aliases:** `--card-padding` (16px), `--element-gap` (8px),
 `--section-gap` (48px), `--page-gutter` (32px). Prefer these in component
 code — they say *why*, not just how much.
@@ -5112,6 +5173,33 @@ code — they say *why*, not just how much.
 **Content max-width:** 1200px for centered, reading-width content
 (settings forms, detail panels). Collabrium is a product surface, so most
 layouts run full-bleed within the app shell rather than centering.
+
+### Measures
+
+Max-widths for self-contained AI Native surfaces. A host narrower than the
+measure simply fills it; a wider one is capped at it.
+
+| Token | Value | Used by |
+|---|---|---|
+| `--measure-sm` | 360px | Permission Prompt, Tool approval, Thinking |
+| `--measure-md` | 420px | Streaming Text |
+| `--measure-lg` | 440px | Task Rows (five slots across a row) |
+
+### Control sizes
+
+The height of an interactive control, by density. Button and Input field
+use 32, 40 and 48px; Chip uses 24px.
+
+| Token | Value | Use |
+|---|---|---|
+| `--control-height-xs` | 24px | Chips, tags, compact rows |
+| `--control-height-sm` | 32px | Small buttons and fields |
+| `--control-height-md` | 40px | Default buttons and fields |
+| `--control-height-lg` | 48px | Large buttons and fields |
+| `--hit-target-min` | 44px | The smallest comfortable touch row |
+| `--choice-size` | 18px | Checkbox and radio box |
+
+`spacing-32/40/48` hold the same numbers but mean spacing, not control height.
 
 ### Radius
 
@@ -5121,6 +5209,7 @@ abstract ramp.
 
 | Token | Value | Applies to |
 |---|---|---|
+| radius-xs | 6px | Compact controls only: the checkbox box, small chips, dense rows. The one place below 12px an interactive surface may go |
 | radius-sm | 12px | Inputs, small buttons, icon buttons |
 | radius-md | 16px | Standard and large buttons |
 | radius-lg | 20px | Cards, modals, nav, feature panels, swap widgets |
@@ -5129,7 +5218,8 @@ abstract ramp.
 
 **Rule:** one radius token per component type across the whole product —
 see [Component Rules](#component-rules), Rule 1. Never go below 12px on
-an interactive surface; sharp corners are off-brand here.
+an interactive surface except `radius-xs`, which belongs to the compact
+controls listed above; sharp corners are off-brand here.
 
 ### Elevation
 
@@ -5152,7 +5242,10 @@ rest, not just a border. Every shadow is built on **Neutral-4
 **Focus rings are Obsidian.** Interactive controls draw a 2px Obsidian
 (`#2B2B2C`) outline at `--border-width-md`: offset 2px on standalone
 controls, inset (−2px) where a container would clip it (list rows, nav
-children, chips in a scroller). Under forced colours it maps to
+children, chips in a scroller). The ring is four tokens, so a component
+never writes it out: `--focus-ring-width` (2px), `--focus-ring-color`
+(Obsidian), `--focus-ring-offset` (2px) and `--focus-ring-offset-inset`
+(−2px). Under forced colours it maps to
 Highlight. `shadow-focus` remains only as the Card family's focus halo
 (Interactive, Profile and Campaign cards), where a halo around the
 whole surface reads better than an outline; it isn't an element-colour
@@ -5173,6 +5266,16 @@ overshoot, no elastic easing.
 | duration-ambient | 900ms | Background / ambient motion |
 | duration-morph | 420ms | Pose-to-pose shape transitions — e.g. [Prompt input bar](#ai-native)'s expanded/collapsed morph |
 | duration-reveal | 550ms | Entrance reveals that need to read as more deliberate than `duration-slow` — e.g. Prompt input bar's own entrance |
+| duration-pulse | 1400ms | One cycle of a repeating attention cue — the CTA beacon ring, Thinking's shimmer |
+| duration-blink | 500ms | A text caret's blink |
+
+Rows and items that enter one after another are staggered, not
+simultaneous. Use one of two delays between neighbours:
+
+| Token | Value | Use |
+|---|---|---|
+| stagger-sm | 80ms | Rows entering one after another — Task Rows, follow-ups, a row's detail steps |
+| stagger-md | 120ms | The same for larger rows — Thinking's trace |
 
 Each element owns an easing curve, used when the motion is thematically
 tied to that element (e.g. a Water-owned panel slides with
@@ -7012,7 +7115,7 @@ component reflow.
 | Variant | Fill | Text | Border |
 |---|---|---|---|
 | Neutral | Neutral-2 `#f0f0f0` | Neutral-5 | Neutral-3 |
-| Success | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Success | Green at 12% | `#007d47` (darkened for AA) | Green at 32% |
 | Danger | Red at 10% | Red `#FD3343` | Red at 30% |
 | Warning | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
 | Info | Water at 10% | Water `#1473E6` | Water at 28% |
@@ -10312,7 +10415,7 @@ Icon color follows Toast's pattern — full-strength tone color, since a Tier 2 
 |---|---|---|---|---|---|
 | Neutral | `info` | Neutral-9 | Neutral-2 | Neutral-9 | Neutral-3 |
 | Info | `info` | Water `#1473E6` | Water at 10% | Water `#1473E6` | Water at 28% |
-| Success | `check-circle` | Green | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Success | `check-circle` | Green | Green at 12% | `#007d47` (darkened for AA) | Green at 32% |
 | Danger | `x-circle` | Red | Red at 10% | Red `#FD3343` | Red at 30% |
 | Warning | `warning` | Amber | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
 | AI Recommendation | `sparkle` | Neutral-9 | animated pastel gradient wash, 12% opacity — see below | Neutral-9 | animated pastel gradient ring — see below |
@@ -14421,7 +14524,7 @@ read one section before building, read this one.
   ledes, pull quotes, hero numerals), never as a heading-token swap, and
   never below ~18–20px.
 - Use the tinted-fill + bordered pattern for every Badge, and darken
-  Success/Warning text (`#00854c`, `#9a5c00`) so it clears AA.
+  Success/Warning text (`#007d47`, `#9a5c00`) so it clears AA.
 - Map department/element colors 1:1 using the table in
   [Color Palette](#color-palette) — don't invent a color for a department
   that isn't listed there.
@@ -14548,9 +14651,10 @@ other direction.
 
 Every value in this document is also available as CSS custom properties
 in `tokens.css`, in this same folder — colors (including warm canvas and
-elemental tints), the full spacing scale with semantic aliases, radius,
-the type scale with responsive tiers, the elevation ladder, motion
-durations and easings, and icon sizes. It's a mechanical rendering of the
+elemental tints, status tints and their AA text colours), the full spacing
+scale with semantic aliases, radius, the type scale with responsive tiers
+and prose line height, the elevation ladder, the focus ring, control sizes
+and measures, motion durations, staggers and easings, and icon sizes. It's a mechanical rendering of the
 tables above, not a new source of truth; if a value changes here, update
 `tokens.css` to match.
 
@@ -14617,6 +14721,41 @@ rather than maintaining two token sources by hand:
 
 ## Changelog
 
+- **v0.9.126 — 2026-10-26** — `components.css` now uses the tokens added
+  in v0.9.125, with no visual change except the intended ones: the focus
+  ring, control heights, status tints, spacing 2 / 6, `radius-xs`,
+  measures, prose line height and the blink and pulse durations are
+  written as tokens. Text colours: Badge Success, Warning and Error text
+  use `--color-green-text`, `--color-amber-text` and `--color-red-text`;
+  the Input field required `*` and error text, and Thinking's added and
+  removed counts, use the AA text colours. Button icons are `icon-sm`
+  (16px) at every size, so Small buttons' icons grow from 14px. Badge is 22px tall in caption (12px) type with `icon-micro` icons, and
+  `.c-badge-info` exists (Water tint, Water text).
+  `--color-green-text` is now `#007d47` (4.7:1 on its tint; the earlier
+  `#00854c` was 4.2:1). Thinking's width follows the 360px measure (was
+  380px).
+
+- **v0.9.125 — 2026-10-26** — Tokens added for values the React library
+  (`@collabrium/ui`) had to keep local, each backed by how often
+  `components.css` repeats the same literal. **Focus ring** (`--focus-ring-
+  width`, `-color`, `-offset`, `-offset-inset`: the same 2px Obsidian
+  outline was written 34 times). **Control sizes** (`--control-height-xs`
+  through `-lg` at 24 / 32 / 40 / 48px, `--hit-target-min` 44px,
+  `--choice-size` 18px). **Status tints** (green, red, amber, navy fill
+  and border) and **AA text colours** (`--color-green-text`,
+  `--color-amber-text`, `--color-red-text`; green text is `#007d47`,
+  4.7:1 on its tint). **Spacing** half-steps `spacing-2` and
+  `spacing-6`; **radius** `radius-xs` (6px); **icon** `icon-xs` (12px);
+  **measures** 360 / 420 / 440px; **motion** `duration-pulse`,
+  `duration-blink` and the staggers `stagger-sm` (80ms) and `stagger-md`
+  (120ms); **type** `--leading-prose` (1.65). Values that were near-
+  duplicates were consolidated first: the staggers (80, 90, 100, 120ms
+  became 80 and 120), the AI Native widths (380px became 360px) and prose
+  line height (1.6 became 1.65). `tokens.css` and the Spacing & Shape,
+  Color Palette, Iconography, Typography, Motion and Design Tokens
+  sections above were updated together. `components.css` is unchanged; one
+  mismatch it still carries: Input field's error border is 2px there and 1px
+  in this document (1px is the intended value).
 - **v0.9.124 — 2026-10-22** — New [Timeline](#timeline), a **variant of
   Stepper** (`.c-timeline`): a read-only plan of items with per-item
   status (completed, current, upcoming, overdue, at risk, skipped,
@@ -19140,6 +19279,36 @@ with nothing else to keep in sync.
      Purple is not an element: this pair backs .c-tag-purple only. */
   --color-purple-bg: #F5EEFF;      --color-purple-bg-strong: #ECDDFF;
 
+  /* Elemental pastel tints — a distinct, stronger tint than the -bg/
+     -bg-strong pair above (55% white mix, not 8%/16%): for decorative,
+     ambient effects like a gradient glow, never for surface fills or
+     backgrounds — that's what -bg/-bg-strong are for. First used by
+     Prompt input bar's glow (AI Native). */
+  --color-fire-pastel: #FFB49D;
+  --color-wood-pastel: #FFC3CD;
+  --color-earth-pastel: #8CE4BE;
+  --color-water-pastel: #95C0F4;
+  --color-gold-pastel: #FFD69D;
+
+  /* Status tints — fill and border for status surfaces (Badge, Banner,
+     Toast): the functional colour at a low alpha, with a stronger tint of
+     the same hue for the 1px border. NOT the element -bg tints above:
+     those colour a surface by the element that owns its content; these say
+     what state something is in. Navy is the Water-blue Info colour. */
+  --color-green-tint: rgba(0, 194, 110, .12);  --color-green-tint-border: rgba(0, 194, 110, .32);
+  --color-red-tint:   rgba(253, 51, 67, .10);  --color-red-tint-border:   rgba(253, 51, 67, .30);
+  --color-amber-tint: rgba(255, 164, 37, .14); --color-amber-tint-border: rgba(255, 164, 37, .38);
+  --color-navy-tint:  rgba(20, 115, 230, .10); --color-navy-tint-border:  rgba(20, 115, 230, .28);
+
+  /* Text on those tints, darkened: full-strength Green, Amber and Red fail
+     AA on their own tints at caption size (2.1, 1.8 and 3.2:1). Use these
+     for TEXT only: fills, borders and icons stay on the full-strength
+     colour. On their own tints they measure: Amber 4.9:1, Red 4.8:1 (and
+     5.5:1 on white), Green 4.7:1 (5.2:1 on white). */
+  --color-green-text: #007d47;
+  --color-amber-text: #9a5c00;
+  --color-red-text: #D4001A;
+
   /* Fonts */
   --font-primary: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-secondary: 'Source Serif 4', Georgia, 'Times New Roman', serif;
@@ -19178,9 +19347,17 @@ with nothing else to keep in sync.
 
   --tracking-eyebrow: 0.12em; /* uppercase kickers/eyebrows only */
 
+  /* Line height for running prose (AI answers, reasoning text). The type
+     scale above is for UI text, which sets its own line-height. */
+  --leading-prose: 1.65;
+
   /* Spacing — value-named to match the source scale
-     exactly (base unit 4px: 4·8·12·16·20·24·32·40·48·60·120). */
+     exactly (base unit 4px: 4·8·12·16·20·24·32·40·48·60·120), plus the two
+     half-steps 2 and 6 for tight composites only (an icon-to-label gap, chip
+     padding, a hairline offset). Layout spacing stays on the 4px scale. */
+  --spacing-2: 2px;
   --spacing-4: 4px;
+  --spacing-6: 6px;
   --spacing-8: 8px;
   --spacing-12: 12px;
   --spacing-16: 16px;
@@ -19199,6 +19376,12 @@ with nothing else to keep in sync.
   --page-gutter: var(--spacing-32);
   --content-max-width: 1200px; /* reading-width content only (forms/settings), not full-bleed dashboard layouts */
 
+  /* Measures — max-widths for self-contained AI Native surfaces. A host
+     narrower than the measure just fills it. */
+  --measure-sm: 360px; /* Permission Prompt, Tool approval, Thinking */
+  --measure-md: 420px; /* Streaming Text */
+  --measure-lg: 440px; /* Task Rows */
+
   /* Radius — the source
      deck specifies radius per surface, not a single scale. Kept as a
      3-tier + pill system for simplicity, with values matching real
@@ -19207,11 +19390,39 @@ with nothing else to keep in sync.
      standard buttons (16px, matches source radius-button), lg =
      cards/modals/nav/feature panels (20px, matches source
      radius-card/radius-nav/radius-widget). */
+  --radius-xs: 6px;  /* compact controls only: checkbox box, small chips, dense rows */
   --radius-sm: 12px;
   --radius-md: 16px;
   --radius-lg: 20px;
   --radius-pill: 999px;
   --radius-link: 32px; /* link-styled pill CTAs — distinct from radius-pill's badge/avatar use */
+
+  /* Border width — every other component still hardcodes 1px/2px
+     literally (Input field, Dropdown, Search input, etc.); this is the
+     first pair of tokens for it, introduced for Stepper's indicator
+     borders and connector stroke weight. Existing components are left
+     as-is for now rather than retrofitted as part of this change. */
+  --border-width-sm: 1px;
+  --border-width-md: 2px;
+
+  /* Focus ring — the one keyboard-focus treatment: a 2px Obsidian outline,
+     2px clear of the element. Written once here instead of at every
+     component. -inset draws it inside the element, for rows that sit flush
+     against their neighbours. (Input field and Radio card group keep their
+     own documented focus treatments.) */
+  --focus-ring-width: var(--border-width-md);
+  --focus-ring-color: var(--color-obsidian);
+  --focus-ring-offset: 2px;
+  --focus-ring-offset-inset: -2px;
+
+  /* Control sizes — the height of an interactive control, by density.
+     Button and Input field use 32, 40 and 48; Chip uses 24. */
+  --control-height-xs: 24px; /* chips, tags, compact rows */
+  --control-height-sm: 32px;
+  --control-height-md: 40px;
+  --control-height-lg: 48px;
+  --hit-target-min: 44px;    /* the smallest comfortable touch row */
+  --choice-size: 18px;       /* checkbox and radio box */
 
   /* Elevation — the source deck specifies a real shadow ladder, all
      built on Neutral-4 (soft grey), never black. Cards/dialogs use
@@ -19236,14 +19447,23 @@ with nothing else to keep in sync.
   --duration-base: 220ms;
   --duration-slow: 360ms;
   --duration-ambient: 900ms;
+  --duration-morph: 420ms;   /* pose-to-pose shape transitions, e.g. Prompt input bar's expanded/collapsed morph */
+  --duration-reveal: 550ms;  /* entrance reveals that need to read as more deliberate than duration-slow */
+  --duration-pulse: 1400ms;   /* one cycle of a repeating attention cue: CTA beacon ring, Thinking shimmer */
+  --duration-blink: 500ms;   /* a text caret's blink */
+  --stagger-sm: 80ms;        /* delay between rows entering one after another */
+  --stagger-md: 120ms;       /* the same, for larger rows (Thinking's trace) */
   --ease-standard: cubic-bezier(.2, .6, .2, 1);   /* default UI easing */
   --ease-settle: cubic-bezier(.16, .84, .24, 1);  /* earth: anchored arrivals */
   --ease-flow: cubic-bezier(.37, 0, .29, 1);      /* water: continuous */
   --ease-flare: cubic-bezier(.05, .7, .1, 1);     /* fire: pulse outward, rise */
   --ease-precise: cubic-bezier(.4, 0, .2, 1);     /* gold: sharp, decisive */
   --ease-grow: cubic-bezier(.25, .46, .45, .94);  /* wood: branching growth */
+  --ease-morph: cubic-bezier(.22, 1, .36, 1);     /* pose-to-pose shape transitions — fast out, no overshoot */
+  --ease-reveal: cubic-bezier(.16, 1, .3, 1);      /* entrance reveals — fast out, no overshoot */
 
   /* Icon sizes */
+  --icon-xs: 12px;   /* avatar letters and glyphs inside a 14px mark; never a standalone icon */
   --icon-micro: 14px;
   --icon-sm: 16px;
   --icon-base: 20px;
@@ -19261,11 +19481,12 @@ with nothing else to keep in sync.
   Hand-maintained alongside tokens.css — regenerate if the token tables
   in DESIGN-SYSTEM.md change.
 
-  Covers all 162 tokens.css tokens, including the full typography scale
-  (every text-*/weight-*/tracking-* token), all 7 icon-size tokens, the
-  4 shadow variants, the 5 semantic spacing aliases, and the 5
-  -bg-strong element tint steps — verify token count still matches on
-  next edit.
+  Covers all 208 tokens.css tokens, including the full typography scale
+  (every text-*/weight-*/tracking-* token), the 8 icon-size tokens, the
+  4 shadow variants, the 5 semantic spacing aliases, the 5 -bg-strong
+  element tint steps, the pastel and status-tint colours, the focus ring,
+  control sizes and measures, and the motion durations, staggers and
+  easings — verify token count still matches on next edit.
 */
 
 @import "tailwindcss";
@@ -19305,6 +19526,24 @@ with nothing else to keep in sync.
   --color-wood-bg-strong: var(--color-wood-bg-strong);
   --color-purple-bg: var(--color-purple-bg);
   --color-purple-bg-strong: var(--color-purple-bg-strong);
+  --color-fire-pastel: var(--color-fire-pastel);
+  --color-wood-pastel: var(--color-wood-pastel);
+  --color-earth-pastel: var(--color-earth-pastel);
+  --color-water-pastel: var(--color-water-pastel);
+  --color-gold-pastel: var(--color-gold-pastel);
+
+  /* Color — status tints and AA text colours */
+  --color-green-tint: var(--color-green-tint);
+  --color-green-tint-border: var(--color-green-tint-border);
+  --color-red-tint: var(--color-red-tint);
+  --color-red-tint-border: var(--color-red-tint-border);
+  --color-amber-tint: var(--color-amber-tint);
+  --color-amber-tint-border: var(--color-amber-tint-border);
+  --color-navy-tint: var(--color-navy-tint);
+  --color-navy-tint-border: var(--color-navy-tint-border);
+  --color-green-text: var(--color-green-text);
+  --color-amber-text: var(--color-amber-text);
+  --color-red-text: var(--color-red-text);
 
   /* Typography — font family */
   --font-primary: var(--font-primary);
@@ -19397,9 +19636,12 @@ with nothing else to keep in sync.
 
   /* Typography — tracking */
   --tracking-eyebrow: var(--tracking-eyebrow);
+  --leading-prose: var(--leading-prose);
 
   /* Spacing */
+  --spacing-2: var(--spacing-2);
   --spacing-4: var(--spacing-4);
+  --spacing-6: var(--spacing-6);
   --spacing-8: var(--spacing-8);
   --spacing-12: var(--spacing-12);
   --spacing-16: var(--spacing-16);
@@ -19415,13 +19657,31 @@ with nothing else to keep in sync.
   --section-gap: var(--section-gap);
   --page-gutter: var(--page-gutter);
   --content-max-width: var(--content-max-width);
+  --measure-sm: var(--measure-sm);
+  --measure-md: var(--measure-md);
+  --measure-lg: var(--measure-lg);
 
   /* Radius */
+  --radius-xs: var(--radius-xs);
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
   --radius-pill: var(--radius-pill);
   --radius-link: var(--radius-link);
+
+  /* Border width, focus ring, control sizes */
+  --border-width-sm: var(--border-width-sm);
+  --border-width-md: var(--border-width-md);
+  --focus-ring-width: var(--focus-ring-width);
+  --focus-ring-color: var(--focus-ring-color);
+  --focus-ring-offset: var(--focus-ring-offset);
+  --focus-ring-offset-inset: var(--focus-ring-offset-inset);
+  --control-height-xs: var(--control-height-xs);
+  --control-height-sm: var(--control-height-sm);
+  --control-height-md: var(--control-height-md);
+  --control-height-lg: var(--control-height-lg);
+  --hit-target-min: var(--hit-target-min);
+  --choice-size: var(--choice-size);
 
   /* Elevation */
   --shadow-hairline: var(--shadow-hairline);
@@ -19440,14 +19700,23 @@ with nothing else to keep in sync.
   --duration-base: var(--duration-base);
   --duration-slow: var(--duration-slow);
   --duration-ambient: var(--duration-ambient);
+  --duration-morph: var(--duration-morph);
+  --duration-reveal: var(--duration-reveal);
+  --duration-pulse: var(--duration-pulse);
+  --duration-blink: var(--duration-blink);
+  --stagger-sm: var(--stagger-sm);
+  --stagger-md: var(--stagger-md);
   --ease-standard: var(--ease-standard);
   --ease-settle: var(--ease-settle);
   --ease-flow: var(--ease-flow);
   --ease-flare: var(--ease-flare);
   --ease-precise: var(--ease-precise);
   --ease-grow: var(--ease-grow);
+  --ease-morph: var(--ease-morph);
+  --ease-reveal: var(--ease-reveal);
 
   /* Icon sizes */
+  --icon-xs: var(--icon-xs);
   --icon-micro: var(--icon-micro);
   --icon-sm: var(--icon-sm);
   --icon-base: var(--icon-base);
@@ -19460,8 +19729,8 @@ with nothing else to keep in sync.
 
 <script type="text/plain" id="src-json">{
   "$schema": "collabrium-design-tokens",
-  "version": "0.9.36",
-  "lastUpdated": "2026-08-10",
+  "version": "0.9.126",
+  "lastUpdated": "2026-10-26",
   "color": {
     "brand": {
       "orange": "#FF5825",
@@ -19478,6 +19747,12 @@ with nothing else to keep in sync.
     "functional": {
       "red": "#FD3343",
       "green": "#00C26E"
+    },
+    "statusTints": {
+      "green": { "tint": "rgba(0, 194, 110, .12)", "border": "rgba(0, 194, 110, .32)", "text": "#007d47" },
+      "red":   { "tint": "rgba(253, 51, 67, .10)", "border": "rgba(253, 51, 67, .30)", "text": "#D4001A" },
+      "amber": { "tint": "rgba(255, 164, 37, .14)", "border": "rgba(255, 164, 37, .38)", "text": "#9a5c00" },
+      "navy":  { "tint": "rgba(20, 115, 230, .10)", "border": "rgba(20, 115, 230, .28)" }
     },
     "neutral": {
       "neutral9": "#080808",
@@ -19500,6 +19775,9 @@ with nothing else to keep in sync.
     },
     "accentBackgrounds": {
       "purple": { "bg": "#F5EEFF", "bgStrong": "#ECDDFF" }
+    },
+    "elementPastels": {
+      "fire": "#FFB49D", "wood": "#FFC3CD", "earth": "#8CE4BE", "water": "#95C0F4", "gold": "#FFD69D"
     }
   },
   "elementMap": {
@@ -19533,17 +19811,27 @@ with nothing else to keep in sync.
       "footnote":     { "font": "primary", "size": 12, "lineHeight": 16, "weight": 400, "letterSpacing": "0" },
       "caption":      { "font": "primary", "size": 12, "lineHeight": 16, "weight": 400, "letterSpacing": "0" }
     },
+    "proseLineHeight": 1.65,
     "note": "Secondary font (Source Serif 4) is used only for deliberate brand-statement moments (pitch-deck ledes, pull quotes, hero numerals) layered on top of this functional scale, not as a swap-in for any token above — see DESIGN-SYSTEM.md Typography."
   },
   "spacing": {
-    "spacing4": 4, "spacing8": 8, "spacing12": 12, "spacing16": 16, "spacing20": 20,
+    "spacing2": 2, "spacing4": 4, "spacing6": 6, "spacing8": 8, "spacing12": 12, "spacing16": 16, "spacing20": 20,
     "spacing24": 24, "spacing32": 32, "spacing40": 40, "spacing48": 48, "spacing60": 60,
     "spacing120": 120,
     "cardPadding": 16, "elementGap": 8, "sectionGap": 48, "pageGutter": 32,
-    "contentMaxWidth": 1200
+    "contentMaxWidth": 1200,
+    "measureSm": 360, "measureMd": 420, "measureLg": 440
   },
+  "controlSizes": {
+    "heightXs": 24, "heightSm": 32, "heightMd": 40, "heightLg": 48,
+    "hitTargetMin": 44, "choiceSize": 18
+  },
+  "focusRing": {
+    "width": 2, "color": "#2B2B2C", "offset": 2, "offsetInset": -2
+  },
+  "borderWidth": { "sm": 1, "md": 2 },
   "radius": {
-    "sm": 12, "md": 16, "lg": 20, "pill": 999, "link": 32
+    "xs": 6, "sm": 12, "md": 16, "lg": 20, "pill": 999, "link": 32
   },
   "elevation": {
     "hairline": "0 0 0 1px #d8d8d8",
@@ -19555,18 +19843,21 @@ with nothing else to keep in sync.
     "overlay": "rgba(8,8,8,.56)"
   },
   "motion": {
-    "duration": { "instant": 80, "fast": 140, "base": 220, "slow": 360, "ambient": 900 },
+    "duration": { "instant": 80, "fast": 140, "base": 220, "slow": 360, "ambient": 900, "morph": 420, "reveal": 550, "pulse": 1400, "blink": 500 },
+    "stagger": { "sm": 80, "md": 120 },
     "easing": {
       "standard": "cubic-bezier(.2,.6,.2,1)",
       "settle": "cubic-bezier(.16,.84,.24,1)",
       "flow": "cubic-bezier(.37,0,.29,1)",
       "flare": "cubic-bezier(.05,.7,.1,1)",
       "precise": "cubic-bezier(.4,0,.2,1)",
-      "grow": "cubic-bezier(.25,.46,.45,.94)"
+      "grow": "cubic-bezier(.25,.46,.45,.94)",
+      "morph": "cubic-bezier(.22,1,.36,1)",
+      "reveal": "cubic-bezier(.16,1,.3,1)"
     }
   },
   "icon": {
-    "micro": 14, "sm": 16, "base": 20, "md": 24, "lg": 32, "empty": 48, "hero": 64
+    "xs": 12, "micro": 14, "sm": 16, "base": 20, "md": 24, "lg": 32, "empty": 48, "hero": 64
   }
 }
 </script>
@@ -19642,6 +19933,20 @@ const elementBgColors = [
 document.getElementById('swatches-warm').append(...warmColors.map(([n,h,d]) => swatchCard(n,h,d)));
 document.getElementById('swatches-elbg').append(...elementBgColors.map(([n,h,d]) => swatchCard(n,h,d)));
 
+const statusTintColors = [
+  ['Green tint', 'rgba(0, 194, 110, .12)', 'Success fill. Border: Green at 32%'],
+  ['Red tint', 'rgba(253, 51, 67, .10)', 'Danger / error fill. Border: Red at 30%'],
+  ['Amber tint', 'rgba(255, 164, 37, .14)', 'Warning fill. Border: Amber at 38%'],
+  ['Navy tint', 'rgba(20, 115, 230, .10)', 'Info fill. Border: Navy at 28%'],
+];
+const statusTextColors = [
+  ['Green text', '#007d47', '4.7:1 on its tint, 5.2:1 on white'],
+  ['Amber text', '#9a5c00', '4.9:1 on its tint, 5.4:1 on white'],
+  ['Red text', '#D4001A', '4.8:1 on its tint, 5.5:1 on white'],
+];
+document.getElementById('swatches-status').append(...statusTintColors.map(([n,h,d]) => swatchCard(n,h,d)));
+document.getElementById('swatches-status-text').append(...statusTextColors.map(([n,h,d]) => swatchCard(n,h,d)));
+
 const typeScaleData = [
   ['display','Primary',40,56,800,'0'],
   ['h1','Primary',32,38,800,'0'],
@@ -19682,7 +19987,9 @@ document.getElementById('typeToggle').addEventListener('click', function(){
 });
 
 const spacingData = [
+  ['spacing-2','2px','Half-step for tight composites only (hairline offset, chip padding)'],
   ['spacing-4','4px','Base unit'],
+  ['spacing-6','6px','Half-step for tight composites only (icon-to-label gap)'],
   ['spacing-8','8px','Element gap — default gap between elements'],
   ['spacing-12','12px','Tight internal padding (buttons, table cells)'],
   ['spacing-16','16px','Card padding — default'],
@@ -19701,12 +20008,39 @@ document.getElementById('spacingTable').innerHTML = `<tr><th>Token</th><th>Value
   </tr>`).join('');
 
 const radiusData = [
+  ['radius-xs','6px','Compact controls only: checkbox box, small chips, dense rows'],
   ['radius-sm','12px','Inputs, small buttons, icon buttons'],
   ['radius-md','16px','Standard/large buttons'],
   ['radius-lg','20px','Cards, modals, nav, feature panels'],
   ['radius-pill','999px','Pills, badges, tags, avatars'],
   ['radius-link','32px','Link-styled pill CTAs'],
 ];
+const controlData = [
+  ['control-height-xs','24px','Chips, tags, compact rows'],
+  ['control-height-sm','32px','Small buttons and fields'],
+  ['control-height-md','40px','Default buttons and fields'],
+  ['control-height-lg','48px','Large buttons and fields'],
+  ['hit-target-min','44px','The smallest comfortable touch row'],
+  ['choice-size','18px','Checkbox and radio box'],
+];
+document.getElementById('controlTable').innerHTML = `<tr><th>Token</th><th>Value</th><th>Use</th><th>Preview</th></tr>` +
+  controlData.map(([tok,val,use]) => `<tr><td class="token">${tok}</td><td>${val}</td><td>${use}</td><td style="width:140px"><div class="bar-preview" style="width:${parseInt(val)}px;height:${tok==='choice-size'?val:'8px'}"></div></td></tr>`).join('');
+const measureData = [
+  ['measure-sm','360px','Permission Prompt, Tool approval, Thinking'],
+  ['measure-md','420px','Streaming Text'],
+  ['measure-lg','440px','Task Rows'],
+];
+document.getElementById('measureTable').innerHTML = `<tr><th>Token</th><th>Value</th><th>Used by</th></tr>` +
+  measureData.map(([tok,val,use]) => `<tr><td class="token">${tok}</td><td>${val}</td><td>${use}</td></tr>`).join('');
+const focusData = [
+  ['focus-ring-width','2px','The outline width (border-width-md)'],
+  ['focus-ring-color','#2B2B2C','Obsidian'],
+  ['focus-ring-offset','2px','Clear of a standalone control'],
+  ['focus-ring-offset-inset','-2px','Drawn inside, where a container would clip it'],
+];
+document.getElementById('focusTable').innerHTML = `<tr><th>Token</th><th>Value</th><th>Use</th></tr>` +
+  focusData.map(([tok,val,use]) => `<tr><td class="token">${tok}</td><td>${val}</td><td>${use}</td></tr>`).join('');
+
 document.getElementById('radiusTable').innerHTML = `<tr><th>Element</th><th>Value</th><th>Usage</th><th>Preview</th></tr>` +
   radiusData.map(([tok,val,usage]) => `<tr>
     <td class="token">${tok}</td><td>${val}</td><td>${usage}</td>
@@ -19733,6 +20067,12 @@ const motionData = [
   ['duration-base','220ms','Default UI transitions'],
   ['duration-slow','360ms','Panel/section reveals'],
   ['duration-ambient','900ms','Background/ambient motion'],
+  ['duration-morph','420ms','Pose-to-pose shape transitions'],
+  ['duration-reveal','550ms','Entrance reveals that need to read as more deliberate than duration-slow'],
+  ['duration-pulse','1400ms','One cycle of a repeating attention cue (CTA beacon ring, Thinking shimmer)'],
+  ['duration-blink','500ms','A text caret\'s blink'],
+  ['stagger-sm','80ms','Rows entering one after another (Task Rows, follow-ups, detail steps)'],
+  ['stagger-md','120ms','The same, for larger rows (Thinking\'s trace)'],
 ];
 const easingData = [
   ['ease-standard','cubic-bezier(.2,.6,.2,1)','Default UI easing'],

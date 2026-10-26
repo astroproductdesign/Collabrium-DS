@@ -11,4 +11,6 @@
 @import './components/Badge/Badge.css';
 @import './components/Checkbox/Checkbox.css';
 @import './components/LoadingState/LoadingState.css';
+@import './components/StreamingText/StreamingText.css';
+@import './components/TaskRows/TaskRows.css';
 @import './components/Thinking/Thinking.css';

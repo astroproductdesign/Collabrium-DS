@@ -14,6 +14,8 @@ export * from './components/Button';
 export * from './components/Badge';
 export * from './components/Checkbox';
 export * from './components/LoadingState';
+export * from './components/StreamingText';
+export * from './components/TaskRows';
 export * from './components/Thinking';
 
 // Utilities

@@ -11,7 +11,17 @@ matters more than speed. Work slowly; verify before you claim something matches.
   - `components.css`: component styles (`.c-*` classes)
   - `DESIGN-SYSTEM.md`: rules and usage
 - **This package is standalone.** Never import from the DLS folder. Copy what you need, and say where it came from (file and line numbers).
-- **Visual output must match components.css exactly.** Do not improve, tidy or redesign anything. Where components.css and DESIGN-SYSTEM.md disagree, follow components.css and log the conflict in `MIGRATION-LOG.md`.
+- **Visual output must match components.css exactly.** Do not improve, tidy or redesign anything. Where components.css and DESIGN-SYSTEM.md disagree, follow components.css and log the conflict in `MIGRATION-LOG.md`. Any other difference follows the next section.
+
+## Differences from the DLS
+
+The DLS and this library must stay consistent.
+
+- **Flag every difference first.** If you would do anything other than what components.css or DESIGN-SYSTEM.md says or shows (a different value, a missing state, an accessibility fix, a changed behaviour), stop and put it to the user with a recommendation. Don't follow your own version until they decide.
+- **After a decision, the DLS is owed an update.** Add a row to "DLS updates owed" (MIGRATION-LOG.md, section 7) in the same step. Never edit the DLS from here.
+- **Follow tokens.** Use an existing token wherever its value and meaning match: check `src/tokens/tokens.css` first (focus ring, control heights, status tints and AA text colours, spacing, radius, measures, staggers and the rest). Where none exists, declare a local custom property and list it for the user in the review. `src/tokens/tokens.css` is an exact copy of the DLS file: never edit it here, and sync it (with `node scripts/tokens-ts.mjs --write`) whenever the DLS changes.
+- **Approved rules live in the component's `<Name>.usage.md`**, as normal numbered rules with their reason. Don't add a separate "differences" section or a decisions file: once the library is the main repo these rules are the design system. When the user answers an open question, write the answer into `usage.md` (and the CSS comment) in the same step.
+- **Show what can't be pictured.** When a decision is about something visual or about assistive technology, build a draft page with screenshots (`review-drafts/`) before asking. Delete the draft once decided.
 
 ## Never guess
 

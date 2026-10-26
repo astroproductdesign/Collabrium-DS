@@ -32,25 +32,24 @@
 
 .cui-thinking {
   /*
-    TODO(open-question Q-THINK-1): no tokens exist for these values. They are
-    copied verbatim from components.css and kept in one place so they can be
-    swapped for tokens if the DLS adds them.
+    The width, spacing, radius, line height, shimmer, stagger and focus ring
+    come from tokens. What is left (the 176px active height, the 28px and 26px
+    row heights, the 1px line nudge) is this component's own and has no token.
   */
-  --cui-thinking-max-width: 380px;
+  --cui-thinking-max-width: var(--measure-sm);
   --cui-thinking-active-min-height: 176px;
-  --cui-thinking-hit-pad: 6px;
-  --cui-thinking-focus-offset: 2px;
+  --cui-thinking-hit-pad: var(--spacing-6);
   --cui-thinking-row-min-height: 28px;
   --cui-thinking-query-min-height: 26px;
-  --cui-thinking-row-radius: 6px;
-  --cui-thinking-row-pad: 2px;
-  --cui-thinking-row-gap: 2px;
+  --cui-thinking-row-radius: var(--radius-xs);
+  --cui-thinking-row-pad: var(--spacing-2);
+  --cui-thinking-row-gap: var(--spacing-2);
   --cui-thinking-line-nudge: 1px;
-  --cui-thinking-prose-line-height: 1.6;
-  --cui-thinking-diff-size: 11px;
-  --cui-thinking-diff-gap: 4px;
-  --cui-thinking-shimmer: 1.4s;
-  --cui-thinking-stagger: 120ms;
+  --cui-thinking-prose-line-height: var(--leading-prose);
+  --cui-thinking-diff-size: var(--text-label3-size);
+  --cui-thinking-diff-gap: var(--spacing-4);
+  --cui-thinking-shimmer: var(--duration-pulse);
+  --cui-thinking-stagger: var(--stagger-md);
 
   display: flex;
   flex-direction: column;
@@ -83,8 +82,8 @@
   background: var(--color-neutral-2);
 }
 .cui-thinking__header:focus-visible {
-  outline: var(--border-width-md) solid var(--color-obsidian);
-  outline-offset: var(--cui-thinking-focus-offset);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .cui-thinking__mark {
@@ -136,6 +135,31 @@
 .cui-thinking[data-done] .cui-thinking__status > .cui-thinking__done {
   display: inline;
 }
+/* Timer (Rule 14): shows from the first frame beside the live label, in the
+   same form as Loading State's, and is gone once the run settles (its value
+   becomes the past-tense label). Script-driven, so reduced motion leaves it
+   ticking. Added 2026-10-26 and approved the same day: the DLS has the rule but no markup or CSS. */
+.cui-thinking__timer {
+  flex: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The announcement: visually hidden, outside the header button. */
+.cui-thinking__announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @keyframes cui-thinking-shimmer {
   from {
     background-position: 0% 0;
@@ -252,6 +276,14 @@ button.cui-thinking__row {
   cursor: pointer;
   transition: background-color var(--duration-fast) var(--ease-standard);
 }
+/* Rows take the system's Obsidian focus ring, drawn inside the row so it does
+   not collide with its neighbours. components.css has none, so the browser's
+   default ring showed. Decided 2026-10-26. */
+a.cui-thinking__row:focus-visible,
+button.cui-thinking__row:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
 a.cui-thinking__row:hover,
 button.cui-thinking__row:hover {
   background: var(--color-neutral-2);
@@ -321,11 +353,13 @@ button.cui-thinking__row[aria-pressed="true"] {
   display: flex;
   gap: var(--cui-thinking-diff-gap);
 }
+/* The diff counts are 11px text, so they take the AA-safe text colours
+   (components.css uses the full Green and Red, about 2.4:1 and 3.7:1 on white). */
 .cui-thinking__row-diff .cui-thinking__add {
-  color: var(--color-green);
+  color: var(--color-green-text);
 }
 .cui-thinking__row-diff .cui-thinking__del {
-  color: var(--color-red);
+  color: var(--color-red-text);
 }
 .cui-thinking__more {
   font-size: var(--text-caption-size);
@@ -338,9 +372,10 @@ button.cui-thinking__row[aria-pressed="true"] {
   Reduced motion (Rule 20): travel drops, sequence stays. The expand, the row
   stagger and the line growth go; nothing here touches which rows exist or
   their order. Ordering is information, not decoration.
-  TODO(open-question Q-THINK-3): DESIGN-SYSTEM.md Rule 20 says "the spinner
-  still turns on the current step", but the source CSS stops it
-  (.c-thinking-row-icon.is-spin { animation: none }). Shipped as the CSS.
+  The spinner on the current step keeps turning (DESIGN-SYSTEM.md Rule 20;
+  decided 2026-10-26: a spinner that still means "working" is information).
+  components.css stops it (.c-thinking-row-icon.is-spin { animation: none }),
+  so the DLS needs that rule removed.
 */
 @media (prefers-reduced-motion: reduce) {
   .cui-thinking,
@@ -361,9 +396,6 @@ button.cui-thinking__row[aria-pressed="true"] {
   .cui-thinking__row,
   .cui-thinking__query,
   .cui-thinking__more {
-    animation: none;
-  }
-  .cui-thinking__row-icon[data-spin] {
     animation: none;
   }
 }

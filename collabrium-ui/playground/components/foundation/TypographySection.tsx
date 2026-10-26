@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { Button } from '../../../src';
 import { tokens } from '../../../src/tokens/tokens';
-import { Section, type SectionProps } from './Section';
+import { GroupLabel, Section, type SectionProps } from './Section';
 
 type StyleKey = keyof typeof tokens.text;
 const STEPS: { label: string; key: StyleKey; strong?: boolean }[] = [
@@ -73,6 +73,25 @@ export function TypographySection({ level }: SectionProps) {
           );
         })}
       </div>
+      <GroupLabel level={level} id="prose-leading">Prose line height</GroupLabel>
+      <p className="lede docs-lede-tight">
+        <code>--leading-prose</code> ({tokens.leading.prose}) for running prose that wraps over several lines, such as AI
+        answers and reasoning text. Every size above carries its own line height for UI text; prose takes this unitless
+        value instead so it scales with the size it is set in.
+      </p>
+      <p
+        className="docs-prose-sample"
+        style={{
+          fontFamily: 'var(--font-primary)',
+          fontSize: 'var(--text-body1-size)',
+          lineHeight: 'var(--leading-prose)',
+          fontWeight: 'var(--text-body1-weight)',
+        }}
+      >
+        Northwind Retail&apos;s renewal risk is high: the Q3 proposal has stalled for three weeks, and the contract lapses
+        before December. Two other Enterprise-tier accounts are trending the same way this quarter.
+      </p>
+
       <div className="docs-type-toggle">
         <Button variant="secondary" size="sm" aria-expanded={all} aria-controls="typeScale" onClick={() => setAll(a => !a)}>
           {all ? 'Show fewer' : `Show all ${STEPS.length} steps`}

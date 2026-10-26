@@ -43,7 +43,7 @@ export const anatomy: DocsAnatomyNode[] = [
   {
     name: 'Thinking',
     element: '<div>.cui-thinking',
-    description: 'The shell, max 380px wide. Its state is data attributes: data-expanded, data-done, data-active. Its minimum height eases between 0 and 176px so the response below never jumps.',
+    description: 'The shell, max 360px wide. Its state is data attributes: data-expanded, data-done, data-active. Its minimum height eases between 0 and 176px so the response below never jumps.',
     children: [
       {
         name: 'Header',
@@ -56,10 +56,11 @@ export const anatomy: DocsAnatomyNode[] = [
             element: 'span.cui-thinking__status',
             description: 'The live label and the past-tense label. Only one shows at a time.',
             children: [
-              { name: 'Working label', element: 'span.cui-thinking__working', description: 'Shimmers while the run is going. role="status" aria-live="polite".' },
-              { name: 'Done label', element: 'span.cui-thinking__done', description: 'Static, fades in when the run settles. role="status" aria-live="polite".' },
+              { name: 'Working label', element: 'span.cui-thinking__working', description: 'Shimmers while the run is going.' },
+              { name: 'Done label', element: 'span.cui-thinking__done', description: 'Static, fades in when the run settles. Holds the settled duration, e.g. "Thought for 4 seconds".' },
             ],
           },
+          { name: 'Timer', element: 'span.cui-thinking__timer', when: 'while working', description: 'The running time, caption, Neutral-5, figures line up. Stops when the run settles; its value becomes the past-tense label.' },
           { name: 'Chevron', element: 'svg.cui-thinking__chevron', description: 'Phosphor CaretDown, icon-micro. Rotates 180° when open. Never hidden.' },
         ],
       },
@@ -133,7 +134,8 @@ function LiveRunExample() {
           steps={STEPS.slice(0, shown)}
           status={running ? 'working' : 'done'}
           workingLabel="Thinking"
-          doneLabel={`Thought for ${endedAfter} seconds`}
+          startedAt={startedAt}
+          doneLabel="Thought for {duration}"
         />
       )}
       {!running && !handedOff && <span className="docs-status">Stopped</span>}
@@ -200,7 +202,8 @@ function LiveRun() {
           steps={STEPS.slice(0, shown)}
           status={running ? 'working' : 'done'}
           workingLabel="Thinking"
-          doneLabel={\`Thought for \${endedAfter} seconds\`}
+          startedAt={startedAt}
+          doneLabel="Thought for {duration}"
         />
       )}
       {!running && !handedOff && <span>Stopped</span>}
@@ -337,7 +340,8 @@ export const props: DocsProp[] = [
   { name: 'variant', options: "'steps' | 'reasoning' | 'search' | 'coding'", default: '—', required: true, description: 'What a row is, chosen by the shape of your data. Selects which of the row props below applies.' },
   { name: 'status', options: "'working' | 'done'", default: '—', required: true, description: '`working`: live label with a shimmer, trace opens itself. `done`: past-tense label, trace closes itself.' },
   { name: 'workingLabel', options: 'string', default: '—', required: true, description: 'The live label: "Thinking", "Searching the web", "Running tools". A status, not a title. Update it as phases change.' },
-  { name: 'doneLabel', options: 'string', default: '—', required: true, description: 'The past-tense label: "Thought for 4 seconds", "Searched the web", "Ran 3 tools". It stays on screen as a record.' },
+  { name: 'startedAt', options: 'number', default: 'mount time', description: 'When the run really started (`Date.now()`). A timer counts from here beside the live label; when the run is done it stops and becomes `{duration}` in `doneLabel`. Pass the same value you gave Loading State so the clock carries on. A trace that first renders as `done` has no timer.' },
+  { name: 'doneLabel', options: 'string', default: '—', required: true, description: 'The past-tense label. Write `{duration}` for a live run ("Thought for {duration}") and the component fills in the settled time. Without it the label is shown as written: "Thought for 4 seconds", "Searched the web", "Ran 3 tools". It stays on screen as a record.' },
   { name: 'steps', options: 'ThinkingStep[]', default: '—', description: '`steps` variant. `{ label, detail? }` in order. Append only. The last one spins while working.' },
   { name: 'paragraphs', options: 'string[]', default: '—', description: '`reasoning` variant. One sentence or short paragraph per row.' },
   { name: 'query', options: 'string', default: '—', description: '`search` variant. What was searched for. Shown first.' },
@@ -374,10 +378,10 @@ export const accessibility: DocsAccessibility = {
   ],
   notes: [
     'The header is a real `<button>` with `aria-expanded` and `aria-controls` pointing at the trace.',
-    'The status labels carry `role="status"` and `aria-live="polite"`, so the header announces. Rows do not announce one by one: that would flood a screen reader on a long run. The trace stays reachable on demand.',
+    'A visually hidden `role="status"` with `aria-live="polite"` sits beside the header button (not inside it, where a button\'s contents are its name) and announces the live and past-tense labels. Rows do not announce one by one: that would flood a screen reader on a long run. The trace stays reachable on demand.',
     'While the trace is closed it is inert, so its links and buttons cannot be reached by keyboard or read out.',
     'Coding rows are toggle buttons with `aria-pressed`. Search rows are real links.',
-    'The header shows a 2px Obsidian focus ring. Rows keep the browser\'s default focus ring.',
+    'The header and the link and button rows show a 2px Obsidian focus ring (inside the row, so it does not collide with its neighbours).',
   ],
 };
 
@@ -388,7 +392,8 @@ export const motion: DocsMotion[] = [
   { interaction: 'Timeline line', motion: 'Grows to the rows\' height as they arrive. A one-time entrance.', token: '--duration-reveal · --ease-reveal' },
   { interaction: 'Row entrance', motion: 'Each row rises 4px and fades in, staggered 120ms by position.', token: '--duration-slow · --ease-settle' },
   { interaction: 'Working label', motion: 'A shimmer sweeps the text while the run goes. It is the only sign the work has not stalled when the trace is closed.', token: '—' },
+  { interaction: 'Timer', motion: 'Counts up while the run goes, ticking even under reduced motion, and is replaced by the past-tense label when the run settles.', token: '—' },
   { interaction: 'Done label and "+N more"', motion: 'Fade in.', token: '--duration-slow · --duration-base · --ease-standard' },
   { interaction: 'Spinner on the current step', motion: 'Rotates continuously.', token: '--duration-ambient' },
-  { interaction: 'Reduced motion', motion: 'The expand, row stagger, line growth, shimmer and fades go; rows still appear in order. The spinner on the current step stops turning.', token: '—' },
+  { interaction: 'Reduced motion', motion: 'The expand, row stagger, line growth, shimmer and fades go; rows still appear in order. The spinner on the current step keeps turning.', token: '—' },
 ];

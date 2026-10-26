@@ -1,0 +1,495 @@
+/*
+  Task Rows — ported from collabrium-dls/components.css lines 5563–5707
+  (.c-tasks*: the two variants, the row, head, mark and active ring, pill,
+  chevron, detail steps, failure block, overflow line, reduced motion), plus
+  the three status discs it reuses from Stepper's `.c-step-indicator`
+  (lines 4334 and 4370–4375), copied here so this package stays standalone.
+  The pills are the real Badge and Retry is the real Button (both converted).
+
+  Mapping from the old classes:
+    .c-tasks                          -> .cui-task-rows
+    .c-tasks--capsules / --list       -> [data-variant="capsules" | "list"]
+    (no class; the role="list" wrapper) -> .cui-task-rows__list
+    .c-tasks-row (+ .is-open)         -> .cui-task-rows__row ([data-open])
+    .c-tasks-head                     -> .cui-task-rows__head
+    .c-tasks-mark (+ .is-active)      -> .cui-task-rows__mark ([data-active])
+    .c-tasks-ring                     -> .cui-task-rows__ring
+    .c-step-indicator .upcoming / .completed / .error
+                                      -> .cui-task-rows__disc[data-state]
+    .c-tasks-label / -count           -> __label / __count
+    .sr-only phrase inside the head   -> __spoken
+    .c-tasks-head .c-badge i.is-spin  -> .cui-task-rows__spin
+    .c-tasks-chevron                  -> __chevron
+    .c-tasks-detail / -detail-inner   -> __detail / __detail-inner
+    .c-tasks-steps / -line / -step-list / -step / -step-label / -step-meta
+                                      -> __steps / __line / __step-list / __step / __step-label / __step-meta
+    .c-tasks-fail / -reason           -> __fail / __reason
+    .c-tasks-more                     -> __more
+    .c-tasks-live                     -> __live
+    <i class="ph ...">                -> svg (Phosphor React)
+
+  Specificity is kept in the same order as the source so the same rule wins
+  everywhere, in particular: the open radius beating the closed one, and the
+  row hover fill (declared after both variant blocks, same specificity, so
+  source order decides it).
+
+  Differences that are deliberate, each logged in MIGRATION-LOG.md:
+    - The capsules' 8px gap. The source puts `gap` on the root, but the rows
+      sit inside a `role="list"` wrapper, so the gap never reaches them and
+      the demo's capsules touch. The gap is applied to the wrapper (TASK-1).
+    - The list variant's last-row rule. The source says `.c-tasks-row:last-child`,
+      but every row is the only child of its `role="listitem"` wrapper, so it
+      would match every row and the hairlines would never show. It is applied
+      to the last list item instead (TASK-2).
+    - `min-width: 0` on the root, so a label that truncates cannot make a
+      grid or flex parent grow past its column (the source never sets it).
+    - The closed detail is `inert` (TASK-5), done in TaskRows.tsx.
+
+  The variant selectors are written `:where(.cui-task-rows)[data-variant=...]`
+  so they carry the source's specificity: `.c-tasks--capsules .c-tasks-row` is
+  (0,2,0), and the row hover (0,2,0, declared after) must still beat it.
+*/
+
+.cui-task-rows {
+  /*
+    The width, head height, staggers, spacing and focus ring come from tokens.
+    What is left (the 196px capsule floor, the pop-in scale, the ring arc, the
+    reason basis, the step delay) is this component's own and has no token.
+  */
+  --cui-task-rows-max-width: var(--measure-lg);
+  --cui-task-rows-capsules-min-height: 196px;
+  --cui-task-rows-head-min-height: var(--hit-target-min);
+  --cui-task-rows-disc: var(--icon-md);
+  --cui-task-rows-disc-from: 0.62;
+  --cui-task-rows-arc: 28%;
+  --cui-task-rows-row-stagger: var(--stagger-sm);
+  --cui-task-rows-row-rise: var(--spacing-8);
+  --cui-task-rows-step-delay: 120ms;
+  --cui-task-rows-step-stagger: var(--stagger-sm);
+  --cui-task-rows-step-rise: var(--spacing-8);
+  --cui-task-rows-reason-basis: 160px;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--cui-task-rows-max-width);
+  font-family: var(--font-primary);
+  container: cui-task-rows / inline-size;
+}
+.cui-task-rows__list {
+  display: flex;
+  flex-direction: column;
+}
+.cui-task-rows[data-variant="capsules"] {
+  gap: var(--spacing-8);
+  min-height: var(--cui-task-rows-capsules-min-height);
+}
+:where(.cui-task-rows)[data-variant="capsules"] .cui-task-rows__list {
+  gap: var(--spacing-8);
+}
+.cui-task-rows[data-variant="list"] {
+  gap: 0;
+  align-self: flex-start;
+  overflow: hidden;
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+/* Row. The radius tightens as it opens: radius-lg closed, radius-md open. */
+.cui-task-rows__row {
+  align-self: stretch;
+  overflow: hidden;
+  animation: cui-task-rows-row-in var(--duration-slow) var(--ease-reveal) both;
+  animation-delay: calc(var(--cui-task-rows-row-index, 0) * var(--cui-task-rows-row-stagger));
+  transition:
+    border-radius var(--duration-base) var(--ease-morph),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+:where(.cui-task-rows)[data-variant="capsules"] .cui-task-rows__row {
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+:where(.cui-task-rows)[data-variant="capsules"] .cui-task-rows__row[data-open] {
+  border-radius: var(--radius-md);
+}
+:where(.cui-task-rows)[data-variant="list"] .cui-task-rows__row {
+  background: transparent;
+  border-radius: 0;
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+}
+:where(.cui-task-rows)[data-variant="list"] [role="listitem"]:last-child .cui-task-rows__row {
+  border-bottom: none;
+}
+.cui-task-rows__row:hover {
+  background: var(--color-neutral-2);
+}
+@keyframes cui-task-rows-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--cui-task-rows-row-rise));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Head: the whole row is the one disclosure button. Nothing else interactive
+   lives inside it (Retry sits in the detail below). */
+.cui-task-rows__head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  min-height: var(--cui-task-rows-head-min-height);
+  padding: 0 var(--spacing-12);
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cui-task-rows__head:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+
+/* Mark: the status disc. The pop-in fires once per state change (the disc is
+   a fresh node on change): scale only, no overshoot. */
+.cui-task-rows__mark {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+.cui-task-rows__disc {
+  flex: none;
+  width: var(--cui-task-rows-disc);
+  height: var(--cui-task-rows-disc);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-label1-weight);
+  animation: cui-task-rows-mark-in var(--duration-base) var(--ease-morph) both;
+}
+.cui-task-rows__disc[data-state="completed"] {
+  background: var(--color-green);
+  color: var(--color-neutral-1);
+}
+.cui-task-rows__disc[data-state="upcoming"] {
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  color: var(--color-neutral-5);
+}
+.cui-task-rows__disc[data-state="error"] {
+  background: var(--color-red);
+  color: var(--color-neutral-1);
+}
+.cui-task-rows__disc[data-state="completed"] svg,
+.cui-task-rows__disc[data-state="error"] svg {
+  font-size: var(--icon-micro);
+}
+@keyframes cui-task-rows-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--cui-task-rows-disc-from));
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Active ring: a 2px track and a 28% sweeping arc, in pure CSS. The disc's own
+   1px border is suppressed while active so the ring is the only track.
+   The z-index is load-bearing: the pop-in leaves transform: scale(1) applied,
+   which makes the disc a stacking context that would paint over the ring. */
+.cui-task-rows__mark[data-active] .cui-task-rows__disc {
+  border-color: transparent;
+}
+.cui-task-rows__ring {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius-pill);
+  border: var(--border-width-md) solid var(--color-neutral-3);
+  pointer-events: none;
+}
+.cui-task-rows__ring::after {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--border-width-md));
+  border-radius: inherit;
+  background: conic-gradient(var(--color-neutral-7) 0 var(--cui-task-rows-arc), transparent var(--cui-task-rows-arc));
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - var(--border-width-md)), var(--color-obsidian) 0);
+  mask: radial-gradient(closest-side, transparent calc(100% - var(--border-width-md)), var(--color-obsidian) 0);
+  animation: cui-task-rows-spin var(--duration-ambient) linear infinite;
+}
+@keyframes cui-task-rows-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cui-task-rows__label {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-label1-size);
+  line-height: var(--text-label1-lh);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+}
+.cui-task-rows__count {
+  flex: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The whole row's state in one phrase for assistive tech (visually hidden). */
+.cui-task-rows__spoken,
+.cui-task-rows__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Pill: the real Badge. Its glyph spins only in Retrying (Rule 13). */
+.cui-task-rows__head .cui-badge {
+  flex: none;
+  animation: cui-task-rows-fade-in var(--duration-base) var(--ease-standard) both;
+}
+.cui-task-rows__spin {
+  font-size: var(--icon-micro);
+  animation: cui-task-rows-spin var(--duration-ambient) linear infinite;
+}
+@keyframes cui-task-rows-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cui-task-rows__chevron {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  margin-right: calc(-1 * var(--spacing-4));
+  color: var(--color-neutral-5);
+  font-size: var(--icon-sm);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.cui-task-rows__row[data-open] .cui-task-rows__chevron {
+  transform: rotate(180deg);
+}
+
+/* Detail: 0fr -> 1fr grid rows, Thinking's expand technique. */
+.cui-task-rows__detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--duration-base) var(--ease-settle),
+    opacity var(--duration-base) var(--ease-settle);
+}
+.cui-task-rows__row[data-open] .cui-task-rows__detail {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.cui-task-rows__detail-inner {
+  overflow: hidden;
+}
+
+/* The first column repeats the mark column, so the timeline rule lands
+   centred under the disc above it. */
+.cui-task-rows__steps {
+  display: grid;
+  grid-template-columns: var(--icon-md) minmax(0, 1fr);
+  gap: var(--spacing-12);
+  padding: 0 var(--spacing-12) var(--spacing-12);
+}
+.cui-task-rows__line {
+  width: var(--border-width-sm);
+  height: 100%;
+  margin: 0 auto;
+  background: var(--color-neutral-3);
+}
+.cui-task-rows__step-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.cui-task-rows__step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  min-height: var(--text-caption-lh);
+}
+.cui-task-rows__row[data-open] .cui-task-rows__step {
+  animation: cui-task-rows-step-in var(--duration-base) var(--ease-settle) both;
+  animation-delay: calc(var(--cui-task-rows-step-delay) + var(--cui-task-rows-step-index, 0) * var(--cui-task-rows-step-stagger));
+}
+@keyframes cui-task-rows-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--cui-task-rows-step-rise));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.cui-task-rows__step-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-9);
+}
+.cui-task-rows__step-meta {
+  flex: none;
+  font-size: var(--text-footnote-size);
+  line-height: var(--text-footnote-lh);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Failure block: the reason, and Retry when there is something to retry. It
+   sits in the step list's own column so the timeline rule runs past it. The
+   reason is Neutral-5, not red: red 12px text is under the 4.5:1 floor. */
+.cui-task-rows__fail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-8);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-task-rows__reason {
+  margin: 0;
+  min-width: 0;
+  flex: 1 1 var(--cui-task-rows-reason-basis);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-task-rows__fail .cui-button {
+  flex: none;
+  text-decoration: none;
+}
+
+/* Overflow summary (Rule 4). */
+.cui-task-rows__more {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  padding: var(--spacing-8) var(--spacing-12);
+}
+:where(.cui-task-rows)[data-variant="capsules"] .cui-task-rows__more {
+  padding-left: 0;
+}
+
+/*
+  Narrow rule (Q-TASK-6, defined 2026-10-26; the DLS has none). Measured on the
+  component's own width, not the screen's, so it holds in a narrow panel too.
+  Below 400px the five slots no longer fit on one line (the name was shrinking
+  to nothing), so the count moves under the name and the name may take two
+  lines. Nothing is dropped: the pill and the chevron keep their slots, and the
+  disc, count and pill all still show. 400px is the width at which a realistic
+  name ("Build reorder task list") plus its count and pill still fits on one
+  line. Container queries cannot read custom properties, so it is written out.
+*/
+@container cui-task-rows (max-width: 400px) {
+  .cui-task-rows__head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-rows: auto auto;
+    column-gap: 0;
+    row-gap: 0;
+    align-items: center;
+    padding-block: var(--spacing-8);
+  }
+  .cui-task-rows__mark {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+  .cui-task-rows__label {
+    grid-column: 2;
+    grid-row: 1;
+    margin-left: var(--spacing-12);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+  }
+  .cui-task-rows__count {
+    grid-column: 2;
+    grid-row: 2;
+    margin-left: var(--spacing-12);
+  }
+  .cui-task-rows__head .cui-badge {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    margin-left: var(--spacing-12);
+  }
+  .cui-task-rows__chevron {
+    grid-column: 4;
+    grid-row: 1 / span 2;
+    margin-left: var(--spacing-12);
+  }
+}
+
+/*
+  Reduced motion (Rule 18): the travel drops and the sequence stays. The
+  ring's arc stays and only its rotation stops: with the spin gone it is the
+  only thing separating Active from Pending. The Retrying arrow in the pill
+  keeps turning (decided 2026-10-26: an attempt in flight is information).
+*/
+@media (prefers-reduced-motion: reduce) {
+  .cui-task-rows__row,
+  .cui-task-rows__detail,
+  .cui-task-rows__chevron {
+    transition: none;
+  }
+  .cui-task-rows__row,
+  .cui-task-rows__disc,
+  .cui-task-rows__head .cui-badge,
+  .cui-task-rows__row[data-open] .cui-task-rows__step {
+    animation: none;
+  }
+  .cui-task-rows__ring::after {
+    animation: none;
+  }
+}

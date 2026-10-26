@@ -7,6 +7,7 @@ const tier1 = ['plus', 'x', 'caret-down', 'funnel', 'magnifying-glass', 'check',
 const tier2 = ['check-circle', 'warning', 'house', 'calendar', 'fire', 'info'];
 
 const sizeUsage: Record<keyof typeof tokens.icon, string> = {
+  xs: 'Letters and glyphs inside a 14px mark; never standalone',
   micro: 'Table cells, tag labels, badge indicators',
   sm: 'Inline with body text, buttons, form fields, status',
   base: 'Sidebar nav, card actions, standard UI',

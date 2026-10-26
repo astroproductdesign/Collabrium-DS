@@ -174,3 +174,22 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
   .docs-pane { overflow-y: visible; }
   .shell { padding: 0 var(--spacing-16); }
 }
+
+/* Foundation: focus ring preview (Spacing & Shape) and the prose-leading sample (Typography). Tokens only. */
+.docs-focus-demo {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-2);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  margin: var(--spacing-4);
+}
+.docs-focus-demo[data-inset] {
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.docs-prose-sample {
+  max-width: var(--measure-md);
+  margin: 0 0 var(--spacing-24);
+  color: var(--color-neutral-9);
+}

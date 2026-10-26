@@ -3,10 +3,10 @@ import type { Icon } from '@phosphor-icons/react';
 import type { WithoutStyling } from '../../utils/types';
 
 /**
- * Tones that components.css ships. DESIGN-SYSTEM.md also lists Info, which
- * has no CSS yet: TODO(open-question Q-BADGE-3).
+ * The tones from DESIGN-SYSTEM.md's Badge table. `info` has no CSS in
+ * components.css; it is built from the table (decided 2026-10-26).
  */
-export type BadgeVariant = 'neutral' | 'success' | 'error' | 'warning' | 'selected';
+export type BadgeVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info' | 'selected';
 /** Phosphor weight for the leading icon. */
 export type BadgeIconWeight = 'regular' | 'fill';
 
@@ -19,6 +19,7 @@ export interface BadgeProps extends NativeSpanProps {
    * - `success`: done or healthy (Active, Approved).
    * - `error`: failed or blocked (Failed, Blocked).
    * - `warning`: needs attention soon (Pending, Out of date).
+   * - `info`: neutral information worth noticing (New, Beta).
    * - `selected`: marks the chosen item in a set.
    */
   variant: BadgeVariant;

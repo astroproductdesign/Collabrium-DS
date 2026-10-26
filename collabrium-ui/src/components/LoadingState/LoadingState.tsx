@@ -2,6 +2,7 @@
 
 import { forwardRef, useEffect, useRef, useState, type HTMLAttributes } from 'react';
 import type { WithoutStyling } from '../../utils/types';
+import { formatElapsed } from '../../utils/format-elapsed';
 
 /** Cell shape and motion. Drive and Dots share one 650ms wavefront; Orbit is a single comet (950ms). */
 export type LoadingStateVariant = 'drive' | 'dots' | 'orbit';
@@ -34,13 +35,6 @@ export interface LoadingStateProps extends NativeDivProps {
    * the operation began before this component mounted.
    */
   startedAt?: number;
-}
-
-/** "3.4s", then "1m 5.2s" from a minute up. Built from whole tenths so it never shows "60.0s". */
-function formatElapsed(totalSeconds: number) {
-  const tenths = Math.max(0, Math.round(totalSeconds * 10));
-  if (tenths < 600) return `${(tenths / 10).toFixed(1)}s`;
-  return `${Math.floor(tenths / 600)}m ${((tenths % 600) / 10).toFixed(1)}s`;
 }
 
 /**
@@ -104,7 +98,9 @@ export const LoadingState = forwardRef<HTMLDivElement, LoadingStateProps>(functi
               <span key={i} className="cui-loading-state__cell" data-off={variant === 'orbit' && i === 4 ? '' : undefined} />
             ))}
           </span>
-          <span className="cui-loading-state__label">{label}</span>
+          <span className="cui-loading-state__label" title={label}>
+            {label}
+          </span>
           <span className="cui-loading-state__elapsed" aria-hidden="true" ref={elapsedRef}>
             0.0s
           </span>

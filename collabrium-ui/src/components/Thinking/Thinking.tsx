@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { CaretDown, Check, CircleNotch, Globe, MagnifyingGlass, Sparkle, type Icon } from '@phosphor-icons/react';
 import type { WithoutStyling } from '../../utils/types';
+import { formatDuration, formatElapsed } from '../../utils/format-elapsed';
 
 /**
  * What a row is, chosen by the shape of the data and never by preference:
@@ -66,8 +67,20 @@ interface ThinkingBaseProps extends NativeDivProps {
   status: ThinkingStatus;
   /** The live label while working, set from the variant and updated as phases change: "Thinking", "Searching the web", "Running tools". A status, not a title. */
   workingLabel: string;
-  /** The past-tense label once done, e.g. "Thought for 4 seconds", "Searched the web", "Ran 3 tools". Stays on screen as a record. */
+  /**
+   * The past-tense label once done, e.g. "Thought for 4 seconds", "Searched the web", "Ran 3 tools". Stays on screen as a record.
+   * For a live run, write `{duration}` where the time goes ("Thought for {duration}") and the component fills in the
+   * settled time ("4 seconds") from the timer. A label with no `{duration}` is shown exactly as written.
+   */
   doneLabel: string;
+  /**
+   * When the run really started, in milliseconds since the epoch (`Date.now()`). While `working`, a running timer
+   * counts from here beside the live label; when the run is `done` it stops and its value becomes `{duration}` in
+   * `doneLabel` (Rule 14). Pass the same value you gave Loading State so the clock carries on across the hand-off.
+   * Leave it out and the timer counts from when this component mounted. A trace that first renders as `done`
+   * (a saved conversation) has no timer: write the duration into `doneLabel` yourself.
+   */
+  startedAt?: number;
   /** How many rows are not shown, for a "+7 more" line at the end. The trace summarises a long run; it is never a full log. */
   moreCount?: number;
   /**
@@ -148,6 +161,7 @@ export const Thinking = forwardRef<HTMLDivElement, ThinkingProps>(function Think
     status,
     workingLabel,
     doneLabel,
+    startedAt,
     moreCount,
     defaultExpanded,
     steps = [],
@@ -165,6 +179,10 @@ export const Thinking = forwardRef<HTMLDivElement, ThinkingProps>(function Think
   const [lineHeight, setLineHeight] = useState(0);
   const rowsRef = useRef<HTMLDivElement>(null);
   const traceId = useId();
+  const timerRef = useRef<HTMLSpanElement>(null);
+  const [mountedAt] = useState(() => Date.now());
+  const start = startedAt ?? mountedAt;
+  const [duration, setDuration] = useState<string | null>(null);
 
   const working = status === 'working';
   const expanded = manual ?? working;
@@ -179,6 +197,30 @@ export const Thinking = forwardRef<HTMLDivElement, ThinkingProps>(function Think
     observer.observe(rows);
     return () => observer.disconnect();
   }, []);
+
+  // Rule 14: the timer is computed from the start timestamp on every frame and written straight
+  // to the DOM; when the run settles it stops and its value is kept for the past-tense label.
+  useEffect(() => {
+    if (!working) return;
+    setDuration(null);
+    let frame = 0;
+    let shown = '';
+    const tick = () => {
+      const text = formatElapsed((Date.now() - start) / 1000);
+      if (text !== shown && timerRef.current) {
+        timerRef.current.textContent = text;
+        shown = text;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => {
+      cancelAnimationFrame(frame);
+      setDuration(formatDuration((Date.now() - start) / 1000));
+    };
+  }, [working, start]);
+
+  const settledLabel = duration && doneLabel.includes('{duration}') ? doneLabel.replace('{duration}', duration) : doneLabel.replace(' {duration}', '').replace('{duration}', '');
 
   const lastStep = steps.length - 1;
 
@@ -200,15 +242,17 @@ export const Thinking = forwardRef<HTMLDivElement, ThinkingProps>(function Think
       >
         <Sparkle className="cui-thinking__mark" weight="fill" aria-hidden="true" focusable="false" />
         <span className="cui-thinking__status">
-          <span className="cui-thinking__working" role="status" aria-live="polite">
-            {workingLabel}
-          </span>
-          <span className="cui-thinking__done" role="status" aria-live="polite">
-            {doneLabel}
-          </span>
+          <span className="cui-thinking__working">{workingLabel}</span>
+          <span className="cui-thinking__done">{settledLabel}</span>
         </span>
+        {working && <span className="cui-thinking__timer" aria-hidden="true" ref={timerRef} />}
         <CaretDown className="cui-thinking__chevron" aria-hidden="true" focusable="false" />
       </button>
+
+      {/* The header announces (Rule 19), from outside the button: a button's contents are its name, so a live region inside it is unreliable. */}
+      <span className="cui-thinking__announce" role="status" aria-live="polite">
+        {working ? workingLabel : settledLabel}
+      </span>
 
       {/* inert while closed: the rows are links and buttons, and must not be reachable when hidden. */}
       <div className="cui-thinking__trace" id={traceId} inert={!expanded}>

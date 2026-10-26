@@ -237,6 +237,7 @@ export const rules: DocsRules = {
   do: [
     'Use it for AI work only: model generation, tool execution, agent runs.',
     'Drive the label from real phase changes, not a fixed string.',
+    'Keep the label short, a few words. A label that is too long ends in an ellipsis, with the full text as its tooltip.',
     'Pass `startedAt` when the work began before the component mounted, so the timer is true.',
     'Give the surface that hosts it a Stop, and let the loader occupy the space the result will fill.',
     'Remove it at the first streamed token, and swap to Thinking once named steps appear.',
@@ -257,6 +258,8 @@ export const accessibility: DocsAccessibility = {
     'Only a real label change is announced. The grid and the timer are `aria-hidden`: a figure that changes every 100ms is unusable in a live region.',
     'The label says what is happening, so colour never carries meaning.',
     'It never takes focus. Moving focus to a loader would interrupt the person for decoration.',
+    'In forced-colours mode the grid\'s cells are painted in the system text colour so it stays visible (the colour cycle is lost there, by design).',
+    'A truncated label keeps its full text in the page and as a tooltip, so screen readers read all of it.',
   ],
 };
 

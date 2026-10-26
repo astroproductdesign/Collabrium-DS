@@ -43,7 +43,8 @@ const bezier = v => {
 export function build(vars) {
   const out = {
     color: {}, font: {}, weight: {}, text: {}, tracking: {}, spacing: {}, layout: {},
-    radius: {}, borderWidth: {}, shadow: {}, duration: {}, ease: {}, icon: {},
+    radius: {}, borderWidth: {}, focus: {}, control: {}, measure: {}, leading: {}, shadow: {},
+    duration: {}, stagger: {}, ease: {}, icon: {},
   };
   const used = new Set();
   const take = (name, group, key, value) => { out[group][key] = value; used.add(name); };
@@ -65,7 +66,14 @@ export function build(vars) {
     else if (/^--(card-padding|element-gap|section-gap|page-gutter|content-max-width)$/.test(name)) take(name, 'layout', camel(name.slice(2)), px(v));
     else if ((m = /^--radius-(.+)$/.exec(name))) take(name, 'radius', camel(m[1]), px(v));
     else if ((m = /^--border-width-(.+)$/.exec(name))) take(name, 'borderWidth', camel(m[1]), px(v));
+    else if ((m = /^--focus-ring-(.+)$/.exec(name))) take(name, 'focus', camel(m[1]), m[1] === 'color' ? v : px(v));
+    else if ((m = /^--control-height-(.+)$/.exec(name))) take(name, 'control', camel(`height-${m[1]}`), px(v));
+    else if (name === '--hit-target-min') take(name, 'control', 'hitTargetMin', px(v));
+    else if (name === '--choice-size') take(name, 'control', 'choiceSize', px(v));
+    else if ((m = /^--measure-(.+)$/.exec(name))) take(name, 'measure', camel(m[1]), px(v));
+    else if ((m = /^--leading-(.+)$/.exec(name))) take(name, 'leading', camel(m[1]), Number(v));
     else if ((m = /^--shadow-(.+)$/.exec(name))) take(name, 'shadow', camel(m[1]), v);
+    else if ((m = /^--stagger-(.+)$/.exec(name))) take(name, 'stagger', camel(m[1]), ms(v));
     else if ((m = /^--duration-(.+)$/.exec(name))) take(name, 'duration', camel(m[1]), ms(v));
     else if ((m = /^--ease-(.+)$/.exec(name))) take(name, 'ease', camel(m[1]), bezier(v));
     else if ((m = /^--icon-(.+)$/.exec(name))) take(name, 'icon', camel(m[1]), px(v));

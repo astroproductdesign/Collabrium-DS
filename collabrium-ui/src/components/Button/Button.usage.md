@@ -11,8 +11,8 @@ form, a loading state and the CTA beacon.
 - A toolbar or table row needs a compact action (Ghost, often `iconOnly`, `size="sm"`).
 
 ## Don't use when
-- **It goes to another page or URL.** Use a link, not a button. A Link component isn't converted yet; the DLS "Link" button variant has no CSS (see MIGRATION-LOG Q-BTN-2).
-- **It is destructive** (delete, revoke) and needs the DLS Danger style. Danger isn't built yet (Q-BTN-2). Until then, use Secondary and confirm in a dialog.
+- **It goes to another page or URL.** Use a real link, not a button. The `link` variant is a button that looks like a text link, for in-page actions.
+- **It is destructive but only a step before the commit.** Use Secondary or Ghost for the opening action ("Delete…") and keep Danger for the action that actually commits.
 - **It is a choice between options.** Use Segmented Control, Radio or Chip (not converted yet).
 - **It shows status.** Use Badge or Tag (not converted yet).
 - **You want an element or department colour as the fill.** Never: Obsidian is the only action colour (DLS Component Rule 2).
@@ -21,10 +21,10 @@ form, a loading state and the CTA beacon.
 
 | Name | Options | Default | Description |
 |---|---|---|---|
-| `variant` | `'primary'` \| `'secondary'` \| `'ghost'` | **required** | Emphasis. `primary` = the one main action in a region; `secondary` = actions beside a primary; `ghost` = low-emphasis, toolbar and table-row actions. |
+| `variant` | `'primary'` \| `'secondary'` \| `'ghost'` \| `'danger'` \| `'link'` | **required** | Emphasis. `danger` = a destructive commit (Red fill, white text); `link` = an inline text-level action (underlined, no height or padding; ignores `size`; not available icon-only). `primary` = the one main action in a region; `secondary` = actions beside a primary; `ghost` = low-emphasis, toolbar and table-row actions. |
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | Height 32 / 40 / 48px. `sm` for dense rows and toolbars, `lg` for prominent standalone actions. |
 | `children` | text | — | The label. Short verb phrase ("Save brief"). Not used with `iconOnly`. |
-| `leadingIcon` | a Phosphor icon component, e.g. `Plus` | — | Icon before the label, same colour, sized to the type. |
+| `leadingIcon` | a Phosphor icon component, e.g. `Plus` | — | Icon before the label, same colour, 16px (`icon-sm`) at every size. |
 | `leadingIconWeight` | `'regular'` \| `'fill'` | `'regular'` | `regular` for actions (Tier 1). `fill` only for status icons such as `CheckCircle` (Tier 2). |
 | `trailingArrow` | `'down'` \| `'right'` | — | Arrow after the label pointing to where the next step is. Nods while `beacon` is on. |
 | `iconOnly` | `true` | — | Square button, no visible label. Needs `icon` and `aria-label`. |
@@ -54,12 +54,16 @@ The `ref` is forwarded to the `<button>` element.
    - Light surfaces only (Neutral-1, Neutral-2, canvas-warm, canvas-warm-card).
    - Keep 12px clear around the button so the ring isn't cropped.
 6. **Spacing between buttons** comes from the layout around them, not from the button.
+7. **Danger is for the committing action of a destructive flow** (Delete, Revoke), never the beacon. Hover and pressed darken the red a little more each step. White on Red is about 3.7:1, below AA for 16px text; the DLS specifies it, so it ships.
+8. **Link is text, not a box.** Underlined (3px offset), Neutral-9, 13px bold, no height or padding, so it sits in a line of content. Hover and pressed lighten the text one step each (Neutral-7, then Neutral-5); disabled is Neutral-4 with the underline kept. It has no beacon and no icon-only form.
+9. **Danger and Link states are defined by this library** (the DLS names both and defines no hover, pressed or disabled). Disabled Danger is the same Neutral-4 fill as every button.
 
 ## Accessibility
 - Renders a native `<button type="button">`, so Enter and Space work and it is in the tab order.
 - Focus-visible: 2px Obsidian outline, 2px offset.
+- In forced-colours mode a Primary button gets a 1px edge in the system button-text colour, so it still reads as a button (a background alone is removed there). Ghost stays borderless.
 - Icons are `aria-hidden`. The name comes from the label, or from `aria-label` when `iconOnly`.
-- Disabled uses the native `disabled` attribute, so the button leaves the tab order.
+- Disabled uses the native `disabled` attribute, so the button leaves the tab order. `aria-disabled="true"` (on anything except a loading button) looks the same as disabled but stays focusable.
 - Loading sets `aria-busy="true"` and `aria-disabled="true"`. The button stays focusable and keeps its name; the label is hidden visually with opacity, so screen readers still read it. There is no live region; announce the result of the action, not the spinner.
 - The beacon is purely visual: no live region, no `aria-describedby`, no change to the name.
 
@@ -69,7 +73,7 @@ The `ref` is forwarded to the `<button>` element.
   - The ring and the arrow nod run for 1.4s × 3 cycles = 4.2s, with `ease-standard`, then stop without JavaScript.
   - Hover, focus or press hides the beacon at once, and the component then turns it off.
   - Under `prefers-reduced-motion: reduce`, there is no pulse and no nod. A steady 2px ring shows for the same 4.2s instead.
-- **Loading spinner:** rotates on `duration-ambient` (900ms), linear, the same spinner as Search input. It keeps turning under reduced motion; this is open question Q-BTN-3.
+- **Loading spinner:** rotates on `duration-ambient` (900ms), linear, the same spinner as Search input. It keeps turning under reduced motion, because it is the only sign the work is still running.
 - **Forced colours:** the browser removes the beacon ring and nothing replaces it, on purpose. An outline would read as focus.
 
 ## Example
@@ -100,6 +104,7 @@ export function BriefActions({ saving, onSave }: { saving: boolean; onSave: () =
 |---|---|
 | `.c-btn` | `<Button>` |
 | `.c-btn-primary` / `.c-btn-secondary` / `.c-btn-ghost` | `variant="primary" \| "secondary" \| "ghost"` |
+| `.c-chip-showless` (the Link recipe), Table's Danger Ghost override | `variant="link"`, `variant="danger"` |
 | `.c-btn-sm` / `.c-btn-md` / `.c-btn-lg` | `size="sm" \| "md" \| "lg"` |
 | `.c-btn-icon` + `<i class="ph ph-…">` | `iconOnly icon={…} aria-label="…"` |
 | `<i class="ph ph-plus"></i>` before the label | `leadingIcon={Plus}` |

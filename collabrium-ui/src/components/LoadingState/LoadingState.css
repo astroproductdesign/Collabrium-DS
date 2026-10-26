@@ -23,12 +23,11 @@
 
 .cui-loading-state {
   /*
-    TODO(open-question Q-LOAD-1): no tokens exist for these values. They are
-    copied verbatim from components.css and kept in one place so they can be
-    swapped for tokens if the DLS adds them. The cycle lengths are the DS's
-    own loop cadences (650ms, 950ms, 5s); no motion token is a loop. The two
-    "step" values are the per-cell stagger: every cell's delay in the source
-    is a whole multiple of its variant's step (Drive 90ms, Orbit 110ms).
+    None of these has a token, and none should: they are this component's
+    own pixel-grid geometry and loop timing. The cycle lengths are the DS's
+    own loop cadences (650ms, 950ms, 5s). The two "step" values are the
+    per-cell stagger: every cell's delay in the source is a whole multiple of
+    its variant's step (Drive 90ms, Orbit 110ms), tied to the loop length.
   */
   --cui-loading-state-cell: 4px;
   --cui-loading-state-gap: 1.5px;
@@ -42,6 +41,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-8);
+  max-width: 100%;
   font-family: var(--font-primary);
 }
 
@@ -158,6 +158,12 @@
   font-weight: var(--weight-medium);
   color: var(--color-neutral-9);
   white-space: nowrap;
+  /* A label longer than its space ends in an ellipsis; the full text is the
+     tooltip (title) and is always in the page for screen readers.
+     Decided 2026-10-26. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cui-loading-state__elapsed {
@@ -174,6 +180,23 @@
   label was never animated, and the elapsed timer is script-driven so this
   query leaves it ticking: the one thing left proving the work is running.
 */
+/*
+  Forced colours: the cells are only a background, which the browser removes,
+  so the grid would vanish. Paint them in the system text colour so it stays
+  visible (the colour cycle is lost in this mode, by design). Decided
+  2026-10-26. The keyword is a CSS system colour, not a token, because tokens
+  are overridden in forced-colours mode.
+*/
+@media (forced-colors: active) {
+  .cui-loading-state__cell {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+  .cui-loading-state__grid[data-variant] .cui-loading-state__cell {
+    background-color: CanvasText;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cui-loading-state__grid[data-variant="drive"] .cui-loading-state__cell,
   .cui-loading-state__grid[data-variant="dots"] .cui-loading-state__cell,

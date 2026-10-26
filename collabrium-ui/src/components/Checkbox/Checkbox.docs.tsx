@@ -2,6 +2,7 @@
 // Keep it consistent with Checkbox.usage.md. Not part of the package build.
 import { useState } from 'react';
 import { Checkbox } from './Checkbox';
+import { CheckboxGroup } from './CheckboxGroup';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
 
 export const title = 'Checkbox';
@@ -44,8 +45,9 @@ export const anatomy: DocsAnatomyNode[] = [
         when: 'with a label',
         description: 'Label and optional description stacked.',
         children: [
-          { name: 'Label', element: 'span.cui-checkbox__label', description: 'Body1, weight 500, Neutral-9. Names the input.' },
+          { name: 'Label', element: 'span.cui-checkbox__label', description: 'Body1, weight 500, Neutral-9. Names the input.', children: [{ name: 'Required marker', element: 'span.cui-checkbox__required', when: 'with required', description: 'A Red `*`, 4px after the label text. Hidden from assistive tech.' }] },
           { name: 'Description', element: 'span.cui-checkbox__desc', when: 'with description', description: 'Caption, Neutral-5. Attached to the input with aria-describedby.' },
+          { name: 'Error', element: 'span.cui-checkbox__error', when: 'with error', description: 'Caption, bold, Red. Replaces the description and becomes the input\'s description.' },
         ],
       },
     ],
@@ -74,6 +76,47 @@ function SelectAllExample() {
         />
       ))}
     </div>
+  );
+}
+
+function RequiredErrorExample() {
+  const [accepted, setAccepted] = useState(false);
+  const [submitted, setSubmitted] = useState(true);
+  return (
+    <div className="docs-stack">
+      <Checkbox
+        required
+        label="I accept the terms"
+        description="You need to accept to continue"
+        checked={accepted}
+        onChange={e => {
+          setAccepted(e.target.checked);
+          if (e.target.checked) setSubmitted(false);
+        }}
+        error={submitted && !accepted ? 'Accept the terms to continue' : undefined}
+      />
+    </div>
+  );
+}
+
+function GroupErrorExample() {
+  const options = ['Email', 'SMS', 'Push notification'];
+  const [selected, setSelected] = useState<string[]>([]);
+  return (
+    <CheckboxGroup
+      legend="Notify me by"
+      required
+      error={selected.length === 0 ? 'Choose at least one way to be notified' : undefined}
+    >
+      {options.map(o => (
+        <Checkbox
+          key={o}
+          label={o}
+          checked={selected.includes(o)}
+          onChange={e => setSelected(s => (e.target.checked ? [...s, o] : s.filter(x => x !== o)))}
+        />
+      ))}
+    </CheckboxGroup>
   );
 }
 
@@ -155,6 +198,55 @@ function SelectAll() {
     code: `<Checkbox aria-label="Select Amirah Yusof" />
 <Checkbox aria-label="Select Siti Khadijah" defaultChecked />`,
   },
+  {
+    id: 'required-and-error',
+    title: 'Required and error',
+    description:
+      'A box that must be ticked (a terms box) takes `required`: a Red `*` follows the label. If it is submitted empty, set `error`: the message replaces the helper line in bold Red, and the empty box takes a 1px Red border. Clear `error` when the box is ticked, and move focus to the box yourself.',
+    render: () => <RequiredErrorExample />,
+    code: `<Checkbox
+  required
+  label="I accept the terms"
+  description="You need to accept to continue"
+  checked={accepted}
+  onChange={e => setAccepted(e.target.checked)}
+  error={submitted && !accepted ? 'Accept the terms to continue' : undefined}
+/>`,
+  },
+  {
+    id: 'group',
+    title: 'Checkbox group',
+    description:
+      'A fieldset with a legend names a set of checkboxes. An optional helper sits under the legend, `required` adds a Red `*` after it, and the boxes stack 12px apart.',
+    render: () => (
+      <CheckboxGroup legend="Notify me by" description="Choose at least one" required>
+        <Checkbox label="Email" defaultChecked />
+        <Checkbox label="SMS" />
+        <Checkbox label="Push notification" />
+      </CheckboxGroup>
+    ),
+    code: `<CheckboxGroup legend="Notify me by" description="Choose at least one" required>
+  <Checkbox label="Email" defaultChecked />
+  <Checkbox label="SMS" />
+  <Checkbox label="Push notification" />
+</CheckboxGroup>`,
+  },
+  {
+    id: 'group-error',
+    title: 'Group error',
+    description:
+      'When a required group is submitted empty, set `error` on the group: the message replaces the helper in bold Red and every empty box takes the red border and `aria-invalid`. Move focus to the first box, and clear the error on the first selection.',
+    render: () => <GroupErrorExample />,
+    code: `<CheckboxGroup
+  legend="Notify me by"
+  required
+  error={selected.length === 0 ? 'Choose at least one way to be notified' : undefined}
+>
+  {options.map(o => (
+    <Checkbox key={o} label={o} checked={selected.includes(o)} onChange={…} />
+  ))}
+</CheckboxGroup>`,
+  },
 ];
 
 export const props: DocsProp[] = [
@@ -164,7 +256,15 @@ export const props: DocsProp[] = [
   { name: 'checked / defaultChecked', options: 'boolean', default: 'unchecked', description: 'Controlled or uncontrolled, exactly like a native checkbox.' },
   { name: 'onChange', options: '(event) => void', default: '—', description: 'Called when the user toggles it. Read `event.target.checked`.' },
   { name: 'indeterminate', options: 'boolean', default: 'false', description: 'Partial selection: filled box with a minus. For a select-all box only. Set it from your own state and clear it in `onChange`.' },
+  { name: 'required', options: 'boolean', default: 'false', description: 'Native `required`, plus a Red `*` after the label. Use it for a single box that must be ticked (a terms box). Not for a box inside a group: put `required` on the group.' },
+  { name: 'error', options: 'ReactNode', default: '—', description: 'Error text in bold Red that replaces `description`, puts a 1px Red border on the empty box and sets `aria-invalid`. Clear it when the box is ticked. Labelled checkboxes only.' },
   { name: 'disabled', options: 'boolean', default: 'false', description: '50% opacity, not-allowed cursor, not focusable.' },
+  { name: 'CheckboxGroup: legend', options: 'ReactNode', default: '—', required: true, description: 'The group\'s question ("Notify me by"). Names the `<fieldset>`.' },
+  { name: 'CheckboxGroup: description', options: 'ReactNode', default: '—', description: 'Helper line under the legend (caption, Neutral-5).' },
+  { name: 'CheckboxGroup: error', options: 'ReactNode', default: '—', description: 'Group error in bold Red, replacing the description. Every empty box takes the red border and `aria-invalid`.' },
+  { name: 'CheckboxGroup: required', options: 'boolean', default: 'false', description: 'A Red `*` after the legend. Visual only: a group has no native "required", so enforce it and report it with `error`.' },
+  { name: 'CheckboxGroup: disabled', options: 'boolean', default: 'false', description: 'Disables every checkbox in the group.' },
+  { name: 'CheckboxGroup: children', options: 'ReactNode', default: '—', required: true, description: 'The `Checkbox` components, stacked 12px apart.' },
   { name: 'name, value, required, form, id, aria-*, data-*, …', options: 'native', default: '—', description: 'Passed to the `<input>`. `style` and `className` are not accepted. The ref is forwarded to the `<input>`.' },
 ];
 
@@ -180,6 +280,8 @@ export const rules: DocsRules = {
     'Don\'t use it for a setting that applies the moment it flips. That is a Switch.',
     'Don\'t reuse the 6px box radius anywhere else; it belongs to this compact control only.',
     'Don\'t show a bare box with no name, or an icon alone.',
+    'Don\'t put `required` on every box in a group: put it on the group, and report an empty required group with `error`.',
+    'Don\'t keep an error showing once the box is ticked, or the group has a selection.',
   ],
 };
 
@@ -194,9 +296,13 @@ export const accessibility: DocsAccessibility = {
     'Indeterminate is set on the native input, so assistive tech announces it as mixed.',
     'The label names the input and the description is attached with `aria-describedby`.',
     'The check and the minus mean the state is not carried by colour alone, and it still reads in forced-colours mode.',
+    'A required box has the native `required` attribute; the Red `*` is visual only and hidden from assistive tech.',
+    'An error sets `aria-invalid` on the input and replaces the helper as the input\'s description (it is not described by both). The error is not a live region: move focus to the box when you set it.',
+    'A group is a `<fieldset>` with a `<legend>`, described by its helper or error. A group error also sets `aria-invalid` on each empty box.',
+    'The error is stated in words, not only by the red border and text colour.',
   ],
 };
 
 export const motion: DocsMotion[] = [
-  { interaction: 'Check, uncheck, partly select', motion: 'The box fill and border fade between states. Nothing moves, so there is nothing to remove under reduced motion.', token: '--duration-fast · --ease-standard' },
+  { interaction: 'Hover, press, check, uncheck, partly select', motion: 'The box fill and border fade between states. Nothing moves, so there is nothing to remove under reduced motion.', token: '--duration-fast · --ease-standard' },
 ];

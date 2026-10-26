@@ -16,7 +16,7 @@ steps to show. It is part of AI Native (the second part converted).
 - **Nothing has been named yet, or only one step exists.** Use Loading State.
 - **The run finished inside two seconds.** Use Loading State, even if steps existed.
 - **It is data loading of any kind.** Not AI work: use a spinner or a skeleton (not converted yet).
-- **You are streaming the answer itself.** That is Streaming Text (not converted yet).
+- **You are streaming the answer itself.** That is Streaming Text.
 - **Your data fits none of the four row shapes.** The trace is not ready to be shown.
 
 ## Props
@@ -26,7 +26,8 @@ steps to show. It is part of AI Native (the second part converted).
 | `variant` | `'steps'` \| `'reasoning'` \| `'search'` \| `'coding'` | **required** | What a row is, chosen by the shape of the data. Decides which row prop applies. |
 | `status` | `'working'` \| `'done'` | **required** | `working`: live label with shimmer, trace opens itself. `done`: past-tense label, trace closes itself. |
 | `workingLabel` | text | **required** | "Thinking", "Searching the web", "Running tools". Update it as phases change. |
-| `doneLabel` | text | **required** | "Thought for 4 seconds", "Searched the web", "Ran 3 tools". |
+| `startedAt` | milliseconds since the epoch | mount time | When the run really started (`Date.now()`). A timer counts from here beside the live label; when `done` it stops and becomes `{duration}` in `doneLabel`. Pass the value you gave Loading State. |
+| `doneLabel` | text | **required** | "Thought for 4 seconds", "Searched the web", "Ran 3 tools". For a live run write "Thought for {duration}" and the settled time is filled in. |
 | `steps` | `{ label, detail? }[]` | — | `steps` variant. Append only. The last step spins while working. |
 | `paragraphs` | `string[]` | — | `reasoning` variant. One row each. |
 | `query` | text | — | `search` variant. Shown first. |
@@ -53,7 +54,7 @@ The host (your code) owns the rest:
 8. **Steps append. They never replace, reorder or disappear** (Rule 8).
 9. **Cap the visible rows and summarise the rest** with `moreCount` (Rule 11).
 10. **The variant follows the data** (Rule 12).
-11. **Keep the working label live** (Rule 13) and fold the duration into `doneLabel` (Rules 7 and 14).
+11. **Keep the working label live** (Rule 13). The timer shows from the first frame and becomes the past-tense duration (Rules 7 and 14): pass the run's `startedAt` and write `{duration}` in `doneLabel`. It keeps ticking under reduced motion.
 12. **One per operation, never stacked** (Rule 15). **Never blocks** (Rule 16).
 13. **Never without a Stop, and the Stop stays reachable while the trace is open** (Rule 17).
 14. **It occupies the space the result will fill** (Rule 18).
@@ -61,10 +62,10 @@ The host (your code) owns the rest:
 
 ## Accessibility
 - The header is a real `<button>` with `aria-expanded` and `aria-controls` (pointing at the trace).
-- `role="status"` and `aria-live="polite"` are on the two status labels, so the header announces; rows do not announce one by one.
+- A visually hidden `role="status"` (polite) sits beside the header button, outside it, and announces the live label and then the past-tense label. Rows do not announce one by one.
 - The closed trace is `inert`: its links and buttons cannot be reached or read.
 - Coding rows are toggle buttons (`aria-pressed`); search rows are real links.
-- Focus ring: 2px Obsidian on the header. Rows keep the browser's default focus ring (the DLS defines none for them).
+- Focus ring: 2px Obsidian on the header, and on the links and buttons in the rows (drawn just inside the row so it does not collide with its neighbours).
 - Colour never carries meaning alone: the done state is a different label, and check and spinner are different shapes.
 
 ## Motion
@@ -75,7 +76,7 @@ The host (your code) owns the rest:
 - **Rows:** 4px rise and fade, `duration-slow`, `ease-settle`, staggered 120ms by position.
 - **Working label:** shimmer, 1.4s linear loop. **Done label:** fades in, `duration-slow`. **"+N more":** fades in, `duration-base`.
 - **Spinner:** rotates, `duration-ambient`, linear.
-- **Reduced motion:** no expand, stagger, line growth, shimmer or fades. Rows still appear in order. The spinner stops (the source CSS does this; the DS rule text says it should keep turning: open question Q-THINK-3).
+- **Reduced motion:** no expand, stagger, line growth, shimmer or fades. Rows still appear in order. The spinner on the current step keeps turning: it is the only sign the run is still going.
 
 ## Example
 

@@ -48,6 +48,31 @@ export const colorGroups: ColorGroup[] = [
     ],
   },
   {
+    id: 'status-tints',
+    title: 'Status tints',
+    note: 'fill and 1px border for Badge, Banner, Toast and error states; not the element tints',
+    swatches: [
+      { name: 'Green tint', token: 'greenTint', description: 'Success fill (Green at 12%)' },
+      { name: 'Green tint border', token: 'greenTintBorder', description: 'Success border (Green at 32%)' },
+      { name: 'Red tint', token: 'redTint', description: 'Danger and error fill (Red at 10%)' },
+      { name: 'Red tint border', token: 'redTintBorder', description: 'Danger and error border (Red at 30%)' },
+      { name: 'Amber tint', token: 'amberTint', description: 'Warning fill (Amber at 14%)' },
+      { name: 'Amber tint border', token: 'amberTintBorder', description: 'Warning border (Amber at 38%)' },
+      { name: 'Navy tint', token: 'navyTint', description: 'Info fill (Navy at 10%)' },
+      { name: 'Navy tint border', token: 'navyTintBorder', description: 'Info border (Navy at 28%)' },
+    ],
+  },
+  {
+    id: 'status-text',
+    title: 'Text on status tints',
+    note: 'darkened for contrast; fills, borders and icons keep the full colour',
+    swatches: [
+      { name: 'Green text', token: 'greenText', description: '4.7:1 on its tint, 5.2:1 on white' },
+      { name: 'Amber text', token: 'amberText', description: '4.9:1 on its tint, 5.4:1 on white' },
+      { name: 'Red text', token: 'redText', description: '4.8:1 on its tint, 5.5:1 on white' },
+    ],
+  },
+  {
     id: 'neutrals',
     title: 'Neutrals',
     swatches: [

@@ -27,21 +27,15 @@
 
 .cui-checkbox {
   /*
-    TODO(open-question Q-CHK-1): no tokens exist for these values. They are
-    copied verbatim from components.css and kept in one place so they can
-    be swapped for tokens if the DLS adds them. DESIGN-SYSTEM.md flags the
-    6px radius as "a one-off literal value ... a compact control gets its
-    own smaller radius", and says not to reuse it anywhere else.
+    All four come from tokens now. DESIGN-SYSTEM.md flags the 6px radius as
+    "a one-off literal value ... a compact control gets its own smaller
+    radius" (now --radius-xs, shared with Thinking and Streaming Text).
   */
-  --cui-checkbox-size: 18px;
-  --cui-checkbox-radius: 6px;
-  --cui-checkbox-nudge: 2px;
-  --cui-checkbox-focus-offset: 2px;
-  /*
-    TODO(open-question Q-CHK-2): the source draws the glyph at 12px.
-    DESIGN-SYSTEM.md says icon-micro (14px). Shipped as components.css.
-  */
-  --cui-checkbox-glyph-size: 12px;
+  --cui-checkbox-size: var(--choice-size);
+  --cui-checkbox-radius: var(--radius-xs);
+  --cui-checkbox-nudge: var(--spacing-2);
+  /* The glyph is icon-micro (14px), as DESIGN-SYSTEM.md says. components.css draws it at 12px, so the DLS needs updating (decided 2026-10-26). */
+  --cui-checkbox-glyph-size: var(--icon-micro);
 
   /* position:relative anchors the hidden native input to its own row, so
      clicking the label never scrolls the page to a stray input. */
@@ -121,12 +115,98 @@
 }
 
 /*
+  Hover and pressed. NOT in the source or in DESIGN-SYSTEM.md; added on
+  2026-10-26 on the same ladder as Button: an empty box fills Neutral-2 on
+  hover and Neutral-3 when pressed; a checked or partly selected box goes
+  from Obsidian to Neutral-8 and Neutral-7 (Button Primary's hover and
+  pressed). The whole row is the target, so the box reacts to the row.
+  Disabled rows do not react. Approved 2026-10-26.
+*/
+.cui-checkbox:where(:not([data-disabled])):hover > .cui-checkbox__input:not(:checked, :indeterminate) + .cui-checkbox__box {
+  background: var(--color-neutral-2);
+}
+.cui-checkbox:where(:not([data-disabled])):active > .cui-checkbox__input:not(:checked, :indeterminate) + .cui-checkbox__box {
+  background: var(--color-neutral-3);
+}
+.cui-checkbox:where(:not([data-disabled])):hover > .cui-checkbox__input:is(:checked, :indeterminate) + .cui-checkbox__box {
+  background: var(--color-neutral-8);
+  border-color: var(--color-neutral-8);
+}
+.cui-checkbox:where(:not([data-disabled])):active > .cui-checkbox__input:is(:checked, :indeterminate) + .cui-checkbox__box {
+  background: var(--color-neutral-7);
+  border-color: var(--color-neutral-7);
+}
+
+/*
   Focus. NOT in the source: components.css hides the native input and
   styles no focus state, so a keyboard user sees nothing. Added with the
   system's standard ring (2px Obsidian, 2px offset, the same as Button),
   drawn on the visible box. TODO(open-question Q-CHK-4).
 */
 .cui-checkbox__input:focus-visible + .cui-checkbox__box {
-  outline: var(--border-width-md) solid var(--color-obsidian);
-  outline-offset: var(--cui-checkbox-focus-offset);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/*
+  Required and error. Not in the DLS (it has no checkbox error or required
+  state); designed on 2026-10-26 from Input field and Radio card group and
+  approved the same day:
+    - Required: a red `*` (the AA-safe --color-red-text; the DLS's Input
+      field uses the full Red) after the label text, spacing-4 away, inheriting the
+      label's type (Input field's marker). Visual only; the native `required`
+      is the real signal.
+    - Error: the error text is caption, bold, Red and replaces the helper line
+      (Input field's error text); the empty box takes a 1px Red border (the
+      DS's Input field row; components.css draws 2px, DESIGN-SYSTEM.md says
+      1px, as Radio card group does). A ticked box keeps its Obsidian fill.
+*/
+.cui-checkbox__required,
+.cui-checkbox-group__required {
+  margin-left: var(--spacing-4);
+  color: var(--color-red-text);
+}
+.cui-checkbox__error,
+.cui-checkbox-group__message[data-error] {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-red-text);
+}
+.cui-checkbox[data-error] .cui-checkbox__input:not(:checked, :indeterminate) + .cui-checkbox__box {
+  border-color: var(--color-red);
+}
+
+/*
+  Group: a fieldset with a legend, the Radio card group's anatomy: browser
+  chrome reset, the legend in label1, an optional Red `*`, a caption helper or
+  error spacing-4 under it, and the list spacing-12 below. The boxes are laid
+  out in a column spacing-12 apart.
+*/
+.cui-checkbox-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.cui-checkbox-group__legend {
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-primary);
+  font-size: var(--text-label1-size);
+  line-height: var(--text-label1-lh);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+}
+.cui-checkbox-group__message {
+  margin: var(--spacing-4) 0 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-checkbox-group__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-12);
 }

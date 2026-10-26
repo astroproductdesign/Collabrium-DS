@@ -14,7 +14,7 @@ of AI Native, which has eight parts; this is the first one converted.
 ## Don't use when
 - **It is a data fetch, upload, filter recalculation, page transition or table load.** Use the rotating spinner (sub-second, inside a control) or a skeleton (when the result has a shape). Not converted yet.
 - **The AI has started emitting named steps** (two or more, and two seconds have passed). Swap to Thinking in place (not converted yet).
-- **Text is already streaming.** That is Streaming Text (not converted yet). Remove the loader at the first token.
+- **Text is already streaming.** That is Streaming Text. Remove the loader at the first token.
 - **You would show a second one in the same view.** Show one, for the slowest operation.
 - **You would block the page with it.** Never an overlay or a modal.
 
@@ -36,6 +36,7 @@ The component owns the rules that are local to it:
 3. **The label is announced once, the timer never** (Rule 11).
 4. **Reduced motion freezes the decoration and keeps the timer** (Rule 12).
 5. **It never expands** (Rule 3): no chevron, no click target.
+5a. **A label that is too long ends in an ellipsis**, on one line; the full text is the tooltip and is always in the page for screen readers. Still, keep labels short: the label says what the AI is doing right now, in a few words.
 
 The host (your code) owns the rest:
 6. **AI operations only** (Rule 1).
@@ -52,7 +53,7 @@ The host (your code) owns the rest:
 - The grid and the timer are `aria-hidden`: the timer changes every 100ms, which is unusable in a live region.
 - Not interactive: never focusable, no keyboard behaviour.
 - Colour never carries meaning: the label says what is happening.
-- Forced colours (tested in Chrome): the browser replaces the cells' background with the page background, so the grid disappears and the label and timer remain. The DS has no rule for this yet (open question Q-LOAD-2).
+- Forced colours: the browser removes backgrounds, so the cells are painted in the system text colour (`CanvasText`) to keep the grid visible. The colour cycle is lost in this mode, by design.
 
 ## Motion
 - **Drive and Dots:** each cell pulses opacity (.15 → 1 → .15) on a 650ms loop with `ease-standard`, staggered 90ms per step, so two fronts are always in flight.

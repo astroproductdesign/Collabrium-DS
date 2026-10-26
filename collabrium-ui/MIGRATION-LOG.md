@@ -27,6 +27,8 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 3 | Checkbox | **review** | Converted 2026-10-23. Radio and Switch share its CSS block in the DLS but are separate components, left for their own review. See CHK-1 to CHK-6, Decisions D-17 to D-21 and Open questions Q-CHK-*. |
 | 4 | Loading State (AI Native, 1 of 8) | **review** | Converted 2026-10-23. AI Native has eight parts; the other seven (Chat window, Permission Prompt, Prompt input bar, Streaming Text, Task Rows, Thinking, Tool approval) are not started. See LOAD-1 to LOAD-5, Decisions D-22 to D-26 and Open questions Q-LOAD-*. |
 | 5 | Thinking (AI Native, 2 of 8) | **review** | Converted 2026-10-23. See THINK-1 to THINK-8, Decisions D-27 to D-33 and Open questions Q-THINK-*. Six AI Native parts remain (Chat window, Permission Prompt, Prompt input bar, Streaming Text, Task Rows, Tool approval). |
+| 6 | Streaming Text (AI Native, 3 of 8) | **review** | Converted 2026-10-26. See STREAM-1 to STREAM-8, Decisions D-35 to D-42 and Open questions Q-STREAM-*. Five AI Native parts remain (Chat window, Permission Prompt, Prompt input bar, Task Rows, Tool approval). |
+| 7 | Task Rows (AI Native, 4 of 8) | **review** | Converted 2026-10-26; Stopped state added the same day. See TASK-1 to TASK-8, Decisions D-43 to D-50 and Open questions Q-TASK-*. Four AI Native parts remain (Chat window, Permission Prompt, Prompt input bar, Tool approval). |
 | — | everything else | todo | Not started. |
 
 ---
@@ -223,6 +225,32 @@ None of these is "fixed" in the React port. Visuals follow components.css, and a
 | THINK-6 | Rows have no focus-visible rule (the header has one). Links and buttons fall back to the browser's default focus ring | 5444–5448 | — |
 | THINK-7 | The "+N more" line is only demoed in the Search variant, hidden until the run is done. Rule 11 applies to every variant | gallery 1564 | 1762 |
 | THINK-8 | The timeline line's `-1px` is a correction for the web-font sparkle glyph's visual centre. The React glyph is an SVG; its centre was measured separately (see Q-THINK-1) | 5440 | — |
+
+### Streaming Text (affects the Streaming Text conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| STREAM-1 | Rule 19 puts `aria-busy` "on the message". The gallery puts it on the text `<p>` (`.c-streaming-text`). Shipped as the gallery | gallery 1423 | 1505 |
+| STREAM-2 | The sources button says "10 sources" while the list under it has 3 rows. The count is now the length of `sources` | gallery 1439 | — |
+| STREAM-3 | Rule 21 says "no per-word fade", but no per-word animation exists in the CSS: the gallery appends plain text nodes. Nothing to remove; the cadence is dropped in script | 5556–5560 | 1502 |
+| STREAM-4 | The sources list is hidden with `grid-template-rows:0fr` plus `opacity:0`, so its links stay in the tab order while closed (same as THINK-5) | 5532–5534 | — |
+| STREAM-5 | Rule 18 (a failed stream keeps its text, shows an error and a retry) has no markup, CSS or gallery state | none | 1504 |
+| STREAM-6 | Rules 11 to 13 (tables and code land whole, lists by item) have no markup or CSS. Only prose and citations are built | none | 1480–1481, 1499 |
+| STREAM-7 | The action buttons are Chat window's `.c-chat-action`, "reused verbatim", and the caret and entrance animations are keyframes owned by Prompt input bar and Thinking. None of the three is converted, so the rules and keyframes are copied into StreamingText.css | 5181–5195, 4910, 5414, 5449 | 1468 |
+| STREAM-8 | The gallery's Copy button only swaps its icon and never writes to the clipboard; the thumbs are a fake toggle. Rule 6 gives one cadence number (55ms) and says it is a fallback | gallery 22570–22600 | 1488 |
+
+### Task Rows (affects the Task Rows conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| TASK-1 | Capsules are meant to be 8px apart (`.c-tasks--capsules{gap:8px}`; the DS says "spacing-8 gap"). The gallery markup puts the rows inside a `role="list"` wrapper, so the root's gap never reaches them: the old capsules touch (measured 0px). The gap is applied to the wrapper | 5599, gallery 22782 | 1291 |
+| TASK-2 | The list variant's last row has no bottom border by `.c-tasks-row:last-child`. Every row is the only child of its `role="listitem"` wrapper, so the rule matches every row and the hairlines never show. Applied to the last list item instead. The gallery only demos Capsules | 5610 | 1293 |
+| TASK-3 | Rule 6 (a failure opens itself and takes the open slot) is the only auto-open rule. The gallery also opens the task in progress, and closes it when it completes. Both are built | gallery 22825–22835 | 1546 |
+| TASK-4 | The gallery adds "No retries left." to the spoken state of any failed row without a Retry, including a task that is blocked on the reader. That would say a retry was spent when none was ever offered. Only "Retry available." is spoken | gallery 22734 | 1552 |
+| TASK-5 | A closed row's detail is `grid-template-rows:0fr` plus `opacity:0`, so Retry stays in the tab order while hidden (same as THINK-5) | 5662–5664 | — |
+| TASK-6 | The head repeats the label, count and pill in a hidden phrase inside the same button, so a screen reader reads each twice. The visible copies are hidden from assistive tech instead | gallery 22744–22748 | 1552 |
+| TASK-7 | The demo never reaches Rule 7's "exactly one in progress": at 3.4s the second task completes while the third is still `pending`, so for 1.2s nothing is in progress. The docs example starts the third task at that point | gallery 22826 | 1556 |
+| TASK-8 | (Rule defined in D-51.) Below about 290px wide the label shrinks to nothing and the first row's chevron is clipped: the count, pill and chevron cannot shrink and only the label can. The DS gives 440px for a reason (five slots) but no narrow rule | 5607–5648 | 1555 |
 
 ### Tokens and global
 
@@ -445,6 +473,25 @@ Grouped by component. Line numbers are CSS / DS.
 | D-32 | Row entrance stagger is position × 120ms through `--cui-thinking-row-index` | The gallery writes `animation-delay` 0, 120, 240, 360ms by hand on each row. Same values for the first four rows |
 | D-33 | The spinner keyframe is copied into Thinking.css as `cui-thinking-spin` | Search input (which owns `c-search-input-spin`) is not converted. Share one keyframe when it is |
 | D-34 | Docs site only: AI Native's parts are grouped under one sidebar item with an overview page and a page per part (`components/ai-native/<part>`). A docs file opts in with `export const group = 'AI Native'`. The package's exports stay flat (`LoadingState`, `Thinking`) | The DLS lists AI Native as one nav entry and says not to give a part its own nav-child. Keeps pages short as the other six parts arrive, and the sidebar at two levels like the DLS |
+| D-35 | Props are `content` (an append-only array of strings and `{ citation }`) and a required `status` (`streaming`, `done`, `stopped`). The component splits prose into words itself | Rules 5, 6, 14: the host hands over whatever its stream delivers, and citations are tokens in position. The gallery's hard-coded token list and `count` become props |
+| D-36 | A final word that has nothing after it yet is held back while streaming. The buffer releases one word per tick: 55ms, 35ms when more than 12 words are waiting, 20ms when more than 24 | A word can arrive in two chunks. Only the 55ms is in the DLS (Rule 6 says draining faster is right but gives no numbers). Flagged Q-STREAM-2 |
+| D-37 | A message that first renders as `done` or `stopped` is whole and has no entrance animation (`[data-live]` is off). Once settled it stays settled: a later `streaming` is ignored | Rules 2, 4 and 22. The gallery only ever plays from an empty start |
+| D-38 | The action row, sources list and follow-ups are not rendered until the message settles (the source toggles `hidden`). On `stopped` the row and the list appear, the follow-ups never do | Rules 15 to 17. Removing them is stronger than `hidden`'s intent and gives the entrance animation for free |
+| D-39 | Copy writes the visible text to the clipboard (a citation counts as its domain) and is named "Copied" for 1.6 seconds. Retry and the thumbs exist only when `onRetry` / `onFeedback` is passed. The sources button exists only when `sources` has items | STREAM-8: the gallery's buttons are fakes. A button that does nothing is worse than none. Flagged Q-STREAM-4 |
+| D-40 | Settling announces "Response ready." or "Response stopped." through one visually hidden `role="status"`, and only for a message that streamed live | Rule 19 and the gallery. Silent on mount for a saved message |
+| D-41 | The icon buttons, the caret keyframe and the fade and rise keyframes are copied into StreamingText.css as `cui-streaming-*` | STREAM-7. Share them when Chat window, Prompt input bar and Thinking can |
+| D-42 | Docs site only: the live example feeds text from a timer in uneven pieces, with Stop and Replay | A model is not available to the docs. The page says this is a demo stand-in (Rule 2) |
+| D-43 | Props are `tasks` (an array of `{ label, count, status, steps, reason?, retryable? }`) and an optional `onRetry(index)`. `variant` defaults to `capsules` | The five statuses, the steps and the failure block become data, so Rules 7 and 8 (one in progress, append only) are the host's data and cannot be broken by markup. The DS calls Capsules "the default" |
+| D-44 | The component caps itself at six rows and counts the rest ("+N more") | Rule 4. Unlike Thinking, the host passes everything and cannot forget the cap |
+| D-45 | One row open at a time, opened by the run (the newest failure, else the task now in progress, closed when it completes), and the reader's first click wins for that instance. A list that first renders settled opens its failure, else its task in progress | Rules 5 and 6, and TASK-3 (the gallery's behaviour). Same contract as Thinking's D-28 |
+| D-46 | Retry shows only on a `failed` task with `retryable` and an `onRetry`, and after one press the button is gone, whatever the host does next | Rules 10 and 11 as a shape: no counter, never disabled |
+| D-47 | The component announces: a new failure ("<task> failed. Retry available." or "…Details are in the conversation."), Retry pressed ("Retrying <task>."), a retried task completing, and the end of the run ("All N tasks completed." or "Run finished. X of N tasks completed."). It does not call a run finished while a failure still waits on its one retry. Silent on mount | Rule 17 and the gallery. The "details are in the conversation" wording is mine (Q-TASK-3) |
+| D-48 | The Badge pills are the real Badge, Retry is the real Button (Secondary, small), the status discs are copied from Stepper's `.c-step-indicator` into TaskRows.css | The DS says to reuse Badge and Button verbatim. Stepper is not converted, so its three discs are copied (same as D-41's approach) |
+| D-49 | The 6 capsule gap and the list variant's last-row rule follow the CSS's evident intent, not the gallery markup | TASK-1 and TASK-2. Flagged Q-TASK-2. The capsules sit 16px taller in total than the old demo |
+| D-50 | Docs site only: the live example moves the tasks along on a timer, with Replay | No agent is available to the docs. Starts the third task when the second completes (TASK-7) |
+| D-51 | Narrow rule: a container query on the component's own width. Below 400px the count moves under the name, the name may wrap to two lines, and the pill and chevron keep their slots. Nothing is dropped | TASK-8: the DLS has no narrow rule and the name was shrinking to nothing below about 290px. Chosen over hiding the pill or count because both carry information. Q-TASK-6 answered by defining it; the DLS should adopt or replace it |
+| D-52 | Consolidated values (decided 2026-10-26, from the token proposal): row staggers 80ms and 120ms; widths 360 / 420 / 440px; prose line height 1.65. Applied as local custom properties now, ready to become tokens when the DLS adds them. Loading State's cell steps (90ms drive, 110ms orbit) are left alone: they are multiples that fit its 650ms and 950ms loops, so moving them would change the wave | The proposal listed Loading State's 90ms among the staggers; on inspection it is part of the loop geometry, not a row entrance |
+| D-53 | Tokens added to the DLS tokens.css, DESIGN-SYSTEM.md, preview.html (gallery tables, the CSS Variables, Tailwind and JSON tabs, and the embedded DESIGN.md) and copied here (2026-10-26). Every local custom property that now has a token uses it (focus ring, control heights, tints, spacing 2/6, radius-xs, staggers, measures, prose leading, pulse and blink, icon-xs); the rest are documented as one-off. Verified by computed-style snapshots of 1,153 elements across all seven components: no difference before and after the swap. `--color-red-text` (#D4001A, 4.8:1 on its tint) is then used for red text (Badge Error, Checkbox required and error, Thinking deletions) | The user asked for tokens to be added and everything impacted updated |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -462,56 +509,85 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 
 | ID | Question | Where |
 |---|---|---|
-| Q-BTN-1 | Should the DLS add tokens for control heights (32/40/48), the 6px icon gap, the 14/16px button type sizes and the 2px focus offset? They are local custom properties until then | `Button.css` top |
-| Q-BTN-2 | Danger and Link variants: what are hover, active, focus and disabled? Is white on Red (≈3.6:1) acceptable for Danger? | not built |
-| Q-BTN-3 | Loading: spinner size (icon-sm assumed), whether hover and press still change the fill while loading, and whether the spinner keeps turning under reduced motion (Thinking Rule 20 says spinners keep turning) | `Button.css` Loading |
-| Q-BTN-4 | Disabled Secondary and Ghost: keep the shipped one-rule look, or adopt the DS table (BTN-2)? | `Button.css` Disabled |
-| Q-BTN-5 | Secondary and Ghost pressed: keep the shipped hover-equals-pressed look, or add the DS's Neutral-3 (BTN-3)? | `Button.css` variants |
-| Q-BTN-6 | Icon size: keep the inherited 14px at sm (shipped), or the DS's icon-sm 16px everywhere (BTN-5)? | `Button.css` icons |
-| Q-BTN-7 | Should `aria-disabled` get a shared base style (BTN-7)? | — |
-| Q-BTN-8 | In forced-colours mode, Primary and Ghost buttons show no outline (no border in the source), so they read as plain text. Shipped the same way; should they get a forced-colours border? | `Button.css` |
+| Q-BTN-1 | Should the DLS add tokens for control heights (32/40/48), the 6px icon gap, the 14/16px button type sizes and the 2px focus offset? They are local custom properties until then **Answered 2026-10-26: heights, the icon gap, the focus offset and the beacon cycle are tokens now; the 14px and 16px label sizes stay local.** | `Button.css` top |
+| Q-BTN-2 | Danger and Link variants: what are hover, active, focus and disabled? Is white on Red (≈3.6:1) acceptable for Danger? **Answered 2026-10-26: build Danger and Link from the similar states; to be shown for approval.** **Built and approved 2026-10-26: Danger and Link, states designed from the similar variants. See Q-BTN-9.** | not built |
+| Q-BTN-3 | Loading: spinner size (icon-sm assumed), whether hover and press still change the fill while loading, and whether the spinner keeps turning under reduced motion (Thinking Rule 20 says spinners keep turning) **Answered 2026-10-26: the spinner keeps turning under reduced motion (built). Other loading details still open.** | `Button.css` Loading |
+| Q-BTN-4 | Disabled Secondary and Ghost: keep the shipped one-rule look, or adopt the DS table (BTN-2)? **Answered 2026-10-26: keep the shipped one-rule disabled look; the DLS text is to be corrected.** | `Button.css` Disabled |
+| Q-BTN-5 | Secondary and Ghost pressed: keep the shipped hover-equals-pressed look, or add the DS's Neutral-3 (BTN-3)? **Answered 2026-10-26: keep hover-equals-pressed; the DLS text is to be corrected.** | `Button.css` variants |
+| Q-BTN-6 | Icon size: keep the inherited 14px at sm (shipped), or the DS's icon-sm 16px everywhere (BTN-5)? **Answered 2026-10-26: icon-sm (16px) at every size, following the token (built).** | `Button.css` icons |
+| Q-BTN-7 | Should `aria-disabled` get a shared base style (BTN-7)? **Answered 2026-10-26: yes. `aria-disabled="true"` (except while loading) looks disabled (built).** | — |
+| Q-BTN-8 | In forced-colours mode, Primary and Ghost buttons show no outline (no border in the source), so they read as plain text. Shipped the same way; should they get a forced-colours border? **Pending: see review-drafts/review-2026-10-26.html, decision A1.** **Answered 2026-10-26: add a forced-colours edge to Primary (built). Ghost stays borderless; the edge only shows in forced colours.** | `Button.css` |
+| Q-BTN-9 | Review Danger and Link (designed here): Danger hover and pressed are Red mixed 12% and 22% toward Neutral-9 (no darker-red token); Link hover Neutral-7, pressed Neutral-5, disabled Neutral-4 with underline kept, square focus ring. White on Red is about 3.7:1, below AA for 16px: darker Danger red? **Approved 2026-10-26: Danger and Link as built, including white on Red as the DLS specifies and Link's square focus ring.** | `Button.css` |
 
 ### Badge
 
 | ID | Question | Where |
 |---|---|---|
-| Q-BADGE-1 | Should the DLS add tokens for the 2px vertical padding and the tinted fills and borders (Green 12/32%, Red 10/30%, Amber 14/38%)? Local custom properties until then | `Badge.css` top |
-| Q-BADGE-2 | Height: keep the shipped 20px (inherited line-height), or set the DS's 22px (BADGE-2)? | `Badge.css` header |
-| Q-BADGE-3 | Info variant: add the CSS from the DS table (Water at 10% fill, Water text, Water at 28% border)? Not built until then (BADGE-4) | `Badge.tsx` `BadgeVariant` |
-| Q-BADGE-4 | Icon size: keep the inherited 11px (shipped), or the DS's icon-micro 14px (BADGE-5)? | `Badge.css` icon |
-| Q-BADGE-5 | Contrast: adopt the DS's darker Success (and Warning) text colours, and what should Error text be to pass AA (BADGE-1, BADGE-6)? | `Badge.css` variants |
-| Q-BADGE-6 | Type size: label3 11px (shipped) or caption 12px (DS) (BADGE-3)? | `Badge.css` base |
+| Q-BADGE-1 | Should the DLS add tokens for the 2px vertical padding and the tinted fills and borders (Green 12/32%, Red 10/30%, Amber 14/38%)? Local custom properties until then **Answered 2026-10-26: the tints and text colours are tokens now.** | `Badge.css` top |
+| Q-BADGE-2 | Height: keep the shipped 20px (inherited line-height), or set the DS's 22px (BADGE-2)? **Answered 2026-10-26: follow the DLS, 22px (built).** | `Badge.css` header |
+| Q-BADGE-3 | Info variant: add the CSS from the DS table (Water at 10% fill, Water text, Water at 28% border)? Not built until then (BADGE-4) **Answered 2026-10-26: build Info from the DLS table (built).** | `Badge.tsx` `BadgeVariant` |
+| Q-BADGE-4 | Icon size: keep the inherited 11px (shipped), or the DS's icon-micro 14px (BADGE-5)? **Answered 2026-10-26: follow the DLS, icon-micro 14px (built).** | `Badge.css` icon |
+| Q-BADGE-5 | Contrast: adopt the DS's darker Success (and Warning) text colours, and what should Error text be to pass AA (BADGE-1, BADGE-6)? **Partly answered 2026-10-26: Success and Warning now use the DLS's darker text (built). Error text still has no fix; needs a colour.** **Answered 2026-10-26: keep Error text as shipped. Don't ask again.** **Superseded 2026-10-26: Error text now uses the new `--color-red-text` (4.8:1 on its tint).** | `Badge.css` variants |
+| Q-BADGE-6 | Type size: label3 11px (shipped) or caption 12px (DS) (BADGE-3)? **Answered 2026-10-26: follow the DLS, caption 12px (built).** | `Badge.css` base |
+| Q-BADGE-7 | Neutral text: components.css has Neutral-9, DESIGN-SYSTEM.md says Neutral-5 (BADGE-1). Kept Neutral-9. Which one? **Answered 2026-10-26: keep Neutral-9. Don't ask again.** | `Badge.css` variants |
 
 ### Checkbox
 
 | ID | Question | Where |
 |---|---|---|
-| Q-CHK-1 | Should the DLS add tokens for the 18px box, the 6px radius (DS calls it a one-off), the 2px top nudge and the 2px focus offset? Local custom properties until then | `Checkbox.css` top |
-| Q-CHK-2 | Glyph size: keep the shipped 12px, or the DS's icon-micro 14px (CHK-1)? | `Checkbox.css` top |
-| Q-CHK-3 | Hover and pressed: none in CSS or DS (CHK-3). Keep none, or add Neutral-2 / Neutral-3 like Button Ghost? | `Checkbox.css` |
+| Q-CHK-1 | Should the DLS add tokens for the 18px box, the 6px radius (DS calls it a one-off), the 2px top nudge and the 2px focus offset? Local custom properties until then **Answered 2026-10-26: the box size, radius, nudge and focus offset are tokens now.** | `Checkbox.css` top |
+| Q-CHK-2 | Glyph size: keep the shipped 12px, or the DS's icon-micro 14px (CHK-1)? **Answered 2026-10-26: follow the DLS, icon-micro 14px (built).** | `Checkbox.css` top |
+| Q-CHK-3 | Hover and pressed: none in CSS or DS (CHK-3). Keep none, or add Neutral-2 / Neutral-3 like Button Ghost? **Answered 2026-10-26: add hover and pressed states (built and approved 2026-10-26: Neutral-2 / Neutral-3 for an empty box, Neutral-8 / Neutral-7 for a checked one).** | `Checkbox.css` |
 | Q-CHK-4 | Focus ring on the box (D-19, CHK-2): confirm the standard 2px Obsidian ring, or specify another | `Checkbox.css` Focus |
-| Q-CHK-5 | Error / required state and a checkbox group (fieldset + legend, group error): not in the DLS. Needed? | not built |
+| Q-CHK-5 | Error / required state and a checkbox group (fieldset + legend, group error): not in the DLS. Needed? **Answered 2026-10-26: build error, required and group; to be shown for approval.** **Built and approved 2026-10-26: `required`, `error` and `CheckboxGroup`. See Q-CHK-7.** | not built |
 | Q-CHK-6 | The 2px top nudge is always on. When Dropdown, Lists, Table and Card are converted, how should an embedded Checkbox drop it (CHK-6)? | `Checkbox.css` |
+| Q-CHK-7 | Review Checkbox required, error and group (designed here from Input field and Radio card group): Red `*` after the label or legend, bold Red error replacing the helper, 1px Red border on empty boxes (the DLS says 1px in text and 2px in CSS), fieldset with legend, boxes 12px apart **Approved 2026-10-26: required, error and group as built.** | `Checkbox.css`, `CheckboxGroup.tsx` |
 
 ### Loading State
 
 | ID | Question | Where |
 |---|---|---|
-| Q-LOAD-1 | Should the DLS add tokens for the 4px cell, 1.5px gap, 1px cell radius, and the loop cadences (650ms, 950ms, 5s) and cell staggers (90ms, 110ms)? Local custom properties until then. No motion token is a loop | `LoadingState.css` top |
-| Q-LOAD-2 | Forced colours (LOAD-5): the grid vanishes and only the label and timer show. Leave it, or add a rule (for example cell colour from `CanvasText`) so the grid stays visible? | `LoadingState.css` |
+| Q-LOAD-1 | Should the DLS add tokens for the 4px cell, 1.5px gap, 1px cell radius, and the loop cadences (650ms, 950ms, 5s) and cell staggers (90ms, 110ms)? Local custom properties until then. No motion token is a loop **Answered 2026-10-26: none of these gets a token (the component's own pixel geometry and loop timing).** | `LoadingState.css` top |
+| Q-LOAD-2 | Forced colours (LOAD-5): the grid vanishes and only the label and timer show. Leave it, or add a rule (for example cell colour from `CanvasText`) so the grid stays visible? **Pending: see review draft, decision A2.** **Answered 2026-10-26: keep the grid visible in forced colours (built).** | `LoadingState.css` |
 | Q-LOAD-3 | Should the component own the 400ms hold-back (D-22), or leave it to the host? | `LoadingState.tsx` |
-| Q-LOAD-4 | A long label never wraps or truncates (`nowrap`). Is there a maximum length or an ellipsis rule? The DS is silent | `LoadingState.css` label |
+| Q-LOAD-4 | A long label never wraps or truncates (`nowrap`). Is there a maximum length or an ellipsis rule? The DS is silent **Pending: see review draft, decision D1.** **Answered 2026-10-26: ellipsis, full label as the tooltip and for screen readers (built).** | `LoadingState.css` label |
 
 ### Thinking
 
 | ID | Question | Where |
 |---|---|---|
-| Q-THINK-1 | Should the DLS add tokens for the 380px width, 176px active height, 6px hit-target padding, 28px / 26px row heights, 6px row radius, 11px diff size and the 1.4s shimmer / 120ms stagger? Local custom properties until then. Also: does the timeline line still centre under the SVG sparkle (the `-1px`, THINK-8)? | `Thinking.css` top |
-| Q-THINK-2 | Rule 14's timer (THINK-1): should the header show a running timer? It needs anatomy and CSS. Until then the host folds the duration into `doneLabel` | `Thinking.tsx` |
-| Q-THINK-3 | Reduced motion: should the spinner keep turning (Rule 20 text) or stop (the CSS)? Shipped as the CSS (THINK-2) | `Thinking.css` reduced motion |
-| Q-THINK-4 | Live region: keep it on the status spans inside the button as the gallery has it, or move it outside the button (THINK-4)? | `Thinking.tsx` header |
-| Q-THINK-5 | Confirm the closed trace is `inert` (D-29), and that rows keep the browser's default focus ring (THINK-6) rather than the Obsidian ring | `Thinking.tsx`, `Thinking.css` |
-| Q-THINK-6 | "+N more" fades in "once every rendered row has settled" (Rule 11 / anatomy). It shows as soon as `moreCount` is given; should the component wait for the rows' entrance to finish (THINK-7)? | `Thinking.tsx` |
+| Q-THINK-1 | Should the DLS add tokens for the 380px width, 176px active height, 6px hit-target padding, 28px / 26px row heights, 6px row radius, 11px diff size and the 1.4s shimmer / 120ms stagger? Local custom properties until then. Also: does the timeline line still centre under the SVG sparkle (the `-1px`, THINK-8)? **Answered 2026-10-26: tokens added where they fit; the rest stay local.** | `Thinking.css` top |
+| Q-THINK-2 | Rule 14's timer (THINK-1): should the header show a running timer? It needs anatomy and CSS. Until then the host folds the duration into `doneLabel` **Answered 2026-10-26: build the timer from the rule; to be shown for approval.** **Built and approved 2026-10-26. See Q-THINK-7.** | `Thinking.tsx` |
+| Q-THINK-3 | Reduced motion: should the spinner keep turning (Rule 20 text) or stop (the CSS)? Shipped as the CSS (THINK-2) **Answered 2026-10-26: the spinner keeps turning under reduced motion (built).** | `Thinking.css` reduced motion |
+| Q-THINK-4 | Live region: keep it on the status spans inside the button as the gallery has it, or move it outside the button (THINK-4)? **Pending: see review draft, decision A3.** **Answered 2026-10-26: the announcement moved outside the button (built).** | `Thinking.tsx` header |
+| Q-THINK-5 | Confirm the closed trace is `inert` (D-29), and that rows keep the browser's default focus ring (THINK-6) rather than the Obsidian ring **Pending: see review draft, decisions A4 and A5.** **Answered 2026-10-26: keep inert; rows take the Obsidian focus ring (built).** | `Thinking.tsx`, `Thinking.css` |
+| Q-THINK-6 | "+N more" fades in "once every rendered row has settled" (Rule 11 / anatomy). It shows as soon as `moreCount` is given; should the component wait for the rows' entrance to finish (THINK-7)? **Answered 2026-10-26: keep: "+N more" shows as soon as the count is given.** | `Thinking.tsx` |
+| Q-THINK-7 | Review the Thinking timer (designed here): caption, Neutral-5, between the label and the chevron; becomes `{duration}` in the done label; ticks under reduced motion **Approved 2026-10-26: the timer as built.** | `Thinking.tsx`, `Thinking.css` |
+
+### Streaming Text
+
+| ID | Question | Where |
+|---|---|---|
+| Q-STREAM-1 | Should the DLS add tokens for the 420px width, 1.65 line height, caret, chip and avatar sizes, 28px action button and 90ms follow-up stagger? Local custom properties until then **Answered 2026-10-26: tokens added where they fit; the rest stay local.** | `StreamingText.css` top |
+| Q-STREAM-2 | Rule 6's cadence: is 55ms the only number, or should the faster steps (35ms over 12 words, 20ms over 24) be specified? Mine for now (D-36) **Answered 2026-10-26: keep the 35ms and 20ms steps as shipped.** | `StreamingText.tsx` |
+| Q-STREAM-3 | Failed stream (Rule 18) and structured content (Rules 11 to 13) have no markup or CSS (STREAM-5, STREAM-6). What should an error and its retry look like, and how do a list, a table and a code block render? Not built **Answered 2026-10-26: leave failed streams and structured content out for now; ask the DLS owner for the visuals and add them in a later round.** **Failed stream built and approved 2026-10-26. Tables, code and lists (Rules 11 to 13) are still not built.** | `StreamingText.tsx` |
+| Q-STREAM-4 | Copy: confirm it writes to the clipboard, is named "Copied" while its check shows, and copies a citation as its domain. Retry and the thumbs only appear when the host passes a handler (D-39) **Answered 2026-10-26: keep. Copy writes to the clipboard; Retry, the thumbs and the sources button appear only when wired.** | `StreamingText.tsx` |
+| Q-STREAM-5 | Rule 7 (under about 12 words, reveal whole) conflicts with Rule 3 (begin at the first token): a short answer cannot be known to be short until it ends. Shipped: words stream as they arrive, and a finished answer under 12 words flushes at once **Answered 2026-10-26: keep. Words stream as they arrive; a finished answer under 12 words fills in at once.** | `StreamingText.tsx` |
+| Q-STREAM-6 | Source avatars take a colour from the host (the gallery hard-codes brand hex values inline). The default when none is given is Neutral-7. Should the DLS define one? Also: the reduced-motion cadence is read from the OS setting, so the docs site's Reduce motion toggle (which only mirrors CSS) does not affect it **Answered 2026-10-26: keep the host-supplied avatar colour with a Neutral-7 default (the reduced-motion toggle note stays open).** | `StreamingText.css`, `StreamingText.tsx` |
+| Q-STREAM-7 | Review the failed stream (designed here): red WarningCircle glyph, "Couldn't finish this response" in Neutral-5, Retry beside it, actions kept, no follow-ups; announces "Response failed. Retry available." **Approved 2026-10-26: the failed stream as built.** | `StreamingText.tsx`, `StreamingText.css` |
+
+### Task Rows
+
+| ID | Question | Where |
+|---|---|---|
+| Q-TASK-1 | Should the DLS add tokens for the 440px width, 196px capsules height, 44px head, 24px disc, 28% arc and the 80ms / 100ms staggers? Local custom properties until then **Answered 2026-10-26: tokens added where they fit; the rest stay local.** | `TaskRows.css` top |
+| Q-TASK-2 | Confirm the 8px gap between capsules and the list's hairlines, which the gallery's markup does not produce (TASK-1, TASK-2, D-49). Or should the DLS fix its markup instead? **Answered 2026-10-26: keep the 8px gap and the list hairlines (D-49).** | `TaskRows.css` |
+| Q-TASK-3 | Rule 17's wording: a needs-input failure announces "that it failed, and that the ask is in the conversation". The component cannot tell that cause from an unresolvable one (both look the same on the row), so both say "Details are in the conversation." Confirm the wording and that the component should announce the end of the run **Answered 2026-10-26: keep the wording and the end-of-run announcement (D-47).** | `TaskRows.tsx` |
+| Q-TASK-4 | Should the active task open itself, and close when it completes (TASK-3), or only a failure (the written Rule 6)? Built as the gallery **Answered 2026-10-26: keep the gallery's behaviour (the task in progress opens, then closes when it completes).** | `TaskRows.tsx` |
+| Q-TASK-5 | Confirm the closed detail is `inert` (TASK-5), and that the spoken state drops "No retries left." (TASK-4) and hides the visible copies from assistive tech (TASK-6) **Answered 2026-10-26: keep the inert closed detail, the dropped "No retries left." and the hidden duplicate text.** | `TaskRows.tsx` |
+| Q-TASK-6 | Narrow screens (TASK-8): should the count or the pill give way before the label does, and what is the minimum width? **Answered 2026-10-26: define a rule. Built: below 400px of the component's own width the count moves under the name and the name may take two lines; the pill and chevron keep their slots (D-51). The DLS should adopt or replace it.** | `TaskRows.css` |
+| Q-TASK-7 | The gallery has no Stopped state and no demo of the list variant or of "+N more" (the CSS exists). Should the DLS add them? **Answered 2026-10-26: build the Stopped state; list demo exists in the docs.** **Built and approved 2026-10-26: the `stopped` status. See Q-TASK-8.** | gallery |
+| Q-TASK-8 | Review the Stopped state (designed here): neutral "Stopped" pill, plain number disc, no ring, no Retry; every unfinished task stops together; announces "Run stopped. X of N tasks completed." **Approved 2026-10-26: the Stopped state as built.** | `TaskRows.tsx` |
 
 ### Global
 
@@ -531,3 +607,39 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-CHART-4 | Chart animation duration and easing (none specified); reduced motion currently turns animation off |
 | Q-CHART-5 | Area wash: `-bg` tint or 88% transparent mix (TOK-2)? |
 | Q-CHART-6 | Not specified: horizontal bar thickness (20) needs the chart's orientation, so it can't be a global default. Doughnut cutout, interaction mode and number formats are also not specified |
+
+---
+
+## 7. DLS updates owed
+
+Every place where the React library now follows a decision that differs from the DLS. Once the DLS is updated (or retired), tick it off here. Nothing in the DLS has been changed by this repo.
+
+| # | Change the DLS needs | DLS location | Decided |
+|---|---|---|---|
+| 1 | Reduced motion: let the Thinking row spinner keep turning (remove `animation:none` on `.c-thinking-row-icon.is-spin`) | components.css 5477 | 2026-10-26 |
+| 2 | Reduced motion: let the Task Rows "Retrying" arrow keep turning (remove `.c-tasks-head .c-badge i.is-spin{animation:none}`) | components.css 5706 | 2026-10-26 |
+| 3 | Button icons are `icon-sm` (16px) at every size: add a rule (`.c-btn i`) | components.css 31–34 | 2026-10-26 |
+| 4 | Button `[aria-disabled="true"]` looks disabled (shared base rule, not patched locally) | components.css 46, 2222, 3458 | 2026-10-26 |
+| 5 | Button disabled (Secondary, Ghost) and pressed (Secondary, Ghost): correct the DESIGN-SYSTEM.md text to what the CSS does | DESIGN-SYSTEM.md 2364, 2366 | 2026-10-26 |
+| 6 | Badge: add `height:22px`, caption (12px) type, `icon-micro` icons, darker Success and Warning text (`#00854c`, `#9a5c00`), and `.c-badge-info` | components.css 1641–1646 | 2026-10-26 (done in the DLS 2026-10-26, v0.9.126) |
+| 7 | Checkbox: glyph 14px; add hover and pressed states | components.css 3077–3088 | 2026-10-26 |
+| 8 | Task Rows: apply the capsule gap to the `role="list"` wrapper (or drop it from the root); fix the list variant's `:last-child` rule; add the narrow-width rule (below 400px of its own width); `min-width:0` on the root; closed detail `inert`; hide the duplicated head text from assistive tech; drop "No retries left."; capsule floor and gaps (decisions D-45 to D-51) | components.css 5599–5610, preview.html 22725–22790 | 2026-10-26 |
+| 9 | Streaming Text: Copy writes the clipboard, buttons only when wired, sources button count from the list (D-35 to D-42) | preview.html 22402–22600 | 2026-10-26 |
+| 10 | Button: Primary gets a 1px system-colour edge in forced colours (outline, negative offset) | components.css after 46 | 2026-10-26 |
+| 11 | Loading State: cells painted `CanvasText` in forced colours; label ends in an ellipsis with the full text as `title` | components.css 5274–5375 | 2026-10-26 |
+| 12 | Thinking: row focus ring (Obsidian, 2px, inside the row); live region moved outside the header button; running timer in the header that becomes `{duration}` in the past-tense label; closed trace `inert` | components.css 5377–5478, preview.html 22627–22680 | 2026-10-26 |
+| 13 | Badge: DESIGN-SYSTEM.md's Neutral text (Neutral-5) and Error text colour differ from the shipped Neutral-9 and full Red; the DLS text should say what the CSS does | DESIGN-SYSTEM.md 2286–2290 | 2026-10-26 |
+| 14 | Button: add `danger` and `link` variants with their hover, pressed, disabled and focus states (designed here; approved 2026-10-26) | components.css after 41 | 2026-10-26 |
+| 15 | Thinking: header timer markup and CSS (Rule 14 has no design); `{duration}` in the done label | components.css 5377–5478 | 2026-10-26 |
+| 16 | Task Rows: a Stopped status (neutral pill, plain disc, no ring, no Retry) | components.css 5563–5707 | 2026-10-26 |
+| 17 | Streaming Text: a failed-stream state (Rule 18 has no design) | components.css 5480–5561 | 2026-10-26 |
+| 18 | Checkbox: required marker, error state and a Checkbox group (fieldset and legend) | components.css 3077–3088 | 2026-10-26 |
+| 19 | Input field error border: components.css draws 2px (`.c-field-error input{border:2px…}`), DESIGN-SYSTEM.md says 1px; Radio card group and Checkbox follow 1px. One of them should change | components.css 134, DESIGN-SYSTEM.md 5727 | 2026-10-26 |
+| 20 | Consolidate row staggers to 80ms and 120ms: Streaming follow-ups 90ms to 80ms, Task Rows steps 100ms to 80ms. (Loading State's 90ms and 110ms cell steps are tied to its loop length and stay as they are) | preview.html 22402–22600, components.css 5546, 5681 | 2026-10-26 |
+| 21 | Consolidate widths to 360 / 420 / 440px: Thinking 380px to 360px | components.css 5377–5478, DESIGN-SYSTEM.md Thinking anatomy | 2026-10-26 |
+| 22 | Consolidate prose line height to 1.65: Thinking's prose rows 1.6 to 1.65 | components.css 5461 | 2026-10-26 |
+| 23 | Input field error border: 1px (the DESIGN-SYSTEM.md text), not 2px; the CSS rule should change (same as row 19, now decided) | components.css 134 | 2026-10-26 |
+| 24 | DESIGN-SYSTEM.md token tables: add the rows for the tokens added to tokens.css on 2026-10-26 (its header says that file is the source of truth and tokens.css is generated from it): focus ring, control sizes, status tints, AA text colours, `--spacing-2` / `--spacing-6`, `--radius-xs`, measures, `--duration-pulse` / `--duration-blink`, staggers, `--leading-prose` | DESIGN-SYSTEM.md token tables | 2026-10-26 (DESIGN-SYSTEM.md tables and changelog v0.9.125 updated 2026-10-26, and preview.html's embedded copies; components.css done in v0.9.126) |
+| 25 | Use the new text colours in components.css: Badge Error text `--color-red-text` (and Success / Warning text already `--color-green-text` / `--color-amber-text`); Input field required `*` and error text; Thinking diff counts (`--color-green-text`, `--color-red-text`) | components.css 1642–1646, 134–136, 5472 | 2026-10-26 (done in the DLS 2026-10-26, DLS v0.9.126) |
+| 26 | Replace literals with the new tokens in components.css (focus ring 34×, control heights, status tints, spacing 2/6, radius 6px, staggers, measures, prose leading) and make Button icons `icon-sm` | components.css throughout | 2026-10-26 (done in the DLS 2026-10-26, DLS v0.9.126) |
+| 27 | Green text `#00854c` is 4.2:1 on its own tint, just under the 4.5:1 AA line. DESIGN-SYSTEM.md's Badge table says "darkened for AA". A slightly darker green is needed (`#007d47` chosen) | DESIGN-SYSTEM.md Badge table, tokens.css | 2026-10-26 (done 2026-10-26: `#007d47`, 4.7:1 on its tint and 5.2:1 on white; DLS v0.9.126) |

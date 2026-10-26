@@ -2,7 +2,7 @@
 
 ## Purpose
 A small pill that shows the status or tone of something: Active, Pending,
-Failed. Five tones (Neutral, Success, Error, Warning, Selected) and an
+Failed. Six tones (Neutral, Success, Error, Warning, Info, Selected) and an
 optional leading icon. Not interactive.
 
 ## Use when
@@ -14,13 +14,12 @@ optional leading icon. Not interactive.
 - **It says who owns something** (Fire · Marketing). Use Tag (not converted yet): ownership is not a status.
 - **It is clickable or removable.** Use Chip (not converted yet) or Button. A badge is never interactive.
 - **The message needs a sentence.** Use Info Banner or Toast (not converted yet).
-- **You need the Info tone.** It has no CSS yet (open question Q-BADGE-3). Use Neutral until it ships.
 
 ## Props
 
 | Name | Options | Default | Description |
 |---|---|---|---|
-| `variant` | `'neutral'` \| `'success'` \| `'error'` \| `'warning'` \| `'selected'` | **required** | The status or tone. `neutral` = plain state; `success` = done or healthy; `error` = failed or blocked; `warning` = needs attention soon; `selected` = the chosen item in a set. |
+| `variant` | `'neutral'` \| `'success'` \| `'error'` \| `'warning'` \| `'info'` \| `'selected'` | **required** | The status or tone. `neutral` = plain state; `success` = done or healthy; `error` = failed or blocked; `warning` = needs attention soon; `info` = neutral information worth noticing; `selected` = the chosen item in a set. |
 | `children` | text | **required** | The label. 20 characters at most. May include visually hidden text for screen readers. |
 | `icon` | a Phosphor icon component, e.g. `CheckCircle` | — | Icon before the label, same colour as the text, sized to it. |
 | `iconWeight` | `'fill'` \| `'regular'` | `'fill'` | `fill` for status icons (Tier 2), as every DLS badge icon is. `regular` only for a functional icon (Tier 1). |
@@ -31,10 +30,12 @@ The `ref` is forwarded to the `<span>` element.
 ## Rules
 1. **Badge is for status, Tag is for ownership.** Live, Paused, Blocked are badges; Fire · Marketing is a tag.
 2. **20 characters at most.** The badge never wraps and never truncates. If a label is longer, rewrite it.
-3. **Never a solid brand fill with white text.** Use the five tones as shipped; several accents fail contrast that way at this size.
+3. **Never a solid brand fill with white text.** Use the six tones as shipped; several accents fail contrast that way at this size.
 4. **The text carries the meaning, not the colour.** "Failed" in red, never a red badge with no word.
 5. **Spacing between badges is 4px** (`spacing-4`), set by the layout around them, not by the badge.
-6. **Icons follow their own tier.** Status icons such as `CheckCircle` are Fill (the default).
+6. **Icons follow their own tier.** Status icons such as `CheckCircle` are Fill (the default), 14px.
+7. **22px tall, caption type (12px), weight 700.** The height is fixed, so a label never wraps.
+8. **Success, Warning and Error text are darker than their fill colour** (`--color-green-text`, `--color-amber-text`, `--color-red-text`), because the full-strength colours fail contrast on their own tints at this size. Neutral text stays Neutral-9.
 
 ## Accessibility
 - Renders a plain `<span>`. It is not focusable and has no role; screen readers read its text in place.
@@ -42,7 +43,7 @@ The `ref` is forwarded to the `<span>` element.
 - The icon is `aria-hidden`.
 - Add visually hidden text when the visible label needs context, e.g. `Highest<span className="sr-only"> CTR in this comparison</span>`.
 - No live region. If a badge changes while the user is on the page (Pending to Active), announce the change where it happened, not through the badge.
-- Contrast, measured on a white page: Neutral, Warning and Selected pass AA easily (17:1 and up). Success (full-strength Green on its tint, about 2.1:1) and Error (Red on its tint, about 3.2:1) are below AA's 4.5:1 for 11px text. DESIGN-SYSTEM.md asks for a darker green for Success; Error has no fix in either source (open question Q-BADGE-5).
+- Contrast: Neutral, Warning, Info and Selected pass AA. Success uses the darker green for this reason. Error text takes the darker `--color-red-text` (4.8:1 on its tint). Success text uses `--color-green-text` (4.7:1 on its tint).
 
 ## Motion
 None. Badge doesn't animate.
