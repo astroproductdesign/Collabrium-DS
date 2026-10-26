@@ -21,6 +21,8 @@ The DLS and this library must stay consistent.
 - **After a decision, the DLS is owed an update.** Add a row to "DLS updates owed" (MIGRATION-LOG.md, section 7) in the same step. Never edit the DLS from here.
 - **Follow tokens.** Use an existing token wherever its value and meaning match: check `src/tokens/tokens.css` first (focus ring, control heights, status tints and AA text colours, spacing, radius, measures, staggers and the rest). Where none exists, declare a local custom property and list it for the user in the review. `src/tokens/tokens.css` is an exact copy of the DLS file: never edit it here, and sync it (with `node scripts/tokens-ts.mjs --write`) whenever the DLS changes.
 - **Approved rules live in the component's `<Name>.usage.md`**, as normal numbered rules with their reason. Don't add a separate "differences" section or a decisions file: once the library is the main repo these rules are the design system. When the user answers an open question, write the answer into `usage.md` (and the CSS comment) in the same step.
+- **Error text is bold (700) and Red in every component.** Checkbox, Radio, Input field and every future error: one look. (Decided 2026-10-26.)
+- **Red text is `--color-red` (3.2:1), and that is decided.** Never propose a darker red, a red text token, or an AA fix for red text, and don't ask again. (Green and Amber text keep `--color-green-text` and `--color-amber-text`.)
 - **Show what can't be pictured.** When a decision is about something visual or about assistive technology, build a draft page with screenshots (`review-drafts/`) before asking. Delete the draft once decided.
 
 ## Never guess
@@ -60,7 +62,7 @@ If the source is missing something (a state, a value, a rule):
 - **Semantics and accessibility:**
   - Use the correct native element (a real `<button>`, labels for inputs) and correct ARIA.
   - Full keyboard support and a visible focus ring.
-  - Focus moves only to a heading or an error message, never anywhere else.
+  - Focus moves only to a heading or an error message, never anywhere else. One approved exception: when a decision removes the focused button (Permission Prompt), focus moves to the resolved row so the outcome is read.
   - No live regions unless the DLS spec explicitly calls for one.
 - **`"use client"`** only in components that need interaction, state, effects or motion. The build keeps each file's directive and fails if one goes missing.
 - **Forward refs** to the main DOM element.

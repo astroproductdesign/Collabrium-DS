@@ -1,0 +1,209 @@
+/*
+  Radio — ported from collabrium-dls/components.css lines 3084–3094
+  (the shared .c-choice row and its text styles, .c-radio-circle, .on and
+  .dot). The Checkbox box rules in the same block belong to Checkbox, and the
+  Switch rules (3095–3100) to Switch; neither is ported here. Radio Card
+  (3101–3214) is a variant built on Card and is not converted yet.
+
+  Mapping from the old classes:
+    label.c-choice                  -> label.cui-radio
+    .c-choice.disabled              -> [data-disabled]
+    .c-choice input                 -> .cui-radio__input (still hidden, still focusable)
+    .c-choice .text                 -> .cui-radio__text
+    .c-choice .text .label / .desc  -> .cui-radio__label / .cui-radio__desc
+    .c-radio-circle                 -> .cui-radio__circle
+    .c-radio-circle.on              -> input:checked + .cui-radio__circle
+    .c-radio-circle .dot            -> .cui-radio__dot (shown only when checked)
+
+  The source toggles `.on` from script and hides the dot with `hidden`. Here
+  the look is driven by the real input's :checked state, so it can never
+  disagree with the form value, and uncontrolled radios work without React
+  state.
+
+  Specificity is kept in the same order as the source: base circle (0,1,0),
+  then the checked border replaces it (0,3,0 here, 0,2,0 in the source, same
+  winner). Disabled is one rule on the row, as in the source.
+*/
+
+.cui-radio {
+  /*
+    The circle size, nudge and radius come from tokens. The 9px dot has no
+    token (Radio only), so it is local.
+  */
+  --cui-radio-size: var(--choice-size);
+  --cui-radio-nudge: var(--spacing-2);
+  --cui-radio-dot-size: 9px;
+
+  /* position:relative anchors the hidden native input to its own row, so
+     clicking the label never scrolls the page to a stray input. */
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  cursor: pointer;
+}
+
+.cui-radio[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hidden, not removed: it is the real control, so it keeps focus, the arrow
+   keys, form value and the accessibility tree. */
+.cui-radio__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cui-radio__text {
+  display: flex;
+  flex-direction: column;
+}
+.cui-radio__label {
+  font-size: var(--text-body1-size);
+  font-weight: var(--weight-medium);
+  color: var(--color-neutral-9);
+}
+.cui-radio__desc {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+}
+
+.cui-radio__circle {
+  width: var(--cui-radio-size);
+  height: var(--cui-radio-size);
+  flex: none;
+  margin-top: var(--cui-radio-nudge);
+  border-radius: var(--radius-pill);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-neutral-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The source fades only the border colour. The fill is added for the hover and pressed states below. */
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+/* Checked: an Obsidian border and the dot. The fill stays Neutral-1, so the
+   circle is an outline that never fills solid (DESIGN-SYSTEM.md). */
+.cui-radio__input:checked + .cui-radio__circle {
+  border-color: var(--color-obsidian);
+}
+.cui-radio__dot {
+  display: none;
+  width: var(--cui-radio-dot-size);
+  height: var(--cui-radio-dot-size);
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+}
+.cui-radio__input:checked + .cui-radio__circle .cui-radio__dot {
+  display: block;
+}
+
+/*
+  Hover and pressed. NOT in the source or in DESIGN-SYSTEM.md; added on the
+  same ladder as Checkbox (approved for Checkbox 2026-10-26) and Button: an
+  empty circle fills Neutral-2 on hover and Neutral-3 when pressed; a checked
+  circle's border and dot go from Obsidian to Neutral-8 and Neutral-7. The
+  whole row is the target. Disabled rows do not react. Approved
+  2026-10-26 (Q-RADIO-1).
+*/
+.cui-radio:where(:not([data-disabled])):hover > .cui-radio__input:not(:checked) + .cui-radio__circle {
+  background: var(--color-neutral-2);
+}
+.cui-radio:where(:not([data-disabled])):active > .cui-radio__input:not(:checked) + .cui-radio__circle {
+  background: var(--color-neutral-3);
+}
+.cui-radio:where(:not([data-disabled])):hover > .cui-radio__input:checked + .cui-radio__circle {
+  border-color: var(--color-neutral-8);
+}
+.cui-radio:where(:not([data-disabled])):hover > .cui-radio__input:checked + .cui-radio__circle .cui-radio__dot {
+  background: var(--color-neutral-8);
+}
+.cui-radio:where(:not([data-disabled])):active > .cui-radio__input:checked + .cui-radio__circle {
+  border-color: var(--color-neutral-7);
+}
+.cui-radio:where(:not([data-disabled])):active > .cui-radio__input:checked + .cui-radio__circle .cui-radio__dot {
+  background: var(--color-neutral-7);
+}
+
+/*
+  Focus. NOT in the source: components.css hides the native input and styles
+  no focus state, so a keyboard user sees nothing. Added with the system's
+  standard ring (2px Obsidian, 2px offset), drawn on the circle, as Checkbox
+  has it. Approved 2026-10-26 (Q-RADIO-1).
+*/
+.cui-radio__input:focus-visible + .cui-radio__circle {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/*
+  Error. Not in the DLS for a plain Radio; the Radio card group has it and
+  Checkbox's is built from it. The group's message is caption, bold, Red and
+  replaces the helper; every enabled, unselected circle takes a 1px Red
+  border. A selected circle keeps its Obsidian border. Approved 2026-10-26
+  (Q-RADIO-1).
+*/
+.cui-radio-group__required {
+  margin-left: var(--spacing-4);
+  color: var(--color-red);
+}
+.cui-radio-group__message[data-error] {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-red);
+}
+.cui-radio[data-error] .cui-radio__input:not(:checked) + .cui-radio__circle {
+  border-color: var(--color-red);
+}
+
+/*
+  Forced colours. The browser removes backgrounds, including the dot's, so a
+  chosen radio would look the same as an empty one. The dot is painted in the
+  system text colour instead. The DLS raises this itself 
+*/
+@media (forced-colors: active) {
+  .cui-radio__dot {
+    background: CanvasText;
+  }
+}
+
+/*
+  Group: a fieldset with a legend, Checkbox group's anatomy and the Radio
+  card group's: browser chrome reset, the legend in label1, an optional Red
+  `*`, a caption helper or error spacing-4 under it, and the list spacing-12
+  below. The radios are laid out in a column spacing-12 apart.
+*/
+.cui-radio-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.cui-radio-group__legend {
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-primary);
+  font-size: var(--text-label1-size);
+  line-height: var(--text-label1-lh);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+}
+.cui-radio-group__message {
+  margin: var(--spacing-4) 0 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-radio-group__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-12);
+}

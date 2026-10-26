@@ -145,16 +145,18 @@ something is in.
 
 #### Text colours on tints
 
-Full-strength Green, Amber and Red fail AA at caption size on their own
-tints (2.1:1, 1.8:1 and 3.2:1). Text on a status tint, and status-coloured
-text on white at small sizes, uses the darker value; **fills, borders and
-icons stay on the full-strength colour.**
+Full-strength Green and Amber fail AA at caption size on their own tints
+(2.1:1 and 1.8:1). Text on a status tint, and Green or Amber text on white
+at small sizes, uses the darker value; **fills, borders and icons stay on
+the full-strength colour.** **Red has no text token: red text (the Badge
+Error label, the required marker and error text in a field, a removed-line
+count) uses `--color-red`, 3.2:1 on its tint and on white. This is a
+decision (2026-10-26); it is not to be raised again.**
 
 | Token | Hex | On its own tint | On white |
 |---|---|---|---|
 | `--color-green-text` | `#007d47` | 4.7:1 | 5.2:1 |
 | `--color-amber-text` | `#9a5c00` | 4.9:1 | 5.4:1 |
-| `--color-red-text` | `#D4001A` | 4.8:1 | 5.5:1 |
 
 ### Neutrals
 
@@ -9989,10 +9991,10 @@ browser console.
   in v0.9.125, with no visual change except the intended ones: the focus
   ring, control heights, status tints, spacing 2 / 6, `radius-xs`,
   measures, prose line height and the blink and pulse durations are
-  written as tokens. Text colours: Badge Success, Warning and Error text
-  use `--color-green-text`, `--color-amber-text` and `--color-red-text`;
-  the Input field required `*` and error text, and Thinking's added and
-  removed counts, use the AA text colours. Button icons are `icon-sm`
+  written as tokens. Text colours: Badge Success and Warning text use
+  `--color-green-text` and `--color-amber-text`, and Thinking's added count
+  uses `--color-green-text`. Red text stays `--color-red` (3.2:1, decided).
+  Button icons are `icon-sm`
   (16px) at every size, so Small buttons' icons grow from 14px. Badge is 22px tall in caption (12px) type with `icon-micro` icons, and
   `.c-badge-info` exists (Water tint, Water text).
   `--color-green-text` is now `#007d47` (4.7:1 on its tint; the earlier
@@ -10007,8 +10009,8 @@ browser console.
   through `-lg` at 24 / 32 / 40 / 48px, `--hit-target-min` 44px,
   `--choice-size` 18px). **Status tints** (green, red, amber, navy fill
   and border) and **AA text colours** (`--color-green-text`,
-  `--color-amber-text`, `--color-red-text`; green text is `#007d47`,
-  4.7:1 on its tint). **Spacing** half-steps `spacing-2` and
+  `--color-amber-text`; green text is `#007d47`, 4.7:1 on its tint; red text
+  stays `--color-red`). **Spacing** half-steps `spacing-2` and
   `spacing-6`; **radius** `radius-xs` (6px); **icon** `icon-xs` (12px);
   **measures** 360 / 420 / 440px; **motion** `duration-pulse`,
   `duration-blink` and the staggers `stagger-sm` (80ms) and `stagger-md`

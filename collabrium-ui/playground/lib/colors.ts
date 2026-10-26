@@ -65,11 +65,10 @@ export const colorGroups: ColorGroup[] = [
   {
     id: 'status-text',
     title: 'Text on status tints',
-    note: 'darkened for contrast; fills, borders and icons keep the full colour',
+    note: 'darkened for contrast; fills, borders and icons keep the full colour. Red text stays the full Red.',
     swatches: [
       { name: 'Green text', token: 'greenText', description: '4.7:1 on its tint, 5.2:1 on white' },
       { name: 'Amber text', token: 'amberText', description: '4.9:1 on its tint, 5.4:1 on white' },
-      { name: 'Red text', token: 'redText', description: '4.8:1 on its tint, 5.5:1 on white' },
     ],
   },
   {

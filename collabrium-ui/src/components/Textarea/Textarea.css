@@ -1,0 +1,115 @@
+/*
+  Textarea — ported from collabrium-dls/components.css lines 191–193
+  (.c-field textarea and its focus rule), plus the .c-field column, label,
+  required mark and helper it shares with Input field (lines 129–131, 136).
+  Textarea is not its own block in the CSS: it is a `textarea` inside the same
+  `.c-field` as Input field, so it takes the field's label and helper.
+
+  Mapping from the old classes:
+    .c-field                              -> .cui-textarea (data-error, data-disabled)
+    .c-field label                        -> __label
+    .required-mark                        -> __required
+    .c-field textarea                     -> __input
+    .c-helper                             -> __helper
+
+  Specificity is kept in the same order as the source: the base box (0,1,0),
+  error (0,2,0 here, before focus so focus wins a tie), then focus (0,2,0),
+  then disabled last.
+
+  Differences, each logged in MIGRATION-LOG.md and flagged to the user:
+    - The CSS styles no error and no disabled state for a textarea
+      (`.c-field-error input` and `.c-field input:disabled` select inputs
+      only), while DESIGN-SYSTEM.md says Textarea has Input field's states.
+      Both are built from Input field's rules. TEXTAREA-2.
+    - Width is 100% of the parent, as Input field's is (the source's 220px is a
+      demo default). TEXTAREA-3.
+    - The placeholder is Neutral-5 and autofill is not applicable to a textarea,
+      so only the placeholder is carried over from Input field. TEXTAREA-4.
+    - The box is body2 at regular weight, as the CSS has it; DESIGN-SYSTEM.md
+      says body1 at weight 500. TEXTAREA-1.
+*/
+
+.cui-textarea {
+  /* The 96px floor (about four lines) has no token: Textarea only. */
+  --cui-textarea-min-height: 96px;
+  --cui-textarea-pad: var(--spacing-12);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  width: 100%;
+  min-width: 0;
+}
+
+.cui-textarea__label {
+  font-family: var(--font-primary);
+  font-size: var(--text-label1-size);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+}
+/* Visually hidden, still in the accessibility tree. */
+.cui-textarea__label[data-hidden] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.cui-textarea__required {
+  margin-left: var(--spacing-4);
+  font-weight: var(--weight-bold);
+  color: var(--color-red);
+}
+
+.cui-textarea__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--cui-textarea-min-height);
+  padding: var(--cui-textarea-pad);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-1);
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  color: var(--color-neutral-9);
+  /* Vertical only, never both or horizontal; the min-height above is the floor, with no maximum. */
+  resize: vertical;
+}
+/* DESIGN-SYSTEM.md (Input field): the placeholder is Neutral-5, so it reads as a hint and not as disabled content. */
+.cui-textarea__input::placeholder {
+  color: var(--color-neutral-5);
+  opacity: 1;
+}
+
+/* Error comes before focus: focus wins a tie, so a focused field in error shows the Obsidian border, as Input field does. */
+:where(.cui-textarea)[data-error] .cui-textarea__input {
+  border-color: var(--color-red);
+}
+
+/* Focus is plain :focus (a click shows it too): a 2px Obsidian border, with 1px less padding so the text stays put. */
+.cui-textarea__input:focus {
+  outline: none;
+  border-width: var(--border-width-md);
+  border-color: var(--color-obsidian);
+  padding: calc(var(--cui-textarea-pad) - var(--border-width-sm));
+}
+
+.cui-textarea__helper {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+}
+.cui-textarea[data-error] .cui-textarea__helper {
+  font-weight: var(--weight-bold);
+  color: var(--color-red);
+}
+
+/* Disabled: Input field's own look (Neutral-2 fill, Neutral-5 text). */
+.cui-textarea__input:disabled {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-5);
+}

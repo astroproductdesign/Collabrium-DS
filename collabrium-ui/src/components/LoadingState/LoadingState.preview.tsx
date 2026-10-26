@@ -31,7 +31,7 @@ const rows: Row[] = [
   {
     id: 'rules',
     label: 'Hold-back, timer, live region',
-    note: 'The old system only documents these as rules and drives them from a page script. The new component does them itself: it renders after 400ms, counts from the start timestamp, and keeps a live region in the page.',
+    note: 'The old system only documents these as rules and drives them from a page script. The new component does them itself: it counts from the start timestamp and keeps a live region. The 400ms hold-back is the host job (decided 2026-10-26).',
     next: null,
     old: null,
   },

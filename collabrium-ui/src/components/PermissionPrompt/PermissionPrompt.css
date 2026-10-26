@@ -1,0 +1,263 @@
+/*
+  Permission Prompt — ported from collabrium-dls/components.css lines 5863–5976
+  (.c-permission-prompt*: the card, head, toggle, detail, scope, actions,
+  resolved row, the mobile restack and reduced motion), plus the base Card
+  shell it is built on (`.c-card`, line 276, and the `.c-card p` reset, line
+  287), copied here because Card is not converted and this package stays
+  standalone. The risk and outcome pills are the real Badge, and the three
+  actions are the real Button (both converted).
+
+  Mapping from the old classes:
+    .c-card .c-permission-prompt (+ .is-resolved)  -> .cui-permission-prompt ([data-status])
+    .c-permission-prompt-head                       -> __head
+    .c-permission-prompt-icon                       -> __icon
+    .c-permission-prompt-label                      -> __label
+    .c-permission-prompt-toggle (+ its <i>)         -> __toggle (__chevron)
+    .c-permission-prompt-detail (+ .is-expanded)    -> __detail ([data-open])
+    .c-permission-prompt-detail-inner / -list / -row -> __detail-inner / __detail-list / __detail-row
+    .key / .value                                   -> __key / __value
+    .c-permission-prompt-scope                      -> __scope
+    .c-permission-prompt-actions                    -> __actions
+    .c-permission-prompt-deny / -once / -session    -> [data-action="deny" | "once" | "session"] on the Button
+    .c-permission-prompt-resolved (+ -label, -note) -> __resolved (__resolved-label, __resolved-note)
+    <i class="ph ...">                              -> svg (Phosphor React)
+
+  Rendered values, not written ones. In the source, `.c-card p` (0,1,1) beats
+  the bare `.c-permission-prompt-scope` and `-resolved-note` (0,1,0), so those
+  two lines render at the body2 size (14px) with no margin, not the caption
+  size and 12px margin their rules say. The label needed a prefixed selector
+  for this very reason and these two did not get one. This port reproduces
+  what the DLS draws (decided 2026-10-26, Q-PERM-2).
+
+  Differences that are deliberate, each logged in MIGRATION-LOG.md:
+    - Deny is Ghost with the full `--color-red` text, as the source has it
+      (3.2:1, accepted 2026-10-26: red text stays --color-red). It is not the
+      Danger variant, whose solid fill would compete with Allow for session.
+    - The toggle and the resolved row get the system's Obsidian focus ring
+      (the source has none; approved 2026-10-26, Q-PERM-4).
+    - The closed detail is `inert` (done in PermissionPrompt.tsx).
+    - The detail rows are a <dl> (done in PermissionPrompt.tsx); it draws the same.
+*/
+
+.cui-permission-prompt {
+  /*
+    The card shell, the type, spacing, radius, measure, durations and focus
+    ring come from tokens. What is left is this component's own: Card's 240px
+    floor, the 60px key column, the resolved label's 160px basis and the
+    detail rows' 1.5 line height (18px at 12px; no token for it).
+  */
+  --cui-permission-prompt-min-width: 240px;
+  --cui-permission-prompt-key-width: 60px;
+  --cui-permission-prompt-resolved-basis: 160px;
+  --cui-permission-prompt-line-height: 1.5;
+
+  /* Card shell (.c-card), verbatim. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: var(--cui-permission-prompt-min-width);
+  max-width: var(--measure-sm);
+  height: 100%;
+  padding: var(--spacing-16);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  font-family: var(--font-primary);
+  transition: box-shadow var(--duration-base) var(--ease-settle);
+  animation: cui-permission-prompt-in var(--duration-reveal) var(--ease-reveal) both;
+}
+@keyframes cui-permission-prompt-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Head: icon, label and risk badge on one row, vertically centred. */
+.cui-permission-prompt__head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-12);
+}
+.cui-permission-prompt__icon {
+  flex: none;
+  font-size: var(--icon-md);
+  line-height: 1;
+  color: var(--color-neutral-7);
+}
+.cui-permission-prompt__icon svg {
+  display: block;
+}
+.cui-permission-prompt__label {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-primary);
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+}
+.cui-permission-prompt__head .cui-badge {
+  flex: none;
+}
+
+/* Toggle and detail: Thinking's own 0fr to 1fr expand, verbatim. */
+.cui-permission-prompt__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin: 0 0 var(--spacing-8);
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-caption-size);
+  font-weight: 600;
+  color: var(--color-neutral-5);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.cui-permission-prompt__toggle:hover {
+  color: var(--color-neutral-9);
+}
+.cui-permission-prompt__toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-permission-prompt__chevron {
+  font-size: var(--icon-micro);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.cui-permission-prompt__toggle[aria-expanded="true"] .cui-permission-prompt__chevron {
+  transform: rotate(180deg);
+}
+
+.cui-permission-prompt__detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--duration-base) var(--ease-settle),
+    opacity var(--duration-base) var(--ease-settle);
+}
+.cui-permission-prompt__detail[data-open] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.cui-permission-prompt__detail-inner {
+  overflow: hidden;
+}
+.cui-permission-prompt__detail-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
+  background: var(--color-neutral-2);
+  border-radius: var(--radius-sm);
+}
+.cui-permission-prompt__detail-row {
+  display: flex;
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--cui-permission-prompt-line-height);
+}
+.cui-permission-prompt__key {
+  flex: none;
+  width: var(--cui-permission-prompt-key-width);
+  margin: 0;
+  color: var(--color-neutral-5);
+  font-weight: 600;
+}
+.cui-permission-prompt__value {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--color-neutral-9);
+  word-break: break-word;
+}
+
+/* Scope note and resolved note: drawn as the DLS draws them (see the header). */
+.cui-permission-prompt__scope,
+.cui-permission-prompt__resolved-note {
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--cui-permission-prompt-line-height);
+  color: var(--color-neutral-5);
+}
+
+/* Actions: natural width, right-aligned, wrapping rather than squeezing. */
+.cui-permission-prompt__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+}
+/* Deny: Ghost plus the red text colour. Two classes deep beats Ghost's own colour rule. */
+.cui-permission-prompt__actions .cui-button[data-action="deny"] {
+  color: var(--color-red);
+}
+
+/* Resolved: a compact record that stays in the conversation. */
+.cui-permission-prompt__resolved {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-8);
+  animation: cui-permission-prompt-in var(--duration-reveal) var(--ease-reveal) both;
+}
+.cui-permission-prompt__resolved:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-permission-prompt__resolved-label {
+  flex: 1 1 var(--cui-permission-prompt-resolved-basis);
+  min-width: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-9);
+}
+.cui-permission-prompt__resolved .cui-badge {
+  flex: none;
+  margin-top: var(--spacing-2);
+}
+
+/*
+  Mobile (Rule 10): the card fills the width and the actions restack by
+  priority, Allow for session on top, Deny last. Only the visual order flips
+  (`order`); the tab order stays Deny, Allow once, Allow for session.
+  767px is Pagination's own breakpoint, reused, as the source says.
+*/
+@media (max-width: 767px) {
+  .cui-permission-prompt {
+    max-width: none;
+    width: 100%;
+  }
+  .cui-permission-prompt__actions {
+    flex-direction: column;
+  }
+  .cui-permission-prompt__actions .cui-button {
+    width: 100%;
+    justify-content: center;
+  }
+  .cui-permission-prompt__actions .cui-button[data-action="session"] { order: 1; }
+  .cui-permission-prompt__actions .cui-button[data-action="once"] { order: 2; }
+  .cui-permission-prompt__actions .cui-button[data-action="deny"] { order: 3; }
+}
+
+/* Reduced motion (Rule 11): the entrance and the expand and rotate go; the layout and information stay. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-permission-prompt,
+  .cui-permission-prompt__resolved {
+    animation: none;
+  }
+  .cui-permission-prompt__detail,
+  .cui-permission-prompt__chevron {
+    transition: none;
+  }
+}

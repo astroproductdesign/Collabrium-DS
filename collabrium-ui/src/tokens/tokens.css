@@ -76,14 +76,14 @@
   --color-amber-tint: rgba(255, 164, 37, .14); --color-amber-tint-border: rgba(255, 164, 37, .38);
   --color-navy-tint:  rgba(20, 115, 230, .10); --color-navy-tint-border:  rgba(20, 115, 230, .28);
 
-  /* Text on those tints, darkened: full-strength Green, Amber and Red fail
-     AA on their own tints at caption size (2.1, 1.8 and 3.2:1). Use these
-     for TEXT only: fills, borders and icons stay on the full-strength
-     colour. On their own tints they measure: Amber 4.9:1, Red 4.8:1 (and
-     5.5:1 on white), Green 4.7:1 (5.2:1 on white). */
+  /* Text on those tints, darkened: full-strength Green and Amber fail AA on
+     their own tints at caption size (2.1 and 1.8:1). Use these for TEXT
+     only: fills, borders and icons stay on the full-strength colour. On
+     their own tints they measure: Amber 4.9:1, Green 4.7:1 (5.2:1 on
+     white). Red has no text token: red text uses --color-red (3.2:1 on its
+     tint and on white), a decision of 2026-10-26. */
   --color-green-text: #007d47;
   --color-amber-text: #9a5c00;
-  --color-red-text: #D4001A;
 
   /* Fonts */
   --font-primary: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

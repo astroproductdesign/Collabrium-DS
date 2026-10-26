@@ -167,7 +167,7 @@ export const accessibility: DocsAccessibility = {
     'The meaning is in the text, and colour only repeats it. The 1px border keeps the pill visible in forced colours.',
     'The icon is `aria-hidden`.',
     'No live region. If a badge changes while the user is on the page, announce the change where it happened, not through the badge.',
-    'Success, Warning and Error use darker text colours than their fill (`--color-green-text`, `--color-amber-text`, `--color-red-text`) so the label stays readable on its tint: Warning 4.9:1 and Error 4.8:1 pass AA; Success is 4.2:1, just under the 4.5:1 line. Neutral, Info and Selected pass AA.',
+    'Success and Warning use darker text colours than their fill (`--color-green-text`, `--color-amber-text`) so the label stays readable on its tint: Success is 4.7:1 and Warning 4.9:1. Error text stays the full Red, 3.2:1 on its tint, by decision. Neutral, Info and Selected pass AA.',
   ],
 };
 

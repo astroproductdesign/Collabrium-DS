@@ -236,7 +236,7 @@ export const props: DocsProp[] = [
   { name: 'iconOnly', options: 'true', default: '—', description: 'Square button, no visible label. Needs `icon` and `aria-label`.' },
   { name: 'icon', options: 'Icon', default: '—', description: 'The icon for `iconOnly`. Functional (Tier 1) icons only, e.g. `DotsThree`, `X`, `PencilSimple`, `Trash`. Always Regular.' },
   { name: 'aria-label', options: 'string', default: '—', description: 'Required with `iconOnly`. Names the action ("More options").' },
-  { name: 'loading', options: 'boolean', default: 'false', description: 'Centred spinner replaces the content; fill and width stay the same; clicks are ignored; the button keeps focus and its name.' },
+  { name: 'loading', options: 'boolean', default: 'false', description: 'Centred spinner replaces the content; fill and width stay the same, also on hover and press; clicks are ignored; the button keeps focus and its name.' },
   { name: 'disabled', options: 'boolean', default: 'false', description: 'Neutral-4 fill, not-allowed cursor, removed from the tab order.' },
   { name: 'beacon', options: "'off' | 'on' | 'static'", default: "'off'", description: 'CTA beacon. `on` = three rings (4.2s), then stops by itself. `static` = documentation and tests only. Primary with a label only.' },
   { name: 'onBeaconChange', options: '({ armed, reason }) => void', default: '—', description: 'Called when the beacon starts or stops. `reason` is `host`, `hover`, `touch`, `focus`, `click`, `cap` or `replaced`.' },

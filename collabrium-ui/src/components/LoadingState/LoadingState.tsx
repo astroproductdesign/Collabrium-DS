@@ -7,9 +7,6 @@ import { formatElapsed } from '../../utils/format-elapsed';
 /** Cell shape and motion. Drive and Dots share one 650ms wavefront; Orbit is a single comet (950ms). */
 export type LoadingStateVariant = 'drive' | 'dots' | 'orbit';
 
-/** Rule 2: nothing renders until 400ms after the operation starts. */
-const REVEAL_DELAY_MS = 400;
-
 type NativeDivProps = WithoutStyling<Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'role' | 'color'>>;
 
 export interface LoadingStateProps extends NativeDivProps {
@@ -29,10 +26,10 @@ export interface LoadingStateProps extends NativeDivProps {
   label: string;
   /**
    * When the operation really started, in milliseconds since the epoch
-   * (`Date.now()`). The timer counts from here, and the 400ms hold-back is
-   * measured from here, so a loader that appears already reads 0.4s. Leave
-   * it out and the component uses the moment it was mounted. Pass it when
-   * the operation began before this component mounted.
+   * (`Date.now()`). The timer counts from here, so a loader the host mounts
+   * after its 400ms hold-back reads 0.4s on its first frame. Leave it out
+   * and the component uses the moment it was mounted. Pass it when the
+   * operation began before this component mounted.
    */
   startedAt?: number;
 }
@@ -42,9 +39,10 @@ export interface LoadingStateProps extends NativeDivProps {
  * elapsed timer, for AI work only: model generation, tool execution, agent
  * runs. Ported from components.css `.c-loading`.
  *
- * The component owns what is local to it: the 400ms hold-back (Rule 2), the
- * timer from a start timestamp (Rule 5) and the live region (Rule 11). The
- * host owns the rest: unmount it at the first streamed token (Rule 6), show
+ * The component owns what is local to it: the timer from a start timestamp
+ * (Rule 5) and the live region (Rule 11). The host owns the rest: mount it
+ * only once the operation has run for 400ms (Rule 2, decided 2026-10-26),
+ * unmount it at the first streamed token (Rule 6), show
  * one per view (Rule 7), give the surface a Stop (Rule 9) and swap to
  * Thinking once named steps appear (Rule 13).
  */
@@ -54,25 +52,16 @@ export const LoadingState = forwardRef<HTMLDivElement, LoadingStateProps>(functi
 ) {
   const [mountedAt] = useState(() => Date.now());
   const start = startedAt ?? mountedAt;
-  const [revealed, setRevealed] = useState(false);
+  const [labelled, setLabelled] = useState(false);
   const elapsedRef = useRef<HTMLSpanElement>(null);
 
-  // Rule 2: hold the whole component back until REVEAL_DELAY_MS after the start.
-  useEffect(() => {
-    const wait = REVEAL_DELAY_MS - (Date.now() - start);
-    if (wait <= 0) {
-      setRevealed(true);
-      return;
-    }
-    setRevealed(false);
-    const id = window.setTimeout(() => setRevealed(true), wait);
-    return () => window.clearTimeout(id);
-  }, [start]);
+  // The root is in the page for one commit before the label goes in, so a
+  // screen reader that watches live regions sees the label arrive and announces it.
+  useEffect(() => setLabelled(true), []);
 
   // Rule 5: the timer is computed from the start timestamp on every frame, never accumulated,
   // and written straight to the DOM so it does not re-render the component sixty times a second.
   useEffect(() => {
-    if (!revealed) return;
     let frame = 0;
     let shown = '';
     const tick = () => {
@@ -85,27 +74,22 @@ export const LoadingState = forwardRef<HTMLDivElement, LoadingStateProps>(functi
     };
     tick();
     return () => cancelAnimationFrame(frame);
-  }, [revealed, start]);
+  }, [start]);
 
-  // The live region is always present so a screen reader is already watching it
-  // when the content arrives (and when the label changes).
+  // The live region is present before its label, so the label's arrival (and every later change) is announced.
   return (
     <div {...rest} ref={ref} className="cui-loading-state" role="status" aria-live="polite">
-      {revealed && (
-        <>
-          <span className="cui-loading-state__grid" data-variant={variant} aria-hidden="true">
-            {Array.from({ length: 9 }, (_, i) => (
-              <span key={i} className="cui-loading-state__cell" data-off={variant === 'orbit' && i === 4 ? '' : undefined} />
-            ))}
-          </span>
-          <span className="cui-loading-state__label" title={label}>
-            {label}
-          </span>
-          <span className="cui-loading-state__elapsed" aria-hidden="true" ref={elapsedRef}>
-            0.0s
-          </span>
-        </>
-      )}
+      <span className="cui-loading-state__grid" data-variant={variant} aria-hidden="true">
+        {Array.from({ length: 9 }, (_, i) => (
+          <span key={i} className="cui-loading-state__cell" data-off={variant === 'orbit' && i === 4 ? '' : undefined} />
+        ))}
+      </span>
+      <span className="cui-loading-state__label" title={label}>
+        {labelled ? label : ''}
+      </span>
+      <span className="cui-loading-state__elapsed" aria-hidden="true" ref={elapsedRef}>
+        0.0s
+      </span>
     </div>
   );
 });

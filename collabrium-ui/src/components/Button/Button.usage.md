@@ -13,7 +13,7 @@ form, a loading state and the CTA beacon.
 ## Don't use when
 - **It goes to another page or URL.** Use a real link, not a button. The `link` variant is a button that looks like a text link, for in-page actions.
 - **It is destructive but only a step before the commit.** Use Secondary or Ghost for the opening action ("Delete…") and keep Danger for the action that actually commits.
-- **It is a choice between options.** Use Segmented Control, Radio or Chip (not converted yet).
+- **It is a choice between options.** Use Radio, or Segmented Control or Chip (not converted yet).
 - **It shows status.** Use Badge or Tag (not converted yet).
 - **You want an element or department colour as the fill.** Never: Obsidian is the only action colour (DLS Component Rule 2).
 
@@ -30,7 +30,7 @@ form, a loading state and the CTA beacon.
 | `iconOnly` | `true` | — | Square button, no visible label. Needs `icon` and `aria-label`. |
 | `icon` | a Phosphor icon component | — | The icon for `iconOnly`. Functional (Tier 1) icons only, e.g. `DotsThree`, `X`, `PencilSimple`, `Trash`. Always Regular. |
 | `aria-label` | text | — | Required with `iconOnly`. Names the action ("More options"). |
-| `loading` | boolean | `false` | Centred spinner replaces the content; fill and width stay the same; clicks are ignored; the button keeps focus and its name. |
+| `loading` | boolean | `false` | Centred spinner replaces the content; fill and width stay the same, also on hover and press; clicks are ignored; the button keeps focus and its name. |
 | `disabled` | boolean | `false` | Neutral-4 fill, not-allowed cursor, not focusable. |
 | `beacon` | `'off'` \| `'on'` \| `'static'` | `'off'` | CTA beacon. `on` = three rings (4.2s), then stops by itself. `static` = documentation and tests only. Primary with a label only. |
 | `onBeaconChange` | `({ armed, reason }) => void` | — | Called when the beacon starts or stops. `reason` is `host`, `hover`, `touch`, `focus`, `click`, `cap` or `replaced`. |
@@ -64,7 +64,7 @@ The `ref` is forwarded to the `<button>` element.
 - In forced-colours mode a Primary button gets a 1px edge in the system button-text colour, so it still reads as a button (a background alone is removed there). Ghost stays borderless.
 - Icons are `aria-hidden`. The name comes from the label, or from `aria-label` when `iconOnly`.
 - Disabled uses the native `disabled` attribute, so the button leaves the tab order. `aria-disabled="true"` (on anything except a loading button) looks the same as disabled but stays focusable.
-- Loading sets `aria-busy="true"` and `aria-disabled="true"`. The button stays focusable and keeps its name; the label is hidden visually with opacity, so screen readers still read it. There is no live region; announce the result of the action, not the spinner.
+- Loading sets `aria-busy="true"` and `aria-disabled="true"`. The fill is fixed while loading (no hover or pressed change) and the cursor shows progress. The button stays focusable and keeps its name; the label is hidden visually with opacity, so screen readers still read it. There is no live region; announce the result of the action, not the spinner.
 - The beacon is purely visual: no live region, no `aria-describedby`, no change to the name.
 
 ## Motion

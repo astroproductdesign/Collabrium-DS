@@ -12,7 +12,7 @@ select-all box.
 - A list or table needs a "select all" box that shows when only some rows are selected (`indeterminate`).
 
 ## Don't use when
-- **Only one option can be chosen.** Use Radio (not converted yet).
+- **Only one option can be chosen.** Use Radio.
 - **The setting takes effect instantly.** Use Switch (not converted yet).
 - **It is a filter in a toolbar.** Use Chip (not converted yet).
 - **It needs to look like a button.** Use Segmented Control (not converted yet).
@@ -57,7 +57,7 @@ The `ref` is forwarded to the `<fieldset>`.
 5. **Spacing between checkboxes** comes from the layout around them, not from the checkbox.
 6. **The box reacts to hover and press.** An empty box fills Neutral-2 then Neutral-3; a checked box goes from Obsidian to Neutral-8 then Neutral-7, the same ladder as Button. The whole row is the target. A disabled row does not react. The check and minus are 14px (`icon-micro`).
 7. **Required is a marker plus the native attribute.** A single box that must be ticked takes `required`: a Red `*` follows the label (visual only). A group takes `required` on the `CheckboxGroup` and never on each box.
-8. **An error says what to do, in words, and replaces the helper.** Bold text in the darker red (`--color-red-text`), a 1px Red border on the empty box, `aria-invalid`. Set it when a required box or group is submitted empty, move focus to the first box, and clear it on the first selection. Never show helper and error together.
+8. **An error says what to do, in words, and replaces the helper.** Bold text in `--color-red` (3.2:1; red text stays the full red, decided 2026-10-26), a 1px Red border on the empty box, `aria-invalid`. Set it when a required box or group is submitted empty, move focus to the first box, and clear it on the first selection. Never show helper and error together.
 9. **A group is a fieldset.** Use `CheckboxGroup` whenever checkboxes answer one question; the legend names them for assistive tech. Required, error and group are defined by this library, from Input field's rules (the DLS has none).
 
 ## Accessibility

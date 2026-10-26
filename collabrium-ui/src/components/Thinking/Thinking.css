@@ -353,13 +353,13 @@ button.cui-thinking__row[aria-pressed="true"] {
   display: flex;
   gap: var(--cui-thinking-diff-gap);
 }
-/* The diff counts are 11px text, so they take the AA-safe text colours
-   (components.css uses the full Green and Red, about 2.4:1 and 3.7:1 on white). */
+/* The diff counts are 11px text. The added count takes the AA-safe green text colour;
+   the removed count stays the full Red (3.2:1, decided 2026-10-26). */
 .cui-thinking__row-diff .cui-thinking__add {
   color: var(--color-green-text);
 }
 .cui-thinking__row-diff .cui-thinking__del {
-  color: var(--color-red-text);
+  color: var(--color-red);
 }
 .cui-thinking__more {
   font-size: var(--text-caption-size);

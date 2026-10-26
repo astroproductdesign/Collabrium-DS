@@ -26,7 +26,7 @@ export const anatomy: DocsAnatomyNode[] = [
   {
     name: 'Loading State',
     element: '<div>.cui-loading-state',
-    description: 'The live region: role="status" with aria-live="polite". Always in the page; its content appears 400ms after the start.',
+    description: 'The live region: role="status" with aria-live="polite". The label goes in a moment after the region mounts, so it is announced. The host mounts the whole component only after the operation has run for 400ms.',
     children: [
       {
         name: 'Grid',
@@ -73,17 +73,21 @@ function LiveExample() {
 }
 
 function HoldBackExample() {
-  const [run, setRun] = useState<{ startedAt: number; ms: number } | null>(null);
+  const [run, setRun] = useState<{ startedAt: number; ms: number; shown: boolean } | null>(null);
   useEffect(() => {
     if (!run) return;
-    const id = window.setTimeout(() => setRun(null), run.ms);
-    return () => window.clearTimeout(id);
-  }, [run]);
-  const start = (ms: number) => setRun({ startedAt: Date.now(), ms });
+    const show = window.setTimeout(() => setRun(r => (r ? { ...r, shown: true } : r)), 400);
+    const finish = window.setTimeout(() => setRun(null), run.ms);
+    return () => {
+      window.clearTimeout(show);
+      window.clearTimeout(finish);
+    };
+  }, [run?.startedAt]);
+  const start = (ms: number) => setRun({ startedAt: Date.now(), ms, shown: false });
   return (
     <div className="docs-stack">
       <div className="docs-row" style={{ minHeight: 'var(--spacing-24)' }}>
-        {run ? <LoadingState variant="orbit" label="Thinking" startedAt={run.startedAt} /> : <span className="docs-status">Nothing running</span>}
+        {run?.shown ? <LoadingState variant="orbit" label="Thinking" startedAt={run.startedAt} /> : <span className="docs-status">{run ? 'Waiting…' : 'Nothing running'}</span>}
       </div>
       <div className="docs-row">
         <Button variant="secondary" size="sm" disabled={!!run} onClick={() => start(200)}>Finish in 0.2s</Button>
@@ -172,23 +176,27 @@ function Live() {
   },
   {
     id: 'hold-back',
-    title: 'Appears at 400ms, never before',
-    description: 'The loader holds itself back for 400ms after the start. Work that finishes sooner never shows it, because a loader flashed for 120ms reads worse than no feedback. Try both.',
+    title: 'Mount it after 400ms',
+    description: 'Your code mounts the loader only once the operation has run for 400ms, and passes the real start time so the timer reads 0.4s on its first frame. Work that finishes sooner never shows it, because a loader flashed for 120ms reads worse than no feedback. Try both.',
     render: () => <HoldBackExample />,
     code: `import { useEffect, useState } from 'react';
 
 function HoldBack() {
-  const [run, setRun] = useState<{ startedAt: number; ms: number } | null>(null);
+  const [run, setRun] = useState<{ startedAt: number; ms: number; shown: boolean } | null>(null);
   useEffect(() => {
     if (!run) return;
-    const id = window.setTimeout(() => setRun(null), run.ms);
-    return () => window.clearTimeout(id);
-  }, [run]);
-  const start = (ms: number) => setRun({ startedAt: Date.now(), ms });
+    const show = window.setTimeout(() => setRun(r => (r ? { ...r, shown: true } : r)), 400);
+    const finish = window.setTimeout(() => setRun(null), run.ms);
+    return () => {
+      window.clearTimeout(show);
+      window.clearTimeout(finish);
+    };
+  }, [run?.startedAt]);
+  const start = (ms: number) => setRun({ startedAt: Date.now(), ms, shown: false });
   return (
     <div>
       <div style={{ minHeight: 'var(--spacing-24)' }}>
-        {run ? <LoadingState variant="orbit" label="Thinking" startedAt={run.startedAt} /> : <span>Nothing running</span>}
+        {run?.shown ? <LoadingState variant="orbit" label="Thinking" startedAt={run.startedAt} /> : <span>{run ? 'Waiting…' : 'Nothing running'}</span>}
       </div>
       <Button variant="secondary" size="sm" disabled={!!run} onClick={() => start(200)}>Finish in 0.2s</Button>
       <Button variant="secondary" size="sm" disabled={!!run} onClick={() => start(2500)}>Finish in 2.5s</Button>
@@ -229,7 +237,7 @@ function FirstToken() {
 export const props: DocsProp[] = [
   { name: 'variant', options: "'drive' | 'dots' | 'orbit'", default: '—', required: true, description: '`drive`: square cells, a wavefront driving right. `dots`: round cells, the same wavefront. `orbit`: one comet lapping the outer ring, centre cell dim.' },
   { name: 'label', options: 'string', default: '—', required: true, description: 'What the AI is doing right now. Change it as the phase changes ("Thinking", "Reading the export", "Drafting"). Announced once per change.' },
-  { name: 'startedAt', options: 'number', default: 'the moment it mounted', description: 'When the operation really started, as `Date.now()`. The timer counts from here and the 400ms hold-back is measured from here. Pass it when the work began before this component mounted.' },
+  { name: 'startedAt', options: 'number', default: 'the moment it mounted', description: 'When the operation really started, as `Date.now()`. The timer counts from here, so a loader you mount after 400ms reads 0.4s on its first frame. Pass it when the work began before this component mounted.' },
   { name: 'id, aria-*, data-*', options: 'native', default: '—', description: 'Passed to the root `<div>`. `style`, `className` and `role` are not accepted. The ref is forwarded to the `<div>`.' },
 ];
 
@@ -254,7 +262,7 @@ export const rules: DocsRules = {
 export const accessibility: DocsAccessibility = {
   keyboard: 'None. Loading State is not interactive and never takes focus.',
   notes: [
-    'The root is `role="status"` with `aria-live="polite"`. It is always in the page, so a screen reader is already watching it when the content appears and when the label changes.',
+    'The root is `role="status"` with `aria-live="polite"`. The label goes into the region one commit after it mounts, so a screen reader sees it arrive and announces it, and announces each later change.',
     'Only a real label change is announced. The grid and the timer are `aria-hidden`: a figure that changes every 100ms is unusable in a live region.',
     'The label says what is happening, so colour never carries meaning.',
     'It never takes focus. Moving focus to a loader would interrupt the person for decoration.',

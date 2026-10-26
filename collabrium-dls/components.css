@@ -128,13 +128,13 @@
 
 .c-field{display:flex; flex-direction:column; gap:var(--spacing-4); width:220px;}
 .c-field label{font-size:var(--text-label1-size); font-weight:var(--text-label1-weight);}
-.c-field label .required-mark{color:var(--color-red-text); font-weight:700; margin-left:var(--spacing-4);}
+.c-field label .required-mark{color:var(--color-red); font-weight:700; margin-left:var(--spacing-4);}
 .c-field label .required-label-icon{color:var(--color-neutral-5); font-size:var(--icon-sm); margin-left:var(--spacing-4); vertical-align:middle;}
 .c-field input{height:var(--control-height-md); border-radius:var(--radius-sm); border:1px solid var(--color-neutral-3); padding:0 var(--spacing-12); font-size:var(--text-body2-size); font-family:inherit; color:var(--color-neutral-9);}
 .c-field input:focus{outline:none; border:2px solid var(--color-obsidian); padding:0 11px;}
 .c-field-error input{border:2px solid var(--color-red); padding:0 11px;}
 .c-helper{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-.c-field-error .c-helper{color:var(--color-red-text);}
+.c-field-error .c-helper{color:var(--color-red);}
 .c-field input:disabled{background:var(--color-neutral-2); color:var(--color-neutral-5);}
 
 /* Success state — DESIGN-SYSTEM.md Input field, "Success / valid state"
@@ -1643,7 +1643,7 @@
 .c-badge i{flex:none; font-size:var(--icon-micro);}
 .c-badge-neutral{background:var(--color-neutral-2); color:var(--color-neutral-9); border-color:var(--color-neutral-3);}
 .c-badge-success{background:var(--color-green-tint); color:var(--color-green-text); border-color:var(--color-green-tint-border);}
-.c-badge-error{background:var(--color-red-tint); color:var(--color-red-text); border-color:var(--color-red-tint-border);}
+.c-badge-error{background:var(--color-red-tint); color:var(--color-red); border-color:var(--color-red-tint-border);}
 .c-badge-warning{background:var(--color-amber-tint); color:var(--color-amber-text); border-color:var(--color-amber-tint-border);}
 .c-badge-info{background:var(--color-navy-tint); color:var(--color-navy); border-color:var(--color-navy-tint-border);}
 .c-badge-selected{background:var(--color-neutral-1); color:var(--color-neutral-9); border-color:var(--color-obsidian);}
@@ -5465,7 +5465,7 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
 .c-thinking-row-secondary{flex:none; font-size:var(--text-footnote-size); color:var(--color-neutral-5);}
 .c-thinking-row-diff{flex:none; font-size:11px; font-variant-numeric:tabular-nums; display:flex; gap:4px;}
 .c-thinking-row-diff .add{color:var(--color-green-text);}
-.c-thinking-row-diff .del{color:var(--color-red-text);}
+.c-thinking-row-diff .del{color:var(--color-red);}
 .c-thinking-more{font-size:var(--text-caption-size); color:var(--color-neutral-5); padding:var(--spacing-2) var(--spacing-4); animation:c-thinking-fade-in var(--duration-base) var(--ease-standard) both;}
 
 /* Rule 20 — travel drops, sequence stays: the expand/row-stagger/line-

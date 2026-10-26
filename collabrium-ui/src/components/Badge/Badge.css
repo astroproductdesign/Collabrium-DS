@@ -53,8 +53,8 @@
 
   Success and Warning text use the darker values DESIGN-SYSTEM.md gives
   (#007d47, #9a5c00; decided 2026-10-26) because full-strength Green and Amber
-  fail AA on their own tints; Error text takes the new --color-red-text for
-  the same reason (4.8:1 on its tint, against 3.2:1 for the full Red). Neutral text is Neutral-9 as components.css
+  fail AA on their own tints. Error text stays the full Red (3.2:1 on its
+  tint), a decision of 2026-10-26. Neutral text is Neutral-9 as components.css
   has it; DESIGN-SYSTEM.md says Neutral-5 (TODO(open-question Q-BADGE-7)).
 */
 .cui-badge[data-variant="neutral"] {
@@ -69,7 +69,7 @@
 }
 .cui-badge[data-variant="error"] {
   background: var(--cui-badge-error-bg);
-  color: var(--color-red-text);
+  color: var(--color-red);
   border-color: var(--cui-badge-error-border);
 }
 .cui-badge[data-variant="warning"] {

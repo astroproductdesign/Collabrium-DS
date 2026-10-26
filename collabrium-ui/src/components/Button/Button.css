@@ -84,8 +84,8 @@
   background: var(--color-obsidian);
   color: var(--color-neutral-1);
 }
-.cui-button[data-variant="primary"]:hover { background: var(--color-neutral-8); }
-.cui-button[data-variant="primary"]:active { background: var(--color-neutral-7); }
+.cui-button[data-variant="primary"]:hover:where(:not([data-loading])) { background: var(--color-neutral-8); }
+.cui-button[data-variant="primary"]:active:where(:not([data-loading])) { background: var(--color-neutral-7); }
 
 .cui-button[data-variant="secondary"] {
   background: var(--color-neutral-1);
@@ -93,13 +93,13 @@
   border: var(--border-width-sm) solid var(--color-neutral-3);
   box-shadow: var(--shadow-1);
 }
-.cui-button[data-variant="secondary"]:hover { background: var(--color-neutral-2); }
+.cui-button[data-variant="secondary"]:hover:where(:not([data-loading])) { background: var(--color-neutral-2); }
 
 .cui-button[data-variant="ghost"] {
   background: transparent;
   color: var(--color-neutral-9);
 }
-.cui-button[data-variant="ghost"]:hover { background: var(--color-neutral-2); }
+.cui-button[data-variant="ghost"]:hover:where(:not([data-loading])) { background: var(--color-neutral-2); }
 
 /*
   Danger: Red fill, Neutral-1 text, no border (DESIGN-SYSTEM.md). Hover and
@@ -111,8 +111,8 @@
   background: var(--color-red);
   color: var(--color-neutral-1);
 }
-.cui-button[data-variant="danger"]:hover { background: var(--cui-button-danger-hover); }
-.cui-button[data-variant="danger"]:active { background: var(--cui-button-danger-active); }
+.cui-button[data-variant="danger"]:hover:where(:not([data-loading])) { background: var(--cui-button-danger-hover); }
+.cui-button[data-variant="danger"]:active:where(:not([data-loading])) { background: var(--cui-button-danger-active); }
 
 /*
   Link: transparent, Neutral-9 text, underlined with a 3px offset, no height,
@@ -133,8 +133,8 @@
   text-underline-offset: var(--cui-button-link-underline-offset);
   transition: color var(--duration-fast) var(--ease-standard);
 }
-.cui-button[data-variant="link"]:hover { color: var(--color-neutral-7); }
-.cui-button[data-variant="link"]:active { color: var(--color-neutral-5); }
+.cui-button[data-variant="link"]:hover:where(:not([data-loading])) { color: var(--color-neutral-7); }
+.cui-button[data-variant="link"]:active:where(:not([data-loading])) { color: var(--color-neutral-5); }
 
 /*
   Disabled — one treatment for every variant, as components.css ships it.
@@ -202,7 +202,10 @@
   The content stays in the layout (so the width holds) and in the
   accessibility tree (opacity, not visibility), so the button keeps its
   name. The spinner keeps turning under reduced motion (decided 2026-10-26).
-  Spinner size and hover-while-loading: TODO(open-question Q-BTN-3).
+  The fill is fixed while loading: hover and pressed change nothing, because
+  a loading button can't be pressed (decided 2026-10-26, Q-BTN-3). Those rules
+  are written `:hover:where(:not([data-loading]))`, which keeps their
+  specificity.
 */
 .cui-button[data-loading] {
   position: relative;

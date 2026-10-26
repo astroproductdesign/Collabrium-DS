@@ -35,7 +35,7 @@ The `ref` is forwarded to the `<span>` element.
 5. **Spacing between badges is 4px** (`spacing-4`), set by the layout around them, not by the badge.
 6. **Icons follow their own tier.** Status icons such as `CheckCircle` are Fill (the default), 14px.
 7. **22px tall, caption type (12px), weight 700.** The height is fixed, so a label never wraps.
-8. **Success, Warning and Error text are darker than their fill colour** (`--color-green-text`, `--color-amber-text`, `--color-red-text`), because the full-strength colours fail contrast on their own tints at this size. Neutral text stays Neutral-9.
+8. **Success and Warning text are darker than their fill colour** (`--color-green-text`, `--color-amber-text`), because the full-strength colours fail contrast on their own tints at this size. Error text stays the full Red (`--color-red`, 3.2:1 on its tint): a decision of 2026-10-26, not to be raised again. Neutral text stays Neutral-9.
 
 ## Accessibility
 - Renders a plain `<span>`. It is not focusable and has no role; screen readers read its text in place.
@@ -43,7 +43,7 @@ The `ref` is forwarded to the `<span>` element.
 - The icon is `aria-hidden`.
 - Add visually hidden text when the visible label needs context, e.g. `Highest<span className="sr-only"> CTR in this comparison</span>`.
 - No live region. If a badge changes while the user is on the page (Pending to Active), announce the change where it happened, not through the badge.
-- Contrast: Neutral, Warning, Info and Selected pass AA. Success uses the darker green for this reason. Error text takes the darker `--color-red-text` (4.8:1 on its tint). Success text uses `--color-green-text` (4.7:1 on its tint).
+- Contrast: Neutral, Warning, Info and Selected pass AA. Success uses the darker green for this reason. Error text is the full Red, 3.2:1 on its tint (accepted 2026-10-26). Success text uses `--color-green-text` (4.7:1 on its tint).
 
 ## Motion
 None. Badge doesn't animate.

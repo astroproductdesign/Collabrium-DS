@@ -13,9 +13,13 @@ export * from './motion';
 export * from './components/Button';
 export * from './components/Badge';
 export * from './components/Checkbox';
+export * from './components/InputField';
 export * from './components/LoadingState';
+export * from './components/PermissionPrompt';
+export * from './components/Radio';
 export * from './components/StreamingText';
 export * from './components/TaskRows';
+export * from './components/Textarea';
 export * from './components/Thinking';
 
 // Utilities

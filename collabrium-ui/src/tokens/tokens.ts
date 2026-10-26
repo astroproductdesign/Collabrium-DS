@@ -55,7 +55,6 @@ export const tokens = {
     navyTintBorder: 'rgba(20, 115, 230, .28)',
     greenText: '#007d47',
     amberText: '#9a5c00',
-    redText: '#D4001A',
   },
   font: {
     primary: '\'Mulish\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif',

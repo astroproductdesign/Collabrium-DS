@@ -8,7 +8,7 @@ arrived. Three variants (Drive, Dots, Orbit), one shared shell. It is part
 of AI Native, which has eight parts; this is the first one converted.
 
 ## Use when
-- An AI operation has been running for more than 400ms and nothing has streamed back yet.
+- An AI operation has been running for more than 400ms and nothing has streamed back yet. Your code decides when to mount it.
 - You can name what the AI is doing ("Thinking", "Reading the export", "Drafting") and update it as the phase changes.
 
 ## Don't use when
@@ -24,22 +24,22 @@ of AI Native, which has eight parts; this is the first one converted.
 |---|---|---|---|
 | `variant` | `'drive'` \| `'dots'` \| `'orbit'` | **required** | `drive`: square cells, a wavefront driving right (650ms). `dots`: round cells, same wavefront. `orbit`: one comet lapping the outer ring, centre cell dim (950ms). |
 | `label` | text | **required** | What the AI is doing right now. Change it as the phase changes. Announced once per change. |
-| `startedAt` | number (`Date.now()`) | the moment it mounted | When the operation really started. The timer counts from here and the 400ms hold-back is measured from here. |
+| `startedAt` | number (`Date.now()`) | the moment it mounted | When the operation really started. The timer counts from here, so a loader you mount after 400ms reads 0.4s on its first frame. |
 | `id`, `aria-*`, `data-*` | native | — | Passed to the root `<div>`. `style` and `className` are not accepted. `role` is fixed. |
 
 The `ref` is forwarded to the root `<div>`.
 
 ## Rules
 The component owns the rules that are local to it:
-1. **It appears at 400ms, never before** (Rule 2). Nothing renders until 400ms after `startedAt`; if you unmount it first, it never shows. The timer still counts from the true start, so it appears reading 0.4s.
-2. **The timer shows from the first frame and is never accumulated** (Rule 5). It is computed from `startedAt` on every frame.
-3. **The label is announced once, the timer never** (Rule 11).
-4. **Reduced motion freezes the decoration and keeps the timer** (Rule 12).
-5. **It never expands** (Rule 3): no chevron, no click target.
-5a. **A label that is too long ends in an ellipsis**, on one line; the full text is the tooltip and is always in the page for screen readers. Still, keep labels short: the label says what the AI is doing right now, in a few words.
+1. **The timer shows from the first frame and is never accumulated** (Rule 5). It is computed from `startedAt` on every frame.
+2. **The label is announced once, the timer never** (Rule 11).
+3. **Reduced motion freezes the decoration and keeps the timer** (Rule 12).
+4. **It never expands** (Rule 3): no chevron, no click target.
+4a. **A label that is too long ends in an ellipsis**, on one line; the full text is the tooltip and is always in the page for screen readers. Still, keep labels short: the label says what the AI is doing right now, in a few words.
 
 The host (your code) owns the rest:
-6. **AI operations only** (Rule 1).
+5. **AI operations only** (Rule 1).
+6. **Mount it only after the operation has run for 400ms, never before** (Rule 2). The component renders as soon as it is mounted; your code holds it back, so work that finishes sooner never shows a loader. Pass `startedAt` so the timer reads 0.4s on its first frame. (Decided 2026-10-26: the host owns the hold-back, not the component.)
 7. **Remove it at the first streamed token, not at completion** (Rule 6). It leaves nothing behind.
 8. **One per operation, never two in a view** (Rule 7).
 9. **It never blocks** (Rule 8): no overlay, no modal.
@@ -49,7 +49,7 @@ The host (your code) owns the rest:
 13. **Keep the label live** (Rule 4): "Thinking" → "Reading the export" → "Comparing books" → "Drafting".
 
 ## Accessibility
-- The root is `role="status"` with `aria-live="polite"`. It is always in the page, so a screen reader is already watching it when the loader appears after the 400ms hold-back and when the label changes. Only a real label change is announced.
+- The root is `role="status"` with `aria-live="polite"`. The label goes into the region one commit after it mounts, so a screen reader sees it arrive and announces it, and announces each later change. Only a real label change is announced.
 - The grid and the timer are `aria-hidden`: the timer changes every 100ms, which is unusable in a live region.
 - Not interactive: never focusable, no keyboard behaviour.
 - Colour never carries meaning: the label says what is happening.
