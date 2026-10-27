@@ -1,0 +1,476 @@
+/*
+  Prompt input bar — ported from collabrium-dls/components.css lines 4784–5031
+  (.c-prompt-bar*: the floating bar, its glow, surface, mark, field, typing
+  line, toolbar, reduced motion and mobile rules; the inline variant; and the
+  model switcher). The Chat window rules that follow it (5033 on) belong to the
+  Chat window.
+
+  Mapping from the old classes:
+    .c-prompt-bar (+ .c-prompt-bar--inline)      -> .cui-prompt-bar ([data-variant="floating" | "inline"])
+    .is-revealed / .is-morphable / .is-collapsed / .is-launched
+                                                 -> [data-revealed] / [data-morphable] / [data-collapsed] / [data-launched]
+    .c-prompt-bar-glow-outer / -inner            -> __glow--outer / __glow--inner
+    .c-prompt-bar-surface                        -> __surface
+    .c-prompt-bar-mark                           -> __mark
+    .c-prompt-bar-field (+ .is-typing)           -> __field ([data-typing])
+    .c-prompt-bar-field input                    -> __input
+    .c-prompt-bar-ghost / -ghost-text / -ghost-static -> __ghost / __ghost-text ([data-pulsing]) / __ghost-static
+    .c-prompt-bar-more / -toolbar / -group       -> __more / __toolbar / __group
+    .c-prompt-bar-send                           -> [data-part="send"] on the Button
+    .c-prompt-bar-model / -trigger / -label      -> __model / [data-part="model-trigger"] / __model-label
+    .c-prompt-bar-model-menu / -item             -> __model-menu / __model-item ([data-active])
+    <i class="ph ...">                           -> svg (Phosphor React)
+
+  The custom properties --prompt-bar-shift, --prompt-bar-push and
+  --prompt-bar-w keep their DESIGN-SYSTEM.md names: they are the documented
+  geometry hooks (the host measures them; PromptInputBar.tsx writes the first
+  two from its props).
+
+  Specificity is kept in the same order as the source: the base wrapper
+  (0,1,0), then [data-revealed] and [data-collapsed] (0,2,0), then
+  [data-morphable] after them so it wins the transition tie, then the inline
+  variant after all of them (0,2,0, later) so it beats the floating rules it
+  overrides.
+
+  Differences, each logged in MIGRATION-LOG.md:
+    - The AI mark is a span drawn with Button Primary's icon-only size and fill
+      (tokens), not a Button: it must not be a control. PIB-2.
+    - The model menu is a portal to the body, placed from the trigger, so the
+      bar's overflow and transform cannot clip or move it. PIB-3.
+    - The trigger's caret is `icon-xs` (12px), the source's 12px. Everything
+      else with a token uses it.
+*/
+
+.cui-prompt-bar {
+  /*
+    The geometry hooks (DESIGN-SYSTEM.md), then values with no token: the
+    620px and 406px widths, the one-off pill padding, the stacking order and
+    the glow's reach. Spacing, radius, shadow, durations and the focus ring
+    come from tokens.
+  */
+  --prompt-bar-morph-dur: var(--duration-morph);
+  --prompt-bar-morph-ease: var(--ease-morph);
+  --prompt-bar-w: 406px;
+  --prompt-bar-shift: 0px;
+  --prompt-bar-push: 0px;
+  --cui-prompt-bar-width: 620px;
+  --cui-prompt-bar-pill-pad-y: 11px;
+  --cui-prompt-bar-pill-pad-start: 56px;
+  --cui-prompt-bar-z: 20;
+  --cui-prompt-bar-surface-z: 10;
+  --cui-prompt-bar-model-max: 160px;
+
+  position: absolute;
+  bottom: var(--spacing-24);
+  left: 50%;
+  width: min(var(--cui-prompt-bar-width), calc(100% - var(--spacing-32)));
+  z-index: var(--cui-prompt-bar-z);
+  opacity: 0;
+  transform: translate(calc(-50% + var(--prompt-bar-shift) + var(--prompt-bar-push)), 16px);
+  transition:
+    opacity var(--duration-reveal) var(--ease-reveal),
+    transform var(--duration-reveal) var(--ease-reveal);
+  transition-delay: 1150ms;
+}
+.cui-prompt-bar[data-revealed] {
+  opacity: 1;
+  transform: translate(calc(-50% + var(--prompt-bar-shift) + var(--prompt-bar-push)), 0);
+}
+.cui-prompt-bar[data-collapsed] {
+  width: var(--prompt-bar-w);
+}
+/* After the collapsed rule, so it wins the tie once added after the entrance: collapse and expand run on the morph timing, not the slower entrance. */
+.cui-prompt-bar[data-morphable] {
+  transition:
+    transform var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    width var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    bottom var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.cui-prompt-bar[data-launched] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Glow: an animated pastel gradient behind the surface, clipped to a clean edge-glow by sitting a lower z-index. */
+.cui-prompt-bar__glow {
+  position: absolute;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-fire-pastel) 0%,
+    var(--color-wood-pastel) 20%,
+    var(--color-earth-pastel) 40%,
+    var(--color-water-pastel) 60%,
+    var(--color-gold-pastel) 80%,
+    var(--color-fire-pastel) 100%
+  );
+  background-size: 200% 100%;
+  animation: cui-prompt-bar-glow-move 4s linear infinite;
+  /* The unsupported value is dropped by the parser, which leaves this one in effect: that is the fallback. */
+  mix-blend-mode: screen;
+  mix-blend-mode: plus-lighter;
+  transition: border-radius var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.cui-prompt-bar__glow--outer {
+  inset: -4px;
+  filter: blur(16px);
+  opacity: 0.7;
+  border-radius: calc(var(--radius-lg) + 4px);
+}
+.cui-prompt-bar__glow--inner {
+  inset: -1px;
+  filter: blur(1px);
+  opacity: 1;
+  border-radius: calc(var(--radius-lg) + 1px);
+}
+.cui-prompt-bar[data-collapsed] .cui-prompt-bar__glow--outer,
+.cui-prompt-bar[data-collapsed] .cui-prompt-bar__glow--inner {
+  border-radius: var(--radius-pill);
+}
+@keyframes cui-prompt-bar-glow-move {
+  from { background-position: 0% 0; }
+  to { background-position: 200% 0; }
+}
+
+/* Surface */
+.cui-prompt-bar__surface {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  position: relative;
+  z-index: var(--cui-prompt-bar-surface-z);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-4);
+  background: var(--color-neutral-1);
+  padding: var(--spacing-16);
+  transition:
+    grid-template-rows var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    border-radius var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    padding var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.cui-prompt-bar[data-collapsed] .cui-prompt-bar__surface {
+  grid-template-rows: auto 0fr;
+  border-radius: var(--radius-pill);
+  /*
+    11px top and bottom is a deliberate one-off, not the spacing scale: it
+    lands the pill at about 46px against the input's own 24px line box
+    (spacing-8 undershoots to 40px, spacing-12 overshoots to 48px). 56px at the
+    start is the same kind of one-off: 16 gutter + 32 mark + 8 gap. The end
+    stays spacing-16.
+  */
+  padding: var(--cui-prompt-bar-pill-pad-y) var(--spacing-16) var(--cui-prompt-bar-pill-pad-y) var(--cui-prompt-bar-pill-pad-start);
+}
+
+/*
+  AI mark: Button Primary's icon-only size and fill (Obsidian, Neutral-1 icon,
+  32px) with the radius back to a true circle. A span, not a Button: it is a
+  Tier 2 Fill mark, not a control, so it is never focusable or pressable, and
+  the input's own label names the component. Absolute, not a grid item, so it
+  can arrive on opacity and transform instead of a width that runs layout on
+  every frame of the morph.
+*/
+.cui-prompt-bar__mark {
+  position: absolute;
+  left: var(--spacing-16);
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+  font-size: var(--icon-sm);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%) scale(0.5);
+  transition:
+    opacity var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    transform var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.cui-prompt-bar[data-collapsed] .cui-prompt-bar__mark {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+/* Field */
+.cui-prompt-bar__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.cui-prompt-bar__input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-primary);
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--text-body1-weight);
+  color: var(--color-neutral-9);
+}
+/* The real hint is the typing line, not the native placeholder. */
+.cui-prompt-bar__input::placeholder {
+  color: transparent;
+}
+
+/* Typing line: a span, not ::placeholder, since it is masked, transformed and measured once the box becomes a pill. Left-aligned, where typed text lands. */
+.cui-prompt-bar__ghost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: var(--font-primary);
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--text-body1-weight);
+  color: var(--color-neutral-5);
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-prompt-bar__field[data-typing] .cui-prompt-bar__ghost {
+  opacity: 0;
+}
+.cui-prompt-bar[data-collapsed] .cui-prompt-bar__ghost {
+  mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 10px), transparent 100%);
+}
+.cui-prompt-bar__ghost-text {
+  display: inline-block;
+}
+.cui-prompt-bar__ghost-text[data-pulsing]::after {
+  content: '';
+  display: inline-block;
+  width: var(--border-width-sm);
+  height: 1em;
+  margin-left: var(--spacing-2);
+  vertical-align: middle;
+  background: var(--color-neutral-5);
+  animation: cui-prompt-bar-caret-blink var(--duration-blink) steps(1) infinite;
+}
+@keyframes cui-prompt-bar-caret-blink {
+  50% { opacity: 0; }
+}
+.cui-prompt-bar__ghost-static {
+  display: none;
+  font-family: var(--font-primary);
+  font-size: var(--text-body1-size);
+  color: var(--color-neutral-5);
+}
+
+/* Second row and toolbar: the buttons inside are the real Button, Ghost and Primary, icon-only. */
+.cui-prompt-bar__more {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: var(--spacing-12);
+  transition:
+    padding-top var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease),
+    opacity var(--prompt-bar-morph-dur) var(--prompt-bar-morph-ease);
+}
+.cui-prompt-bar[data-collapsed] .cui-prompt-bar__more {
+  padding-top: 0;
+  opacity: 0;
+}
+.cui-prompt-bar__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cui-prompt-bar__group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+/* Reduced motion: the glow stops, the poses stay and only the travel between them goes, the typing line gives way to a short fixed line. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-prompt-bar__glow {
+    animation: none;
+  }
+  .cui-prompt-bar__ghost-text[data-pulsing]::after {
+    animation: none;
+  }
+  .cui-prompt-bar[data-morphable] {
+    transition: none;
+  }
+  .cui-prompt-bar__mark {
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+  .cui-prompt-bar__ghost {
+    display: none;
+  }
+  .cui-prompt-bar__ghost-static {
+    display: block;
+  }
+}
+
+/* Mobile: the shrink stays (the second row folds away), the parking and the pill shape go. */
+@media (max-width: 640px) {
+  .cui-prompt-bar {
+    left: var(--spacing-16);
+    right: var(--spacing-16);
+    width: auto;
+    bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom));
+  }
+  .cui-prompt-bar,
+  .cui-prompt-bar[data-revealed] {
+    transform: none;
+  }
+  .cui-prompt-bar[data-collapsed] {
+    width: auto;
+  }
+  .cui-prompt-bar[data-collapsed] .cui-prompt-bar__surface {
+    border-radius: var(--radius-lg);
+  }
+  .cui-prompt-bar[data-collapsed] .cui-prompt-bar__glow--outer {
+    border-radius: calc(var(--radius-lg) + 4px);
+  }
+  .cui-prompt-bar[data-collapsed] .cui-prompt-bar__glow--inner {
+    border-radius: calc(var(--radius-lg) + 1px);
+  }
+}
+
+/*
+  Inline variant: a chat window's composer. Fixed in flow, never collapses, no
+  mark, a plain placeholder instead of the typing line. "Static" in the spec
+  means in flow, not positioned absolutely: it is relative, because the glow is
+  absolutely positioned against this element and needs a positioned ancestor.
+*/
+.cui-prompt-bar[data-variant="inline"],
+.cui-prompt-bar[data-variant="inline"][data-revealed] {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__surface {
+  box-shadow: var(--shadow-2);
+}
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__glow--outer {
+  inset: -7px;
+  filter: blur(13px);
+  opacity: 0.4;
+  mix-blend-mode: normal;
+}
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__glow--inner {
+  inset: -1.5px;
+  filter: blur(2px);
+  opacity: 0.5;
+  mix-blend-mode: normal;
+}
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__input::placeholder {
+  color: var(--color-neutral-5);
+}
+/* The grid track would size to its content's min-content; inline runs at 100% of its container and can go narrower than the toolbar. Scoped to inline, so the floating bar's sizing is untouched. */
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__field,
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__more,
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__toolbar,
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__group {
+  min-width: 0;
+}
+/* Send stays Button Primary icon-only for fill and size, with the radius back to a pill (the same override as the mark). */
+.cui-prompt-bar[data-variant="inline"] .cui-button[data-part="send"] {
+  border-radius: var(--radius-pill);
+}
+
+/* Model switcher: the same right-group slot (switcher, Voice input, Send) in both variants. The trigger is the real Button Ghost, small, with a label. */
+.cui-prompt-bar__model {
+  position: relative;
+  flex: none;
+}
+.cui-prompt-bar .cui-button[data-part="model-trigger"] {
+  gap: var(--spacing-6);
+  max-width: var(--cui-prompt-bar-model-max);
+  color: var(--color-neutral-7);
+}
+.cui-prompt-bar .cui-button[data-part="model-trigger"] .cui-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  min-width: 0;
+}
+.cui-prompt-bar__model-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-prompt-bar__model-caret {
+  flex: none;
+  font-size: var(--icon-xs);
+  color: var(--color-neutral-5);
+}
+
+/*
+  The menu opens upward, right-aligned to the trigger, as a bottom sheet would.
+  It is a portal to the body with `position: fixed`, placed from the trigger's
+  rect: the bar's own overflow (the pill's fold) and its transform would clip or
+  move anything inside it.
+*/
+/* The menu is a portal, outside .cui-prompt-bar, so its own numbers are declared on it. */
+.cui-prompt-bar__model-menu {
+  --cui-prompt-bar-menu-z: 60;
+  --cui-prompt-bar-menu-min-width: 180px;
+  --cui-prompt-bar-menu-item-height: 36px;
+
+  position: fixed;
+  z-index: var(--cui-prompt-bar-menu-z);
+  min-width: var(--cui-prompt-bar-menu-min-width);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  padding: var(--spacing-4);
+}
+.cui-prompt-bar__model-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  height: var(--cui-prompt-bar-menu-item-height);
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-9);
+  text-align: left;
+  cursor: pointer;
+}
+.cui-prompt-bar__model-item:hover {
+  background: var(--color-neutral-2);
+}
+.cui-prompt-bar__model-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-prompt-bar__model-item span {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The check is visibility-toggled, never added or removed, so every row reserves the same width and the labels never shift. */
+.cui-prompt-bar__model-item svg {
+  flex: none;
+  font-size: var(--icon-sm);
+  color: var(--color-neutral-9);
+  visibility: hidden;
+}
+.cui-prompt-bar__model-item[data-active] svg {
+  visibility: visible;
+}

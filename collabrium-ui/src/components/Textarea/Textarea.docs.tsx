@@ -41,6 +41,7 @@ export const anatomy: DocsAnatomyNode[] = [
         description: 'At least 96px tall (about four lines), 12px radius, 1px Neutral-3 border, Neutral-1 fill, 12px padding, body2 type. Resizes vertically only. Focus swaps in a 2px Obsidian border.',
       },
       { name: 'Helper or error', element: 'span.cui-textarea__helper', when: 'with helper or error', description: 'Caption, Neutral-5. The error is bold Red and replaces the helper.' },
+      { name: 'Counter', element: 'span.cui-textarea__counter', when: 'with showCount', description: 'Caption, Neutral-5, in its own right-aligned row, `12/280`. Red when the limit is reached.' },
     ],
   },
 ];
@@ -127,6 +128,13 @@ function Description() {
 <Textarea label="Notes" placeholder="Optional" />`,
   },
   {
+    id: 'counter',
+    title: 'Character count',
+    description: 'For a field with a limit. Set `maxLength` and `showCount`: the count sits under the box, right-aligned, and turns Red when the limit is reached. It is off unless you turn it on, so a field with a limit but no need to show it stays quiet.',
+    render: () => <Textarea label="Project summary" maxLength={280} showCount placeholder="Summarise the project in a few sentences" />,
+    code: `<Textarea label="Project summary" maxLength={280} showCount placeholder="Summarise the project in a few sentences" />`,
+  },
+  {
     id: 'hidden-label',
     title: 'Hidden label',
     description: 'The label is always rendered. Where the layout already names the field, `hideLabel` hides it visually and keeps it for screen readers. A placeholder is not a label: it vanishes as soon as someone types.',
@@ -141,6 +149,7 @@ export const props: DocsProp[] = [
   { name: 'helper', options: 'ReactNode', default: '—', description: 'A helper line under the box (caption, Neutral-5).' },
   { name: 'error', options: 'ReactNode', default: '—', description: 'Bold Red error text that replaces `helper`, a 1px Red border and `aria-invalid`. Clear it when the text passes.' },
   { name: 'required', options: 'boolean', default: 'false', description: 'A Red `*` after the label and `aria-required`. Leave optional fields unmarked.' },
+  { name: 'showCount', options: 'boolean', default: 'false', description: 'A character count under the box, `12/280`, Red at the limit. Needs `maxLength`. Off unless you set it.' },
   { name: 'value / defaultValue, onChange, placeholder, rows, disabled, maxLength, name, id, aria-*, data-*, …', options: 'native', default: '—', description: 'Passed to the `<textarea>`. `style` and `className` are not accepted. The ref is forwarded to the `<textarea>`.' },
 ];
 
@@ -170,6 +179,7 @@ export const accessibility: DocsAccessibility = {
     'A native `<textarea>` with a real `<label for>`, so the whole label focuses it. The label is always in the page, even with `hideLabel`.',
     'Required sets `aria-required="true"`; the Red `*` is visual only and hidden from assistive tech. The textarea is not given the native `required`, so the browser does not show its own validation bubble over yours.',
     'The helper is attached with `aria-describedby`. In error the error replaces it as the description (never both), and `aria-invalid="true"` is set. The error is not a live region: move focus to the field when you set it.',
+    'The count is attached with `aria-describedby`. It is not announced as you type.',
     'The error is stated in words under the box, not only by the border colour.',
     'Focus is shown by a border swap, on every focus (mouse or keyboard), not a ring.',
     'The resize handle is the browser\'s own, so it works with a pointer; the box can also be made taller by typing.',

@@ -1,0 +1,184 @@
+/*
+  Tool approval — ported from collabrium-dls/components.css lines 5713–5860
+  (.c-tool-approval*: the card, head, topbar, question, viewport, options,
+  custom answer, footer and reduced motion), plus the base Card shell it is
+  built on (`.c-card`, line 276, and the `.c-card p` reset, line 287) and
+  Pagination's step indicator (`.c-pagination-indicator`, line 3764), both
+  copied here because Card and Pagination are not converted and this package
+  stays standalone. The options are the real Radio and Checkbox, the free-text
+  answer is the real Input field and Textarea, and every button is the real
+  Button (all converted). The slot rules (5813–5857, Rules 16, 17 and 19) belong
+  to the Chat window that hosts the card and are not ported.
+
+  Mapping from the old classes:
+    .c-card .c-tool-approval                  -> .cui-tool-approval
+    .c-tool-approval-head                     -> __head
+    .c-tool-approval-question                 -> __question
+    .c-tool-approval-topbar                   -> __topbar
+    .c-pagination-indicator (forced visible)  -> __indicator
+    .c-tool-approval-dismiss                  -> [data-part="dismiss"] on the Button
+    .c-tool-approval-viewport / -body         -> __viewport / __body
+    .c-tool-approval-options                  -> __options
+    .c-tool-approval-option                   -> .cui-radio / .cui-checkbox inside __options
+    .c-tool-approval-custom                   -> __custom
+    .c-tool-approval-footer / -actions        -> __footer / __actions
+    <i class="ph ...">                        -> svg (Phosphor React)
+
+  Rendered values, not written ones. In the source, `.c-card p` (0,1,1) beats
+  the bare `.c-tool-approval-question` (0,1,0); the author prefixed that one
+  selector for the reason, and this port draws what the DLS draws: heading-5
+  type in Neutral-9.
+
+  Differences, each logged in MIGRATION-LOG.md:
+    - The options are the real Radio and Checkbox, so a row's circle or box also
+      reacts to hover and press (those states are in the library's Radio and
+      Checkbox). TOOL-3.
+    - The question takes focus when it changes, with no outline. TOOL-5.
+*/
+
+.cui-tool-approval {
+  /* Card's 240px floor has no token. The rest is tokens. */
+  --cui-tool-approval-min-width: 240px;
+
+  /* Card shell (.c-card), verbatim. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: var(--cui-tool-approval-min-width);
+  max-width: var(--measure-sm);
+  height: 100%;
+  padding: var(--spacing-16);
+  overflow: hidden;
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  font-family: var(--font-primary);
+  transition: box-shadow var(--duration-base) var(--ease-settle);
+  animation: cui-tool-approval-fade var(--duration-reveal) var(--ease-reveal) both;
+}
+@keyframes cui-tool-approval-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes cui-tool-approval-rise {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Head: the question on the left, the pager and dismiss grouped top right, on one row, centred against each other. */
+.cui-tool-approval__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-8);
+}
+.cui-tool-approval__topbar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+/* Pagination's step indicator, forced visible at every width (it is Pagination's mobile fallback there). */
+.cui-tool-approval__indicator {
+  display: inline-flex;
+  padding: 0 var(--spacing-4);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+.cui-tool-approval__topbar .cui-button[data-part="dismiss"] {
+  flex: none;
+  margin-left: var(--spacing-4);
+  color: var(--color-neutral-5);
+}
+.cui-tool-approval__topbar .cui-button[data-part="dismiss"]:hover {
+  color: var(--color-neutral-9);
+}
+
+.cui-tool-approval__question {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-primary);
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+  animation: cui-tool-approval-rise var(--duration-slow) var(--ease-settle) both;
+}
+/* It takes focus when the question changes; it is a heading, not a control, so it shows no ring. */
+.cui-tool-approval__question:focus {
+  outline: none;
+}
+
+/* Viewport: its height follows whichever question is showing (ToolApproval.tsx sets it), on the same pairing Prompt input bar's morph uses. */
+.cui-tool-approval__viewport {
+  overflow: hidden;
+  transition: height var(--duration-morph) var(--ease-morph);
+}
+.cui-tool-approval__body {
+  padding-bottom: var(--spacing-2);
+}
+
+.cui-tool-approval__options {
+  display: flex;
+  flex-direction: column;
+  animation: cui-tool-approval-rise var(--duration-slow) var(--ease-settle) both;
+}
+/*
+  Option row: the real Radio or Checkbox, with its label as the row. No gap
+  between rows: each row's own spacing-8 padding is the rhythm, the way a
+  Dropdown's option list is. The row's fill on hover is Dropdown option's own
+  hover token (Neutral-2).
+*/
+.cui-tool-approval__options .cui-radio,
+.cui-tool-approval__options .cui-checkbox {
+  padding: var(--spacing-8);
+  margin: 0 calc(var(--spacing-8) * -1);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-tool-approval__options .cui-radio:where(:not([data-disabled])):hover,
+.cui-tool-approval__options .cui-checkbox:where(:not([data-disabled])):hover {
+  background: var(--color-neutral-2);
+}
+
+/* The custom answer: the Input field at rest, the Textarea once it is used. Both fill the card's width. */
+.cui-tool-approval__custom {
+  margin-top: var(--spacing-8);
+}
+.cui-tool-approval__custom .cui-textarea {
+  animation: cui-tool-approval-rise var(--duration-slow) var(--ease-settle) both;
+}
+
+/* Footer: Skip and Continue or Send, right-aligned. The card's own 8px gap already spaces it from the body, so no margin of its own. */
+.cui-tool-approval__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-12);
+  margin-top: 0;
+}
+.cui-tool-approval__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+/* Reduced motion (Rule 15): the height morph and the entrances go; the same questions, in the same order, still get asked. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-tool-approval,
+  .cui-tool-approval__question,
+  .cui-tool-approval__options,
+  .cui-tool-approval__custom .cui-textarea {
+    animation: none;
+  }
+  .cui-tool-approval__viewport {
+    transition: none;
+  }
+}

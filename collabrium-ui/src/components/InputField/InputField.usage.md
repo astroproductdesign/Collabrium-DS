@@ -14,7 +14,7 @@ share its label, border, fill and type.
 - **It is a whole-number quantity with − and + buttons.** Use Quantity selector (not converted yet), which is built on this box.
 - **It is a password.** Use Password field (not converted yet).
 - **It is a search.** Use Search input (not converted yet).
-- **The text runs to several lines.** Use Textarea (not converted yet).
+- **The text runs to several lines.** Use Textarea.
 - **The person picks from a list.** Use Radio, a select, or Chip, never a text box with a list of valid answers.
 
 ## Props

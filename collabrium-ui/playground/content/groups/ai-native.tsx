@@ -45,6 +45,4 @@ export const rules: GroupOverviewDocs['rules'] = [
 
 export const comingSoon: GroupOverviewDocs['comingSoon'] = [
   { title: 'Chat window', summary: 'A modal chat surface: conversation history on the left, the active thread on the right. The expanded form of the Prompt input bar.' },
-  { title: 'Prompt input bar', summary: 'Where the person asks. The floating bar morphs into the Chat window.' },
-  { title: 'Tool approval', summary: 'A one-question-at-a-time card the AI shows mid-task when it needs the person to decide before it can continue.' },
 ];

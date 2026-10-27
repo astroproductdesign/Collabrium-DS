@@ -16,6 +16,8 @@
   error (0,2,0 here, before focus so focus wins a tie), then focus (0,2,0),
   then disabled last.
 
+  The resize grip is redrawn clear of the corner curve (TEXTAREA-6).
+
   Differences, each logged in MIGRATION-LOG.md and flagged to the user:
     - The CSS styles no error and no disabled state for a textarea
       (`.c-field-error input` and `.c-field input:disabled` select inputs
@@ -26,13 +28,18 @@
     - The placeholder is Neutral-5 and autofill is not applicable to a textarea,
       so only the placeholder is carried over from Input field. TEXTAREA-4.
     - The box is body2 at regular weight, as the CSS has it; DESIGN-SYSTEM.md
-      says body1 at weight 500. TEXTAREA-1.
+      says body1 at weight 500 (decided body2, 2026-10-26). TEXTAREA-1.
+    - An optional character count, from Input field's counter, shown or hidden
+      by the user of the component (decided 2026-10-26). TEXTAREA-5.
 */
 
 .cui-textarea {
   /* The 96px floor (about four lines) has no token: Textarea only. */
   --cui-textarea-min-height: 96px;
   --cui-textarea-pad: var(--spacing-12);
+  /* The redrawn resize grip: its size, and how far it is pulled in from the corner (no tokens: Textarea only). */
+  --cui-textarea-grip-size: 10px;
+  --cui-textarea-grip-inset: 5px;
 
   display: flex;
   flex-direction: column;
@@ -86,6 +93,26 @@
   opacity: 1;
 }
 
+/*
+  The resize grip. The browser draws its two diagonal lines in the very corner,
+  where the box's 12px curve cuts across them. Chrome, Edge and Safari let us
+  redraw it: the lines are drawn again as two diagonal strokes pulled in from
+  the corner so they sit clear of the curve. The handle still works as before,
+  and Firefox keeps its own. (Added 2026-10-26; not in the DLS.)
+*/
+.cui-textarea__input::-webkit-resizer {
+  background:
+    linear-gradient(
+      135deg,
+      transparent 0 44%,
+      var(--color-neutral-4) 44% 52%,
+      transparent 52% 68%,
+      var(--color-neutral-4) 68% 76%,
+      transparent 76%
+    )
+    no-repeat right var(--cui-textarea-grip-inset) bottom var(--cui-textarea-grip-inset) / var(--cui-textarea-grip-size) var(--cui-textarea-grip-size);
+}
+
 /* Error comes before focus: focus wins a tie, so a focused field in error shows the Obsidian border, as Input field does. */
 :where(.cui-textarea)[data-error] .cui-textarea__input {
   border-color: var(--color-red);
@@ -105,6 +132,19 @@
 }
 .cui-textarea[data-error] .cui-textarea__helper {
   font-weight: var(--weight-bold);
+  color: var(--color-red);
+}
+
+/* Character count: Input field's counter (caption, Neutral-5, its own right-aligned row, Red at the limit). */
+.cui-textarea__counter-row {
+  display: flex;
+  justify-content: flex-end;
+}
+.cui-textarea__counter {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+}
+.cui-textarea__counter[data-at-limit] {
   color: var(--color-red);
 }
 

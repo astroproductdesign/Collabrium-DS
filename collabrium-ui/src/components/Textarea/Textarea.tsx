@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useId, type ReactNode, type TextareaHTMLAttributes } from 'react';
+import { forwardRef, useId, useState, type ChangeEvent, type ReactNode, type TextareaHTMLAttributes } from 'react';
 import type { WithoutStyling } from '../../utils/types';
 
 type NativeTextareaProps = WithoutStyling<
@@ -24,6 +24,8 @@ export interface TextareaProps extends NativeTextareaProps {
   error?: ReactNode;
   /** Marks the field as needed: a Red `*` after the label and `aria-required`. Leave optional fields unmarked, with no "(optional)" text. */
   required?: boolean;
+  /** Shows a character count under the box, right-aligned, as `12/280`; it turns Red when the limit is reached. Needs `maxLength`. Off unless you set it. */
+  showCount?: boolean;
 }
 
 /**
@@ -33,14 +35,22 @@ export interface TextareaProps extends NativeTextareaProps {
  * (lines 192–193) and the `.c-field` rules it shares.
  */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(props, ref) {
-  const { label, hideLabel = false, helper, error, required = false, id: idProp, ...rest } = props;
+  const { label, hideLabel = false, helper, error, required = false, showCount = false, id: idProp, onChange, ...rest } = props;
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const messageId = useId();
+  const countId = useId();
+  const [length, setLength] = useState(String(rest.value ?? rest.defaultValue ?? '').length);
 
   const invalid = Boolean(error);
   const message = error ?? helper;
-  const describedBy = [rest['aria-describedby'], message ? messageId : undefined].filter(Boolean).join(' ') || undefined;
+  const atLimit = showCount && rest.maxLength !== undefined && length >= rest.maxLength;
+  const describedBy = [rest['aria-describedby'], message ? messageId : undefined, showCount ? countId : undefined].filter(Boolean).join(' ') || undefined;
+
+  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setLength(event.target.value.length);
+    onChange?.(event);
+  };
 
   return (
     <div className="cui-textarea" data-error={invalid || undefined} data-disabled={rest.disabled || undefined}>
@@ -60,11 +70,19 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         aria-required={required || undefined}
         aria-invalid={invalid || undefined}
         aria-describedby={describedBy}
+        onChange={handleChange}
       />
       {message && (
         <span className="cui-textarea__helper" id={messageId}>
           {message}
         </span>
+      )}
+      {showCount && (
+        <div className="cui-textarea__counter-row">
+          <span className="cui-textarea__counter" id={countId} data-at-limit={atLimit || undefined}>
+            {length}/{rest.maxLength}
+          </span>
+        </div>
       )}
     </div>
   );
