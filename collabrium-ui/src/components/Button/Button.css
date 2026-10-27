@@ -17,20 +17,26 @@
 
 .cui-button {
   /*
-    TODO(open-question Q-BTN-1): no design token exists for these values.
-    They are copied verbatim from components.css and kept in one place so
-    they can be swapped for tokens if the DLS adds them. DESIGN-SYSTEM.md
-    (Button, Sizes) records the 16px type size as "a component-specific
-    override, not a scale mismatch".
+    Control heights, the icon gap and the beacon cycle come from tokens. The
+    label sizes (14px at sm, 16px at md and lg) have no token: DESIGN-SYSTEM.md
+    (Button, Sizes) records the 16px as "a component-specific override, not a
+    scale mismatch".
   */
-  --cui-button-gap: 6px;
-  --cui-button-height-sm: 32px;
-  --cui-button-height-md: 40px;
-  --cui-button-height-lg: 48px;
+  --cui-button-gap: var(--spacing-6);
+  --cui-button-height-sm: var(--control-height-sm);
+  --cui-button-height-md: var(--control-height-md);
+  --cui-button-height-lg: var(--control-height-lg);
   --cui-button-font-size-sm: 14px;
   --cui-button-font-size-md: 16px;
   --cui-button-font-size-lg: 16px;
-  --cui-button-focus-offset: 2px;
+  /*
+    Danger's hover and pressed shades and Link's hover and pressed colours are
+    not in the DLS: defined here and approved 2026-10-26. Danger's are Red mixed
+    toward Neutral-9, because no darker-red token exists.
+  */
+  --cui-button-danger-hover: color-mix(in srgb, var(--color-red) 88%, var(--color-neutral-9));
+  --cui-button-danger-active: color-mix(in srgb, var(--color-red) 78%, var(--color-neutral-9));
+  --cui-button-link-underline-offset: 3px;
 
   font-family: inherit;
   font-weight: var(--weight-bold);
@@ -78,8 +84,8 @@
   background: var(--color-obsidian);
   color: var(--color-neutral-1);
 }
-.cui-button[data-variant="primary"]:hover { background: var(--color-neutral-8); }
-.cui-button[data-variant="primary"]:active { background: var(--color-neutral-7); }
+.cui-button[data-variant="primary"]:hover:where(:not([data-loading])) { background: var(--color-neutral-8); }
+.cui-button[data-variant="primary"]:active:where(:not([data-loading])) { background: var(--color-neutral-7); }
 
 .cui-button[data-variant="secondary"] {
   background: var(--color-neutral-1);
@@ -87,39 +93,105 @@
   border: var(--border-width-sm) solid var(--color-neutral-3);
   box-shadow: var(--shadow-1);
 }
-.cui-button[data-variant="secondary"]:hover { background: var(--color-neutral-2); }
+.cui-button[data-variant="secondary"]:hover:where(:not([data-loading])) { background: var(--color-neutral-2); }
 
 .cui-button[data-variant="ghost"] {
   background: transparent;
   color: var(--color-neutral-9);
 }
-.cui-button[data-variant="ghost"]:hover { background: var(--color-neutral-2); }
+.cui-button[data-variant="ghost"]:hover:where(:not([data-loading])) { background: var(--color-neutral-2); }
+
+/*
+  Danger: Red fill, Neutral-1 text, no border (DESIGN-SYSTEM.md). Hover and
+  pressed step the red toward Neutral-9, the way Primary steps Obsidian toward
+  black. White on Red is about 3.7:1, below AA for 16px text; the DLS specifies
+  it, so it ships (approved 2026-10-26).
+*/
+.cui-button[data-variant="danger"] {
+  background: var(--color-red);
+  color: var(--color-neutral-1);
+}
+.cui-button[data-variant="danger"]:hover:where(:not([data-loading])) { background: var(--cui-button-danger-hover); }
+.cui-button[data-variant="danger"]:active:where(:not([data-loading])) { background: var(--cui-button-danger-active); }
+
+/*
+  Link: transparent, Neutral-9 text, underlined with a 3px offset, no height,
+  padding or border (DESIGN-SYSTEM.md); the type is Chip's "Show less" recipe
+  (label2). It has no data-size, so no size rule applies. Hover and pressed
+  step the text colour (a fill on a padding-less line of text would look
+  wrong); disabled is Neutral-4 text with the underline kept.
+*/
+.cui-button[data-variant="link"] {
+  height: auto;
+  padding: 0;
+  background: transparent;
+  color: var(--color-neutral-9);
+  font-size: var(--text-label2-size);
+  line-height: var(--text-label2-lh);
+  font-weight: var(--text-label2-weight);
+  text-decoration: underline;
+  text-underline-offset: var(--cui-button-link-underline-offset);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.cui-button[data-variant="link"]:hover:where(:not([data-loading])) { color: var(--color-neutral-7); }
+.cui-button[data-variant="link"]:active:where(:not([data-loading])) { color: var(--color-neutral-5); }
 
 /*
   Disabled — one treatment for every variant, as components.css ships it.
   DESIGN-SYSTEM.md's States table describes a different Secondary/Ghost
   disabled look; see MIGRATION-LOG.md, Inconsistencies (BTN-2).
 */
-.cui-button[data-variant]:disabled {
+.cui-button[data-variant]:disabled,
+.cui-button[data-variant][aria-disabled="true"]:where(:not([data-loading])) {
   background: var(--color-neutral-4);
   color: var(--color-neutral-1);
   border-color: var(--color-neutral-3);
   cursor: not-allowed;
 }
 
+.cui-button[data-variant="link"]:disabled,
+.cui-button[data-variant="link"][aria-disabled="true"]:where(:not([data-loading])) {
+  background: transparent;
+  color: var(--color-neutral-4);
+  border-color: transparent;
+}
+
 .cui-button:focus-visible {
-  outline: var(--border-width-md) solid var(--color-obsidian);
-  outline-offset: var(--cui-button-focus-offset);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/*
+  Forced colours: the browser removes backgrounds, so a Primary button with no
+  border reads as loose text. Give it a 1px edge in the system button-text
+  colour (a CSS keyword; tokens are overridden in this mode). An outline with
+  a negative offset, so the button does not grow. Only in forced colours:
+  nothing changes anywhere else. Decided 2026-10-26 for Primary, and Danger
+  follows it. Ghost and Link are deliberately borderless and are not changed.
+*/
+@media (forced-colors: active) {
+  .cui-button[data-variant="primary"],
+  .cui-button[data-variant="danger"] {
+    outline: var(--border-width-sm) solid ButtonText;
+    outline-offset: calc(var(--border-width-sm) * -1);
+  }
+  .cui-button[data-variant="primary"]:focus-visible,
+  .cui-button[data-variant="danger"]:focus-visible {
+    outline: var(--focus-ring-width) solid ButtonText;
+    outline-offset: var(--focus-ring-offset);
+  }
 }
 
 /* .c-btn declares its own display, so the UA's zero-specificity
    [hidden]{display:none} would lose. Kept from the source. */
 .cui-button[hidden] { display: none; }
 
-/* Icons: Phosphor glyphs at 1em, so they follow the button's type size
-   exactly as the old <i class="ph"> icons did. */
+/* Icons: icon-sm (16px) at every button size, as DESIGN-SYSTEM.md specifies.
+   (components.css left them to inherit the button's font size, which made
+   them 14px at sm.) */
 .cui-button__icon {
   flex: none;
+  font-size: var(--icon-sm);
 }
 
 /*
@@ -129,7 +201,11 @@
   input: spinner-gap, Tier 1 Regular, duration-ambient linear infinite).
   The content stays in the layout (so the width holds) and in the
   accessibility tree (opacity, not visibility), so the button keeps its
-  name. Spinner size and hover-while-loading: TODO(open-question Q-BTN-3).
+  name. The spinner keeps turning under reduced motion (decided 2026-10-26).
+  The fill is fixed while loading: hover and pressed change nothing, because
+  a loading button can't be pressed (decided 2026-10-26, Q-BTN-3). Those rules
+  are written `:hover:where(:not([data-loading]))`, which keeps their
+  specificity.
 */
 .cui-button[data-loading] {
   position: relative;
@@ -163,7 +239,7 @@
    Forced colours: no rule, on purpose.
    ========================================================= */
 .cui-button[data-beacon] {
-  --cui-button-beacon-dur: 1.4s;
+  --cui-button-beacon-dur: var(--duration-pulse);
   --cui-button-beacon-count: 3;
   --cui-button-beacon-ink: color-mix(in srgb, var(--color-neutral-9) 32%, transparent);
   --cui-button-beacon-ink-0: color-mix(in srgb, var(--color-neutral-9) 0%, transparent);

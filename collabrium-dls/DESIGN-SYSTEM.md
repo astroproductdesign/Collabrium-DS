@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.124** — 2026-10-22 — Sourced from the Collabrium brand deck
+**v0.9.126** — 2026-10-26 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -126,6 +126,37 @@ extraction):
 |---|---|---|
 | Red | `#FD3343` | Errors, destructive actions, invalid input |
 | Green | `#00C26E` | Success icons, valid input. Canonical value (Needs Input #2, resolved — deck's stated hex duplicated Red) |
+
+#### Status tints
+
+The fill and border a status surface (Badge, Banner, Toast, error and
+required states) takes: the functional colour at a low alpha, and a
+stronger tint of the same hue for the 1px border. These are **not** the
+[element background tints](#elemental-background-tints): those colour a
+surface by the *element that owns its content*; these say what *state*
+something is in.
+
+| Token | Value | Use |
+|---|---|---|
+| `--color-green-tint` / `-tint-border` | Green at 12% / 32% | Success |
+| `--color-red-tint` / `-tint-border` | Red at 10% / 30% | Danger, error |
+| `--color-amber-tint` / `-tint-border` | Amber at 14% / 38% | Warning |
+| `--color-navy-tint` / `-tint-border` | Navy (Water) at 10% / 28% | Info |
+
+#### Text colours on tints
+
+Full-strength Green and Amber fail AA at caption size on their own tints
+(2.1:1 and 1.8:1). Text on a status tint, and Green or Amber text on white
+at small sizes, uses the darker value; **fills, borders and icons stay on
+the full-strength colour.** **Red has no text token: red text (the Badge
+Error label, the required marker and error text in a field, a removed-line
+count) uses `--color-red`, 3.2:1 on its tint and on white. This is a
+decision (2026-10-26); it is not to be raised again.**
+
+| Token | Hex | On its own tint | On white |
+|---|---|---|---|
+| `--color-green-text` | `#007d47` | 4.7:1 | 5.2:1 |
+| `--color-amber-text` | `#9a5c00` | 4.9:1 | 5.4:1 |
 
 ### Neutrals
 
@@ -271,6 +302,11 @@ at letter-spacing 0, `display` uses the Primary font, and there's a
 uppercase labels above a heading. This is the only other place tracking
 is applied besides `label3`.
 
+**Prose line height:** `1.65` (`--leading-prose`) for running prose that
+wraps over several lines (AI answers, reasoning text). Every size in the
+scale above is for UI text and carries its own line-height; prose takes
+this unitless value instead so it scales with the size it is set in.
+
 Note: the deck's two usage-matrix slides disagree on the pitch-deck/
 marketing row (one says Secondary font for "pitch deck title slides" and
 "quote/testimonial callouts," the other broadens this to general marketing
@@ -347,6 +383,7 @@ surface where that element's color is already established.
 
 | Token | Size | Usage |
 |---|---|---|
+| icon-xs | 12px | Letters and glyphs inside a 14px mark (a source avatar's initial); never a standalone icon |
 | icon-micro | 14px | Table cells, tag labels, badge indicators |
 | icon-sm | 16px | Inline with body text, buttons, form field icons, status indicators |
 | icon-base | 20px | Sidebar navigation, card action buttons, standard UI |
@@ -366,7 +403,9 @@ than step-numbered, matching the source scale exactly.
 
 | Token | Value | Purpose |
 |---|---|---|
+| spacing-2 | 2px | Half-step for tight composites only: a hairline offset, chip padding, a gap between two small marks |
 | spacing-4 | 4px | Base unit |
+| spacing-6 | 6px | Half-step for tight composites only: an icon-to-label gap |
 | spacing-8 | 8px | Element gap — default gap between elements |
 | spacing-12 | 12px | Tight internal padding (button horizontal padding, table cells) |
 | spacing-16 | 16px | Card padding — the deck's stated default |
@@ -378,6 +417,10 @@ than step-numbered, matching the source scale exactly.
 | spacing-60 | 60px | Large section gap — between major page regions |
 | spacing-120 | 120px | Full-page / hero-level spacing |
 
+`spacing-2` and `spacing-6` are the two half-steps. They exist for the
+inside of a single small control, where 4px is too coarse; never use them
+for layout between components, which stays on the 4px scale.
+
 **Semantic aliases:** `--card-padding` (16px), `--element-gap` (8px),
 `--section-gap` (48px), `--page-gutter` (32px). Prefer these in component
 code — they say *why*, not just how much.
@@ -385,6 +428,33 @@ code — they say *why*, not just how much.
 **Content max-width:** 1200px for centered, reading-width content
 (settings forms, detail panels). Collabrium is a product surface, so most
 layouts run full-bleed within the app shell rather than centering.
+
+### Measures
+
+Max-widths for self-contained AI Native surfaces. A host narrower than the
+measure simply fills it; a wider one is capped at it.
+
+| Token | Value | Used by |
+|---|---|---|
+| `--measure-sm` | 360px | Permission Prompt, Tool approval, Thinking |
+| `--measure-md` | 420px | Streaming Text |
+| `--measure-lg` | 440px | Task Rows (five slots across a row) |
+
+### Control sizes
+
+The height of an interactive control, by density. Button and Input field
+use 32, 40 and 48px; Chip uses 24px.
+
+| Token | Value | Use |
+|---|---|---|
+| `--control-height-xs` | 24px | Chips, tags, compact rows |
+| `--control-height-sm` | 32px | Small buttons and fields |
+| `--control-height-md` | 40px | Default buttons and fields |
+| `--control-height-lg` | 48px | Large buttons and fields |
+| `--hit-target-min` | 44px | The smallest comfortable touch row |
+| `--choice-size` | 18px | Checkbox and radio box |
+
+`spacing-32/40/48` hold the same numbers but mean spacing, not control height.
 
 ### Radius
 
@@ -394,6 +464,7 @@ abstract ramp.
 
 | Token | Value | Applies to |
 |---|---|---|
+| radius-xs | 6px | Compact controls only: the checkbox box, small chips, dense rows. The one place below 12px an interactive surface may go |
 | radius-sm | 12px | Inputs, small buttons, icon buttons |
 | radius-md | 16px | Standard and large buttons |
 | radius-lg | 20px | Cards, modals, nav, feature panels, swap widgets |
@@ -402,7 +473,8 @@ abstract ramp.
 
 **Rule:** one radius token per component type across the whole product —
 see [Component Rules](#component-rules), Rule 1. Never go below 12px on
-an interactive surface; sharp corners are off-brand here.
+an interactive surface except `radius-xs`, which belongs to the compact
+controls listed above; sharp corners are off-brand here.
 
 ### Elevation
 
@@ -425,7 +497,10 @@ rest, not just a border. Every shadow is built on **Neutral-4
 **Focus rings are Obsidian.** Interactive controls draw a 2px Obsidian
 (`#2B2B2C`) outline at `--border-width-md`: offset 2px on standalone
 controls, inset (−2px) where a container would clip it (list rows, nav
-children, chips in a scroller). Under forced colours it maps to
+children, chips in a scroller). The ring is four tokens, so a component
+never writes it out: `--focus-ring-width` (2px), `--focus-ring-color`
+(Obsidian), `--focus-ring-offset` (2px) and `--focus-ring-offset-inset`
+(−2px). Under forced colours it maps to
 Highlight. `shadow-focus` remains only as the Card family's focus halo
 (Interactive, Profile and Campaign cards), where a halo around the
 whole surface reads better than an outline; it isn't an element-colour
@@ -446,6 +521,16 @@ overshoot, no elastic easing.
 | duration-ambient | 900ms | Background / ambient motion |
 | duration-morph | 420ms | Pose-to-pose shape transitions — e.g. [Prompt input bar](#ai-native)'s expanded/collapsed morph |
 | duration-reveal | 550ms | Entrance reveals that need to read as more deliberate than `duration-slow` — e.g. Prompt input bar's own entrance |
+| duration-pulse | 1400ms | One cycle of a repeating attention cue — the CTA beacon ring, Thinking's shimmer |
+| duration-blink | 500ms | A text caret's blink |
+
+Rows and items that enter one after another are staggered, not
+simultaneous. Use one of two delays between neighbours:
+
+| Token | Value | Use |
+|---|---|---|
+| stagger-sm | 80ms | Rows entering one after another — Task Rows, follow-ups, a row's detail steps |
+| stagger-md | 120ms | The same for larger rows — Thinking's trace |
 
 Each element owns an easing curve, used when the motion is thematically
 tied to that element (e.g. a Water-owned panel slides with
@@ -2285,7 +2370,7 @@ component reflow.
 | Variant | Fill | Text | Border |
 |---|---|---|---|
 | Neutral | Neutral-2 `#f0f0f0` | Neutral-5 | Neutral-3 |
-| Success | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Success | Green at 12% | `#007d47` (darkened for AA) | Green at 32% |
 | Danger | Red at 10% | Red `#FD3343` | Red at 30% |
 | Warning | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
 | Info | Water at 10% | Water `#1473E6` | Water at 28% |
@@ -5585,7 +5670,7 @@ Icon color follows Toast's pattern — full-strength tone color, since a Tier 2 
 |---|---|---|---|---|---|
 | Neutral | `info` | Neutral-9 | Neutral-2 | Neutral-9 | Neutral-3 |
 | Info | `info` | Water `#1473E6` | Water at 10% | Water `#1473E6` | Water at 28% |
-| Success | `check-circle` | Green | Green at 12% | `#00854c` (darkened for AA) | Green at 32% |
+| Success | `check-circle` | Green | Green at 12% | `#007d47` (darkened for AA) | Green at 32% |
 | Danger | `x-circle` | Red | Red at 10% | Red `#FD3343` | Red at 30% |
 | Warning | `warning` | Amber | Amber at 14% | `#9a5c00` (darkened for AA) | Amber at 38% |
 | AI Recommendation | `sparkle` | Neutral-9 | animated pastel gradient wash, 12% opacity — see below | Neutral-9 | animated pastel gradient ring — see below |
@@ -9694,7 +9779,7 @@ read one section before building, read this one.
   ledes, pull quotes, hero numerals), never as a heading-token swap, and
   never below ~18–20px.
 - Use the tinted-fill + bordered pattern for every Badge, and darken
-  Success/Warning text (`#00854c`, `#9a5c00`) so it clears AA.
+  Success/Warning text (`#007d47`, `#9a5c00`) so it clears AA.
 - Map department/element colors 1:1 using the table in
   [Color Palette](#color-palette) — don't invent a color for a department
   that isn't listed there.
@@ -9821,9 +9906,10 @@ other direction.
 
 Every value in this document is also available as CSS custom properties
 in `tokens.css`, in this same folder — colors (including warm canvas and
-elemental tints), the full spacing scale with semantic aliases, radius,
-the type scale with responsive tiers, the elevation ladder, motion
-durations and easings, and icon sizes. It's a mechanical rendering of the
+elemental tints, status tints and their AA text colours), the full spacing
+scale with semantic aliases, radius, the type scale with responsive tiers
+and prose line height, the elevation ladder, the focus ring, control sizes
+and measures, motion durations, staggers and easings, and icon sizes. It's a mechanical rendering of the
 tables above, not a new source of truth; if a value changes here, update
 `tokens.css` to match.
 
@@ -9901,6 +9987,41 @@ a fallback for the moment before the script runs, and should match too.
 If the top stamp or a fallback is behind, the gallery says so in the
 browser console.
 
+- **v0.9.126 — 2026-10-26** — `components.css` now uses the tokens added
+  in v0.9.125, with no visual change except the intended ones: the focus
+  ring, control heights, status tints, spacing 2 / 6, `radius-xs`,
+  measures, prose line height and the blink and pulse durations are
+  written as tokens. Text colours: Badge Success and Warning text use
+  `--color-green-text` and `--color-amber-text`, and Thinking's added count
+  uses `--color-green-text`. Red text stays `--color-red` (3.2:1, decided).
+  Button icons are `icon-sm`
+  (16px) at every size, so Small buttons' icons grow from 14px. Badge is 22px tall in caption (12px) type with `icon-micro` icons, and
+  `.c-badge-info` exists (Water tint, Water text).
+  `--color-green-text` is now `#007d47` (4.7:1 on its tint; the earlier
+  `#00854c` was 4.2:1). Thinking's width follows the 360px measure (was
+  380px).
+
+- **v0.9.125 — 2026-10-26** — Tokens added for values the React library
+  (`@collabrium/ui`) had to keep local, each backed by how often
+  `components.css` repeats the same literal. **Focus ring** (`--focus-ring-
+  width`, `-color`, `-offset`, `-offset-inset`: the same 2px Obsidian
+  outline was written 34 times). **Control sizes** (`--control-height-xs`
+  through `-lg` at 24 / 32 / 40 / 48px, `--hit-target-min` 44px,
+  `--choice-size` 18px). **Status tints** (green, red, amber, navy fill
+  and border) and **AA text colours** (`--color-green-text`,
+  `--color-amber-text`; green text is `#007d47`, 4.7:1 on its tint; red text
+  stays `--color-red`). **Spacing** half-steps `spacing-2` and
+  `spacing-6`; **radius** `radius-xs` (6px); **icon** `icon-xs` (12px);
+  **measures** 360 / 420 / 440px; **motion** `duration-pulse`,
+  `duration-blink` and the staggers `stagger-sm` (80ms) and `stagger-md`
+  (120ms); **type** `--leading-prose` (1.65). Values that were near-
+  duplicates were consolidated first: the staggers (80, 90, 100, 120ms
+  became 80 and 120), the AI Native widths (380px became 360px) and prose
+  line height (1.6 became 1.65). `tokens.css` and the Spacing & Shape,
+  Color Palette, Iconography, Typography, Motion and Design Tokens
+  sections above were updated together. `components.css` is unchanged; one
+  mismatch it still carries: Input field's error border is 2px there and 1px
+  in this document (1px is the intended value).
 - **v0.9.124 — 2026-10-22** — New [Timeline](#timeline), a **variant of
   Stepper** (`.c-timeline`): a read-only plan of items with per-item
   status (completed, current, upcoming, overdue, at risk, skipped,

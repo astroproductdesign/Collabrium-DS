@@ -11,7 +11,19 @@ matters more than speed. Work slowly; verify before you claim something matches.
   - `components.css`: component styles (`.c-*` classes)
   - `DESIGN-SYSTEM.md`: rules and usage
 - **This package is standalone.** Never import from the DLS folder. Copy what you need, and say where it came from (file and line numbers).
-- **Visual output must match components.css exactly.** Do not improve, tidy or redesign anything. Where components.css and DESIGN-SYSTEM.md disagree, follow components.css and log the conflict in `MIGRATION-LOG.md`.
+- **Visual output must match components.css exactly.** Do not improve, tidy or redesign anything. Where components.css and DESIGN-SYSTEM.md disagree, follow components.css and log the conflict in `MIGRATION-LOG.md`. Any other difference follows the next section.
+
+## Differences from the DLS
+
+The DLS and this library must stay consistent.
+
+- **Flag every difference first.** If you would do anything other than what components.css or DESIGN-SYSTEM.md says or shows (a different value, a missing state, an accessibility fix, a changed behaviour), stop and put it to the user with a recommendation. Don't follow your own version until they decide.
+- **After a decision, the DLS is owed an update.** Add a row to "DLS updates owed" (MIGRATION-LOG.md, section 7) in the same step. Never edit the DLS from here.
+- **Follow tokens.** Use an existing token wherever its value and meaning match: check `src/tokens/tokens.css` first (focus ring, control heights, status tints and AA text colours, spacing, radius, measures, staggers and the rest). Where none exists, declare a local custom property and list it for the user in the review. `src/tokens/tokens.css` is an exact copy of the DLS file: never edit it here, and sync it (with `node scripts/tokens-ts.mjs --write`) whenever the DLS changes.
+- **Approved rules live in the component's `<Name>.usage.md`**, as normal numbered rules with their reason. Don't add a separate "differences" section or a decisions file: once the library is the main repo these rules are the design system. When the user answers an open question, write the answer into `usage.md` (and the CSS comment) in the same step.
+- **Error text is bold (700) and Red in every component.** Checkbox, Radio, Input field and every future error: one look. (Decided 2026-10-26.)
+- **Red text is `--color-red` (3.2:1), and that is decided.** Never propose a darker red, a red text token, or an AA fix for red text, and don't ask again. (Green and Amber text keep `--color-green-text` and `--color-amber-text`.)
+- **Show what can't be pictured.** When a decision is about something visual or about assistive technology, build a draft page with screenshots (`review-drafts/`) before asking. Delete the draft once decided.
 
 ## Never guess
 
@@ -50,7 +62,7 @@ If the source is missing something (a state, a value, a rule):
 - **Semantics and accessibility:**
   - Use the correct native element (a real `<button>`, labels for inputs) and correct ARIA.
   - Full keyboard support and a visible focus ring.
-  - Focus moves only to a heading or an error message, never anywhere else.
+  - Focus moves only to a heading or an error message, never anywhere else. One approved exception: when a decision removes the focused button (Permission Prompt), focus moves to the resolved row so the outcome is read.
   - No live regions unless the DLS spec explicitly calls for one.
 - **`"use client"`** only in components that need interaction, state, effects or motion. The build keeps each file's directive and fails if one goes missing.
 - **Forward refs** to the main DOM element.
@@ -71,6 +83,7 @@ If the source is missing something (a state, a value, a rule):
 ## Docs site (playground)
 
 - Built with the design system itself: `@collabrium/ui` components imported from `../src` wherever one exists. For DLS components not converted yet, it uses the DLS markup and CSS copied into `playground/styles/` (`dls-components.css`, `dls-site.css`, same class names, source lines in each block's header). New playground CSS goes in `playground/styles/docs.css`, tokens only. When a component is converted, replace its copied markup in the playground with the React component and delete its block from the copied CSS.
+- **Groups.** The DLS documents some families as one component with several parts (AI Native). A part's docs file exports `export const group = 'AI Native'`. It then drops out of the sidebar and home grid, which show one "AI Native" item, and its page is `components/ai-native/<part>`, reached from the group's overview page, previous/next and search. The group needs an overview file at `playground/content/groups/<group-slug>.tsx` (shape in `playground/lib/group-types.ts`); the generator fails with a clear message if it is missing. The overview lists parts automatically, and shows the family's other parts as "Coming soon" cards from its `comingSoon` list. Remove a part from that list when its docs file is added. Don't group a component on a hunch: the DLS only does this for AI Native.
 - It shows the finished library only: no migration status, no old-versus-new comparison, no open questions.
 - Keep the static export working: `npm run playground:build` writes `playground/out`, pages are `index.html`, `foundation/<slug>.html` and `components/<slug>.html`, and every link is relative so the same files work from disk and on Vercel. Build links with `hrefTo()` in `playground/lib/site.ts`, never with absolute paths.
 

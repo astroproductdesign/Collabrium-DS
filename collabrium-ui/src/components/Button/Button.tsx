@@ -14,8 +14,12 @@ import {
 import { ArrowDown, ArrowRight, SpinnerGap, type Icon } from '@phosphor-icons/react';
 import type { WithoutStyling } from '../../utils/types';
 
-/** Visual variants that components.css ships. */
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+/**
+ * Visual variants. `primary`, `secondary` and `ghost` are in components.css;
+ * `danger` and `link` are in DESIGN-SYSTEM.md's table with no CSS, and their
+ * states are defined here (approved 2026-10-26).
+ */
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link';
 /** Sizes: sm 32px, md 40px, lg 48px tall. */
 export type ButtonSize = 'sm' | 'md' | 'lg';
 /** Phosphor weight for a leading icon. */
@@ -37,9 +41,11 @@ interface ButtonBaseProps extends NativeButtonProps {
    * - `primary`: the one main action on a screen or card (Obsidian fill). Keep one per region.
    * - `secondary`: actions beside a primary button (white fill, Neutral-3 border, shadow-1).
    * - `ghost`: low-emphasis actions, toolbar and table-row actions (no fill).
+   * - `danger`: a destructive commit (delete, revoke): Red fill, white text. Never the beacon.
+   * - `link`: an inline, text-level action: underlined text with no height or padding. Ignores `size`; not available icon-only.
    */
   variant: ButtonVariant;
-  /** Height and type size. `md` (40px) is the default; `sm` (32px) for dense rows and toolbars; `lg` (48px) for prominent standalone actions. */
+  /** Height and type size. `md` (40px) is the default; `sm` (32px) for dense rows and toolbars; `lg` (48px) for prominent standalone actions. Ignored by `link`, which has no height or padding. */
   size?: ButtonSize;
   /** Native button type. Defaults to `button`, so a button inside a form never submits by accident; set `submit` for the form's submit action. */
   type?: 'button' | 'submit' | 'reset';
@@ -79,7 +85,9 @@ export interface LabelledButtonProps extends ButtonBaseProps {
   onBeaconChange?: (state: { armed: boolean; reason: ButtonBeaconReason }) => void;
 }
 
-export interface IconOnlyButtonProps extends ButtonBaseProps {
+export interface IconOnlyButtonProps extends Omit<ButtonBaseProps, 'variant'> {
+  /** Any variant except `link`, which has no fixed height to square against. */
+  variant: Exclude<ButtonVariant, 'link'>;
   /** Square button with no visible label. Not available for links. */
   iconOnly: true;
   /** The Phosphor icon, e.g. `DotsThree`, `X`, `PencilSimple`, `Trash`. Must be a functional (Tier 1) icon; it always renders Regular. */
@@ -204,7 +212,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       onClick={handleClick}
       className="cui-button"
       data-variant={variant}
-      data-size={size}
+      data-size={variant === 'link' ? undefined : size}
       data-icon-only={iconOnly ? '' : undefined}
       data-loading={loading ? '' : undefined}
       data-beacon={beaconAttr}

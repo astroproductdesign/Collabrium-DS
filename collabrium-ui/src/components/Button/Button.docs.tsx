@@ -97,17 +97,21 @@ export const examples: DocsExample[] = [
   {
     id: 'variants',
     title: 'Variants',
-    description: 'Primary for the one main action in a region, Secondary beside it, Ghost for low-emphasis, toolbar and table-row actions.',
+    description: 'Primary for the one main action in a region, Secondary beside it, Ghost for low-emphasis, toolbar and table-row actions, Danger for a destructive commit, and Link for an inline, text-level action.',
     render: () => (
       <div className="docs-row">
         <Button variant="primary">Primary</Button>
         <Button variant="secondary">Secondary</Button>
         <Button variant="ghost">Ghost</Button>
+        <Button variant="danger">Delete</Button>
+        <Button variant="link">Show less</Button>
       </div>
     ),
     code: `<Button variant="primary">Primary</Button>
 <Button variant="secondary">Secondary</Button>
-<Button variant="ghost">Ghost</Button>`,
+<Button variant="ghost">Ghost</Button>
+<Button variant="danger">Delete</Button>
+<Button variant="link">Show less</Button>`,
   },
   {
     id: 'sizes',
@@ -223,7 +227,7 @@ export const examples: DocsExample[] = [
 ];
 
 export const props: DocsProp[] = [
-  { name: 'variant', options: "'primary' | 'secondary' | 'ghost'", default: '—', required: true, description: 'Emphasis. `primary` = the one main action in a region; `secondary` = actions beside a primary; `ghost` = low-emphasis, toolbar and table-row actions.' },
+  { name: 'variant', options: "'primary' | 'secondary' | 'ghost' | 'danger' | 'link'", default: '—', required: true, description: 'Emphasis. `primary` = the one main action in a region; `secondary` = actions beside a primary; `ghost` = low-emphasis, toolbar and table-row actions; `danger` = a destructive commit (delete, revoke); `link` = an inline text-level action, underlined, with no height or padding (ignores `size`, not available icon-only).' },
   { name: 'size', options: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Height 32 / 40 / 48px. `sm` for dense rows and toolbars, `lg` for prominent standalone actions.' },
   { name: 'children', options: 'ReactNode', default: '—', description: 'The label. A short verb phrase ("Save brief"). Not used with `iconOnly`.' },
   { name: 'leadingIcon', options: 'Icon', default: '—', description: 'Phosphor icon component before the label, e.g. `Plus`.' },
@@ -232,7 +236,7 @@ export const props: DocsProp[] = [
   { name: 'iconOnly', options: 'true', default: '—', description: 'Square button, no visible label. Needs `icon` and `aria-label`.' },
   { name: 'icon', options: 'Icon', default: '—', description: 'The icon for `iconOnly`. Functional (Tier 1) icons only, e.g. `DotsThree`, `X`, `PencilSimple`, `Trash`. Always Regular.' },
   { name: 'aria-label', options: 'string', default: '—', description: 'Required with `iconOnly`. Names the action ("More options").' },
-  { name: 'loading', options: 'boolean', default: 'false', description: 'Centred spinner replaces the content; fill and width stay the same; clicks are ignored; the button keeps focus and its name.' },
+  { name: 'loading', options: 'boolean', default: 'false', description: 'Centred spinner replaces the content; fill and width stay the same, also on hover and press; clicks are ignored; the button keeps focus and its name.' },
   { name: 'disabled', options: 'boolean', default: 'false', description: 'Neutral-4 fill, not-allowed cursor, removed from the tab order.' },
   { name: 'beacon', options: "'off' | 'on' | 'static'", default: "'off'", description: 'CTA beacon. `on` = three rings (4.2s), then stops by itself. `static` = documentation and tests only. Primary with a label only.' },
   { name: 'onBeaconChange', options: '({ armed, reason }) => void', default: '—', description: 'Called when the beacon starts or stops. `reason` is `host`, `hover`, `touch`, `focus`, `click`, `cap` or `replaced`.' },
@@ -246,6 +250,8 @@ export const rules: DocsRules = {
     'Give every icon-only button an `aria-label` and a functional (Tier 1) icon.',
     'Use `loading` while an action runs, instead of disabling the button.',
     'Turn the beacon on right after the step that makes it relevant, on one Primary, paired with a trailing arrow.',
+    'Use Danger only for the committing action of a destructive flow (Delete, Revoke), usually after a confirmation.',
+    'Use Link for a text-level action inside a sentence or tray ("Show less", "Clear all").',
   ],
   dont: [
     'Use a button to go to another page; use a link.',
@@ -253,6 +259,8 @@ export const rules: DocsRules = {
     'Put two Primary buttons in the same region.',
     'Use a Fill (Tier 2) icon in an icon-only button.',
     'Turn the beacon on at page load or on a timer, run more than one at a time, or move focus to it.',
+    'Use Danger for anything that is not destructive, or put the beacon on it.',
+    'Use Link where a real link to another page is needed; use an anchor for that.',
   ],
 };
 
@@ -272,7 +280,7 @@ export const accessibility: DocsAccessibility = {
 
 export const motion: DocsMotion[] = [
   { interaction: 'Hover, press, disabled', motion: 'Background colour fades', token: '--duration-fast · --ease-standard' },
-  { interaction: 'Loading', motion: 'Spinner rotates continuously', token: '--duration-ambient · linear' },
+  { interaction: 'Loading', motion: 'Spinner rotates continuously, also under reduced motion: it is the only sign the work is still running', token: '--duration-ambient · linear' },
   { interaction: 'CTA beacon', motion: 'Ring breathes out and the arrow nods, 1.4s × 3, then stops', token: '--ease-standard (1.4s cycle is a recorded one-off)' },
   { interaction: 'CTA beacon, reduced motion', motion: 'No pulse, no nod: a steady 2px ring for 4.2s', token: '--border-width-md' },
 ];

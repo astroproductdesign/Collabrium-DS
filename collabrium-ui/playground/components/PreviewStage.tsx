@@ -58,7 +58,14 @@ export function PreviewStage({ children, toolbar = false, label }: { children: R
         </div>
       )}
       <div className="comp-demo docs-stage" data-mobile={mobile || undefined}>
-        <div className="docs-stage-inner" data-reduce-motion={reduce || undefined}>
+        <div
+          className="docs-stage-inner"
+          data-reduce-motion={reduce || undefined}
+          // Previews never navigate away: a real link inside a demo does nothing here.
+          onClick={e => {
+            if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault();
+          }}
+        >
           {children}
         </div>
       </div>

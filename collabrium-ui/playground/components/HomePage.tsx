@@ -3,8 +3,8 @@
 // Home: the logo, a short intro and install, then every Foundation
 // section in full (as on the DLS site, not behind cards), then the All
 // components grid, which is generated from the docs registry.
-import { componentDocs } from '../app/_generated/components-docs';
-import { components, foundationPages, hrefTo } from '../lib/site';
+import { componentDocs, groupDocs } from '../app/_generated/components-docs';
+import { foundationPages, hrefTo, navItems } from '../lib/site';
 import { BackToTop } from './BackToTop';
 import { CodeBlock } from './CodeBlock';
 import { foundationSections } from './foundation';
@@ -40,14 +40,15 @@ export function HomePage() {
             All components
           </h2>
           <div className="c-cards">
-            {components.map(c => {
-              const d = componentDocs[c.slug];
-              const thumb = d.thumbnail ? d.thumbnail() : d.examples?.[0]?.render() ?? <span className="docs-p">Coming soon.</span>;
+            {navItems.map(c => {
+              // A group (AI Native) is one card, with the group's own thumbnail.
+              const d = c.kind === 'group' ? groupDocs[c.slug] : componentDocs[c.slug];
+              const thumb = d.thumbnail ? d.thumbnail() : 'examples' in d ? d.examples?.[0]?.render() : null;
               return (
                 <div key={c.slug} className="c-card c-card-interactive docs-comp-card">
                   {/* inert: the thumbnail is a picture of the component, not a control */}
                   <div className="docs-comp-thumb" inert>
-                    {thumb}
+                    {thumb ?? <span className="docs-p">Coming soon.</span>}
                   </div>
                   <h3 className="docs-card-title">
                     <a className="docs-stretched" href={hrefTo('', `components/${c.slug}`)}>

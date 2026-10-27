@@ -205,7 +205,7 @@ function LoadingRow() {
   const row: Row = {
     id: 'loading',
     label: 'Loading',
-    note: 'Spinner replaces the content; fill and width stay the same; the button keeps its name and ignores clicks. Spinner size and hover-while-loading are open (Q-BTN-3).',
+    note: 'Spinner replaces the content; fill and width stay the same; the button keeps its name and ignores clicks. The fill does not change on hover or press while loading (decided 2026-10-26, Q-BTN-3).',
     next: (
       <div className="pg-stack">
         <div className="pg-inline">

@@ -1,0 +1,435 @@
+/*
+  Streaming Text — ported from collabrium-dls/components.css lines 5480–5561
+  (.c-streaming*: the shell, text, caret, citation chip, stopped note, action
+  row, sources list, follow-ups, reduced motion), plus the two pieces it reuses
+  from components not converted yet, copied here so this package stays
+  standalone:
+    - Chat window's `.c-chat-action` (lines 5181–5195, the round icon buttons)
+    - Prompt input bar's `c-prompt-bar-caret-blink` keyframe (line 4910)
+
+  Mapping from the old classes:
+    .c-streaming                       -> .cui-streaming
+    .is-sources-open                   -> [data-sources-open]
+    .c-streaming-text / -caret         -> .cui-streaming__text / __caret
+    .c-streaming-cite / -cite-avatar   -> .cui-streaming__cite / __cite-avatar
+    .c-streaming-note                  -> .cui-streaming__note
+    .c-streaming-actions               -> .cui-streaming__actions
+    .c-chat-action                     -> .cui-streaming__action
+    .c-chat-action.is-copied           -> [data-copied]
+    .c-streaming-sources-trigger / -avatars / -trigger-label
+                                       -> __sources-trigger / __sources-avatars / __sources-label
+    .c-streaming-sources / -inner / -list -> __sources / __sources-inner / __sources-list
+    .c-streaming-source-row / -avatar / -name / -domain
+                                       -> __source / __source-avatar / __source-name / __source-domain
+    .c-streaming-followups / -label / followup -> __followups / __followups-label / __followup
+    <i class="ph ...">                 -> svg (Phosphor React)
+
+  What the old CSS never expressed and the component owns: the buffered
+  word-by-word reveal and its cadence, the caret appearing only while
+  streaming, `hidden` becoming "not rendered" (Rules 15 and 16: the action
+  row, sources and follow-ups do not exist in the DOM until the answer
+  settles), the announcement, and a message that arrives already finished
+  getting none of the entrance animations (`[data-live]` below).
+*/
+
+.cui-streaming {
+  /*
+    Widths, line height, small gaps, radii, the blink, the stagger and the
+    focus ring come from tokens. What is left (the caret and chip geometry,
+    the 28px action button, the avatar letters) is this component's own and
+    has no token.
+  */
+  --cui-streaming-max-width: var(--measure-md);
+  --cui-streaming-line-height: var(--leading-prose);
+  --cui-streaming-caret-width: 2px;
+  --cui-streaming-caret-radius: 1px;
+  --cui-streaming-caret-gap: var(--spacing-2);
+  --cui-streaming-caret-blink: var(--duration-blink);
+  --cui-streaming-cite-height: 18px;
+  --cui-streaming-cite-pad: 5px;
+  --cui-streaming-cite-gap: var(--spacing-4);
+  --cui-streaming-cite-margin: var(--spacing-2);
+  --cui-streaming-cite-radius: var(--radius-xs);
+  --cui-streaming-cite-size: var(--text-label3-size);
+  --cui-streaming-cite-avatar: var(--icon-xs);
+  --cui-streaming-cite-avatar-radius: 3px;
+  --cui-streaming-cite-avatar-size: 8px;
+  --cui-streaming-actions-gap: var(--spacing-2);
+  --cui-streaming-action-size: 28px;
+  --cui-streaming-action-hit: var(--spacing-8);
+  --cui-streaming-stack-size: var(--icon-micro);
+  --cui-streaming-stack-overlap: var(--spacing-4);
+  --cui-streaming-stack-ring: 1.5px;
+  --cui-streaming-stack-font: 7px;
+  --cui-streaming-trigger-pad: var(--spacing-2);
+  --cui-streaming-source-avatar: var(--icon-base);
+  --cui-streaming-source-avatar-size: 10px;
+  --cui-streaming-source-radius: 8px;
+  --cui-streaming-followup-pad: var(--spacing-2);
+  --cui-streaming-followup-stagger: var(--stagger-sm);
+  --cui-streaming-avatar-default: var(--color-neutral-7);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--cui-streaming-max-width);
+}
+
+/* Rules 8 and 10: appended, never pre-sized, never justified or balanced. */
+.cui-streaming__text {
+  margin: 0;
+  font-family: var(--font-primary);
+  font-size: var(--text-body1-size);
+  line-height: var(--cui-streaming-line-height);
+  font-weight: var(--text-body1-weight);
+  color: var(--color-neutral-9);
+}
+
+.cui-streaming__caret {
+  display: inline-block;
+  width: var(--cui-streaming-caret-width);
+  height: 1em;
+  margin-left: var(--cui-streaming-caret-gap);
+  vertical-align: text-bottom;
+  border-radius: var(--cui-streaming-caret-radius);
+  background: var(--color-neutral-9);
+  animation: cui-streaming-caret-blink var(--cui-streaming-caret-blink) steps(1) infinite;
+}
+@keyframes cui-streaming-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* The announcement (Rule 19): visually hidden, never over the text itself. */
+.cui-streaming__announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* vertical-align: middle ties the chip to the surrounding text's own metrics
+   rather than a fixed px offset, so it stays centred at any text size. */
+.cui-streaming__cite {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cui-streaming-cite-gap);
+  height: var(--cui-streaming-cite-height);
+  padding: 0 var(--cui-streaming-cite-pad);
+  margin: 0 var(--cui-streaming-cite-margin);
+  border-radius: var(--cui-streaming-cite-radius);
+  background: var(--color-neutral-3);
+  color: var(--color-neutral-7);
+  font-family: var(--font-primary);
+  font-size: var(--cui-streaming-cite-size);
+  text-decoration: none;
+  vertical-align: middle;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.cui-streaming[data-live] .cui-streaming__cite {
+  animation: cui-streaming-fade-in var(--duration-slow) var(--ease-settle) both;
+}
+.cui-streaming__cite:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-streaming__cite:focus-visible,
+.cui-streaming__source:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-streaming__cite-avatar {
+  width: var(--cui-streaming-cite-avatar);
+  height: var(--cui-streaming-cite-avatar);
+  border-radius: var(--cui-streaming-cite-avatar-radius);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cui-streaming-avatar, var(--cui-streaming-avatar-default));
+  font-size: var(--cui-streaming-cite-avatar-size);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-1);
+}
+@keyframes cui-streaming-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Rule 17: a stopped stream keeps its text and is marked, not discarded. */
+.cui-streaming__note {
+  margin-top: var(--spacing-4);
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+}
+
+/* Rule 18: a failed stream keeps its text and shows an error with a Retry beside
+   it. Defined here (the DLS has the rule and no design; approved 2026-10-26): a Red status glyph (Tier 2, Fill) and a plain Neutral-5
+   line, never red text (red 12px text is under the 4.5:1 floor), and the real
+   Button, Secondary and small, as Task Rows' Retry. */
+.cui-streaming__failure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
+}
+.cui-streaming__failure-icon {
+  flex: none;
+  font-size: var(--icon-sm);
+  color: var(--color-red);
+}
+.cui-streaming__failure-text {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+
+/* Rule 15: the action row is not rendered during the stream (the source
+   toggles `hidden`; here it is simply absent), so its entrance plays when it
+   mounts. */
+.cui-streaming__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cui-streaming-actions-gap);
+  margin-top: var(--spacing-8);
+}
+.cui-streaming[data-live] .cui-streaming__actions {
+  animation: cui-streaming-fade-in var(--duration-slow) var(--ease-standard) both;
+}
+
+/* The round icon buttons: Chat window's `.c-chat-action`, copied. */
+.cui-streaming__action {
+  position: relative;
+  flex: none;
+  width: var(--cui-streaming-action-size);
+  height: var(--cui-streaming-action-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-neutral-5);
+  font-size: var(--icon-sm);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.cui-streaming__action::after {
+  content: '';
+  position: absolute;
+  inset: calc(var(--cui-streaming-action-hit) * -1);
+}
+.cui-streaming__action:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-streaming__action:focus-visible,
+.cui-streaming__sources-trigger:focus-visible,
+.cui-streaming__followup:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-streaming__action[data-copied] {
+  color: var(--color-green);
+}
+.cui-streaming__action[aria-pressed='true'] {
+  color: var(--color-neutral-9);
+}
+
+.cui-streaming__sources-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-left: var(--spacing-4);
+  padding: var(--cui-streaming-trigger-pad) var(--spacing-8);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-primary);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-streaming__sources-trigger:hover {
+  background: var(--color-neutral-2);
+}
+.cui-streaming__sources-avatars {
+  display: flex;
+  flex: none;
+}
+.cui-streaming__sources-avatars span {
+  width: var(--cui-streaming-stack-size);
+  height: var(--cui-streaming-stack-size);
+  border-radius: 50%;
+  box-shadow: 0 0 0 var(--cui-streaming-stack-ring) var(--color-neutral-1);
+  margin-left: calc(var(--cui-streaming-stack-overlap) * -1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cui-streaming-avatar, var(--cui-streaming-avatar-default));
+  font-size: var(--cui-streaming-stack-font);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-1);
+}
+.cui-streaming__sources-avatars span:first-child {
+  margin-left: 0;
+}
+.cui-streaming__sources-label {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-7);
+}
+
+/* The sources list opens with the 0fr -> 1fr grid-rows technique (Price
+   summary card's), the same one Thinking's trace uses. */
+.cui-streaming__sources {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--duration-base) var(--ease-settle),
+    opacity var(--duration-base) var(--ease-settle);
+}
+.cui-streaming[data-sources-open] .cui-streaming__sources {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.cui-streaming__sources-inner {
+  overflow: hidden;
+}
+.cui-streaming__sources-list {
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-neutral-3);
+  border-radius: var(--radius-sm);
+}
+.cui-streaming__source {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--cui-streaming-source-radius);
+  text-decoration: none;
+  color: var(--color-neutral-7);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.cui-streaming__source:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-streaming__source-avatar {
+  width: var(--cui-streaming-source-avatar);
+  height: var(--cui-streaming-source-avatar);
+  border-radius: 50%;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cui-streaming-avatar, var(--cui-streaming-avatar-default));
+  font-size: var(--cui-streaming-source-avatar-size);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-1);
+}
+.cui-streaming__source-name {
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+}
+.cui-streaming__source-domain {
+  margin-left: auto;
+  font-size: var(--text-footnote-size);
+  color: var(--color-neutral-5);
+}
+
+/* Rule 16: follow-ups only on settle, and only after the actions. */
+.cui-streaming__followups {
+  margin-top: var(--spacing-12);
+}
+.cui-streaming[data-live] .cui-streaming__followups {
+  animation: cui-streaming-fade-in var(--duration-slow) var(--ease-standard) both;
+}
+.cui-streaming__followups-label {
+  margin: 0 0 var(--cui-streaming-followup-pad);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+  color: var(--color-neutral-7);
+}
+.cui-streaming__followup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+  padding: var(--spacing-8) var(--cui-streaming-followup-pad);
+  border: none;
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+  background: transparent;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-9);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-streaming[data-live] .cui-streaming__followup {
+  animation: cui-streaming-row-in var(--duration-slow) var(--ease-settle) both;
+  animation-delay: calc(var(--cui-streaming-followup-index, 0) * var(--cui-streaming-followup-stagger));
+}
+.cui-streaming__followup:hover {
+  background: var(--color-neutral-2);
+}
+.cui-streaming__followup svg {
+  font-size: var(--icon-micro);
+  color: var(--color-neutral-5);
+  flex: none;
+}
+.cui-streaming__followup:last-child {
+  border-bottom: none;
+}
+@keyframes cui-streaming-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+  Reduced motion (Rule 21): the per-word cadence is dropped in
+  StreamingText.tsx (text appears as it arrives); what CSS owns is every
+  entrance animation on the decorative parts. The caret stays, solid.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .cui-streaming__caret {
+    animation: none;
+    opacity: 1;
+  }
+  .cui-streaming[data-live] .cui-streaming__cite,
+  .cui-streaming[data-live] .cui-streaming__followup,
+  .cui-streaming[data-live] .cui-streaming__actions,
+  .cui-streaming[data-live] .cui-streaming__followups {
+    animation: none;
+  }
+  .cui-streaming__sources {
+    transition: none;
+  }
+}

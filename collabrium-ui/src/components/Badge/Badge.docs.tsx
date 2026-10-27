@@ -46,6 +46,7 @@ export const examples: DocsExample[] = [
         <Badge variant="success">Success</Badge>
         <Badge variant="error">Error</Badge>
         <Badge variant="warning">Warning</Badge>
+        <Badge variant="info">Info</Badge>
         <Badge variant="selected">Selected</Badge>
       </div>
     ),
@@ -53,6 +54,7 @@ export const examples: DocsExample[] = [
 <Badge variant="success">Success</Badge>
 <Badge variant="error">Error</Badge>
 <Badge variant="warning">Warning</Badge>
+<Badge variant="info">Info</Badge>
 <Badge variant="selected">Selected</Badge>`,
   },
   {
@@ -165,7 +167,7 @@ export const accessibility: DocsAccessibility = {
     'The meaning is in the text, and colour only repeats it. The 1px border keeps the pill visible in forced colours.',
     'The icon is `aria-hidden`.',
     'No live region. If a badge changes while the user is on the page, announce the change where it happened, not through the badge.',
-    'Contrast on a white page: Neutral, Warning and Selected pass AA (17:1 and up). Success (about 2.1:1) and Error (about 3.2:1) are below AA\'s 4.5:1 for 11px text.',
+    'Success and Warning use darker text colours than their fill (`--color-green-text`, `--color-amber-text`) so the label stays readable on its tint: Success is 4.7:1 and Warning 4.9:1. Error text stays the full Red, 3.2:1 on its tint, by decision. Neutral, Info and Selected pass AA.',
   ],
 };
 

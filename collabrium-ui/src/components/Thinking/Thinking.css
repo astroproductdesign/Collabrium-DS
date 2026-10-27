@@ -1,0 +1,401 @@
+/*
+  Thinking — ported from collabrium-dls/components.css lines 5377–5478
+  (.c-thinking*: the shell, header, status crossfade, trace, timeline line,
+  the four variants' row anatomy, reduced motion).
+
+  Mapping from the old classes:
+    .c-thinking                      -> .cui-thinking
+    .is-expanded / .is-done / .is-active -> [data-expanded] / [data-done] / [data-active]
+    .c-thinking-header / -mark / -chevron -> .cui-thinking__header / __mark / __chevron
+    .c-thinking-status .working / .done   -> .cui-thinking__status > __working / __done
+    .c-thinking-trace / -trace-inner      -> .cui-thinking__trace / __trace-inner
+    .c-thinking-line-wrap / -line         -> .cui-thinking__line-wrap / __line
+    .c-thinking-rows                      -> .cui-thinking__rows
+    .c-thinking-query                     -> .cui-thinking__query
+    .c-thinking-row (+ a. / button.)      -> .cui-thinking__row (+ a. / button.)
+    .c-thinking-row.is-prose              -> .cui-thinking__row[data-prose]
+    button.c-thinking-row.is-selected     -> button.cui-thinking__row[aria-pressed="true"]
+    .c-thinking-row-icon(.is-spin)        -> .cui-thinking__row-icon([data-spin])
+    .c-thinking-row-primary / -secondary / -diff (.add / .del) -> __row-primary / __row-secondary / __row-diff (__add / __del)
+    .c-thinking-more                      -> .cui-thinking__more
+    <i class="ph ...">                    -> svg (Phosphor React)
+
+  Specificity is kept in the same order as the source so the same rule wins
+  everywhere, in particular: the done/working swap (0,4,0), the selected fill
+  beating the hover fill (both 0,2,1, selected later), and the
+  reduced-motion block coming last.
+
+  The behaviour CSS cannot express (auto-open and auto-close, the reader's
+  choice winning, one spinner at a time, the line's height) lives in
+  Thinking.tsx.
+*/
+
+.cui-thinking {
+  /*
+    The width, spacing, radius, line height, shimmer, stagger and focus ring
+    come from tokens. What is left (the 176px active height, the 28px and 26px
+    row heights, the 1px line nudge) is this component's own and has no token.
+  */
+  --cui-thinking-max-width: var(--measure-sm);
+  --cui-thinking-active-min-height: 176px;
+  --cui-thinking-hit-pad: var(--spacing-6);
+  --cui-thinking-row-min-height: 28px;
+  --cui-thinking-query-min-height: 26px;
+  --cui-thinking-row-radius: var(--radius-xs);
+  --cui-thinking-row-pad: var(--spacing-2);
+  --cui-thinking-row-gap: var(--spacing-2);
+  --cui-thinking-line-nudge: 1px;
+  --cui-thinking-prose-line-height: var(--leading-prose);
+  --cui-thinking-diff-size: var(--text-label3-size);
+  --cui-thinking-diff-gap: var(--spacing-4);
+  --cui-thinking-shimmer: var(--duration-pulse);
+  --cui-thinking-stagger: var(--stagger-md);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--cui-thinking-max-width);
+  min-height: 0;
+  transition: min-height var(--duration-morph) var(--ease-morph);
+}
+.cui-thinking[data-active] {
+  min-height: var(--cui-thinking-active-min-height);
+}
+
+/* Header: the one clickable surface. The negative margin cancels the padding,
+   so the visual box stays small while the click target grows. */
+.cui-thinking__header {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  align-self: flex-start;
+  margin: calc(var(--cui-thinking-hit-pad) * -1);
+  padding: var(--cui-thinking-hit-pad);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+  font-family: var(--font-primary);
+}
+.cui-thinking__header:hover {
+  background: var(--color-neutral-2);
+}
+.cui-thinking__header:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.cui-thinking__mark {
+  font-size: var(--icon-sm);
+  color: var(--color-neutral-7);
+  flex: none;
+}
+.cui-thinking[data-done] .cui-thinking__mark {
+  color: var(--color-neutral-5);
+}
+
+/*
+  Status: the live label crossfades into the past-tense header by toggling
+  display rather than swapping text content. The shimmer is this component's
+  one exception to Loading State's "no shimmer": collapsed and mid-run it is
+  the only visible sign the operation has not stalled.
+  Note: the source gives both spans `grid-area: 1/1` but the container is
+  `inline-flex`, so that has no effect; ported as written.
+*/
+.cui-thinking__status {
+  position: relative;
+  display: inline-flex;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+.cui-thinking__status > .cui-thinking__working,
+.cui-thinking__status > .cui-thinking__done {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+.cui-thinking__status > .cui-thinking__working {
+  background-image: linear-gradient(90deg, var(--color-neutral-3) 35%, var(--color-neutral-9) 50%, var(--color-neutral-3) 65%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: cui-thinking-shimmer var(--cui-thinking-shimmer) linear infinite;
+}
+.cui-thinking__status > .cui-thinking__done {
+  color: var(--color-neutral-7);
+  display: none;
+  animation: cui-thinking-fade-in var(--duration-slow) var(--ease-standard) both;
+}
+.cui-thinking[data-done] .cui-thinking__status > .cui-thinking__working {
+  display: none;
+}
+.cui-thinking[data-done] .cui-thinking__status > .cui-thinking__done {
+  display: inline;
+}
+/* Timer (Rule 14): shows from the first frame beside the live label, in the
+   same form as Loading State's, and is gone once the run settles (its value
+   becomes the past-tense label). Script-driven, so reduced motion leaves it
+   ticking. Added 2026-10-26 and approved the same day: the DLS has the rule but no markup or CSS. */
+.cui-thinking__timer {
+  flex: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The announcement: visually hidden, outside the header button. */
+.cui-thinking__announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes cui-thinking-shimmer {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes cui-thinking-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cui-thinking__chevron {
+  font-size: var(--icon-micro);
+  color: var(--color-neutral-5);
+  flex: none;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.cui-thinking[data-expanded] .cui-thinking__chevron {
+  transform: rotate(180deg);
+}
+
+/* Trace: 0fr -> 1fr grid rows plus opacity (Price summary card's technique). */
+.cui-thinking__trace {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition:
+    grid-template-rows var(--duration-base) var(--ease-settle),
+    opacity var(--duration-base) var(--ease-settle);
+  opacity: 0;
+}
+.cui-thinking[data-expanded] .cui-thinking__trace {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.cui-thinking__trace-inner {
+  overflow: hidden;
+}
+
+/*
+  The header mark sits flush at this component's own left edge, so its
+  centre is icon-sm / 2 from that edge. The timeline line anchors at exactly
+  that, so it centres under the mark. The -1px tracks the sparkle glyph's own
+  visual centre, which sits left of its box's geometric one: a font-rendering
+  correction in the source, kept as written. The Phosphor React glyph is the
+  same shape, but check it by eye if the icon is ever swapped.
+*/
+.cui-thinking__line-wrap {
+  position: relative;
+  margin-top: var(--spacing-8);
+  padding-left: var(--spacing-16);
+}
+.cui-thinking__line {
+  position: absolute;
+  left: calc(var(--icon-sm) / 2 - var(--cui-thinking-line-nudge));
+  top: 0;
+  width: var(--border-width-sm);
+  height: 0;
+  background: var(--color-neutral-3);
+  transition: height var(--duration-reveal) var(--ease-reveal);
+}
+.cui-thinking__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cui-thinking-row-gap);
+  padding: var(--spacing-4) 0;
+}
+
+.cui-thinking__query {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-height: var(--cui-thinking-query-min-height);
+  padding: 0 var(--spacing-4);
+  animation: cui-thinking-row-in var(--duration-slow) var(--ease-settle) both;
+}
+.cui-thinking__query svg {
+  font-size: var(--icon-micro);
+  color: var(--color-neutral-5);
+  flex: none;
+}
+.cui-thinking__query span {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-7);
+}
+
+/* Rows enter with a 4px rise and fade, staggered by their position
+   (the source writes animation-delay 0, 120, 240, 360ms by hand). */
+.cui-thinking__row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+  width: 100%;
+  min-height: var(--cui-thinking-row-min-height);
+  padding: var(--cui-thinking-row-pad) var(--spacing-4);
+  border-radius: var(--cui-thinking-row-radius);
+  border: none;
+  background: transparent;
+  font-family: var(--font-primary);
+  text-align: left;
+  text-decoration: none;
+  cursor: default;
+  animation: cui-thinking-row-in var(--duration-slow) var(--ease-settle) both;
+  animation-delay: calc(var(--cui-thinking-row-index, 0) * var(--cui-thinking-stagger));
+}
+a.cui-thinking__row,
+button.cui-thinking__row {
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+/* Rows take the system's Obsidian focus ring, drawn inside the row so it does
+   not collide with its neighbours. components.css has none, so the browser's
+   default ring showed. Decided 2026-10-26. */
+a.cui-thinking__row:focus-visible,
+button.cui-thinking__row:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+a.cui-thinking__row:hover,
+button.cui-thinking__row:hover {
+  background: var(--color-neutral-2);
+}
+button.cui-thinking__row[aria-pressed="true"] {
+  background: var(--color-neutral-3);
+}
+@keyframes cui-thinking-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-4));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+  The completed mark is Tier 1 Regular (a check), not Fill: the system found
+  the filled glyph renders as a boxed checkbox. The active step's spinner is
+  Search input's own spin keyframe, copied here until Search input is
+  converted (one spin technique, system-wide).
+*/
+.cui-thinking__row-icon {
+  font-size: var(--icon-micro);
+  color: var(--color-neutral-5);
+  flex: none;
+}
+.cui-thinking__row-icon[data-spin] {
+  animation: cui-thinking-spin var(--duration-ambient) linear infinite;
+}
+@keyframes cui-thinking-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.cui-thinking__row-primary {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-semibold);
+  color: var(--color-neutral-9);
+}
+.cui-thinking__row[data-prose] {
+  align-items: flex-start;
+  white-space: normal;
+}
+.cui-thinking__row[data-prose] .cui-thinking__row-primary {
+  white-space: normal;
+  font-weight: var(--weight-regular);
+  line-height: var(--cui-thinking-prose-line-height);
+  color: var(--color-neutral-7);
+}
+.cui-thinking__row-secondary {
+  flex: none;
+  font-size: var(--text-footnote-size);
+  color: var(--color-neutral-5);
+}
+.cui-thinking__row-diff {
+  flex: none;
+  font-size: var(--cui-thinking-diff-size);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  gap: var(--cui-thinking-diff-gap);
+}
+/* The diff counts are 11px text. The added count takes the AA-safe green text colour;
+   the removed count stays the full Red (3.2:1, decided 2026-10-26). */
+.cui-thinking__row-diff .cui-thinking__add {
+  color: var(--color-green-text);
+}
+.cui-thinking__row-diff .cui-thinking__del {
+  color: var(--color-red);
+}
+.cui-thinking__more {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+  padding: var(--cui-thinking-row-pad) var(--spacing-4);
+  animation: cui-thinking-fade-in var(--duration-base) var(--ease-standard) both;
+}
+
+/*
+  Reduced motion (Rule 20): travel drops, sequence stays. The expand, the row
+  stagger and the line growth go; nothing here touches which rows exist or
+  their order. Ordering is information, not decoration.
+  The spinner on the current step keeps turning (DESIGN-SYSTEM.md Rule 20;
+  decided 2026-10-26: a spinner that still means "working" is information).
+  components.css stops it (.c-thinking-row-icon.is-spin { animation: none }),
+  so the DLS needs that rule removed.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .cui-thinking,
+  .cui-thinking__trace,
+  .cui-thinking__line,
+  .cui-thinking__chevron {
+    transition: none;
+  }
+  .cui-thinking__status > .cui-thinking__working {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: var(--color-neutral-7);
+    color: var(--color-neutral-7);
+  }
+  .cui-thinking__status > .cui-thinking__done {
+    animation: none;
+  }
+  .cui-thinking__row,
+  .cui-thinking__query,
+  .cui-thinking__more {
+    animation: none;
+  }
+}

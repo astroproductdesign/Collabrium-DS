@@ -2,7 +2,7 @@
   Collabrium design tokens — @collabrium/ui
 
   Copied from the Collabrium DLS tokens.css (collabrium-dls/tokens.css,
-  DLS v0.9.124). Same names, same values. Only this header was rewritten;
+  DLS v0.9.126). Same names, same values. Only this header was rewritten;
   the per-group comments are kept because they carry usage rules.
 
   Do not edit values here by hand. If a token changes in the DLS, copy the
@@ -66,6 +66,25 @@
   --color-water-pastel: #95C0F4;
   --color-gold-pastel: #FFD69D;
 
+  /* Status tints — fill and border for status surfaces (Badge, Banner,
+     Toast): the functional colour at a low alpha, with a stronger tint of
+     the same hue for the 1px border. NOT the element -bg tints above:
+     those colour a surface by the element that owns its content; these say
+     what state something is in. Navy is the Water-blue Info colour. */
+  --color-green-tint: rgba(0, 194, 110, .12);  --color-green-tint-border: rgba(0, 194, 110, .32);
+  --color-red-tint:   rgba(253, 51, 67, .10);  --color-red-tint-border:   rgba(253, 51, 67, .30);
+  --color-amber-tint: rgba(255, 164, 37, .14); --color-amber-tint-border: rgba(255, 164, 37, .38);
+  --color-navy-tint:  rgba(20, 115, 230, .10); --color-navy-tint-border:  rgba(20, 115, 230, .28);
+
+  /* Text on those tints, darkened: full-strength Green and Amber fail AA on
+     their own tints at caption size (2.1 and 1.8:1). Use these for TEXT
+     only: fills, borders and icons stay on the full-strength colour. On
+     their own tints they measure: Amber 4.9:1, Green 4.7:1 (5.2:1 on
+     white). Red has no text token: red text uses --color-red (3.2:1 on its
+     tint and on white), a decision of 2026-10-26. */
+  --color-green-text: #007d47;
+  --color-amber-text: #9a5c00;
+
   /* Fonts */
   --font-primary: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-secondary: 'Source Serif 4', Georgia, 'Times New Roman', serif;
@@ -104,9 +123,17 @@
 
   --tracking-eyebrow: 0.12em; /* uppercase kickers/eyebrows only */
 
+  /* Line height for running prose (AI answers, reasoning text). The type
+     scale above is for UI text, which sets its own line-height. */
+  --leading-prose: 1.65;
+
   /* Spacing — value-named to match the source scale
-     exactly (base unit 4px: 4·8·12·16·20·24·32·40·48·60·120). */
+     exactly (base unit 4px: 4·8·12·16·20·24·32·40·48·60·120), plus the two
+     half-steps 2 and 6 for tight composites only (an icon-to-label gap, chip
+     padding, a hairline offset). Layout spacing stays on the 4px scale. */
+  --spacing-2: 2px;
   --spacing-4: 4px;
+  --spacing-6: 6px;
   --spacing-8: 8px;
   --spacing-12: 12px;
   --spacing-16: 16px;
@@ -125,6 +152,12 @@
   --page-gutter: var(--spacing-32);
   --content-max-width: 1200px; /* reading-width content only (forms/settings), not full-bleed dashboard layouts */
 
+  /* Measures — max-widths for self-contained AI Native surfaces. A host
+     narrower than the measure just fills it. */
+  --measure-sm: 360px; /* Permission Prompt, Tool approval, Thinking */
+  --measure-md: 420px; /* Streaming Text */
+  --measure-lg: 440px; /* Task Rows */
+
   /* Radius — the source
      deck specifies radius per surface, not a single scale. Kept as a
      3-tier + pill system for simplicity, with values matching real
@@ -133,6 +166,7 @@
      standard buttons (16px, matches source radius-button), lg =
      cards/modals/nav/feature panels (20px, matches source
      radius-card/radius-nav/radius-widget). */
+  --radius-xs: 6px;  /* compact controls only: checkbox box, small chips, dense rows */
   --radius-sm: 12px;
   --radius-md: 16px;
   --radius-lg: 20px;
@@ -146,6 +180,25 @@
      as-is for now rather than retrofitted as part of this change. */
   --border-width-sm: 1px;
   --border-width-md: 2px;
+
+  /* Focus ring — the one keyboard-focus treatment: a 2px Obsidian outline,
+     2px clear of the element. Written once here instead of at every
+     component. -inset draws it inside the element, for rows that sit flush
+     against their neighbours. (Input field and Radio card group keep their
+     own documented focus treatments.) */
+  --focus-ring-width: var(--border-width-md);
+  --focus-ring-color: var(--color-obsidian);
+  --focus-ring-offset: 2px;
+  --focus-ring-offset-inset: -2px;
+
+  /* Control sizes — the height of an interactive control, by density.
+     Button and Input field use 32, 40 and 48; Chip uses 24. */
+  --control-height-xs: 24px; /* chips, tags, compact rows */
+  --control-height-sm: 32px;
+  --control-height-md: 40px;
+  --control-height-lg: 48px;
+  --hit-target-min: 44px;    /* the smallest comfortable touch row */
+  --choice-size: 18px;       /* checkbox and radio box */
 
   /* Elevation — the source deck specifies a real shadow ladder, all
      built on Neutral-4 (soft grey), never black. Cards/dialogs use
@@ -172,6 +225,10 @@
   --duration-ambient: 900ms;
   --duration-morph: 420ms;   /* pose-to-pose shape transitions, e.g. Prompt input bar's expanded/collapsed morph */
   --duration-reveal: 550ms;  /* entrance reveals that need to read as more deliberate than duration-slow */
+  --duration-pulse: 1400ms;   /* one cycle of a repeating attention cue: CTA beacon ring, Thinking shimmer */
+  --duration-blink: 500ms;   /* a text caret's blink */
+  --stagger-sm: 80ms;        /* delay between rows entering one after another */
+  --stagger-md: 120ms;       /* the same, for larger rows (Thinking's trace) */
   --ease-standard: cubic-bezier(.2, .6, .2, 1);   /* default UI easing */
   --ease-settle: cubic-bezier(.16, .84, .24, 1);  /* earth: anchored arrivals */
   --ease-flow: cubic-bezier(.37, 0, .29, 1);      /* water: continuous */
@@ -182,6 +239,7 @@
   --ease-reveal: cubic-bezier(.16, 1, .3, 1);      /* entrance reveals — fast out, no overshoot */
 
   /* Icon sizes */
+  --icon-xs: 12px;   /* avatar letters and glyphs inside a 14px mark; never a standalone icon */
   --icon-micro: 14px;
   --icon-sm: 16px;
   --icon-base: 20px;

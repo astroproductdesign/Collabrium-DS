@@ -49,7 +49,7 @@ const rows: Row[] = [
   {
     id: 'hover-focus',
     label: 'Hover and focus-visible',
-    note: 'No hover and no focus rule in the old CSS (Q-CHK-3, Q-CHK-4). The new one adds the standard focus ring only.',
+    note: 'No hover and no focus rule in the old CSS (Q-CHK-4, confirmed 2026-10-26). The new one adds the standard focus ring, and hover and pressed states (approved 2026-10-26).',
     next: null,
     old: null,
   },
