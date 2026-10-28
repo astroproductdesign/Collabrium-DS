@@ -21,6 +21,7 @@ export * from './components/PermissionPrompt';
 export * from './components/PromptInputBar';
 export * from './components/Radio';
 export * from './components/StreamingText';
+export * from './components/Switch';
 export * from './components/TaskRows';
 export * from './components/Textarea';
 export * from './components/Thinking';
