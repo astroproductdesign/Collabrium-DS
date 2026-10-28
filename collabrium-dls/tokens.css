@@ -158,6 +158,25 @@
   --measure-sm: 360px; /* Permission Prompt, Tool approval, Thinking */
   --measure-md: 420px; /* Streaming Text */
   --measure-lg: 440px; /* Task Rows */
+  --measure-prose: 760px; /* Chat window: the thread's and the composer's reading width */
+
+  /* Layers — the stacking order of page-level surfaces: anything fixed
+     to the viewport or drawn over page content. Each token is the
+     z-index of one surface, and a higher number paints over a lower
+     one. The values are the ones components.css already used, named,
+     with the gaps left for what comes next. Stacking inside one
+     component (a sticky header at 2, a lifted card at 1, the chat
+     rail at 30) is local to that component and stays a plain number. */
+  --z-float: 20;    /* floating controls and anchored panels: profile and user menus, filter panel, pod card, sidebar hover label, floating Prompt input bar, Back to top */
+  --z-bar: 40;      /* Action bar */
+  --z-menu: 60;     /* fixed menus and hover previews: uploader menu, model menu, More options menu, the notes peek */
+  --z-panel: 70;    /* the notes panel, a popover dialog anchored to its row */
+  --z-chat: 95;     /* Chat window */
+  --z-modal: 300;   /* Media Ad Modal and Compare modal */
+  --z-brief: 400;   /* Command brief's scrim */
+  --z-tooltip: 500; /* Ad Placement Card, the "above modals" layer */
+  --z-toast: 1000;  /* Toast host */
+  --z-tour: 1100;   /* Tutorial Modal, above everything */
 
   /* Radius — the source
      deck specifies radius per surface, not a single scale. Kept as a

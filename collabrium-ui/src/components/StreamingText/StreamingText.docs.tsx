@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowClockwise, Stop } from '@phosphor-icons/react';
 import { Button } from '../Button';
 import { StreamingText } from './StreamingText';
+import { ChatMessage } from '../ChatWindow/ChatMessage';
 import type { StreamingSegment, StreamingSource, StreamingStatus } from './StreamingText';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
 
@@ -154,6 +155,52 @@ function LiveStreamExample() {
   );
 }
 
+function InChatExample() {
+  const [run, setRun] = useState(0);
+  const [content, setContent] = useState<StreamingSegment[]>([]);
+  const [status, setStatus] = useState<StreamingStatus>('streaming');
+  const timers = useRef<number[]>([]);
+
+  useEffect(() => {
+    let at = 0;
+    timers.current = LIVE_CHUNKS.map((chunk, i) => {
+      at += CHUNK_DELAYS[i];
+      return window.setTimeout(() => {
+        setContent(c => [...c, chunk]);
+        if (i === LIVE_CHUNKS.length - 1) setStatus('done');
+      }, at);
+    });
+    return () => timers.current.forEach(window.clearTimeout);
+  }, [run]);
+
+  const restart = () => {
+    setContent([]);
+    setStatus('streaming');
+    setRun(r => r + 1);
+  };
+
+  return (
+    <div style={{ maxWidth: 560 }} className="docs-stack">
+      <ChatMessage
+        key={run}
+        role="assistant"
+        streaming={status === 'streaming'}
+        timestamp="2026-08-24T10:21"
+        timeLabel="Just now"
+        onFeedbackChange={() => {}}
+        onRetry={restart}
+      >
+        <StreamingText content={content} status={status} actions={false} followUps={FOLLOW_UPS} />
+      </ChatMessage>
+      <div className="docs-row">
+        <Button variant="ghost" size="sm" leadingIcon={ArrowClockwise} onClick={restart}>
+          Replay
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export const examples: DocsExample[] = [
   {
     id: 'live',
@@ -242,6 +289,16 @@ const [status, setStatus] = useState<StreamingStatus>('streaming');
 />`,
   },
   {
+    id: 'in-chat',
+    title: 'Inside a chat message',
+    description:
+      'In a Chat window the message brings the one action row of the chat, so set `actions={false}`: this component\'s own row and sources list stay out, and the chat\'s row appears when the stream ends (set the message\'s `streaming` while `status` is `streaming`). Follow-ups still arrive.',
+    render: () => <InChatExample />,
+    code: `<ChatMessage role="assistant" streaming={status === 'streaming'} timestamp={timestamp} onFeedbackChange={sendFeedback} onRetry={retry}>
+  <StreamingText content={content} status={status} actions={false} followUps={followUps} />
+</ChatMessage>`,
+  },
+  {
     id: 'minimal',
     title: 'Just the text',
     description: 'With no sources, follow-ups, retry or feedback, a settled message has only a Copy button.',
@@ -251,6 +308,7 @@ const [status, setStatus] = useState<StreamingStatus>('streaming');
 ];
 
 export const props: DocsProp[] = [
+  { name: 'actions', options: 'boolean', default: 'true', description: 'Shows the action row and the sources list. `false` inside a Chat window\'s `ChatMessage`, which brings the chat\'s own row and shows sources as citations.' },
   { name: 'content', options: '(string | { citation })[]', default: '—', required: true, description: 'Everything produced so far, in order. Append only. A string is prose of any length; `{ citation: { name, domain, href, color? } }` is a source chip that lands in that position. A finished message passed whole is shown whole.' },
   { name: 'status', options: "'streaming' | 'done' | 'stopped' | 'failed'", default: '—', required: true, description: '`streaming`: caret on, actions hidden. `done`: the stream ended; it settles once the last word is on screen. `stopped`: the reader stopped it; what is on screen stays, marked "Stopped early".' },
   { name: 'sources', options: '{ name, domain, href, color? }[]', default: '—', description: 'Adds a "N sources" button to the action row that opens the list. Separate from citations in `content`.' },

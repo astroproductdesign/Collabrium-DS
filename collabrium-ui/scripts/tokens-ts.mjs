@@ -43,7 +43,7 @@ const bezier = v => {
 export function build(vars) {
   const out = {
     color: {}, font: {}, weight: {}, text: {}, tracking: {}, spacing: {}, layout: {},
-    radius: {}, borderWidth: {}, focus: {}, control: {}, measure: {}, leading: {}, shadow: {},
+    radius: {}, borderWidth: {}, focus: {}, control: {}, measure: {}, layer: {}, leading: {}, shadow: {},
     duration: {}, stagger: {}, ease: {}, icon: {},
   };
   const used = new Set();
@@ -71,6 +71,7 @@ export function build(vars) {
     else if (name === '--hit-target-min') take(name, 'control', 'hitTargetMin', px(v));
     else if (name === '--choice-size') take(name, 'control', 'choiceSize', px(v));
     else if ((m = /^--measure-(.+)$/.exec(name))) take(name, 'measure', camel(m[1]), px(v));
+    else if ((m = /^--z-(.+)$/.exec(name))) take(name, 'layer', camel(m[1]), Number(v));
     else if ((m = /^--leading-(.+)$/.exec(name))) take(name, 'leading', camel(m[1]), Number(v));
     else if ((m = /^--shadow-(.+)$/.exec(name))) take(name, 'shadow', camel(m[1]), v);
     else if ((m = /^--stagger-(.+)$/.exec(name))) take(name, 'stagger', camel(m[1]), ms(v));

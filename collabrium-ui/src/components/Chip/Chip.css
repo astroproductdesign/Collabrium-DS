@@ -1,0 +1,215 @@
+/*
+  Chip — ported from collabrium-dls/components.css lines 4522–4558 (.c-chip-group
+  to .c-chip-filter .count). The two .c-chip-remove rules at 3552–3553 belong to
+  Action bar's own pick row and are not ported here. Neither is the Link recipe
+  at 334 / 3727, which only names .c-chip-showless as its source.
+
+  Mapping from the old classes:
+    .c-chip-group                          -> .cui-chip-group
+    .c-chip                                -> .cui-chip
+    .c-chip .icon                          -> .cui-chip__icon
+    .c-chip-input                          -> .cui-chip[data-kind="input"]
+    .c-chip-input.is-disabled              -> .cui-chip[data-kind="input"][data-disabled]
+    .c-chip-remove                         -> .cui-chip__remove
+    .c-chip-overflow                       -> .cui-chip[data-kind="overflow"]
+    .c-chip-showless                       -> .cui-chip-group__showless
+    .c-chip-filter                         -> .cui-chip[data-kind="filter"]
+    .c-chip-filter.is-active               -> [data-active]
+    .c-chip-filter.is-disabled             -> [data-disabled]
+    .c-chip-filter .count                  -> .cui-chip__count
+
+  The base .c-chip is one class (0,1,0) and each kind is one more class (0,1,0)
+  in the source. Here the base is .cui-chip (0,1,0) and a kind is
+  .cui-chip[data-kind] (0,2,0): every kind rule moves up by the same step, so
+  the same rule wins in every state. The state selectors keep the source's
+  order: kind, hover, pressed, active, active hover, active pressed, focus,
+  disabled.
+
+  The source marks state with classes from script. Here the real attributes
+  drive the look: aria-checked is set by React next to data-active, and
+  disabled is aria-disabled next to data-disabled (a disabled filter stays in
+  the group and is skipped by the arrow keys; pointer-events is off, as in the
+  source).
+
+  The multi-select tick is a real leading icon rendered while a chip is on,
+  as in the source (its script inserts and removes it).
+*/
+
+.cui-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The "+N" chip and the "Show less" link each sit in a list item. */
+.cui-chip-group__item {
+  display: flex;
+}
+
+.cui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-primary);
+  font-size: var(--text-label2-size);
+  line-height: var(--text-label2-lh);
+  font-weight: var(--text-label2-weight);
+  color: var(--color-neutral-9);
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+.cui-chip__icon {
+  font-size: var(--icon-sm);
+  line-height: 1;
+  color: inherit;
+}
+
+/* Input Chip */
+.cui-chip[data-kind='input'] {
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-8);
+  background: var(--color-neutral-2);
+  border: 1px solid var(--color-neutral-3);
+}
+.cui-chip[data-kind='input'][data-disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cui-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  margin-right: -6px;
+  color: var(--color-neutral-5);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+  font-size: var(--icon-micro);
+  padding: 0;
+}
+.cui-chip__remove svg {
+  pointer-events: none;
+}
+.cui-chip__remove:hover {
+  color: var(--color-neutral-9);
+}
+.cui-chip__remove:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-chip__remove:disabled {
+  cursor: not-allowed;
+}
+
+/* "+N" chip and "Show less" link */
+.cui-chip[data-kind='overflow'] {
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-8);
+  background: var(--color-neutral-2);
+  border: 1px solid var(--color-neutral-3);
+  color: var(--color-neutral-5);
+  cursor: pointer;
+  font-family: inherit;
+}
+.cui-chip[data-kind='overflow']:hover {
+  color: var(--color-neutral-9);
+  border-color: var(--color-neutral-4);
+}
+.cui-chip[data-kind='overflow']:focus-visible,
+.cui-chip-group__showless:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-chip-group__showless {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: var(--color-neutral-9);
+  font-family: var(--font-primary);
+  font-size: var(--text-label2-size);
+  font-weight: var(--text-label2-weight);
+  line-height: var(--text-label2-lh);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* Filter Chip */
+.cui-chip[data-kind='filter'] {
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
+  background: var(--color-neutral-1);
+  border: 1px solid var(--color-neutral-3);
+  cursor: pointer;
+  font-family: inherit;
+}
+.cui-chip[data-kind='filter']:hover:not([data-active]):not([data-disabled]) {
+  background: var(--color-neutral-2);
+}
+.cui-chip[data-kind='filter']:active:not([data-disabled]) {
+  background: var(--color-neutral-3);
+}
+.cui-chip[data-kind='filter'][data-active] {
+  background: var(--color-obsidian);
+  border-color: var(--color-obsidian);
+  color: var(--color-neutral-1);
+}
+.cui-chip[data-kind='filter'][data-active]:hover:not([data-disabled]) {
+  background: var(--color-neutral-8);
+  border-color: var(--color-neutral-8);
+}
+.cui-chip[data-kind='filter'][data-active]:active:not([data-disabled]) {
+  background: var(--color-neutral-7);
+  border-color: var(--color-neutral-7);
+}
+.cui-chip[data-kind='filter']:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-chip[data-kind='filter'][data-disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/*
+  Trailing count: label2 at weight 400, one step lighter than the label. On the
+  dark active fill it is Neutral-1 at 70%. The source writes rgba(255,255,255,.7).
+  No token for white at 70%; kept as the source's literal for now (Q-CHIP-4,
+  answered 2026-10-27).
+*/
+.cui-chip[data-kind='filter'] .cui-chip__count {
+  font-weight: 400;
+  color: var(--color-neutral-5);
+}
+.cui-chip[data-kind='filter'][data-active] .cui-chip__count {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* The tick and the count are information, so they stay when colours are forced. */
+@media (forced-colors: active) {
+  .cui-chip[data-kind='filter'][data-active] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+  .cui-chip[data-kind='filter'][data-active] .cui-chip__count {
+    color: HighlightText;
+  }
+}

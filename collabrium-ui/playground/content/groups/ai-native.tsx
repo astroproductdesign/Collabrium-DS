@@ -43,6 +43,4 @@ export const rules: GroupOverviewDocs['rules'] = [
   'Reduced motion drops the travel and keeps the information.',
 ];
 
-export const comingSoon: GroupOverviewDocs['comingSoon'] = [
-  { title: 'Chat window', summary: 'A modal chat surface: conversation history on the left, the active thread on the right. The expanded form of the Prompt input bar.' },
-];
+export const comingSoon: GroupOverviewDocs['comingSoon'] = [];

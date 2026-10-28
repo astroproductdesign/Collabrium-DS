@@ -18,6 +18,7 @@ import { createPortal } from 'react-dom';
 import { ArrowUp, CaretDown, Check, DotsThree, Image, Microphone, Paperclip, Sparkle, Stop } from '@phosphor-icons/react';
 import type { WithoutStyling } from '../../utils/types';
 import { Button } from '../Button';
+import { usePortalContainer } from '../../utils/portalContext';
 
 /**
  * - `floating`: pinned to the bottom of a content region, free over the canvas. It collapses to a pill on scroll
@@ -407,12 +408,14 @@ export const PromptInputBar = forwardRef<HTMLDivElement, PromptInputBarProps>(fu
           icon={working ? Stop : ArrowUp}
           aria-label={working ? 'Stop' : 'Send'}
           data-part="send"
+          disabled={!working && value.trim() === ''}
           onClick={send}
         />
       </div>
     </div>
   );
 
+  const portalContainer = usePortalContainer();
   const menu: ReactNode =
     menuOpen && typeof document !== 'undefined'
       ? createPortal(
@@ -440,7 +443,7 @@ export const PromptInputBar = forwardRef<HTMLDivElement, PromptInputBarProps>(fu
               </button>
             ))}
           </div>,
-          document.body,
+          portalContainer ?? document.body,
         )
       : null;
 

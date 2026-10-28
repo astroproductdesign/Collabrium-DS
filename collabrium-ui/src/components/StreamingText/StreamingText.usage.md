@@ -28,6 +28,7 @@ It is part of AI Native (the third part converted).
 | `onFollowUp` | `(prompt, index) => void` | — | Called when a follow-up is chosen. |
 | `onRetry` | `() => void` | — | Adds a Retry button (in the action row, or beside the error line on a `failed` answer). The host decides what retrying does. |
 | `onFeedback` | `(value: 'good' \| 'bad' \| null) => void` | — | Adds the thumbs up and down buttons. `null` when a choice is taken back. |
+| `actions` | boolean | `true` | Shows the action row and the sources list. `false` inside a Chat window's `ChatMessage`, which brings the chat's own row (and shows sources as citations). Follow-ups, the failed Retry and "Stopped early" stay. |
 | `id`, `aria-*`, `data-*`, … | native | — | Passed to the root `<div>`. `style` and `className` are not accepted. |
 
 The `ref` is forwarded to the root `<div>`.
@@ -44,6 +45,7 @@ The `ref` is forwarded to the root `<div>`.
 9. **A stopped answer keeps its text**, is marked "Stopped early", and its actions become available. No follow-ups (Rule 17).
 10. **It never scrolls anything.** The thread owns scroll (Rule 20).
 11. **A failed stream keeps its text too** (Rule 18). `status="failed"` freezes what is on screen, drops the caret, and shows a red status glyph, "Couldn't finish this response" in plain Neutral-5 text (never red text), and a Retry button beside it when `onRetry` is set. The actions stay (Copy and the rest); there are no follow-ups. The component announces "Response failed. Retry available." once. The error line is defined by this library.
+12. **Inside a Chat window, set `actions={false}`.** A `ChatMessage` brings the chat's own action row (Copy, Read aloud, thumbs, More options), so this component's row and sources list would be a second one. Sources show as the `ChatMessage`'s citations, and Retry sits in its More options menu. Set the message's `streaming` while this component's `status` is `streaming`. Follow-ups, "Stopped early" and the failed state's Retry beside the error line stay. (Decided 2026-10-27, Q-CHAT-9.)
 
 ## Accessibility
 - The text is a `<p>` with `aria-busy="true"` while streaming, `false` after (Rule 19). There is no live region over the text.

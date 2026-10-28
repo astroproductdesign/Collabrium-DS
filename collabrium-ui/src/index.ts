@@ -12,7 +12,9 @@ export * from './motion';
 // Components
 export * from './components/Button';
 export * from './components/Badge';
+export * from './components/ChatWindow';
 export * from './components/Checkbox';
+export * from './components/Chip';
 export * from './components/InputField';
 export * from './components/LoadingState';
 export * from './components/PermissionPrompt';
