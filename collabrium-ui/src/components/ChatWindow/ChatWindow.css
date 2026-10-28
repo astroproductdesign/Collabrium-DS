@@ -1,0 +1,747 @@
+/*
+  Chat window — ported from collabrium-dls/components.css lines 5021–5272 (the .c-chat*
+  rules, the conversation rows, the thread, message actions and the narrow rail
+  drawer). Back to top (5102–5138) sits in the same run but is its own component
+  and is not ported here. Loading State follows at 5273 and is already converted.
+
+  Mapping from the old classes:
+    .c-chat                          -> .cui-chat                    (data-phase)
+    .c-chat-veil                     -> .cui-chat__veil              ([data-veil] on the root)
+    .c-chat-shell                    -> .cui-chat__shell
+    .c-chat-shell.is-folding-open    -> .cui-chat__shell[data-fold="open"]
+    .c-chat-shell.is-folding-closed  -> .cui-chat__shell[data-fold="close"]
+    .c-chat-rail / .c-chat-main      -> .cui-chat__rail / .cui-chat__main
+    .c-chat-new                      -> [data-part="new-chat"]
+    .c-chat-pillars, .c-chat-flabel  -> .cui-chat__pillars, .cui-chat__flabel
+    .c-chat-conversations            -> .cui-chat__conversations
+    .c-chat-group, -conversations-head -> .cui-chat__group, .cui-chat__group-head
+    .c-chat-conversation (+ -title, -pillar, .is-active) -> .cui-chat__conversation (+ -title, -pillar, [aria-current="true"])
+    .c-chat-empty                    -> .cui-chat__empty
+    .c-chat-hd (h5, p)               -> .cui-chat__hd (.cui-chat__title, p)
+    .c-chat-thread-wrap, -thread, -thread-inner -> .cui-chat__thread-wrap, __thread, __thread-inner
+    .c-chat-jump (.is-visible, .has-new) -> .cui-chat__jump ([data-visible], [data-new])
+    .c-chat-composer, -composer-inner, -foot -> .cui-chat__composer, __composer-inner, __foot
+    .c-chat-rail-toggle              -> [data-part="rail-toggle"]
+    .c-chat-rail-scrim (.is-open)    -> .cui-chat__scrim ([data-open])
+    .c-chat-rail.is-open             -> .cui-chat__rail[data-open]
+    .c-chat-msg (.is-me, .is-ai)     -> .cui-chat-msg[data-role="user" | "assistant"]
+    .c-chat-bubble                   -> .cui-chat-msg__bubble
+    .c-chat-cite                     -> .cui-chat-msg__bubble > .cui-badge (the Badge itself, no wrapper)
+    .c-chat-actions (.is-open)       -> .cui-chat-msg__actions ([data-open])
+    .c-chat-msg.is-streaming         -> .cui-chat-msg[data-streaming]
+    .c-chat-action (.is-copied, .is-loading, .is-playing) -> .cui-chat-msg__action ([data-copied], [data-state])
+    .c-chat-time                     -> .cui-chat-msg__time
+    .c-chat-menu, .c-chat-menu-item  -> .cui-chat-msg__menu, .cui-chat-msg__menu-item
+
+  The source toggles state with classes from script; here the open and closed poses are data-phase on the
+  root (closed is not mounted at all). The source gives the veil and the rail and main fade ONE class
+  (.is-shown); the DS says the veil comes in with the fold and the content "once the fold settles", so the
+  veil follows [data-veil] and the content follows data-phase="shown". The shell's own opacity is 0 in the
+  source with nothing to bring it back once its fold class is removed (the fold's forwards fill does it
+  while the class is on); data-phase="shown" does that here. TODO(open-question Q-CHAT-5).
+
+  Specificity is kept in the same order as the source: rail/main fade, then the container-query overrides
+  last. The container query measures the shell (container-type: inline-size), as in the source.
+
+  The conversation list is a group of buttons with aria-current on the open one, and the action row a group:
+  the source's listbox and toolbar roles promised arrow keys it never had (decided 2026-10-27, Q-CHAT-1).
+*/
+
+.cui-chat {
+  /*
+    Local values. The veil is --shadow-overlay and the title and pillar label take the type tokens' weight
+    (decided 2026-10-27, Q-CHAT-4); the source has rgba(20,20,20,.42) and weight 800. TODO(open-question
+    Q-CHAT-4): 1200, 820, 288 and 78% have no tokens. The 760px reading width is --measure-prose
+    and the layer is --z-chat (added 2026-10-27, DLS v0.9.127).
+  */
+  --cui-chat-shell-width: 1200px;
+  --cui-chat-shell-height: 820px;
+  --cui-chat-rail-width: 288px;
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-chat);
+  perspective: 1600px;
+  display: block;
+}
+
+.cui-chat__veil {
+  position: absolute;
+  inset: 0;
+  background: var(--shadow-overlay);
+  opacity: 0;
+  transition: opacity 480ms var(--ease-standard);
+  cursor: pointer;
+}
+.cui-chat[data-veil] .cui-chat__veil {
+  opacity: 1;
+}
+
+.cui-chat__shell {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(var(--cui-chat-shell-width), calc(100vw - var(--spacing-48)));
+  height: min(var(--cui-chat-shell-height), calc(100vh - var(--spacing-48)));
+  display: grid;
+  grid-template-columns: var(--cui-chat-rail-width) minmax(0, 1fr);
+  background: var(--color-neutral-1);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-4);
+  transform-origin: 0 0;
+  opacity: 0;
+  container-type: inline-size;
+}
+.cui-chat[data-phase='shown'] .cui-chat__shell {
+  opacity: 1;
+}
+.cui-chat__shell[data-fold='open'] {
+  animation: cui-chat-fold-open 0.8s cubic-bezier(0.25, 0.9, 0.35, 1) forwards;
+}
+.cui-chat__shell[data-fold='close'] {
+  animation: cui-chat-fold-close 0.55s cubic-bezier(0.3, 0.6, 0.35, 1) forwards;
+}
+@keyframes cui-chat-fold-open {
+  0% {
+    opacity: 0.55;
+    transform: translate(var(--fold-dx, 0px), var(--fold-dy, 0px)) scale(var(--fold-sx, 0.2), var(--fold-sy, 0.2))
+      rotateY(calc(var(--fold-dir, 1) * 10deg));
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1, 1) rotateY(0deg);
+  }
+}
+@keyframes cui-chat-fold-close {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1, 1) rotateY(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fold-dx, 0px), var(--fold-dy, 0px)) scale(var(--fold-sx, 0.2), var(--fold-sy, 0.2))
+      rotateY(calc(var(--fold-dir, 1) * -10deg));
+  }
+}
+
+/* The rail and main fade in as their own layer once the fold settles. */
+.cui-chat__rail,
+.cui-chat__main {
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+.cui-chat[data-phase='shown'] .cui-chat__rail,
+.cui-chat[data-phase='shown'] .cui-chat__main {
+  opacity: 1;
+}
+
+/* Popovers (the More options menu, the model menu) draw here, above the shell. */
+.cui-chat__layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.cui-chat__layer > * {
+  pointer-events: auto;
+}
+
+.cui-chat__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------- Left rail ---------------- */
+.cui-chat__rail {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border-right: 1px solid var(--color-neutral-3);
+  padding: var(--spacing-16);
+  gap: var(--spacing-16);
+}
+.cui-chat__rail [data-part='new-chat'] {
+  width: 100%;
+  justify-content: center;
+}
+
+.cui-chat__pillars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  flex: none;
+}
+.cui-chat__flabel {
+  font-size: var(--text-label3-size);
+  font-weight: var(--text-label3-weight);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+  width: 100%;
+}
+
+.cui-chat__conversations {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+.cui-chat__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+.cui-chat__group-head {
+  font-size: var(--text-caption-size);
+  font-weight: 700;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+  padding: var(--spacing-12) var(--spacing-8) var(--spacing-4);
+}
+.cui-chat__conversation {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-5);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.cui-chat__conversation:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-chat__conversation:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-chat__conversation[aria-current='true'] {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-weight: 700;
+}
+.cui-chat__conversation-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/*
+  Not uppercased, unlike every other eyebrow in the system: these are camelCase product names
+  (CollabSales), and the eyebrow recipe would render them COLLABSALES, losing the seam the capital S provides.
+*/
+.cui-chat__conversation-pillar {
+  font-size: var(--text-label3-size);
+  font-weight: 700;
+  color: var(--color-neutral-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-chat__conversations[data-pillar-selected] .cui-chat__conversation-pillar {
+  display: none;
+}
+.cui-chat__empty {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+  padding: var(--spacing-16) var(--spacing-8);
+  text-align: center;
+}
+
+/* ---------------- Right panel ---------------- */
+.cui-chat__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.cui-chat__hd {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  padding: var(--spacing-20) var(--spacing-24);
+  border-bottom: 1px solid var(--color-neutral-3);
+}
+.cui-chat__title {
+  margin: 0;
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  letter-spacing: 0;
+  color: var(--color-neutral-9);
+}
+.cui-chat__hd p {
+  margin: var(--spacing-4) 0 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+
+/* Gives Jump to present a containing block whose bottom edge is the top of the composer. Nothing visual. */
+.cui-chat__thread-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cui-chat__thread {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--spacing-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+.cui-chat__thread-inner {
+  max-width: var(--measure-prose);
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+/*
+  Jump to present: a scroll pin with a button attached. An overlay, not a child of the scroller, so it holds
+  still while content moves under it.
+*/
+.cui-chat__jump {
+  position: absolute;
+  bottom: var(--spacing-16);
+  left: 50%;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-neutral-1);
+  border: 1px solid var(--color-neutral-3);
+  box-shadow: var(--shadow-2);
+  color: var(--color-neutral-9);
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(8px);
+  transition:
+    opacity var(--duration-base) var(--ease-settle),
+    transform var(--duration-base) var(--ease-settle),
+    visibility 0s linear var(--duration-base),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+.cui-chat__jump svg {
+  font-size: var(--icon-sm);
+}
+/* Transparent hit-area lift to 44px, no layout shift. */
+.cui-chat__jump::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+.cui-chat__jump:hover {
+  background: var(--color-neutral-2);
+  box-shadow: var(--shadow-3);
+}
+.cui-chat__jump:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-chat__jump[data-visible] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition:
+    opacity var(--duration-base) var(--ease-settle),
+    transform var(--duration-base) var(--ease-settle),
+    visibility 0s linear 0s,
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+/* New-content dot: SidebarNav's collapsed trailing-count convention, in Obsidian since nothing owns it. */
+.cui-chat__jump[data-new]::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+  box-shadow: 0 0 0 2px var(--color-neutral-1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cui-chat__jump,
+  .cui-chat__jump[data-visible] {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------------- Messages ---------------- */
+.cui-chat-msg {
+  /* TODO(open-question Q-CHAT-4): no token for the user bubble's 78% width. */
+  --cui-chat-user-bubble-width: 78%;
+  display: flex;
+  gap: var(--spacing-12);
+}
+.cui-chat-msg[data-role='user'] {
+  justify-content: flex-end;
+}
+/* AI turns stack the bubble and the action row; the message itself switches axis. */
+.cui-chat-msg[data-role='assistant'] {
+  flex-direction: column;
+}
+
+/*
+  AI bubble: plain text on the page, no fill, no border, no radius. The asymmetry is deliberate: the
+  reader's own turns are tinted and right-aligned, the assistant's run as page copy.
+*/
+.cui-chat-msg[data-role='assistant'] .cui-chat-msg__bubble {
+  font-size: var(--text-body1-size);
+  line-height: var(--leading-prose);
+  color: var(--color-neutral-9);
+  max-width: 100%;
+}
+.cui-chat-msg[data-role='user'] .cui-chat-msg__bubble {
+  max-width: var(--cui-chat-user-bubble-width);
+  padding: var(--spacing-12) var(--spacing-16);
+  background: var(--color-neutral-2);
+  border-radius: var(--radius-md);
+  color: var(--color-neutral-9);
+  font-size: var(--text-body1-size);
+  line-height: 1.5;
+}
+.cui-chat-msg__bubble p {
+  margin: 0 0 var(--spacing-12);
+}
+.cui-chat-msg__bubble p:last-child {
+  margin-bottom: 0;
+}
+.cui-chat-msg__bubble ul {
+  margin: 0 0 var(--spacing-12);
+  padding-left: var(--spacing-20);
+}
+.cui-chat-msg__bubble ul:last-child {
+  margin-bottom: 0;
+}
+.cui-chat-msg__bubble li {
+  margin-bottom: var(--spacing-4);
+}
+.cui-chat-msg__bubble li:last-child {
+  margin-bottom: 0;
+}
+.cui-chat-msg__bubble b {
+  font-weight: 700;
+}
+
+/*
+  A citation is a Badge, Neutral, as is (the source's .c-chat-cite adds only the top margin). It is a direct
+  child of the bubble, so it sits in the same line box as in the source.
+*/
+.cui-chat-msg__bubble > .cui-badge {
+  margin-top: var(--spacing-4);
+}
+.cui-chat-msg__bubble > .cui-badge + .cui-badge {
+  margin-left: var(--spacing-4);
+}
+
+/*
+  Message actions. Always in flow, never revealed by height: animating height would reflow the thread on every
+  hover and jump the scroll position. Opacity only.
+*/
+.cui-chat-msg__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  height: 28px;
+  margin-top: var(--spacing-4);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-chat-msg:hover .cui-chat-msg__actions,
+.cui-chat-msg:focus-within .cui-chat-msg__actions,
+.cui-chat-msg__actions[data-open] {
+  opacity: 1;
+}
+/* A hover-only affordance is unreachable on the tablets this is read on. */
+@media (hover: none), (pointer: coarse) {
+  .cui-chat-msg__actions {
+    opacity: 1;
+  }
+}
+/* Mid-stream the buttons must not be tabbable, and a Copy that fires on half a response is a bug. */
+.cui-chat-msg[data-streaming] .cui-chat-msg__actions {
+  display: none;
+}
+
+.cui-chat-msg__action {
+  position: relative;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-neutral-5);
+  font-size: var(--icon-sm);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+/* Transparent hit-area lift to 44px: it does not change the painted box or shift layout. */
+.cui-chat-msg__action::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+.cui-chat-msg__action:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-chat-msg__action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-chat-msg__action[data-copied] {
+  color: var(--color-green);
+}
+/* Read aloud while loading: a spinner, an ongoing process, same as Search input's. */
+.cui-chat-msg__action[data-state='loading'] svg {
+  animation: cui-chat-action-spin var(--duration-ambient) linear infinite;
+}
+@keyframes cui-chat-action-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.cui-chat-msg__action[data-state='playing'] {
+  color: var(--color-neutral-9);
+}
+/* Thumbs: fill against outline carries the pressed state, as in Checkbox and Radio. */
+.cui-chat-msg__action[aria-pressed='true'] {
+  color: var(--color-neutral-9);
+}
+
+.cui-chat-msg__time {
+  margin-left: var(--spacing-8);
+  flex: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.cui-chat-msg__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+  More options menu: the real popover shell (shadow-3, radius-md, Neutral-3 border, Neutral-1 fill, 4px padding).
+  Fixed, placed from the trigger in script, and drawn in the chat window's popover layer.
+*/
+.cui-chat-msg__menu {
+  --cui-chat-menu-min-width: 180px;
+  --cui-chat-menu-item-height: 36px;
+  position: fixed;
+  z-index: var(--z-menu);
+  min-width: var(--cui-chat-menu-min-width);
+  background: var(--color-neutral-1);
+  border: 1px solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  padding: var(--spacing-4);
+}
+.cui-chat-msg__menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  height: var(--cui-chat-menu-item-height);
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-9);
+  text-align: left;
+  cursor: pointer;
+}
+.cui-chat-msg__menu-item svg {
+  font-size: var(--icon-sm);
+  color: var(--color-neutral-5);
+  flex: none;
+}
+.cui-chat-msg__menu-item:hover {
+  background: var(--color-neutral-2);
+}
+.cui-chat-msg__menu-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+
+/* ---------------- Composer ---------------- */
+.cui-chat__composer {
+  flex: none;
+  padding: var(--spacing-16) var(--spacing-24) var(--spacing-24);
+  background: var(--color-canvas-warm);
+  border-top: 1px solid var(--color-neutral-3);
+}
+.cui-chat__composer-inner {
+  max-width: var(--measure-prose);
+  margin: 0 auto;
+}
+.cui-chat__foot {
+  max-width: var(--measure-prose);
+  margin: var(--spacing-8) auto 0;
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+  text-align: center;
+}
+
+/*
+  Single column at 820px and below, measured against the SHELL's own width (a container query), not the
+  viewport. A size container query cannot restyle its own container, so .cui-chat__main spans both tracks and
+  the rail is layered on top as an absolutely positioned drawer. The toggle and scrim exist only here. They are
+  declared BEFORE the @container block on purpose: at equal specificity a matched @container rule resolves by
+  source order, so the unconditional reset has to come first.
+*/
+.cui-chat__main [data-part='rail-toggle'] {
+  display: none;
+}
+.cui-chat__scrim {
+  display: none;
+}
+@container (max-width: 820px) {
+  .cui-chat__rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    width: var(--cui-chat-rail-width);
+    max-width: 85%;
+    border-right: none;
+    background: var(--color-neutral-1);
+    box-shadow: var(--shadow-4);
+    transform: translateX(-100%);
+    transition: transform var(--duration-base) var(--ease-standard);
+  }
+  .cui-chat__rail[data-open] {
+    transform: translateX(0);
+  }
+  /*
+    position and z-index here are not cosmetic: .cui-chat__main is a grid item, and a grid item's stacking is
+    ambiguous against a later sibling's z-index when it has no explicit position and z-index of its own (the
+    composer's z-index was winning against the scrim's, however high the scrim went). Kept lower than the scrim's 20.
+  */
+  .cui-chat__main {
+    grid-column: 1 / -1;
+    position: relative;
+    z-index: 1;
+  }
+  .cui-chat__main [data-part='rail-toggle'] {
+    display: flex;
+  }
+  .cui-chat__scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: var(--shadow-overlay);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-base) var(--ease-standard);
+  }
+  .cui-chat__scrim[data-open] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/*
+  On a phone the window is the whole screen: no margin, no rounded corners, no shadow, with the notch and home
+  bar cleared. Above 600px it floats as a card. This is not in the DLS (decided 2026-10-27, Q-CHAT-10): the
+  breakpoint is a media query on the viewport, because the shell's own width is what this changes.
+*/
+@media (max-width: 600px) {
+  .cui-chat__shell {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .cui-chat__hd {
+    padding-top: calc(var(--spacing-20) + env(safe-area-inset-top, 0px));
+  }
+  .cui-chat__composer {
+    padding-bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-chat__veil {
+    transition: none;
+  }
+  .cui-chat__shell {
+    animation: none !important;
+  }
+  .cui-chat__rail,
+  .cui-chat__main {
+    transition: none;
+  }
+  .cui-chat__scrim {
+    transition: none;
+  }
+}
+
+/* The selected conversation and the chat surfaces keep their edges when colours are forced. */
+@media (forced-colors: active) {
+  .cui-chat__shell {
+    border: 1px solid CanvasText;
+  }
+  .cui-chat__conversation[aria-current='true'] {
+    outline: 2px solid Highlight;
+  }
+}

@@ -402,7 +402,7 @@
    1px Neutral-3, radius-md, shadow-3, spacing-4 padding, Neutral-2 item
    hover) at a compact 160px/32px scale, opening downward from the
    trigger's own right edge. */
-.c-card-profile-menu{position:absolute; top:calc(100% + var(--spacing-4)); right:0; width:160px; padding:var(--spacing-4); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); text-align:left; z-index:20;}
+.c-card-profile-menu{position:absolute; top:calc(100% + var(--spacing-4)); right:0; width:160px; padding:var(--spacing-4); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); text-align:left; z-index:var(--z-float);}
 .c-card-profile-menu[hidden]{display:none;}
 .c-card-profile-menu-item{display:flex; align-items:center; gap:var(--spacing-8); width:100%; height:var(--control-height-sm); padding:0 var(--spacing-8); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body2-size); font-weight:500; text-align:left; cursor:pointer;}
 .c-card-profile-menu-item:hover{background:var(--color-neutral-2);}
@@ -1191,7 +1191,7 @@
 .c-card.c-card-ad-placement{
   /* Water is Collab:Media's element: slots are always Navy, never a family colour. */
   --c-card-ad-placement-accent:var(--color-navy);
-  position:fixed; top:0; left:0; z-index:500;   /* above Command brief (400) and Media Ad Modal (300), per Tooltip's "above modals" rule */
+  position:fixed; top:0; left:0; z-index:var(--z-tooltip);   /* above Command brief (400) and Media Ad Modal (300), per Tooltip's "above modals" rule */
   display:block; gap:0;
   width:268px;                                   /* one-off, from source — the one Card with a fixed width, because it never sits in a grid */
   min-width:0; max-width:calc(100vw - var(--spacing-12) * 2);
@@ -1362,7 +1362,7 @@
    Presentational only — the accessible path is the button's label and
    the dialog, so this never traps the pointer. */
 .npeek{
-  position:fixed; z-index:60; width:min(280px, calc(100vw - 24px)); height:auto; min-width:0;
+  position:fixed; z-index:var(--z-menu); width:min(280px, calc(100vw - 24px)); height:auto; min-width:0;
   display:none; pointer-events:none;
   opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);
 }
@@ -1397,7 +1397,7 @@
 /* --- Click: the notes panel. A positioned popover dialog, not a modal —
    no scrim, and it stays anchored to the row it belongs to. --- */
 .npanel{
-  position:fixed; z-index:70;
+  position:fixed; z-index:var(--z-panel);
   /* Shrinks rather than overflowing: below ~356px a fixed 340px panel
      is pushed off the left edge by the placement clamp. */
   width:min(340px, calc(100vw - 24px));
@@ -1631,7 +1631,7 @@
 .c-cbrief .c-herocard-eyebrow{font-size:var(--text-caption-size); line-height:var(--text-caption-lh); font-weight:700; text-transform:uppercase; letter-spacing:var(--tracking-eyebrow);}
 
 /* Selected state — modal form. Same content as .c-herocard-selected, fixed/centered/animated instead of sitting in flow: opens on click, closes on scrim click / the close button / Escape. translate(-50%,-50%) is the resting centered position; the entrance/exit animation layers on top of it, never replaces it. Exit is asymmetric on purpose — the panel collapses fast (140ms) and the scrim's own fade is delayed by that same 140ms so it only starts once the panel has finished collapsing, matching "reverse of entrance, panel first, then the scrim fades." */
-.c-cbrief-scrim{position:fixed; inset:0; z-index:400; background:var(--shadow-overlay); opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard) var(--duration-fast);}
+.c-cbrief-scrim{position:fixed; inset:0; z-index:var(--z-brief); background:var(--shadow-overlay); opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard) var(--duration-fast);}
 .c-cbrief-scrim.is-open{opacity:1; pointer-events:auto; transition:opacity var(--duration-fast) var(--ease-standard);}
 .c-cbrief{position:fixed; top:50%; left:50%; width:min(560px, calc(100vw - var(--spacing-32))); max-height:calc(100dvh - var(--spacing-60)); overflow-y:auto; background:var(--color-neutral-1); border-radius:var(--radius-lg); box-shadow:var(--shadow-4); padding:var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-16); opacity:0; transform:translate(-50%,-50%) perspective(1000px) rotateX(-8deg) translateY(24px); transition:opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
 .c-cbrief-scrim.is-open .c-cbrief{opacity:1; transform:translate(-50%,-50%) perspective(1000px) rotateX(0deg) translateY(0); transition:opacity var(--duration-base) var(--ease-standard), transform var(--duration-base) var(--ease-standard);}
@@ -1814,14 +1814,14 @@
    spotlight share a coordinate space and neither can be clipped by
    an ancestor's overflow.
 
-   z-index 1100 — ABOVE EVERYTHING. This system has no numeric
-   z-index scale (components.css says so outright), so the number is
-   picked against a survey of what it actually paints: Toast host
-   1000, Command brief's scrim 400, Chat window 95, Modal no z-index
-   at all. 1100 clears the highest of them. Do not swap this for a
-   round number and a plausible comment: an earlier pass sat at 92 and
-   justified it against a Modal z-index of 90 that does not exist, and
-   a reason nobody can check is worse than no reason at all.
+   z-index var(--z-tour) (1100) — ABOVE EVERYTHING. The layers scale
+   in tokens.css names it, and the number was picked against a survey
+   of what the system actually paints: Toast host 1000, Command brief's
+   scrim 400, Chat window 95, Modal no z-index at all. 1100 clears the
+   highest of them. Do not swap this for a round number and a plausible
+   comment: an earlier pass sat at 92 and justified it against a Modal
+   z-index of 90 that does not exist, and a reason nobody can check is
+   worse than no reason at all.
 
    Sitting above Toast is the point, not a side effect: a toast that
    fires mid-tour is dimmed by the scrim like everything else rather
@@ -1847,7 +1847,7 @@
    aria-modal stays FALSE through all of it: the surface behind is
    unusable, but a screen reader can still read the element the step
    is describing, which is the only reason to point at it. */
-.c-modal-tutorial-layer{position:fixed; inset:0; z-index:1100; display:none;}
+.c-modal-tutorial-layer{position:fixed; inset:0; z-index:var(--z-tour); display:none;}
 .c-modal-tutorial-layer.is-open{display:block;}
 
 /* The lock. padding-right is written inline by the script with the
@@ -2071,7 +2071,7 @@ html.c-modal-tutorial-locked{overflow:hidden;}
 /* Layer — one fixed root owning scrim + panel. z-index 300: above Chat
    window (95), below Command brief's scrim (400), Toast (1000) and
    Tutorial Modal (1100). */
-.c-modal-media-ad-layer{position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; padding:var(--spacing-16); perspective:1200px;}
+.c-modal-media-ad-layer{position:fixed; inset:0; z-index:var(--z-modal); display:none; align-items:center; justify-content:center; padding:var(--spacing-16); perspective:1200px;}
 .c-modal-media-ad-layer.is-open{display:flex;}
 .c-modal-media-ad-scrim{position:absolute; inset:0; background:var(--shadow-overlay); opacity:0; transition:opacity var(--duration-slow) var(--ease-standard);}
 .c-modal-media-ad-layer.is-shown .c-modal-media-ad-scrim{opacity:1; transition-duration:var(--duration-reveal);}
@@ -2483,7 +2483,7 @@ html.c-modal-media-ad-locked{overflow:hidden;}
    ========================================================= */
 
 /* Layer + scrim — Media Ad Modal's recipe under this prefix. */
-.c-modal-compare-layer{position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; padding:var(--spacing-16); perspective:1200px;}
+.c-modal-compare-layer{position:fixed; inset:0; z-index:var(--z-modal); display:none; align-items:center; justify-content:center; padding:var(--spacing-16); perspective:1200px;}
 .c-modal-compare-layer.is-open{display:flex;}
 .c-modal-compare-scrim{position:absolute; inset:0; background:var(--shadow-overlay); opacity:0; transition:opacity var(--duration-slow) var(--ease-standard);}
 .c-modal-compare-layer.is-shown .c-modal-compare-scrim{opacity:1; transition-duration:var(--duration-reveal);}
@@ -2785,7 +2785,7 @@ html.c-modal-compare-locked{overflow:hidden;}
    strip, left edge on the strip's, caret on the hovered chip; sized to
    its one-line text, up to 280px. Shows on
    hover or keyboard focus, never on touch, never collapsed. */
-.c-pod-card{position:absolute; z-index:20; width:max-content; max-width:280px; padding:var(--spacing-12); background:var(--color-neutral-7); color:var(--color-neutral-1); border-radius:var(--radius-sm); box-shadow:var(--shadow-3); pointer-events:none; opacity:0; transform:translateY(-2px); transition:opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
+.c-pod-card{position:absolute; z-index:var(--z-float); width:max-content; max-width:280px; padding:var(--spacing-12); background:var(--color-neutral-7); color:var(--color-neutral-1); border-radius:var(--radius-sm); box-shadow:var(--shadow-3); pointer-events:none; opacity:0; transform:translateY(-2px); transition:opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
 .c-pod-card.is-visible{opacity:1; transform:none;}
 .c-pod-card::before{content:''; position:absolute; top:-6px; left:var(--c-pod-caret-x, 24px); margin-left:-6px; border:6px solid transparent; border-top:0; border-bottom-color:var(--color-neutral-7);}
 .c-pod-card-title{display:flex; align-items:center; gap:var(--spacing-8); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:700;}
@@ -2799,7 +2799,7 @@ html.c-modal-compare-locked{overflow:hidden;}
    reused Tooltip instance) — see DESIGN-SYSTEM.md's "Collapsed —
    hover label" row for why. A single shared element, `position:
    fixed`, repositioned via JS to the hovered/focused icon. */
-.c-sidebar-hover-label{position:fixed; padding:var(--spacing-6) 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard); z-index:20;}
+.c-sidebar-hover-label{position:fixed; padding:var(--spacing-6) 10px; border-radius:var(--radius-sm); background:var(--color-neutral-7); color:var(--color-neutral-1); font-size:var(--text-caption-size); font-weight:500; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard); z-index:var(--z-float);}
 .c-sidebar-hover-label.is-visible{opacity:1;}
 .c-sidebar-item .c-sidebar-hover-text,
 .c-sidebar-user .c-sidebar-hover-text,
@@ -2827,7 +2827,7 @@ html.c-modal-compare-locked{overflow:hidden;}
    against the trigger's own rect. Opens upward: the trigger sits at
    the bottom of the viewport by design, so a downward panel would
    routinely overflow — see DESIGN-SYSTEM.md's Menu → Placement row. */
-.c-user-menu{position:absolute; width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4); z-index:20;}
+.c-user-menu{position:absolute; width:240px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4); z-index:var(--z-float);}
 .c-user-menu[hidden]{display:none;}
 .c-user-menu-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:var(--control-height-md); padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-9); font-family:inherit; font-size:var(--text-body2-size); font-weight:500; cursor:pointer; text-align:left;}
 .c-user-menu-item:hover{background:var(--color-neutral-2);}
@@ -3243,10 +3243,10 @@ html.c-modal-compare-locked{overflow:hidden;}
 /* Toast host — fixed bottom-right, spacing-24 offset, stacked newest-on-top
    with a spacing-8 gap; collapses to a full-width bottom band with
    spacing-12 margins under 640px. Per Toast, Positioning / Stacking
-   behaviour. z-index sits above page content — this system has no numeric
-   z-index scale, so "below modal overlays" is a structural note for
-   whoever wires a Modal in front of it, not a value here. */
-.c-toast-host{position:fixed; right:var(--spacing-24); bottom:var(--spacing-24); z-index:1000; display:flex; flex-direction:column-reverse; gap:var(--spacing-8); width:380px; max-width:calc(100vw - var(--spacing-24) * 2); pointer-events:none;}
+   behaviour. z-index is var(--z-toast) (1000), above page content and
+   below Tutorial Modal (--z-tour), as the layers scale in tokens.css
+   lays out. */
+.c-toast-host{position:fixed; right:var(--spacing-24); bottom:var(--spacing-24); z-index:var(--z-toast); display:flex; flex-direction:column-reverse; gap:var(--spacing-8); width:380px; max-width:calc(100vw - var(--spacing-24) * 2); pointer-events:none;}
 .c-toast-host .c-toast{pointer-events:auto; position:relative;}
 @media (max-width:640px){
   .c-toast-host{left:var(--spacing-12); right:var(--spacing-12); bottom:var(--spacing-12); width:auto; max-width:none;}
@@ -3357,7 +3357,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
   left:var(--c-action-bar-inset-start, 0px);
   right:0;
   bottom:calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
-  z-index:40;
+  z-index:var(--z-bar);
   box-sizing:border-box;
   padding-inline:max(var(--spacing-16), env(safe-area-inset-left, 0px)) max(var(--spacing-16), env(safe-area-inset-right, 0px));
   pointer-events:none;
@@ -3694,7 +3694,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
 /* Dropdown panel — radius-md popover, Neutral-3 border, shadow-3.
    .is-right flips left/right alignment on edge collision (see
    DESIGN-SYSTEM.md, "Dropdown panel — edge collision"). */
-.c-filter-panel{position:absolute; top:calc(100% + 8px); left:0; min-width:240px; max-width:calc(100vw - 24px); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-16); z-index:20; opacity:0; transform:translateY(-4px); pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
+.c-filter-panel{position:absolute; top:calc(100% + 8px); left:0; min-width:240px; max-width:calc(100vw - 24px); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-16); z-index:var(--z-float); opacity:0; transform:translateY(-4px); pointer-events:none; transition:opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);}
 .c-filter-panel.is-right{left:auto; right:0;}
 .c-filter-panel.is-open{opacity:1; transform:translateY(0); pointer-events:auto;}
 .c-filter-panel-title{font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--color-neutral-5); margin:0 0 var(--spacing-12);}
@@ -3899,7 +3899,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
    flip-up near the bottom of the window, so no ancestor's overflow can
    clip it. Popover shell: Neutral-1, 1px Neutral-3, radius-md, shadow-3,
    spacing-4 padding. ONE-OFF 180px / 36px rows, z-index 60. */
-.c-uploader-menu{position:fixed; z-index:60; box-sizing:border-box; min-width:180px; padding:var(--spacing-4); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); font-family:var(--font-primary);}
+.c-uploader-menu{position:fixed; z-index:var(--z-menu); box-sizing:border-box; min-width:180px; padding:var(--spacing-4); background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); font-family:var(--font-primary);}
 .c-uploader-menu[hidden]{display:none;}
 .c-uploader-menu-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:36px; padding:0 var(--spacing-12); border:0; border-radius:var(--radius-sm); background:transparent; color:var(--color-neutral-9); font-family:var(--font-primary); font-size:var(--text-body2-size); line-height:var(--text-body2-lh); font-weight:var(--text-body2-weight); text-align:left; cursor:pointer;}
 .c-uploader-menu-item i{flex:none; font-size:var(--icon-sm); color:var(--color-neutral-5);}
@@ -4797,7 +4797,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
   bottom:var(--spacing-24);
   left:50%;
   width:min(620px, calc(100% - var(--spacing-32)));
-  z-index:20;
+  z-index:var(--z-float);
   opacity:0;
   transform:translate(calc(-50% + var(--prompt-bar-shift) + var(--prompt-bar-push)), 16px);
   transition:opacity var(--duration-reveal) var(--ease-reveal), transform var(--duration-reveal) var(--ease-reveal);
@@ -5005,7 +5005,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
    positioned in JS from the trigger's own getBoundingClientRect(), the
    same way, so no ancestor's overflow can clip it. */
 .c-prompt-bar-model-menu{
-  position:fixed; z-index:60; display:none;
+  position:fixed; z-index:var(--z-menu); display:none;
   min-width:180px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3);
   border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4);
 }
@@ -5026,7 +5026,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
    Chat window section for the full anatomy/states/behavior spec,
    including Message actions and Jump to present. */
 
-.c-chat{position:fixed; inset:0; z-index:95; perspective:1600px; display:none;}
+.c-chat{position:fixed; inset:0; z-index:var(--z-chat); perspective:1600px; display:none;}
 .c-chat.is-open{display:block;}
 
 .c-chat-veil{position:absolute; inset:0; background:rgba(20,20,20,.42); opacity:0; transition:opacity 480ms var(--ease-standard); cursor:pointer;}
@@ -5080,7 +5080,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
 .c-chat-thread-wrap{position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column;}
 
 .c-chat-thread{flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:var(--spacing-24); display:flex; flex-direction:column; gap:var(--spacing-24);}
-.c-chat-thread-inner{max-width:760px; margin:0 auto; width:100%; display:flex; flex-direction:column; gap:var(--spacing-24);}
+.c-chat-thread-inner{max-width:var(--measure-prose); margin:0 auto; width:100%; display:flex; flex-direction:column; gap:var(--spacing-24);}
 
 /* Jump to present — a scroll pin with a button attached, not a button
    with a scroll handler. Overlay, not a child of the scroller, so it
@@ -5121,7 +5121,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
 @media (max-width:640px){
   :root{--c-back-to-top-edge:var(--spacing-12);}
 }
-.c-back-to-top{--c-back-to-top-move:var(--duration-base); position:fixed; right:calc(var(--c-back-to-top-edge) + env(safe-area-inset-right, 0px)); bottom:var(--c-back-to-top-y); z-index:20; width:32px; height:32px; padding:0; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); box-shadow:var(--shadow-2); color:var(--color-neutral-9); cursor:pointer; opacity:0; visibility:hidden; transform:translateY(8px); transition:opacity var(--duration-base) var(--ease-settle), transform var(--duration-base) var(--ease-settle), visibility 0s linear var(--duration-base), background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), bottom var(--c-back-to-top-move) var(--ease-standard);}
+.c-back-to-top{--c-back-to-top-move:var(--duration-base); position:fixed; right:calc(var(--c-back-to-top-edge) + env(safe-area-inset-right, 0px)); bottom:var(--c-back-to-top-y); z-index:var(--z-float); width:32px; height:32px; padding:0; border-radius:var(--radius-pill); display:flex; align-items:center; justify-content:center; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); box-shadow:var(--shadow-2); color:var(--color-neutral-9); cursor:pointer; opacity:0; visibility:hidden; transform:translateY(8px); transition:opacity var(--duration-base) var(--ease-settle), transform var(--duration-base) var(--ease-settle), visibility 0s linear var(--duration-base), background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), bottom var(--c-back-to-top-move) var(--ease-standard);}
 .c-back-to-top i{font-size:var(--icon-sm);}
 /* Transparent hit-area lift to 44px — the 32px box never changes size. */
 .c-back-to-top::after{content:''; position:absolute; inset:-6px;}
@@ -5206,7 +5206,7 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
    used elsewhere (Filters/Dept switcher/Search dropdown: shadow-3,
    radius-md, 1px Neutral-3 border, Neutral-1 fill, spacing-4 padding)
    instead. */
-.c-chat-menu{position:fixed; z-index:60; display:none; min-width:180px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4);}
+.c-chat-menu{position:fixed; z-index:var(--z-menu); display:none; min-width:180px; background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md); box-shadow:var(--shadow-3); padding:var(--spacing-4);}
 .c-chat-menu.is-open{display:block;}
 .c-chat-menu-item{display:flex; align-items:center; gap:var(--spacing-12); width:100%; height:36px; padding:0 var(--spacing-12); border-radius:var(--radius-sm); background:transparent; border:none; font-family:inherit; font-size:var(--text-body2-size); line-height:var(--text-body2-lh); color:var(--color-neutral-9); text-align:left; cursor:pointer;}
 .c-chat-menu-item i{font-size:var(--icon-sm); color:var(--color-neutral-5); flex:none;}
@@ -5216,9 +5216,9 @@ html.c-back-to-top-shown .c-toast-host{bottom:calc(var(--c-back-to-top-y) + 32px
 .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;}
 
 .c-chat-composer{flex:none; padding:var(--spacing-16) var(--spacing-24) var(--spacing-24); background:var(--color-canvas-warm); border-top:1px solid var(--color-neutral-3);}
-.c-chat-composer-inner{max-width:760px; margin:0 auto;}
+.c-chat-composer-inner{max-width:var(--measure-prose); margin:0 auto;}
 
-.c-chat-foot{max-width:760px; margin:var(--spacing-8) auto 0; font-size:var(--text-caption-size); color:var(--color-neutral-5); text-align:center;}
+.c-chat-foot{max-width:var(--measure-prose); margin:var(--spacing-8) auto 0; font-size:var(--text-caption-size); color:var(--color-neutral-5); text-align:center;}
 
 /* Single column ≤820px — measured against the SHELL's own width via a
    container query, not the viewport, since the shell is itself capped
@@ -5814,10 +5814,8 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
    its own separate floating card — Card's own recipe verbatim, no
    shadow/border override — not fused with the Prompt input bar itself,
    just a small gap above it (Rule 17's own width-match is expressed as
-   the identical literal 760px .c-chat-thread-inner/.c-chat-composer-
-   inner both already use, kept as a third instance of that same value
-   rather than a new shared variable, consistent with how .c-chat-foot
-   already repeats it too). .c-chat-thread-wrap is the real component's
+   the same --measure-prose that .c-chat-thread-inner and
+   .c-chat-composer-inner use). .c-chat-thread-wrap is the real component's
    own existing position:relative ancestor (see its own rule above)
    that this positions against — no new positioning context needed.
    A slot element, not a bare selector on .c-chat-thread-wrap itself,
@@ -5831,7 +5829,7 @@ button.c-thinking-row.is-selected{background:var(--color-neutral-3);}
    style — the existing Send button and Input field markup already
    carry everything that needs, so no new class here. */
 .c-tool-approval-slot{position:absolute; left:0; right:0; top:0; bottom:0; z-index:2; padding:var(--spacing-16) var(--spacing-24) var(--spacing-16); display:flex; align-items:flex-end; pointer-events:none;}
-.c-tool-approval-slot > .c-tool-approval{max-width:760px; margin:0 auto; width:100%; height:auto; max-height:100%; overflow-y:auto; pointer-events:auto;}
+.c-tool-approval-slot > .c-tool-approval{max-width:var(--measure-prose); margin:0 auto; width:100%; height:auto; max-height:100%; overflow-y:auto; pointer-events:auto;}
 
 /* Rule 19 — the slot also owns the card's own height contract: pinned
    to both top and bottom of .c-chat-thread-wrap (not just bottom), so

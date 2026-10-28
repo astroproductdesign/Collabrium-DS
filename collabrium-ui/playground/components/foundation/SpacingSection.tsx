@@ -39,6 +39,19 @@ const measureUsage: Record<keyof typeof tokens.measure, string> = {
   sm: 'Permission Prompt, Tool approval, Thinking',
   md: 'Streaming Text',
   lg: 'Task Rows',
+  prose: 'Chat window: the thread and composer reading width',
+};
+const layerUsage: Record<keyof typeof tokens.layer, string> = {
+  float: 'Floating controls and anchored panels: profile and user menus, filter panel, pod card, sidebar hover label, floating Prompt input bar, Back to top',
+  bar: 'Action bar',
+  menu: 'Fixed menus and hover previews: uploader menu, model menu, More options menu, the notes peek',
+  panel: 'The notes panel',
+  chat: 'Chat window',
+  modal: 'Media Ad Modal, Compare modal',
+  brief: "Command brief's scrim",
+  tooltip: "Ad Placement Card (Tooltip's \"above modals\" layer)",
+  toast: 'Toast host',
+  tour: 'Tutorial Modal, above everything',
 };
 const focusUsage: Record<keyof typeof tokens.focus, string> = {
   width: 'The outline width (border-width-md)',
@@ -167,6 +180,20 @@ export function SpacingSection({ level }: SectionProps) {
           `measure-${k}`,
           `${tokens.measure[k]}px`,
           measureUsage[k],
+        ])}
+      />
+
+      <GroupLabel level={level} id="layers">Layers</GroupLabel>
+      <p className="lede docs-lede-tight">
+        The stacking order of page-level surfaces: anything fixed to the viewport or drawn over page content. A higher
+        number paints over a lower one. Stacking inside one component stays a plain number.
+      </p>
+      <Spec
+        head={['Token', 'Value', 'Used by']}
+        rows={(Object.keys(tokens.layer) as (keyof typeof tokens.layer)[]).map(k => [
+          `z-${k}`,
+          String(tokens.layer[k]),
+          layerUsage[k],
         ])}
       />
 

@@ -71,6 +71,12 @@ export interface StreamingTextProps extends NativeDivProps {
   onRetry?: () => void;
   /** Adds the thumbs up and down buttons. Called with the choice, or `null` when it is taken back. */
   onFeedback?: (value: StreamingFeedback | null) => void;
+  /**
+   * Shows the action row (Copy, Retry, thumbs, the sources button) and the sources list once the answer has settled.
+   * Set it to `false` when the text sits in a Chat window's `ChatMessage`, which brings the one action row of the chat
+   * (and shows sources as its citations). Follow-ups, the failed state's Retry and "Stopped early" stay. Defaults to `true`.
+   */
+  actions?: boolean;
 }
 
 type Token = { kind: 'word'; text: string } | { kind: 'citation'; source: StreamingSource };
@@ -145,7 +151,7 @@ function avatarStyle(color?: string) {
  * 9), and rendering tables, code and lists whole around it (Rules 11 to 13).
  */
 export const StreamingText = forwardRef<HTMLDivElement, StreamingTextProps>(function StreamingText(
-  { content, status, sources = [], followUps = [], onFollowUp, onRetry, onFeedback, ...rest },
+  { content, status, sources = [], followUps = [], onFollowUp, onRetry, onFeedback, actions = true, ...rest },
   ref,
 ) {
   // A message that arrives finished is never animated (Rules 2 and 22).
@@ -261,7 +267,7 @@ export const StreamingText = forwardRef<HTMLDivElement, StreamingTextProps>(func
         </div>
       )}
 
-      {ready && (
+      {ready && actions && (
         <div className="cui-streaming__actions">
           <button
             type="button"
@@ -323,7 +329,7 @@ export const StreamingText = forwardRef<HTMLDivElement, StreamingTextProps>(func
       )}
 
       {/* inert while closed: the rows are links and must not be reachable when hidden. */}
-      {ready && sources.length > 0 && (
+      {ready && actions && sources.length > 0 && (
         <div className="cui-streaming__sources" id={sourcesId} inert={!sourcesOpen}>
           <div className="cui-streaming__sources-inner">
             <div className="cui-streaming__sources-list">

@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.126** — 2026-10-26 — Sourced from the Collabrium brand deck
+**v0.9.127** — 2026-10-27 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -439,6 +439,33 @@ measure simply fills it; a wider one is capped at it.
 | `--measure-sm` | 360px | Permission Prompt, Tool approval, Thinking |
 | `--measure-md` | 420px | Streaming Text |
 | `--measure-lg` | 440px | Task Rows (five slots across a row) |
+| `--measure-prose` | 760px | Chat window: the thread's and the composer's reading width |
+
+### Layers
+
+The stacking order of page-level surfaces: anything fixed to the viewport
+or drawn over page content. Each token is the `z-index` of one surface, and
+a higher number paints over a lower one. The numbers are the ones the
+components already used, now named, with gaps left for what comes next.
+Stacking *inside* one component (a sticky table header at 2, a lifted card
+at 1, the chat rail at 30) is local to it and stays a plain number.
+
+| Token | Value | Used by |
+|---|---|---|
+| `--z-float` | 20 | Floating controls and anchored panels: profile and user menus, filter panel, pod card, sidebar hover label, floating Prompt input bar, Back to top |
+| `--z-bar` | 40 | Action bar |
+| `--z-menu` | 60 | Fixed menus and hover previews: uploader menu, model menu, More options menu, the notes peek |
+| `--z-panel` | 70 | The notes panel |
+| `--z-chat` | 95 | Chat window |
+| `--z-modal` | 300 | Media Ad Modal, Compare modal |
+| `--z-brief` | 400 | Command brief's scrim |
+| `--z-tooltip` | 500 | Ad Placement Card (Tooltip's "above modals" layer) |
+| `--z-toast` | 1000 | Toast host |
+| `--z-tour` | 1100 | Tutorial Modal, above everything |
+
+Modal and dialog (`.c-modal`) declare no z-index at all: they take the
+document's order. Name a new surface by the layer it belongs to; add a
+token only when it needs a layer none of these is.
 
 ### Control sizes
 
@@ -1060,7 +1087,7 @@ and the longer prefix would buy nothing over twenty sub-parts.
 
 | Part | Spec |
 |---|---|
-| Root (`.c-chat`) | `position: fixed; inset: 0`, `z-index: 95` — above the nav (50) and the [Card](#card) modal (90), below only the load wipe panel (100). `perspective: 1600px` so the fold reads at screen scale. `display: none` at rest, `block` when `.is-open` |
+| Root (`.c-chat`) | `position: fixed; inset: 0`, `z-index: var(--z-chat)` (95) — above the Action bar (40), the menus (60) and the notes panel (70), below the Media Ad and Compare modals (300), Command brief (400), the Ad Placement Card (500), Toast (1000) and Tutorial Modal (1100). `perspective: 1600px` so the fold reads at screen scale. `display: none` at rest, `block` when `.is-open` |
 | Veil (`.c-chat-veil`) | `position: absolute; inset: 0`, `rgba(20,20,20,.42)`, opacity transition at 480ms `ease-standard`. Click closes the window |
 | Shell (`.c-chat-shell`) | `position: absolute; inset: 0; margin: auto` against a fixed width/height — **not** `translate(-50%,-50%)`; the fold animation owns this element's transform outright, and a centring transform would be overwritten by its first frame. `width: min(1200px, calc(100vw - spacing-48))`, `height: min(820px, calc(100vh - spacing-48))`. `display: grid; grid-template-columns: 288px minmax(0, 1fr)`. Neutral-1 fill, `radius-lg` (20px), `overflow: hidden`, `shadow-4`. `transform-origin: 0 0` — the FLIP math depends on it. `role="dialog" aria-modal="true" aria-labelledby` pointing at the thread title |
 
@@ -6392,9 +6419,8 @@ that width and replaces it as padding on `<html>` — without it the whole
 page shifts sideways the instant the tour opens, which moves every target
 the spotlight is about to be measured against.
 
-**What a tour can dim.** This system has no numeric z-index scale, so the
-layer's number is set against a survey of what it actually paints, and it
-clears all of it:
+**What a tour can dim.** The layer's number (`--z-tour`, 1100) is set against
+a survey of what the system actually paints, and it clears all of it:
 
 | Paints at | What | Under the tour? |
 |---|---|---|
@@ -9986,6 +10012,22 @@ time it loads, so those can't fall behind; its hard-coded values are only
 a fallback for the moment before the script runs, and should match too.
 If the top stamp or a fallback is behind, the gallery says so in the
 browser console.
+
+- **v0.9.127 — 2026-10-27** — Two token groups added for values the React
+  library repeats. `--measure-prose` (760px) is the reading width of Chat
+  window's thread, composer and footer, beside the three AI Native measures.
+  **Layers**: ten `--z-*` tokens (`--z-float` 20, `--z-bar` 40, `--z-menu` 60,
+  `--z-panel` 70, `--z-chat` 95, `--z-modal` 300, `--z-brief` 400,
+  `--z-tooltip` 500, `--z-toast` 1000, `--z-tour` 1100) name the stacking
+  order the components already used, with the same numbers, so there is no
+  visual change. `components.css` now writes them as tokens in every
+  page-level layer; stacking inside one component (0 to 10, the chat rail's
+  30) stays a plain number. The Tutorial Modal survey and the comments that
+  said the system had no z-index scale now point at the tokens, and Chat
+  window's row says what it sits above and below (it named a nav at 50, a
+  Card modal at 90 and a load wipe at 100 that the CSS never had). Chat
+  window's thread, composer and footer, and Tool approval's slot, now use
+  `--measure-prose` in `components.css`.
 
 - **v0.9.126 — 2026-10-26** — `components.css` now uses the tokens added
   in v0.9.125, with no visual change except the intended ones: the focus

@@ -56,7 +56,6 @@
   --cui-prompt-bar-width: 620px;
   --cui-prompt-bar-pill-pad-y: 11px;
   --cui-prompt-bar-pill-pad-start: 56px;
-  --cui-prompt-bar-z: 20;
   --cui-prompt-bar-surface-z: 10;
   --cui-prompt-bar-model-max: 160px;
 
@@ -64,7 +63,7 @@
   bottom: var(--spacing-24);
   left: 50%;
   width: min(var(--cui-prompt-bar-width), calc(100% - var(--spacing-32)));
-  z-index: var(--cui-prompt-bar-z);
+  z-index: var(--z-float);
   opacity: 0;
   transform: translate(calc(-50% + var(--prompt-bar-shift) + var(--prompt-bar-push)), 16px);
   transition:
@@ -381,6 +380,19 @@
 .cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__group {
   min-width: 0;
 }
+/*
+  On a narrow inline composer (a chat window on a 320px screen) the toolbar is wider than its container and Send
+  was clipped. The model switcher's name shrinks, with its ellipsis, so Send stays in view (decided 2026-10-27,
+  Q-CHAT-6). The DLS lets the toolbar overflow.
+*/
+.cui-prompt-bar[data-variant="inline"] .cui-prompt-bar__model {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.cui-prompt-bar[data-variant="inline"] .cui-button[data-part="model-trigger"] {
+  max-width: 100%;
+  min-width: 0;
+}
 /* Send stays Button Primary icon-only for fill and size, with the radius back to a pill (the same override as the mark). */
 .cui-prompt-bar[data-variant="inline"] .cui-button[data-part="send"] {
   border-radius: var(--radius-pill);
@@ -421,12 +433,11 @@
 */
 /* The menu is a portal, outside .cui-prompt-bar, so its own numbers are declared on it. */
 .cui-prompt-bar__model-menu {
-  --cui-prompt-bar-menu-z: 60;
   --cui-prompt-bar-menu-min-width: 180px;
   --cui-prompt-bar-menu-item-height: 36px;
 
   position: fixed;
-  z-index: var(--cui-prompt-bar-menu-z);
+  z-index: var(--z-menu);
   min-width: var(--cui-prompt-bar-menu-min-width);
   background: var(--color-neutral-1);
   border: var(--border-width-sm) solid var(--color-neutral-3);

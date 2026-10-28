@@ -52,7 +52,8 @@ The component owns the rules that are local to it:
 5. **The inline composer is the floating bar minus the scroll behaviour:** no collapse, no AI mark, a plain hint instead of the typing line, a softer glow and shadow, a round Send.
 6. **The toolbar is the real Button.** Add image, Attach file, More options and Voice input are Ghost icon-only; Send is Primary icon-only (a pill in the inline variant). The model switcher is a Ghost button with a label.
 7. **The model switcher** shows the chosen model and a small caret. Its menu opens upward, right-aligned to the trigger, and closes on an outside press, Escape or a choice. The chosen row keeps a visibility-toggled check, so every row is the same width.
-8. **Send becomes Stop** while `working`: the icon and the name swap. Pressing it runs `onStop`.
+8. **Send becomes Stop** while `working`: the icon and the name swap. Pressing it runs `onStop`. The Stop icon is Phosphor Stop (Regular).
+   **Send is disabled while the box is empty** (it stays enabled as Stop). Enter sends only when there is text.
 9. **Mobile keeps the shrink and drops the parking and the pill:** full width with 16px insets, the toolbar folds away, the radius stays.
 10. **Reduced motion** stops the glow, removes the morph (the two poses stay) and shows the short fixed line instead of the typing.
 

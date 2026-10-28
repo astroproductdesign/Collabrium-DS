@@ -9,7 +9,9 @@
 /* Components (one line per component, in catalogue order) */
 @import './components/Button/Button.css';
 @import './components/Badge/Badge.css';
+@import './components/ChatWindow/ChatWindow.css';
 @import './components/Checkbox/Checkbox.css';
+@import './components/Chip/Chip.css';
 @import './components/InputField/InputField.css';
 @import './components/LoadingState/LoadingState.css';
 @import './components/PermissionPrompt/PermissionPrompt.css';
