@@ -1,0 +1,168 @@
+/*
+  Switch — ported from collabrium-dls/components.css lines 3079–3099: the shared
+  .c-choice row and its text styles (3083–3088), then .c-choice.switch,
+  .c-switch-track, .on and .c-switch-thumb (3095–3099). The Checkbox and Radio
+  rules in the same block belong to those components and are not ported here.
+
+  Mapping from the old classes:
+    label.c-choice.switch            -> label.cui-switch
+    .c-choice.disabled               -> [data-disabled]
+    .c-choice input                  -> .cui-switch__input (still hidden, still focusable)
+    .c-choice .text                  -> .cui-switch__text
+    .c-choice .text .label / .desc   -> .cui-switch__label / .cui-switch__desc
+    .c-switch-track                  -> .cui-switch__track
+    .c-switch-track.on               -> input:checked + .cui-switch__track
+    .c-switch-thumb                  -> .cui-switch__thumb
+    .c-switch-track.on .c-switch-thumb -> input:checked + .cui-switch__track .cui-switch__thumb
+
+  The source toggles `.on` from script. Here the look is driven by the real
+  input's :checked state, so it can never disagree with the form value, and
+  uncontrolled switches work without React state. The input comes before the
+  track in the markup (the source puts the track first) so the sibling selector
+  can reach it; the row looks the same.
+
+  Specificity is kept in the same order as the source: the base track (0,1,0),
+  then the on fill replaces it (0,3,0 here, 0,2,0 in the source, same winner).
+  Disabled is one rule on the row, as in the source.
+*/
+
+.cui-switch {
+  /*
+    No token has these four, so they are local. The thumb's left edge when on is derived (width minus
+    thumb minus inset = 19px) so the three can never disagree.
+    TODO(open-question Q-SWITCH-3): the DLS has no tokens for the track and thumb sizes or the 3px inset.
+  */
+  --cui-switch-width: 40px;
+  --cui-switch-height: 24px;
+  --cui-switch-thumb: 18px;
+  --cui-switch-inset: 3px;
+
+  /* position:relative anchors the hidden native input to its own row, so
+     clicking the label never scrolls the page to a stray input. */
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  cursor: pointer;
+}
+
+.cui-switch[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hidden, not removed: it is the real control, so it keeps focus, Space, the
+   form value and the accessibility tree. */
+.cui-switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cui-switch__text {
+  display: flex;
+  flex-direction: column;
+}
+.cui-switch__label {
+  font-size: var(--text-body1-size);
+  font-weight: var(--weight-medium);
+  color: var(--color-neutral-9);
+}
+.cui-switch__desc {
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+}
+
+.cui-switch__track {
+  position: relative;
+  width: var(--cui-switch-width);
+  height: var(--cui-switch-height);
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-4);
+  transition: background-color var(--duration-base) var(--ease-standard);
+}
+.cui-switch__input:checked + .cui-switch__track {
+  background: var(--color-green);
+}
+
+.cui-switch__thumb {
+  position: absolute;
+  top: var(--cui-switch-inset);
+  left: var(--cui-switch-inset);
+  width: var(--cui-switch-thumb);
+  height: var(--cui-switch-thumb);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+  box-shadow: var(--shadow-1);
+  /* The source moves `left` on the anchored-arrival easing; the shadow is added for hover and pressed below. */
+  transition:
+    left var(--duration-base) var(--ease-settle),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+.cui-switch__input:checked + .cui-switch__track .cui-switch__thumb {
+  left: calc(var(--cui-switch-width) - var(--cui-switch-thumb) - var(--cui-switch-inset));
+}
+
+/*
+  Hover and pressed. NOT in the source or in DESIGN-SYSTEM.md. Checkbox and Radio react to the pointer; a
+  Switch that did not would look dead beside them. The track keeps its Neutral-4 and Green fills (they are
+  the signal, and the contrast is already recorded as low), so the thumb answers instead: its shadow
+  deepens from shadow-1 to shadow-2 on hover and shadow-3 when pressed. The whole row is the target.
+  Disabled rows do not react. Provisional, Q-SWITCH-1.
+*/
+.cui-switch:where(:not([data-disabled])):hover .cui-switch__thumb {
+  box-shadow: var(--shadow-2);
+}
+.cui-switch:where(:not([data-disabled])):active .cui-switch__thumb {
+  box-shadow: var(--shadow-3);
+}
+
+/*
+  Focus. NOT in the source: components.css hides the native input and styles no focus state, so a keyboard
+  user sees nothing. Added with the system's standard ring (2px Obsidian, 2px offset), drawn on the track,
+  as Checkbox and Radio have it. Provisional, Q-SWITCH-1.
+*/
+.cui-switch__input:focus-visible + .cui-switch__track {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/*
+  Forced colours. The browser removes backgrounds, so the off and on tracks would both go to the page colour
+  and the thumb would vanish: nothing but the thumb's travel would say which state it is in, and the travel
+  needs the thumb to be seen. The tracks and the thumb are painted in system colours instead: off is an
+  outlined track with a dark thumb, on is a Highlight track with a HighlightText thumb. The DLS has no rule.
+  Provisional, Q-SWITCH-2.
+*/
+@media (forced-colors: active) {
+  .cui-switch__track {
+    forced-color-adjust: none;
+    background: Canvas;
+    box-shadow: inset 0 0 0 1px CanvasText;
+  }
+  .cui-switch__thumb {
+    background: CanvasText;
+    box-shadow: none;
+  }
+  .cui-switch__input:checked + .cui-switch__track {
+    background: Highlight;
+    box-shadow: none;
+  }
+  .cui-switch__input:checked + .cui-switch__track .cui-switch__thumb {
+    background: HighlightText;
+  }
+}
+
+/*
+  Reduced motion. The thumb's travel is the state change itself, so it is not slowed or removed to a fade:
+  under the preference the move is instant, and the track's colour change with it. The DLS has no rule for
+  Switch. Provisional, Q-SWITCH-2.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .cui-switch__track,
+  .cui-switch__thumb {
+    transition: none;
+  }
+}

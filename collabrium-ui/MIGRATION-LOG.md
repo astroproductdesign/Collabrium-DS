@@ -37,6 +37,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 13 | Prompt input bar (AI Native, 7 of 8) | **review** | Converted 2026-10-26: the floating bar, the inline composer and the model switcher. See PIB-1 to PIB-8, Decisions D-79 to D-83 and Open questions Q-PIB-*. One AI Native part remains (Chat window). |
 | 14 | Chip (Filter chip, Input chip) | **review** | Converted 2026-10-27, as Chat window's pillar filter needs it. See CHIP-1 to CHIP-8, Decisions D-84 and D-85 and Open questions Q-CHIP-*. Chat window is next. |
 | 15 | Chat window (AI Native, 8 of 8) | **review** | Converted 2026-10-27: `ChatWindow` and `ChatMessage` as one component. See CHAT-1 to CHAT-10, Decisions D-86 to D-90 and Open questions Q-CHAT-*. Needed Chip first (row 14). AI Native is complete. |
+| 16 | Switch | **review** | Converted 2026-10-28. See SWITCH-1 to SWITCH-5, Decisions D-92 and D-93 and Open questions Q-SWITCH-*. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -127,6 +128,7 @@ The "Order" column is the suggested conversion order: simplest and most depended
 | 50 | (Done 2026-10-27, v0.9.127: `--measure-prose` is used by `.c-chat-thread-inner`, `.c-chat-composer-inner`, `.c-chat-foot` and Tool approval's slot.) | components.css | 2026-10-27 |
 | 51 | (Done 2026-10-27, v0.9.127: Chat window's row now says what it sits above and below.) | DESIGN-SYSTEM.md | 2026-10-27 |
 | 52 | Layers: ten `--z-*` tokens added (v0.9.127) and used by every page-level layer in components.css; the Tutorial Modal survey and two comments updated. Done in the DLS, with no visual change | tokens.css; components.css; DESIGN-SYSTEM.md | 2026-10-27 |
+| 53 | Switch: add hover, pressed and focus-visible states and forced-colours and reduced-motion rules (pending Q-SWITCH-1, Q-SWITCH-2) | components.css 3083, 3096–3099; DESIGN-SYSTEM.md 9068–9083 | 2026-10-28 |
 | Campaign card | 431–488 | hover lift, active, focus-visible, static, dragging; reduced motion | Card 3029–3115 | Tooltip | M, JS | 41 |
 | Pacing card | 490–523 | — | Card 3281–3392 | Goal bar, Badge | S | 42 |
 | Hero Card + Command brief modal | 1596–1639 | default, ribbon, risk, AI (tilt), selected; modal form | Card 3112–3277 | Button, Info Banner | M, JS | 43 |
@@ -346,6 +348,16 @@ None of these is "fixed" in the React port. Visuals follow components.css, and a
 | CHAT-11 | A turn that carries a citation is 1px taller than the DLS's (the Badge's icon is an SVG, not a font glyph, so the line box differs). Everything else measured identical | 5163 | — |
 | CHAT-13 | The window fills the screen with no margin, radius or shadow at 600px and below, and clears the safe areas. The DLS floats it as a card at every width. Q-CHAT-10 | 5035 | 1062 |
 | CHAT-12 | The title is an `h2` as the DS says; the CSS styles an `h5`. Same styles on the `h2` | 5073 | 1082 |
+
+### Switch (affects the Switch conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| SWITCH-1 | The DLS has no hover, pressed or focus state for the Switch, and keyboard focus is invisible (the input is hidden and the track styles nothing). Built: the thumb's shadow deepens on hover (shadow-2) and pressed (shadow-3), with the track's fills unchanged, and the standard focus ring on the track. Q-SWITCH-1 | 3083, 3096 | 9068–9083 |
+| SWITCH-2 | In forced-colours mode both tracks go to the page colour and the thumb vanishes, so the states can't be told apart. Built system colours (off: outlined track, dark thumb; on: Highlight track, HighlightText thumb). The DLS has no rule. Reduced motion: the move is instant (the DS has no rule). Q-SWITCH-2 | — | — |
+| SWITCH-3 | The track (40×24), thumb (18) and the 3px inset have no tokens. Local custom properties; the thumb's on-position is derived from the three so they can't disagree. Q-SWITCH-3 | 3096, 3098 | 9066–9071 |
+| SWITCH-4 | The DS says the label and description are "same as Checkbox", and the gap is 12px (wider than Checkbox and Radio's 8px); the row is centred, not top-aligned. Built as the CSS. No conflict | 3095 | 9066 |
+| SWITCH-5 | The DLS markup puts the track before the hidden input; the library puts the input first (as Radio does) so `input:checked + .track` can drive the look. Visually identical | 3096 | — |
 
 ### Tokens and global
 
@@ -625,6 +637,8 @@ Grouped by component. Line numbers are CSS / DS.
 | D-89 | The thread detects older turns added at the top by the first child changing, and holds the viewport by measuring how far the turn that was first has moved, so the browser's own scroll anchoring cannot double it | DS edge case 2 |
 | D-90 | Decided 2026-10-27 (Q-CHAT-1 to 9): the roles dropped (CHAT-3), the inert drawer (CHAT-4) and the menu keys and Escape order (CHAT-5) kept, the veil and the title and label weights on tokens (CHAT-6), the veil/content split (CHAT-2), the narrow Send fix (CHAT-7), the footer copy (CHAT-8) and the forced-colours edges (CHAT-9) kept, and Streaming Text's `actions` prop (CHAT-10) | Q-CHAT-1 to Q-CHAT-9 |
 | D-91 | `--measure-prose` (760px) and the ten `--z-*` layer tokens added to the DLS (v0.9.127, authorised 2026-10-27), written into components.css wherever a page-level layer used a number, and used by Chat window, the Prompt input bar's floating bar and menu. No visual change. The scale is the eight layers the Tutorial Modal survey listed, plus the menu (60) and panel (70) | Q-CHAT-4 |
+| D-92 | Switch is a real `<input type="checkbox" role="switch">` in a label, like Checkbox and Radio. The state is the input's `checked`, never a separate class. There is no error state, since a switch always has a value and applies at once | DESIGN-SYSTEM.md Switch |
+| D-93 | Provisional: hover and pressed by the thumb's shadow, the focus ring, forced-colour tracks, instant motion under reduced motion, and the local track and thumb sizes | Flagged Q-SWITCH-1 to Q-SWITCH-3 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -767,6 +781,14 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-CHAT-8 | Forced-colours edges: a `CanvasText` border on the window and a `Highlight` outline on the selected conversation. Keep? My recommendation: yes **Answered 2026-10-27: keep.** | `ChatWindow.css` |
 | Q-CHAT-9 | Streaming Text has its own action row and so does `ChatMessage`. Should Streaming Text drop its actions when it sits in a chat message, so the one row is the chat's? That edits a reviewed component. My recommendation: yes, as a follow-up **Answered 2026-10-27: Streaming Text gets an `actions` prop (default true); `false` inside a ChatMessage. Built, for your review.** | `StreamingText.tsx` |
 | Q-CHAT-10 | On a phone (600px and below) the window fills the screen instead of floating with a 24px margin and rounded corners. **Answered 2026-10-27: yes, built.** | `ChatWindow.css` |
+
+### Switch
+
+| ID | Question | Where |
+|---|---|---|
+| Q-SWITCH-1 | The DLS has no hover, pressed or focus state. Built: the thumb's shadow deepens on hover and pressed (the track's Neutral-4 and Green fills stay, since they are the signal), and the standard 2px Obsidian focus ring sits on the track. Keep? The alternative is to darken the track (needs a darker green than any token). My recommendation: keep | `Switch.css` |
+| Q-SWITCH-2 | Forced colours: an outlined off track and a Highlight on track, with a dark and a HighlightText thumb. Reduced motion: the move is instant. Neither is in the DLS. Keep? My recommendation: yes | `Switch.css` |
+| Q-SWITCH-3 | No tokens for the track (40×24), the thumb (18) or the 3px inset. Local custom properties until the DLS adds them. Add tokens, or keep them local (nothing else uses them)? My recommendation: keep local | `Switch.css` |
 
 ### Global
 

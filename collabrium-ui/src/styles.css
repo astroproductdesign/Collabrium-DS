@@ -18,6 +18,7 @@
 @import './components/PromptInputBar/PromptInputBar.css';
 @import './components/Radio/Radio.css';
 @import './components/StreamingText/StreamingText.css';
+@import './components/Switch/Switch.css';
 @import './components/TaskRows/TaskRows.css';
 @import './components/Textarea/Textarea.css';
 @import './components/Thinking/Thinking.css';
