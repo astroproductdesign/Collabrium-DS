@@ -5,6 +5,14 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 ## Unreleased
 
 ### Added
+- Charts (extra), batch 6: `ComposedChart` (bars and a line, with an optional second axis), `SparklineChart` (the DLS sparkline, with a spoken trend summary), `DitherBarChart` and `DitherDonutChart` (fixed SVG patterns in the DLS colours, so series are told apart without colour).
+- Charts (extra), batch 5: `RadarChart`, `PolarAreaChart`, `SankeyChart`, `CandlestickChart` (Recharts) and `PyramidChart` (HTML and CSS). DLS Radar and Polar area marks, a computed Sankey, and candlesticks that tell direction by solid or hollow as well as colour.
+- Charts (extra), batch 4: `ScatterChart`, `BubbleChart`, `TreemapChart` (Recharts) and `HeatmapChart`, `ActivityHeatmapChart` (HTML and CSS). Single-hue shading for the heatmaps and treemap, axis titles on scatter and bubble, and a table that stays in the page, visually hidden, for charts whose picture has no text.
+- `ChartThumbnail` in `@collabrium/ui/charts-extra`: draws any chart as a bare picture of its shape, for cards and galleries. The Charts (extra) overview uses it for its part cards.
+- Charts (extra), batch 3: `DonutChart`, `RadialBarGroupChart`, `RadialGaugeChart`, `GaugeArcChart` and `MeterChart` (Recharts). The DLS Doughnut look (2px white border, same-hue ramp), a centre readout, and gauges driven by `value` and `max`. The sequential ramp now has four rungs (`rampRungs`). The centre readout is an h5 (16px) value over a caption.
+- Charts (extra), batch 2: `BarChart`, `StackedBarChart`, `WaterfallChart`, `FunnelChart` (Recharts) and `BulletChart` (HTML and CSS). DLS bar rules (outer-end radius, 24px/20px thickness caps, hover mix, value axis from zero), stack remainder in Neutral-3, a single-hue ramp, and a waterfall in Green, Red and Navy. The frame now splits into `ChartShell` and `CartesianFrame`.
+- Charts (extra), batch 1, in `@collabrium/ui/charts-extra` (Recharts, optional peer dependency): `LineChart`, `AreaChart`, `StreamChart`, `StepChart`, `RangeChart`. DLS chrome, marks and series colours; a legend that shows or hides a series; "View as table" on every chart; reduced motion draws the final chart. Docs: the new Charts (extra) and Motion groups.
+- Entry points `@collabrium/ui/charts-extra` (Recharts, for shapes Chart.js cannot draw; optional peer dependency `recharts`) and `@collabrium/ui/motion`. `charts-extra` never imports Chart.js and `charts` never imports Recharts. `charts-extra` shares the DLS series colours (`seriesColors`).
 - Package scaffold:
   - Build: tsup builds one ES module per source file, so each file keeps its `"use client"`, plus type declarations and a single `dist/styles.css`.
   - Two entry points: `@collabrium/ui` and `@collabrium/ui/charts`.

@@ -38,6 +38,12 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 14 | Chip (Filter chip, Input chip) | **review** | Converted 2026-10-27, as Chat window's pillar filter needs it. See CHIP-1 to CHIP-8, Decisions D-84 and D-85 and Open questions Q-CHIP-*. Chat window is next. |
 | 15 | Chat window (AI Native, 8 of 8) | **review** | Converted 2026-10-27: `ChatWindow` and `ChatMessage` as one component. See CHAT-1 to CHAT-10, Decisions D-86 to D-90 and Open questions Q-CHAT-*. Needed Chip first (row 14). AI Native is complete. |
 | 16 | Switch | **review** | Converted 2026-10-28. See SWITCH-1 to SWITCH-5, Decisions D-92 and D-93 and Open questions Q-SWITCH-*. |
+| 17 | Charts (extra), batch 1: Line, Area, Stream, Step, Range | **review** | Built 2026-10-29 on Recharts as `@collabrium/ui/charts-extra`, in the Charts (extra) docs group. See XCH-1 to XCH-14, Decisions D-94 to D-98 and Open questions Q-XCH-*. Source: Amicro Mono charts (MIT). |
+| 18 | Charts (extra), batch 2: Bar, Stacked bar, Waterfall, Bullet, Funnel | **review** | Built 2026-10-29. See XCH-15 to XCH-24, Decisions D-99 to D-101 and Open questions Q-XCH-7 to Q-XCH-12. Bullet is HTML and CSS, not Recharts. |
+| 19 | Charts (extra), batch 3: Donut, Radial bar group, Radial gauge, Gauge arc, Meter | **review** | Built 2026-10-29. See XCH-25 to XCH-31, Decisions D-102 and D-103 and Open questions Q-XCH-13 to Q-XCH-16. |
+| 20 | Charts (extra), batch 4: Scatter, Bubble, Heatmap, Treemap, Activity heatmap | **review** | Built 2026-10-29. See XCH-33 to XCH-37, Decision D-104 and Open questions Q-XCH-17 to Q-XCH-21. Heatmap and Activity heatmap are HTML and CSS, not Recharts. |
+| 21 | Charts (extra), batch 5: Radar, Polar area, Pyramid, Sankey, Candlestick | **review** | Built 2026-10-29. See XCH-40 to XCH-46, Decision D-105 and Open questions Q-XCH-22 to Q-XCH-27. Pyramid is HTML and CSS, not Recharts. |
+| 22 | Charts (extra), batch 6: Composed, Sparkline, Dither bar, Dither donut (KPI card chart not built: Q-XCH-31) | **review** | Built 2026-10-29. See XCH-47 to XCH-52, Decision D-106 and Open questions Q-XCH-28 to Q-XCH-32. Dither charts are SVG patterns, not canvas. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -116,19 +122,6 @@ The "Order" column is the suggested conversion order: simplest and most depended
 | USP card | 304–314 | — | Card 2529 | Button | S | 38 |
 | Price summary card | 316–356 | row remove (hover/focus-within), overflow 0fr→1fr, show more, total | Card 2674–2785 | Empty state, Button, Chip | M, JS | 39 |
 | Profile card | 358–429 | interactive, selected, kebab menu, platform rows | Card 2680–3028 | Checkbox, Tag | M–L, JS | 40 |
-| 41 | Chip: say that single-select arrow keys move and choose (Home and End, wrapping, one tab stop) and give the gallery's single group a roving tab stop (pending Q-CHIP-1) | DESIGN-SYSTEM.md 4619–4623; preview.html 21054–21076 | 2026-10-27 |
-| 42 | Chip: a forced-colours rule for the active filter chip; say the active border is 1px Obsidian, not "none" (pending Q-CHIP-2) | components.css 4547; DESIGN-SYSTEM.md 4486 | 2026-10-27 |
-| 43 | Chip: a disabled input chip's × should be disabled (or the DS should say it is not); say what focus does after a removal; add a script for Delete or Backspace on the × (pending Q-CHIP-3) | components.css 4535–4539; DESIGN-SYSTEM.md 4496, 4620 | 2026-10-27 |
-| 44 | Chat window: script the open and close (the fold with measured rectangles, focus in and out, the Tab trap, Escape, the `animationend` guard); give the shell an opacity once settled and split the veil's and the content's class (decided Q-CHAT-5) | components.css 5033–5044; DESIGN-SYSTEM.md 1240–1246 | 2026-10-27 |
-| 45 | Chat window: drop the `listbox` and `toolbar` roles (plain buttons, `aria-current`, a plain group); an inert closed rail drawer; the More options menu's keys (decided Q-CHAT-1 to Q-CHAT-3) | DESIGN-SYSTEM.md 1074, 1103, 1124, 1237 | 2026-10-27 |
-| 46 | Chat window: Send is clipped by 23px at a 272px window (a 320px viewport); the model switcher's name should shrink with an ellipsis (decided Q-CHAT-6); forced-colours edges for the window and the selected conversation (decided Q-CHAT-8) | components.css (Prompt input bar toolbar); 5035, 5059 | 2026-10-27 |
-| 47 | Chat window: the veil is `var(--shadow-overlay)` (the CSS has `rgba(20,20,20,.42)`), and the title and pillar label take `--text-h5-weight` and `--text-label3-weight` (the CSS has 800); the footer copy is kept (decided Q-CHAT-4, Q-CHAT-7) | components.css 5032, 5051, 5073 | 2026-10-27 |
-| 48 | Streaming Text: say the action row and sources list are omitted inside a Chat window message (the host's `actions` prop is `false`), since the message brings the chat's row (decided Q-CHAT-9) | DESIGN-SYSTEM.md 1553 | 2026-10-27 |
-| 49 | Chat window: full screen at 600px and below (no margin, radius or shadow; safe areas cleared) (decided Q-CHAT-10) | components.css 5035 | 2026-10-27 |
-| 50 | (Done 2026-10-27, v0.9.127: `--measure-prose` is used by `.c-chat-thread-inner`, `.c-chat-composer-inner`, `.c-chat-foot` and Tool approval's slot.) | components.css | 2026-10-27 |
-| 51 | (Done 2026-10-27, v0.9.127: Chat window's row now says what it sits above and below.) | DESIGN-SYSTEM.md | 2026-10-27 |
-| 52 | Layers: ten `--z-*` tokens added (v0.9.127) and used by every page-level layer in components.css; the Tutorial Modal survey and two comments updated. Done in the DLS, with no visual change | tokens.css; components.css; DESIGN-SYSTEM.md | 2026-10-27 |
-| 53 | Switch: add hover, pressed and focus-visible states and forced-colours and reduced-motion rules (pending Q-SWITCH-1, Q-SWITCH-2) | components.css 3083, 3096–3099; DESIGN-SYSTEM.md 9068–9083 | 2026-10-28 |
 | Campaign card | 431–488 | hover lift, active, focus-visible, static, dragging; reduced motion | Card 3029–3115 | Tooltip | M, JS | 41 |
 | Pacing card | 490–523 | — | Card 3281–3392 | Goal bar, Badge | S | 42 |
 | Hero Card + Command brief modal | 1596–1639 | default, ribbon, risk, AI (tilt), selected; modal form | Card 3112–3277 | Button, Info Banner | M, JS | 43 |
@@ -358,6 +351,100 @@ None of these is "fixed" in the React port. Visuals follow components.css, and a
 | SWITCH-3 | The track (40×24), thumb (18) and the 3px inset have no tokens. Local custom properties; the thumb's on-position is derived from the three so they can't disagree. Q-SWITCH-3 | 3096, 3098 | 9066–9071 |
 | SWITCH-4 | The DS says the label and description are "same as Checkbox", and the gap is 12px (wider than Checkbox and Radio's 8px); the row is centred, not top-aligned. Built as the CSS. No conflict | 3095 | 9066 |
 | SWITCH-5 | The DLS markup puts the track before the hidden input; the library puts the input first (as Radio does) so `input:checked + .track` can drive the look. Visually identical | 3096 | — |
+
+### Charts (extra), batch 1 (Line, Area, Stream, Step, Range)
+
+Source: `Charts/Amicro--Micro-transitions--main/src/components/mono-charts/MonoRounded{Line,Area,Stream,Step,Range}Chart.tsx` (Recharts, Tailwind, monochrome). The DLS speaks for chrome and marks ("Chart chrome & marks", DESIGN-SYSTEM.md 4314–4400); Amicro supplies the shapes.
+
+| ID | What |
+|---|---|
+| XCH-1 | The Amicro charts are demo cards: a dark or light card, a live readout, a toggle (timeframe, curve, tier filter) and sample data inside the component. Built: the chart only, driven by `data`/`series` props. The card, title and toggles belong to the host (Card is not converted yet) |
+| XCH-2 | Dropped on purpose: the dark theme (the DLS has no dark chart theme) and the monochrome palette. Series take the DLS Chart color mapping; a single series defaults to Orange. Q-XCH-6 |
+| XCH-3 | Chrome follows the DLS, not Amicro: no axis borders, the Neutral-3 hairline gridline on the value axis only (Amicro had a dashed, near-invisible grid), 12px footnote ticks in Neutral-5 (Amicro 9.5–10px), the DLS tooltip (Neutral-1, 1px Neutral-3 border, label2 title, label3 lines, no swatches; Amicro was a blurred dark tooltip with dots) and the DLS legend (bottom-left, 10px circles; Amicro was pill buttons) |
+| XCH-4 | Marks follow the DLS Marks table: 2px lines (Amicro 2–3px), 3px points with a 2px Neutral-1 ring and 5px on hover (Amicro 3.5/4), and a flat 12% wash (Amicro a gradient from 22–38% to 0). Area, Stream and Line points are on (the DLS says Area points are the same as Line; Amicro's Area had none). Range has no points. Q-CHART-5, Q-XCH-5 |
+| XCH-5 | Round line caps and joins (Amicro) are kept; Chart.js's default is butt and miter, and the DLS says nothing. Q-XCH-1 |
+| XCH-6 | Curves: Recharts `monotone` (Line, Area, Range) and `natural` (Stream) as Amicro; Chart.js's `tension: 0.3` is a different spline and can overshoot. Q-XCH-2 |
+| XCH-7 | Tooltip: the nearest category, showing every series, with a Neutral-3 cursor line (Recharts' axis tooltip). Chart.js's default shows only the hovered point. The DLS does not specify interaction (Q-CHART-6). Q-XCH-3 |
+| XCH-8 | The legend is a row of real buttons that show or hide a series (as Chart.js's legend does, but keyboard-reachable), with `aria-pressed` and a struck-through label when hidden. Q-XCH-4 |
+| XCH-9 | Every chart has the DLS's "View as table" (a secondary small Button, swapping the plot for a table of the same data). The DLS table is not converted, so its two rules (`.c-table`, `.c-table-embedded`) are copied into `charts-extra.css`: swap them for Table when it exists. Six rows are taller than the 260px floor, so the height changes a little when toggling: the DLS demo does the same |
+| XCH-10 | Animation: Amicro ran 280ms and turned it off on phones; the DLS names no chart animation (Q-CHART-4). Built: `--duration-slow` and `ease-out` as a placeholder, off under reduced motion only (not on phones) |
+| XCH-11 | Value axis: Amicro's Line padded the data by ±10 (a literal); built `yAxisStart: 'fit'` (Recharts `auto`) for Line as Chart.js does for lines, and `'zero'` for the others as Amicro did. Each is a prop |
+| XCH-12 | Recharts draws an `svg role="application"` with a focus stop for arrow-key reading. It has no name by default; each chart passes the `aria-label` as the SVG `title`. The figure is also a named group |
+| XCH-13 | No tokens: the 260px and 300px canvas floors (components.css 3841–3842), the tooltip's 8px radius and 10px padding (Q-CHART-2), the 10px legend swatch. Local custom properties on `.cui-chartx`. Q-CHART-7 |
+| XCH-14 | Recharts is an optional peer dependency (`^3.10.0`). `src/charts-extra` never imports `chart.js` and `src/charts` never imports `recharts`; the build output was checked |
+
+### Charts (extra), batch 2 (Bar, Stacked bar, Waterfall, Bullet, Funnel)
+
+Source: `MonoRounded{Bar,StackedBar,Waterfall,Bullet,Funnel}Chart.tsx`. The DLS Marks table and per-chart-type rows speak for bars and stacked bars; waterfall follows its "Diverging" rows; bullet and funnel have no DLS spec.
+
+| ID | What |
+|---|---|
+| XCH-15 | Bars: the DLS rule (4px radius on the outer end only, 24px thick at most vertically and 20px horizontally, hover 15% toward Neutral-9) replaces Amicro's pill bars (18px, 6px radius on every corner, 22% white second series). The value axis always starts at 0 and is not a prop. A Neutral-2 band marks the hovered category. Q-XCH-12 |
+| XCH-16 | `orientation: 'vertical' | 'horizontal'`: Amicro's Bar named the switch but only drew vertical. Horizontal puts the category on the left and the only gridline on the (now horizontal) value axis, by role, as the DLS says |
+| XCH-17 | Stacked bar: only the outer end of each stack is rounded, the last visible non-zero part, worked out per bar (DLS); Amicro rounded the bottom of the first part and the top of the last, with a fixed order. `totalKey` draws the rest in Neutral-3 as "Remaining" (DLS: the stack must sum to its label). Amicro had neither |
+| XCH-18 | Stacked bar colours: different categories walk the series colours; parts of one measure take a single-hue `ramp` (lightest first): the element's -bg-strong tint, its pastel and its full colour, so three parts at most and five hues. The DLS says a ramp cannot clear 3:1, so the legend, tooltip and table name every part. Amicro used three opacities of white. Q-XCH-10 |
+| XCH-19 | Waterfall: Amicro drew every step as a white pill, and its sample data (Yield, Infra, Grants) did not sum. Built from a change per step with running totals worked out: increases Green, decreases Red (the DLS diverging pair), totals Navy (the DLS names none). Steps are rounded on all four corners, totals on the outer end only. A fixed key (not toggles) names the colours. Q-XCH-7, Q-XCH-8 |
+| XCH-20 | Waterfall data: a total is drawn from zero, a step from where the last one ended. A running total below zero is not supported (stated in the docs) |
+| XCH-21 | Funnel: Amicro hid the value axis and drew 16px bars with an 8px radius; built the DLS horizontal-bar rule (value axis and gridline shown, 4px radius, 20px cap). The tooltip and the table add each stage's share of the first, which Amicro had in its data but never showed. Q-XCH-9 |
+| XCH-22 | Bullet is HTML and CSS, not Recharts (as Amicro's was). Track Neutral-3 and pill (the DLS Progress Bar's track), target marker Obsidian, bar the series colour. The track (12px) and marker (4px) are Amicro's and have no token. The scale of each row ends at 115% of its target (Amicro's). The values are written out for assistive technology, and the bar and marker are hidden from it. Q-XCH-11 |
+| XCH-23 | The chart frame was split in two: `ChartShell` (figure, legend, table, View as table; used by every chart, Bullet included) and `CartesianFrame` (the Recharts axes, gridline and tooltip). The legend can show fixed keys and the swatch colour is passed in, so ramp rungs and Neutral-3 work |
+| XCH-24 | Bar tooltip lines, the stacked-bar remainder and the waterfall's running total are written through a `describe` function on the tooltip, so the lines are not just "name: value" |
+
+### Charts (extra), batch 3 (Donut, Radial bar group, Radial gauge, Gauge arc, Meter)
+
+Source: `MonoRounded{Donut,RadialBarGroup,RadialGauge,GaugeArc,Meter}Chart.tsx`. The DLS speaks for the Doughnut (2px Neutral-1 border, a same-hue ramp, max five segments, Marks table); it has nothing for the radial charts or the gauges.
+
+| ID | What |
+|---|---|
+| XCH-25 | Donut: the DLS Doughnut row replaces Amicro's look: slices touch, with a 2px Neutral-1 border (Amicro: 5-degree gaps, 7px rounded slices, white at 100/72/42/20%) and walk one hue's ramp, lightest first, as the preview.html Doughnut does (the element's -bg, -bg-strong, pastel, full colour). The ramp has four rungs, so up to four slices; the DLS says five. The hole is 45% of the radius (Chart.js's default cutout is 50% of the outer; the DLS gives none), starting at 12 o'clock. Q-XCH-13 |
+| XCH-26 | Donut centre: the total, and the hovered slice's value and name on hover (as Amicro); drawn as SVG text (h5 value, caption caption; first built at h3, which was too big, 2026-10-29) so it moves with the chart. Hiding a slice in the legend takes it out of the total. Chart.js draws no centre text. Q-XCH-14 |
+| XCH-27 | Radial bar group and Radial gauge: one component each over a shared `RadialBars`. Amicro put a `RadialBar` inside a loop over the same data, so each ring was drawn once per item; built as one `RadialBar` with a ring per item. The first item is the outermost ring (Recharts draws the first innermost, so the data is reversed). Rings take the series colours (Amicro: mono tones), sit on a Neutral-3 track (Amicro 6% black), have 4px rounded ends (the DLS bar radius; Amicro 6–8px) and are 8px thick (the DLS Progress Bar's default track; Amicro's were thin lines). Start angle (9 o'clock) and the 180°/360° sweeps are Amicro's. Q-XCH-15 |
+| XCH-28 | Gauge arc (240°) and Meter (180°): one shared `ArcGauge`, driven by `value` and `max`. Amicro's Meter drew 88 on the arc and printed 98.2 in the centre, and its Gauge arc had a Standard/Enterprise toggle; the centre is now the value, and the toggle is the host's. Track Neutral-3; ends 4px rounded; the white 2px border between value and track is the DLS slice border. No legend and no tooltip (the centre is the reading); the table has the figures. Q-XCH-16 |
+| XCH-29 | Recharts 3.10's `<Label position="center">` inside a Pie hands over the whole chart's rectangle, not the Pie's centre, so a gauge's reading would sit in the wrong place. The readout is a child of the chart that reads `usePlotArea()` and uses the same percentages as the Pie's `cx` and `cy` |
+| XCH-30 | Recharts overwrites a data row's `value` key with the plotted value, so the radial rows keep the measured value under `amount` (the plot uses a 0–100 `percent`) |
+| XCH-31 | The tooltip can write its title from the hovered row (`title`), for charts with no category axis; the frame for round charts is `PolarFrame` |
+| XCH-32 | `ChartThumbnail` (requested 2026-10-29): wraps any Charts (extra) chart and draws only its shape (no axes, gridlines, labels, legend, tooltip, centre reading, table button or draw-in), hidden from assistive technology. The Charts (extra) overview cards use it. The readout value was also made smaller (h5, 16px) on the Donut, Gauge arc and Meter |
+
+### Charts (extra), batch 4 (Scatter, Bubble, Heatmap, Treemap, Activity heatmap)
+
+Source: `MonoRounded{Scatter,Bubble,Heatmap,Treemap}Chart.tsx` and `MonoActivityHeatmap.tsx`. The DLS Marks table covers Scatter and Bubble (and the preview.html Scatter build); Chart color mapping's "Sequential" row covers the three shaded charts.
+
+| ID | What |
+|---|---|
+| XCH-33 | Scatter and Bubble share `XYChart`. Scatter follows the DLS row and the preview.html build: 6px points (8px on hover) with a 1px Neutral-1 border, axis titles in label2 Neutral-5, the gridline on the vertical axis only, both axes fitted to the data. Amicro had sized nodes, a "Leaders" filter and a dark palette. Bubble follows its row: a 30% wash of the series colour, a 2px border in the full colour, radius from the third measure (6px up to 24px, read as area), three series at most. Both leave room at the axes' ends so the outermost points are whole |
+| XCH-34 | The DLS exempts Bubble from "View as table" ("structurally no table"). Built with one anyway, since a table of x, y and size is how a screen-reader user reads it. Q-XCH-17 |
+| XCH-35 | Heatmap (Amicro: grey squares in white opacities, a header readout, hover scale-up): cells now run continuously from the hue's -bg tint (lowest) to its full colour (highest), as the DLS Sequential row and its Doughnut ramp. They are rectangles that fill the grid (Amicro's were squares), with column labels (Amicro had none), a scale (lowest, ramp, highest) and an Obsidian outline on hover. `min` and `max` fix the scale. Drawn in HTML and CSS. Q-XCH-19 |
+| XCH-36 | Treemap: Amicro placed four tiles by hand in a fixed 3 by 3 grid with preset spans and opacities, which is not a treemap. Built on Recharts' squarified layout, with tiles shaded by value on the hue ramp (largest darkest), 4px radius and a 2px Neutral-1 border. A tile too small for text (64 by 40px) shows none; the tooltip and table still give it |
+| XCH-37 | Activity heatmap: Amicro made random demo data inside the component and printed fixed month names (Jan to May) whatever the dates. Built from a `data` prop of `{ date, count }`, with months and weekday names derived, five steps (Neutral-2, then the -bg-strong tint, the pastel, a mix of pastel and full, and the full colour; the four busy steps are the quartiles of the non-zero counts), a Less/More scale and a table with a row per week. The streak badge, the 20-week label and the cell scale-up are not part of the chart. The grid scrolls sideways inside its box on a narrow screen. Q-XCH-20 |
+| XCH-38 | Heatmap, Treemap and Activity heatmap pictures carry no reliable text, so their table stays in the page, visually hidden, while the chart is showing (`srTable`); View as table shows it to everyone. Their cells are not focusable: the table is the keyboard and screen-reader route. Q-XCH-21 |
+| XCH-39 | The cell tooltip for the two HTML heatmaps is a DLS tooltip placed above the hovered cell (`useCellTip`); pointer only |
+
+### Charts (extra), batch 5 (Radar, Polar area, Pyramid, Sankey, Candlestick)
+
+Source: `MonoRounded{Radar,Polar,Pyramid,Sankey,Candlestick}Chart.tsx`. The DLS Marks table covers Radar and Polar area; Candlestick follows the diverging Green and Red pair; Pyramid and Sankey have no DLS source.
+
+| ID | What |
+|---|---|
+| XCH-40 | Radar follows the DLS row: 2px line, 12% wash, 3px ringed points, Neutral-3 rings and spokes, footnote axis names, ring values on an opaque Neutral-1 backdrop with 4px padding, axes fixed to a rating scale (default 0 to 10; Amicro 0 to 100, hidden values and a fixed 54px radius), up to six axes. The ring values run along the gap between two spokes so they do not sit on an axis name. Series colours, a legend that hides a polygon |
+| XCH-41 | Amicro's "Polar" chart was concentric rings (a loop of `RadialBar`s over the same data), the same chart as Radial gauge. Built the DLS **Polar area** instead: equal wedges, radius = value, four Neutral-3 rings labelled on the vertical spoke, a 2px Neutral-1 border and one hue's ramp. Recharts has no polar-area chart, so the wedges are a `Pie` of equal values drawn as `Sector`s with a per-value radius, and the rings are a child drawn in two z-index layers (circles behind, labels above). Q-XCH-22 |
+| XCH-42 | Polar area opacity: the Marks table says 30% for saturated rungs and 15% for the two pale tints; taken literally the pale wedges vanish on white. Built every wedge at 75% over the ramp without its faintest tint (-bg-strong, pastel, a mix of the two, full). Q-XCH-25 |
+| XCH-43 | Pyramid (Amicro: bands in white opacities with hand-set widths of 34, 54, 74 and 94% that did not match its counts, darkest at the top): widths are now proportional to value, larger is darker on a hue ramp (as the other shaded charts), text is Neutral-9 or Neutral-1 by contrast, bands are 32px tall (Amicro's, no token) with a 4px radius. HTML and CSS; table always in the page. Q-XCH-24 |
+| XCH-44 | Sankey: Amicro drew two fixed bezier paths between three boxes at hard-coded pixel positions. Built on Recharts' Sankey (computed layout) from `links` of `{ source, target, value }`: sources take series colours and their bands are a 30% wash, everything downstream is Obsidian, nodes are 12px wide with a 4px radius, first-column labels on the left, last-column labels on the right, middle ones on a Neutral-1 halo. Loops are not supported. Q-XCH-26 |
+| XCH-45 | Candlestick: Amicro drew bodies and wicks in CSS (solid black up, grey hollow down, no axes). Built on Recharts with axes: up is a solid Green body, down a hollow Red body with a Neutral-1 fill (so direction never rests on colour alone), 2px wick, body at most 24px wide with a 4px radius, the value axis fits the data, a fixed key names the two. Amicro's timeframe toggle, price readout and volume are not part of the chart. Q-XCH-23 |
+| XCH-46 | `inkOn(bg)` picks Neutral-9 or Neutral-1 by contrast for text on a shaded tile; the Treemap used a fixed threshold that put white on mid-Green (2.4:1), so it now uses it too. `PolarFrame` is the frame for every chart with no cartesian axes (Radar, Polar area, Sankey included) |
+
+### Charts (extra), batch 6 (Composed, Sparkline, Dither bar, Dither donut)
+
+Source: `MonoRounded{Composed,Sparkline}Chart.tsx`, `Dither{Bar,Donut}Chart.tsx` and `dither-charts/lib/ditherPatterns.tsx`. The DLS Marks table covers "Mixed (Bar + Line)" and "Sparkline". Amicro's `MonoRoundedKpiCardChart` was not built (Q-XCH-31).
+
+| ID | What |
+|---|---|
+| XCH-47 | Composed follows the DLS "Mixed (Bar + Line)" row: bars as Bar (4px outer-end radius, 24px cap, hover 15% toward Neutral-9), line as Line (2px, 3px ringed points, no fill). When the measures differ in scale the line has a second axis on the right with the same hidden border and footnote ticks and no gridline (`lineAxis="own"`, the default); `shared` plots it on the bars' axis. Amicro hid its right axis (a fixed 6 to 10 domain), so the line's values could not be read; its toggle (all, rewards, yield) is the legend, and its headline total and APY belong to the host's card. One line only. Q-XCH-32 |
+| XCH-48 | Sparkline follows the DLS row: 2px line, a gentle curve, no axes, gridlines, legend, tooltip or table, an optional 12% wash, an optional 3px end point, the owning element's colour. Not in `ChartShell`. It is an image (`role="img"`) named by `aria-label` plus a sentence on the trend ("Rising from 38 to 42.4 over 5 points, low 38, high 44."), so the picture is not the only way to learn it. It is 32px tall (`--cui-spark-height`; Amicro's row chart was 28px; Q-XCH-30). Amicro's three-row panel (name, value, status pill, "Live polling") is a list of Stat items, so only the line is ported |
+| XCH-49 | Dither texture: Amicro's is a random, per-frame canvas dot field (white squares thinning toward the top, with a wave, on a dark card). Built as fixed SVG patterns (`lib/dither.tsx`): stipple, dots, hatch, checker, stripes, from sparse to dense, each a 12% wash of the series colour with marks in its full colour and a 1px outline. Still, so it does not flicker, runs no animation frame and is the same on the server and the client. Q-XCH-28 |
+| XCH-50 | Dither bar: Bar chart's chrome, radius, caps, table and legend, with each series' pattern and colour. The hovered bar's pattern and outline are the colour 15% toward Neutral-9 (a second pattern per series). Amicro's period toggle, total and "up 18.4%" are the host's |
+| XCH-51 | Dither donut: Donut chart's ring (45% to 90%), 2px Neutral-1 border, centre reading and tooltip. Every slice is one hue and each is a pattern, sparse to dense, in the place of the ramp's tints (the marks in the pastel rungs would be too faint). Up to four slices. Amicro's five greys, its spring-physics morph, period tabs and plan list are not part of the chart. Q-XCH-29 |
+| XCH-52 | The legend swatch can carry a pattern (`LegendItem.dither`, in CSS gradients with the series colour as `--cui-swatch`), so a Dither chart's key matches its marks. `CartesianFrame` takes `dither` to turn this on |
 
 ### Tokens and global
 
@@ -639,6 +726,19 @@ Grouped by component. Line numbers are CSS / DS.
 | D-91 | `--measure-prose` (760px) and the ten `--z-*` layer tokens added to the DLS (v0.9.127, authorised 2026-10-27), written into components.css wherever a page-level layer used a number, and used by Chat window, the Prompt input bar's floating bar and menu. No visual change. The scale is the eight layers the Tutorial Modal survey listed, plus the menu (60) and panel (70) | Q-CHAT-4 |
 | D-92 | Switch is a real `<input type="checkbox" role="switch">` in a label, like Checkbox and Radio. The state is the input's `checked`, never a separate class. There is no error state, since a switch always has a value and applies at once | DESIGN-SYSTEM.md Switch |
 | D-93 | Provisional: hover and pressed by the thumb's shadow, the focus ring, forced-colour tracks, instant motion under reduced motion, and the local track and thumb sizes | Flagged Q-SWITCH-1 to Q-SWITCH-3 |
+| D-94 | Charts (extra) is its own entry point (`@collabrium/ui/charts-extra`) with Recharts as an optional peer dependency; the Chart.js set and this one never import each other | User, 2026-10-29: "keep Chart.js and this file separate so I can call on either" |
+| D-95 | The DLS chrome and marks apply to the Recharts charts; Amicro supplies only the shapes. The DLS series colours replace the Amicro and Dither palettes | User, 2026-10-29: "yes DLS colours replace Amicro palettes" |
+| D-96 | The charts are chart-only: data comes in through props, and the card, title, readout and toggles are the host's | XCH-1 |
+| D-97 | Provisional: round caps and joins, Recharts curves, the axis tooltip, the toggling legend, flat 12% wash, the animation placeholder | Flagged Q-XCH-1 to Q-XCH-6 |
+| D-98 | Docs: two groups, Charts (extra) and Motion, each with an overview page and its parts under it | User, 2026-10-29. CLAUDE.md records the exception to "only AI Native is a group" |
+| D-99 | Bar, Stacked bar, Waterfall and Funnel take the DLS bar rules (outer-end radius, thickness caps, hover mix, value axis from zero); Amicro supplies only the shapes | XCH-15, XCH-17, XCH-21 |
+| D-100 | Bullet is not Recharts: HTML and CSS around the shared frame | XCH-22 |
+| D-101 | Provisional: Waterfall's Green, Red and Navy and its four-corner rounding; the stacked ramp; the Funnel's value axis; Bullet's local sizes; the hover band | Flagged Q-XCH-7 to Q-XCH-12 |
+| D-102 | The round charts follow the DLS Doughnut row (2px Neutral-1 border, same-hue ramp); gauges and radial charts, which the DLS does not cover, take the same slice border, the Progress Bar's track and the 4px bar radius | XCH-25, XCH-27, XCH-28 |
+| D-103 | Provisional: the four-slice cap and 45% hole, the centre readouts, the radial ring thickness and angles, the gauge sweeps | Flagged Q-XCH-13 to Q-XCH-16 |
+| D-104 | The shaded charts (Heatmap, Treemap, Activity heatmap) use the DLS Sequential rule: one hue, from the -bg tint to the full colour. Scatter and Bubble use their Marks rows. Heatmap and Activity heatmap are HTML and CSS | XCH-33, XCH-35 to XCH-38. Flagged Q-XCH-17 to Q-XCH-21 |
+| D-105 | Radar and Polar area follow the DLS Marks rows; Amicro's "polar" is not built (it duplicates Radial gauge). Candlestick uses the Green and Red diverging pair with solid and hollow bodies. Pyramid is HTML and CSS | XCH-40 to XCH-45. Flagged Q-XCH-22 to Q-XCH-27 |
+| D-106 | Composed follows the DLS Mixed row with a visible second axis. Sparkline follows the DLS Sparkline row and is only the line. The Dither charts are still SVG patterns in the DLS colours (the user chose patterns with DLS colours, 2026-10-29). Amicro's KPI card chart is not built (the DLS has a Stat / KPI card component, and says a trend beside a headline number is a sparkline in its slot) | XCH-47 to XCH-52. Flagged Q-XCH-28 to Q-XCH-32 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -790,6 +890,43 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-SWITCH-2 | Forced colours: an outlined off track and a Highlight on track, with a dark and a HighlightText thumb. Reduced motion: the move is instant. Neither is in the DLS. Keep? My recommendation: yes | `Switch.css` |
 | Q-SWITCH-3 | No tokens for the track (40×24), the thumb (18) or the 3px inset. Local custom properties until the DLS adds them. Add tokens, or keep them local (nothing else uses them)? My recommendation: keep local | `Switch.css` |
 
+### Charts (extra)
+
+| ID | Question | Where |
+|---|---|---|
+| Q-XCH-1 | Round caps and joins on lines (Amicro) or Chart.js's butt and miter? The DLS says nothing. They differ little at 2px. My recommendation: keep round **Answered 2026-10-29: keep as built.** | Line, Area, Stream, Step charts |
+| Q-XCH-2 | Curves are Recharts `monotone` (never overshoots the data) where Chart.js's `tension: 0.3` can. Keep? My recommendation: keep **Answered 2026-10-29: keep as built.** | `LineChart`, `AreaChart`, `RangeChart` |
+| Q-XCH-3 | The tooltip shows every series for the nearest category, with a cursor line. Chart.js shows only the hovered point. Keep? My recommendation: keep (easier to read and to use on touch) **Answered 2026-10-29: keep as built.** | `CartesianFrame` |
+| Q-XCH-4 | The legend hides and shows a series, from the keyboard too. The DLS legend spec says nothing about interaction. Keep? My recommendation: keep **Answered 2026-10-29: keep as built.** | `ChartLegend` |
+| Q-XCH-5 | The fill is a flat 12% wash (the DLS's rule), so the Amicro gradient is gone and the areas look lighter than the originals. Keep? My recommendation: keep, since the DLS says never above 12% **Answered 2026-10-29: keep as built.** | all area charts |
+| Q-XCH-6 | A single series, and the Range band, default to Orange (the first in the mapping). Keep, or should a single series take the colour of the element that owns the metric, as Sparkline does? My recommendation: keep Orange as the default and let `color` override **Answered 2026-10-29: keep as built.** | `resolveSeriesColorName` |
+| Q-XCH-7 | Waterfall colours: increases Green and decreases Red (the DLS diverging pair) and totals Navy. The DLS gives no colour for a total. Keep Navy? My recommendation: keep | `WaterfallChart` |
+| Q-XCH-8 | Waterfall steps float, so they are rounded on all four corners (4px); totals only on their outer end. The DLS's top-only rule is written for bars from a baseline. Keep? My recommendation: keep | `WaterfallChart` |
+| Q-XCH-9 | Funnel shows the value axis and its gridline like every DLS chart (Amicro hid them), with the 4px radius and 20px cap of the horizontal-bar rule (Amicro 8px and 16px). Keep the DLS look? My recommendation: keep | `FunnelChart` |
+| Q-XCH-10 | Stacked bar `ramp`: three rungs (the element's -bg-strong tint, its pastel and its full colour) for five hues; the lightest rung is faint on white (the DLS already warns a ramp cannot clear 3:1). Keep? My recommendation: keep, since every part is also named by the legend, tooltip and table | `StackedBarChart` |
+| Q-XCH-11 | Bullet chart has no DLS source: Neutral-3 pill track, Obsidian marker, series-colour bar, a 12px track and 4px marker (Amicro's, no token), scale ending 15% past the target (Amicro's). Keep? My recommendation: keep | `BulletChart` |
+| Q-XCH-12 | Bar and Stacked bar also show a Neutral-2 band behind the hovered category, besides the 15% darkening of the bar (Chart.js has only the bar hover). Keep? My recommendation: keep | `BarChart`, `StackedBarChart` |
+| Q-XCH-13 | Donut: slices touch with a 2px white border and walk one hue's four-rung ramp, so up to four slices (the DLS allows five); the hole is 45% of the radius. Keep? My recommendation: keep | `DonutChart` |
+| Q-XCH-14 | Donut centre text (the total, or the hovered slice) is Amicro's; Chart.js draws none. The same idea is used for the gauges' reading. Keep? My recommendation: keep | `DonutChart`, `ArcGauge` |
+| Q-XCH-15 | Radial bar group and Radial gauge have no DLS source. Built: series colours per ring, a Neutral-3 track, 4px rounded ends, 8px thick rings (no token), first item outermost, starting at 9 o'clock. Keep? My recommendation: keep | `RadialBars` |
+| Q-XCH-16 | Gauge arc (240°) and Meter (180°): one series colour (default Orange), the Neutral-3 track, the value in the centre, no legend and no tooltip. Keep? My recommendation: keep | `ArcGauge` |
+| Q-XCH-17 | Bubble gets a View as table button although the DLS exempts it. Keep? My recommendation: keep | `BubbleChart` |
+| Q-XCH-18 | Scatter and Bubble: gridline on the vertical axis only (as the preview.html Scatter), axis titles, both axes fitted to the data (not from zero), tooltip showing both figures (and the size). Keep? My recommendation: keep | `XYChart` |
+| Q-XCH-19 | Heatmap and Treemap shade continuously between the hue's -bg tint and its full colour. The lightest end (for Navy, #E8F1FD) is very faint on white, as in the DLS Doughnut. Keep? My recommendation: keep | `HeatmapChart`, `TreemapChart` |
+| Q-XCH-20 | Activity heatmap: five steps, one of them (pastel to full, 50%) a mix of two tokens, not a token; the 10px smallest cell and the 2px gap and radius have no token. Keep? My recommendation: keep | `ActivityHeatmapChart` |
+| Q-XCH-21 | Heatmap, Treemap and Activity heatmap keep their table in the page, visually hidden, for screen readers; their cells are not focusable. Keep? My recommendation: keep | `ChartShell` (`srTable`) |
+| Q-XCH-22 | Amicro's "polar" chart is concentric rings, the same as Radial gauge. Built the DLS Polar area (equal wedges that reach out to their value) instead. Keep? My recommendation: keep | `PolarAreaChart` |
+| Q-XCH-23 | Candlestick: solid Green when a period closed higher, hollow Red when lower (Amicro: solid black and hollow grey). Keep? My recommendation: keep | `CandlestickChart` |
+| Q-XCH-24 | Pyramid: widths proportional to value (Amicro's were hand-set), larger is darker (Amicro's was the reverse), 32px bands (no token). The shape is less steep when the values are close. Keep? My recommendation: keep | `PyramidChart` |
+| Q-XCH-25 | Polar area wedges are 75% opaque over the ramp without its faintest tint; the DLS says 30% and 15%, which makes the pale wedges vanish. Keep? My recommendation: keep | `PolarAreaChart` |
+| Q-XCH-26 | Sankey: sources take series colours with 30% bands, everything downstream is Obsidian; no loops. Keep? My recommendation: keep | `SankeyChart` |
+| Q-XCH-27 | Radar: axes 0 to 10 by default (pass `max` for another scale), ring values between two spokes on a backdrop, up to six axes. Keep? My recommendation: keep | `RadarChart` |
+| Q-XCH-28 | Dither charts use fixed SVG patterns (stipple, dots, hatch, checker, stripes) in a 12% wash of the series colour with full-colour marks and a 1px outline, not Amicro's random animated canvas dots. Keep? My recommendation: keep | `lib/dither.tsx`, `DitherBarChart` |
+| Q-XCH-29 | Dither donut: one hue, and the slices differ by pattern (sparse to dense) rather than by tint, up to four. The DLS Doughnut says a same-hue tint ramp. Keep? My recommendation: keep | `DitherDonutChart` |
+| Q-XCH-30 | Sparkline is 32px tall (the DLS gives the slot no height; no token). Keep? My recommendation: keep, or tell me the Stat / KPI card's slot height | `SparklineChart` |
+| Q-XCH-31 | Amicro's KPI card chart (headline number, change, period toggle, area trend) is not built: the DLS says a single headline number is a Stat / KPI card, not a chart, and puts a trend beside it as a sparkline in that card's slot. Stat / KPI card is not converted yet. Keep it out? My recommendation: keep it out, and convert Stat / KPI card as its own component when you want it | `SparklineChart` |
+| Q-XCH-32 | Composed: the line gets its own axis on the right by default (the DLS says add one when the series do not share a scale). Amicro hid it. One line only. Keep? My recommendation: keep | `ComposedChart` |
+
 ### Global
 
 | ID | Question |
@@ -808,6 +945,7 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-CHART-4 | Chart animation duration and easing (none specified); reduced motion currently turns animation off |
 | Q-CHART-5 | Area wash: `-bg` tint or 88% transparent mix (TOK-2)? |
 | Q-CHART-6 | Not specified: horizontal bar thickness (20) needs the chart's orientation, so it can't be a global default. Doughnut cutout, interaction mode and number formats are also not specified |
+| Q-CHART-7 | The chart canvas floors (260px, 300px tall) and the legend's 10px swatch are literals with no token (components.css 3841–3842) |
 
 ---
 
@@ -857,3 +995,25 @@ Every place where the React library now follows a decision that differs from the
 | 38 | Textarea: restyle `.c-field textarea::-webkit-resizer` so the resize grip sits clear of the 12px corner curve | components.css 192 | 2026-10-26 |
 | 39 | Tool approval: Rule 5 should say the exclusion holds for multiple-choice too and the demo should do it; the last-question auto-send should go (choosing only enables Send); focus handling when the question changes and when the card closes (all approved) | DESIGN-SYSTEM.md 5913–5917; preview.html 23700–23890 | 2026-10-26 |
 | 40 | Prompt input bar: the model menu cannot be `position:fixed` inside the floating bar, because the bar's `transform` becomes the fixed element's containing block (the gallery works only because its stage sets `transform:none`): say it is portalled, or placed another way; add the arrow-key use of the model menu and a Stop icon for Send (approved 2026-10-27, Q-PIB-3, Q-PIB-4); Send is disabled while the box is empty (Q-PIB-5) | DESIGN-SYSTEM.md 1500–1520; components.css 5002 | 2026-10-26 |
+| 41 | Chip: say that single-select arrow keys move and choose (Home and End, wrapping, one tab stop) and give the gallery's single group a roving tab stop (pending Q-CHIP-1) | DESIGN-SYSTEM.md 4619–4623; preview.html 21054–21076 | 2026-10-27 |
+| 42 | Chip: a forced-colours rule for the active filter chip; say the active border is 1px Obsidian, not "none" (pending Q-CHIP-2) | components.css 4547; DESIGN-SYSTEM.md 4486 | 2026-10-27 |
+| 43 | Chip: a disabled input chip's × should be disabled (or the DS should say it is not); say what focus does after a removal; add a script for Delete or Backspace on the × (pending Q-CHIP-3) | components.css 4535–4539; DESIGN-SYSTEM.md 4496, 4620 | 2026-10-27 |
+| 44 | Chat window: script the open and close (the fold with measured rectangles, focus in and out, the Tab trap, Escape, the `animationend` guard); give the shell an opacity once settled and split the veil's and the content's class (decided Q-CHAT-5) | components.css 5033–5044; DESIGN-SYSTEM.md 1240–1246 | 2026-10-27 |
+| 45 | Chat window: drop the `listbox` and `toolbar` roles (plain buttons, `aria-current`, a plain group); an inert closed rail drawer; the More options menu's keys (decided Q-CHAT-1 to Q-CHAT-3) | DESIGN-SYSTEM.md 1074, 1103, 1124, 1237 | 2026-10-27 |
+| 46 | Chat window: Send is clipped by 23px at a 272px window (a 320px viewport); the model switcher's name should shrink with an ellipsis (decided Q-CHAT-6); forced-colours edges for the window and the selected conversation (decided Q-CHAT-8) | components.css (Prompt input bar toolbar); 5035, 5059 | 2026-10-27 |
+| 47 | Chat window: the veil is `var(--shadow-overlay)` (the CSS has `rgba(20,20,20,.42)`), and the title and pillar label take `--text-h5-weight` and `--text-label3-weight` (the CSS has 800); the footer copy is kept (decided Q-CHAT-4, Q-CHAT-7) | components.css 5032, 5051, 5073 | 2026-10-27 |
+| 48 | Streaming Text: say the action row and sources list are omitted inside a Chat window message (the host's `actions` prop is `false`), since the message brings the chat's row (decided Q-CHAT-9) | DESIGN-SYSTEM.md 1553 | 2026-10-27 |
+| 49 | Chat window: full screen at 600px and below (no margin, radius or shadow; safe areas cleared) (decided Q-CHAT-10) | components.css 5035 | 2026-10-27 |
+| 50 | (Done 2026-10-27, v0.9.127: `--measure-prose` is used by `.c-chat-thread-inner`, `.c-chat-composer-inner`, `.c-chat-foot` and Tool approval's slot.) | components.css | 2026-10-27 |
+| 51 | (Done 2026-10-27, v0.9.127: Chat window's row now says what it sits above and below.) | DESIGN-SYSTEM.md | 2026-10-27 |
+| 52 | Layers: ten `--z-*` tokens added (v0.9.127) and used by every page-level layer in components.css; the Tutorial Modal survey and two comments updated. Done in the DLS, with no visual change | tokens.css; components.css; DESIGN-SYSTEM.md | 2026-10-27 |
+| 53 | Switch: add hover, pressed and focus-visible states and forced-colours and reduced-motion rules (pending Q-SWITCH-1, Q-SWITCH-2) | components.css 3083, 3096–3099; DESIGN-SYSTEM.md 9068–9083 | 2026-10-28 |
+| 54 | Chart chrome & marks: name Recharts as the second chart engine, for shapes Chart.js cannot draw (`@collabrium/ui/charts-extra`), used with the same chrome, marks and colours | DESIGN-SYSTEM.md 4314 | 2026-10-29 |
+| 55 | Per-chart-type marks: add Stream (layered Area on natural curves), Step (stepped Line) and Range (a min-max band) rows; say what Area and Line points do (pending Q-XCH-1, Q-XCH-2, Q-XCH-5) | DESIGN-SYSTEM.md 4358–4375 | 2026-10-29 |
+| 56 | Chart legend: say each item shows or hides its series and is a button (pending Q-XCH-4); the tooltip shows every series for the nearest category (pending Q-XCH-3) | DESIGN-SYSTEM.md 4336–4344 | 2026-10-29 |
+| 57 | Per-chart-type marks: add Waterfall (Green up, Red down, a total colour), Bullet, Funnel and Stacked bar's single-hue ramp (pending Q-XCH-7 to Q-XCH-11) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
+| 58 | Chart chrome: say Bar and Stacked bar also highlight the hovered category with a Neutral-2 band (pending Q-XCH-12); give the chart canvas floors and the legend swatch tokens (Q-CHART-7) | DESIGN-SYSTEM.md 4336–4344; components.css 3841–3842 | 2026-10-29 |
+| 59 | Per-chart-type marks: add Radial bar group, Radial gauge, Gauge arc and Meter; say how many Doughnut slices the ramp can carry (it has four rungs, the DLS says five) and the Doughnut cutout (pending Q-XCH-13 to Q-XCH-16) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
+| 60 | Per-chart-type marks: add Heatmap, Treemap and Activity heatmap rows (single-hue ramp, continuous or in steps), Bubble's table, and say that Heatmap and Activity heatmap are drawn in HTML and CSS (pending Q-XCH-17 to Q-XCH-21) | DESIGN-SYSTEM.md 4358–4376; 4408–4414 | 2026-10-29 |
+| 61 | Per-chart-type marks: add Polar area's wedge opacity and number of wedges, Pyramid, Sankey and Candlestick (solid and hollow); say Radar's ring values sit between two spokes (pending Q-XCH-22 to Q-XCH-27) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
+| 62 | Per-chart-type marks: add the Dither pattern set (stipple, dots, hatch, checker, stripes; a 12% wash with full-colour marks) for the Dither bar and Dither donut, and say a Sparkline is 32px tall (pending Q-XCH-28 to Q-XCH-30, Q-XCH-32) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |

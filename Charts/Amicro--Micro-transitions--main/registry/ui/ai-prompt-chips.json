@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ai-prompt-chips",
+  "type": "registry:component",
+  "title": "AI Prompt Suggestion Chips",
+  "description": "Categorized quick-prompt suggestion chips with spring physics bounce and one-tap populating.",
+  "dependencies": [
+    "motion",
+    "lucide-react"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/components/ai/AiPromptChips.tsx",
+      "type": "registry:component",
+      "target": "components/amicro/AiPromptChips.tsx",
+      "content": "import React from 'react';\r\nimport { motion } from 'motion/react';\r\nimport { Sparkles } from 'lucide-react';\r\nimport { useWebHaptics } from '../../hooks/useWebHaptics';\r\n\r\nexport interface AiPromptChipsProps {\r\n  theme?: 'dark' | 'light';\r\n  onSelectPrompt: (prompt: string) => void;\r\n  chips?: Array<{ id: string; label: string; prompt: string; icon?: string }>;\r\n}\r\n\r\nconst DEFAULT_CHIPS = [\r\n  { id: '1', label: 'Spring Tilt Card', prompt: 'Create an interactive 3D card spread with spring tilt physics on cursor move', icon: '✨' },\r\n  { id: '2', label: 'Particle Burst Button', prompt: 'Add dynamic multi-color particle burst micro-interaction on CTA button click', icon: '💥' },\r\n  { id: '3', label: 'Reasoning Accordion', prompt: 'Build a collapsible AI reasoning trace block with live elapsed timer and status nodes', icon: '🧠' },\r\n  { id: '4', label: 'Magnetic Pill Dock', prompt: 'Design a macOS inspired floating island dock with spring magnetic pull effect', icon: '🧲' },\r\n];\r\n\r\nexport function AiPromptChips({\r\n  theme = 'dark',\r\n  onSelectPrompt,\r\n  chips = DEFAULT_CHIPS,\r\n}: AiPromptChipsProps) {\r\n  const { trigger: triggerHaptic } = useWebHaptics();\r\n  const isDark = theme === 'dark';\r\n\r\n  return (\r\n    <div className=\"w-full flex items-center justify-center select-none py-1\">\r\n      <div className=\"flex flex-wrap items-center justify-center gap-2 max-w-[800px]\">\r\n        {chips.map((chip, index) => (\r\n          <motion.button\r\n            key={chip.id}\r\n            type=\"button\"\r\n            initial={{ opacity: 0, y: 8 }}\r\n            animate={{ opacity: 1, y: 0 }}\r\n            transition={{ delay: index * 0.05, duration: 0.25 }}\r\n            whileHover={{ y: -2, scale: 1.03 }}\r\n            whileTap={{ scale: 0.96 }}\r\n            onClick={() => {\r\n              triggerHaptic('light');\r\n              onSelectPrompt(chip.prompt);\r\n            }}\r\n            className={`group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer border transition-all duration-200 ${\r\n              isDark\r\n                ? 'bg-white/[0.04] border-white/[0.08] hover:border-white/20 hover:bg-white/[0.08] text-neutral-300 hover:text-white'\r\n                : 'bg-white border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-neutral-700 hover:text-black shadow-xs'\r\n            }`}\r\n          >\r\n            <span>{chip.icon || '✨'}</span>\r\n            <span>{chip.label}</span>\r\n          </motion.button>\r\n        ))}\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+    }
+  ]
+}

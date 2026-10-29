@@ -3,6 +3,10 @@
 // A docs file that exports `group` (a name such as 'AI Native') is a part of
 // that group: it drops out of the sidebar and home grid, and its page lives
 // under the group's overview page (components/<group-slug>/<part-slug>).
+// Two source folders are groups by themselves, whatever their docs files say:
+// src/charts-extra (group "Charts (extra)") and src/motion (group "Motion").
+// Their pages live under the group's overview page, which exists even before
+// the first part does (every part is then a "Coming soon" card).
 // Writes two files so server code never imports the docs modules (which
 // contain client-only code):
 //   playground/app/_generated/components-meta.ts  plain data (server-safe)
@@ -11,25 +15,35 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const compDir = `${root}src/components`;
+// Source folders the docs files are read from. A folder with `group` puts all
+// its parts in that group; `components` takes the group from each docs file.
+const sources = [
+  { dir: 'components', group: null },
+  { dir: 'charts-extra', group: 'Charts (extra)' },
+  { dir: 'motion', group: 'Motion' },
+];
 const groupDir = `${root}playground/content/groups`;
 const outDir = `${root}playground/app/_generated`;
 
 const slugify = s => s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
 const byTitle = (a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' });
 
-const entries = readdirSync(compDir, { withFileTypes: true })
-  .filter(d => d.isDirectory() && existsSync(`${compDir}/${d.name}/${d.name}.docs.tsx`))
-  .map(d => {
-    const name = d.name;
-    const docsSrc = readFileSync(`${compDir}/${name}/${name}.docs.tsx`, 'utf8');
-    const m = /export const title\s*=\s*(['"])(.+?)\1/.exec(docsSrc);
-    if (!m) throw new Error(`${name}.docs.tsx must export a string \`title\``);
-    const g = /export const group\s*=\s*(['"])(.+?)\1/.exec(docsSrc);
-    const compFile = `${compDir}/${name}/${name}.tsx`;
-    const client = existsSync(compFile) && /^\s*['"]use client['"]/.test(readFileSync(compFile, 'utf8'));
-    return { folder: name, slug: slugify(name), title: m[2], client, groupTitle: g ? g[2] : null };
-  });
+const entries = sources.flatMap(({ dir, group: fixedGroup }) => {
+  const base = `${root}src/${dir}`;
+  if (!existsSync(base)) return [];
+  return readdirSync(base, { withFileTypes: true })
+    .filter(d => d.isDirectory() && existsSync(`${base}/${d.name}/${d.name}.docs.tsx`))
+    .map(d => {
+      const name = d.name;
+      const docsSrc = readFileSync(`${base}/${name}/${name}.docs.tsx`, 'utf8');
+      const m = /export const title\s*=\s*(['"])(.+?)\1/.exec(docsSrc);
+      if (!m) throw new Error(`${name}.docs.tsx must export a string \`title\``);
+      const g = /export const group\s*=\s*(['"])(.+?)\1/.exec(docsSrc);
+      const compFile = `${base}/${name}/${name}.tsx`;
+      const client = existsSync(compFile) && /^\s*['"]use client['"]/.test(readFileSync(compFile, 'utf8'));
+      return { dir, folder: name, slug: slugify(name), title: m[2], client, groupTitle: fixedGroup ?? (g ? g[2] : null) };
+    });
+});
 
 // A part's page address is components/<group>/<part>, and a stand-alone
 // component's is components/<slug>: every slug must be unique across both.
@@ -40,7 +54,7 @@ for (const e of entries) {
 }
 
 // Groups: one per distinct `group` name, each with an overview file.
-const groupTitles = [...new Set(entries.filter(e => e.groupTitle).map(e => e.groupTitle))];
+const groupTitles = [...new Set([...sources.filter(x => x.group).map(x => x.group), ...entries.filter(e => e.groupTitle).map(e => e.groupTitle)])];
 const groups = groupTitles.map(title => {
   const slug = slugify(title);
   if (seen.has(slug)) throw new Error(`The group "${title}" has the same slug ("${slug}") as a component`);
@@ -109,7 +123,7 @@ export const navMeta: NavMeta[] = ${JSON.stringify(nav, null, 2)};
 writeFileSync(`${outDir}/components-docs.ts`, `${header}
 import type { ComponentDocs } from '../../../src/components/docs.types';
 import type { GroupOverviewDocs } from '../../lib/group-types';
-${entries.map(e => `import * as ${e.folder}Docs from '../../../src/components/${e.folder}/${e.folder}.docs';`).join('\n')}
+${entries.map(e => `import * as ${e.folder}Docs from '../../../src/${e.dir}/${e.folder}/${e.folder}.docs';`).join('\n')}
 ${groups.map(g => `import * as ${g.slug.replace(/-(.)/g, (_, c) => c.toUpperCase())}Group from '../../content/groups/${g.slug}';`).join('\n')}
 
 export const componentDocs: Record<string, ComponentDocs> = {

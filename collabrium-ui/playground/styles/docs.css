@@ -101,6 +101,7 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-pn-link.is-next { text-align: right; margin-left: auto; }
 .docs-pn-dir { display: block; font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--text-caption-weight); color: var(--color-neutral-5); }
 .docs-pn-arrow { padding: var(--spacing-8); }
+.docs-pn-step { display: flex; align-items: center; gap: var(--spacing-4); }
 
 /* ---------- On this page ---------- */
 .docs-toc { position: sticky; top: var(--spacing-24); padding-top: var(--spacing-48); }

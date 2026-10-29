@@ -1,0 +1,27 @@
+# Robots.txt for Amicro (https://amicro.vercel.app)
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /sponsor/success
+Disallow: /sponsor/claim
+Disallow: /sponsor-onboarding
+
+# AI answer engines & LLM crawlers are welcome (see /llms.txt)
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+# Sitemap Reference
+Sitemap: https://amicro.vercel.app/sitemap.xml

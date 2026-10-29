@@ -101,6 +101,16 @@ export function neighbours(key: PageKey) {
   return { prev: list[(i - 1 + list.length) % list.length], next: list[(i + 1) % list.length] };
 }
 
+/**
+ * Where "Back" goes from a page: a part of a group goes to its group's
+ * overview; anything else goes to the Components list on the home page.
+ */
+export function parentOf(key: PageKey): { key: PageKey; hash?: string; title: string } {
+  const part = components.find(c => c.group && componentKey(c) === key);
+  const group = part && groups.find(g => g.slug === part.group);
+  return group ? { key: `components/${group.slug}`, title: group.title } : { key: '', hash: 'components', title: 'Components' };
+}
+
 /** A file in playground/public (logo.html, logo-mark.html), relative to the current page. */
 export function assetHref(from: PageKey, file: string): string {
   const depth = from ? from.split('/').length - 1 : 0;
