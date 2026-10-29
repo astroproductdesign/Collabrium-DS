@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Collabrium design system | v0.9.127</title>
+<title>Collabrium design system | v0.9.128</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -414,6 +414,53 @@
   .elevation-swatch .box{width:72px; height:56px; background:var(--color-neutral-1); border-radius:var(--radius-sm);}
   .elevation-swatch .label{font-family:monospace; font-size:11px; color:var(--color-neutral-5); text-align:center;}
 
+  /* Illustration (Foundations) — the house character style, per
+     DESIGN-SYSTEM.md's Illustration section and
+     illustrations/illustration-characters-bible.md. The set is browsed
+     with Search input + Tabs (one tab per category; a search looks
+     across all of them). Cards are 4:3 Canvas warm frames, at least
+     160px wide; a card's loop is created on first hover/focus and plays
+     one at a time, never under reduced motion. Download links sit in
+     the caption row, never on the character. */
+  .illo-concept{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:var(--spacing-24); align-items:start; margin-bottom:var(--spacing-32);} /* stacks when the pane, not the screen, is narrow */
+  .illo-ref{margin:0; max-width:420px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow:hidden; background:var(--color-neutral-1);}
+  .illo-ref:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+  .illo-ref .illo-frame{border:0; border-radius:0;}
+  .illo-ref figcaption{padding:var(--spacing-12) var(--spacing-16); font-size:var(--text-body2-size); color:var(--color-neutral-5);}
+  .illo-ref figcaption b{color:var(--color-neutral-9);}
+  .illo-concept table.spec{margin-bottom:0;}
+  .illo-dot{display:inline-block; width:10px; height:10px; border-radius:var(--radius-pill); flex:none;}
+  .illo-toolbar{display:flex; flex-direction:column; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
+  .illo-toolbar .c-search-input{max-width:320px;}
+  .illo-tabs .c-tab{gap:6px; white-space:nowrap;}
+  .illo-tabs .c-tab .count{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+  .illo-panel-head{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8); margin:0 0 var(--spacing-16); font-size:var(--text-body2-size); color:var(--color-neutral-5); min-height:24px;}
+  .illo-panel-head b{color:var(--color-neutral-9);}
+  .illo-swatch{width:20px; height:20px; border-radius:var(--radius-pill); flex:none;}
+  .illo-panel-head.is-search .illo-swatch, .illo-panel-head.is-search code{display:none;}
+  .illo-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, max(190px, calc((100% - 3 * var(--spacing-20)) / 4))), 1fr)); gap:var(--spacing-20); margin-bottom:var(--spacing-32);} /* cards at least 190px, never more than 4 a row: 3 on a 1280–1440px screen, 4 on wider ones */
+  .illo-card{margin:0; display:flex; flex-direction:column; gap:var(--spacing-8); border-radius:var(--radius-md);}
+  .illo-card[hidden]{display:none;}
+  .illo-card:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+  .illo-frame{position:relative; aspect-ratio:4/3; overflow:hidden; background:var(--color-canvas-warm); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md);}
+  .illo-frame img, .illo-frame video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;}
+  .illo-frame video{opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);}
+  .illo-frame video.is-playing{opacity:1;}
+  .illo-card figcaption{display:flex; align-items:center; gap:var(--spacing-4); min-height:32px;}
+  .illo-name{flex:1; min-width:0; display:flex; flex-direction:column; font-size:var(--text-body2-size); font-weight:600; color:var(--color-neutral-9); line-height:1.3;}
+  .illo-name small{display:none; align-items:center; gap:6px; font-size:var(--text-caption-size); font-weight:400; color:var(--color-neutral-5);}
+  .illo-grid.is-searching .illo-name small{display:flex;}
+  .illo-dl{flex:none; color:var(--color-neutral-5); text-decoration:none; opacity:0; transition:opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);}
+  .illo-dl i{font-size:var(--icon-base);}
+  .illo-dl:hover{color:var(--color-neutral-9);}
+  .illo-dl:focus-visible{opacity:1; outline:2px solid var(--color-obsidian); outline-offset:2px;}
+  .illo-card:hover .illo-dl, .illo-card:focus-within .illo-dl{opacity:1;}
+  @media (hover:none){ .illo-dl{opacity:1;} }
+  .illo-list{margin:0 0 var(--spacing-32); padding-left:20px; display:flex; flex-direction:column; gap:var(--spacing-8); font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-9); max-width:75ch;}
+  .illo-checklist{list-style:none; margin:0 0 var(--spacing-32); padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:var(--spacing-8) var(--spacing-24); font-size:var(--text-body2-size); line-height:1.5;}
+  .illo-checklist li{display:flex; gap:var(--spacing-8); align-items:flex-start;}
+  .illo-checklist i{color:var(--color-green); font-size:var(--icon-sm); margin-top:2px; flex:none;}
+  @media (prefers-reduced-motion:reduce){ .illo-frame video{display:none;} .illo-dl{transition:none;} }
   .guide-cols{display:grid; grid-template-columns:1fr; gap:var(--spacing-32);}
   .guide-col h3{display:flex; align-items:center; gap:8px; font-size:var(--text-h4-size); margin:0 0 var(--spacing-16);}
   .guide-col.do h3{color:var(--color-green);}
@@ -588,7 +635,7 @@
 <header class="topbar">
   <span class="mark">C</span>
   <span class="crumb">Design System <span>/</span> <b>Collabrium</b></span>
-  <span class="flag"><i class="ph-fill ph-warning"></i> <span class="js-version-flag">v0.9.127</span></span>
+  <span class="flag"><i class="ph-fill ph-warning"></i> <span class="js-version-flag">v0.9.128</span></span>
   <button class="changelog-btn" id="changelogOpenBtn" type="button"><i class="ph ph-clock-counter-clockwise"></i> Changelog</button>
 </header>
 
@@ -596,7 +643,7 @@
   <header class="changelog-page-header">
     <button class="changelog-back" id="changelogBackBtn" type="button"><i class="ph ph-arrow-left"></i> Back</button>
     <h1>Changelog</h1>
-    <span class="flag"><i class="ph-fill ph-warning"></i> <span class="js-version-flag">v0.9.127</span></span>
+    <span class="flag"><i class="ph-fill ph-warning"></i> <span class="js-version-flag">v0.9.128</span></span>
   </header>
   <div class="changelog-shell">
     <p class="changelog-intro">Every dated or versioned change to this design system, newest first &mdash; consolidated here so the rest of the docs and the live component gallery can stay focused on the current spec instead of carrying their own history inline.</p>
@@ -658,6 +705,7 @@
             <button class="c-nav-child" type="button" data-nav-target="typography">Typography</button>
             <button class="c-nav-child" type="button" data-nav-target="fonts">Fonts</button>
             <button class="c-nav-child" type="button" data-nav-target="iconography">Iconography</button>
+            <button class="c-nav-child" type="button" data-nav-target="illustration">Illustration</button>
             <button class="c-nav-child" type="button" data-nav-target="spacing">Spacing &amp; Shape</button>
             <button class="c-nav-child" type="button" data-nav-target="guidelines">Guidelines</button>
           </div>
@@ -753,6 +801,7 @@
         <a href="#typography">Typography</a>
         <a href="#fonts">Fonts</a>
         <a href="#iconography">Iconography</a>
+        <a href="#illustration">Illustration</a>
         <a href="#spacing">Spacing &amp; Shape</a>
         <a href="#guidelines">Guidelines</a>
         <a href="#components">Components</a>
@@ -1057,9 +1106,491 @@
       </div>
     </section>
 
-    <section id="spacing">
+    <section id="illustration">
       <div class="shell">
         <p class="kicker">06 &middot; Foundations</p>
+        <h2 class="section-title">Illustration</h2>
+        <p class="lede">Every Collabrium illustration is a <b>blob character</b>: one flat-colour squircle body, a tiny ink face and thin noodle limbs, on an empty Canvas warm background. Characters come in families; the first is <b>Audience characters</b>.</p>
+
+        <div class="swatch-group-label">Concept</div>
+        <div class="illo-concept">
+          <figure class="illo-ref js-illo" tabindex="0" data-loop="illustrations/clips-web/malay.mp4">
+            <div class="illo-frame"><img src="illustrations/reference/malay.jpg" alt="Reference character: a green blob with one hand on its chest and the other held out palm-up, beside two amber sparkles" width="700" height="522" /></div>
+            <figcaption><b>Reference image</b> &mdash; attach it to every generation. Hover to play.</figcaption>
+          </figure>
+          <table class="spec">
+            <tr><th>Part</th><th>Rule</th></tr>
+            <tr><td><b>Body</b></td><td>One flat-colour squircle. No outline, gradient or shading</td></tr>
+            <tr><td><b>Face</b></td><td>Two dot eyes, a tick brow, a smile. No nose</td></tr>
+            <tr><td><b>Limbs</b></td><td>Thin ink lines, noodle legs, fingers, flat feet</td></tr>
+            <tr><td><b>Props</b></td><td>Same ink line, flat fills, small sparkles</td></tr>
+            <tr><td><b>Setting</b></td><td>One ground line on empty <code>#FCFAF5</code></td></tr>
+            <tr><td><b>Ink &amp; frame</b></td><td>All lines <code>#2B2B2C</code>, one weight. Full body, 4:3</td></tr>
+          </table>
+        </div>
+
+        <div class="swatch-group-label">Library &mdash; Audience characters &middot; 51</div>
+        <p class="lede" style="margin-bottom:var(--spacing-16)">Colour comes from the category, never the character, plus up to two accents for props. Hover a character to play its loop; download it from beside its name.</p>
+        <div class="illo-toolbar">
+          <div class="c-search-input">
+            <label for="illoSearch" class="sr-only">Search characters</label>
+            <div class="c-search-input-box">
+              <i class="ph ph-magnifying-glass c-search-input-icon" aria-hidden="true"></i>
+              <input type="text" id="illoSearch" class="js-illo-search" placeholder="Search a name or category&hellip;" autocomplete="off" />
+              <button type="button" class="c-search-input-clear js-illo-clear" hidden aria-label="Clear search"><i class="ph ph-x"></i></button>
+            </div>
+          </div>
+          <div class="c-tabs-scroll-wrap js-illo-tabwrap">
+            <div class="c-tabs illo-tabs js-illo-tabs" role="tablist" aria-label="Character category">
+                <button class="c-tab active" role="tab" aria-selected="true" tabindex="0" type="button" data-illo-cat="ethnicity" data-illo-colour="#00C26E" data-illo-count="3" aria-controls="illoGrid"><span class="illo-dot" style="background:#00C26E"></span>Ethnicity<span class="count">3</span></button>
+                <button class="c-tab" role="tab" aria-selected="false" tabindex="-1" type="button" data-illo-cat="life-stage" data-illo-colour="#00D9D9" data-illo-count="12" aria-controls="illoGrid"><span class="illo-dot" style="background:#00D9D9"></span>Life stage<span class="count">12</span></button>
+                <button class="c-tab" role="tab" aria-selected="false" tabindex="-1" type="button" data-illo-cat="income-group" data-illo-colour="#FFA425" data-illo-count="4" aria-controls="illoGrid"><span class="illo-dot" style="background:#FFA425"></span>Income group<span class="count">4</span></button>
+                <button class="c-tab" role="tab" aria-selected="false" tabindex="-1" type="button" data-illo-cat="business-professionals" data-illo-colour="#1473E6" data-illo-count="4" aria-controls="illoGrid"><span class="illo-dot" style="background:#1473E6"></span>Business &amp; professionals<span class="count">4</span></button>
+                <button class="c-tab" role="tab" aria-selected="false" tabindex="-1" type="button" data-illo-cat="entertainment" data-illo-colour="#9F56FF" data-illo-count="7" aria-controls="illoGrid"><span class="illo-dot" style="background:#9F56FF"></span>Entertainment<span class="count">7</span></button>
+                <button class="c-tab" role="tab" aria-selected="false" tabindex="-1" type="button" data-illo-cat="trendsetter" data-illo-colour="#FF7A90" data-illo-count="8" aria-controls="illoGrid"><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter<span class="count">8</span></button>
+                <button class="c-tab" role="tab" aria-selected="false" tabindex="-1" type="button" data-illo-cat="sports" data-illo-colour="#FD3343" data-illo-count="6" aria-controls="illoGrid"><span class="illo-dot" style="background:#FD3343"></span>Sports<span class="count">6</span></button>
+                <button class="c-tab" role="tab" aria-selected="false" tabindex="-1" type="button" data-illo-cat="shopping-intent" data-illo-colour="#FF5825" data-illo-count="7" aria-controls="illoGrid"><span class="illo-dot" style="background:#FF5825"></span>Shopping intent<span class="count">7</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="illo-panel-head js-illo-head" aria-live="polite"><span class="illo-swatch" style="background:#00C26E"></span><b class="js-illo-head-name">Ethnicity</b><code class="js-illo-head-hex">#00C26E</code><span class="js-illo-head-count">3 characters</span></div>
+        <div class="illo-grid js-illo-grid" id="illoGrid" role="tabpanel">
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/chinese.mp4" data-illo-cat="ethnicity" data-illo-search="chinese ethnicity" >
+              <div class="illo-frame"><img src="illustrations/stills-web/chinese.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Chinese<small><span class="illo-dot" style="background:#00C26E"></span>Ethnicity</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/chinese.jpg" download="chinese.jpg" aria-label="Download Chinese still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/chinese.mp4" download="chinese.mp4" aria-label="Download Chinese loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/indian.mp4" data-illo-cat="ethnicity" data-illo-search="indian ethnicity" >
+              <div class="illo-frame"><img src="illustrations/stills-web/indian.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Indian<small><span class="illo-dot" style="background:#00C26E"></span>Ethnicity</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/indian.jpg" download="indian.jpg" aria-label="Download Indian still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/indian.mp4" download="indian.mp4" aria-label="Download Indian loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/malay.mp4" data-illo-cat="ethnicity" data-illo-search="malay ethnicity" >
+              <div class="illo-frame"><img src="illustrations/stills-web/malay.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Malay<small><span class="illo-dot" style="background:#00C26E"></span>Ethnicity</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/malay.jpg" download="malay.jpg" aria-label="Download Malay still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/malay.mp4" download="malay.mp4" aria-label="Download Malay loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/baby-boomers.mp4" data-illo-cat="life-stage" data-illo-search="baby boomers life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/baby-boomers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Baby Boomers<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/baby-boomers.jpg" download="baby-boomers.jpg" aria-label="Download Baby Boomers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/baby-boomers.mp4" download="baby-boomers.mp4" aria-label="Download Baby Boomers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/experienced-mothers.mp4" data-illo-cat="life-stage" data-illo-search="experienced mothers life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/experienced-mothers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Experienced Mothers<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/experienced-mothers.jpg" download="experienced-mothers.jpg" aria-label="Download Experienced Mothers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/experienced-mothers.mp4" download="experienced-mothers.mp4" aria-label="Download Experienced Mothers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/family-dynamic.mp4" data-illo-cat="life-stage" data-illo-search="family dynamic life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/family-dynamic.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Family Dynamic<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/family-dynamic.jpg" download="family-dynamic.jpg" aria-label="Download Family Dynamic still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/family-dynamic.mp4" download="family-dynamic.mp4" aria-label="Download Family Dynamic loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/gen-x.mp4" data-illo-cat="life-stage" data-illo-search="gen x life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/gen-x.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Gen X<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/gen-x.jpg" download="gen-x.jpg" aria-label="Download Gen X still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/gen-x.mp4" download="gen-x.mp4" aria-label="Download Gen X loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/gen-z.mp4" data-illo-cat="life-stage" data-illo-search="gen z life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/gen-z.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Gen Z<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/gen-z.jpg" download="gen-z.jpg" aria-label="Download Gen Z still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/gen-z.mp4" download="gen-z.mp4" aria-label="Download Gen Z loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/millennials.mp4" data-illo-cat="life-stage" data-illo-search="millennials life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/millennials.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Millennials<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/millennials.jpg" download="millennials.jpg" aria-label="Download Millennials still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/millennials.mp4" download="millennials.mp4" aria-label="Download Millennials loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/new-mothers.mp4" data-illo-cat="life-stage" data-illo-search="new mothers life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/new-mothers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">New Mothers<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/new-mothers.jpg" download="new-mothers.jpg" aria-label="Download New Mothers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/new-mothers.mp4" download="new-mothers.mp4" aria-label="Download New Mothers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/solo-lifestylers.mp4" data-illo-cat="life-stage" data-illo-search="solo lifestylers life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/solo-lifestylers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Solo Lifestylers<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/solo-lifestylers.jpg" download="solo-lifestylers.jpg" aria-label="Download Solo Lifestylers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/solo-lifestylers.mp4" download="solo-lifestylers.mp4" aria-label="Download Solo Lifestylers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/student.mp4" data-illo-cat="life-stage" data-illo-search="student life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/student.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Student<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/student.jpg" download="student.jpg" aria-label="Download Student still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/student.mp4" download="student.mp4" aria-label="Download Student loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/the-dynamic-duo.mp4" data-illo-cat="life-stage" data-illo-search="the dynamic duo life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/the-dynamic-duo.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">The Dynamic Duo<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/the-dynamic-duo.jpg" download="the-dynamic-duo.jpg" aria-label="Download The Dynamic Duo still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/the-dynamic-duo.mp4" download="the-dynamic-duo.mp4" aria-label="Download The Dynamic Duo loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/young-families.mp4" data-illo-cat="life-stage" data-illo-search="young families life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/young-families.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Young Families<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/young-families.jpg" download="young-families.jpg" aria-label="Download Young Families still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/young-families.mp4" download="young-families.mp4" aria-label="Download Young Families loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/young-working-adult.mp4" data-illo-cat="life-stage" data-illo-search="young working adult life stage" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/young-working-adult.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Young Working Adult<small><span class="illo-dot" style="background:#00D9D9"></span>Life stage</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/young-working-adult.jpg" download="young-working-adult.jpg" aria-label="Download Young Working Adult still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/young-working-adult.mp4" download="young-working-adult.mp4" aria-label="Download Young Working Adult loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/b40.mp4" data-illo-cat="income-group" data-illo-search="b40 income group" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/b40.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">B40<small><span class="illo-dot" style="background:#FFA425"></span>Income group</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/b40.jpg" download="b40.jpg" aria-label="Download B40 still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/b40.mp4" download="b40.mp4" aria-label="Download B40 loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/m40.mp4" data-illo-cat="income-group" data-illo-search="m40 income group" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/m40.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">M40<small><span class="illo-dot" style="background:#FFA425"></span>Income group</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/m40.jpg" download="m40.jpg" aria-label="Download M40 still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/m40.mp4" download="m40.mp4" aria-label="Download M40 loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/t15.mp4" data-illo-cat="income-group" data-illo-search="t15 income group" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/t15.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">T15<small><span class="illo-dot" style="background:#FFA425"></span>Income group</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/t15.jpg" download="t15.jpg" aria-label="Download T15 still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/t15.mp4" download="t15.mp4" aria-label="Download T15 loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/t20.mp4" data-illo-cat="income-group" data-illo-search="t20 income group" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/t20.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">T20<small><span class="illo-dot" style="background:#FFA425"></span>Income group</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/t20.jpg" download="t20.jpg" aria-label="Download T20 still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/t20.mp4" download="t20.mp4" aria-label="Download T20 loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/corporate-leaders.mp4" data-illo-cat="business-professionals" data-illo-search="corporate leaders business &amp; professionals" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/corporate-leaders.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Corporate Leaders<small><span class="illo-dot" style="background:#1473E6"></span>Business &amp; professionals</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/corporate-leaders.jpg" download="corporate-leaders.jpg" aria-label="Download Corporate Leaders still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/corporate-leaders.mp4" download="corporate-leaders.mp4" aria-label="Download Corporate Leaders loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/emerging-affluents.mp4" data-illo-cat="business-professionals" data-illo-search="emerging affluents business &amp; professionals" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/emerging-affluents.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Emerging Affluents<small><span class="illo-dot" style="background:#1473E6"></span>Business &amp; professionals</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/emerging-affluents.jpg" download="emerging-affluents.jpg" aria-label="Download Emerging Affluents still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/emerging-affluents.mp4" download="emerging-affluents.mp4" aria-label="Download Emerging Affluents loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/smes.mp4" data-illo-cat="business-professionals" data-illo-search="smes business &amp; professionals" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/smes.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">SMEs<small><span class="illo-dot" style="background:#1473E6"></span>Business &amp; professionals</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/smes.jpg" download="smes.jpg" aria-label="Download SMEs still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/smes.mp4" download="smes.mp4" aria-label="Download SMEs loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/start-up-entrepreneurs.mp4" data-illo-cat="business-professionals" data-illo-search="start-up entrepreneurs business &amp; professionals" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/start-up-entrepreneurs.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Start-up Entrepreneurs<small><span class="illo-dot" style="background:#1473E6"></span>Business &amp; professionals</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/start-up-entrepreneurs.jpg" download="start-up-entrepreneurs.jpg" aria-label="Download Start-up Entrepreneurs still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/start-up-entrepreneurs.mp4" download="start-up-entrepreneurs.mp4" aria-label="Download Start-up Entrepreneurs loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/action-adventure-fans.mp4" data-illo-cat="entertainment" data-illo-search="action &amp; adventure fans entertainment" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/action-adventure-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Action &amp; Adventure Fans<small><span class="illo-dot" style="background:#9F56FF"></span>Entertainment</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/action-adventure-fans.jpg" download="action-adventure-fans.jpg" aria-label="Download Action &amp; Adventure Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/action-adventure-fans.mp4" download="action-adventure-fans.mp4" aria-label="Download Action &amp; Adventure Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/animation-fans.mp4" data-illo-cat="entertainment" data-illo-search="animation fans entertainment" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/animation-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Animation Fans<small><span class="illo-dot" style="background:#9F56FF"></span>Entertainment</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/animation-fans.jpg" download="animation-fans.jpg" aria-label="Download Animation Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/animation-fans.mp4" download="animation-fans.mp4" aria-label="Download Animation Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/comedy-fans.mp4" data-illo-cat="entertainment" data-illo-search="comedy fans entertainment" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/comedy-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Comedy Fans<small><span class="illo-dot" style="background:#9F56FF"></span>Entertainment</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/comedy-fans.jpg" download="comedy-fans.jpg" aria-label="Download Comedy Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/comedy-fans.mp4" download="comedy-fans.mp4" aria-label="Download Comedy Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/horror-fans.mp4" data-illo-cat="entertainment" data-illo-search="horror fans entertainment" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/horror-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Horror Fans<small><span class="illo-dot" style="background:#9F56FF"></span>Entertainment</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/horror-fans.jpg" download="horror-fans.jpg" aria-label="Download Horror Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/horror-fans.mp4" download="horror-fans.mp4" aria-label="Download Horror Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/music-concert-goers.mp4" data-illo-cat="entertainment" data-illo-search="music &amp; concert goers entertainment" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/music-concert-goers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Music &amp; Concert Goers<small><span class="illo-dot" style="background:#9F56FF"></span>Entertainment</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/music-concert-goers.jpg" download="music-concert-goers.jpg" aria-label="Download Music &amp; Concert Goers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/music-concert-goers.mp4" download="music-concert-goers.mp4" aria-label="Download Music &amp; Concert Goers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/rom-com-fans.mp4" data-illo-cat="entertainment" data-illo-search="rom-com fans entertainment" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/rom-com-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Rom-Com Fans<small><span class="illo-dot" style="background:#9F56FF"></span>Entertainment</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/rom-com-fans.jpg" download="rom-com-fans.jpg" aria-label="Download Rom-Com Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/rom-com-fans.mp4" download="rom-com-fans.mp4" aria-label="Download Rom-Com Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/sci-fi-fantasy-fans.mp4" data-illo-cat="entertainment" data-illo-search="sci-fi &amp; fantasy fans entertainment" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/sci-fi-fantasy-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Sci-fi &amp; Fantasy Fans<small><span class="illo-dot" style="background:#9F56FF"></span>Entertainment</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/sci-fi-fantasy-fans.jpg" download="sci-fi-fantasy-fans.jpg" aria-label="Download Sci-fi &amp; Fantasy Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/sci-fi-fantasy-fans.mp4" download="sci-fi-fantasy-fans.mp4" aria-label="Download Sci-fi &amp; Fantasy Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/adventure-seekers.mp4" data-illo-cat="trendsetter" data-illo-search="adventure seekers trendsetter" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/adventure-seekers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Adventure Seekers<small><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/adventure-seekers.jpg" download="adventure-seekers.jpg" aria-label="Download Adventure Seekers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/adventure-seekers.mp4" download="adventure-seekers.mp4" aria-label="Download Adventure Seekers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/automotive-fans.mp4" data-illo-cat="trendsetter" data-illo-search="automotive fans trendsetter" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/automotive-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Automotive Fans<small><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/automotive-fans.jpg" download="automotive-fans.jpg" aria-label="Download Automotive Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/automotive-fans.mp4" download="automotive-fans.mp4" aria-label="Download Automotive Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/environmentalist.mp4" data-illo-cat="trendsetter" data-illo-search="environmentalist trendsetter" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/environmentalist.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Environmentalist<small><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/environmentalist.jpg" download="environmentalist.jpg" aria-label="Download Environmentalist still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/environmentalist.mp4" download="environmentalist.mp4" aria-label="Download Environmentalist loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/fashion-icons.mp4" data-illo-cat="trendsetter" data-illo-search="fashion icons trendsetter" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/fashion-icons.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Fashion Icons<small><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/fashion-icons.jpg" download="fashion-icons.jpg" aria-label="Download Fashion Icons still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/fashion-icons.mp4" download="fashion-icons.mp4" aria-label="Download Fashion Icons loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/foodies.mp4" data-illo-cat="trendsetter" data-illo-search="foodies trendsetter" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/foodies.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Foodies<small><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/foodies.jpg" download="foodies.jpg" aria-label="Download Foodies still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/foodies.mp4" download="foodies.mp4" aria-label="Download Foodies loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/gadget-gurus.mp4" data-illo-cat="trendsetter" data-illo-search="gadget gurus trendsetter" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/gadget-gurus.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Gadget Gurus<small><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/gadget-gurus.jpg" download="gadget-gurus.jpg" aria-label="Download Gadget Gurus still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/gadget-gurus.mp4" download="gadget-gurus.mp4" aria-label="Download Gadget Gurus loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/luxury-seekers.mp4" data-illo-cat="trendsetter" data-illo-search="luxury seekers trendsetter" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/luxury-seekers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Luxury Seekers<small><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/luxury-seekers.jpg" download="luxury-seekers.jpg" aria-label="Download Luxury Seekers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/luxury-seekers.mp4" download="luxury-seekers.mp4" aria-label="Download Luxury Seekers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/wellness-explorers.mp4" data-illo-cat="trendsetter" data-illo-search="wellness explorers trendsetter" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/wellness-explorers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Wellness Explorers<small><span class="illo-dot" style="background:#FF7A90"></span>Trendsetter</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/wellness-explorers.jpg" download="wellness-explorers.jpg" aria-label="Download Wellness Explorers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/wellness-explorers.mp4" download="wellness-explorers.mp4" aria-label="Download Wellness Explorers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/badminton-fans.mp4" data-illo-cat="sports" data-illo-search="badminton fans sports" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/badminton-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Badminton Fans<small><span class="illo-dot" style="background:#FD3343"></span>Sports</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/badminton-fans.jpg" download="badminton-fans.jpg" aria-label="Download Badminton Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/badminton-fans.mp4" download="badminton-fans.mp4" aria-label="Download Badminton Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/e-sports-fans.mp4" data-illo-cat="sports" data-illo-search="e-sports fans sports" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/e-sports-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">E-sports Fans<small><span class="illo-dot" style="background:#FD3343"></span>Sports</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/e-sports-fans.jpg" download="e-sports-fans.jpg" aria-label="Download E-sports Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/e-sports-fans.mp4" download="e-sports-fans.mp4" aria-label="Download E-sports Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/epl-fans.mp4" data-illo-cat="sports" data-illo-search="epl fans sports" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/epl-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">EPL Fans<small><span class="illo-dot" style="background:#FD3343"></span>Sports</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/epl-fans.jpg" download="epl-fans.jpg" aria-label="Download EPL Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/epl-fans.mp4" download="epl-fans.mp4" aria-label="Download EPL Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/golf-fans.mp4" data-illo-cat="sports" data-illo-search="golf fans sports" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/golf-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Golf Fans<small><span class="illo-dot" style="background:#FD3343"></span>Sports</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/golf-fans.jpg" download="golf-fans.jpg" aria-label="Download Golf Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/golf-fans.mp4" download="golf-fans.mp4" aria-label="Download Golf Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/mfl-fans.mp4" data-illo-cat="sports" data-illo-search="mfl fans sports" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/mfl-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">MFL Fans<small><span class="illo-dot" style="background:#FD3343"></span>Sports</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/mfl-fans.jpg" download="mfl-fans.jpg" aria-label="Download MFL Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/mfl-fans.mp4" download="mfl-fans.mp4" aria-label="Download MFL Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/sepak-takraw-fans.mp4" data-illo-cat="sports" data-illo-search="sepak takraw fans sports" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/sepak-takraw-fans.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Sepak Takraw Fans<small><span class="illo-dot" style="background:#FD3343"></span>Sports</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/sepak-takraw-fans.jpg" download="sepak-takraw-fans.jpg" aria-label="Download Sepak Takraw Fans still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/sepak-takraw-fans.mp4" download="sepak-takraw-fans.mp4" aria-label="Download Sepak Takraw Fans loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/automotive-buyers.mp4" data-illo-cat="shopping-intent" data-illo-search="automotive buyers shopping intent" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/automotive-buyers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Automotive Buyers<small><span class="illo-dot" style="background:#FF5825"></span>Shopping intent</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/automotive-buyers.jpg" download="automotive-buyers.jpg" aria-label="Download Automotive Buyers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/automotive-buyers.mp4" download="automotive-buyers.mp4" aria-label="Download Automotive Buyers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/health-wellness-buyers.mp4" data-illo-cat="shopping-intent" data-illo-search="health &amp; wellness buyers shopping intent" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/health-wellness-buyers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Health &amp; Wellness Buyers<small><span class="illo-dot" style="background:#FF5825"></span>Shopping intent</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/health-wellness-buyers.jpg" download="health-wellness-buyers.jpg" aria-label="Download Health &amp; Wellness Buyers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/health-wellness-buyers.mp4" download="health-wellness-buyers.mp4" aria-label="Download Health &amp; Wellness Buyers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/home-buyers.mp4" data-illo-cat="shopping-intent" data-illo-search="home buyers shopping intent" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/home-buyers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Home Buyers<small><span class="illo-dot" style="background:#FF5825"></span>Shopping intent</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/home-buyers.jpg" download="home-buyers.jpg" aria-label="Download Home Buyers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/home-buyers.mp4" download="home-buyers.mp4" aria-label="Download Home Buyers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/luxury-buyers.mp4" data-illo-cat="shopping-intent" data-illo-search="luxury buyers shopping intent" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/luxury-buyers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Luxury Buyers<small><span class="illo-dot" style="background:#FF5825"></span>Shopping intent</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/luxury-buyers.jpg" download="luxury-buyers.jpg" aria-label="Download Luxury Buyers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/luxury-buyers.mp4" download="luxury-buyers.mp4" aria-label="Download Luxury Buyers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/online-shoppers.mp4" data-illo-cat="shopping-intent" data-illo-search="online shoppers shopping intent" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/online-shoppers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Online Shoppers<small><span class="illo-dot" style="background:#FF5825"></span>Shopping intent</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/online-shoppers.jpg" download="online-shoppers.jpg" aria-label="Download Online Shoppers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/online-shoppers.mp4" download="online-shoppers.mp4" aria-label="Download Online Shoppers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/tech-gadget-buyers.mp4" data-illo-cat="shopping-intent" data-illo-search="tech &amp; gadget buyers shopping intent" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/tech-gadget-buyers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Tech &amp; Gadget Buyers<small><span class="illo-dot" style="background:#FF5825"></span>Shopping intent</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/tech-gadget-buyers.jpg" download="tech-gadget-buyers.jpg" aria-label="Download Tech &amp; Gadget Buyers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/tech-gadget-buyers.mp4" download="tech-gadget-buyers.mp4" aria-label="Download Tech &amp; Gadget Buyers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+            <figure class="illo-card js-illo" tabindex="0" data-loop="illustrations/clips-web/travel-experience-seekers.mp4" data-illo-cat="shopping-intent" data-illo-search="travel &amp; experience seekers shopping intent" hidden>
+              <div class="illo-frame"><img src="illustrations/stills-web/travel-experience-seekers.jpg" alt="" width="700" height="522" loading="lazy" /></div>
+              <figcaption>
+                <span class="illo-name">Travel &amp; Experience Seekers<small><span class="illo-dot" style="background:#FF5825"></span>Shopping intent</small></span>
+                <a class="c-icon-btn illo-dl" href="illustrations/stills-web/travel-experience-seekers.jpg" download="travel-experience-seekers.jpg" aria-label="Download Travel &amp; Experience Seekers still (JPG)" title="Download still (JPG)"><i class="ph ph-image"></i></a>
+                <a class="c-icon-btn illo-dl" href="illustrations/clips-web/travel-experience-seekers.mp4" download="travel-experience-seekers.mp4" aria-label="Download Travel &amp; Experience Seekers loop (MP4)" title="Download loop (MP4)"><i class="ph ph-film-strip"></i></a>
+              </figcaption>
+            </figure>
+        </div>
+
+        <div class="swatch-group-label">Good to know</div>
+        <ul class="illo-list">
+          <li><b>Motion:</b> each character has a 4-second seamless loop made from its still.</li>
+          <li><b>In UI:</b> on Canvas warm, full 4:3 frame, at least 160px wide. The loop plays on hover only, muted, and never under reduced motion.</li>
+          <li><b>Settled:</b> hands have fingers, never a nose, and extra blobs only when a segment is plural.</li>
+        </ul>
+
+        <div class="swatch-group-label">Acceptance checklist</div>
+        <ul class="illo-checklist">
+          <li><i class="ph-fill ph-check-circle"></i><span>One flat body colour &mdash; no outline or gradient</span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>Face: two dots, a tick brow, a smile &mdash; <b>no nose</b></span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>All lines <code>#2B2B2C</code>, one weight</span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>Body colour matches the category</span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>Two accents at most, from the approved list</span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>Empty <code>#FCFAF5</code> background, one ground line</span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>Full body in frame, margin all round</span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>No text, logos or watermarks</span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>Props readable at thumbnail size</span></li>
+          <li><i class="ph-fill ph-check-circle"></i><span>Loop ends on the opening pose</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="spacing">
+      <div class="shell">
+        <p class="kicker">07 &middot; Foundations</p>
         <h2 class="section-title">Spacing &amp; Shape</h2>
         <p class="lede">4pt base grid. Collabrium is a product surface, not a marketing page &mdash; most layouts run full-bleed within the app shell rather than centering. Radius is per-surface, not one flat scale. Values sourced from a teammate's fuller extraction of the same source deck &mdash; see DESIGN.md Changelog.</p>
 
@@ -1094,7 +1625,7 @@
 
     <section id="guidelines">
       <div class="shell">
-        <p class="kicker">07 &middot; Reference</p>
+        <p class="kicker">08 &middot; Reference</p>
         <h2 class="section-title">Guidelines</h2>
         <p class="lede">The condensed, skimmable version of every rule in this system. Full detail and rationale in the DESIGN.md tab.</p>
         <div class="guide-cols">
@@ -1114,6 +1645,7 @@
               <li><i class="ph-fill ph-check"></i>Keep radius soft: 20px cards, 16px buttons, 12px inputs. Never below 12px on an interactive surface.</li>
               <li><i class="ph-fill ph-check"></i>Give every interactive component its full state set: hover, active, focus, disabled, error.</li>
               <li><i class="ph-fill ph-check"></i>Right-align numeric table columns with tabular figures.</li>
+              <li><i class="ph-fill ph-check"></i>Read the character bible in full before generating any illustration, follow it exactly, and attach its reference image.</li>
             </ul>
           </div>
           <div class="guide-col dont">
@@ -1129,6 +1661,7 @@
               <li><i class="ph-fill ph-x"></i>Never use a radius outside the token set (radius-sm/md/lg/pill/link).</li>
               <li><i class="ph-fill ph-x"></i>Never tint a surface with an element that doesn't own its content, and never at full or mid strength.</li>
               <li><i class="ph-fill ph-x"></i>Never add bounce or overshoot easing &mdash; movement settles.</li>
+              <li><i class="ph-fill ph-x"></i>Never draw, generate or source an illustration outside the blob character style, or give a character a colour of its own.</li>
               <li><i class="ph-fill ph-x"></i>Never use placeholder text as a substitute for a real label.</li>
               <li><i class="ph-fill ph-x"></i>Never use a modal for a multi-step flow.</li>
               <li><i class="ph-fill ph-x"></i>Never let a table exceed ~8&ndash;10 visible columns without a collapse pattern.</li>
@@ -1141,7 +1674,7 @@
 
     <section id="components">
       <div class="shell">
-        <p class="kicker">08 &middot; Reference</p>
+        <p class="kicker">09 &middot; Reference</p>
         <h2 class="section-title">Components</h2>
         <p class="lede">A live, interactive reference for every Collabrium component &mdash; buttons, inputs, navigation, data display, and feedback patterns &mdash; each with real markup you can copy directly into a build. Full variant/state tables and Do/Don't rationale live in the DESIGN.md tab; this gallery is the same spec, rendered rather than described.</p>
 
@@ -4720,6 +5253,18 @@ over mechanical ones (sync, deploy, restore).
   (`--ease-flow` for Water, `--ease-flare` for Fire, etc.), `--ease-standard`
   otherwise. Durations 80–900ms.
 
+## Using this folder in another project
+
+This folder is **read-only** wherever it's copied. Build your screens from
+it — `DESIGN-SYSTEM.md` (source of truth), `tokens.css`, `components.css`,
+and `preview.html` for working markup — but never add, edit or delete
+anything inside it: components, tokens, docs, logos or illustrations. If
+something is missing, build it in your product's own code from the existing
+tokens and components, and ask the Collabrium design system team to add it
+upstream. `CLAUDE.md` in this folder has the full rules and a one-time setup
+(an import line for your project's `CLAUDE.md`, and a setting that blocks
+edits to this folder).
+
 ## Before you build
 
 1. Check the **Needs Input** list at the top of `DESIGN-SYSTEM.md`. Most
@@ -4739,6 +5284,14 @@ over mechanical ones (sync, deploy, restore).
    department-specific (see DESIGN-SYSTEM.md's Logo section for the
    full rule). Never extract a still frame from `logo.html` as a
    substitute lockup.
+5. For illustrations: **read `illustrations/illustration-characters-bible.md`
+   in full before generating any illustration, and follow it exactly** —
+   its prompt structure, models and settings, the reference image it names
+   (`illustrations/reference/malay.jpg`, always attached), and its
+   acceptance checklist. Every illustration is one of its blob characters;
+   never draw, generate or source another style. If the reference image is
+   missing or a category has no colour yet, stop and ask. The finished set
+   is in `illustrations/` (`characters.json` lists it).
 
 ## Version
 
@@ -4751,7 +5304,7 @@ button next to the version flag in the top bar.
 
 <script type="text/plain" id="src-md-extended"># Collabrium Design Language System
 
-**v0.9.127** — 2026-10-27 — Sourced from the Collabrium brand deck
+**v0.9.128** — 2026-10-29 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -4877,6 +5430,14 @@ extraction):
 |---|---|---|
 | Red | `#FD3343` | Errors, destructive actions, invalid input |
 | Green | `#00C26E` | Success icons, valid input. Canonical value (Needs Input #2, resolved — deck's stated hex duplicated Red) |
+
+**In illustrations, colours only sort.** The [Illustration](#illustration)
+style uses the five element colours plus Red, Purple and Turquoise as the
+Audience characters' category body colours: Sports is Red, Entertainment is
+Purple, Life stage is Turquoise. There a colour names a category and nothing
+else. Sports red is not an error, and an illustration's colour never means
+"click me". Neither use is a precedent for the other: Red stays the error
+colour in UI, and it isn't a category colour outside illustrations.
 
 #### Status tints
 
@@ -5142,6 +5703,98 @@ surface where that element's color is already established.
 | icon-lg | 32px | Department indicators, feature highlights, onboarding steps |
 | icon-empty | 48px | Empty state panels, zero-data views, section placeholders |
 | icon-hero | 64px | Full-page empty states, first-run onboarding, error pages |
+
+---
+
+## Illustration
+
+**Source of truth:
+[`illustrations/illustration-characters-bible.md`](illustrations/illustration-characters-bible.md).**
+This section summarises it; the bible holds the full brief, the exact prompt
+text and the rulings, and wins wherever the two differ. **Before generating
+any illustration, read the bible in full and follow it exactly**, with its
+reference image ([`illustrations/reference/malay.jpg`](illustrations/reference/malay.jpg))
+attached. The same rule is in `SKILL.md` and the repo's `CLAUDE.md`.
+
+**Concept.** Every Collabrium illustration is a **blob character**: one soft
+squircle body in a single flat colour, a tiny ink face, and thin noodle limbs,
+drawn as flat 2D editorial doodles on an empty Canvas warm background.
+Playful, warm and confident; Scandinavian-modern; never rendered. Characters
+belong to **families**. The first is **Audience characters**: one per
+audience segment, 51 so far, listed in `illustrations/characters.json`. A new
+family needs its own section in the bible before anything is drawn for it.
+
+**Anatomy.** The invariants that make separately generated characters read as
+one family:
+
+| Part | Rule |
+|---|---|
+| Body | One soft squircle, no neck, no torso detail. One flat colour: no gradient, no shading, no outline |
+| Face | Tiny, high on the body: two dot eyes, one short tick brow, one curved smile. **No nose**, no mouth interior |
+| Limbs and hands | Thin single-weight ink lines, long noodle legs, small flat feet, no shoes. Hands have articulated fingers |
+| Props and accents | The same thin ink line with flat colour fills. Accents are small hand-drawn marks only: sparkles, motion ticks, dots |
+| Ground and background | One short ground line under the feet. Background flat Canvas warm, completely empty |
+| Framing | Full body in frame, generous margin, centred, 4:3 |
+
+**Colour.** Every line, the face included, is ink `#2B2B2C` (Obsidian) at one
+weight. The background is `#FCFAF5` (Canvas warm), baked into the image. The
+body colour comes from the family's colour rule, plus at most two accents, for
+props and sparkles only. Five colours per character at most. For Audience
+characters, **colour belongs to the category, not the character**:
+
+| Category | Characters | Body colour |
+|---|---|---|
+| Ethnicity | 3 | `#00C26E` Green (Earth) |
+| Life stage | 12 | `#00D9D9` Turquoise |
+| Income group | 4 | `#FFA425` Amber (Gold) |
+| Business & professionals | 4 | `#1473E6` Navy (Water) |
+| Entertainment | 7 | `#9F56FF` Purple |
+| Trendsetter | 8 | `#FF7A90` Salmon Pink (Wood) |
+| Sports | 6 | `#FD3343` Red |
+| Shopping intent | 7 | `#FF5825` Orange (Fire) |
+
+See [Color Palette](#color-palette) — in illustrations these colours only
+sort.
+
+**Motion.** Each character has a 4-second loop made from its still: locked
+camera, identical design, 2D cel animation with a snappy ease-out and a small
+overshoot, gentle squash-and-stretch, limbs trailing a couple of frames, and
+sparkles that pop on the peak. It settles back to the exact opening pose, so
+it loops seamlessly. That small overshoot lives inside the character's own
+animation, in the video. It isn't interface easing: every UI transition
+around an illustration still settles, per [Guidelines](#guidelines).
+
+**In UI:**
+
+- Only on Canvas warm, or inside a frame filled with it; on white the baked-in
+  background shows as a box.
+- Always the full 4:3 frame, at least 160px wide. Never crop into the margin,
+  flip, recolour, or put text or badges on the character.
+- Decorative (`alt=""`) when the character's name is shown beside it;
+  otherwise the name plus "character" ("Foodies character").
+- The still shows by default. The loop plays only while its item is hovered,
+  focused or open, one at a time, muted, inline, with the still as poster —
+  as [Card](#card)'s Metrics card does. Under reduced motion the loop never
+  loads. No sound, ever.
+
+**Rulings already made** — don't relitigate them per character:
+
+1. **Hands have fingers.** The reference shows them and the model follows the
+   reference; any older text saying "mittens" is stale.
+2. **No nose, ever.** The style lock in the bible's prompt removes the one the
+   model otherwise adds.
+3. **Companions only when the segment is plural.** Four characters show more
+   than one blob (Young Families, Family Dynamic, The Dynamic Duo, New
+   Mothers). Companions share the main character's colour and every anatomy
+   rule.
+
+**Do:** read the bible before every generation, attach the reference, pass
+the acceptance checklist, and add new characters to `characters.json` and the
+Changelog.
+
+**Don't:** draw, generate or source an illustration in any other style; give a
+character a colour of its own; add scenery, text, gradients or shadows; or use
+an illustration as an icon, a status or a logo.
 
 ---
 
@@ -14575,6 +15228,9 @@ read one section before building, read this one.
   focus-visible, disabled, plus error for anything that takes input.
 - Right-align numeric table columns and use tabular figures where the
   font supports them.
+- Read `illustrations/illustration-characters-bible.md` in full before
+  generating any illustration, follow it exactly, and attach its reference
+  image (see [Illustration](#illustration)).
 - Always render a real `<label>` on form inputs, even if visually hidden.
 
 ### Don't
@@ -14601,6 +15257,9 @@ read one section before building, read this one.
 - Never tint a surface with an element that doesn't own its content, and
   never at full or mid strength — `-bg`/`-bg-strong` only.
 - Never add bounce or overshoot easing — movement settles.
+- Never draw, generate or source an illustration outside the blob
+  character style, or give a character a colour of its own (see
+  [Illustration](#illustration)).
 - Never use placeholder text as a substitute for a real label.
 - Never use a modal for a multi-step flow — modals are for one focused
   decision; multi-step work needs a full page or panel.
@@ -14763,6 +15422,47 @@ time it loads, so those can't fall behind; its hard-coded values are only
 a fallback for the moment before the script runs, and should match too.
 If the top stamp or a fallback is behind, the gallery says so in the
 browser console.
+
+- **v0.9.128 — 2026-10-29** — New **[Illustration](#illustration)**
+  foundation. Every Collabrium illustration is now a **blob character**: one
+  flat-colour squircle body, a tiny ink face and thin noodle limbs, on an
+  empty Canvas warm background. Characters come in families; the first is
+  **Audience characters**, 51 of them, each with a still and a 4-second loop.
+
+  **The character bible is the source.**
+  `illustrations/illustration-characters-bible.md`, renamed from
+  `AUDIENCECHARACTERS.md` and moved into `collabrium-dls/` (now v1.2), holds
+  the prompt, the models, the rulings and the acceptance checklist. The rule
+  to read it in full and follow it exactly before generating any illustration,
+  with its reference image attached, is in the new section, in `SKILL.md` and
+  in the repo's `CLAUDE.md`. The reference image is Malay,
+  `illustrations/reference/malay.jpg`, since the original was never kept.
+
+  **What's in the folder.** The 51 web stills and 51 loops, copied from
+  collab-media into `stills-web/` and `clips-web/`, and `characters.json`,
+  which lists each character's name, category, body colour and files. Bible
+  v1.2 makes the style the house style, with category colours scoped to the
+  Audience family, and adds file naming, the web export spec, rules for using
+  illustrations in UI, and how to add a character, a category or a family.
+
+  **In the spec.** The Illustration section sits after Iconography and points
+  to the bible rather than copying its prompts. The Color section notes that
+  in illustrations colours only sort: Sports red is not an error. The loops'
+  small overshoot is recorded as part of the character's own animation, so UI
+  motion still settles. Guidelines gains one Do and one Don't.
+
+  **In the gallery**, Foundations → 06 Illustration shows the concept beside
+  the reference image, which plays on hover. The library has a search that
+  matches names and categories, and a tab per category showing its colour and
+  hex. Cards are larger, three to four a row. Hovering or focusing one plays
+  its loop, muted and one at a time, never under reduced motion, and the still
+  or loop downloads from beside its name. Spacing, Guidelines and Components
+  move to 07–09.
+
+  Files: the new `collabrium-dls/illustrations/` folder; `DESIGN-SYSTEM.md`
+  (the Illustration section, the Color note and Guidelines); `SKILL.md`;
+  `CLAUDE.md`; and `preview.html`. The version stamps move from v0.9.127 to
+  v0.9.128.
 
 - **v0.9.127 — 2026-10-27** — Two token groups added for values the React
   library repeats. `--measure-prose` (760px) is the reading width of Chat
@@ -22292,6 +22992,127 @@ document.getElementById('changelogBackBtn').addEventListener('click', () => {
       next.focus(); pickScenario(next);
     });
   });
+})();
+
+/* ---------- Illustration — browse, play, download ----------
+   Per DESIGN-SYSTEM.md's Illustration → In UI. Tabs show one category
+   at a time, with its colour above the grid; typing in the search
+   matches names and category names across the whole library (the tabs
+   step aside until it's cleared). A card's still shows by
+   default; its loop is created on first hover or focus, shown once it's
+   actually playing, and stopped when the pointer and focus leave. One
+   plays at a time, muted; under reduced motion nothing loads. */
+(function(){
+  const grid = document.querySelector('.js-illo-grid');
+  if(!grid) return;
+  const cards = [...grid.querySelectorAll('.js-illo')];
+  const players = [...document.querySelectorAll('.js-illo')];   // library cards + the concept's reference
+  const tabs = [...document.querySelectorAll('.js-illo-tabs .c-tab')];
+  const tabWrap = document.querySelector('.js-illo-tabwrap');
+  const tabList = document.querySelector('.js-illo-tabs');
+  const search = document.querySelector('.js-illo-search');
+  const clear = document.querySelector('.js-illo-clear');
+  const head = document.querySelector('.js-illo-head');
+  const headName = head.querySelector('.js-illo-head-name');
+  const headHex = head.querySelector('.js-illo-head-hex');
+  const headSwatch = head.querySelector('.illo-swatch');
+  const headCount = head.querySelector('.js-illo-head-count');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let current = null;
+  let activeCat = tabs[0].dataset.illoCat;
+
+  /* playback */
+  function stop(card){
+    const v = card && card.querySelector('video');
+    if(v){ v.pause(); v.classList.remove('is-playing'); try { v.currentTime = 0; } catch(e) {} }
+    if(current === card) current = null;
+  }
+  function play(card){
+    if(reduce.matches || current === card) return;
+    if(current) stop(current);
+    current = card;
+    let v = card.querySelector('video');
+    if(!v){
+      v = document.createElement('video');
+      v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+      v.poster = card.querySelector('img').src;
+      v.src = card.dataset.loop;
+      v.addEventListener('playing', () => { if(current === card) v.classList.add('is-playing'); });
+      card.querySelector('.illo-frame').appendChild(v);
+    }
+    const p = v.play(); if(p && p.catch) p.catch(() => {});
+  }
+  players.forEach(card => {
+    card.addEventListener('mouseenter', () => play(card));
+    card.addEventListener('mouseleave', () => { if(!card.contains(document.activeElement)) stop(card); });
+    card.addEventListener('focusin', () => play(card));
+    card.addEventListener('focusout', e => { if(!card.contains(e.relatedTarget)) stop(card); });
+  });
+
+  /* browsing */
+  function show(){
+    const q = search.value.trim().toLowerCase();
+    if(current) stop(current);
+    grid.classList.toggle('is-searching', !!q);
+    tabWrap.style.opacity = q ? '.4' : '';
+    let n = 0;
+    cards.forEach(card => {
+      const on = q ? card.dataset.illoSearch.includes(q) : card.dataset.illoCat === activeCat;
+      card.hidden = !on;
+      if(on) n++;
+    });
+    clear.hidden = !q;
+    head.classList.toggle('is-search', !!q);
+    if(q){
+      headName.textContent = n ? 'Search results' : 'No matches';
+      headCount.textContent = n ? n + (n === 1 ? ' character matches' : ' characters match') + ' \u201c' + search.value.trim() + '\u201d' : 'Nothing matches \u201c' + search.value.trim() + '\u201d. Try a name or a category, like \u201cSports\u201d.';
+    } else {
+      const tab = tabs.find(t => t.dataset.illoCat === activeCat);
+      headName.textContent = tab.textContent.replace(/\d+$/, '').trim();
+      headSwatch.style.background = tab.dataset.illoColour;
+      headHex.textContent = tab.dataset.illoColour;
+      headCount.textContent = tab.dataset.illoCount + ' characters';
+    }
+  }
+  function selectTab(tab, focus){
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+    });
+    activeCat = tab.dataset.illoCat;
+    if(search.value){ search.value = ''; }
+    if(focus) tab.focus();
+    // keep the picked tab in view inside the scrolling strip
+    const l = tab.offsetLeft - tabList.offsetLeft, r = l + tab.offsetWidth;
+    if(l < tabList.scrollLeft) tabList.scrollLeft = l - 16;
+    else if(r > tabList.scrollLeft + tabList.clientWidth) tabList.scrollLeft = r - tabList.clientWidth + 16;
+    show();
+  }
+  tabs.forEach(t => t.addEventListener('click', () => selectTab(t, false)));
+  tabList.addEventListener('keydown', e => {
+    const i = tabs.indexOf(document.activeElement);
+    if(i < 0) return;
+    let next = null;
+    if(e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+    else if(e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+    else if(e.key === 'Home') next = tabs[0];
+    else if(e.key === 'End') next = tabs[tabs.length - 1];
+    if(next){ e.preventDefault(); selectTab(next, true); }
+  });
+  search.addEventListener('input', show);
+  search.addEventListener('keydown', e => { if(e.key === 'Escape' && search.value){ search.value = ''; show(); } });
+  clear.addEventListener('click', () => { search.value = ''; show(); search.focus(); });
+
+  /* tab strip edge fades (Tabs' own scroll-wrap convention) */
+  function fades(){
+    tabWrap.classList.toggle('show-left', tabList.scrollLeft > 2);
+    tabWrap.classList.toggle('show-right', tabList.scrollLeft + tabList.clientWidth < tabList.scrollWidth - 2);
+  }
+  tabList.addEventListener('scroll', fades, {passive:true});
+  new ResizeObserver(fades).observe(tabList);
 })();
 
 /* ---------- Site SidebarNav — replaces the old horizontal jumpnav ---------- */

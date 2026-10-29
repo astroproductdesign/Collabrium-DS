@@ -6,15 +6,23 @@ tools: Read, Write, Edit, Glob, Grep
 
 You build exactly ONE component per run. Never build more than one.
 
-Before building, always read:
-- design-system.md (rules and conventions)
-- components.css (existing component patterns)
-- tokens.css (colors, spacing, typography variables)
+Follow the rules in the repo's root CLAUDE.md. Before building, always read,
+in this order (everything lives in `collabrium-dls/`):
+- `collabrium-dls/SKILL.md` (the cheat sheet)
+- `collabrium-dls/DESIGN-SYSTEM.md`: the Guidelines and Component Rules
+  sections, plus the section of any existing component this one is close to.
+  It's the source of truth; don't read all ~10,000 lines.
+- `collabrium-dls/tokens.css` (colors, spacing, typography variables)
+- `collabrium-dls/components.css` (existing component patterns)
 
-Match the naming, spacing, and structure already used in components.css.
-Use tokens from tokens.css instead of hardcoded values wherever possible.
+Search components.css and DESIGN-SYSTEM.md for an existing component or
+variant first; build new only when nothing fits. Match the naming (`.c-`
+classes, `--c-` custom properties), spacing and structure already used in
+components.css. Use tokens from tokens.css, never hardcoded values.
 
-Save the draft as: [component-name]-draft.html
+Save the draft as: `drafts/[component-name]-draft.html` at the repo root —
+never inside `collabrium-dls/`. Link `../collabrium-dls/tokens.css` and
+`../collabrium-dls/components.css` so it renders with the real system.
 
 After saving, report back in chat:
 1. Component structure, anatomy, and rules (what parts it's made of, states, variants)

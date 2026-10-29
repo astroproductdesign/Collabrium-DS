@@ -1,0 +1,461 @@
+{
+  "family": "Audience characters",
+  "bible": "illustration-characters-bible.md",
+  "reference": "reference/malay.jpg",
+  "categories": [
+    {
+      "name": "Ethnicity",
+      "bodyColour": "#00C26E",
+      "count": 3
+    },
+    {
+      "name": "Life stage",
+      "bodyColour": "#00D9D9",
+      "count": 12
+    },
+    {
+      "name": "Income group",
+      "bodyColour": "#FFA425",
+      "count": 4
+    },
+    {
+      "name": "Business & professionals",
+      "bodyColour": "#1473E6",
+      "count": 4
+    },
+    {
+      "name": "Entertainment",
+      "bodyColour": "#9F56FF",
+      "count": 7
+    },
+    {
+      "name": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "count": 8
+    },
+    {
+      "name": "Sports",
+      "bodyColour": "#FD3343",
+      "count": 6
+    },
+    {
+      "name": "Shopping intent",
+      "bodyColour": "#FF5825",
+      "count": 7
+    }
+  ],
+  "characters": [
+    {
+      "id": "chinese",
+      "name": "Chinese",
+      "category": "Ethnicity",
+      "bodyColour": "#00C26E",
+      "still": "stills-web/chinese.jpg",
+      "loop": "clips-web/chinese.mp4"
+    },
+    {
+      "id": "indian",
+      "name": "Indian",
+      "category": "Ethnicity",
+      "bodyColour": "#00C26E",
+      "still": "stills-web/indian.jpg",
+      "loop": "clips-web/indian.mp4"
+    },
+    {
+      "id": "malay",
+      "name": "Malay",
+      "category": "Ethnicity",
+      "bodyColour": "#00C26E",
+      "still": "stills-web/malay.jpg",
+      "loop": "clips-web/malay.mp4"
+    },
+    {
+      "id": "baby-boomers",
+      "name": "Baby Boomers",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/baby-boomers.jpg",
+      "loop": "clips-web/baby-boomers.mp4"
+    },
+    {
+      "id": "experienced-mothers",
+      "name": "Experienced Mothers",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/experienced-mothers.jpg",
+      "loop": "clips-web/experienced-mothers.mp4"
+    },
+    {
+      "id": "family-dynamic",
+      "name": "Family Dynamic",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/family-dynamic.jpg",
+      "loop": "clips-web/family-dynamic.mp4",
+      "companions": true
+    },
+    {
+      "id": "gen-x",
+      "name": "Gen X",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/gen-x.jpg",
+      "loop": "clips-web/gen-x.mp4"
+    },
+    {
+      "id": "gen-z",
+      "name": "Gen Z",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/gen-z.jpg",
+      "loop": "clips-web/gen-z.mp4"
+    },
+    {
+      "id": "millennials",
+      "name": "Millennials",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/millennials.jpg",
+      "loop": "clips-web/millennials.mp4"
+    },
+    {
+      "id": "new-mothers",
+      "name": "New Mothers",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/new-mothers.jpg",
+      "loop": "clips-web/new-mothers.mp4",
+      "companions": true
+    },
+    {
+      "id": "solo-lifestylers",
+      "name": "Solo Lifestylers",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/solo-lifestylers.jpg",
+      "loop": "clips-web/solo-lifestylers.mp4"
+    },
+    {
+      "id": "student",
+      "name": "Student",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/student.jpg",
+      "loop": "clips-web/student.mp4"
+    },
+    {
+      "id": "the-dynamic-duo",
+      "name": "The Dynamic Duo",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/the-dynamic-duo.jpg",
+      "loop": "clips-web/the-dynamic-duo.mp4",
+      "companions": true
+    },
+    {
+      "id": "young-families",
+      "name": "Young Families",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/young-families.jpg",
+      "loop": "clips-web/young-families.mp4",
+      "companions": true
+    },
+    {
+      "id": "young-working-adult",
+      "name": "Young Working Adult",
+      "category": "Life stage",
+      "bodyColour": "#00D9D9",
+      "still": "stills-web/young-working-adult.jpg",
+      "loop": "clips-web/young-working-adult.mp4"
+    },
+    {
+      "id": "b40",
+      "name": "B40",
+      "category": "Income group",
+      "bodyColour": "#FFA425",
+      "still": "stills-web/b40.jpg",
+      "loop": "clips-web/b40.mp4"
+    },
+    {
+      "id": "m40",
+      "name": "M40",
+      "category": "Income group",
+      "bodyColour": "#FFA425",
+      "still": "stills-web/m40.jpg",
+      "loop": "clips-web/m40.mp4"
+    },
+    {
+      "id": "t15",
+      "name": "T15",
+      "category": "Income group",
+      "bodyColour": "#FFA425",
+      "still": "stills-web/t15.jpg",
+      "loop": "clips-web/t15.mp4"
+    },
+    {
+      "id": "t20",
+      "name": "T20",
+      "category": "Income group",
+      "bodyColour": "#FFA425",
+      "still": "stills-web/t20.jpg",
+      "loop": "clips-web/t20.mp4"
+    },
+    {
+      "id": "corporate-leaders",
+      "name": "Corporate Leaders",
+      "category": "Business & professionals",
+      "bodyColour": "#1473E6",
+      "still": "stills-web/corporate-leaders.jpg",
+      "loop": "clips-web/corporate-leaders.mp4"
+    },
+    {
+      "id": "emerging-affluents",
+      "name": "Emerging Affluents",
+      "category": "Business & professionals",
+      "bodyColour": "#1473E6",
+      "still": "stills-web/emerging-affluents.jpg",
+      "loop": "clips-web/emerging-affluents.mp4"
+    },
+    {
+      "id": "smes",
+      "name": "SMEs",
+      "category": "Business & professionals",
+      "bodyColour": "#1473E6",
+      "still": "stills-web/smes.jpg",
+      "loop": "clips-web/smes.mp4"
+    },
+    {
+      "id": "start-up-entrepreneurs",
+      "name": "Start-up Entrepreneurs",
+      "category": "Business & professionals",
+      "bodyColour": "#1473E6",
+      "still": "stills-web/start-up-entrepreneurs.jpg",
+      "loop": "clips-web/start-up-entrepreneurs.mp4"
+    },
+    {
+      "id": "action-adventure-fans",
+      "name": "Action & Adventure Fans",
+      "category": "Entertainment",
+      "bodyColour": "#9F56FF",
+      "still": "stills-web/action-adventure-fans.jpg",
+      "loop": "clips-web/action-adventure-fans.mp4"
+    },
+    {
+      "id": "animation-fans",
+      "name": "Animation Fans",
+      "category": "Entertainment",
+      "bodyColour": "#9F56FF",
+      "still": "stills-web/animation-fans.jpg",
+      "loop": "clips-web/animation-fans.mp4"
+    },
+    {
+      "id": "comedy-fans",
+      "name": "Comedy Fans",
+      "category": "Entertainment",
+      "bodyColour": "#9F56FF",
+      "still": "stills-web/comedy-fans.jpg",
+      "loop": "clips-web/comedy-fans.mp4"
+    },
+    {
+      "id": "horror-fans",
+      "name": "Horror Fans",
+      "category": "Entertainment",
+      "bodyColour": "#9F56FF",
+      "still": "stills-web/horror-fans.jpg",
+      "loop": "clips-web/horror-fans.mp4"
+    },
+    {
+      "id": "music-concert-goers",
+      "name": "Music & Concert Goers",
+      "category": "Entertainment",
+      "bodyColour": "#9F56FF",
+      "still": "stills-web/music-concert-goers.jpg",
+      "loop": "clips-web/music-concert-goers.mp4"
+    },
+    {
+      "id": "rom-com-fans",
+      "name": "Rom-Com Fans",
+      "category": "Entertainment",
+      "bodyColour": "#9F56FF",
+      "still": "stills-web/rom-com-fans.jpg",
+      "loop": "clips-web/rom-com-fans.mp4"
+    },
+    {
+      "id": "sci-fi-fantasy-fans",
+      "name": "Sci-fi & Fantasy Fans",
+      "category": "Entertainment",
+      "bodyColour": "#9F56FF",
+      "still": "stills-web/sci-fi-fantasy-fans.jpg",
+      "loop": "clips-web/sci-fi-fantasy-fans.mp4"
+    },
+    {
+      "id": "adventure-seekers",
+      "name": "Adventure Seekers",
+      "category": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "still": "stills-web/adventure-seekers.jpg",
+      "loop": "clips-web/adventure-seekers.mp4"
+    },
+    {
+      "id": "automotive-fans",
+      "name": "Automotive Fans",
+      "category": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "still": "stills-web/automotive-fans.jpg",
+      "loop": "clips-web/automotive-fans.mp4"
+    },
+    {
+      "id": "environmentalist",
+      "name": "Environmentalist",
+      "category": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "still": "stills-web/environmentalist.jpg",
+      "loop": "clips-web/environmentalist.mp4"
+    },
+    {
+      "id": "fashion-icons",
+      "name": "Fashion Icons",
+      "category": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "still": "stills-web/fashion-icons.jpg",
+      "loop": "clips-web/fashion-icons.mp4"
+    },
+    {
+      "id": "foodies",
+      "name": "Foodies",
+      "category": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "still": "stills-web/foodies.jpg",
+      "loop": "clips-web/foodies.mp4"
+    },
+    {
+      "id": "gadget-gurus",
+      "name": "Gadget Gurus",
+      "category": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "still": "stills-web/gadget-gurus.jpg",
+      "loop": "clips-web/gadget-gurus.mp4"
+    },
+    {
+      "id": "luxury-seekers",
+      "name": "Luxury Seekers",
+      "category": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "still": "stills-web/luxury-seekers.jpg",
+      "loop": "clips-web/luxury-seekers.mp4"
+    },
+    {
+      "id": "wellness-explorers",
+      "name": "Wellness Explorers",
+      "category": "Trendsetter",
+      "bodyColour": "#FF7A90",
+      "still": "stills-web/wellness-explorers.jpg",
+      "loop": "clips-web/wellness-explorers.mp4"
+    },
+    {
+      "id": "badminton-fans",
+      "name": "Badminton Fans",
+      "category": "Sports",
+      "bodyColour": "#FD3343",
+      "still": "stills-web/badminton-fans.jpg",
+      "loop": "clips-web/badminton-fans.mp4"
+    },
+    {
+      "id": "e-sports-fans",
+      "name": "E-sports Fans",
+      "category": "Sports",
+      "bodyColour": "#FD3343",
+      "still": "stills-web/e-sports-fans.jpg",
+      "loop": "clips-web/e-sports-fans.mp4"
+    },
+    {
+      "id": "epl-fans",
+      "name": "EPL Fans",
+      "category": "Sports",
+      "bodyColour": "#FD3343",
+      "still": "stills-web/epl-fans.jpg",
+      "loop": "clips-web/epl-fans.mp4"
+    },
+    {
+      "id": "golf-fans",
+      "name": "Golf Fans",
+      "category": "Sports",
+      "bodyColour": "#FD3343",
+      "still": "stills-web/golf-fans.jpg",
+      "loop": "clips-web/golf-fans.mp4"
+    },
+    {
+      "id": "mfl-fans",
+      "name": "MFL Fans",
+      "category": "Sports",
+      "bodyColour": "#FD3343",
+      "still": "stills-web/mfl-fans.jpg",
+      "loop": "clips-web/mfl-fans.mp4"
+    },
+    {
+      "id": "sepak-takraw-fans",
+      "name": "Sepak Takraw Fans",
+      "category": "Sports",
+      "bodyColour": "#FD3343",
+      "still": "stills-web/sepak-takraw-fans.jpg",
+      "loop": "clips-web/sepak-takraw-fans.mp4"
+    },
+    {
+      "id": "automotive-buyers",
+      "name": "Automotive Buyers",
+      "category": "Shopping intent",
+      "bodyColour": "#FF5825",
+      "still": "stills-web/automotive-buyers.jpg",
+      "loop": "clips-web/automotive-buyers.mp4"
+    },
+    {
+      "id": "health-wellness-buyers",
+      "name": "Health & Wellness Buyers",
+      "category": "Shopping intent",
+      "bodyColour": "#FF5825",
+      "still": "stills-web/health-wellness-buyers.jpg",
+      "loop": "clips-web/health-wellness-buyers.mp4"
+    },
+    {
+      "id": "home-buyers",
+      "name": "Home Buyers",
+      "category": "Shopping intent",
+      "bodyColour": "#FF5825",
+      "still": "stills-web/home-buyers.jpg",
+      "loop": "clips-web/home-buyers.mp4"
+    },
+    {
+      "id": "luxury-buyers",
+      "name": "Luxury Buyers",
+      "category": "Shopping intent",
+      "bodyColour": "#FF5825",
+      "still": "stills-web/luxury-buyers.jpg",
+      "loop": "clips-web/luxury-buyers.mp4"
+    },
+    {
+      "id": "online-shoppers",
+      "name": "Online Shoppers",
+      "category": "Shopping intent",
+      "bodyColour": "#FF5825",
+      "still": "stills-web/online-shoppers.jpg",
+      "loop": "clips-web/online-shoppers.mp4"
+    },
+    {
+      "id": "tech-gadget-buyers",
+      "name": "Tech & Gadget Buyers",
+      "category": "Shopping intent",
+      "bodyColour": "#FF5825",
+      "still": "stills-web/tech-gadget-buyers.jpg",
+      "loop": "clips-web/tech-gadget-buyers.mp4"
+    },
+    {
+      "id": "travel-experience-seekers",
+      "name": "Travel & Experience Seekers",
+      "category": "Shopping intent",
+      "bodyColour": "#FF5825",
+      "still": "stills-web/travel-experience-seekers.jpg",
+      "loop": "clips-web/travel-experience-seekers.mp4"
+    }
+  ]
+}

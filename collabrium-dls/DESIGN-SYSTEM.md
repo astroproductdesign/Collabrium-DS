@@ -1,6 +1,6 @@
 # Collabrium Design Language System
 
-**v0.9.127** — 2026-10-27 — Sourced from the Collabrium brand deck
+**v0.9.128** — 2026-10-29 — Sourced from the Collabrium brand deck
 (Google Slides). This is a first pass: everything under "Needs Input" below
 is a placeholder, not a signed-off value. Build with it, but flag it in
 your output.
@@ -126,6 +126,14 @@ extraction):
 |---|---|---|
 | Red | `#FD3343` | Errors, destructive actions, invalid input |
 | Green | `#00C26E` | Success icons, valid input. Canonical value (Needs Input #2, resolved — deck's stated hex duplicated Red) |
+
+**In illustrations, colours only sort.** The [Illustration](#illustration)
+style uses the five element colours plus Red, Purple and Turquoise as the
+Audience characters' category body colours: Sports is Red, Entertainment is
+Purple, Life stage is Turquoise. There a colour names a category and nothing
+else. Sports red is not an error, and an illustration's colour never means
+"click me". Neither use is a precedent for the other: Red stays the error
+colour in UI, and it isn't a category colour outside illustrations.
 
 #### Status tints
 
@@ -391,6 +399,98 @@ surface where that element's color is already established.
 | icon-lg | 32px | Department indicators, feature highlights, onboarding steps |
 | icon-empty | 48px | Empty state panels, zero-data views, section placeholders |
 | icon-hero | 64px | Full-page empty states, first-run onboarding, error pages |
+
+---
+
+## Illustration
+
+**Source of truth:
+[`illustrations/illustration-characters-bible.md`](illustrations/illustration-characters-bible.md).**
+This section summarises it; the bible holds the full brief, the exact prompt
+text and the rulings, and wins wherever the two differ. **Before generating
+any illustration, read the bible in full and follow it exactly**, with its
+reference image ([`illustrations/reference/malay.jpg`](illustrations/reference/malay.jpg))
+attached. The same rule is in `SKILL.md` and the repo's `CLAUDE.md`.
+
+**Concept.** Every Collabrium illustration is a **blob character**: one soft
+squircle body in a single flat colour, a tiny ink face, and thin noodle limbs,
+drawn as flat 2D editorial doodles on an empty Canvas warm background.
+Playful, warm and confident; Scandinavian-modern; never rendered. Characters
+belong to **families**. The first is **Audience characters**: one per
+audience segment, 51 so far, listed in `illustrations/characters.json`. A new
+family needs its own section in the bible before anything is drawn for it.
+
+**Anatomy.** The invariants that make separately generated characters read as
+one family:
+
+| Part | Rule |
+|---|---|
+| Body | One soft squircle, no neck, no torso detail. One flat colour: no gradient, no shading, no outline |
+| Face | Tiny, high on the body: two dot eyes, one short tick brow, one curved smile. **No nose**, no mouth interior |
+| Limbs and hands | Thin single-weight ink lines, long noodle legs, small flat feet, no shoes. Hands have articulated fingers |
+| Props and accents | The same thin ink line with flat colour fills. Accents are small hand-drawn marks only: sparkles, motion ticks, dots |
+| Ground and background | One short ground line under the feet. Background flat Canvas warm, completely empty |
+| Framing | Full body in frame, generous margin, centred, 4:3 |
+
+**Colour.** Every line, the face included, is ink `#2B2B2C` (Obsidian) at one
+weight. The background is `#FCFAF5` (Canvas warm), baked into the image. The
+body colour comes from the family's colour rule, plus at most two accents, for
+props and sparkles only. Five colours per character at most. For Audience
+characters, **colour belongs to the category, not the character**:
+
+| Category | Characters | Body colour |
+|---|---|---|
+| Ethnicity | 3 | `#00C26E` Green (Earth) |
+| Life stage | 12 | `#00D9D9` Turquoise |
+| Income group | 4 | `#FFA425` Amber (Gold) |
+| Business & professionals | 4 | `#1473E6` Navy (Water) |
+| Entertainment | 7 | `#9F56FF` Purple |
+| Trendsetter | 8 | `#FF7A90` Salmon Pink (Wood) |
+| Sports | 6 | `#FD3343` Red |
+| Shopping intent | 7 | `#FF5825` Orange (Fire) |
+
+See [Color Palette](#color-palette) — in illustrations these colours only
+sort.
+
+**Motion.** Each character has a 4-second loop made from its still: locked
+camera, identical design, 2D cel animation with a snappy ease-out and a small
+overshoot, gentle squash-and-stretch, limbs trailing a couple of frames, and
+sparkles that pop on the peak. It settles back to the exact opening pose, so
+it loops seamlessly. That small overshoot lives inside the character's own
+animation, in the video. It isn't interface easing: every UI transition
+around an illustration still settles, per [Guidelines](#guidelines).
+
+**In UI:**
+
+- Only on Canvas warm, or inside a frame filled with it; on white the baked-in
+  background shows as a box.
+- Always the full 4:3 frame, at least 160px wide. Never crop into the margin,
+  flip, recolour, or put text or badges on the character.
+- Decorative (`alt=""`) when the character's name is shown beside it;
+  otherwise the name plus "character" ("Foodies character").
+- The still shows by default. The loop plays only while its item is hovered,
+  focused or open, one at a time, muted, inline, with the still as poster —
+  as [Card](#card)'s Metrics card does. Under reduced motion the loop never
+  loads. No sound, ever.
+
+**Rulings already made** — don't relitigate them per character:
+
+1. **Hands have fingers.** The reference shows them and the model follows the
+   reference; any older text saying "mittens" is stale.
+2. **No nose, ever.** The style lock in the bible's prompt removes the one the
+   model otherwise adds.
+3. **Companions only when the segment is plural.** Four characters show more
+   than one blob (Young Families, Family Dynamic, The Dynamic Duo, New
+   Mothers). Companions share the main character's colour and every anatomy
+   rule.
+
+**Do:** read the bible before every generation, attach the reference, pass
+the acceptance checklist, and add new characters to `characters.json` and the
+Changelog.
+
+**Don't:** draw, generate or source an illustration in any other style; give a
+character a colour of its own; add scenery, text, gradients or shadows; or use
+an illustration as an icon, a status or a logo.
 
 ---
 
@@ -9824,6 +9924,9 @@ read one section before building, read this one.
   focus-visible, disabled, plus error for anything that takes input.
 - Right-align numeric table columns and use tabular figures where the
   font supports them.
+- Read `illustrations/illustration-characters-bible.md` in full before
+  generating any illustration, follow it exactly, and attach its reference
+  image (see [Illustration](#illustration)).
 - Always render a real `<label>` on form inputs, even if visually hidden.
 
 ### Don't
@@ -9850,6 +9953,9 @@ read one section before building, read this one.
 - Never tint a surface with an element that doesn't own its content, and
   never at full or mid strength — `-bg`/`-bg-strong` only.
 - Never add bounce or overshoot easing — movement settles.
+- Never draw, generate or source an illustration outside the blob
+  character style, or give a character a colour of its own (see
+  [Illustration](#illustration)).
 - Never use placeholder text as a substitute for a real label.
 - Never use a modal for a multi-step flow — modals are for one focused
   decision; multi-step work needs a full page or panel.
@@ -10012,6 +10118,47 @@ time it loads, so those can't fall behind; its hard-coded values are only
 a fallback for the moment before the script runs, and should match too.
 If the top stamp or a fallback is behind, the gallery says so in the
 browser console.
+
+- **v0.9.128 — 2026-10-29** — New **[Illustration](#illustration)**
+  foundation. Every Collabrium illustration is now a **blob character**: one
+  flat-colour squircle body, a tiny ink face and thin noodle limbs, on an
+  empty Canvas warm background. Characters come in families; the first is
+  **Audience characters**, 51 of them, each with a still and a 4-second loop.
+
+  **The character bible is the source.**
+  `illustrations/illustration-characters-bible.md`, renamed from
+  `AUDIENCECHARACTERS.md` and moved into `collabrium-dls/` (now v1.2), holds
+  the prompt, the models, the rulings and the acceptance checklist. The rule
+  to read it in full and follow it exactly before generating any illustration,
+  with its reference image attached, is in the new section, in `SKILL.md` and
+  in the repo's `CLAUDE.md`. The reference image is Malay,
+  `illustrations/reference/malay.jpg`, since the original was never kept.
+
+  **What's in the folder.** The 51 web stills and 51 loops, copied from
+  collab-media into `stills-web/` and `clips-web/`, and `characters.json`,
+  which lists each character's name, category, body colour and files. Bible
+  v1.2 makes the style the house style, with category colours scoped to the
+  Audience family, and adds file naming, the web export spec, rules for using
+  illustrations in UI, and how to add a character, a category or a family.
+
+  **In the spec.** The Illustration section sits after Iconography and points
+  to the bible rather than copying its prompts. The Color section notes that
+  in illustrations colours only sort: Sports red is not an error. The loops'
+  small overshoot is recorded as part of the character's own animation, so UI
+  motion still settles. Guidelines gains one Do and one Don't.
+
+  **In the gallery**, Foundations → 06 Illustration shows the concept beside
+  the reference image, which plays on hover. The library has a search that
+  matches names and categories, and a tab per category showing its colour and
+  hex. Cards are larger, three to four a row. Hovering or focusing one plays
+  its loop, muted and one at a time, never under reduced motion, and the still
+  or loop downloads from beside its name. Spacing, Guidelines and Components
+  move to 07–09.
+
+  Files: the new `collabrium-dls/illustrations/` folder; `DESIGN-SYSTEM.md`
+  (the Illustration section, the Color note and Guidelines); `SKILL.md`;
+  `CLAUDE.md`; and `preview.html`. The version stamps move from v0.9.127 to
+  v0.9.128.
 
 - **v0.9.127 — 2026-10-27** — Two token groups added for values the React
   library repeats. `--measure-prose` (760px) is the reading width of Chat
