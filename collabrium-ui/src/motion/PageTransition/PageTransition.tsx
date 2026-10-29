@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion, type Variants } from 'motion/react';
-import { duration as seconds, transition } from '../motion';
+import { duration as seconds } from '../motion';
 import { tokens } from '../../tokens/tokens';
 
 export interface PageTransitionProps {
@@ -39,13 +39,27 @@ export function PageTransition({ type = 'stairs', isVisible, onComplete }: PageT
   const reduce = useReducedMotion();
   const paths = useRef<(SVGPathElement | null)[]>([]);
   const wave = type === 'wave' && !reduce;
-
+  // The fade is a CSS transition: it needs one frame at 0% before it can run to 100%.
+  const [shown, setShown] = useState(false);
   useEffect(() => {
-    if (!wave || !isVisible) return;
+    const id = requestAnimationFrame(() => setShown(isVisible));
+    return () => cancelAnimationFrame(id);
+  }, [isVisible]);
+  // The motion library may hold the first callback it was given, so read the latest one from a ref.
+  const done = useRef(onComplete);
+  done.current = onComplete;
+
+  const wasVisible = useRef(false);
+  useEffect(() => {
+    if (!wave) return;
+    // Uncovering is the same sweep run backwards. Nothing to draw before the first cover.
+    if (!isVisible && !wasVisible.current) return;
+    wasVisible.current = true;
     let raf = 0;
     const start = performance.now();
     const frame = (now: number) => {
-      const t = (now - start) / 1000;
+      const elapsed = (now - start) / 1000;
+      const t = isVisible ? elapsed : WAVE_MS / 1000 - elapsed;
       paths.current.forEach((path, layer) => {
         if (!path) return;
         const step = 100 / (POINTS - 1);
@@ -62,11 +76,11 @@ export function PageTransition({ type = 'stairs', isVisible, onComplete }: PageT
         path.setAttribute('d', d + ' V 100 H 0 Z');
       });
       if (now - start < WAVE_MS) raf = requestAnimationFrame(frame);
-      else onComplete?.();
+      else done.current?.();
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [wave, isVisible, onComplete]);
+  }, [wave, isVisible]);
 
   if (wave) {
     return (
@@ -86,7 +100,7 @@ export function PageTransition({ type = 'stairs', isVisible, onComplete }: PageT
       exit: (i: number) => ({ y: i % 2 === 0 ? '100%' : '-100%', transition: { ...t, delay: i * COLUMN_STAGGER } }),
     };
     return (
-      <motion.div className="cui-page-transition cui-page-transition--stairs" aria-hidden="true" initial="initial" animate={isVisible ? 'enter' : 'exit'} onAnimationComplete={() => onComplete?.()}>
+      <motion.div className="cui-page-transition cui-page-transition--stairs" aria-hidden="true" initial="initial" animate={isVisible ? 'enter' : 'exit'} onAnimationComplete={() => done.current?.()}>
         {Array.from({ length: COLUMNS }, (_, i) => (
           <motion.span key={i} className="cui-page-transition__column" variants={variants} custom={i} />
         ))}
@@ -95,13 +109,13 @@ export function PageTransition({ type = 'stairs', isVisible, onComplete }: PageT
   }
 
   return (
-    <motion.div
+    <div
       className="cui-page-transition cui-page-transition--fade"
       aria-hidden="true"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isVisible ? 1 : 0 }}
-      transition={transition('base', 'standard')}
-      onAnimationComplete={() => onComplete?.()}
+      data-visible={shown ? '' : undefined}
+      onTransitionEnd={e => {
+        if (e.target === e.currentTarget) done.current?.();
+      }}
     />
   );
 }

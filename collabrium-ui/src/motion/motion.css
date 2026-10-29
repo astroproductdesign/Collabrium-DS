@@ -115,4 +115,108 @@
 .cui-page-transition--stairs{display: flex;}
 .cui-page-transition__column{flex: 1 1 0; height: 100%; background: var(--color-neutral-9); border-right: var(--border-width-sm) solid var(--color-neutral-7);}
 .cui-page-transition__column:last-child{border-right: 0;}
-.cui-page-transition--fade{background: var(--color-neutral-9);}
+.cui-page-transition--fade{background: var(--color-neutral-9); opacity: 0; transition: opacity var(--duration-base) var(--ease-standard);}
+.cui-page-transition--fade[data-visible]{opacity: 1;}
+
+/* Batch 4: small effects. */
+.cui-icon-swap{display: inline-flex; align-items: center; justify-content: center;}
+.cui-count-up{font-variant-numeric: tabular-nums;}
+.cui-scramble{position: relative; display: inline-block;}
+
+/* Focus blur: pointing at one item softens its siblings. Pure CSS; only where there is a real hover. */
+.cui-focus-blur{display: flex; flex-wrap: wrap; gap: var(--spacing-8) var(--spacing-12);}
+.cui-focus-blur > *{transition: filter var(--duration-base) var(--ease-reveal), opacity var(--duration-base) var(--ease-reveal);}
+@media (hover: hover){
+  .cui-focus-blur:has(> :hover) > :not(:hover){filter: blur(var(--spacing-4)); opacity: .35;}
+}
+.cui-focus-blur:has(> :focus-visible) > :not(:focus-visible){filter: blur(var(--spacing-4)); opacity: .35;}
+
+/* Text sweep: a band of colour revealing the text. The text is Neutral-9 once the band has passed. */
+.cui-text-sweep{
+  --cui-sweep-ink: var(--color-neutral-9);
+  display: inline-block; color: transparent;
+  -webkit-background-clip: text; background-clip: text; background-size: 100% 100%;
+}
+
+/* Media between text: the picture opens between two halves of a phrase. */
+.cui-media-text{display: inline-flex; align-items: center;}
+.cui-media-text > span:first-child{padding-inline-end: .25em;}
+.cui-media-text > span:last-child{padding-inline-start: .25em;}
+.cui-media-text__media{
+  /* TODO(open-question Q-MOT-17): the media's 2em width and 1.25em height scale with the text; Amicro used 54 to 70px by 32 to 40px. */
+  display: inline-flex; overflow: hidden; height: 1.25em; border-radius: var(--radius-sm); box-shadow: var(--shadow-1);
+}
+.cui-media-text__media > img,
+.cui-media-text__media > video{display: block; width: 2em; height: 100%; object-fit: cover; border-radius: inherit;}
+
+/* Play and pause morph. */
+.cui-play-pause{display: block; width: 1em; height: 1em;}
+
+/* Search expand: a round button that grows into a field. */
+.cui-search-expand{
+  /* TODO(open-question Q-MOT-17): Amicro's 320px widest field, no token. */
+  --cui-search-max: 320px;
+  display: flex; width: 100%; max-width: var(--cui-search-max); font-family: var(--font-primary);
+}
+.cui-search-expand__field{
+  display: flex; align-items: center; height: var(--control-height-md); max-width: 100%; overflow: hidden;
+  background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-pill); color: var(--color-neutral-5);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.cui-search-expand__field:hover{border-color: var(--color-neutral-4);}
+.cui-search-expand__field:has(:focus-visible){outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset);}
+.cui-search-expand__toggle,
+.cui-search-expand__clear{display: flex; align-items: center; justify-content: center; flex: none; margin: 0; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; border-radius: var(--radius-pill);}
+.cui-search-expand__toggle{width: calc(var(--control-height-md) - 2 * var(--border-width-sm)); height: 100%;}
+.cui-search-expand__toggle:hover,
+.cui-search-expand__clear:hover{color: var(--color-neutral-9);}
+.cui-search-expand__toggle:focus-visible,
+.cui-search-expand__clear:focus-visible{outline: none;}
+.cui-search-expand__inner{display: flex; align-items: center; flex: 1 1 auto; min-width: 0; gap: var(--spacing-8); padding-inline-end: var(--spacing-12);}
+.cui-search-expand__input{
+  flex: 1 1 auto; min-width: 0; margin: 0; padding: 0; border: 0; outline: none; background: transparent; color: var(--color-neutral-9);
+  font-family: inherit; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); font-weight: var(--text-body2-weight);
+}
+.cui-search-expand__input::placeholder{color: var(--color-neutral-5); opacity: 1;}
+.cui-search-expand__input::-webkit-search-cancel-button{display: none;}
+.cui-search-expand__clear{width: var(--spacing-24); height: var(--spacing-24);}
+.cui-search-expand__hint{
+  flex: none; padding: var(--spacing-2) var(--spacing-6); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-xs);
+  font-size: var(--text-footnote-size); line-height: var(--text-footnote-lh); font-weight: var(--text-label3-weight); color: var(--color-neutral-5);
+}
+
+/* Expanding tabs: icons, and the active tab opens to show its label. */
+.cui-expanding-tabs{display: flex; align-items: center; gap: var(--spacing-8); font-family: var(--font-primary);}
+.cui-expanding-tabs__tab{
+  display: inline-flex; align-items: center; height: var(--control-height-md); margin: 0; padding: 0 var(--spacing-12); overflow: hidden; cursor: pointer;
+  border: var(--border-width-sm) solid transparent; border-radius: var(--radius-pill); background: var(--color-neutral-2); color: var(--color-neutral-5);
+  font-family: inherit; font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--text-label2-weight);
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.cui-expanding-tabs__tab:hover{background: var(--color-neutral-3); color: var(--color-neutral-9);}
+.cui-expanding-tabs__tab:focus-visible{outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset);}
+.cui-expanding-tabs__tab[data-active]{
+  padding: 0 var(--spacing-16); color: var(--color-neutral-9);
+  background: color-mix(in srgb, var(--cui-tab-color) 12%, var(--color-neutral-1)); border-color: color-mix(in srgb, var(--cui-tab-color) 28%, transparent);
+}
+.cui-expanding-tabs__tab[data-active] > svg{color: var(--cui-tab-color);}
+.cui-expanding-tabs__label{display: inline-block; margin-inline-start: var(--spacing-8); white-space: nowrap; overflow: hidden;}
+
+/* Dock: a row of icon buttons that swell near the mouse. */
+.cui-dock{
+  display: flex; align-items: flex-end; gap: var(--spacing-6); width: fit-content; min-height: var(--spacing-32); padding: var(--spacing-6);
+  background: var(--color-neutral-2); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-sm);
+}
+.cui-dock__item{
+  display: flex; align-items: center; justify-content: center; flex: none; margin: 0; padding: 0; cursor: pointer;
+  background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-xs); color: var(--color-neutral-9);
+}
+.cui-dock__item:focus-visible{outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset);}
+
+@media (forced-colors: active){
+  .cui-text-sweep{background: none !important; color: CanvasText; -webkit-text-fill-color: CanvasText;}
+  .cui-expanding-tabs__tab[data-active]{border-color: Highlight;}
+  .cui-search-expand__field,
+  .cui-dock,
+  .cui-dock__item{border-color: CanvasText;}
+}

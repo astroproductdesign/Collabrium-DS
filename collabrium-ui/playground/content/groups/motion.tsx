@@ -6,7 +6,7 @@ import type { GroupOverviewDocs } from '../../lib/group-types';
 export const title = 'Motion';
 
 export const description =
-  'Animated building blocks that are not tied to one component: entrance wrappers, collapses and, in time, text effects, hover effects, scroll effects and hooks. Every one runs on the motion tokens and respects reduced motion.';
+  'Animated building blocks that are not tied to one component: entrance wrappers, collapses, text effects, hover and cursor effects, scroll effects, a page transition and hooks. Every one runs on the motion tokens and respects reduced motion.';
 
 export const overview: GroupOverviewDocs['overview'] = [
   'Motion holds the animated pieces that are not tied to one component: wrappers such as Fade in, Slide up and Collapse, and the effects built on the same timing. Loaders are not here: Loading State is the DLS component for that.',
@@ -14,7 +14,7 @@ export const overview: GroupOverviewDocs['overview'] = [
 ];
 
 export const flow: GroupOverviewDocs['flow'] = [
-  { title: 'Pick by job', description: 'Wrappers animate content you already have: fade it in, slide it from a side, open it by height. Other pieces will cover text effects, hover effects and scroll effects, and hooks will give your own components the same timing.' },
+  { title: 'Pick by job', description: 'Wrappers animate content you already have: fade it in, slide it from a side, open it by height. Text effects reveal words, hover and cursor effects answer the pointer, scroll effects respond to the page, and hooks give your own components the same timing.' },
   { title: 'Use the tokens', description: 'Choose a duration and an easing from the token names (`fast`, `base`, `standard`). A piece never exposes a free number.' },
   { title: 'Check reduced motion', description: 'Each piece says in its page what it does when the person asks for reduced motion.' },
 ];
