@@ -1,7 +1,7 @@
 // Documentation for Slide up (Motion), rendered by the docs site.
 // Keep it consistent with SlideUp.usage.md. Not part of the package build.
 import { SlideUp } from './SlideUp';
-import { ShowDemo, appearProp, childrenProp, durationProp, easeProp, motionRow, showProp, wrapperAccessibility, wrapperRules } from '../lib/docs-shared.docs';
+import { LoopDemo, ShowDemo, appearProp, childrenProp, durationProp, easeProp, motionRow, showProp, wrapperAccessibility, wrapperRules } from '../lib/docs-shared.docs';
 import type { DocsAnatomyNode, DocsExample, DocsMotion, DocsProp } from '../../components/docs.types';
 
 export const title = 'Slide up';
@@ -19,7 +19,13 @@ export function Result({ show }) {
   );
 }`;
 
-export const thumbnail = () => <p className="docs-motion-sample">Your report is ready.</p>;
+export const thumbnail = () => (
+  <LoopDemo>{show => (
+    <SlideUp show={show}>
+      <p className="docs-motion-sample">Your report is ready.</p>
+    </SlideUp>
+  )}</LoopDemo>
+);
 
 export const anatomy: DocsAnatomyNode[] = [
   {

@@ -40,7 +40,8 @@ const entries = sources.flatMap(({ dir, group: fixedGroup }) => {
       if (!m) throw new Error(`${name}.docs.tsx must export a string \`title\``);
       const g = /export const group\s*=\s*(['"])(.+?)\1/.exec(docsSrc);
       const compFile = `${base}/${name}/${name}.tsx`;
-      const client = existsSync(compFile) && /^\s*['"]use client['"]/.test(readFileSync(compFile, 'utf8'));
+      const compFiles = [compFile, compFile.replace(/\.tsx$/, '.ts')].filter(existsSync);
+      const client = compFiles.length > 0 && /^\s*['"]use client['"]/.test(readFileSync(compFiles[0], 'utf8'));
       return { dir, folder: name, slug: slugify(name), title: m[2], client, groupTitle: fixedGroup ?? (g ? g[2] : null) };
     });
 });

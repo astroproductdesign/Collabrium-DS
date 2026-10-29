@@ -207,3 +207,22 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
   line-height: var(--text-body1-lh);
   color: var(--color-neutral-9);
 }
+/* On a card the loop has no button, so the stage needs no row for one. */
+.docs-motion-loop { min-height: var(--spacing-60); justify-content: center; }
+
+/* Motion docs: the still picture of a cursor trail on a card, and a stage tall enough to hover in. */
+.docs-trail { display: flex; align-items: center; gap: var(--spacing-4); min-height: var(--spacing-60); }
+.docs-trail__dot { display: block; border-radius: var(--radius-pill); background: var(--color-navy); }
+.docs-trail__ring { display: block; width: var(--spacing-24); height: var(--spacing-24); border-radius: var(--radius-pill); border: var(--border-width-sm) solid var(--color-navy); background: var(--color-navy-tint); }
+.docs-motion-hover { min-height: var(--spacing-120); display: flex; align-items: center; justify-content: center; padding: var(--spacing-24); }
+
+/* Motion docs: stills for the sticky reveal and page transition cards. */
+.docs-sticky-picture { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); width: 100%; max-width: var(--spacing-120); align-items: center; }
+.docs-sticky-picture__steps { display: grid; gap: var(--spacing-8); }
+.docs-sticky-picture__line { display: block; height: var(--spacing-8); border-radius: var(--radius-pill); background: var(--color-neutral-4); }
+.docs-sticky-picture__line[data-on] { background: var(--color-neutral-9); }
+.docs-sticky-picture__panel { display: block; height: var(--spacing-60); border-radius: var(--radius-sm); background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); }
+.docs-stairs-picture { display: flex; height: var(--spacing-60); width: var(--spacing-120); overflow: hidden; border-radius: var(--radius-sm); }
+.docs-stairs-picture span { flex: 1 1 0; background: var(--color-neutral-9); border-right: var(--border-width-sm) solid var(--color-neutral-7); }
+.docs-bar-picture { width: var(--spacing-120); height: var(--spacing-4); background: var(--color-neutral-3); border-radius: var(--radius-pill); overflow: hidden; }
+.docs-bar-picture span { display: block; width: 60%; height: 100%; background: var(--color-navy); }

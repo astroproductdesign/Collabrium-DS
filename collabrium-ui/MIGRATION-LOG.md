@@ -45,6 +45,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 21 | Charts (extra), batch 5: Radar, Polar area, Pyramid, Sankey, Candlestick | **review** | Built 2026-10-29. See XCH-40 to XCH-46, Decision D-105 and Open questions Q-XCH-22 to Q-XCH-27. Pyramid is HTML and CSS, not Recharts. |
 | 22 | Charts (extra), batch 6: Composed, Sparkline | **review** | Built 2026-10-29. See XCH-47, XCH-48, Decision D-106 and Open questions Q-XCH-28 to Q-XCH-32 (all answered 2026-10-29). Dither bar and Dither donut were built and then removed at the user's request; no Dither charts will be added. Amicro's KPI card chart is not built. |
 | 23 | Motion, batch 1: Fade in, Slide up, Slide down, Slide left, Slide right, Collapse | **review** | Built 2026-10-29. Fade in, Slide up and Collapse already existed and now have pages; Slide down, left and right are new. See XMO-1 to XMO-4, Decision D-107 and Open questions Q-MOT-1 to Q-MOT-4. |
+| 24 | Motion, batch 2: Blur text, Character stagger, Word reveal, Text reveal, Hover cards, Spotlight, Magnetic, Tilt, Cursor trail, Mouse follow | **review** | Built 2026-10-29. See XMO-5 to XMO-11, Decision D-108 and Open questions Q-MOT-5 to Q-MOT-9. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -454,6 +455,20 @@ Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left
 | XMO-3 | The three existing wrappers moved into folders (`src/motion/FadeIn`, `SlideUp`, `Collapse`) with docs, usage and preview files so they appear in the Motion group. Behaviour is unchanged. Slide up is now a thin wrapper over the shared Slide |
 | XMO-4 | The root `@collabrium/ui` export lists the tokens and the three original wrappers only; the new pieces are imported from `@collabrium/ui/motion`. Q-MOT-3 |
 
+### Motion, batch 2 (text effects, hover effects, cursor effects)
+
+Source: Amicro `registry/ui/text/*`, `hover/*` and `cursor/*`. The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
+
+| ID | What |
+|---|---|
+| XMO-5 | Text effects (Blur text, Character stagger, Word reveal, Text reveal) are one `<span>` each, so they can sit inside a heading. Each plays once as the text scrolls into view. The text is in the page once, visually hidden, and the moving pieces are `aria-hidden`, so a screen reader reads a sentence and not letters (Amicro's pieces were read letter by letter). Durations and easings are token names; Text reveal uses the DLS entrance-reveal pair (`--duration-reveal`, `--ease-reveal`) and `--stagger-md`. Reduced motion drops the travel, blur, scale and stagger and keeps the fade. Q-MOT-5 |
+| XMO-6 | Letters and words stagger at 20ms and 40ms. The DLS staggers (80ms, 120ms) are for rows and would make a 20-letter heading take 1.6s. Local values, no token. Q-MOT-5 |
+| XMO-7 | Amicro's springs are kept as they are, as the user decided (D-107): Character stagger (300, 18, 0.8), Magnetic (150, 15, 0.6) and Mouse follow (180, 20) overshoot slightly. Tilt (damping 20, stiffness 200, mass 0.5) and Cursor trail (overdamped) settle without overshoot. The DLS says movement never bounces, so the three overshooting pieces need an exception. Q-MOT-6 |
+| XMO-8 | Hover cards (Amicro `CardHover`): a grid with one highlight that glides between cards (a shared layout animation), also on focus (Amicro: hover only). The card is plain: Neutral-1, 1px Neutral-3 border, radius-md, 16px padding (Amicro: zinc, dark mode, a 24px outer radius). Under reduced motion the highlight fades in on the card instead of travelling. A card with an `href` is a real link; without one it is a plain block. The grid fills the width with a 220px smallest card (Amicro: three columns from 768px). Q-MOT-7 |
+| XMO-9 | Spotlight (Amicro `Spotlight`) and Glow button (Amicro `GlowButton`) are the same effect on a card and a button, so they are one piece: a wrapper whose light follows the pointer, in a colour prop (Obsidian or a series colour) at 18%, over the content, taking no clicks. A Button inside gives Glow button, so the DLS Button keeps its look (Amicro's was a second, dark button). Sizes 120, 180 and 250px have no tokens. Q-MOT-8, Q-MOT-9 |
+| XMO-10 | Magnetic (Amicro `MagneticButton`) and Tilt (Amicro `TiltCard`) are wrappers: Amicro drew a dark pill button and a gradient card. The wrapper adds the movement only, so a DLS Button or any card inside keeps its own look. Strength and tilt are three named steps (20, 35, 50%; 6, 10, 15 degrees), not numbers. Only a mouse triggers them. Amicro's 1.03 hover scale and the card's 40px content lift are dropped. Q-MOT-9 |
+| XMO-11 | Cursor trail and Mouse follow follow the mouse across the whole window at `--z-float`, take no clicks, are `aria-hidden`, show for a mouse only and not at all under reduced motion. Colours are Obsidian or a series colour (Amicro: a Tailwind class). Six dots, 8px down to 3px. |
+
 ### Tokens and global
 
 | ID | What | Where |
@@ -748,6 +763,7 @@ Grouped by component. Line numbers are CSS / DS.
 | D-105 | Radar and Polar area follow the DLS Marks rows; Amicro's "polar" is not built (it duplicates Radial gauge). Candlestick uses the Green and Red diverging pair with solid and hollow bodies. Pyramid is HTML and CSS | XCH-40 to XCH-45. Flagged Q-XCH-22 to Q-XCH-27 |
 | D-106 | Composed follows the DLS Mixed row with a visible second axis. Sparkline follows the DLS Sparkline row and is only the line. No Dither charts and no KPI card chart (user, 2026-10-29) | XCH-47, XCH-48. Q-XCH-28 to Q-XCH-32 answered |
 | D-107 | Motion (Phase 2): loaders are not ported (Loading State is the DLS component for that); entrances extend the existing Fade in and Slide up rather than adding Amicro's seven as separate pieces; Amicro's bouncing and springy pieces are ported as they are, with the DLS asked for an exception (user, 2026-10-29) | XMO-1 to XMO-4. Flagged Q-MOT-1 to Q-MOT-4 |
+| D-108 | Motion batch 2: text, hover and cursor effects follow the DLS motion tokens and drop travel under reduced motion; the springs are kept as Amicro's (D-107); Glow button is Spotlight around a Button; Magnetic and Tilt wrap content rather than draw a button and card | XMO-5 to XMO-11. Flagged Q-MOT-5 to Q-MOT-9 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -944,6 +960,11 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-MOT-2 | The slides are named by the direction of travel: Slide left arrives from the right. Keep? My recommendation: keep | `SlideLeft`, `SlideRight` |
 | Q-MOT-3 | The root `@collabrium/ui` exports the three original wrappers only; Slide down, left and right come from `@collabrium/ui/motion`. Keep? My recommendation: keep, so the root stays the components set | `src/index.ts` |
 | Q-MOT-4 | Amicro's Scale in (an overshoot curve) and Zoom in (a blur) are not built yet. You said to port bouncy pieces as they are, and also to extend the existing entrances; those two pull opposite ways. Build Scale in and Zoom in as they are, with the DLS asked for an exception? My recommendation: skip both, since Slide and Fade cover entrances and the DLS says no overshoot | — |
+| Q-MOT-5 | Letters stagger at 20ms and words at 40ms (local values): the DLS staggers (80ms and 120ms) are for rows. Keep? My recommendation: keep | `lib/textFx.tsx` |
+| Q-MOT-6 | Character stagger, Magnetic and Mouse follow keep Amicro's springs, which overshoot slightly (you said to port bouncy pieces as they are). The DLS says movement never bounces, so it is owed an exception for these three. Keep? My recommendation: keep, and add the exception to the DLS | `CharacterStagger`, `Magnetic`, `MouseFollow` |
+| Q-MOT-7 | Hover cards draw their own plain card (Neutral-1, 1px Neutral-3 border, radius-md, 16px padding) because Card is not converted yet, in a grid that fills the width (220px smallest card, no token). Keep, and swap in Card when it exists? My recommendation: keep | `HoverCards` |
+| Q-MOT-8 | Lengths with no token: Spotlight's light sizes (120, 180, 250px) and Tilt's 3D depth (800px), declared as local custom properties. Keep? My recommendation: keep | `motion.css` |
+| Q-MOT-9 | Glow button is not its own piece: wrap a Button in Spotlight. Magnetic and Tilt wrap content instead of drawing a button and a card, so the DLS Button and Card keep their looks. Keep? My recommendation: keep | `Spotlight`, `Magnetic`, `Tilt` |
 
 ### Global
 
@@ -1036,3 +1057,4 @@ Every place where the React library now follows a decision that differs from the
 | 61 | Per-chart-type marks: add Polar area's wedge opacity and number of wedges, Pyramid, Sankey and Candlestick (solid and hollow); say Radar's ring values sit between two spokes (pending Q-XCH-22 to Q-XCH-27) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
 | 62 | Per-chart-type marks: say a Sparkline is 32px tall (decided Q-XCH-30); Mixed (Bar + Line) keeps its visible second axis (decided Q-XCH-32) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
 | 63 | Motion: add Slide down, Slide left and Slide right beside Slide up (8px travel, `--duration-base`, `--ease-settle`, fade kept under reduced motion), named by the direction of travel (pending Q-MOT-1, Q-MOT-2) | DESIGN-SYSTEM.md 1089, 2222 | 2026-10-29 |
+| 64 | Motion: add the text effects (Blur text, Character stagger, Word reveal, Text reveal), hover effects (Hover cards, Spotlight, Magnetic, Tilt) and cursor effects (Cursor trail, Mouse follow); say letters and words stagger at 20ms and 40ms; add an exception to "movement never bounces" for the three spring pieces (pending Q-MOT-5 to Q-MOT-9) | DESIGN-SYSTEM.md 536–580 | 2026-10-29 |

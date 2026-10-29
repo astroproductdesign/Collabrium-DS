@@ -5,6 +5,7 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 ## Unreleased
 
 ### Added
+- Motion, batch 2: text effects (`BlurText`, `CharacterStagger`, `WordReveal`, `TextReveal`), hover effects (`HoverCards`, `Spotlight`, `Magnetic`, `Tilt`) and cursor effects (`CursorTrail`, `MouseFollow`), in `@collabrium/ui/motion`. Text is read once as a sentence; reduced motion keeps the fade and drops the rest.
 - Motion, batch 1: `SlideDown`, `SlideLeft` and `SlideRight` (in `@collabrium/ui/motion`), and pages for `FadeIn`, `SlideUp` and `Collapse`. The slides share one drawing, and the root export lists only the three original wrappers.
 - Charts (extra), batch 6: `ComposedChart` (bars and a line, with an optional second axis) and `SparklineChart` (the DLS sparkline, with a spoken trend summary).
 - Charts (extra), batch 5: `RadarChart`, `PolarAreaChart`, `SankeyChart`, `CandlestickChart` (Recharts) and `PyramidChart` (HTML and CSS). DLS Radar and Polar area marks, a computed Sankey, and candlesticks that tell direction by solid or hollow as well as colour.

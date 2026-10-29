@@ -1,7 +1,7 @@
 // Documentation for Fade in (Motion), rendered by the docs site.
 // Keep it consistent with FadeIn.usage.md. Not part of the package build.
 import { FadeIn } from './FadeIn';
-import { ShowDemo, appearProp, childrenProp, durationProp, easeProp, motionRow, showProp, wrapperAccessibility, wrapperRules } from '../lib/docs-shared.docs';
+import { LoopDemo, ShowDemo, appearProp, childrenProp, durationProp, easeProp, motionRow, showProp, wrapperAccessibility, wrapperRules } from '../lib/docs-shared.docs';
 import type { DocsAnatomyNode, DocsExample, DocsMotion, DocsProp } from '../../components/docs.types';
 
 export const title = 'Fade in';
@@ -19,7 +19,13 @@ export function Hint({ show }) {
   );
 }`;
 
-export const thumbnail = () => <p className="docs-motion-sample">Saved just now.</p>;
+export const thumbnail = () => (
+  <LoopDemo>{show => (
+    <FadeIn show={show}>
+      <p className="docs-motion-sample">Saved just now.</p>
+    </FadeIn>
+  )}</LoopDemo>
+);
 
 export const anatomy: DocsAnatomyNode[] = [
   {

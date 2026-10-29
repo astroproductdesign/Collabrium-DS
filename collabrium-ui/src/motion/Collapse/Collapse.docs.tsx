@@ -1,7 +1,7 @@
 // Documentation for Collapse (Motion), rendered by the docs site.
 // Keep it consistent with Collapse.usage.md. Not part of the package build.
 import { Collapse } from './Collapse';
-import { ShowDemo, appearProp, childrenProp, durationProp, easeProp, motionRow, wrapperAccessibility, wrapperRules } from '../lib/docs-shared.docs';
+import { LoopDemo, ShowDemo, appearProp, childrenProp, durationProp, easeProp, motionRow, wrapperAccessibility, wrapperRules } from '../lib/docs-shared.docs';
 import type { DocsAnatomyNode, DocsExample, DocsMotion, DocsProp } from '../../components/docs.types';
 
 export const title = 'Collapse';
@@ -19,7 +19,13 @@ export function Details({ open }) {
   );
 }`;
 
-export const thumbnail = () => <p className="docs-motion-sample">Billing runs on the first of the month.</p>;
+export const thumbnail = () => (
+  <LoopDemo>{show => (
+    <Collapse open={show}>
+      <p className="docs-motion-sample">Billing runs on the first of the month.</p>
+    </Collapse>
+  )}</LoopDemo>
+);
 
 export const anatomy: DocsAnatomyNode[] = [
   {
