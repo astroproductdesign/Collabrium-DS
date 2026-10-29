@@ -151,6 +151,18 @@ over mechanical ones (sync, deploy, restore).
   (`--ease-flow` for Water, `--ease-flare` for Fire, etc.), `--ease-standard`
   otherwise. Durations 80–900ms.
 
+## Using this folder in another project
+
+This folder is **read-only** wherever it's copied. Build your screens from
+it — `DESIGN-SYSTEM.md` (source of truth), `tokens.css`, `components.css`,
+and `preview.html` for working markup — but never add, edit or delete
+anything inside it: components, tokens, docs, logos or illustrations. If
+something is missing, build it in your product's own code from the existing
+tokens and components, and ask the Collabrium design system team to add it
+upstream. `CLAUDE.md` in this folder has the full rules and a one-time setup
+(an import line for your project's `CLAUDE.md`, and a setting that blocks
+edits to this folder).
+
 ## Before you build
 
 1. Check the **Needs Input** list at the top of `DESIGN-SYSTEM.md`. Most
@@ -170,6 +182,14 @@ over mechanical ones (sync, deploy, restore).
    department-specific (see DESIGN-SYSTEM.md's Logo section for the
    full rule). Never extract a still frame from `logo.html` as a
    substitute lockup.
+5. For illustrations: **read `illustrations/illustration-characters-bible.md`
+   in full before generating any illustration, and follow it exactly** —
+   its prompt structure, models and settings, the reference image it names
+   (`illustrations/reference/malay.jpg`, always attached), and its
+   acceptance checklist. Every illustration is one of its blob characters;
+   never draw, generate or source another style. If the reference image is
+   missing or a category has no colour yet, stop and ask. The finished set
+   is in `illustrations/` (`characters.json` lists it).
 
 ## Version
 

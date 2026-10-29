@@ -1,10 +1,34 @@
-# Blob Character Bible
+# Illustration Character Bible
 
-How to draw one of these characters, and the rules it must obey to be accepted
+How to draw a Collabrium character, and the rules it must obey to be accepted
 into the set.
 
-Applies to every audience-segment character. If you are adding character #52,
-this document is the whole brief.
+**This is Collabrium's house illustration style.** Every illustration is one of
+these blob characters, drawn to the anatomy, ink, background and motion rules
+below. Characters are grouped into **families**. The first family is
+**Audience characters**: one character per audience segment, 51 so far, listed
+in [`characters.json`](characters.json). If you are adding a character, this
+document is the whole brief.
+
+---
+
+## Before you generate anything
+
+**Read this whole file first, then follow it exactly.** No step is optional and
+nothing here is a suggestion.
+
+1. Use the prompt structure in §4 word for word: shared style prefix, body
+   colour, subject line, shared negative list, style lock.
+2. Use the models and settings in §4 Step 3.
+3. **Attach the reference image, [`reference/malay.jpg`](reference/malay.jpg).**
+   It's what carries hand construction and line weight; the text alone won't.
+4. Check the result against the §6 checklist before using it anywhere.
+5. Export the web versions (§9) and add the character to the set (§11).
+
+**Stop and ask** rather than improvise if any of these is true: the reference
+image is missing, the character's category has no body colour yet, the
+illustration doesn't fit an existing family, or a result fails the checklist
+twice.
 
 ---
 
@@ -31,6 +55,10 @@ line colour and no line-weight variation.
 ---
 
 ## 2. Colour
+
+The category colours below belong to the **Audience characters** family. A new
+family needs its own colour rule, written into this file, before any of its
+characters is drawn. Ink, background and the accent list apply to every family.
 
 **Body colour belongs to the category, not the character.** All 12 Life-stage
 characters share one turquoise; all 6 Sports characters share one red. Colour
@@ -75,8 +103,9 @@ Loops are 4 seconds. The still is the source of truth; the loop only moves it.
 - Audio: one soft pop and a light whoosh on the main beat. No music, no voice.
 
 > **Write beats for 4 seconds, not 3.** The generator rejects anything shorter.
-> The existing 51 were written as 3-second beats and play slightly slow as a
-> result — don't repeat that when writing a new one.
+> The original 51 audience characters were written as 3-second beats and play
+> slightly slow as a result. That's known and accepted; don't repeat it when
+> writing a new one.
 
 ---
 
@@ -143,11 +172,16 @@ on two probes.
 
 ### Step 3 — Generate
 
-Still: **Nano Banana 2**, 4:3, 2K, reference image attached → 2400 × 1792 PNG.
+Still: **Nano Banana 2**, 4:3, 2K, reference image
+([`reference/malay.jpg`](reference/malay.jpg)) attached → 2400 × 1792 PNG.
 Loop: **Seedance 2.0 Mini**, 4:3, 720p, 4s, still as start frame → 1112 × 834 MP4.
 
 The reference image is not optional. It is what carries hand construction and
-line weight, and the text alone will not reproduce them.
+line weight, and the text alone will not reproduce them. The reference is
+**Malay**, an approved character whose pose is the first sample subject line in
+Step 1. It's the 700px web still: the original 2K reference wasn't kept. If a
+higher-resolution approved still becomes available, replace the file and keep
+the name.
 
 ### Step 4 — Check it against §6 before accepting it
 
@@ -215,5 +249,82 @@ A character joins the set only if every line is true.
 | Limbs crossing behind the body | Smears under motion. Check the loop, not just the still |
 
 ---
+
+## 8. Files and folders
+
+Everything lives in `collabrium-dls/illustrations/`:
+
+| Path | What it is |
+|---|---|
+| `illustration-characters-bible.md` | This file — the brief and the rules |
+| `characters.json` | The set: every character's id, name, category, body colour and files |
+| `reference/malay.jpg` | The reference image attached to every generation |
+| `stills-web/{id}.jpg` | Web still, one per character |
+| `clips-web/{id}.mp4` | Web loop, one per character |
+
+`{id}` is the segment's name in lowercase kebab-case, with `&` and punctuation
+dropped: "Health & Wellness Buyers" → `health-wellness-buyers`. The still and
+the loop share the id. Generation masters (2400 × 1792 PNG, 1112 × 834 MP4) are
+kept outside this repo; only web versions ship.
+
+---
+
+## 9. Web export
+
+| | Still | Loop |
+|---|---|---|
+| Size | 700 × 522 | 600 × 450 |
+| Format | JPG | MP4, H.264 |
+| Length | — | 4s, seamless |
+| Audio | — | **None** — strip the generator's track |
+| Weight | about 40 KB | about 60–100 KB |
+
+Both stay 4:3 with the background baked in. Don't crop, pad or recolour on
+export.
+
+---
+
+## 10. Using illustrations in UI
+
+- **Surface:** only on Canvas warm (`#FCFAF5`), the colour baked into every
+  illustration, or inside a frame filled with it. On white or tinted surfaces
+  the baked-in background shows as a box.
+- **Shape:** always the full 4:3 frame. Never crop into the margin, flip,
+  recolour, rotate, or put text or badges on top of the character.
+- **Size:** at least 160px wide, so props still read.
+- **Alt text:** when the character's name is visible next to it, the image is
+  decorative (`alt=""`). Shown alone, it's the name plus "character" —
+  "Foodies character".
+- **Motion:** the still shows by default. The loop plays only while its item
+  is hovered, focused or open — one at a time, never a whole grid on load —
+  muted, inline and looping, with the still as its poster. Under reduced
+  motion the loop never loads.
+- **Sound:** never in UI.
+- **Colour meaning:** a body colour names a category, nothing else. Sports red
+  is not an error, and none of these colours means "click me".
+
+---
+
+## 11. Adding to the set
+
+**A character:** write the subject line (§4 Step 1), generate with the
+reference attached, pass every line of §6, export the web versions (§9), add
+both files under the character's id (§8), and add its entry to
+`characters.json` in its category. Then record it in `DESIGN-SYSTEM.md`'s
+Changelog, following its Version rule.
+
+**A category:** choose and record its body colour in §2 and in
+`characters.json` before any character in it is drawn.
+
+**A family:** add a section to this file naming the family, what it's for and
+its colour rule, before any of its characters is drawn. Anatomy, ink,
+background, motion and the checklist carry over unchanged.
+
+---
+
+**v1.2** — 2026-10-29. Became Collabrium's house illustration style, with
+Audience characters as its first family. Added: before-you-generate rule, the
+reference image file, files and folders, web export, using illustrations in UI,
+and adding to the set. Moved into `collabrium-dls/illustrations/`.
 
 **v1.1** — 2026-09-09. Narrowed to character creation and governance.
