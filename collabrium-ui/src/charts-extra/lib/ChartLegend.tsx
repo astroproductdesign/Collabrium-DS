@@ -5,8 +5,6 @@ export interface LegendItem {
   name: string;
   /** The swatch colour, as a hex value from the tokens. */
   color: string;
-  /** Draws the swatch with this pattern (0 to 4, the Dither charts' textures), so the key matches the marks. */
-  dither?: number;
   /** A fixed key to the marks (e.g. Increase, Decrease): drawn as plain text, not a button. */
   fixed?: boolean;
 }
@@ -31,12 +29,7 @@ export function ChartLegend({
     <div className="cui-chartx__legend" role="group" aria-label={items.every(i => i.fixed) ? 'Key' : 'Series'}>
       {items.map(item => {
         // The swatch colour is data (it comes from the series), so it travels as a custom property.
-        const swatch =
-          item.dither === undefined ? (
-            <span className="cui-chartx__swatch" style={{ background: item.color }} aria-hidden="true" />
-          ) : (
-            <span className="cui-chartx__swatch" data-dither={item.dither} style={{ ['--cui-swatch' as string]: item.color }} aria-hidden="true" />
-          );
+        const swatch = <span className="cui-chartx__swatch" style={{ background: item.color }} aria-hidden="true" />;
         return item.fixed ? (
           <span key={item.key} className="cui-chartx__legend-item" data-fixed="">
             {swatch}

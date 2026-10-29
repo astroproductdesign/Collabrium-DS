@@ -2,7 +2,7 @@
 
 import { forwardRef, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { transition, type DurationToken, type EaseToken } from './motion';
+import { transition, type DurationToken, type EaseToken } from '../motion';
 
 export interface FadeInProps {
   /** Whether the content is shown. Toggling it fades the content in or out; when false the content is removed from the page. */

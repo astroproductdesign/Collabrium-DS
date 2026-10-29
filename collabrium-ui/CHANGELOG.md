@@ -5,7 +5,8 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 ## Unreleased
 
 ### Added
-- Charts (extra), batch 6: `ComposedChart` (bars and a line, with an optional second axis), `SparklineChart` (the DLS sparkline, with a spoken trend summary), `DitherBarChart` and `DitherDonutChart` (fixed SVG patterns in the DLS colours, so series are told apart without colour).
+- Motion, batch 1: `SlideDown`, `SlideLeft` and `SlideRight` (in `@collabrium/ui/motion`), and pages for `FadeIn`, `SlideUp` and `Collapse`. The slides share one drawing, and the root export lists only the three original wrappers.
+- Charts (extra), batch 6: `ComposedChart` (bars and a line, with an optional second axis) and `SparklineChart` (the DLS sparkline, with a spoken trend summary).
 - Charts (extra), batch 5: `RadarChart`, `PolarAreaChart`, `SankeyChart`, `CandlestickChart` (Recharts) and `PyramidChart` (HTML and CSS). DLS Radar and Polar area marks, a computed Sankey, and candlesticks that tell direction by solid or hollow as well as colour.
 - Charts (extra), batch 4: `ScatterChart`, `BubbleChart`, `TreemapChart` (Recharts) and `HeatmapChart`, `ActivityHeatmapChart` (HTML and CSS). Single-hue shading for the heatmaps and treemap, axis titles on scatter and bubble, and a table that stays in the page, visually hidden, for charts whose picture has no text.
 - `ChartThumbnail` in `@collabrium/ui/charts-extra`: draws any chart as a bare picture of its shape, for cards and galleries. The Charts (extra) overview uses it for its part cards.

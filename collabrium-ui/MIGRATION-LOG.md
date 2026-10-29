@@ -43,7 +43,8 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 19 | Charts (extra), batch 3: Donut, Radial bar group, Radial gauge, Gauge arc, Meter | **review** | Built 2026-10-29. See XCH-25 to XCH-31, Decisions D-102 and D-103 and Open questions Q-XCH-13 to Q-XCH-16. |
 | 20 | Charts (extra), batch 4: Scatter, Bubble, Heatmap, Treemap, Activity heatmap | **review** | Built 2026-10-29. See XCH-33 to XCH-37, Decision D-104 and Open questions Q-XCH-17 to Q-XCH-21. Heatmap and Activity heatmap are HTML and CSS, not Recharts. |
 | 21 | Charts (extra), batch 5: Radar, Polar area, Pyramid, Sankey, Candlestick | **review** | Built 2026-10-29. See XCH-40 to XCH-46, Decision D-105 and Open questions Q-XCH-22 to Q-XCH-27. Pyramid is HTML and CSS, not Recharts. |
-| 22 | Charts (extra), batch 6: Composed, Sparkline, Dither bar, Dither donut (KPI card chart not built: Q-XCH-31) | **review** | Built 2026-10-29. See XCH-47 to XCH-52, Decision D-106 and Open questions Q-XCH-28 to Q-XCH-32. Dither charts are SVG patterns, not canvas. |
+| 22 | Charts (extra), batch 6: Composed, Sparkline | **review** | Built 2026-10-29. See XCH-47, XCH-48, Decision D-106 and Open questions Q-XCH-28 to Q-XCH-32 (all answered 2026-10-29). Dither bar and Dither donut were built and then removed at the user's request; no Dither charts will be added. Amicro's KPI card chart is not built. |
+| 23 | Motion, batch 1: Fade in, Slide up, Slide down, Slide left, Slide right, Collapse | **review** | Built 2026-10-29. Fade in, Slide up and Collapse already existed and now have pages; Slide down, left and right are new. See XMO-1 to XMO-4, Decision D-107 and Open questions Q-MOT-1 to Q-MOT-4. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -433,18 +434,25 @@ Source: `MonoRounded{Radar,Polar,Pyramid,Sankey,Candlestick}Chart.tsx`. The DLS 
 | XCH-45 | Candlestick: Amicro drew bodies and wicks in CSS (solid black up, grey hollow down, no axes). Built on Recharts with axes: up is a solid Green body, down a hollow Red body with a Neutral-1 fill (so direction never rests on colour alone), 2px wick, body at most 24px wide with a 4px radius, the value axis fits the data, a fixed key names the two. Amicro's timeframe toggle, price readout and volume are not part of the chart. Q-XCH-23 |
 | XCH-46 | `inkOn(bg)` picks Neutral-9 or Neutral-1 by contrast for text on a shaded tile; the Treemap used a fixed threshold that put white on mid-Green (2.4:1), so it now uses it too. `PolarFrame` is the frame for every chart with no cartesian axes (Radar, Polar area, Sankey included) |
 
-### Charts (extra), batch 6 (Composed, Sparkline, Dither bar, Dither donut)
+### Charts (extra), batch 6 (Composed, Sparkline)
 
-Source: `MonoRounded{Composed,Sparkline}Chart.tsx`, `Dither{Bar,Donut}Chart.tsx` and `dither-charts/lib/ditherPatterns.tsx`. The DLS Marks table covers "Mixed (Bar + Line)" and "Sparkline". Amicro's `MonoRoundedKpiCardChart` was not built (Q-XCH-31).
+Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "Mixed (Bar + Line)" and "Sparkline". Not built, by the user's decision (2026-10-29): Amicro's `MonoRoundedKpiCardChart` (Stat / KPI card is its own component) and every Dither chart (the user does not want Dither types in the library; Dither bar and Dither donut were built and removed).
 
 | ID | What |
 |---|---|
 | XCH-47 | Composed follows the DLS "Mixed (Bar + Line)" row: bars as Bar (4px outer-end radius, 24px cap, hover 15% toward Neutral-9), line as Line (2px, 3px ringed points, no fill). When the measures differ in scale the line has a second axis on the right with the same hidden border and footnote ticks and no gridline (`lineAxis="own"`, the default); `shared` plots it on the bars' axis. Amicro hid its right axis (a fixed 6 to 10 domain), so the line's values could not be read; its toggle (all, rewards, yield) is the legend, and its headline total and APY belong to the host's card. One line only. Q-XCH-32 |
 | XCH-48 | Sparkline follows the DLS row: 2px line, a gentle curve, no axes, gridlines, legend, tooltip or table, an optional 12% wash, an optional 3px end point, the owning element's colour. Not in `ChartShell`. It is an image (`role="img"`) named by `aria-label` plus a sentence on the trend ("Rising from 38 to 42.4 over 5 points, low 38, high 44."), so the picture is not the only way to learn it. It is 32px tall (`--cui-spark-height`; Amicro's row chart was 28px; Q-XCH-30). Amicro's three-row panel (name, value, status pill, "Live polling") is a list of Stat items, so only the line is ported |
-| XCH-49 | Dither texture: Amicro's is a random, per-frame canvas dot field (white squares thinning toward the top, with a wave, on a dark card). Built as fixed SVG patterns (`lib/dither.tsx`): stipple, dots, hatch, checker, stripes, from sparse to dense, each a 12% wash of the series colour with marks in its full colour and a 1px outline. Still, so it does not flicker, runs no animation frame and is the same on the server and the client. Q-XCH-28 |
-| XCH-50 | Dither bar: Bar chart's chrome, radius, caps, table and legend, with each series' pattern and colour. The hovered bar's pattern and outline are the colour 15% toward Neutral-9 (a second pattern per series). Amicro's period toggle, total and "up 18.4%" are the host's |
-| XCH-51 | Dither donut: Donut chart's ring (45% to 90%), 2px Neutral-1 border, centre reading and tooltip. Every slice is one hue and each is a pattern, sparse to dense, in the place of the ramp's tints (the marks in the pastel rungs would be too faint). Up to four slices. Amicro's five greys, its spring-physics morph, period tabs and plan list are not part of the chart. Q-XCH-29 |
-| XCH-52 | The legend swatch can carry a pattern (`LegendItem.dither`, in CSS gradients with the series colour as `--cui-swatch`), so a Dither chart's key matches its marks. `CartesianFrame` takes `dither` to turn this on |
+
+### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
+
+Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
+
+| ID | What |
+|---|---|
+| XMO-1 | Amicro's entrances use hand-set seconds (0.5 to 0.7), travel of 20 or 40px and their own curves (`easeOutExpo`, `easeOutCubic`). Each is built on the token pairing the library already uses: `--duration-base` with `--ease-settle` (Fade in: `--ease-standard`), and 8px of travel (`--spacing-8`, the DLS entrance distance). Props take token names, never numbers. Q-MOT-1 |
+| XMO-2 | Amicro's Fade up and Fade down are covered by Slide up and the new Slide down; Slide left and Slide right are new. All four share one drawing (`lib/Slide.tsx`) so they cannot drift. Names follow the direction of travel (Slide left arrives from the right), which is also Amicro's meaning of its Slide left. Q-MOT-2 |
+| XMO-3 | The three existing wrappers moved into folders (`src/motion/FadeIn`, `SlideUp`, `Collapse`) with docs, usage and preview files so they appear in the Motion group. Behaviour is unchanged. Slide up is now a thin wrapper over the shared Slide |
+| XMO-4 | The root `@collabrium/ui` export lists the tokens and the three original wrappers only; the new pieces are imported from `@collabrium/ui/motion`. Q-MOT-3 |
 
 ### Tokens and global
 
@@ -738,7 +746,8 @@ Grouped by component. Line numbers are CSS / DS.
 | D-103 | Provisional: the four-slice cap and 45% hole, the centre readouts, the radial ring thickness and angles, the gauge sweeps | Flagged Q-XCH-13 to Q-XCH-16 |
 | D-104 | The shaded charts (Heatmap, Treemap, Activity heatmap) use the DLS Sequential rule: one hue, from the -bg tint to the full colour. Scatter and Bubble use their Marks rows. Heatmap and Activity heatmap are HTML and CSS | XCH-33, XCH-35 to XCH-38. Flagged Q-XCH-17 to Q-XCH-21 |
 | D-105 | Radar and Polar area follow the DLS Marks rows; Amicro's "polar" is not built (it duplicates Radial gauge). Candlestick uses the Green and Red diverging pair with solid and hollow bodies. Pyramid is HTML and CSS | XCH-40 to XCH-45. Flagged Q-XCH-22 to Q-XCH-27 |
-| D-106 | Composed follows the DLS Mixed row with a visible second axis. Sparkline follows the DLS Sparkline row and is only the line. The Dither charts are still SVG patterns in the DLS colours (the user chose patterns with DLS colours, 2026-10-29). Amicro's KPI card chart is not built (the DLS has a Stat / KPI card component, and says a trend beside a headline number is a sparkline in its slot) | XCH-47 to XCH-52. Flagged Q-XCH-28 to Q-XCH-32 |
+| D-106 | Composed follows the DLS Mixed row with a visible second axis. Sparkline follows the DLS Sparkline row and is only the line. No Dither charts and no KPI card chart (user, 2026-10-29) | XCH-47, XCH-48. Q-XCH-28 to Q-XCH-32 answered |
+| D-107 | Motion (Phase 2): loaders are not ported (Loading State is the DLS component for that); entrances extend the existing Fade in and Slide up rather than adding Amicro's seven as separate pieces; Amicro's bouncing and springy pieces are ported as they are, with the DLS asked for an exception (user, 2026-10-29) | XMO-1 to XMO-4. Flagged Q-MOT-1 to Q-MOT-4 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -921,11 +930,20 @@ Leave these open until a designer answers. Each one has a TODO in the code that 
 | Q-XCH-25 | Polar area wedges are 75% opaque over the ramp without its faintest tint; the DLS says 30% and 15%, which makes the pale wedges vanish. Keep? My recommendation: keep | `PolarAreaChart` |
 | Q-XCH-26 | Sankey: sources take series colours with 30% bands, everything downstream is Obsidian; no loops. Keep? My recommendation: keep | `SankeyChart` |
 | Q-XCH-27 | Radar: axes 0 to 10 by default (pass `max` for another scale), ring values between two spokes on a backdrop, up to six axes. Keep? My recommendation: keep | `RadarChart` |
-| Q-XCH-28 | Dither charts use fixed SVG patterns (stipple, dots, hatch, checker, stripes) in a 12% wash of the series colour with full-colour marks and a 1px outline, not Amicro's random animated canvas dots. Keep? My recommendation: keep | `lib/dither.tsx`, `DitherBarChart` |
-| Q-XCH-29 | Dither donut: one hue, and the slices differ by pattern (sparse to dense) rather than by tint, up to four. The DLS Doughnut says a same-hue tint ramp. Keep? My recommendation: keep | `DitherDonutChart` |
-| Q-XCH-30 | Sparkline is 32px tall (the DLS gives the slot no height; no token). Keep? My recommendation: keep, or tell me the Stat / KPI card's slot height | `SparklineChart` |
-| Q-XCH-31 | Amicro's KPI card chart (headline number, change, period toggle, area trend) is not built: the DLS says a single headline number is a Stat / KPI card, not a chart, and puts a trend beside it as a sparkline in that card's slot. Stat / KPI card is not converted yet. Keep it out? My recommendation: keep it out, and convert Stat / KPI card as its own component when you want it | `SparklineChart` |
-| Q-XCH-32 | Composed: the line gets its own axis on the right by default (the DLS says add one when the series do not share a scale). Amicro hid it. One line only. Keep? My recommendation: keep | `ComposedChart` |
+| Q-XCH-28 | Dither charts' texture (fixed SVG patterns). **Withdrawn 2026-10-29:** the user does not want Dither types in the library; Dither bar and Dither donut were removed and none will be added | — |
+| Q-XCH-29 | Dither donut: pattern per slice instead of tint. **Withdrawn 2026-10-29** with Q-XCH-28 | — |
+| Q-XCH-30 | Sparkline is 32px tall (the DLS gives the slot no height; no token). **Answered 2026-10-29: keep** | `SparklineChart` |
+| Q-XCH-31 | Amicro's KPI card chart is not built. **Answered 2026-10-29:** Stat / KPI card is its own component, unrelated to this chart; nothing to do here | — |
+| Q-XCH-32 | Composed: the line gets its own axis on the right by default; one line only. **Answered 2026-10-29: keep** | `ComposedChart` |
+
+### Motion
+
+| ID | Question | Where |
+|---|---|---|
+| Q-MOT-1 | Slide up, down, left and right travel 8px (the DLS entrance distance) over `--duration-base` with `--ease-settle`. Amicro's travel 20 to 40px over 0.6s. Keep? My recommendation: keep | `lib/Slide.tsx` |
+| Q-MOT-2 | The slides are named by the direction of travel: Slide left arrives from the right. Keep? My recommendation: keep | `SlideLeft`, `SlideRight` |
+| Q-MOT-3 | The root `@collabrium/ui` exports the three original wrappers only; Slide down, left and right come from `@collabrium/ui/motion`. Keep? My recommendation: keep, so the root stays the components set | `src/index.ts` |
+| Q-MOT-4 | Amicro's Scale in (an overshoot curve) and Zoom in (a blur) are not built yet. You said to port bouncy pieces as they are, and also to extend the existing entrances; those two pull opposite ways. Build Scale in and Zoom in as they are, with the DLS asked for an exception? My recommendation: skip both, since Slide and Fade cover entrances and the DLS says no overshoot | — |
 
 ### Global
 
@@ -1016,4 +1034,5 @@ Every place where the React library now follows a decision that differs from the
 | 59 | Per-chart-type marks: add Radial bar group, Radial gauge, Gauge arc and Meter; say how many Doughnut slices the ramp can carry (it has four rungs, the DLS says five) and the Doughnut cutout (pending Q-XCH-13 to Q-XCH-16) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
 | 60 | Per-chart-type marks: add Heatmap, Treemap and Activity heatmap rows (single-hue ramp, continuous or in steps), Bubble's table, and say that Heatmap and Activity heatmap are drawn in HTML and CSS (pending Q-XCH-17 to Q-XCH-21) | DESIGN-SYSTEM.md 4358–4376; 4408–4414 | 2026-10-29 |
 | 61 | Per-chart-type marks: add Polar area's wedge opacity and number of wedges, Pyramid, Sankey and Candlestick (solid and hollow); say Radar's ring values sit between two spokes (pending Q-XCH-22 to Q-XCH-27) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
-| 62 | Per-chart-type marks: add the Dither pattern set (stipple, dots, hatch, checker, stripes; a 12% wash with full-colour marks) for the Dither bar and Dither donut, and say a Sparkline is 32px tall (pending Q-XCH-28 to Q-XCH-30, Q-XCH-32) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
+| 62 | Per-chart-type marks: say a Sparkline is 32px tall (decided Q-XCH-30); Mixed (Bar + Line) keeps its visible second axis (decided Q-XCH-32) | DESIGN-SYSTEM.md 4358–4376 | 2026-10-29 |
+| 63 | Motion: add Slide down, Slide left and Slide right beside Slide up (8px travel, `--duration-base`, `--ease-settle`, fade kept under reduced motion), named by the direction of travel (pending Q-MOT-1, Q-MOT-2) | DESIGN-SYSTEM.md 1089, 2222 | 2026-10-29 |

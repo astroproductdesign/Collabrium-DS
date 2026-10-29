@@ -7,7 +7,8 @@ export { tokens } from './tokens/tokens';
 export type { Tokens, ColorToken, DurationToken, EaseToken } from './tokens/tokens';
 
 // Motion
-export * from './motion';
+export { duration, ease, transition, slideDistance } from './motion';
+export { FadeIn, SlideUp, Collapse, type FadeInProps, type SlideUpProps, type CollapseProps } from './motion';
 
 // Components
 export * from './components/Button';

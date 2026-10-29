@@ -2,7 +2,7 @@
 
 import { forwardRef, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { transition, type DurationToken, type EaseToken } from './motion';
+import { transition, type DurationToken, type EaseToken } from '../motion';
 
 export interface CollapseProps {
   /** Whether the content is expanded. When false the content is removed after it collapses. */

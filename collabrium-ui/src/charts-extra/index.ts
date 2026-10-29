@@ -35,5 +35,3 @@ export { SankeyChart, type SankeyChartProps, type SankeyLink } from './SankeyCha
 export { CandlestickChart, type CandlestickChartProps } from './CandlestickChart';
 export { ComposedChart, type ComposedChartProps } from './ComposedChart';
 export { SparklineChart, type SparklineChartProps } from './SparklineChart';
-export { DitherBarChart, type DitherBarChartProps } from './DitherBarChart';
-export { DitherDonutChart, type DitherDonutChartProps } from './DitherDonutChart';

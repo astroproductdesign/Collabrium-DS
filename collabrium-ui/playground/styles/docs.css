@@ -194,3 +194,16 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
   margin: 0 0 var(--spacing-24);
   color: var(--color-neutral-9);
 }
+
+/* Motion docs: a fixed-height stage so showing and hiding a sample never moves the page, and the sample itself. */
+.docs-motion-stage { min-height: var(--spacing-120); display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-12); overflow: hidden; }
+.docs-motion-sample {
+  margin: 0;
+  padding: var(--spacing-16);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  color: var(--color-neutral-9);
+}

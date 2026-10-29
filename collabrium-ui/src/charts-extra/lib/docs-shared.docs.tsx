@@ -296,10 +296,3 @@ export const episodes = [
 
 export const readings = [38, 41, 39, 44, 42.4];
 export const iops = [28, 34, 42, 49, 48.2];
-
-export const plans = [
-  { plan: 'Unlimited', members: 1240 },
-  { plan: '30-day pass', members: 980 },
-  { plan: '10-class pack', members: 620 },
-  { plan: 'Drop-in', members: 410 },
-];

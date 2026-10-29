@@ -8,7 +8,6 @@ import { ChartTooltip, type TooltipDescribe } from './ChartTooltip';
 import { axisTick, cursor, cursorBand, defaultFormat, grid } from './chart-theme';
 import { resolveSeriesColorName, seriesColorValue, type SeriesColorName } from './series-colors';
 import { useBare } from './bare';
-import { ditherKindAt } from './dither';
 import { useChartMotion } from './useChartMotion';
 
 /** One row of chart data: the category plus a number per series. */
@@ -95,8 +94,6 @@ interface FrameProps {
   /** Replaces the default tooltip lines (one "name: value" per series). */
   describe?: TooltipDescribe;
   table: ChartTable;
-  /** Draws each legend swatch with its series' dither pattern (Dither charts). */
-  dither?: boolean;
   /** Extra legend items after the series, e.g. the remainder of a stack, or a fixed key to the marks. */
   extraLegend?: LegendItem[];
   children: (ctx: FrameContext) => ReactElement;
@@ -104,7 +101,7 @@ interface FrameProps {
 
 /** The Recharts frame: DLS axes, gridline, tooltip and motion around the chart a component draws. */
 export const CartesianFrame = forwardRef<HTMLElement, FrameProps>(function CartesianFrame(
-  { label, legend, legendSeries = true, series, categoryKey, height, valueFormat = defaultFormat, yAxisStart = 'zero', orientation = 'vertical', marks = 'lines', describe, table, extraLegend = [], dither, children },
+  { label, legend, legendSeries = true, series, categoryKey, height, valueFormat = defaultFormat, yAxisStart = 'zero', orientation = 'vertical', marks = 'lines', describe, table, extraLegend = [], children },
   ref,
 ) {
   const motion = useChartMotion();
@@ -130,7 +127,7 @@ export const CartesianFrame = forwardRef<HTMLElement, FrameProps>(function Carte
       ];
   const tooltip = bare ? <></> : <Tooltip key="tip" cursor={marks === 'bars' ? cursorBand : cursor} content={<ChartTooltip format={valueFormat} describe={describe} />} />;
 
-  const legendItems = legend ? [...(legendSeries ? series.map((s, i) => ({ key: s.key, name: s.name, color: s.hex, dither: dither ? ditherKindAt(i) : undefined })) : []), ...extraLegend] : undefined;
+  const legendItems = legend ? [...(legendSeries ? series.map(s => ({ key: s.key, name: s.name, color: s.hex })) : []), ...extraLegend] : undefined;
 
   return (
     <ChartShell ref={ref} label={label} height={height} legend={legendItems} table={table} fill>
