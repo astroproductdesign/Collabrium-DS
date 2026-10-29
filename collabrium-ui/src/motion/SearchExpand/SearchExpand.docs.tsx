@@ -80,11 +80,11 @@ export const rules: DocsRules = {
 
 export const accessibility: DocsAccessibility = {
   keyboard: [
-    { keys: 'Tab', action: 'Moves to the search button, then into the field when it is open.' },
-    { keys: 'Enter / Space', action: 'On the button, opens the field.' },
+    { keys: 'Tab', action: 'Moves to the search button, then to the clear button when there is text.' },
+    { keys: 'Enter / Space', action: 'On the button, opens the field and moves focus into it.' },
     { keys: 'Escape', action: 'In the field, clears the text; with no text, closes the field.' },
   ],
-  notes: ["The toggle is a real button with `aria-expanded`; the field is a real search input named by `aria-label`. Focus stays on the button when it opens, and the field is the next Tab stop. Escape clears the text and then closes it. Reduced motion opens and closes at once."],
+  notes: ["The toggle is a real button with `aria-expanded`; the field is a real search input named by `aria-label`. Opening the field moves focus into it, so the person can type at once. Escape clears the text and then closes it. Reduced motion opens and closes at once."],
 };
 
 export const motion: DocsMotion[] = [

@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { MagnifyingGlass, X } from '@phosphor-icons/react';
 import { transition } from '../motion';
@@ -23,8 +23,9 @@ export interface SearchExpandProps {
 /**
  * A search that is a round button until it is pressed, then grows into a field
  * and shrinks back when it loses focus while empty. Escape clears the text,
- * then closes. Focus stays on the button when it opens, and the field is the
- * next Tab stop (Q-MOT-18). Under reduced motion it opens and closes at once.
+ * then closes. Opening it moves focus into the field: the one place the DLS's
+ * focus rule is relaxed, because the person opened it to type (decided
+ * Q-MOT-18). Under reduced motion it opens and closes at once.
  */
 export const SearchExpand = forwardRef<HTMLDivElement, SearchExpandProps>(function SearchExpand(
   { 'aria-label': label, expanded, onExpandedChange, value, onChange, placeholder = 'Search' },
@@ -46,6 +47,10 @@ export const SearchExpand = forwardRef<HTMLDivElement, SearchExpandProps>(functi
     onChange?.(next);
   };
   const t = reduce ? { duration: 0 } : transition('morph', 'morph');
+  // Opening to type: move focus into the field once it is in the page (Q-MOT-18).
+  useEffect(() => {
+    if (open) input.current?.focus();
+  }, [open]);
   return (
     <div
       ref={el => {

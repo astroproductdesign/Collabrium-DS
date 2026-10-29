@@ -62,7 +62,7 @@ If the source is missing something (a state, a value, a rule):
 - **Semantics and accessibility:**
   - Use the correct native element (a real `<button>`, labels for inputs) and correct ARIA.
   - Full keyboard support and a visible focus ring.
-  - Focus moves only to a heading or an error message, never anywhere else. One approved exception: when a decision removes the focused button (Permission Prompt), focus moves to the resolved row so the outcome is read.
+  - Focus moves only to a heading or an error message, never anywhere else. Approved exceptions: when a decision removes the focused button (Permission Prompt), focus moves to the resolved row so the outcome is read; and opening Search expand moves focus into its field, because the person opened it to type (decided 2026-10-29).
   - No live regions unless the DLS spec explicitly calls for one.
 - **`"use client"`** only in components that need interaction, state, effects or motion. The build keeps each file's directive and fails if one goes missing.
 - **Forward refs** to the main DOM element.

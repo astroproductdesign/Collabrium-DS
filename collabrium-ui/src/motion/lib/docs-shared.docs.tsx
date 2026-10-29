@@ -179,3 +179,25 @@ export function StairsPicture() {
     </div>
   );
 }
+
+/** Sample cards for the card layouts: a tinted face with a name, so nothing needs an image. */
+export const sampleCards = ['Reports', 'Goals', 'People', 'Plans', 'Notes', 'Files', 'Tasks'].map((name, i) => ({
+  id: name.toLowerCase(),
+  label: name,
+  content: (
+    <span className="docs-card-face" data-hue={['orange', 'navy', 'green', 'amber', 'salmonPink', 'purple', 'turquoise'][i]}>
+      {name}
+    </span>
+  ),
+}));
+
+/** Moves a controlled index along every 1.4 seconds, for card thumbnails. Still under reduced motion. */
+export function AutoIndex({ count, start = 0, children }: { count: number; start?: number; children: (index: number) => ReactNode }) {
+  const [index, setIndex] = useState(start);
+  useEffect(() => {
+    if (reducedMotion()) return;
+    const id = window.setInterval(() => setIndex(i => (i + 1) % count), 1400);
+    return () => window.clearInterval(id);
+  }, [count]);
+  return <div className="docs-card-thumb">{children(index)}</div>;
+}

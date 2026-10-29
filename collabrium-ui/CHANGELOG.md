@@ -5,6 +5,7 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 ## Unreleased
 
 ### Added
+- Motion, batch 5: `CardSpread` (eight layouts), `CardCarousel`, `CardCoverFlow` and `CardTimeMachine`, in `@collabrium/ui/motion`. Cards are items with the DLS surface; the controls are DLS Buttons and dots; only the front card is exposed to assistive technology.
 - Motion, batch 4: `IconSwap`, `CountUp`, `ScrambleHover`, `FocusBlur`, `TextSweep`, `MediaBetweenText`, `PlayPauseMorph`, `SearchExpand`, `ExpandingTabs` and `Dock`, in `@collabrium/ui/motion`. Effects keep the real text in the page for assistive technology; the tabs are a keyboard-operable tab list.
 - Motion, batch 3: `ScrollProgress`, `ScrollReveal`, `StickyReveal`, `PageTransition` (stairs, wave, fade) and the hooks `useScrollProgress`, `useMousePosition`, `useStagger`, `useWebHaptics` and `useReducedMotion`, in `@collabrium/ui/motion`. Reduced motion keeps the fade or follows the scroll exactly; every stagger and duration is a token.
 - Motion, batch 2: text effects (`BlurText`, `CharacterStagger`, `WordReveal`, `TextReveal`), hover effects (`HoverCards`, `Spotlight`, `Magnetic`, `Tilt`) and cursor effects (`CursorTrail`, `MouseFollow`), in `@collabrium/ui/motion`. Text is read once as a sentence; reduced motion keeps the fade and drops the rest.

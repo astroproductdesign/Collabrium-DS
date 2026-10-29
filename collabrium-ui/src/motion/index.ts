@@ -37,3 +37,8 @@ export { SearchExpand, type SearchExpandProps } from './SearchExpand';
 export { ExpandingTabs, type ExpandingTabsProps, type ExpandingTab } from './ExpandingTabs';
 export { Dock, type DockProps, type DockItem } from './Dock';
 export type { RampHue } from './lib/ramp';
+export { CardSpread, type CardSpreadProps, type CardSpreadLayout } from './CardSpread';
+export { CardCarousel, type CardCarouselProps } from './CardCarousel';
+export { CardCoverFlow, type CardCoverFlowProps } from './CardCoverFlow';
+export { CardTimeMachine, type CardTimeMachineProps } from './CardTimeMachine';
+export type { CardItem } from './lib/cards';

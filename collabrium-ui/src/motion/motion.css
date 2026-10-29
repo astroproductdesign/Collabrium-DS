@@ -220,3 +220,114 @@
   .cui-dock,
   .cui-dock__item{border-color: CanvasText;}
 }
+
+/* Card layouts: a card surface shared by the four pieces, and their stages. */
+.cui-card-surface{
+  display: block; overflow: hidden; background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-2);
+}
+.cui-card-surface img,
+.cui-card-surface video{display: block; width: 100%; height: 100%; object-fit: cover;}
+
+/* Card spread: a stack in the middle of its box; the cards fan beyond it, so leave room around it. */
+.cui-card-spread{
+  /* TODO(open-question Q-MOT-22): Amicro's 128px by 176px stack (8rem by 11rem), no tokens. */
+  --cui-spread-width: 128px;
+  --cui-spread-height: 176px;
+  position: relative; width: var(--cui-spread-width); height: var(--cui-spread-height); font-family: var(--font-primary);
+  border-radius: var(--radius-md);
+}
+.cui-card-spread:focus-visible{outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset);}
+.cui-card-spread__card{
+  position: absolute; inset: 0; display: block; overflow: hidden; background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); box-shadow: var(--shadow-2);
+}
+.cui-card-spread__card > img,
+.cui-card-spread__card > video{display: block; width: 100%; height: 100%; object-fit: cover;}
+
+/* Shared controls under the carousel and the cover flow: Previous, a dot per card, Next. */
+.cui-card-controls{display: flex; align-items: center; gap: var(--spacing-12);}
+.cui-card-controls__dots{display: flex; align-items: center; gap: var(--spacing-6);}
+.cui-card-controls__dot{
+  width: var(--spacing-8); height: var(--spacing-8); margin: 0; padding: 0; border: 0; cursor: pointer; border-radius: var(--radius-pill); background: var(--color-neutral-4);
+  transition: width var(--duration-base) var(--ease-standard), background-color var(--duration-base) var(--ease-standard);
+}
+.cui-card-controls__dot:hover{background: var(--color-neutral-5);}
+.cui-card-controls__dot[aria-current]{width: var(--spacing-20); background: var(--color-neutral-9);}
+.cui-card-controls__dot:focus-visible{outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset);}
+
+/* Card carousel. */
+.cui-card-carousel{
+  /* TODO(open-question Q-MOT-22): Amicro's 180px window height and 110px square card, no tokens. */
+  --cui-carousel-height: 180px;
+  --cui-carousel-card: 110px;
+  display: flex; flex-direction: column; align-items: center; gap: var(--spacing-16); font-family: var(--font-primary); user-select: none;
+}
+.cui-card-carousel__window{position: relative; display: flex; align-items: center; height: var(--cui-carousel-height);}
+.cui-card-carousel__track{display: flex; align-items: center; width: fit-content;}
+.cui-card-carousel__slide{display: flex; flex: none; flex-direction: column; align-items: center; gap: var(--spacing-6);}
+.cui-card-carousel__caption{
+  font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--text-label3-weight); color: var(--color-neutral-5); white-space: nowrap;
+  opacity: 0; transition: opacity var(--duration-base) var(--ease-standard);
+}
+.cui-card-carousel__caption[data-on]{opacity: 1; color: var(--color-neutral-9);}
+.cui-card-carousel__card{width: var(--cui-carousel-card); height: var(--cui-carousel-card);}
+
+/* Card cover flow. */
+.cui-cover-flow{
+  /* TODO(open-question Q-MOT-22): Amicro's 1000px perspective, 140px stage and 80px by 106px card, no tokens. */
+  --cui-flow-depth: 1000px;
+  --cui-flow-height: 140px;
+  --cui-flow-card: 80px;
+  display: flex; flex-direction: column; align-items: center; gap: var(--spacing-32); font-family: var(--font-primary); user-select: none; perspective: var(--cui-flow-depth);
+}
+.cui-cover-flow__stage{position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: var(--cui-flow-height); transform-style: preserve-3d;}
+.cui-cover-flow__card{position: absolute; width: var(--cui-flow-card); aspect-ratio: 3 / 4; cursor: pointer;}
+.cui-cover-flow__face{width: 100%; height: 100%;}
+.cui-cover-flow__caption{
+  position: absolute; left: calc(var(--spacing-20) * -1); right: calc(var(--spacing-20) * -1); bottom: calc(var(--spacing-24) * -1); overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--text-label3-weight); color: var(--color-neutral-9);
+}
+
+/* Card time machine: a deck receding into the distance, and a scrubber of marks beside it. */
+.cui-time-machine{
+  /* TODO(open-question Q-MOT-22): Amicro's 800px perspective, 220px by 135px cards and 24px marks, no tokens. */
+  --cui-time-depth: 800px;
+  --cui-time-card-width: 220px;
+  --cui-time-card-height: 135px;
+  --cui-time-mark: 24px;
+  --cui-time-stage: 290px;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--spacing-24); font-family: var(--font-primary);
+}
+.cui-time-machine__stage{position: relative; display: flex; align-items: center; justify-content: center; flex: none; width: var(--cui-time-stage); max-width: 100%; aspect-ratio: 4 / 3; perspective: var(--cui-time-depth);}
+.cui-time-machine__card{position: absolute; width: var(--cui-time-card-width); height: var(--cui-time-card-height);}
+.cui-time-machine__face{width: 100%; height: 100%;}
+.cui-time-machine__scrubber{display: flex; flex-direction: column; align-items: flex-end; padding: var(--spacing-8) var(--spacing-4);}
+.cui-time-machine__mark,
+.cui-time-machine__sub{position: relative; display: flex; align-items: center; justify-content: flex-end; width: var(--spacing-60); margin: 0; padding: var(--spacing-2) 0; border: 0; background: none; cursor: pointer;}
+.cui-time-machine__mark:focus-visible{outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); border-radius: var(--radius-xs);}
+.cui-time-machine__tick,
+.cui-time-machine__sub::before{
+  content: ''; display: block; width: var(--cui-time-mark); height: var(--spacing-4); border-radius: var(--radius-pill); background: var(--color-neutral-4); transform-origin: right center;
+  transition: transform var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-time-machine__sub::before{background: var(--color-neutral-3);}
+.cui-time-machine__mark[data-current] .cui-time-machine__tick{background: var(--color-navy); transform: scaleX(1.4);}
+.cui-time-machine__mark[data-near]:not([data-current]) .cui-time-machine__tick,
+.cui-time-machine__sub[data-near]::before{transform: scaleX(1.2);}
+.cui-time-machine__mark:hover .cui-time-machine__tick{background: var(--color-neutral-5);}
+.cui-time-machine__mark[data-current]:hover .cui-time-machine__tick{background: var(--color-navy);}
+.cui-time-machine__tip{
+  position: absolute; right: calc(var(--cui-time-mark) * 1.4 + var(--spacing-8)); top: 50%; translate: 0 -50%; white-space: nowrap;
+  font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--text-label3-weight); color: var(--color-neutral-9);
+}
+
+@media (forced-colors: active){
+  .cui-card-surface,
+  .cui-card-spread__card{border-color: CanvasText;}
+  .cui-card-controls__dot{background: GrayText;}
+  .cui-card-controls__dot[aria-current]{background: Highlight;}
+  .cui-time-machine__tick,
+  .cui-time-machine__sub::before{background: GrayText;}
+  .cui-time-machine__mark[data-current] .cui-time-machine__tick{background: Highlight;}
+}

@@ -32,7 +32,7 @@ A search that is a round button until it is pressed, then grows into a field and
 
 ## Accessibility
 
-- The toggle is a real button with `aria-expanded`; the field is a real search input named by `aria-label`. Focus stays on the button when it opens, and the field is the next Tab stop. Escape clears the text and then closes it. Reduced motion opens and closes at once.
+- The toggle is a real button with `aria-expanded`; the field is a real search input named by `aria-label`. Opening the field moves focus into it (decided Q-MOT-18): the person opened it to type, so this is the one place the DLS's "focus moves only to a heading or an error message" rule is relaxed. Escape clears the text and then closes it. Reduced motion opens and closes at once.
 
 ## Motion
 
@@ -50,4 +50,4 @@ import { SearchExpand } from '@collabrium/ui/motion';
 
 ## Replaces
 
-Amicro `SearchExpand`. Its black pill, mono key hint and spring become DLS tokens, `--duration-morph` with `--ease-morph` and a plain Esc hint; it no longer moves focus into the field when it opens, because the DLS says focus moves only to a heading or an error message (Q-MOT-18).
+Amicro `SearchExpand`. Its black pill, mono key hint and spring become DLS tokens, `--duration-morph` with `--ease-morph` and a plain Esc hint; opening it moves focus into the field, as Amicro's did (an approved exception to the DLS focus rule, Q-MOT-18).
