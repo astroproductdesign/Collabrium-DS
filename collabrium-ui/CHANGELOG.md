@@ -5,6 +5,7 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 ## Unreleased
 
 ### Docs site
+- A preview wider than its box (a 280px card on a phone) now scrolls inside the box instead of widening the page.
 - Every card picture (home, Motion, Charts (extra), AI Native) is the same 152px box, and what it shows is scaled to fit it (`ThumbFit`), so no preview spills out of its card. Card-layout previews are tinted cards with no text on a fixed canvas.
 - The bigger AI Native components (Chat window, Permission Prompt, Tool approval, Task Rows) show outline pictures on their cards; the five hooks (useMousePosition, useReducedMotion, useScrollProgress, useStagger, useWebHaptics) show looping outline pictures. Both are CSS only and still under reduced motion.
 - The docs pages fill the width between the sidebar and "On this page" (no 1200px cap; paragraphs keep their 68-character line length), and each example sits in its own tinted panel.
@@ -15,6 +16,7 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 - `body` now sets body1 (16px / 22px / 500). Charts: gridlines are 1px on both engines, and marks draw in over `--duration-reveal` (Chart.js `easeOutQuart`, Recharts `ease-out`), with reduced motion still off. Bars take 60% of their category (capped at 24px, or 20px horizontal); vertical bar charts (Bar, Stacked bar, Waterfall, Candlestick, Composed) give every category a 40px slot and scroll sideways when they do not fit, with the value axis fixed in place; axis numbers shorten (500k, 1.2M) while tooltips show the full value, tooltips are per category for line, area and bar charts and per point or slice for the rest, and the legend swatch is 12px.
 
 ### Added
+- Feature tile (USP) in `Card`: `minWidth="functional"` (280px), `CardList` (three check-circle points) and a Button as a direct child, stretched to the full width of the card and pinned to the bottom of every card in a row.
 - `Card` can be selectable: give it a `selectLabel` and it carries the real Checkbox on the left (shown on hover, keyboard focus and while selected, and always on touch), with a Selected look of a 2px Obsidian border and a deeper shadow. For rosters with a bulk action.
 - `Card`, `CardTitle`, `CardHeader`, `CardFooter`, `CardGrid` and `IconChip`: the base card (surface, header with an icon chip and a subtitle, footer, element accent and tint, warm fill) and the grid it sits in. A clickable card is a real link or button in the title, stretched over the card. The docs site now uses them for its own cards.
 - Motion, batch 5: `CardSpread` (eight layouts), `CardCarousel`, `CardCoverFlow` and `CardTimeMachine`, in `@collabrium/ui/motion`. Cards are items with the DLS surface; the controls are DLS Buttons and dots; only the front card is exposed to assistive technology.

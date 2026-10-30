@@ -64,7 +64,8 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-switch:has(input:focus-visible) .c-switch-track { outline: var(--border-width-md) solid var(--color-obsidian); outline-offset: var(--border-width-md); }
 .docs-stage { min-width: 0; }
 .docs-stage[data-mobile] { max-width: var(--docs-mobile-width); margin-inline: auto; }
-.docs-stage-inner { min-width: 0; }
+/* A preview wider than the box (a card with a 280px floor on a phone) scrolls inside the box, not the page. The padding and matching negative margin leave room for shadows and focus rings at the edges. */
+.docs-stage-inner { min-width: 0; overflow-x: auto; padding: var(--spacing-12); margin: calc(var(--spacing-12) * -1); }
 .docs-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-12); }
 .docs-row--beacon { padding-block: var(--spacing-12); }
 .docs-status { font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); }

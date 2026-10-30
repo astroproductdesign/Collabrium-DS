@@ -51,6 +51,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 27 | Motion, batch 5: Card spread (eight layouts), Card carousel, Card cover flow, Card time machine | **review** | Built 2026-10-29. See XMO-25 to XMO-28, Decision D-111 and Open questions Q-MOT-22 to Q-MOT-24. This completes the Amicro animation port apart from what Q-MOT-20 and Q-MOT-21 leave out. |
 | 28 | Card (base): Card, CardTitle, CardHeader, CardFooter, CardGrid, IconChip | **review** | Built 2026-10-30. See CARD-1 to CARD-5, Decision D-113 and Open questions Q-CARD-1 to Q-CARD-6. The card variants that have their own sections (Selectable, USP, Price summary, Profile, Campaign, Hero, Pacing, Media Ad, Entry, Ad Placement) are separate components and are not built. The docs site now uses Card and CardGrid for its own cards. |
 | 29 | Selectable card (a variant of Card, not a separate component) | **review** | Built 2026-10-30 into Card: a card given a `selectLabel` carries the real Checkbox, now on the left (user, 2026-10-30). See SEL-1 to SEL-3, Decision D-114 and Open questions Q-SEL-1 to Q-SEL-4, all answered (and Q-CHK-6, now answered). Profile card keeps its own always-visible checkbox and is a separate component. USP card is next. |
+| 30 | USP card (feature tile), a variant of Card | **review** | Built 2026-10-30 into Card: `minWidth="functional"` (280px), `CardList` (three check-circle points) and a Button as a direct child, full width. See USP-1 to USP-3, Decision D-115 and Open questions Q-USP-1 to Q-USP-3. Price summary card is next among the functional cards (it needs Empty state). |
 | — | everything else | todo | Not started. |
 
 ---
@@ -470,6 +471,14 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-SEL-3 | The checkbox is the real Checkbox (a labelled input, named by `selectLabel`) placed first in the card, so Tab reaches it before the title's link or button. The DLS draws a bare `span`. Keep? My recommendation: keep **Answered 2026-10-30: keep (the recommendation)** | `Card.tsx` |
 | Q-SEL-4 | The checkbox sits on the left of a selectable card, 16px in, and all of the card's content (title or header, text, footer) sits in one column to its right, 16px clear of the box, so the description lines up with the heading (an icon chip moves along). The DLS puts it top right with 24px of room on the title's right. **Answered 2026-10-30 (user): left, 16px gap, content aligned.** | `Card.css` |
 
+### USP card
+
+| ID | Question | Where |
+|---|---|---|
+| Q-USP-1 | USP is a variant of Card (`minWidth="functional"` and `CardList`), not a separate component, as the DLS describes it and as Selectable now is. Keep? My recommendation: keep | `Card`, `CardList` |
+| Q-USP-2 | The DS says the USP header is h4; the base title is h5, so the USP uses the base title (h5 look, heading level 3 by default). Keep? My recommendation: keep | `CardTitle` |
+| Q-USP-3 | The call to action is the real Button as a direct child of the card: the card stretches it to full width and centres its label (`.cui-card > .cui-button`). Keep, or add a `fullWidth` prop to Button? My recommendation: keep (no prop; the card owns the layout) | `Card.css` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -550,6 +559,14 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | SEL-1 | The checkbox appears on `:hover` only in the source: a keyboard user would tab onto an invisible control, and a touch screen (no hover) could never show it. Built it also shown on `:focus-within` and, under `(hover: none)`, always. Q-SEL-1 | 301 | 2765–2770 |
 | SEL-2 | The source's `.is-selected` shadow-3 (declared after the focus rule at equal specificity) hides the focus halo on a selected card. Built the halo to win over Selected. Q-SEL-2 | 290, 303 | 2790–2797 |
 | SEL-3 | The source draws the checkbox as a bare `span` with `role="checkbox"`. Built it with the real Checkbox, unlabelled and named by `selectLabel`, placed first in the card so it is the first tab stop. Q-SEL-3 | 299 | 2760–2765 |
+
+### USP card, a variant of Card (affects the Card conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| USP-1 | The DS names the header "h4, same as base", but the base card's title is h5. Built it with the base title (an h5 look, level 3 by default). Q-USP-2 | 307 | 2641 |
+| USP-2 | The DLS added USP "as a variant of Card, not a new component" (v0.9.43), and the Selectable decision puts variants inside Card. Built it as `minWidth="functional"` and `CardList` on Card, not a separate component. Q-USP-1 | 304–314 | 2641, 13002 |
+| USP-3 | The button's full width and centred label are `.c-card-usp .c-btn` in the source. Built as `.cui-card > .cui-button`, so any Button that is a direct child of a card stretches; Button has no width prop. Q-USP-3 | 314 | 2641 |
 
 ### Tokens and global
 
@@ -852,6 +869,7 @@ Grouped by component. Line numbers are CSS / DS.
 | D-112 | Docs site only (no library or DLS change): every card picture is one 152px box with its content scaled to fit; big AI Native components and the five hooks show CSS outline pictures; docs pages fill the available width; each example sits in a tinted panel (user, 2026-10-30) | `playground/components/ThumbFit.tsx`, `src/components/docs-outline.docs.tsx`, `src/motion/lib/docs-shared.docs.tsx`, `playground/styles/docs.css` |
 | D-113 | Card (base): the surface, header, icon chip, footer, accent, tint, warm and grid are ported; a clickable card is a real link or button in the title, stretched over the card; the title is a real heading with a level prop; the five elements each get an accent, a tint and a chip colour; forced-colours focus is an outline | CARD-1 to CARD-5. Flagged Q-CARD-1 to Q-CARD-6 |
 | D-114 | Selectable is a variant of Card (a `selectLabel` prop), not a separate component: the real Checkbox on the LEFT (user), hidden at rest, shown on hover, focus-within, while selected and (always) on touch; all content sits in one column 16px right of the checkbox; Selected is a 2px Obsidian border and shadow-3 with an instant border swap; the halo shows over Selected; the 2px checkbox nudge stays | SEL-1 to SEL-3. Flagged Q-SEL-1 to Q-SEL-3; Q-SEL-4 answered |
+| D-115 | USP card: a variant of Card, not a component: `minWidth="functional"` (280px), a `CardList` of three check-circle points (Fill, Obsidian) and the real Button (Primary, md) as a direct child, stretched to full width; the list takes the room left, so the button is pinned to the bottom of every card in a row | USP-1 to USP-3. Flagged Q-USP-1 to Q-USP-3 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -1182,3 +1200,4 @@ Every place where the React library now follows a decision that differs from the
 | 82 | Selectable card (a variant of Card): show the checkbox on keyboard focus and always on touch, not on hover only; keep the focus halo over the Selected shadow (decided Q-SEL-1, Q-SEL-2) | components.css 289–303 | 2026-10-30 |
 | 83 | Selectable card: put the checkbox on the left of the card, 16px in, with all of the card's content in one column 16px to its right so the description lines up with the heading, not top right with room on the title's right (decided Q-SEL-4) | components.css 298–302; DESIGN-SYSTEM.md 2751–2765 | 2026-10-30 |
 | 84 | Card: the header-to-body space is 8px (the CSS's 16px margin plus the 8px gap makes 24px; the DS text says 16px) (decided Q-CARD-7) | components.css 278; DESIGN-SYSTEM.md 2624 | 2026-10-30 |
+| 85 | Card: record USP as a variant inside Card (a 280px floor, a list of check-circle points and a full-width Button), and say the header is the base title (h5), not h4 (decided Q-USP-1, Q-USP-2, pending review) | DESIGN-SYSTEM.md 2641 | 2026-10-30 |
