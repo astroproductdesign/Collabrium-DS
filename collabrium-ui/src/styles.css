@@ -11,6 +11,7 @@
 @import './components/Badge/Badge.css';
 @import './components/ChatWindow/ChatWindow.css';
 @import './components/Checkbox/Checkbox.css';
+@import './components/Card/Card.css';
 @import './components/Chip/Chip.css';
 @import './components/InputField/InputField.css';
 @import './components/LoadingState/LoadingState.css';
@@ -23,3 +24,5 @@
 @import './components/Textarea/Textarea.css';
 @import './components/Thinking/Thinking.css';
 @import './components/ToolApproval/ToolApproval.css';
+@import './charts-extra/charts-extra.css';
+@import './motion/motion.css';

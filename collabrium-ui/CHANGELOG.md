@@ -4,7 +4,32 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 
 ## Unreleased
 
+### Docs site
+- Every card picture (home, Motion, Charts (extra), AI Native) is the same 152px box, and what it shows is scaled to fit it (`ThumbFit`), so no preview spills out of its card. Card-layout previews are tinted cards with no text on a fixed canvas.
+- The bigger AI Native components (Chat window, Permission Prompt, Tool approval, Task Rows) show outline pictures on their cards; the five hooks (useMousePosition, useReducedMotion, useScrollProgress, useStagger, useWebHaptics) show looping outline pictures. Both are CSS only and still under reduced motion.
+- The docs pages fill the width between the sidebar and "On this page" (no 1200px cap; paragraphs keep their 68-character line length), and each example sits in its own tinted panel.
+- Preview files for Motion batches 3 to 5 now render every example from their docs file.
+
+### Changed
+- Card spread, Card carousel, Card cover flow and Card time machine take a `size` (`sm`, `md`, `lg`: 0.75, 1 and 1.25 of the designed size) and shrink to fit the space they are in; the piece takes up its scaled size, so nothing hangs outside it.
+- `body` now sets body1 (16px / 22px / 500). Charts: gridlines are 1px on both engines, and marks draw in over `--duration-reveal` (Chart.js `easeOutQuart`, Recharts `ease-out`), with reduced motion still off. Bars take 60% of their category (capped at 24px, or 20px horizontal); vertical bar charts (Bar, Stacked bar, Waterfall, Candlestick, Composed) give every category a 40px slot and scroll sideways when they do not fit, with the value axis fixed in place; axis numbers shorten (500k, 1.2M) while tooltips show the full value, tooltips are per category for line, area and bar charts and per point or slice for the rest, and the legend swatch is 12px.
+
 ### Added
+- `Card` can be selectable: give it a `selectLabel` and it carries the real Checkbox on the left (shown on hover, keyboard focus and while selected, and always on touch), with a Selected look of a 2px Obsidian border and a deeper shadow. For rosters with a bulk action.
+- `Card`, `CardTitle`, `CardHeader`, `CardFooter`, `CardGrid` and `IconChip`: the base card (surface, header with an icon chip and a subtitle, footer, element accent and tint, warm fill) and the grid it sits in. A clickable card is a real link or button in the title, stretched over the card. The docs site now uses them for its own cards.
+- Motion, batch 5: `CardSpread` (eight layouts), `CardCarousel`, `CardCoverFlow` and `CardTimeMachine`, in `@collabrium/ui/motion`. Cards are items with the DLS surface; the controls are DLS Buttons and dots; only the front card is exposed to assistive technology.
+- Motion, batch 4: `IconSwap`, `CountUp`, `ScrambleHover`, `FocusBlur`, `TextSweep`, `MediaBetweenText`, `PlayPauseMorph`, `SearchExpand`, `ExpandingTabs` and `Dock`, in `@collabrium/ui/motion`. Effects keep the real text in the page for assistive technology; the tabs are a keyboard-operable tab list.
+- Motion, batch 3: `ScrollProgress`, `ScrollReveal`, `StickyReveal`, `PageTransition` (stairs, wave, fade) and the hooks `useScrollProgress`, `useMousePosition`, `useStagger`, `useWebHaptics` and `useReducedMotion`, in `@collabrium/ui/motion`. Reduced motion keeps the fade or follows the scroll exactly; every stagger and duration is a token.
+- Motion, batch 2: text effects (`BlurText`, `CharacterStagger`, `WordReveal`, `TextReveal`), hover effects (`HoverCards`, `Spotlight`, `Magnetic`, `Tilt`) and cursor effects (`CursorTrail`, `MouseFollow`), in `@collabrium/ui/motion`. Text is read once as a sentence; reduced motion keeps the fade and drops the rest.
+- Motion, batch 1: `SlideDown`, `SlideLeft` and `SlideRight` (in `@collabrium/ui/motion`), and pages for `FadeIn`, `SlideUp` and `Collapse`. The slides share one drawing, and the root export lists only the three original wrappers.
+- Charts (extra), batch 6: `ComposedChart` (bars and a line, with an optional second axis) and `SparklineChart` (the DLS sparkline, with a spoken trend summary).
+- Charts (extra), batch 5: `RadarChart`, `PolarAreaChart`, `SankeyChart`, `CandlestickChart` (Recharts) and `PyramidChart` (HTML and CSS). DLS Radar and Polar area marks, a computed Sankey, and candlesticks that tell direction by solid or hollow as well as colour.
+- Charts (extra), batch 4: `ScatterChart`, `BubbleChart`, `TreemapChart` (Recharts) and `HeatmapChart`, `ActivityHeatmapChart` (HTML and CSS). Single-hue shading for the heatmaps and treemap, axis titles on scatter and bubble, and a table that stays in the page, visually hidden, for charts whose picture has no text.
+- `ChartThumbnail` in `@collabrium/ui/charts-extra`: draws any chart as a bare picture of its shape, for cards and galleries. The Charts (extra) overview uses it for its part cards.
+- Charts (extra), batch 3: `DonutChart`, `RadialBarGroupChart`, `RadialGaugeChart`, `GaugeArcChart` and `MeterChart` (Recharts). The DLS Doughnut look (2px white border, same-hue ramp), a centre readout, and gauges driven by `value` and `max`. The sequential ramp now has four rungs (`rampRungs`). The centre readout is an h5 (16px) value over a caption.
+- Charts (extra), batch 2: `BarChart`, `StackedBarChart`, `WaterfallChart`, `FunnelChart` (Recharts) and `BulletChart` (HTML and CSS). DLS bar rules (outer-end radius, 24px/20px thickness caps, hover mix, value axis from zero), stack remainder in Neutral-3, a single-hue ramp, and a waterfall in Green, Red and Navy. The frame now splits into `ChartShell` and `CartesianFrame`.
+- Charts (extra), batch 1, in `@collabrium/ui/charts-extra` (Recharts, optional peer dependency): `LineChart`, `AreaChart`, `StreamChart`, `StepChart`, `RangeChart`. DLS chrome, marks and series colours; a legend that shows or hides a series; "View as table" on every chart; reduced motion draws the final chart. Docs: the new Charts (extra) and Motion groups.
+- Entry points `@collabrium/ui/charts-extra` (Recharts, for shapes Chart.js cannot draw; optional peer dependency `recharts`) and `@collabrium/ui/motion`. `charts-extra` never imports Chart.js and `charts` never imports Recharts. `charts-extra` shares the DLS series colours (`seriesColors`).
 - Package scaffold:
   - Build: tsup builds one ES module per source file, so each file keeps its `"use client"`, plus type declarations and a single `dist/styles.css`.
   - Two entry points: `@collabrium/ui` and `@collabrium/ui/charts`.

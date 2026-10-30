@@ -8,6 +8,7 @@ import { ChatWindow, type ChatConversationGroup, type ChatPillar } from './ChatW
 import { ChatMessage, type ChatFeedback, type ChatReadAloudState } from './ChatMessage';
 import { StreamingText } from '../StreamingText';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
+import { chatOutline } from '../docs-outline.docs';
 
 export const title = 'Chat window';
 
@@ -43,16 +44,7 @@ export function Assistant() {
   );
 }`;
 
-export const thumbnail = () => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 260 }}>
-    <ChatMessage role="user">How is Q3 tracking?</ChatMessage>
-    <ChatMessage role="assistant">
-      <p>
-        Q3 is at <b>82% of forecast</b>.
-      </p>
-    </ChatMessage>
-  </div>
-);
+export const thumbnail = chatOutline;
 
 export const anatomy: DocsAnatomyNode[] = [
   {

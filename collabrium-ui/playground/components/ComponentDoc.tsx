@@ -4,7 +4,7 @@
 // sections, in the same order, and reads only from <Name>.docs.tsx.
 // A section with nothing in its docs field still shows its heading, with
 // "Coming soon." under it, so every page has the same structure.
-import { Badge } from '../../src';
+import { Badge, Card } from '../../src';
 import { componentDocs } from '../app/_generated/components-docs';
 import { componentsMeta } from '../app/_generated/components-meta';
 import type { ComponentDocs, DocsAnatomyNode } from '../../src/components/docs.types';
@@ -107,12 +107,12 @@ export function ComponentDoc({ slug }: { slug: string }) {
           </nav>
           <div className="docs-title-row">
             <div className="docs-title-group">
-              <PrevNext current={current} compact="prev" />
+              <PrevNext current={current} compact="back" />
               <h1 className="section-title docs-title">{docs.title}</h1>
             </div>
             <div className="docs-title-actions">
               <CopyButton text={() => toMarkdown(docs)} label="Copy page" />
-              <PrevNext current={current} compact="next" />
+              <PrevNext current={current} compact="step" />
             </div>
           </div>
           <p className="lede docs-lede">
@@ -211,7 +211,7 @@ export function ComponentDoc({ slug }: { slug: string }) {
             <ComingSoon />
           ) : (
           <div className="docs-rules">
-            <div className="c-card">
+            <Card>
               <div className="guide-col do">
                 <h3>
                   <i className="ph-fill ph-check-circle" aria-hidden="true" /> Do
@@ -225,8 +225,8 @@ export function ComponentDoc({ slug }: { slug: string }) {
                   ))}
                 </ul>
               </div>
-            </div>
-            <div className="c-card">
+            </Card>
+            <Card>
               <div className="guide-col dont">
                 <h3>
                   <i className="ph-fill ph-x-circle" aria-hidden="true" /> Don&apos;t
@@ -240,7 +240,7 @@ export function ComponentDoc({ slug }: { slug: string }) {
                   ))}
                 </ul>
               </div>
-            </div>
+            </Card>
           </div>
           )}
         </section>

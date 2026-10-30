@@ -1,0 +1,268 @@
+/* Charts (extra): the frame every Recharts chart sits in.
+   Source: the DLS "Chart chrome & marks" container rules, components.css
+   3836-3853 (.c-chart-canvas-wrap, .c-chart-table-wrap, .c-chart-table-btn)
+   and the Table embedded variant, 1677-1696 (.c-table, .c-table-embedded).
+
+   Mapping:
+     .c-chart-canvas-wrap  -> .cui-chartx__canvas   (flex 1 1 auto, 260px floor, 300px tall)
+     .c-chart-table-wrap   -> .cui-chartx__table-wrap (same footprint; centred content)
+     .c-chart-card.is-table-view -> .cui-chartx[data-view="table"]
+     .c-chart-table-btn    -> .cui-chartx__table-btn
+     .c-table.c-table-embedded -> .cui-chartx__table (Table is not converted yet,
+                              so its two rules live here; swap when it is)
+   The card around the chart is the host's (Card is not converted yet). */
+
+.cui-chartx{
+  /* Q-CHART-7 (decided 2026-10-30): 260px and 300px stay as local values, attached to no token, for now. */
+  --cui-chartx-height: 260px;
+  --cui-chartx-height-tall: 300px;
+  /* Q-CHART-2 (decided 2026-10-30): the DLS adds tokens for the tooltip's radius and padding; local until tokens.css has them. */
+  --cui-chartx-tooltip-radius: 8px;
+  --cui-chartx-tooltip-padding: 10px;
+  /* The legend's swatch: 12px circles (decided 2026-10-30, Q-CHART-7; the DLS legend row says 10px and is owed an update). */
+  --cui-chartx-swatch: 12px;
+
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-family: var(--font-primary);
+}
+
+/* Plot + legend */
+.cui-chartx__canvas{
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: var(--cui-chartx-height);
+}
+.cui-chartx[data-height="tall"] .cui-chartx__canvas{min-height: var(--cui-chartx-height-tall);}
+.cui-chartx[data-view="table"] .cui-chartx__canvas{display: none;}
+.cui-chartx__plot{position: relative; flex: 1 1 0; min-height: 0;}
+/* The plot fills its box: Recharts' ResponsiveContainer needs a definite size. */
+.cui-chartx__plot-fill{position: absolute; inset: 0;}
+/* The chart is focusable for arrow-key reading (Recharts' accessibility layer): give it the standard ring. */
+/* Inset, since Recharts' wrapper clips anything drawn outside the SVG. */
+.cui-chartx__plot-fill .recharts-wrapper:focus-visible,
+.cui-chartx__plot-fill .recharts-surface:focus-visible{outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset-inset);}
+
+/* Table view: the same footprint as the plot, so toggling never moves the page. */
+.cui-chartx__table-wrap{
+  display: none;
+  flex: 1 1 auto;
+  min-height: var(--cui-chartx-height);
+  flex-direction: column;
+  justify-content: center;
+}
+.cui-chartx[data-height="tall"] .cui-chartx__table-wrap{min-height: var(--cui-chartx-height-tall);}
+.cui-chartx[data-view="table"] .cui-chartx__table-wrap{display: flex;}
+.cui-chartx[data-view="chart"] .cui-chartx__table-wrap[data-sr]{
+  /* Visually hidden, still read: the chart's picture carries no text of its own. */
+  display: block; position: absolute; width: 1px; height: 1px; min-height: 0; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+.cui-chartx{position: relative;}
+.cui-chartx__table-btn{align-self: flex-start; margin-top: var(--spacing-12);}
+
+/* Legend: left-aligned row, caption type, Neutral-5, 10px circles. */
+.cui-chartx__legend{display: flex; flex-wrap: wrap; gap: var(--spacing-8) var(--spacing-16); padding-top: var(--spacing-12);}
+.cui-chartx__legend-item{
+  display: inline-flex; align-items: center; gap: var(--spacing-8);
+  margin: 0; padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit;
+  font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  border-radius: var(--radius-sm);
+}
+.cui-chartx__legend-item[aria-pressed="false"] .cui-chartx__legend-name{text-decoration: line-through;}
+.cui-chartx__legend-item:focus-visible{outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset);}
+/* Each swatch's colour is the series' own, set inline from the tokens. */
+.cui-chartx__swatch{width: var(--cui-chartx-swatch); height: var(--cui-chartx-swatch); border-radius: 50%; flex: none;}
+.cui-chartx__legend-item[data-fixed]{cursor: default;}
+
+/* Tooltip: Neutral-1 surface, 1px Neutral-3 border; label2 title in Neutral-9, label3 lines in Neutral-5. */
+.cui-chartx__tooltip{
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--cui-chartx-tooltip-radius);
+  padding: var(--cui-chartx-tooltip-padding);
+  font-family: var(--font-primary);
+  pointer-events: none;
+}
+.cui-chartx__tooltip-title{font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--text-label2-weight); color: var(--color-neutral-9);}
+/* Q-CHART-3 (decided 2026-10-30): the tooltip body is label3 in normal case: no uppercase, no extra tracking, as in the Chart.js set-up. */
+.cui-chartx__tooltip-row{font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--text-label3-weight); color: var(--color-neutral-5);}
+
+/* Table view table: the embedded Table (no container; label3 uppercase Neutral-5 header). */
+.cui-chartx__table{width: 100%; border-collapse: collapse; font-family: inherit;}
+.cui-chartx__table th,
+.cui-chartx__table td{text-align: left; padding: var(--spacing-12) var(--spacing-16); border-bottom: var(--border-width-sm) solid var(--color-neutral-3);}
+.cui-chartx__table tbody tr:last-child td{border-bottom: none;}
+.cui-chartx__table td{font-size: var(--text-body2-size); font-weight: 500; color: var(--color-neutral-9);}
+.cui-chartx__table thead th{
+  background: none;
+  font-size: var(--text-label3-size); font-weight: 700; letter-spacing: var(--text-label3-tracking);
+  text-transform: uppercase; color: var(--color-neutral-5);
+}
+.cui-chartx__num{font-variant-numeric: tabular-nums;}
+@media (max-width: 640px){
+  .cui-chartx__table th,
+  .cui-chartx__table td{padding: var(--spacing-12);}
+}
+
+/* Forced colours: the marks are SVG with fixed hex colours, so give the plot
+   system colours for the grid and text; series stay told apart by the
+   legend, the tooltip and the table, never by colour alone. */
+@media (forced-colors: active){
+  .cui-chartx__swatch{forced-color-adjust: none;}
+  .cui-chartx__tooltip{border-color: CanvasText;}
+}
+
+/* Bullet chart: HTML and CSS, no Recharts. No DLS source: built from Amicro's
+   MonoRoundedBulletChart layout with the DLS Progress Bar's track (Neutral-3,
+   pill, components.css 4573-4577) and type tokens. */
+.cui-bullet{
+  /* TODO(open-question Q-XCH-11): Amicro's 12px track and 4px target marker have no token. */
+  --cui-bullet-track: 12px;
+  --cui-bullet-marker: 4px;
+  list-style: none; margin: 0; padding: var(--spacing-4) 0;
+  display: flex; flex-direction: column; justify-content: space-around; gap: var(--spacing-16);
+  flex: 1 1 auto; min-height: var(--cui-chartx-height);
+}
+.cui-chartx[data-height="tall"] .cui-bullet{min-height: var(--cui-chartx-height-tall);}
+.cui-bullet__item{display: flex; flex-direction: column; gap: var(--spacing-8);}
+.cui-bullet__head{display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--spacing-4) var(--spacing-16);}
+.cui-bullet__label{font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--text-label2-weight); color: var(--color-neutral-9);}
+.cui-bullet__values{font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--text-caption-weight); color: var(--color-neutral-5); font-variant-numeric: tabular-nums;}
+.cui-bullet__target-text{color: var(--color-neutral-5);}
+.cui-bullet__track{position: relative; width: 100%; height: var(--cui-bullet-track); border-radius: var(--radius-pill); background: var(--color-neutral-3); overflow: hidden;}
+.cui-bullet__fill{height: 100%; width: var(--cui-bullet-fill); border-radius: var(--radius-pill); background: var(--cui-bullet-color); transform-origin: left center; animation: cui-bullet-grow var(--duration-slow) var(--ease-standard) both;}
+.cui-bullet__target{position: absolute; top: 0; bottom: 0; left: var(--cui-bullet-target); width: var(--cui-bullet-marker); transform: translateX(-50%); border-radius: var(--radius-pill); background: var(--color-obsidian);}
+@keyframes cui-bullet-grow{from{transform: scaleX(0);} to{transform: scaleX(1);}}
+@media (prefers-reduced-motion: reduce){
+  .cui-bullet__fill{animation: none;}
+}
+@media (forced-colors: active){
+  .cui-bullet__track{border: var(--border-width-sm) solid CanvasText; background: Canvas;}
+  .cui-bullet__fill{forced-color-adjust: none; background: Highlight;}
+  .cui-bullet__target{forced-color-adjust: none; background: CanvasText;}
+}
+
+/* ChartThumbnail: a bare picture of a chart's shape, for cards. No axes, labels,
+   legend, tooltip or table button (the frame leaves them out); only the marks. */
+.cui-chartx-thumb{width: 100%;}
+.cui-chartx[data-bare]{width: 100%;}
+.cui-chartx[data-bare]{height: var(--spacing-120);}
+.cui-chartx[data-bare] .cui-chartx__canvas{height: 100%; min-height: 0; overflow: hidden;}
+.cui-chartx[data-bare] .cui-bullet__head{display: none;}
+.cui-chartx[data-bare] .cui-bullet{min-height: 0; height: 100%; gap: var(--spacing-12);}
+.cui-chartx[data-bare] .cui-heat,
+.cui-chartx[data-bare] .cui-act{min-height: 0; height: 100%;}
+.cui-chartx[data-bare] .cui-act__scroll{overflow: hidden; display: flex; align-items: center; flex: 1 1 auto;}
+.cui-chartx[data-bare] .cui-act__grid{width: 100%;}
+
+/* Heatmap: HTML and CSS grid of rounded cells on a single-hue ramp. No DLS spec
+   beyond Chart color mapping's "Sequential" row; cell radius is the 4px bar radius. */
+.cui-chartx__tip{position: absolute; transform: translate(-50%, calc(-100% - var(--spacing-4))); white-space: nowrap; z-index: 1;}
+.cui-heat{position: relative; display: flex; flex-direction: column; flex: 1 1 auto; min-height: var(--cui-chartx-height); gap: var(--spacing-12);}
+.cui-chartx[data-height="tall"] .cui-heat{min-height: var(--cui-chartx-height-tall);}
+.cui-heat__grid{
+  display: grid; flex: 1 1 auto;
+  grid-template-columns: auto repeat(var(--cui-heat-cols), minmax(0, 1fr));
+  grid-template-rows: auto repeat(var(--cui-heat-rows), minmax(0, 1fr));
+  gap: var(--spacing-4);
+}
+.cui-heat__col,
+.cui-heat__row{font-size: var(--text-footnote-size); line-height: var(--text-footnote-lh); font-weight: var(--text-footnote-weight); color: var(--color-neutral-5);}
+.cui-heat__col{text-align: center;}
+.cui-heat__row{align-self: center; padding-right: var(--spacing-8);}
+.cui-heat__cell{border-radius: var(--spacing-4); min-height: var(--spacing-16); transition: outline-color var(--duration-fast) var(--ease-standard); outline: var(--border-width-md) solid transparent; outline-offset: calc(var(--border-width-md) * -1);}
+.cui-heat__cell:hover{outline-color: var(--color-obsidian);}
+.cui-heat__scale{display: flex; align-items: center; gap: var(--spacing-8); font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); font-variant-numeric: tabular-nums;}
+.cui-heat__ramp{display: block; width: var(--spacing-120); height: var(--spacing-8); border-radius: var(--radius-pill);}
+.cui-chartx[data-bare] .cui-heat__col,
+.cui-chartx[data-bare] .cui-heat__row,
+.cui-chartx[data-bare] .cui-heat__scale{display: none;}
+.cui-chartx[data-bare] .cui-heat__grid{grid-template-columns: repeat(var(--cui-heat-cols), minmax(0, 1fr)); grid-template-rows: repeat(var(--cui-heat-rows), minmax(0, 1fr));}
+.cui-chartx[data-bare] .cui-heat__grid > span:first-child{display: none;}
+@media (forced-colors: active){
+  .cui-heat__cell{forced-color-adjust: none;}
+}
+
+/* Activity heatmap: a calendar grid, one column per week and one row per weekday.
+   Source: Amicro MonoActivityHeatmap (20 weeks, 2-3px gaps, 2.5px radius, five opacity levels);
+   here the five levels are Neutral-2 and a four-rung ramp. */
+.cui-act{position: relative; display: flex; flex-direction: column; flex: 1 1 auto; min-height: var(--cui-chartx-height); gap: var(--spacing-12); justify-content: space-between;}
+.cui-chartx[data-height="tall"] .cui-act{min-height: var(--cui-chartx-height-tall);}
+.cui-act__scroll{overflow-x: auto; padding: var(--spacing-4);}
+.cui-act__grid{
+  /* TODO(open-question Q-XCH-20): no token for a calendar cell's smallest size. */
+  --cui-act-cell-min: 10px;
+  display: grid;
+  grid-template-columns: auto repeat(var(--cui-act-weeks), minmax(var(--cui-act-cell-min), 1fr));
+  grid-template-rows: auto repeat(var(--cui-act-rows, 7), auto);
+  gap: var(--spacing-2);
+  min-width: min-content;
+}
+.cui-act__month,
+.cui-act__weekday{font-size: var(--text-footnote-size); line-height: var(--text-footnote-lh); font-weight: var(--text-footnote-weight); color: var(--color-neutral-5); white-space: nowrap;}
+.cui-act__weekday{padding-right: var(--spacing-8); align-self: center;}
+.cui-act__cell{display: block; aspect-ratio: 1; border-radius: var(--spacing-2); outline: var(--border-width-md) solid transparent; outline-offset: calc(var(--border-width-md) * -1);}
+.cui-act__cell:hover{outline-color: var(--color-obsidian);}
+.cui-act__scale{display: flex; align-items: center; gap: var(--spacing-4); font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5);}
+.cui-act__scale > span:first-child{margin-right: var(--spacing-4);}
+.cui-act__scale > span:last-child{margin-left: var(--spacing-4);}
+.cui-act__step{display: block; width: var(--spacing-12); height: var(--spacing-12); border-radius: var(--spacing-2);}
+.cui-chartx[data-bare] .cui-act__month,
+.cui-chartx[data-bare] .cui-act__weekday,
+.cui-chartx[data-bare] .cui-act__scale{display: none;}
+.cui-chartx[data-bare] .cui-act__grid{grid-template-columns: 0 repeat(var(--cui-act-weeks), minmax(0, 1fr));}
+@media (forced-colors: active){
+  .cui-act__cell,
+  .cui-act__step{forced-color-adjust: none;}
+}
+
+/* Pyramid: centred bands whose widths are the values. No DLS spec; layout from
+   Amicro MonoRoundedPyramidChart (4 bands, 8-12px gaps, 12px radius), here with the
+   4px bar radius and a single-hue ramp where larger is darker. */
+.cui-pyramid{position: relative; display: flex; flex-direction: column; justify-content: space-around; gap: var(--spacing-8); flex: 1 1 auto; min-height: var(--cui-chartx-height);}
+.cui-chartx[data-height="tall"] .cui-pyramid{min-height: var(--cui-chartx-height-tall);}
+.cui-pyramid__row{display: flex; justify-content: center;}
+.cui-pyramid__band{
+  /* TODO(open-question Q-XCH-24): Amicro's 32px band height has no token. */
+  --cui-pyramid-band: 32px;
+  display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-8);
+  min-width: 0; height: var(--cui-pyramid-band); padding: 0 var(--spacing-12);
+  border-radius: var(--spacing-4);
+  outline: var(--border-width-md) solid transparent; outline-offset: calc(var(--border-width-md) * -1);
+  transition: outline-color var(--duration-fast) var(--ease-standard);
+}
+.cui-pyramid__band:hover{outline-color: var(--color-obsidian);}
+.cui-pyramid__name{font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--text-label3-weight); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+.cui-pyramid__value{font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-variant-numeric: tabular-nums; flex: none;}
+.cui-chartx[data-bare] .cui-pyramid{min-height: 0; height: 100%; gap: var(--spacing-4);}
+.cui-chartx[data-bare] .cui-pyramid__band{--cui-pyramid-band: auto; flex: 1 1 auto; height: auto;}
+.cui-chartx[data-bare] .cui-pyramid__name,
+.cui-chartx[data-bare] .cui-pyramid__value{display: none;}
+.cui-chartx[data-bare] .cui-pyramid__row{flex: 1 1 0; align-items: stretch;}
+@media (forced-colors: active){
+  .cui-pyramid__band{forced-color-adjust: none;}
+}
+
+/* Sankey: each band is its source's colour at the 30% wash; hovering deepens it. */
+.cui-sankey__link{stroke-opacity: .3; transition: stroke-opacity var(--duration-fast) var(--ease-standard);}
+.cui-sankey__link:hover{stroke-opacity: .55;}
+
+/* Sparkline: a glance beside a figure, so no chart chrome (DLS Marks table, Sparkline row).
+   TODO(open-question Q-XCH-30): the DLS gives the sparkline slot no height; 32px is the Amicro sparkline row's 28px, rounded to the 8px grid. */
+.cui-spark{--cui-spark-height: 32px; margin: 0; width: 100%; min-width: 0; height: var(--cui-spark-height);}
+.cui-chartx-thumb .cui-spark{height: var(--spacing-120);}
+
+/* Vertical bar charts with many categories: the box scrolls sideways, and a copy of the chart clipped to its value axis stays at each side. */
+.cui-chartx__scroll{height: 100%; overflow-x: auto; overflow-y: hidden;}
+.cui-chartx__scroll-inner{display: grid; height: 100%;}
+.cui-chartx__scroll-main,
+.cui-chartx__axis-copy{grid-area: 1 / 1;}
+.cui-chartx__scroll-main{min-width: 0; height: 100%;}
+.cui-chartx__axis-copy{position: sticky; z-index: 1; height: 100%; overflow: hidden; background: var(--color-neutral-1); pointer-events: none;}
+.cui-chartx__axis-copy[data-side="left"]{left: 0; justify-self: start;}
+.cui-chartx__axis-copy[data-side="right"]{right: 0; justify-self: end;}

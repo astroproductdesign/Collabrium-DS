@@ -221,31 +221,6 @@
 /* Embedded variant — no container, lives inside a Card/panel */
 .c-table-embedded thead th{background:none; font-size:var(--text-label3-size); font-weight:700; letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
 
-/* ===== Card (grid, base, header, footer, interactive) — components.css lines 267–289 ===== */
-/* Grid layout — universal rule (see DESIGN-SYSTEM.md's Card > Grid layout):
-   align-items:stretch is the grid default (never overridden to start), so
-   every card in a row already matches the tallest card's height; the grid
-   controls column count via auto-fill/minmax, never the card. Base floor is
-   240px (see .c-card's own min-width, below); .c-cards-functional swaps in
-   the 280px floor USP/Price summary need. */
-.c-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:var(--spacing-16);}
-.c-cards-functional{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
-.c-card{background:var(--color-neutral-1); border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); box-shadow:var(--shadow-1); padding:var(--spacing-16); display:flex; flex-direction:column; gap:var(--spacing-8); transition:box-shadow var(--duration-base) var(--ease-settle); width:100%; min-width:240px; height:100%; box-sizing:border-box;}
-.c-card.warm{background:var(--color-canvas-warm-card); border-color:transparent;}
-.c-card-header{display:flex; align-items:flex-start; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
-/* Shared 36×36 icon-chip pattern — DESIGN-SYSTEM.md documents this as
-   one pattern reused by Card's header AND Stat/KPI card's icon slot
-   (and App Shell's demo, which reuses Stat card). Scoped to plain
-   ".icon-chip" (not ".c-card .icon-chip") so it works everywhere the
-   spec says it should, not just inside a Card. */
-.icon-chip{display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:var(--radius-sm); background:color-mix(in srgb, var(--color-navy) 12%, transparent); color:var(--color-navy); flex:none;}
-.c-card-footer{margin-top:var(--spacing-16); padding-top:var(--spacing-12); border-top:1px solid var(--color-neutral-3); font-size:var(--text-caption-size); color:var(--color-neutral-5);}
-.c-card h5{margin:0; font-size:var(--text-h5-size); font-weight:var(--text-h5-weight);}
-.c-card p{margin:0; font-size:var(--text-body2-size); color:var(--color-neutral-5);}
-.c-card-accent{border-top:3px solid var(--color-salmon-pink);}
-.c-card-interactive:hover{box-shadow:var(--shadow-2); cursor:pointer;}
-.c-card-interactive:focus-visible{box-shadow:var(--shadow-focus); outline:none;}
-
 /* ===== Search input: dropdown row and empty state — components.css lines 227–229 ===== */
 .c-search-input-row{display:flex; align-items:center; gap:var(--spacing-12); padding:var(--spacing-8) var(--spacing-12); cursor:pointer;}
 .c-search-input-row:hover{background:var(--color-neutral-2);}

@@ -6,6 +6,7 @@ import { Button } from '../Button';
 import { PermissionPrompt } from './PermissionPrompt';
 import type { PermissionPromptStatus } from './PermissionPrompt';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
+import { permissionOutline } from '../docs-outline.docs';
 
 export const title = 'Permission Prompt';
 
@@ -52,7 +53,7 @@ const readFile = {
   expiredNote: 'No answer before the conversation moved on. Nothing was read.',
 };
 
-export const thumbnail = () => <PermissionPrompt status="pending" risk="low" {...readFile} />;
+export const thumbnail = permissionOutline;
 
 export const anatomy: DocsAnatomyNode[] = [
   {

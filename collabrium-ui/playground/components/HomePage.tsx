@@ -4,8 +4,10 @@
 // section in full (as on the DLS site, not behind cards), then the All
 // components grid, which is generated from the docs registry.
 import { componentDocs, groupDocs } from '../app/_generated/components-docs';
+import { Card, CardGrid, CardTitle } from '../../src';
 import { foundationPages, hrefTo, navItems } from '../lib/site';
 import { BackToTop } from './BackToTop';
+import { ThumbFit } from './ThumbFit';
 import { CodeBlock } from './CodeBlock';
 import { foundationSections } from './foundation';
 
@@ -39,26 +41,21 @@ export function HomePage() {
           <h2 id="components-title" className="section-title">
             All components
           </h2>
-          <div className="c-cards">
+          <CardGrid>
             {navItems.map(c => {
               // A group (AI Native) is one card, with the group's own thumbnail.
               const d = c.kind === 'group' ? groupDocs[c.slug] : componentDocs[c.slug];
               const thumb = d.thumbnail ? d.thumbnail() : 'examples' in d ? d.examples?.[0]?.render() : null;
               return (
-                <div key={c.slug} className="c-card c-card-interactive docs-comp-card">
-                  {/* inert: the thumbnail is a picture of the component, not a control */}
-                  <div className="docs-comp-thumb" inert>
+                <Card key={c.slug}>
+                  <ThumbFit>
                     {thumb ?? <span className="docs-p">Coming soon.</span>}
-                  </div>
-                  <h3 className="docs-card-title">
-                    <a className="docs-stretched" href={hrefTo('', `components/${c.slug}`)}>
-                      {c.title}
-                    </a>
-                  </h3>
-                </div>
+                  </ThumbFit>
+                  <CardTitle href={hrefTo('', `components/${c.slug}`)}>{c.title}</CardTitle>
+                </Card>
               );
             })}
-          </div>
+          </CardGrid>
         </section>
       </article>
       <BackToTop />

@@ -26,7 +26,7 @@ export default defineConfig([
     outDir: 'dist',
     format: ['esm'],
     bundle: false,
-    dts: { entry: ['src/index.ts', 'src/charts/index.ts'] },
+    dts: { entry: ['src/index.ts', 'src/charts/index.ts', 'src/charts-extra/index.ts', 'src/motion/index.ts'] },
     sourcemap: true,
     clean: true,
     target: 'es2020',

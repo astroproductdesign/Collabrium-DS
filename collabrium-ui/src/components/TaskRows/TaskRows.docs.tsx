@@ -6,6 +6,7 @@ import { Button } from '../Button';
 import { TaskRows } from './TaskRows';
 import type { TaskRowsStatus, TaskRowsTask } from './TaskRows';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
+import { taskRowOutline } from '../docs-outline.docs';
 
 export const title = 'Task Rows';
 
@@ -66,7 +67,7 @@ const emails = (status: TaskRowsStatus = 'pending', reason?: string, retryable?:
 
 const TIMEOUT = 'The mail service timed out on the second message.';
 
-export const thumbnail = () => <TaskRows tasks={[verified(), reorder('completed'), emails('completed')]} />;
+export const thumbnail = taskRowOutline;
 
 export const anatomy: DocsAnatomyNode[] = [
   {

@@ -6,7 +6,9 @@
 // yet show as "Coming soon". Reads the group's overview file and the docs
 // files of its parts, so a new part appears here by itself.
 import type { ReactNode } from 'react';
-import { Badge } from '../../src';
+import { ThumbFit } from './ThumbFit';
+import { Badge, Card, CardGrid, CardTitle } from '../../src';
+import { ChartThumbnail } from '../../src/charts-extra';
 import { componentDocs, groupDocs } from '../app/_generated/components-docs';
 import { componentsMeta } from '../app/_generated/components-meta';
 import { componentKey, groups, hrefTo, type PageKey } from '../lib/site';
@@ -30,6 +32,9 @@ export function GroupOverview({ slug }: { slug: string }) {
   const group = groups.find(g => g.slug === slug)!;
   const current: PageKey = `components/${slug}`;
 
+  // Charts appear as bare shapes on their cards: no axes, labels or legend.
+  const bare = (node: ReactNode) => (slug === 'charts-extra' ? <ChartThumbnail>{node}</ChartThumbnail> : node);
+
   const real: PartCard[] = group.parts.map(partSlug => {
     const meta = componentsMeta.find(c => c.slug === partSlug)!;
     const docs = componentDocs[partSlug];
@@ -37,7 +42,7 @@ export function GroupOverview({ slug }: { slug: string }) {
       title: docs.title,
       summary: docs.description,
       key: componentKey(meta),
-      thumb: docs.thumbnail ? docs.thumbnail() : docs.examples?.[0]?.render(),
+      thumb: bare(docs.thumbnail ? docs.thumbnail() : docs.examples?.[0]?.render()),
     };
   });
   const soon: PartCard[] = overview.comingSoon
@@ -79,12 +84,12 @@ export function GroupOverview({ slug }: { slug: string }) {
           </nav>
           <div className="docs-title-row">
             <div className="docs-title-group">
-              <PrevNext current={current} compact="prev" />
+              <PrevNext current={current} compact="back" />
               <h1 className="section-title docs-title">{overview.title}</h1>
             </div>
             <div className="docs-title-actions">
               <CopyButton text={markdown} label="Copy page" />
-              <PrevNext current={current} compact="next" />
+              <PrevNext current={current} compact="step" />
             </div>
           </div>
           <p className="lede docs-lede">
@@ -134,24 +139,15 @@ export function GroupOverview({ slug }: { slug: string }) {
           {cards.length === 0 ? (
             <ComingSoon />
           ) : (
-            <div className="c-cards">
+            <CardGrid>
               {cards.map(c => (
-                <div key={c.title} className={`c-card docs-comp-card${c.key ? ' c-card-interactive' : ''}`}>
+                <Card key={c.title}>
                   {c.key && (
-                    // inert: the thumbnail is a picture of the part, not a control
-                    <div className="docs-comp-thumb" inert>
+                    <ThumbFit>
                       {c.thumb}
-                    </div>
+                    </ThumbFit>
                   )}
-                  <h3 className="docs-card-title">
-                    {c.key ? (
-                      <a className="docs-stretched" href={hrefTo(current, c.key)}>
-                        {c.title}
-                      </a>
-                    ) : (
-                      c.title
-                    )}
-                  </h3>
+                  {c.key ? <CardTitle href={hrefTo(current, c.key)}>{c.title}</CardTitle> : <CardTitle>{c.title}</CardTitle>}
                   <p className="docs-card-desc">
                     <Prose text={c.summary} />
                   </p>
@@ -160,9 +156,9 @@ export function GroupOverview({ slug }: { slug: string }) {
                       <Badge variant="neutral">Coming soon</Badge>
                     </span>
                   )}
-                </div>
+                </Card>
               ))}
-            </div>
+            </CardGrid>
           )}
         </section>
 
