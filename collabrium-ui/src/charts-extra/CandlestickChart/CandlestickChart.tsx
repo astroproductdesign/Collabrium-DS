@@ -3,7 +3,7 @@
 import { forwardRef, type ReactElement } from 'react';
 import { Bar, BarChart as RechartsBar, Rectangle } from 'recharts';
 import { CartesianFrame, type CartesianChartProps, type ResolvedSeries } from '../lib/CartesianFrame';
-import { barRadius, defaultFormat, lineWidth, maxBarThickness } from '../lib/chart-theme';
+import { barRadius, defaultFormat, lineWidth, maxBarThickness, barCategoryGap } from '../lib/chart-theme';
 import { tokens } from '../../tokens/tokens';
 
 const { color } = tokens;
@@ -67,6 +67,7 @@ export const CandlestickChart = forwardRef<HTMLElement, CandlestickChartProps>(f
       valueFormat={valueFormat}
       yAxisStart="fit"
       marks="bars"
+      categories={data.length}
       describe={row => [
         `Open: ${valueFormat(Number(row[openKey]))}`,
         `High: ${valueFormat(Number(row[highKey]))}`,
@@ -83,7 +84,7 @@ export const CandlestickChart = forwardRef<HTMLElement, CandlestickChartProps>(f
       }}
     >
       {({ axes, tooltip, motion, chartProps }) => (
-        <RechartsBar data={rows} {...chartProps}>
+        <RechartsBar barCategoryGap={barCategoryGap} data={rows} {...chartProps}>
           {axes}
           {tooltip}
           <Bar dataKey={RANGE} name="Price" maxBarSize={maxBarThickness.vertical} shape={candle} activeBar={false} {...motion} />

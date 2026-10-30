@@ -3,7 +3,7 @@
 import { forwardRef, type ReactElement } from 'react';
 import { Bar, BarChart as RechartsBar, Rectangle } from 'recharts';
 import { CartesianFrame, resolveSeries, type CartesianChartProps, type ChartSeries } from '../lib/CartesianFrame';
-import { barHover, barRadius, defaultFormat, maxBarThickness } from '../lib/chart-theme';
+import { barHover, barRadius, defaultFormat, maxBarThickness, barCategoryGap } from '../lib/chart-theme';
 import { rampRungs, type RampColorName } from '../lib/series-colors';
 import { tokens } from '../../tokens/tokens';
 
@@ -59,6 +59,7 @@ export const StackedBarChart = forwardRef<HTMLElement, StackedBarChartProps>(fun
       valueFormat={valueFormat}
       orientation={orientation}
       marks="bars"
+      categories={data.length}
       extraLegend={totalKey ? [{ key: REMAINDER, name: remainderName, color: tokens.color.neutral3 }] : []}
       table={{
         columns: [categoryLabel, ...resolved.map(s => s.name), ...(totalKey ? [remainderName, 'Total'] : [])],
@@ -70,7 +71,7 @@ export const StackedBarChart = forwardRef<HTMLElement, StackedBarChartProps>(fun
       }}
     >
       {({ axes, tooltip, motion, hidden, chartProps }) => (
-        <RechartsBar data={rows} {...chartProps}>
+        <RechartsBar barCategoryGap={barCategoryGap} data={rows} {...chartProps}>
           {axes}
           {tooltip}
           {resolved.map(s => (

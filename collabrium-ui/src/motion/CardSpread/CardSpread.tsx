@@ -4,6 +4,7 @@ import { forwardRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { transition } from '../motion';
 import type { CardItem } from '../lib/cards';
+import { CardScale, type CardSize } from '../lib/CardScale';
 
 export type CardSpreadLayout = 'arc' | 'long-arc' | 'linear' | 'corner' | 'stamp' | 'cascade' | 'scatter' | 'wheel';
 
@@ -16,6 +17,8 @@ export interface CardSpreadProps {
   layout?: CardSpreadLayout;
   /** Forces the stack open or closed. Leave out to open it while the pointer is over it, or while it has focus. */
   open?: boolean;
+  /** The size: `sm` and `lg` scale the whole picture to 0.75 and 1.25 of `md`, the designed size. Whatever the size, it shrinks to fit the space it is in. Default `md`. */
+  size?: CardSize;
 }
 
 interface Pose {
@@ -81,6 +84,34 @@ const origin: Record<CardSpreadLayout, string> = {
   wheel: '50% 110%',
 };
 
+/** The designed card, in px (Amicro's 8rem by 11rem). TODO(open-question Q-MOT-22) closed 2026-10-30: kept local; the piece scales from it. */
+const CARD = { width: 128, height: 176 };
+/** Room kept around the open fan, in px. */
+const MARGIN = 16;
+
+/** The box the open stack fills, from where every card's corners land: the layout's footprint at the designed size. */
+function footprint(layout: CardSpreadLayout, count: number) {
+  const [ox, oy] = origin[layout].split(' ').map(v => parseFloat(v) / 100);
+  const pivot = { x: ox * CARD.width - CARD.width / 2, y: oy * CARD.height - CARD.height / 2 };
+  let reachX = CARD.width / 2;
+  let reachY = CARD.height / 2;
+  for (let i = 0; i < count; i++) {
+    const p = pose(layout, i, count);
+    const a = (p.rotate * Math.PI) / 180;
+    for (const sx of [-1, 1]) {
+      for (const sy of [-1, 1]) {
+        const dx = (sx * CARD.width) / 2 - pivot.x;
+        const dy = (sy * CARD.height) / 2 - pivot.y;
+        const x = pivot.x + p.scale * (dx * Math.cos(a) - dy * Math.sin(a)) + p.x;
+        const y = pivot.y + p.scale * (dx * Math.sin(a) + dy * Math.cos(a)) + p.y;
+        reachX = Math.max(reachX, Math.abs(x));
+        reachY = Math.max(reachY, Math.abs(y));
+      }
+    }
+  }
+  return { width: Math.ceil(reachX * 2 + MARGIN * 2), height: Math.ceil(reachY * 2 + MARGIN * 2) };
+}
+
 /**
  * A stack of cards that opens out when the pointer is over it, or it has
  * focus, and closes again when it leaves: eight layouts in one piece. The cards
@@ -88,14 +119,16 @@ const origin: Record<CardSpreadLayout, string> = {
  * it on touch. Under reduced motion the cards move to their places at once.
  */
 export const CardSpread = forwardRef<HTMLDivElement, CardSpreadProps>(function CardSpread(
-  { 'aria-label': label, items, layout = 'arc', open },
+  { 'aria-label': label, items, layout = 'arc', open, size },
   ref,
 ) {
   const [over, setOver] = useState(false);
   const reduce = useReducedMotion();
   const active = open ?? over;
   const count = layout === 'arc' && items.length >= 7 ? 7 : Math.min(items.length, 5);
+  const box = footprint(layout, count);
   return (
+    <CardScale size={size} width={box.width} height={box.height}>
     <div
       ref={ref}
       className="cui-card-spread"
@@ -127,5 +160,6 @@ export const CardSpread = forwardRef<HTMLDivElement, CardSpreadProps>(function C
         );
       })}
     </div>
+    </CardScale>
   );
 });

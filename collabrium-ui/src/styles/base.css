@@ -10,9 +10,8 @@
     everything functional.
   - Text colour: Neutral-9, as in the DLS gallery.
 
-  Not set on purpose (see MIGRATION-LOG.md, Open questions): body font
-  size, weight and line-height. The DLS has no body rule, and setting
-  body1 (16/22/500) here would change the weight that components inherit.
+  - Body text: body1 (16px / 22px / 500), decided 2026-10-30 (Q-GLOB-1).
+    The DLS has no body rule; the DLS is owed one (DLS updates owed).
 */
 
 *,
@@ -26,6 +25,10 @@ body {
   background: var(--color-canvas-warm);
   color: var(--color-neutral-9);
   font-family: var(--font-primary);
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--text-body1-weight);
+  letter-spacing: var(--text-body1-tracking);
 }
 
 /*

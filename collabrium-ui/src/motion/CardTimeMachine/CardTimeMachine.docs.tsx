@@ -38,6 +38,12 @@ export const examples: DocsExample[] = [
     description: "Move the pointer down the scrubber and click a mark: the cards in front of it fly away. The marks are buttons, so Tab and Enter work too.",
     render: () => (<div className="docs-card-stage"><CardTimeMachine aria-label="Releases" items={sampleCards.slice(0, 5)} /></div>),
     code: `<CardTimeMachine aria-label="Releases" items={cards} />`,
+  },  {
+    id: "sizes",
+    title: "Sizes",
+    description: "`sm` is 0.75 and `lg` 1.25 of `md`, the designed size. The whole picture scales together, and it shrinks to fit a narrow space, so it never hangs outside its box.",
+    render: () => (<div className="docs-card-stage" data-wrap><CardTimeMachine aria-label="sm time machine" items={sampleCards.slice(0, 5)} size="sm" /><CardTimeMachine aria-label="md time machine" items={sampleCards.slice(0, 5)} size="md" /><CardTimeMachine aria-label="lg time machine" items={sampleCards.slice(0, 5)} size="lg" /></div>),
+    code: `<CardTimeMachine aria-label="sm time machine" items={cards} size="sm" />\n<CardTimeMachine aria-label="md time machine" items={cards} size="md" />\n<CardTimeMachine aria-label="lg time machine" items={cards} size="lg" />`,
   },
 ];
 
@@ -45,7 +51,7 @@ export const props: DocsProp[] = [
   { name: "aria-label", options: "string", default: "\u2014", required: true, description: "Names the stack." },
   { name: "items", options: "CardItem[]", default: "\u2014", required: true, description: "The cards, front to back: `id`, `label` and `content`. The `label` is also the mark on the scrubber, e.g. a date." },
   { name: "index", options: "number", default: "0", description: "The index of the card in front." },
-  { name: "onIndexChange", options: "(index: number) => void", default: "\u2014", description: "Called with the index of the card that was chosen." },
+  { name: "onIndexChange", options: "(index: number) => void", default: "\u2014", description: "Called with the index of the card that was chosen." },  { name: "size", options: "'sm' | 'md' | 'lg'", default: "'md'", description: "The size of the whole picture: `sm` is 0.75 and `lg` 1.25 of `md`, the designed size. Whatever the size, it shrinks to fit the space it is in, and never grows past the size chosen." },
 ];
 
 export const rules: DocsRules = {

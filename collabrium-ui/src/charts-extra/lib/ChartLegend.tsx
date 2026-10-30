@@ -11,7 +11,7 @@ export interface LegendItem {
 
 /**
  * The DLS legend: a left-aligned row under the plot, caption labels in
- * Neutral-5, 10px circular swatches. Each item is a real button that shows
+ * Neutral-5, 12px circular swatches. Each item is a real button that shows
  * or hides its series (as Chart.js's legend does), so it works from the
  * keyboard; a hidden series is struck through. A `fixed` item is a key, not
  * a control.

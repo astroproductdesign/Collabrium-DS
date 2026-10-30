@@ -6,6 +6,7 @@ import { CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { Button } from '../../components/Button';
 import { transition } from '../motion';
 import type { CardItem } from '../lib/cards';
+import { CardScale, type CardSize } from '../lib/CardScale';
 
 export interface CardCoverFlowProps {
   /** Names the cover flow for assistive technology, e.g. "Albums". */
@@ -16,10 +17,14 @@ export interface CardCoverFlowProps {
   index?: number;
   /** Called with the index of the card that was chosen. */
   onIndexChange?: (index: number) => void;
+  /** The size: `sm` and `lg` scale the whole picture to 0.75 and 1.25 of `md`, the designed size. Whatever the size, it shrinks to fit the space it is in. Default `md`. */
+  size?: CardSize;
 }
 
-/** Spacing between cards, in px. TODO(open-question Q-MOT-22): Amicro's 32px step, 80px card and 1000px perspective, no tokens. */
+/** Spacing between cards, in px: Amicro's 32px step, 80px card and 1000px perspective, kept local (Q-MOT-22, decided 2026-10-30); the piece scales from them. */
 const STEP = 32;
+/** The box the stage is drawn in: five cards across, and the caption under the front one. */
+const BOX = { width: 280, height: 176 };
 
 /**
  * Cards in 3D, the front one flat and enlarged and the others turned away and
@@ -28,7 +33,7 @@ const STEP = 32;
  * cards sit in their places with no turning.
  */
 export const CardCoverFlow = forwardRef<HTMLDivElement, CardCoverFlowProps>(function CardCoverFlow(
-  { 'aria-label': label, items, index, onIndexChange },
+  { 'aria-label': label, items, index, onIndexChange, size },
   ref,
 ) {
   const [own, setOwn] = useState(Math.floor(items.length / 2));
@@ -48,6 +53,8 @@ export const CardCoverFlow = forwardRef<HTMLDivElement, CardCoverFlowProps>(func
   const t = reduce ? { duration: 0 } : transition('slow', 'settle');
   return (
     <div ref={ref} className="cui-cover-flow" role="group" aria-roledescription="carousel" aria-label={label} onKeyDown={key}>
+      <CardScale size={size} width={BOX.width} height={BOX.height}>
+      <div className="cui-cover-flow__3d">
       <div className="cui-cover-flow__stage">
         {items.map((item, i) => {
           const offset = i - current;
@@ -80,6 +87,8 @@ export const CardCoverFlow = forwardRef<HTMLDivElement, CardCoverFlowProps>(func
           );
         })}
       </div>
+      </div>
+      </CardScale>
       <div className="cui-card-controls">
         <Button variant="secondary" size="sm" iconOnly icon={CaretLeft} aria-label="Previous card" disabled={current === 0} onClick={() => go(current - 1)} />
         <div className="cui-card-controls__dots">

@@ -1,7 +1,15 @@
-// Every variant of ScrambleHover. The docs site does not show this file. Not part of the package build.
-import { ScrambleHover } from './ScrambleHover';
+// Every variant of ScrambleHover: each example from its docs file, in turn. The docs site does not show this file. Not part of the package build.
+import { examples } from './ScrambleHover.docs';
 
 export function ScrambleHoverPreview() {
-  void ScrambleHover;
-  return null;
+  return (
+    <div>
+      {examples.map(example => (
+        <section key={example.id}>
+          <h3>{example.title}</h3>
+          {example.render()}
+        </section>
+      ))}
+    </div>
+  );
 }

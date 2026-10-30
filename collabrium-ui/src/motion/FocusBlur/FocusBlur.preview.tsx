@@ -1,7 +1,15 @@
-// Every variant of FocusBlur. The docs site does not show this file. Not part of the package build.
-import { FocusBlur } from './FocusBlur';
+// Every variant of FocusBlur: each example from its docs file, in turn. The docs site does not show this file. Not part of the package build.
+import { examples } from './FocusBlur.docs';
 
 export function FocusBlurPreview() {
-  void FocusBlur;
-  return null;
+  return (
+    <div>
+      {examples.map(example => (
+        <section key={example.id}>
+          <h3>{example.title}</h3>
+          {example.render()}
+        </section>
+      ))}
+    </div>
+  );
 }

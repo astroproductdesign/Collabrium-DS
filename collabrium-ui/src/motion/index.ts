@@ -42,3 +42,4 @@ export { CardCarousel, type CardCarouselProps } from './CardCarousel';
 export { CardCoverFlow, type CardCoverFlowProps } from './CardCoverFlow';
 export { CardTimeMachine, type CardTimeMachineProps } from './CardTimeMachine';
 export type { CardItem } from './lib/cards';
+export type { CardSize } from './lib/CardScale';

@@ -19,6 +19,7 @@ A row of cards that slides sideways, one in front at a time. Pointing at it fans
 |---|---|---|---|
 | `aria-label` | `string` | — | Names the carousel. |
 | `items` | `CardItem[]` | — | The cards, in order: `id`, `label` and `content`. |
+| `size` | `sm`, `md`, `lg` | `md` | The size of the whole picture: 0.75, 1 or 1.25 of the designed size. It always shrinks to fit the space it is in. |
 | `index` | `number` | `middle card` | The index of the card in front. |
 | `onIndexChange` | `(index: number) => void` | — | Called with the index of the card that was chosen. |
 
@@ -28,7 +29,7 @@ A row of cards that slides sideways, one in front at a time. Pointing at it fans
 2. The track slides by one 160px slide per step over `--duration-slow` with `--ease-settle`. Amicro used springs; none overshoots.
 3. Previous and Next are DLS icon-only secondary small Buttons, disabled at the ends. Dots are buttons.
 4. Only the front card is exposed to assistive technology and reachable by keyboard.
-5. The slide (160px), card (110px) and window (180px) sizes have no tokens (Q-MOT-22).
+5. The designed sizes (local values, as the DLS has no card-size tokens: Q-MOT-22, decided 2026-10-30) are the starting point. `size` scales the whole picture, offsets, turns and depth together, to 0.75 (`sm`), 1 (`md`) or 1.25 (`lg`), and the picture then shrinks to fit the space it is in, never past the size chosen. The scrubber and the Previous, Next and dot controls keep their own size.
 6. Under reduced motion the cards move at once and do not fan.
 
 ## Accessibility

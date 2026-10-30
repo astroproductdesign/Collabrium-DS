@@ -9,7 +9,7 @@ const { color, text, font, borderWidth, duration, spacing } = tokens;
 /** Axis tick labels: footnote token, Neutral-5. */
 export const axisTick = { fontFamily: font.primary, fontSize: text.footnote.size, fill: color.neutral5 } as const;
 
-/** The value axis's only gridline: Neutral-3, hairline. TODO(open-question Q-CHART-1): the DLS gives no px. */
+/** The value axis's only gridline: Neutral-3, 1px (the `sm` border width; decided 2026-10-30, Q-CHART-1). */
 export const grid = { stroke: color.neutral3, strokeWidth: borderWidth.sm } as const;
 
 /** Line stroke: 2px. */
@@ -21,7 +21,7 @@ export const pointHoverRadius = 5;
 /** `strokeDasharray: 'none'` keeps a dashed series' own points solid. */
 export const pointRing = { stroke: color.neutral1, strokeWidth: borderWidth.md, strokeDasharray: 'none' } as const;
 
-/** Area fill: a 12% wash off the line's own colour, never more (Marks table). TODO(open-question Q-CHART-5). */
+/** Area fill: a 12% wash off the line's own colour, never more (Marks table). Q-CHART-5 decided 2026-10-30: the 12% mix, not the -bg tint. */
 export const washOpacity = 0.12;
 
 /** Dash pattern for a series told apart by pattern rather than colour. */
@@ -31,12 +31,33 @@ export const dashPattern = '4 4';
 export const cursor = { stroke: color.neutral3, strokeWidth: borderWidth.sm } as const;
 
 /**
- * Draw-in animation. TODO(open-question Q-CHART-4): the DLS specifies none;
- * `slow` is a placeholder. Reduced motion turns it off (useChartMotion).
+ * Draw-in animation (decided 2026-10-30, Q-CHART-4; the DLS owes this spec):
+ * marks draw in over `duration-reveal` on an ease-out curve. Recharts takes
+ * named easings only, so `ease-out` stands in for `ease-reveal` (also with no
+ * overshoot). Reduced motion draws the final chart at once (useChartMotion).
  */
-export const animation = { animationDuration: duration.slow, animationEasing: 'ease-out' } as const;
+export const animation = { animationDuration: duration.reveal, animationEasing: 'ease-out' } as const;
 
 export const defaultFormat = (value: number): string => value.toLocaleString();
+
+/** Axis numbers, shortened (500k, 1.2M). Used when no `valueFormat` is given; the tooltip keeps the full value. Decided 2026-10-30, Q-CHART-6. */
+export const compactFormat = (value: number): string => new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+
+/**
+ * Scrolling vertical bar charts (decided 2026-10-30, Q-CHART-6): every category gets
+ * a 40px slot so its bar can be 24px (60% of 40), and the chart scrolls sideways
+ * when the slots do not fit. The value axis stays put at a fixed 56px.
+ * TODO(open-question Q-CHART-8): 40px slot and 56px axis width have no token.
+ */
+export const scrollSlot = 40;
+export const scrollAxisWidth = 56;
+
+/**
+ * Space either side of a bar, as a share of its category (Recharts counts it twice): each
+ * bar takes the other 60% (capped at 24px, or 20px horizontal), so more bars or a
+ * narrower chart give thinner bars. Decided 2026-10-30, Q-CHART-6.
+ */
+export const barCategoryGap = '20%';
 
 /** The hovered category on a bar chart: a Neutral-2 band behind the bars. */
 export const cursorBand = { fill: color.neutral2 } as const;

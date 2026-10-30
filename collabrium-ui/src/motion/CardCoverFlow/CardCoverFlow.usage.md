@@ -19,6 +19,7 @@ Cards in 3D, the front one flat and enlarged and the others turned away and rece
 |---|---|---|---|
 | `aria-label` | `string` | — | Names the cover flow. |
 | `items` | `CardItem[]` | — | The cards, in order: `id`, `label` and `content`. |
+| `size` | `sm`, `md`, `lg` | `md` | The size of the whole picture: 0.75, 1 or 1.25 of the designed size. It always shrinks to fit the space it is in. |
 | `index` | `number` | `middle card` | The index of the card in front. |
 | `onIndexChange` | `(index: number) => void` | — | Called with the index of the card that was chosen. |
 
@@ -27,7 +28,7 @@ Cards in 3D, the front one flat and enlarged and the others turned away and rece
 1. The front card is flat at 110%; each step away turns the card 38 degrees, moves it 32px, steps it back 50px and scales it down 8%. Cards two steps away are 50% opaque and further ones are hidden.
 2. The cards move over `--duration-slow` with `--ease-settle` (Amicro: a spring that settles).
 3. Previous and Next are DLS icon-only secondary small Buttons.
-4. The stage (140px), card (80px) and depth (1000px) have no tokens (Q-MOT-22).
+4. The designed sizes (local values, as the DLS has no card-size tokens: Q-MOT-22, decided 2026-10-30) are the starting point. `size` scales the whole picture, offsets, turns and depth together, to 0.75 (`sm`), 1 (`md`) or 1.25 (`lg`), and the picture then shrinks to fit the space it is in, never past the size chosen. The scrubber and the Previous, Next and dot controls keep their own size.
 5. Under reduced motion the cards move at once and do not turn.
 
 ## Accessibility

@@ -3,7 +3,7 @@
 import { forwardRef } from 'react';
 import { Bar, BarChart as RechartsBar } from 'recharts';
 import { CartesianFrame, resolveSeries, type CartesianChartProps, type ChartSeries } from '../lib/CartesianFrame';
-import { barHover, barRadius, defaultFormat, maxBarThickness } from '../lib/chart-theme';
+import { barHover, barRadius, defaultFormat, maxBarThickness, barCategoryGap } from '../lib/chart-theme';
 
 export interface BarChartProps extends Omit<CartesianChartProps, 'yAxisStart'> {
   /** One entry per bar in each group. Each takes the next DLS series colour. Past about four, use a table. */
@@ -34,13 +34,14 @@ export const BarChart = forwardRef<HTMLElement, BarChartProps>(function BarChart
       valueFormat={valueFormat}
       orientation={orientation}
       marks="bars"
+      categories={data.length}
       table={{
         columns: [categoryLabel, ...resolved.map(s => s.name)],
         rows: data.map(d => [d[categoryKey], ...resolved.map(s => valueFormat(Number(d[s.key])))]),
       }}
     >
       {({ axes, tooltip, motion, hidden, chartProps }) => (
-        <RechartsBar data={data} {...chartProps}>
+        <RechartsBar barCategoryGap={barCategoryGap} data={data} {...chartProps}>
           {axes}
           {tooltip}
           {resolved.map(s => (

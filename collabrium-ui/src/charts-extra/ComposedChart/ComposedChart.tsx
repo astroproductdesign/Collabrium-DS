@@ -3,7 +3,7 @@
 import { forwardRef } from 'react';
 import { Bar, ComposedChart as RechartsComposed, Line, YAxis } from 'recharts';
 import { CartesianFrame, resolveSeries, type CartesianChartProps, type ChartSeries } from '../lib/CartesianFrame';
-import { axisTick, barHover, barRadius, dashPattern, defaultFormat, lineWidth, maxBarThickness, pointHoverRadius, pointRadius, pointRing } from '../lib/chart-theme';
+import { axisTick, barHover, barRadius, dashPattern, defaultFormat, lineWidth, maxBarThickness, pointHoverRadius, pointRadius, pointRing, barCategoryGap } from '../lib/chart-theme';
 import { useBare } from '../lib/bare';
 
 export interface ComposedChartProps extends Omit<CartesianChartProps, 'yAxisStart'> {
@@ -44,17 +44,19 @@ export const ComposedChart = forwardRef<HTMLElement, ComposedChartProps>(functio
       height={height}
       valueFormat={valueFormat}
       marks="bars"
+      categories={data.length}
+      rightAxis={own}
       describe={row => [...barSeries.map(s => `${s.name}: ${valueFormat(Number(row[s.key]))}`), `${lineSeries.name}: ${lf(Number(row[lineSeries.key]))}`]}
       table={{
         columns: [categoryLabel, ...barSeries.map(s => s.name), lineSeries.name],
         rows: data.map(d => [d[categoryKey], ...barSeries.map(s => valueFormat(Number(d[s.key]))), lf(Number(d[lineSeries.key]))]),
       }}
     >
-      {({ axes, tooltip, motion, hidden, chartProps }) => (
-        <RechartsComposed data={data} {...chartProps}>
+      {({ axes, tooltip, motion, hidden, chartProps, axisWidth }) => (
+        <RechartsComposed barCategoryGap={barCategoryGap} data={data} {...chartProps}>
           {axes}
           {/* The second axis: same hidden border and footnote ticks as the first, and no gridline of its own (Neutral-3 is drawn once, on the left axis). */}
-          {own && <YAxis yAxisId="line" orientation="right" hide={bare} width="auto" tickLine={false} axisLine={false} tick={axisTick} tickFormatter={lf} domain={['auto', 'auto']} />}
+          {own && <YAxis yAxisId="line" orientation="right" hide={bare} width={axisWidth} tickLine={false} axisLine={false} tick={axisTick} tickFormatter={lf} domain={['auto', 'auto']} />}
           {tooltip}
           {barSeries.map(s => (
             <Bar

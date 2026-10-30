@@ -93,6 +93,12 @@ export const examples: DocsExample[] = [
     description: "The cards turn about a point below the stack, like the spokes of a wheel.",
     render: () => (<div className="docs-card-stage"><CardSpread aria-label="Wheel layout" items={sampleCards.slice(0, 5)} layout="wheel" /></div>),
     code: `<CardSpread aria-label="Wheel layout" items={cards} layout="wheel" />`,
+  },  {
+    id: "sizes",
+    title: "Sizes",
+    description: "`sm` is 0.75 and `lg` 1.25 of `md`, the designed size. The whole picture scales together, and it shrinks to fit a narrow space, so it never hangs outside its box.",
+    render: () => (<div className="docs-card-stage" data-wrap><CardSpread aria-label="sm stack" items={sampleCards.slice(0, 5)} layout="arc" size="sm" /><CardSpread aria-label="md stack" items={sampleCards.slice(0, 5)} layout="arc" size="md" /><CardSpread aria-label="lg stack" items={sampleCards.slice(0, 5)} layout="arc" size="lg" /></div>),
+    code: `<CardSpread aria-label="sm stack" items={cards} layout="arc" size="sm" />\n<CardSpread aria-label="md stack" items={cards} layout="arc" size="md" />\n<CardSpread aria-label="lg stack" items={cards} layout="arc" size="lg" />`,
   },
 ];
 
@@ -100,7 +106,7 @@ export const props: DocsProp[] = [
   { name: "aria-label", options: "string", default: "\u2014", required: true, description: "Names the stack, e.g. \"Recent boards\"." },
   { name: "items", options: "CardItem[]", default: "\u2014", required: true, description: "The cards, front to back: `id`, `label` and `content`. Five for every layout; `arc` also takes seven." },
   { name: "layout", options: "'arc' | 'long-arc' | 'linear' | 'corner' | 'stamp' | 'cascade' | 'scatter' | 'wheel'", default: "'arc'", description: "How the stack opens." },
-  { name: "open", options: "boolean", default: "\u2014", description: "Forces the stack open or closed. Leave out to open it on hover and focus." },
+  { name: "open", options: "boolean", default: "\u2014", description: "Forces the stack open or closed. Leave out to open it on hover and focus." },  { name: "size", options: "'sm' | 'md' | 'lg'", default: "'md'", description: "The size of the whole picture: `sm` is 0.75 and `lg` 1.25 of `md`, the designed size. Whatever the size, it shrinks to fit the space it is in, and never grows past the size chosen." },
 ];
 
 export const rules: DocsRules = {

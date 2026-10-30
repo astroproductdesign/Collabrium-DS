@@ -4,6 +4,7 @@ import { forwardRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { transition } from '../motion';
 import type { CardItem } from '../lib/cards';
+import { CardScale, type CardSize } from '../lib/CardScale';
 
 export interface CardTimeMachineProps {
   /** Names the stack for assistive technology, e.g. "Releases". */
@@ -14,6 +15,8 @@ export interface CardTimeMachineProps {
   index?: number;
   /** Called with the index of the card that was chosen. */
   onIndexChange?: (index: number) => void;
+  /** The size: `sm` and `lg` scale the whole picture to 0.75 and 1.25 of `md`, the designed size. Whatever the size, it shrinks to fit the space it is in. Default `md`. */
+  size?: CardSize;
 }
 
 /**
@@ -23,7 +26,7 @@ export interface CardTimeMachineProps {
  * are only for the pointer. Under reduced motion the cards swap at once.
  */
 export const CardTimeMachine = forwardRef<HTMLDivElement, CardTimeMachineProps>(function CardTimeMachine(
-  { 'aria-label': label, items, index, onIndexChange },
+  { 'aria-label': label, items, index, onIndexChange, size },
   ref,
 ) {
   const [own, setOwn] = useState(0);
@@ -43,6 +46,7 @@ export const CardTimeMachine = forwardRef<HTMLDivElement, CardTimeMachineProps>(
   ]);
   return (
     <div ref={ref} className="cui-time-machine" role="group" aria-label={label}>
+      <CardScale size={size} width={290} height={218}>
       <div className="cui-time-machine__stage">
         {items.map((item, i) => {
           const offset = i - current;
@@ -71,6 +75,7 @@ export const CardTimeMachine = forwardRef<HTMLDivElement, CardTimeMachineProps>(
           );
         })}
       </div>
+      </CardScale>
       <div className="cui-time-machine__scrubber" onPointerLeave={() => setNear(null)}>
         {marks.map(m =>
           m.main ? (

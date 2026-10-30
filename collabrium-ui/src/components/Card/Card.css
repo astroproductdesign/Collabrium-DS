@@ -1,0 +1,295 @@
+/*
+  Card — ported from collabrium-dls/components.css lines 267–289: .c-cards and
+  .c-cards-functional (the grid), .c-card, .c-card.warm, .c-card-header,
+  .icon-chip, .c-card-footer, the .c-card h5 and .c-card p resets,
+  .c-card-accent and .c-card-interactive (the feature card, 304–314, and Selectable, 290–303, are at the end
+  of this file). Variants that have their own section (Price summary, Profile, Campaign, Hero, Pacing,
+  Media Ad, Entry, Ad Placement) are separate components and are not ported.
+
+  Mapping from the old classes:
+    .c-cards / .c-cards-functional     -> .cui-card-grid / [data-columns="functional"]
+    .c-card                            -> .cui-card
+    .c-card.warm                       -> [data-surface="warm"]
+    .c-card-accent                     -> [data-accent="<element>"]
+    (no CSS in the source)             -> [data-tint="<element>"]
+    .c-card-header                     -> .cui-card__header
+    .icon-chip                         -> .cui-icon-chip
+    .c-card h5                         -> .cui-card__title
+    .c-card p                          -> .cui-card p (still every paragraph in a card)
+    .c-card-footer                     -> .cui-card__footer
+    .c-card-interactive                -> .cui-card:has(.cui-card__action)
+
+  The source puts "interactive" on the card and leaves the click to a script
+  on a <div>. Here the click is a real link or button in the title, stretched
+  over the card, so the card is keyboard-reachable and announced as what it
+  is. The card finds out it is interactive by containing that action.
+
+  Specificity is kept in the same order as the source: the base card, then
+  warm, accent and tint (one class and one attribute), then the interactive
+  hover and focus rules last. One deliberate difference: a header that is the
+  last thing in the card drops its 16px bottom margin (Q-CARD-5).
+*/
+
+.cui-card-grid {
+  /* Q-CARD-6 (decided 2026-10-30): the 240px and 280px column floors are literals in the DLS with no token; kept local. */
+  --cui-card-grid-floor: 240px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--cui-card-grid-floor), 1fr));
+  gap: var(--spacing-16);
+}
+.cui-card-grid[data-columns="functional"] {
+  --cui-card-grid-floor: 280px;
+}
+
+.cui-card {
+  /* Q-CARD-6 (decided 2026-10-30): the 240px floor and the 3px accent border are literals in the DLS with no token; kept local. */
+  --cui-card-min-width: 240px;
+  --cui-card-accent-width: 3px;
+  /* The checkbox's own box size (Checkbox keeps it local), to work out the room beside it. */
+  --cui-card-select-size: 18px;
+  position: relative;
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  padding: var(--spacing-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  transition: box-shadow var(--duration-base) var(--ease-settle);
+  width: 100%;
+  min-width: var(--cui-card-min-width);
+  height: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-primary);
+}
+.cui-card[data-surface="warm"] {
+  background: var(--color-canvas-warm-card);
+  border-color: transparent;
+}
+
+/* Element-accented: a 3px top border in the owning element's colour (the source has only Wood's, Salmon Pink). */
+.cui-card[data-accent] {
+  border-top-width: var(--cui-card-accent-width);
+}
+.cui-card[data-accent="fire"] { border-top-color: var(--color-orange); }
+.cui-card[data-accent="wood"] { border-top-color: var(--color-salmon-pink); }
+.cui-card[data-accent="earth"] { border-top-color: var(--color-green); }
+.cui-card[data-accent="water"] { border-top-color: var(--color-navy); }
+.cui-card[data-accent="gold"] { border-top-color: var(--color-amber); }
+
+/* Element-tinted: the whole card in the element's -bg tint. The source has no rule; DESIGN-SYSTEM.md 2640 describes it. */
+.cui-card[data-tint="fire"] { background: var(--color-fire-bg); }
+.cui-card[data-tint="wood"] { background: var(--color-wood-bg); }
+.cui-card[data-tint="earth"] { background: var(--color-earth-bg); }
+.cui-card[data-tint="water"] { background: var(--color-water-bg); }
+.cui-card[data-tint="gold"] { background: var(--color-gold-bg); }
+
+.cui-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+  /* No margin of its own: the card's 8px gap is all that sits between the header and what follows (the source's 16px margin plus that gap made 24px; DESIGN-SYSTEM.md 2624 says 16px). Decided 2026-10-30, Q-CARD-7: 8px. */
+  margin-bottom: 0;
+}
+.cui-card__heading {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.cui-card__title {
+  margin: 0;
+  font-size: var(--text-h5-size);
+  font-weight: var(--text-h5-weight);
+}
+/* The subtitle is described in DESIGN-SYSTEM.md 2624 (caption, Neutral-5, weight 400); the source has no rule. */
+.cui-card .cui-card__subtitle {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+}
+.cui-card p {
+  margin: 0;
+  font-size: var(--text-body2-size);
+  color: var(--color-neutral-5);
+}
+
+.cui-card__footer {
+  margin-top: var(--spacing-16);
+  padding-top: var(--spacing-12);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+  font-size: var(--text-caption-size);
+  color: var(--color-neutral-5);
+}
+
+.cui-icon-chip {
+  /* Q-CARD-6 (decided 2026-10-30): the 36px chip and its 12% tint are literals in the DLS (the tint is documented as a one-off, not the 8% -bg token); kept local. */
+  --cui-icon-chip-size: 36px;
+  --cui-icon-chip-tint: 12%;
+  --cui-icon-chip-color: var(--color-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--cui-icon-chip-size);
+  height: var(--cui-icon-chip-size);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--cui-icon-chip-color) var(--cui-icon-chip-tint), transparent);
+  color: var(--cui-icon-chip-color);
+}
+.cui-icon-chip svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+.cui-icon-chip[data-element="fire"] { --cui-icon-chip-color: var(--color-orange); }
+.cui-icon-chip[data-element="wood"] { --cui-icon-chip-color: var(--color-salmon-pink); }
+.cui-icon-chip[data-element="earth"] { --cui-icon-chip-color: var(--color-green); }
+.cui-icon-chip[data-element="water"] { --cui-icon-chip-color: var(--color-navy); }
+.cui-icon-chip[data-element="gold"] { --cui-icon-chip-color: var(--color-amber); }
+
+/* Interactive: the title's link or button, stretched over the whole card. */
+.cui-card__action {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+}
+.cui-card__action::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+}
+.cui-card:has(.cui-card__action):hover {
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+}
+.cui-card:has(.cui-card__action:focus-visible) {
+  box-shadow: var(--shadow-focus);
+}
+
+/* Forced colours: the focus halo is a shadow, which is not drawn, so the card takes an outline (designed here, Q-CARD-4). */
+@media (forced-colors: active) {
+  .cui-card:has(.cui-card__action:focus-visible) {
+    outline: var(--focus-ring-width) solid Highlight;
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+/*
+  Feature card (USP) — ported from components.css lines 304–314: .c-card-usp,
+  .c-card-usp-list and the full-width button. The header and description are
+  the base card's, unchanged.
+
+    .c-card.c-card-usp                 -> .cui-card[data-min-width="functional"]
+    .c-card-usp-list                   -> .cui-card__list
+    .c-card-usp-list li / i            -> .cui-card__list li / svg
+    .c-card-usp .c-btn                 -> .cui-card > .cui-button
+
+  The 280px floor and the full-width button are what make it the feature
+  tile: the list takes the room left in the card (flex: 1), so the button
+  is pinned to the bottom of every card in a row (CTA pinning).
+*/
+.cui-card[data-min-width="functional"] {
+  --cui-card-min-width: 280px;
+}
+.cui-card__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  flex: 1;
+}
+.cui-card__list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-9);
+}
+.cui-card__list svg {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-obsidian);
+}
+.cui-card > .cui-button {
+  align-self: stretch;
+  justify-content: center;
+}
+
+/*
+  Selectable (a card given a `selectLabel`) — ported from components.css lines
+  290–303: .c-card-selectable, .c-card-select, the hover and selected reveal,
+  the reserved space and .c-card.is-selected.
+
+    .c-card.c-card-selectable          -> .cui-card[data-selectable]
+    .c-card.is-selected                -> [data-selected]
+    .c-card-select                     -> .cui-card__select
+    .c-card-select .c-checkbox-box     -> the real Checkbox's box
+    .c-card-selectable h5              -> the left room on all of the card's content
+
+  Two differences from the source, decided 2026-10-30: the checkbox sits on the
+  LEFT (the source puts it top right), so the room is on the left, for all of the
+  card's content (a 16px gap after the box, so the description lines up with the heading, and an icon chip moves along); and the
+  checkbox also shows on keyboard focus and, on touch, always (Q-SEL-1). A
+  focused selected card keeps its focus halo over the Selected shadow (Q-SEL-2).
+  The checkbox keeps Checkbox's 2px top nudge, as in the source (Q-CHK-6, decided 2026-10-30).
+*/
+.cui-card[data-selectable] {
+  transition:
+    box-shadow var(--duration-base) var(--ease-settle),
+    border-color var(--duration-base) var(--ease-settle);
+}
+
+.cui-card__select {
+  position: absolute;
+  top: var(--spacing-16);
+  left: var(--spacing-16);
+  z-index: 1;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+/* Shown on hover and while selected, as the source does; also on keyboard focus, and always on touch (Q-SEL-1). */
+.cui-card[data-selectable]:hover .cui-card__select,
+.cui-card[data-selectable][data-selected] .cui-card__select,
+.cui-card[data-selectable]:focus-within .cui-card__select {
+  opacity: 1;
+}
+@media (hover: none) {
+  .cui-card__select {
+    opacity: 1;
+  }
+}
+
+/*
+  Room for the checkbox: the whole card's content (title or header, text, footer) sits in one column to its right,
+  16px clear of the box, so the description lines up with the heading. Kept at rest as well as when the checkbox
+  shows, so nothing jumps. (Decided 2026-10-30, Q-SEL-4. The footer's line still spans the card.)
+*/
+.cui-card[data-selectable] > :not(.cui-card__select) {
+  padding-left: calc(var(--cui-card-select-size) + var(--spacing-16));
+}
+
+/* Selected: a 2px Obsidian border and shadow-3. The padding gives up 1px a side so the content does not move. The swap is instant, as in the source. */
+.cui-card[data-selectable][data-selected],
+.cui-card[data-selectable][data-selected]:has(.cui-card__action):hover {
+  border: var(--border-width-md) solid var(--color-obsidian);
+  box-shadow: var(--shadow-3);
+  padding: calc(var(--spacing-16) - var(--border-width-sm));
+}
+/* The halo wins over Selected, so a focused selected card still shows where the keyboard is (Q-SEL-2). */
+.cui-card[data-selectable][data-selected]:has(.cui-card__action:focus-visible) {
+  box-shadow: var(--shadow-focus);
+}

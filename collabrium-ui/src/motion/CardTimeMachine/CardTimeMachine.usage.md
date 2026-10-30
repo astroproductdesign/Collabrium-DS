@@ -19,6 +19,7 @@ A deck that recedes into the distance, with a scrubber beside it: choosing a mar
 |---|---|---|---|
 | `aria-label` | `string` | — | Names the stack. |
 | `items` | `CardItem[]` | — | The cards, front to back: `id`, `label` and `content`. The `label` is also the mark on the scrubber, e.g. a date. |
+| `size` | `sm`, `md`, `lg` | `md` | The size of the whole picture: 0.75, 1 or 1.25 of the designed size. It always shrinks to fit the space it is in. |
 | `index` | `number` | `0` | The index of the card in front. |
 | `onIndexChange` | `(index: number) => void` | — | Called with the index of the card that was chosen. |
 
@@ -28,7 +29,7 @@ A deck that recedes into the distance, with a scrubber beside it: choosing a mar
 2. The cards move over `--duration-slow` with `--ease-settle`. Amicro used a spring that settles.
 3. The scrubber has a long mark per card (a button) and two short marks between each pair. The current mark is Navy and 140% long; the marks near the pointer grow.
 4. Amicro's goo filter (a blur and threshold that softened the card corners) is not ported.
-5. The 800px depth, 220px by 135px cards and 24px marks have no tokens (Q-MOT-22).
+5. The designed sizes (local values, as the DLS has no card-size tokens: Q-MOT-22, decided 2026-10-30) are the starting point. `size` scales the whole picture, offsets, turns and depth together, to 0.75 (`sm`), 1 (`md`) or 1.25 (`lg`), and the picture then shrinks to fit the space it is in, never past the size chosen. The scrubber and the Previous, Next and dot controls keep their own size.
 6. Only the front card is exposed to assistive technology.
 7. Under reduced motion the cards swap at once.
 

@@ -7,7 +7,7 @@
 // files of its parts, so a new part appears here by itself.
 import type { ReactNode } from 'react';
 import { ThumbFit } from './ThumbFit';
-import { Badge } from '../../src';
+import { Badge, Card, CardGrid, CardTitle } from '../../src';
 import { ChartThumbnail } from '../../src/charts-extra';
 import { componentDocs, groupDocs } from '../app/_generated/components-docs';
 import { componentsMeta } from '../app/_generated/components-meta';
@@ -139,23 +139,15 @@ export function GroupOverview({ slug }: { slug: string }) {
           {cards.length === 0 ? (
             <ComingSoon />
           ) : (
-            <div className="c-cards">
+            <CardGrid>
               {cards.map(c => (
-                <div key={c.title} className={`c-card docs-comp-card${c.key ? ' c-card-interactive' : ''}`}>
+                <Card key={c.title}>
                   {c.key && (
                     <ThumbFit>
                       {c.thumb}
                     </ThumbFit>
                   )}
-                  <h3 className="docs-card-title">
-                    {c.key ? (
-                      <a className="docs-stretched" href={hrefTo(current, c.key)}>
-                        {c.title}
-                      </a>
-                    ) : (
-                      c.title
-                    )}
-                  </h3>
+                  {c.key ? <CardTitle href={hrefTo(current, c.key)}>{c.title}</CardTitle> : <CardTitle>{c.title}</CardTitle>}
                   <p className="docs-card-desc">
                     <Prose text={c.summary} />
                   </p>
@@ -164,9 +156,9 @@ export function GroupOverview({ slug }: { slug: string }) {
                       <Badge variant="neutral">Coming soon</Badge>
                     </span>
                   )}
-                </div>
+                </Card>
               ))}
-            </div>
+            </CardGrid>
           )}
         </section>
 

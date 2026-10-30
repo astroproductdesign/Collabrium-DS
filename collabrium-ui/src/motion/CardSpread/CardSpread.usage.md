@@ -19,6 +19,7 @@ A stack of cards that opens out when the pointer is over it, or it has focus, an
 |---|---|---|---|
 | `aria-label` | `string` | — | Names the stack, e.g. "Recent boards". |
 | `items` | `CardItem[]` | — | The cards, front to back: `id`, `label` and `content`. Five for every layout; `arc` also takes seven. |
+| `size` | `sm`, `md`, `lg` | `md` | The size of the whole picture: 0.75, 1 or 1.25 of the designed size. It always shrinks to fit the space it is in. |
 | `layout` | `'arc' | 'long-arc' | 'linear' | 'corner' | 'stamp' | 'cascade' | 'scatter' | 'wheel'` | `'arc'` | How the stack opens. |
 | `open` | `boolean` | — | Forces the stack open or closed. Leave out to open it on hover and focus. |
 
@@ -28,7 +29,7 @@ A stack of cards that opens out when the pointer is over it, or it has focus, an
 2. Each layout's poses are Amicro's, in px and degrees: for example, `arc` turns 15 degrees and moves 35px per card step, with the middle card lifted and enlarged to 105%.
 3. The cards settle with a tween over `--duration-slow` and `--ease-settle`. Amicro mixed springs and durations; none overshoots.
 4. A card is Neutral-1 with a 1px Neutral-3 border, radius-md and shadow-2.
-5. The stack is 128px by 176px (`--cui-spread-width`, `--cui-spread-height`; Q-MOT-22).
+5. The designed card is 128px by 176px (`--cui-spread-width`, `--cui-spread-height`; local values, as the DLS has no card-size tokens: Q-MOT-22, decided 2026-10-30). The piece takes up the box the open stack fills, and `size` scales the whole picture, offsets, turns and all, to 0.75 (`sm`), 1 (`md`) or 1.25 (`lg`). It then shrinks to fit the space it is in, never past the size chosen.
 6. Opens on hover (mouse), on a tap (touch) and on focus.
 7. Under reduced motion the cards move at once.
 

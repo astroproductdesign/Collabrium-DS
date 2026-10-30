@@ -6,6 +6,7 @@ import { CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { Button } from '../../components/Button';
 import { transition } from '../motion';
 import type { CardItem } from '../lib/cards';
+import { CardScale, type CardSize } from '../lib/CardScale';
 
 export interface CardCarouselProps {
   /** Names the carousel for assistive technology, e.g. "Trips". */
@@ -16,10 +17,14 @@ export interface CardCarouselProps {
   index?: number;
   /** Called with the index of the card that was chosen. */
   onIndexChange?: (index: number) => void;
+  /** The size: `sm` and `lg` scale the whole picture to 0.75 and 1.25 of `md`, the designed size. Whatever the size, it shrinks to fit the space it is in. Default `md`. */
+  size?: CardSize;
 }
 
-/** Width of one slide, in px. TODO(open-question Q-MOT-22): Amicro's 160px slide, 110px card and 180px height, no tokens. */
+/** Width of one slide, in px: Amicro's 160px slide, 110px card and 180px height, kept local (Q-MOT-22, decided 2026-10-30); the piece scales from them. */
 const SLIDE = 160;
+/** The box the row is drawn in: the front card and one either side, with room for the fan to drop. */
+const BOX = { width: SLIDE * 3, height: 300 };
 
 /**
  * A row of cards that slides sideways, one card in front at a time. Pointing
@@ -28,7 +33,7 @@ const SLIDE = 160;
  * Under reduced motion the cards move to their places at once and do not fan.
  */
 export const CardCarousel = forwardRef<HTMLDivElement, CardCarouselProps>(function CardCarousel(
-  { 'aria-label': label, items, index, onIndexChange },
+  { 'aria-label': label, items, index, onIndexChange, size },
   ref,
 ) {
   const [own, setOwn] = useState(Math.floor(items.length / 2));
@@ -49,6 +54,7 @@ export const CardCarousel = forwardRef<HTMLDivElement, CardCarouselProps>(functi
   const t = reduce ? { duration: 0 } : transition('slow', 'settle');
   return (
     <div ref={ref} className="cui-card-carousel" role="group" aria-roledescription="carousel" aria-label={label} onKeyDown={key} onPointerEnter={e => e.pointerType === 'mouse' && setOver(true)} onPointerLeave={() => setOver(false)}>
+      <CardScale size={size} width={BOX.width} height={BOX.height}>
       <div className="cui-card-carousel__window" style={{ width: SLIDE }}>
         <motion.div className="cui-card-carousel__track" initial={false} animate={{ x: -current * SLIDE }} transition={t}>
           {items.map((item, i) => {
@@ -78,6 +84,7 @@ export const CardCarousel = forwardRef<HTMLDivElement, CardCarouselProps>(functi
           })}
         </motion.div>
       </div>
+      </CardScale>
       <div className="cui-card-controls">
         <Button variant="secondary" size="sm" iconOnly icon={CaretLeft} aria-label="Previous card" disabled={current === 0} onClick={() => go(current - 1)} />
         <div className="cui-card-controls__dots">

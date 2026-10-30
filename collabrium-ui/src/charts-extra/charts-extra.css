@@ -13,14 +13,14 @@
    The card around the chart is the host's (Card is not converted yet). */
 
 .cui-chartx{
-  /* TODO(open-question Q-CHART-7): 260px and 300px are literals in the DLS with no token. */
+  /* Q-CHART-7 (decided 2026-10-30): 260px and 300px stay as local values, attached to no token, for now. */
   --cui-chartx-height: 260px;
   --cui-chartx-height-tall: 300px;
-  /* TODO(open-question Q-CHART-2): the tooltip's radius and padding are literals in the DLS. */
+  /* Q-CHART-2 (decided 2026-10-30): the DLS adds tokens for the tooltip's radius and padding; local until tokens.css has them. */
   --cui-chartx-tooltip-radius: 8px;
   --cui-chartx-tooltip-padding: 10px;
-  /* The legend's swatch: 10px circles (DLS legend row). */
-  --cui-chartx-swatch: 10px;
+  /* The legend's swatch: 12px circles (decided 2026-10-30, Q-CHART-7; the DLS legend row says 10px and is owed an update). */
+  --cui-chartx-swatch: 12px;
 
   margin: 0;
   display: flex;
@@ -89,7 +89,7 @@
   pointer-events: none;
 }
 .cui-chartx__tooltip-title{font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--text-label2-weight); color: var(--color-neutral-9);}
-/* TODO(open-question Q-CHART-3): label3's tracking and uppercase are not applied, as in the Chart.js set-up. */
+/* Q-CHART-3 (decided 2026-10-30): the tooltip body is label3 in normal case: no uppercase, no extra tracking, as in the Chart.js set-up. */
 .cui-chartx__tooltip-row{font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--text-label3-weight); color: var(--color-neutral-5);}
 
 /* Table view table: the embedded Table (no container; label3 uppercase Neutral-5 header). */
@@ -256,3 +256,13 @@
    TODO(open-question Q-XCH-30): the DLS gives the sparkline slot no height; 32px is the Amicro sparkline row's 28px, rounded to the 8px grid. */
 .cui-spark{--cui-spark-height: 32px; margin: 0; width: 100%; min-width: 0; height: var(--cui-spark-height);}
 .cui-chartx-thumb .cui-spark{height: var(--spacing-120);}
+
+/* Vertical bar charts with many categories: the box scrolls sideways, and a copy of the chart clipped to its value axis stays at each side. */
+.cui-chartx__scroll{height: 100%; overflow-x: auto; overflow-y: hidden;}
+.cui-chartx__scroll-inner{display: grid; height: 100%;}
+.cui-chartx__scroll-main,
+.cui-chartx__axis-copy{grid-area: 1 / 1;}
+.cui-chartx__scroll-main{min-width: 0; height: 100%;}
+.cui-chartx__axis-copy{position: sticky; z-index: 1; height: 100%; overflow: hidden; background: var(--color-neutral-1); pointer-events: none;}
+.cui-chartx__axis-copy[data-side="left"]{left: 0; justify-self: start;}
+.cui-chartx__axis-copy[data-side="right"]{right: 0; justify-self: end;}

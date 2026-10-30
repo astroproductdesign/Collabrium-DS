@@ -1,7 +1,15 @@
-// Every variant of ExpandingTabs. The docs site does not show this file. Not part of the package build.
-import { ExpandingTabs } from './ExpandingTabs';
+// Every variant of ExpandingTabs: each example from its docs file, in turn. The docs site does not show this file. Not part of the package build.
+import { examples } from './ExpandingTabs.docs';
 
 export function ExpandingTabsPreview() {
-  void ExpandingTabs;
-  return null;
+  return (
+    <div>
+      {examples.map(example => (
+        <section key={example.id}>
+          <h3>{example.title}</h3>
+          {example.render()}
+        </section>
+      ))}
+    </div>
+  );
 }

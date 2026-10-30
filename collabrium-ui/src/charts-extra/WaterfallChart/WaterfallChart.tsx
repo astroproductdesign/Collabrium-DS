@@ -3,7 +3,7 @@
 import { forwardRef, type ReactElement } from 'react';
 import { Bar, BarChart as RechartsBar, Cell, Rectangle } from 'recharts';
 import { CartesianFrame, type CartesianChartProps, type ChartDatum, type ResolvedSeries } from '../lib/CartesianFrame';
-import { barHover, barRadius, defaultFormat, maxBarThickness } from '../lib/chart-theme';
+import { barHover, barRadius, defaultFormat, maxBarThickness, barCategoryGap } from '../lib/chart-theme';
 import { tokens } from '../../tokens/tokens';
 
 const { color } = tokens;
@@ -76,6 +76,7 @@ export const WaterfallChart = forwardRef<HTMLElement, WaterfallChartProps>(funct
       valueFormat={valueFormat}
       orientation={orientation}
       marks="bars"
+      categories={data.length}
       describe={row => {
         const r = row as unknown as Step;
         return r.__kind === 'total' ? [`${valueLabel}: ${valueFormat(r.__change)}`] : [`Change: ${signed(r.__change)}`, `Running total: ${valueFormat(r.__running)}`];
@@ -91,7 +92,7 @@ export const WaterfallChart = forwardRef<HTMLElement, WaterfallChartProps>(funct
       }}
     >
       {({ axes, tooltip, motion, chartProps }) => (
-        <RechartsBar data={steps} {...chartProps}>
+        <RechartsBar barCategoryGap={barCategoryGap} data={steps} {...chartProps}>
           {axes}
           {tooltip}
           <Bar dataKey={BASE} stackId="w" fill="transparent" isAnimationActive={false} tooltipType="none" legendType="none" activeBar={false} />

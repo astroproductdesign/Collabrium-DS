@@ -94,7 +94,7 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-required { margin-left: var(--spacing-8); }
 .docs-nowrap { white-space: nowrap; }
 .docs-rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--spacing-120) * 2.5)), 1fr)); gap: var(--spacing-16); }
-.docs-rules .c-card { min-width: 0; }
+.docs-rules .cui-card { min-width: 0; }
 .docs-rules .guide-col h3 { font-size: var(--text-h5-size); line-height: var(--text-h5-lh); }
 .docs-notes { margin: var(--spacing-16) 0 0; padding-left: var(--spacing-20); display: grid; gap: var(--spacing-8); font-size: var(--text-body2-size); line-height: var(--text-body2-lh); }
 
@@ -116,8 +116,6 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-card-link { color: inherit; text-decoration: none; }
 .docs-card-head { display: flex; align-items: center; gap: var(--spacing-12); }
 .docs-card-icon { font-size: var(--icon-md); color: var(--color-neutral-9); }
-.docs-card-title { margin: 0; font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--text-h5-weight); }
-.docs-comp-card { position: relative; }
 /* ---------- Group overview (AI Native) ---------- */
 .docs-card-desc { margin: var(--spacing-8) 0 0; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
 .docs-card-soon { display: block; margin-top: var(--spacing-12); }
@@ -132,10 +130,6 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-thumb-wide { flex: none; width: calc(var(--spacing-120) * 4); }
 .docs-thumb-wide[data-narrow] { width: calc(var(--spacing-120) * 2.5); }
 .docs-comp-thumb__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: safe center; gap: var(--spacing-8); width: 100%; transform-origin: top left; }
-.docs-stretched { color: inherit; text-decoration: none; }
-.docs-stretched::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-lg); }
-.docs-stretched:focus-visible { outline: none; }
-.docs-comp-card:has(.docs-stretched:focus-visible) { box-shadow: var(--shadow-focus); }
 
 /* ---------- Foundation sections ---------- */
 /* Overrides for copied DLS rules that set a monospace face: the DLS font rule is Mulish only. */
@@ -249,9 +243,11 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-card-face[data-hue="salmonPink"] { background: var(--color-wood-bg-strong); }
 .docs-card-face[data-hue="purple"] { background: var(--color-purple-bg-strong); }
 .docs-card-face[data-hue="turquoise"] { background: var(--color-neutral-2); }
+.docs-card-stage[data-wrap] { flex-wrap: wrap; gap: var(--spacing-32); }
+.docs-card-stage[data-wrap] .cui-card-scale { width: auto; }
 .docs-card-stage { display: flex; align-items: center; justify-content: center; min-height: calc(var(--spacing-120) * 3); padding: var(--spacing-60) var(--spacing-32); overflow-x: auto; }
 /* Card thumbnails: a fixed canvas big enough for the widest layout (a fanned stack), which the card picture then scales to fit. */
-.docs-card-thumb { overflow: hidden; display: flex; flex: none; align-items: center; justify-content: center; width: calc(var(--spacing-120) * 3.5); height: calc(var(--spacing-120) * 2.25); }
+.docs-card-thumb { overflow: hidden; display: flex; flex: none; align-items: center; justify-content: center; width: calc(var(--spacing-120) * 3.5); min-height: calc(var(--spacing-120) * 2.25); }
 .docs-card-thumb__inner { display: contents; }
 
 /* Outline pictures for the bigger components' cards (src/components/docs-outline.docs.tsx): neutral boxes and bars. */

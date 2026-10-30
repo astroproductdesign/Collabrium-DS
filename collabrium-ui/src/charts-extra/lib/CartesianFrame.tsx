@@ -1,11 +1,11 @@
 'use client';
 
-import { forwardRef, type ReactElement } from 'react';
+import { forwardRef, useEffect, useRef, useState, type ReactElement } from 'react';
 import { CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChartShell, type ChartTable } from './ChartShell';
 import type { LegendItem } from './ChartLegend';
 import { ChartTooltip, type TooltipDescribe } from './ChartTooltip';
-import { axisTick, cursor, cursorBand, defaultFormat, grid } from './chart-theme';
+import { axisTick, compactFormat, cursor, cursorBand, defaultFormat, grid, scrollAxisWidth, scrollSlot } from './chart-theme';
 import { resolveSeriesColorName, seriesColorValue, type SeriesColorName } from './series-colors';
 import { useBare } from './bare';
 import { useChartMotion } from './useChartMotion';
@@ -73,6 +73,8 @@ export interface FrameContext {
   motion: ReturnType<typeof useChartMotion>;
   /** Keys of the series the person has hidden from the legend. */
   hidden: ReadonlySet<string>;
+  /** The width to give a value axis: `auto`, or a fixed number while the chart scrolls sideways (the axis then stays in place). */
+  axisWidth: number | 'auto';
   /** Spread onto the Recharts chart: its accessible name, the arrow-key reading layer, the plot margin and (for horizontal bars) the layout. */
   chartProps: { title: string; accessibilityLayer: true; margin: { top: number; right: number; left: number; bottom: number }; layout?: 'vertical' };
 }
@@ -94,6 +96,10 @@ interface FrameProps {
   /** Replaces the default tooltip lines (one "name: value" per series). */
   describe?: TooltipDescribe;
   table: ChartTable;
+  /** The number of categories, for a vertical bar chart. Gives every category a 24px bar's slot and makes the chart scroll sideways when they do not fit, with the value axis fixed in place. */
+  categories?: number;
+  /** True when the chart has a second value axis on the right, which is also fixed in place while the chart scrolls. */
+  rightAxis?: boolean;
   /** Extra legend items after the series, e.g. the remainder of a stack, or a fixed key to the marks. */
   extraLegend?: LegendItem[];
   children: (ctx: FrameContext) => ReactElement;
@@ -101,12 +107,25 @@ interface FrameProps {
 
 /** The Recharts frame: DLS axes, gridline, tooltip and motion around the chart a component draws. */
 export const CartesianFrame = forwardRef<HTMLElement, FrameProps>(function CartesianFrame(
-  { label, legend, legendSeries = true, series, categoryKey, height, valueFormat = defaultFormat, yAxisStart = 'zero', orientation = 'vertical', marks = 'lines', describe, table, extraLegend = [], children },
+  { label, legend, legendSeries = true, series, categoryKey, height, valueFormat = defaultFormat, yAxisStart = 'zero', orientation = 'vertical', marks = 'lines', describe, table, categories, rightAxis, extraLegend = [], children },
   ref,
 ) {
   const motion = useChartMotion();
   const bare = useBare();
   const horizontal = orientation === 'horizontal';
+  const scrolling = !bare && !horizontal && marks === 'bars' && !!categories;
+  const axisWidth: number | 'auto' = scrolling ? scrollAxisWidth : 'auto';
+  const inner = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(480);
+  useEffect(() => {
+    const el = inner.current;
+    if (!scrolling || !el) return;
+    const ro = new ResizeObserver(() => setWidth(el.getBoundingClientRect().width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [scrolling]);
+  // The axis shortens numbers unless the host gave its own format (a currency, a unit); the tooltip always shows the full value.
+  const axisFormat = valueFormat === defaultFormat ? compactFormat : valueFormat;
   const domain: [number | 'auto', number | 'auto'] = yAxisStart === 'fit' ? ['auto', 'auto'] : [0, 'auto'];
 
   // A bare thumbnail keeps the axes' scales (so a fitted line still fills its box) but draws none of them.
@@ -117,32 +136,72 @@ export const CartesianFrame = forwardRef<HTMLElement, FrameProps>(function Carte
     : horizontal
     ? [
         <CartesianGrid key="grid" horizontal={false} {...grid} />,
-        <XAxis key="x" type="number" tickLine={false} axisLine={false} tick={axisTick} tickFormatter={valueFormat} domain={domain} />,
+        <XAxis key="x" type="number" tickLine={false} axisLine={false} tick={axisTick} tickFormatter={axisFormat} domain={domain} />,
         <YAxis key="y" type="category" dataKey={categoryKey} width="auto" tickLine={false} axisLine={false} tick={axisTick} />,
       ]
     : [
         <CartesianGrid key="grid" vertical={false} {...grid} />,
         <XAxis key="x" dataKey={categoryKey} tickLine={false} axisLine={false} tick={axisTick} />,
-        <YAxis key="y" width="auto" tickLine={false} axisLine={false} tick={axisTick} tickFormatter={valueFormat} domain={domain} />,
+        <YAxis key="y" width={axisWidth} tickLine={false} axisLine={false} tick={axisTick} tickFormatter={axisFormat} domain={domain} />,
       ];
   const tooltip = bare ? <></> : <Tooltip key="tip" cursor={marks === 'bars' ? cursorBand : cursor} content={<ChartTooltip format={valueFormat} describe={describe} />} />;
 
+  const frameContext = (hidden: ReadonlySet<string>, copy = false): FrameContext => ({
+    axes,
+    tooltip: copy ? <></> : tooltip,
+    motion: copy ? { ...motion, isAnimationActive: false } : motion,
+    hidden,
+    axisWidth,
+    chartProps: {
+      title: copy ? '' : label,
+      accessibilityLayer: !copy as true,
+      margin: bare ? bareMargin : plotMargin,
+      ...(horizontal ? { layout: 'vertical' as const } : {}),
+    },
+  });
   const legendItems = legend ? [...(legendSeries ? series.map(s => ({ key: s.key, name: s.name, color: s.hex })) : []), ...extraLegend] : undefined;
 
   return (
     <ChartShell ref={ref} label={label} height={height} legend={legendItems} table={table} fill>
-      {({ hidden }) => (
-        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 260 }}>
-          {children({
-            axes,
-            tooltip,
-            motion,
-            hidden,
-            chartProps: { title: label, accessibilityLayer: true, margin: bare ? bareMargin : plotMargin, ...(horizontal ? { layout: 'vertical' as const } : {}) },
-          })}
-        </ResponsiveContainer>
-      )}
+      {({ hidden }) =>
+        scrolling ? (
+          // Wider than the box when the categories do not fit: the box scrolls, and a copy of the chart, clipped to
+          // just its value axis, stays at each side so the numbers can still be read.
+          <div className="cui-chartx__scroll">
+            <div
+              ref={inner}
+              className="cui-chartx__scroll-inner"
+              style={{ minWidth: `${categories! * scrollSlot + scrollAxisWidth * (rightAxis ? 2 : 1) + plotMargin.left + plotMargin.right}px` }}
+            >
+              <div className="cui-chartx__scroll-main">
+                <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 260 }}>
+                  {children(frameContext(hidden))}
+                </ResponsiveContainer>
+              </div>
+              <div className="cui-chartx__axis-copy" data-side="left" style={{ width: scrollAxisWidth }} aria-hidden="true">
+                <div style={{ width, height: '100%' }}>
+                  <ResponsiveContainer width={width} height="100%" initialDimension={{ width: 320, height: 260 }}>
+                    {children(frameContext(hidden, true))}
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              {rightAxis && (
+                <div className="cui-chartx__axis-copy" data-side="right" style={{ width: scrollAxisWidth }} aria-hidden="true">
+                  <div style={{ width, height: '100%', marginLeft: scrollAxisWidth - width }}>
+                    <ResponsiveContainer width={width} height="100%" initialDimension={{ width: 320, height: 260 }}>
+                      {children(frameContext(hidden, true))}
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 320, height: 260 }}>
+            {children(frameContext(hidden))}
+          </ResponsiveContainer>
+        )
+      }
     </ChartShell>
   );
 });
-

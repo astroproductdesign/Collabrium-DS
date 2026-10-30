@@ -221,6 +221,16 @@
   .cui-dock__item{border-color: CanvasText;}
 }
 
+/* Card layouts: each piece is built at its designed size and scaled as one picture by CardScale (size sm, md or lg, and shrunk to fit its space). */
+.cui-card-scale{display: flex; justify-content: center; width: 100%; min-width: 0;}
+.cui-time-machine .cui-card-scale{width: auto;}
+/* The roots fill the space they are given, so a layout can measure it and shrink to fit. */
+.cui-card-carousel,
+.cui-cover-flow,
+.cui-time-machine{width: 100%; min-width: 0;}
+.cui-card-scale__box{position: relative; flex: none; overflow: hidden;}
+.cui-card-scale__inner{position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; transform-origin: 0 0;}
+
 /* Card layouts: a card surface shared by the four pieces, and their stages. */
 .cui-card-surface{
   display: block; overflow: hidden; background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3);
@@ -231,7 +241,7 @@
 
 /* Card spread: a stack in the middle of its box; the cards fan beyond it, so leave room around it. */
 .cui-card-spread{
-  /* TODO(open-question Q-MOT-22): Amicro's 128px by 176px stack (8rem by 11rem), no tokens. */
+  /* Designed size (Q-MOT-22, decided 2026-10-30): Amicro's 8rem by 11rem; no tokens, so local. The piece scales from here (size, fit). */
   --cui-spread-width: 128px;
   --cui-spread-height: 176px;
   position: relative; width: var(--cui-spread-width); height: var(--cui-spread-height); font-family: var(--font-primary);
@@ -258,7 +268,7 @@
 
 /* Card carousel. */
 .cui-card-carousel{
-  /* TODO(open-question Q-MOT-22): Amicro's 180px window height and 110px square card, no tokens. */
+  /* Designed size (Q-MOT-22, decided 2026-10-30): local, no tokens. The piece scales from here (size, fit). */
   --cui-carousel-height: 180px;
   --cui-carousel-card: 110px;
   display: flex; flex-direction: column; align-items: center; gap: var(--spacing-16); font-family: var(--font-primary); user-select: none;
@@ -275,12 +285,13 @@
 
 /* Card cover flow. */
 .cui-cover-flow{
-  /* TODO(open-question Q-MOT-22): Amicro's 1000px perspective, 140px stage and 80px by 106px card, no tokens. */
+  /* Designed size (Q-MOT-22, decided 2026-10-30): local, no tokens. The piece scales from here (size, fit). */
   --cui-flow-depth: 1000px;
   --cui-flow-height: 140px;
   --cui-flow-card: 80px;
-  display: flex; flex-direction: column; align-items: center; gap: var(--spacing-32); font-family: var(--font-primary); user-select: none; perspective: var(--cui-flow-depth);
+  display: flex; flex-direction: column; align-items: center; gap: var(--spacing-32); font-family: var(--font-primary); user-select: none;
 }
+.cui-cover-flow__3d{width: 100%; height: 100%; perspective: var(--cui-flow-depth);}
 .cui-cover-flow__stage{position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: var(--cui-flow-height); transform-style: preserve-3d;}
 .cui-cover-flow__card{position: absolute; width: var(--cui-flow-card); aspect-ratio: 3 / 4; cursor: pointer;}
 .cui-cover-flow__face{width: 100%; height: 100%;}
@@ -291,7 +302,7 @@
 
 /* Card time machine: a deck receding into the distance, and a scrubber of marks beside it. */
 .cui-time-machine{
-  /* TODO(open-question Q-MOT-22): Amicro's 800px perspective, 220px by 135px cards and 24px marks, no tokens. */
+  /* Designed size (Q-MOT-22, decided 2026-10-30): local, no tokens. The stage scales from here (size, fit); the scrubber keeps its size. */
   --cui-time-depth: 800px;
   --cui-time-card-width: 220px;
   --cui-time-card-height: 135px;

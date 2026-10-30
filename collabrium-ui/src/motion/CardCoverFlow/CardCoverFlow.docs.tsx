@@ -38,6 +38,12 @@ export const examples: DocsExample[] = [
     description: "Click a card or a dot, press Next, or use the arrow keys.",
     render: () => (<div className="docs-card-stage"><CardCoverFlow aria-label="Albums" items={sampleCards.slice(0, 5)} /></div>),
     code: `<CardCoverFlow aria-label="Albums" items={cards} />`,
+  },  {
+    id: "sizes",
+    title: "Sizes",
+    description: "`sm` is 0.75 and `lg` 1.25 of `md`, the designed size. The whole picture scales together, and it shrinks to fit a narrow space, so it never hangs outside its box.",
+    render: () => (<div className="docs-card-stage" data-wrap><CardCoverFlow aria-label="sm cover flow" items={sampleCards.slice(0, 5)} size="sm" /><CardCoverFlow aria-label="md cover flow" items={sampleCards.slice(0, 5)} size="md" /><CardCoverFlow aria-label="lg cover flow" items={sampleCards.slice(0, 5)} size="lg" /></div>),
+    code: `<CardCoverFlow aria-label="sm cover flow" items={cards} size="sm" />\n<CardCoverFlow aria-label="md cover flow" items={cards} size="md" />\n<CardCoverFlow aria-label="lg cover flow" items={cards} size="lg" />`,
   },
 ];
 
@@ -45,7 +51,7 @@ export const props: DocsProp[] = [
   { name: "aria-label", options: "string", default: "\u2014", required: true, description: "Names the cover flow." },
   { name: "items", options: "CardItem[]", default: "\u2014", required: true, description: "The cards, in order: `id`, `label` and `content`." },
   { name: "index", options: "number", default: "middle card", description: "The index of the card in front." },
-  { name: "onIndexChange", options: "(index: number) => void", default: "\u2014", description: "Called with the index of the card that was chosen." },
+  { name: "onIndexChange", options: "(index: number) => void", default: "\u2014", description: "Called with the index of the card that was chosen." },  { name: "size", options: "'sm' | 'md' | 'lg'", default: "'md'", description: "The size of the whole picture: `sm` is 0.75 and `lg` 1.25 of `md`, the designed size. Whatever the size, it shrinks to fit the space it is in, and never grows past the size chosen." },
 ];
 
 export const rules: DocsRules = {

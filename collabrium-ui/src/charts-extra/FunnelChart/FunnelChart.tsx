@@ -3,7 +3,7 @@
 import { forwardRef } from 'react';
 import { Bar, BarChart as RechartsBar } from 'recharts';
 import { CartesianFrame, resolveSeries, type CartesianChartProps } from '../lib/CartesianFrame';
-import { barHover, barRadius, defaultFormat, maxBarThickness } from '../lib/chart-theme';
+import { barHover, barRadius, defaultFormat, maxBarThickness, barCategoryGap } from '../lib/chart-theme';
 import type { SeriesColorName } from '../lib/series-colors';
 
 export interface FunnelChartProps extends Omit<CartesianChartProps, 'yAxisStart' | 'legend'> {
@@ -45,7 +45,7 @@ export const FunnelChart = forwardRef<HTMLElement, FunnelChartProps>(function Fu
       }}
     >
       {({ axes, tooltip, motion, hidden, chartProps }) => (
-        <RechartsBar data={data} {...chartProps}>
+        <RechartsBar barCategoryGap={barCategoryGap} data={data} {...chartProps}>
           {axes}
           {tooltip}
           <Bar
