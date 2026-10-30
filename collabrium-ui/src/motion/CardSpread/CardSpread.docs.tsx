@@ -1,7 +1,7 @@
 // Documentation for Card spread (Motion), rendered by the docs site.
 // Keep it consistent with CardSpread.usage.md. Not part of the package build.
 import { CardSpread } from './CardSpread';
-import { LoopDemo, motionRow, sampleCards } from '../lib/docs-shared.docs';
+import { CardThumb, LoopDemo, motionRow, sampleCards, thumbCards } from '../lib/docs-shared.docs';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../../components/docs.types';
 
 export const title = "Card spread";
@@ -17,7 +17,7 @@ export const usage = `const cards = [
 
 <CardSpread aria-label="Recent boards" items={cards} layout="arc" />`;
 
-export const thumbnail = () => (<div className="docs-card-thumb"><LoopDemo>{open => <CardSpread aria-label="Cards" items={sampleCards.slice(0, 5)} open={open} />}</LoopDemo></div>);
+export const thumbnail = () => (<CardThumb><LoopDemo>{open => <CardSpread aria-label="Cards" items={thumbCards.slice(0, 5)} open={open} />}</LoopDemo></CardThumb>);
 
 export const anatomy: DocsAnatomyNode[] = [
   {

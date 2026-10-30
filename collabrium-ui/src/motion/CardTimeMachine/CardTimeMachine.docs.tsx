@@ -1,7 +1,7 @@
 // Documentation for Card time machine (Motion), rendered by the docs site.
 // Keep it consistent with CardTimeMachine.usage.md. Not part of the package build.
 import { CardTimeMachine } from './CardTimeMachine';
-import { AutoIndex, motionRow, sampleCards } from '../lib/docs-shared.docs';
+import { AutoIndex, motionRow, sampleCards, thumbCards } from '../lib/docs-shared.docs';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../../components/docs.types';
 
 export const title = "Card time machine";
@@ -17,7 +17,7 @@ export const usage = `const cards = [
 
 <CardTimeMachine aria-label="Releases" items={cards} />`;
 
-export const thumbnail = () => (<AutoIndex count={5}>{i => <CardTimeMachine aria-label="Cards" items={sampleCards.slice(0, 5)} index={i} />}</AutoIndex>);
+export const thumbnail = () => (<AutoIndex count={5}>{i => <CardTimeMachine aria-label="Cards" items={thumbCards.slice(0, 5)} index={i} />}</AutoIndex>);
 
 export const anatomy: DocsAnatomyNode[] = [
   {

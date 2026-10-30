@@ -6,6 +6,7 @@ import { Button } from '../Button';
 import { ToolApproval } from './ToolApproval';
 import type { ToolApprovalAnswer, ToolApprovalQuestion } from './ToolApproval';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
+import { approvalOutline } from '../docs-outline.docs';
 
 export const title = 'Tool approval';
 
@@ -64,7 +65,7 @@ const channels: ToolApprovalQuestion[] = [
   },
 ];
 
-export const thumbnail = () => <ToolApproval questions={renewals} />;
+export const thumbnail = approvalOutline;
 
 export const anatomy: DocsAnatomyNode[] = [
   {

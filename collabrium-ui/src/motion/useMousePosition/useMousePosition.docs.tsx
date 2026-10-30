@@ -2,7 +2,7 @@
 // Keep it consistent with useMousePosition.usage.md. Not part of the package build.
 import { useRef } from 'react';
 import { useMousePosition } from './useMousePosition';
-import { motionRow } from '../lib/docs-shared.docs';
+import { motionRow, MousePicture } from '../lib/docs-shared.docs';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../../components/docs.types';
 
 export const title = 'useMousePosition';
@@ -18,7 +18,7 @@ export function Readout() {
   return <div ref={box}>{Math.round(elementX)}, {Math.round(elementY)}</div>;
 }`;
 
-export const thumbnail = () => <p className="docs-motion-sample">useMousePosition() → x 312, y 148</p>;
+export const thumbnail = () => <MousePicture />;
 
 export const anatomy: DocsAnatomyNode[] = [
   { name: 'useMousePosition(ref?)', description: 'Takes an optional ref and returns `{ x, y, elementX, elementY }`: the window position, and the position inside the element (0 when there is no ref). Touch and pen are ignored.' },

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useWebHaptics, type HapticType } from './useWebHaptics';
 import { Button } from '../../components/Button';
-import { motionRow } from '../lib/docs-shared.docs';
+import { motionRow, HapticPicture } from '../lib/docs-shared.docs';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../../components/docs.types';
 
 export const title = 'useWebHaptics';
@@ -17,7 +17,7 @@ export function Save() {
   return <button onClick={() => trigger('success')}>Save</button>;
 }`;
 
-export const thumbnail = () => <p className="docs-motion-sample">trigger(&apos;success&apos;) → vibrates</p>;
+export const thumbnail = () => <HapticPicture />;
 
 export const anatomy: DocsAnatomyNode[] = [
   { name: 'useWebHaptics()', description: 'Returns `{ trigger }`. `trigger(type)` vibrates with the pattern for `type` and returns true when it did.' },

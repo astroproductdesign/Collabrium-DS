@@ -6,6 +6,7 @@
 // yet show as "Coming soon". Reads the group's overview file and the docs
 // files of its parts, so a new part appears here by itself.
 import type { ReactNode } from 'react';
+import { ThumbFit } from './ThumbFit';
 import { Badge } from '../../src';
 import { ChartThumbnail } from '../../src/charts-extra';
 import { componentDocs, groupDocs } from '../app/_generated/components-docs';
@@ -142,10 +143,9 @@ export function GroupOverview({ slug }: { slug: string }) {
               {cards.map(c => (
                 <div key={c.title} className={`c-card docs-comp-card${c.key ? ' c-card-interactive' : ''}`}>
                   {c.key && (
-                    // inert: the thumbnail is a picture of the part, not a control
-                    <div className="docs-comp-thumb" inert>
+                    <ThumbFit>
                       {c.thumb}
-                    </div>
+                    </ThumbFit>
                   )}
                   <h3 className="docs-card-title">
                     {c.key ? (

@@ -6,6 +6,7 @@
 import { componentDocs, groupDocs } from '../app/_generated/components-docs';
 import { foundationPages, hrefTo, navItems } from '../lib/site';
 import { BackToTop } from './BackToTop';
+import { ThumbFit } from './ThumbFit';
 import { CodeBlock } from './CodeBlock';
 import { foundationSections } from './foundation';
 
@@ -46,10 +47,9 @@ export function HomePage() {
               const thumb = d.thumbnail ? d.thumbnail() : 'examples' in d ? d.examples?.[0]?.render() : null;
               return (
                 <div key={c.slug} className="c-card c-card-interactive docs-comp-card">
-                  {/* inert: the thumbnail is a picture of the component, not a control */}
-                  <div className="docs-comp-thumb" inert>
+                  <ThumbFit>
                     {thumb ?? <span className="docs-p">Coming soon.</span>}
-                  </div>
+                  </ThumbFit>
                   <h3 className="docs-card-title">
                     <a className="docs-stretched" href={hrefTo('', `components/${c.slug}`)}>
                       {c.title}

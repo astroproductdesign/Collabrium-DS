@@ -191,6 +191,23 @@ export const sampleCards = ['Reports', 'Goals', 'People', 'Plans', 'Notes', 'Fil
   ),
 }));
 
+/** Cards for the card thumbnails: only the tints, no names. */
+const hues = ['orange', 'navy', 'green', 'amber', 'salmonPink', 'purple', 'turquoise'];
+export const thumbCards = sampleCards.map((c, i) => ({
+  id: c.id,
+  label: '',
+  content: <span className="docs-card-face" data-hue={hues[i]} />,
+}));
+
+/** Clips a card thumbnail to its box and draws the piece small, so the travel stays inside. */
+export function CardThumb({ children }: { children: ReactNode }) {
+  return (
+    <div className="docs-card-thumb">
+      <div className="docs-card-thumb__inner">{children}</div>
+    </div>
+  );
+}
+
 /** Moves a controlled index along every 1.4 seconds, for card thumbnails. Still under reduced motion. */
 export function AutoIndex({ count, start = 0, children }: { count: number; start?: number; children: (index: number) => ReactNode }) {
   const [index, setIndex] = useState(start);
@@ -199,5 +216,83 @@ export function AutoIndex({ count, start = 0, children }: { count: number; start
     const id = window.setInterval(() => setIndex(i => (i + 1) % count), 1400);
     return () => window.clearInterval(id);
   }, [count]);
-  return <div className="docs-card-thumb">{children(index)}</div>;
+  return <CardThumb>{children(index)}</CardThumb>;
+}
+
+/*
+ * Outline pictures that play what each hook does, on a loop, for the Motion
+ * page's cards. CSS only: outlines in neutral tints, still under reduced
+ * motion. Styles are the .docs-hk* rules in playground/styles/docs.css.
+ */
+
+/** useMousePosition: a pointer moving about a frame, with the x and y lines that follow it. */
+export function MousePicture() {
+  return (
+    <div className="docs-hk docs-hk-mouse" aria-hidden="true">
+      <span className="docs-hk-line docs-hk-line--x" />
+      <span className="docs-hk-line docs-hk-line--y" />
+      <span className="docs-hk-dot" />
+      <span className="docs-hk-readout">
+        <span className="docs-sk-bar" data-w="m" />
+        <span className="docs-sk-bar" data-w="l" />
+      </span>
+    </div>
+  );
+}
+
+/** useReducedMotion: the same entrance twice, travelling and fading, then fading in place. */
+export function ReducedPicture() {
+  return (
+    <div className="docs-hk-pair" aria-hidden="true">
+      <div className="docs-hk docs-hk-pane">
+        <span className="docs-hk-chip docs-hk-chip--travel" />
+      </div>
+      <div className="docs-hk docs-hk-pane">
+        <span className="docs-hk-chip docs-hk-chip--fade" />
+      </div>
+    </div>
+  );
+}
+
+/** useScrollProgress: content scrolling inside a box, with a bar and a thumb that follow it. */
+export function ScrollPicture() {
+  return (
+    <div className="docs-hk docs-hk-scroll" aria-hidden="true">
+      <span className="docs-hk-scroll__progress" />
+      <div className="docs-hk-scroll__content">
+        {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
+          <span key={i} className="docs-sk-bar" data-w={['xl', 'l', 'xl', 'm', 'l', 'xl', 'm', 'l'][i]} />
+        ))}
+      </div>
+      <span className="docs-hk-scroll__thumb" />
+    </div>
+  );
+}
+
+/** useStagger: a row of items entering one after another. */
+export function StaggerPicture() {
+  return (
+    <div className="docs-hk-row" aria-hidden="true">
+      {[0, 1, 2, 3, 4].map(i => (
+        <span key={i} className="docs-hk docs-hk-item" style={{ ['--i' as string]: i }} />
+      ))}
+    </div>
+  );
+}
+
+/** useWebHaptics: a phone buzzing twice, with vibration marks either side. */
+export function HapticPicture() {
+  return (
+    <div className="docs-hk-haptic" aria-hidden="true">
+      <span className="docs-hk-wave docs-hk-wave--l docs-hk-wave--inner" />
+      <span className="docs-hk-wave docs-hk-wave--l" />
+      <div className="docs-hk docs-hk-phone">
+        <span className="docs-sk-bar" data-w="l" />
+        <span className="docs-sk-bar" data-w="m" />
+        <span className="docs-hk-phone__button" />
+      </div>
+      <span className="docs-hk-wave docs-hk-wave--r docs-hk-wave--inner" />
+      <span className="docs-hk-wave docs-hk-wave--r" />
+    </div>
+  );
 }

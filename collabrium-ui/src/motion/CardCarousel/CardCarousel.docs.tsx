@@ -1,7 +1,7 @@
 // Documentation for Card carousel (Motion), rendered by the docs site.
 // Keep it consistent with CardCarousel.usage.md. Not part of the package build.
 import { CardCarousel } from './CardCarousel';
-import { AutoIndex, motionRow, sampleCards } from '../lib/docs-shared.docs';
+import { AutoIndex, motionRow, sampleCards, thumbCards } from '../lib/docs-shared.docs';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../../components/docs.types';
 
 export const title = "Card carousel";
@@ -17,7 +17,7 @@ export const usage = `const cards = [
 
 <CardCarousel aria-label="Trips" items={cards} />`;
 
-export const thumbnail = () => (<AutoIndex count={5}>{i => <CardCarousel aria-label="Cards" items={sampleCards.slice(0, 5)} index={i} />}</AutoIndex>);
+export const thumbnail = () => (<AutoIndex count={5}>{i => <CardCarousel aria-label="Cards" items={thumbCards.slice(0, 5)} index={i} />}</AutoIndex>);
 
 export const anatomy: DocsAnatomyNode[] = [
   {

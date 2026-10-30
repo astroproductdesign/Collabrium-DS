@@ -2,7 +2,7 @@
 // Keep it consistent with useScrollProgress.usage.md. Not part of the package build.
 import { useRef } from 'react';
 import { useScrollProgress } from './useScrollProgress';
-import { motionRow } from '../lib/docs-shared.docs';
+import { motionRow, ScrollPicture } from '../lib/docs-shared.docs';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../../components/docs.types';
 
 export const title = 'useScrollProgress';
@@ -18,7 +18,7 @@ export function Reader({ children }) {
   return <div ref={box}>…{Math.round(progress * 100)}% read</div>;
 }`;
 
-export const thumbnail = () => <p className="docs-motion-sample">useScrollProgress() → 0.42</p>;
+export const thumbnail = () => <ScrollPicture />;
 
 export const anatomy: DocsAnatomyNode[] = [
   { name: 'useScrollProgress(ref?)', description: 'Takes an optional ref to a scrolling element and returns a number from 0 to 1. With no ref it follows the page.' },

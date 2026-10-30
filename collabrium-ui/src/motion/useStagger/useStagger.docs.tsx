@@ -2,7 +2,7 @@
 // Keep it consistent with useStagger.usage.md. Not part of the package build.
 import { motion as m } from 'motion/react';
 import { useStagger } from './useStagger';
-import { ReplayDemo, motionRow } from '../lib/docs-shared.docs';
+import { ReplayDemo, motionRow, StaggerPicture } from '../lib/docs-shared.docs';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../../components/docs.types';
 
 export const title = 'useStagger';
@@ -21,7 +21,7 @@ export function List({ items }) {
   ));
 }`;
 
-export const thumbnail = () => <p className="docs-motion-sample">useStagger(4) → [0, 0.08, 0.16, 0.24]</p>;
+export const thumbnail = () => <StaggerPicture />;
 
 export const anatomy: DocsAnatomyNode[] = [
   { name: 'useStagger(count, options?)', description: 'Returns an array of `count` delays in seconds. Item `i` waits `delays[i]`. `step` is the DLS row stagger (`sm` 80ms or `md` 120ms).' },

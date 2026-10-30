@@ -1,7 +1,7 @@
 // Documentation for useReducedMotion (Motion), rendered by the docs site.
 // Keep it consistent with useReducedMotion.usage.md. Not part of the package build.
 import { useReducedMotion } from './useReducedMotion';
-import { motionRow } from '../lib/docs-shared.docs';
+import { motionRow, ReducedPicture } from '../lib/docs-shared.docs';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../../components/docs.types';
 
 export const title = 'useReducedMotion';
@@ -15,7 +15,7 @@ export function Card({ children }) {
   return <div style={{ transform: reduce ? 'none' : 'translateY(8px)' }}>{children}</div>;
 }`;
 
-export const thumbnail = () => <p className="docs-motion-sample">useReducedMotion() → false</p>;
+export const thumbnail = () => <ReducedPicture />;
 
 export const anatomy: DocsAnatomyNode[] = [
   { name: 'useReducedMotion()', description: 'Returns true when `prefers-reduced-motion: reduce` matches, and updates if the setting changes. It is the hook from the motion library, re-exported.' },
