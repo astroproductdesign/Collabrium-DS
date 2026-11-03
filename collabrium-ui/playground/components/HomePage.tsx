@@ -5,7 +5,8 @@
 // components grid, which is generated from the docs registry.
 import { componentDocs, groupDocs } from '../app/_generated/components-docs';
 import { Card, CardGrid, CardTitle } from '../../src';
-import { foundationPages, hrefTo, navItems } from '../lib/site';
+import { DownloadSimple } from '@phosphor-icons/react';
+import { assetHref, foundationPages, hrefTo, navItems } from '../lib/site';
 import { BackToTop } from './BackToTop';
 import { ThumbFit } from './ThumbFit';
 import { CodeBlock } from './CodeBlock';
@@ -30,6 +31,18 @@ export function HomePage() {
           for every visual choice, and accessibility and motion built in.
         </p>
         <CodeBlock code={INSTALL} label="Install" />
+
+        {/* A real link styled as the library's Button (Button renders a <button> and has no href). */}
+        <div className="docs-download">
+          <a className="cui-button" data-variant="primary" data-size="md" href={assetHref('', 'collabrium-ui.zip')} download="collabrium-ui.zip">
+            <DownloadSimple className="cui-button__icon" weight="regular" aria-hidden="true" focusable="false" />
+            <span className="cui-button__label">Download Collabrium UI</span>
+          </a>
+          <p className="docs-status">
+            The whole project as a .zip: the library source, the docs site and the written rules. Unzip it, run{' '}
+            <code>npm install</code>, then <code>npm run build</code>.
+          </p>
+        </div>
 
         {foundationPages.map(p => {
           const Content = foundationSections[p.slug];

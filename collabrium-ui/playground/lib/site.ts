@@ -61,6 +61,12 @@ export function hrefTo(from: PageKey, to: PageKey, hash?: string): string {
   return `${up}${target}${hash ? `#${hash}` : ''}` || './';
 }
 
+/** A file in playground/public (such as the download zip), as a path relative to the page it is linked from. */
+export function assetHref(from: PageKey, file: string): string {
+  const depth = from ? from.split('/').length - 1 : 0;
+  return `${'../'.repeat(depth)}${file}`;
+}
+
 /** Pages in sidebar order, for previous / next links. */
 export function pageOrder(): { key: PageKey; title: string; group: string }[] {
   return [
