@@ -1,0 +1,247 @@
+/*
+  Profile card — ported from collabrium-dls/components.css lines 388–430
+  (.c-card-profile and its .c-card-profile-* parts). The surface and the
+  title are the base Card's (Card.css); the checkbox is the real Checkbox
+  and the tier badges the real Tag.
+
+  Mapping from the old classes:
+    .c-card.c-card-profile             -> .cui-card[data-card="profile"]
+    .c-card-profile.is-interactive     -> .cui-card:has(.cui-card__action) (the name's link or button, as Card)
+    .c-card-profile.is-selected        -> [data-profile-selected]
+    .c-card-profile-controls           -> .cui-profile-card__controls
+    .c-card-profile-select             -> .cui-profile-card__select (the real Checkbox inside)
+    .c-card-profile-more               -> .cui-profile-card__more
+    .c-card-profile-menu / -menu-item  -> .cui-profile-card__menu / __menu-item
+    .c-card-profile-avatar (+ img)     -> .cui-profile-card__avatar (+ img)
+    .c-card-profile-identity (+ h5, p) -> .cui-profile-card__identity (+ .cui-card__title, p)
+    .c-card-profile-meta / -personas   -> .cui-profile-card__meta / __personas
+    .c-card-profile-platforms / -row   -> .cui-profile-card__platforms / __row
+    .c-card-profile-platform           -> .cui-profile-card__platform
+    .c-card-profile-followers          -> .cui-profile-card__followers
+    .c-card-profile-row .c-tag         -> .cui-profile-card__row > .cui-tag
+
+  Specificity keeps the source's order. In particular `.cui-card p` (0,1,1)
+  still beats the Meta and Persona lines' own class (0,1,0), as `.c-card p`
+  beats `.c-card-profile-meta` in the source, so they draw at body2 size with
+  the caption's line height (Q-PROFILE-4). The source's interactive card is
+  the whole div; here it is the name's link or button stretched over the
+  card (Card's own decision, Q-CARD-1), so the controls row and the follower
+  links sit above that stretched area (z-index), to stay clickable.
+*/
+
+.cui-card[data-card="profile"] {
+  /* TODO(open-question Q-PROFILE-8): the 56px avatar and the 160px menu are literals in the DLS with no token; kept local. */
+  --cui-profile-card-avatar-size: 56px;
+  --cui-profile-card-menu-width: 160px;
+  gap: 0;
+  transition:
+    box-shadow var(--duration-base) var(--ease-settle),
+    border-color var(--duration-base) var(--ease-settle);
+}
+
+/* Selected: 2px Obsidian border and shadow-3; the padding gives up 1px a side in the same instant, so nothing moves. */
+.cui-card[data-card="profile"][data-profile-selected] {
+  border: var(--border-width-md) solid var(--color-obsidian);
+  box-shadow: var(--shadow-3);
+  padding: calc(var(--spacing-16) - var(--border-width-sm));
+}
+/* In the source the interactive hover (0,3,0) outranks Selected (0,2,0): a hovered selected card shows shadow-2, and focus wins over both. */
+.cui-card[data-card="profile"][data-profile-selected]:has(.cui-card__action):hover {
+  box-shadow: var(--shadow-2);
+}
+.cui-card[data-card="profile"][data-profile-selected]:has(.cui-card__action:focus-visible) {
+  box-shadow: var(--shadow-focus);
+}
+
+/* Controls row: the Select checkbox on the left and the kebab on the right, always visible, 24px tall. */
+.cui-profile-card__controls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--icon-md);
+}
+
+.cui-profile-card__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-9);
+  font-size: var(--icon-base);
+  line-height: 1;
+  cursor: pointer;
+}
+.cui-profile-card__more:hover {
+  background: var(--color-neutral-2);
+}
+.cui-profile-card__more:focus-visible {
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
+/* Kebab menu: SidebarNav's user-menu popover at a compact 160px / 32px scale, opening downward from the kebab's right edge. */
+.cui-profile-card__menu {
+  position: absolute;
+  top: calc(100% + var(--spacing-4));
+  right: 0;
+  width: var(--cui-profile-card-menu-width);
+  padding: var(--spacing-4);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  text-align: left;
+  z-index: var(--z-float);
+}
+/* TODO(open-question Q-PROFILE-2): the source gives menu items no focus style (the browser's own outline shows). */
+.cui-profile-card__menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-8);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-9);
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  font-weight: var(--weight-medium);
+  text-align: left;
+  cursor: pointer;
+}
+.cui-profile-card__menu-item:hover {
+  background: var(--color-neutral-2);
+}
+.cui-profile-card__menu-item svg {
+  flex: none;
+  font-size: var(--icon-sm);
+}
+
+/* Avatar: 56px circle, Neutral-2 with Neutral-9 initials (h5 size, 700), centred under the controls; a photo covers it. */
+.cui-profile-card__avatar {
+  position: relative;
+  width: var(--cui-profile-card-avatar-size);
+  height: var(--cui-profile-card-avatar-size);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-h5-size);
+}
+.cui-profile-card__avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Identity: centred, 12px under the avatar. The name stays on one line. */
+.cui-profile-card__identity {
+  margin-top: var(--spacing-12);
+  text-align: center;
+}
+.cui-profile-card__identity .cui-card__title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* A name that is a button (onOpen) truncates inside the button too. */
+.cui-profile-card__identity .cui-card__action {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+/* `.cui-card p` (margin 0) is beaten here by a descendant selector, as in the source. */
+.cui-profile-card__identity p {
+  margin: var(--spacing-8) 0 0;
+}
+.cui-profile-card__meta,
+.cui-profile-card__personas {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Platform list: 24px under the identity, 8px clear of the bottom padding, 16px between rows. */
+.cui-profile-card__platforms {
+  list-style: none;
+  margin: var(--spacing-24) 0 var(--spacing-8);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+.cui-profile-card__row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+.cui-profile-card__platform {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Follower count: the row's link. Underlines on hover and focus, and never changes its text. */
+.cui-profile-card__followers {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+.cui-profile-card__followers:hover {
+  text-decoration: underline;
+}
+.cui-profile-card__followers:focus-visible {
+  text-decoration: underline;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+.cui-profile-card__row > .cui-tag {
+  flex: none;
+}
+
+/* Forced colours: shadow-focus is not drawn, so the kebab and the follower links take an outline (Q-PROFILE-6, as Card's Q-CARD-4). */
+@media (forced-colors: active) {
+  .cui-profile-card__more:focus-visible,
+  .cui-profile-card__followers:focus-visible {
+    outline: var(--focus-ring-width) solid Highlight;
+    outline-offset: var(--focus-ring-offset);
+  }
+}

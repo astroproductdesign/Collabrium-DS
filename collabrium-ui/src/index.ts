@@ -26,6 +26,7 @@ export * from './components/Radio';
 export * from './components/StreamingText';
 export * from './components/Card';
 export * from './components/Switch';
+export * from './components/Tag';
 export * from './components/TaskRows';
 export * from './components/Textarea';
 export * from './components/Thinking';

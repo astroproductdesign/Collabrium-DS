@@ -54,6 +54,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 30 | USP card (feature tile), a variant of Card | **review** | Built 2026-10-30 into Card: `minWidth="functional"` (280px), `CardList` (three check-circle points) and a Button as a direct child, full width. See USP-1 to USP-3, Decision D-115 and Open questions Q-USP-1 to Q-USP-3. Price summary card is next among the functional cards (it needs Empty state). |
 | 31 | Empty state | **review** | Converted 2026-11-04: `EmptyState` with the Full-page, Section and Inline variants, the Error tone, Primary and Ghost actions (the real Button) and the inline link. Built before Price summary card, which needs it. See EMPTY-1 to EMPTY-5, Decision D-116 and Open questions Q-EMPTY-1 to Q-EMPTY-5. Approved as built by the user 2026-11-04 (Q-EMPTY-1 to Q-EMPTY-5 still open). The body became optional outside Inline for Price summary card (Q-PRICE-6). |
 | 32 | Price summary card (a variant of Card) | **review** | Converted 2026-11-04: `PriceSummaryCard`, built on Card (functional width, title, footer), the real Empty state and Button. Four rows, then "Show X more" with the display rules 1 to 9 from the DS (the gallery has no script for them). See PRICE-1 to PRICE-7, Decision D-117 and Open questions Q-PRICE-1 to Q-PRICE-11. |
+| 33 | Tag | **review** | Converted 2026-11-04: `Tag` with the five elements, Purple and Neutral, the 6px dot and an optional icon. Built before Profile card, which uses it for its tier badges. See TAG-1 to TAG-4, Decision D-119 and Open questions Q-TAG-1 to Q-TAG-4. Profile card is next. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -507,6 +508,15 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-PRICE-10 | Built as its own component (`PriceSummaryCard`, which renders Card) rather than a prop on Card like USP and Selectable, because it owns its items, the folding and the total. Keep? My recommendation: keep | `PriceSummaryCard.tsx` |
 | Q-PRICE-11 | The markup follows the source: the folded rows are a second list inside the last item of the first, so a screen reader announces the first list as five items when it is open. Keep, or one flat list with the fold done another way? My recommendation: keep the source markup | `PriceSummaryCard.tsx` |
 
+### Tag
+
+| ID | Question | Where |
+|---|---|---|
+| Q-TAG-1 | The DS says a tag takes an optional leading 14px icon (an element motif, Fill) but not whether it sits beside the dot or replaces it; the CSS has no icon rule. Built: the icon takes the dot's place. Keep? My recommendation: keep (two leading marks would say the owner twice) **Answered 2026-11-04: keep (the icon takes the dot's place)** | `Tag.tsx` |
+| Q-TAG-2 | No tokens for the 10px side padding or the 6px dot. Local custom properties. Keep local? My recommendation: keep local **Answered 2026-11-04: keep local** | `Tag.css` |
+| Q-TAG-3 | Contrast: every element's text fails AA on its own tint at caption size: Fire 2.8:1, Wood 2.3:1, Earth 2.2:1, Water 4.0:1, Gold 1.9:1. The DLS fixed Purple by mixing its text 80/20 toward Neutral-9 (5.0:1) and Badge uses darker Green and Amber text tokens. Ported as it is. Mix each element's text the same way as Purple, keeping the dot full strength? My recommendation: yes, the Purple recipe for all five **Answered 2026-11-04: keep the colours as they are (no change)** | `Tag.css` |
+| Q-TAG-4 | Forced colours: the tint and the dot are backgrounds, so neither is drawn; the label stays and the pill has no edge (Badge keeps a 1px border). Ported as it is. Add a transparent 1px border so the pill shows, and keep the dot as a system colour? My recommendation: yes **Answered 2026-11-04: yes, in forced colours only (normal mode unchanged). Built: a 1px CanvasText border with the padding 1px less a side, and the dot painted CanvasText** | `Tag.css` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -617,6 +627,15 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | PRICE-5 | The Empty state's variant isn't named (the CSS says `.c-empty` is reused "verbatim"; the DS names the icon and heading only), and there is no gallery demo of it. Q-PRICE-6 | 320 | 2906 |
 | PRICE-6 | "Item animates in at the bottom of the list" has no animation in the CSS. Q-PRICE-8 | — | 2992 |
 | PRICE-7 | The DS's amounts always carry two decimals (`RM 1,200.00`), against the Numbers rule's own examples, on purpose. Built that way: the card formats every amount | — | 2919 |
+
+### Tag (affects the Tag conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| TAG-1 | The plain `.c-tag` (Neutral-2 fill, Neutral-5 text) has no DS entry; Profile card uses it, with no dot, for KOC and Seeder. Built as `variant="neutral"`, with no dot | 1650 | 2509 |
+| TAG-2 | The optional 14px leading icon is in the DS only; the CSS has no icon rule, and the DS doesn't say how it sits with the dot. Q-TAG-1 | — | 2527 |
+| TAG-3 | Element text colours are below AA on their tints; only Purple's is corrected. Q-TAG-3 | 1654–1658 | 2509, 2519 |
+| TAG-4 | `gap:4px` is a literal in the CSS; built with `spacing-4` (same value) | 1650 | — |
 
 ### Tokens and global
 
@@ -923,6 +942,7 @@ Grouped by component. Line numbers are CSS / DS.
 | D-116 | Empty state: one component with a `variant` (`fullpage`, `section`, `inline`) and a `tone` (`empty`, `error`) passed explicitly, never inferred; actions are objects (`primaryAction`, `secondaryAction`) drawn as the real Primary and Ghost Buttons, so two is the most and the order is fixed; inline takes only `linkAction` and cannot take an icon, heading or button (TypeScript union); the heading is a real heading with a level prop, drawn as h4; the body beats `.cui-card p` so it keeps body1 inside a Card | EMPTY-1 to EMPTY-5. Flagged Q-EMPTY-1 to Q-EMPTY-5 |
 | D-117 | Price summary card: its own component built on Card (`minWidth="functional"`, `CardTitle`, `CardFooter`), the real Empty state (Section, no body) and Button; `items` with number costs, formatted as the currency, a space and two decimals; the total is the sum; four rows, then "Show X more" with the DS display rules; folded rows `inert`; focus moves to the next × after a removal | PRICE-1 to PRICE-7. Flagged Q-PRICE-1 to Q-PRICE-11 |
 | D-118 | Docs site only (no library or DLS change): the card types are one **Cards** group, like Motion and Charts (extra): Card, Selectable card, USP card and Price summary card are its parts, and the DLS's other card variants are "Coming soon". Selectable and USP, settings on Card, each have their own docs file in `src/components/Card/` | User, 2026-11-04 |
+| D-119 | Tag: one component with a `variant` (five elements, `purple`, `neutral`); the dot is drawn for every variant but `neutral`; an optional icon takes the dot's place; colours exactly as components.css | TAG-1 to TAG-4. Flagged Q-TAG-1 to Q-TAG-4 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -1254,3 +1274,5 @@ Every place where the React library now follows a decision that differs from the
 | 83 | Selectable card: put the checkbox on the left of the card, 16px in, with all of the card's content in one column 16px to its right so the description lines up with the heading, not top right with room on the title's right (decided Q-SEL-4) | components.css 298–302; DESIGN-SYSTEM.md 2751–2765 | 2026-10-30 |
 | 84 | Card: the header-to-body space is 8px (the CSS's 16px margin plus the 8px gap makes 24px; the DS text says 16px) (decided Q-CARD-7) | components.css 278; DESIGN-SYSTEM.md 2624 | 2026-10-30 |
 | 85 | Card: record USP as a variant inside Card (a 280px floor, a list of check-circle points and a full-width Button), and say the header is the base title (h5), not h4 (decided Q-USP-1, Q-USP-2, pending review) | DESIGN-SYSTEM.md 2641 | 2026-10-30 |
+| 86 | Tag: say in the Badge & Tag section that the optional leading icon takes the dot's place (decided Q-TAG-1), and add the icon rule to `.c-tag` | DESIGN-SYSTEM.md 2527; components.css 1650 | 2026-11-04 |
+| 87 | Tag: in forced colours, give `.c-tag` a 1px border in the system text colour (padding 1px less a side) and paint `.dot` CanvasText (decided Q-TAG-4) | components.css after 1663 | 2026-11-04 |
