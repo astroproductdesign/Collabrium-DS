@@ -11,12 +11,15 @@ export { duration, ease, transition, slideDistance } from './motion';
 export { FadeIn, SlideUp, Collapse, type FadeInProps, type SlideUpProps, type CollapseProps } from './motion';
 
 // Components
+export * from './components/AdPlacementCard';
 export * from './components/Button';
+export * from './components/CampaignCard';
 export * from './components/Badge';
 export * from './components/ChatWindow';
 export * from './components/Checkbox';
 export * from './components/Chip';
 export * from './components/EmptyState';
+export * from './components/GoalBar';
 export * from './components/InputField';
 export * from './components/LoadingState';
 export * from './components/PermissionPrompt';

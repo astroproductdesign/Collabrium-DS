@@ -1,0 +1,297 @@
+/*
+  Campaign card — ported from collabrium-dls/components.css lines 431–488
+  (.c-card-campaign and its .c-card-campaign-* parts). The surface is the
+  base Card's (Card.css) with its border, radius and height overridden; the
+  owner faces' explanation is the real Tooltip.
+
+  Mapping from the old classes:
+    .c-card.c-card-campaign            -> .cui-card[data-card="campaign"]
+    .c-card-campaign:hover / :focus-visible
+                                       -> :has(.cui-card__action):hover / :has(.cui-card__action:focus-visible)
+                                          (the name's link or button, as Card; CAMPAIGN-1)
+    .c-card-campaign (cursor: grab)    -> [data-movable]
+    .c-card-campaign.is-static         -> no [data-movable]
+    .c-card-campaign.is-dragging       -> [data-dragging]
+    .c-card-campaign-id                -> .cui-campaign-card__id
+    .c-card-campaign-mark (+ .is-placeholder)
+                                       -> .cui-campaign-card__mark (+ [data-placeholder])
+    .c-card-campaign-name              -> .cui-campaign-card__name
+    .c-card-campaign-title-row         -> .cui-campaign-card__title-row
+    .c-card-campaign .c-card-campaign-title
+                                       -> .cui-card .cui-campaign-card__title
+    .c-card-campaign .c-card-campaign-brand
+                                       -> .cui-card .cui-campaign-card__brand
+    .c-card-campaign-lead              -> .cui-campaign-card__lead
+    .c-card-campaign-faces / -face (+ .is-overseer)
+                                       -> .cui-campaign-card__faces / __face (+ [data-overseer])
+    .c-card-campaign-when (+ i, .is-empty)
+                                       -> .cui-campaign-card__when (+ svg, [data-empty])
+    .c-card-campaign-metrics (> div)   -> .cui-campaign-card__metrics (> div), a <dl> (CAMPAIGN-4)
+    .c-card-campaign-label / -value (+ .is-empty)
+                                       -> .cui-campaign-card__label / __value (+ [data-empty]), <dt> / <dd>
+
+  Specificity keeps the source's order: the card, its hover, then focus last,
+  so the halo wins over the hover shadow. The title and brand line stay two
+  classes deep, as the source, so `.cui-card p` and `.cui-card__title`
+  don't reset them.
+*/
+
+.cui-card[data-card="campaign"] {
+  /*
+    Q-CAMPAIGN-6 (decided 2026-11-04): literals in the DLS with no token, kept local (the DS keeps them as scoped literals on purpose): the
+    14px radius, the 32px mark and its 9px radius, the 22px faces, their 10px initials and the overseer's -7px overlap
+    and #E6E0F5 fill, the 20px Lead tag, the .08em tracking, the 12px calendar (--icon-xs is "never a standalone
+    icon"), the #EDEDED divider and the 10px/13px #777777 metric label.
+  */
+  --cui-campaign-card-radius: 14px;
+  --cui-campaign-card-mark-size: 32px;
+  --cui-campaign-card-mark-radius: 9px;
+  --cui-campaign-card-face-size: 22px;
+  --cui-campaign-card-face-text: 10px;
+  --cui-campaign-card-face-overlap: -7px;
+  --cui-campaign-card-overseer-fill: #E6E0F5;
+  --cui-campaign-card-lead-height: 20px;
+  --cui-campaign-card-tracking: .08em;
+  --cui-campaign-card-date-icon: 12px;
+  --cui-campaign-card-divider: #EDEDED;
+  --cui-campaign-card-label-size: 10px;
+  --cui-campaign-card-label-lh: 13px;
+  --cui-campaign-card-label-color: #777777;
+  border: 0;
+  border-radius: var(--cui-campaign-card-radius);
+  height: auto;
+  gap: 0;
+  box-shadow: var(--shadow-1);
+  outline: none;
+  transition:
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+/* The stretched action follows the card's own radius, so the focus halo and hit area match it. */
+.cui-card[data-card="campaign"] .cui-card__action::after {
+  border-radius: var(--cui-campaign-card-radius);
+}
+.cui-card[data-card="campaign"] .cui-card__action {
+  cursor: inherit;
+}
+/* Hover: shadow-3 and a 1px lift, so the tile reads as pickable. */
+.cui-card[data-card="campaign"]:has(.cui-card__action):hover {
+  box-shadow: var(--shadow-3);
+  transform: translateY(-1px);
+}
+/* Movable (the viewer can manage campaigns): grab, then grabbing on press. Without it the card keeps Card's pointer. */
+.cui-card[data-card="campaign"][data-movable],
+.cui-card[data-card="campaign"][data-movable]:has(.cui-card__action):hover {
+  cursor: grab;
+}
+.cui-card[data-card="campaign"][data-movable]:active,
+.cui-card[data-card="campaign"][data-movable]:has(.cui-card__action):active {
+  cursor: grabbing;
+}
+.cui-card[data-card="campaign"]:has(.cui-card__action:focus-visible) {
+  box-shadow: var(--shadow-focus);
+}
+/* Dragging: faded, and it stays in its place, so the column doesn't reflow under the pointer. */
+.cui-card[data-card="campaign"][data-dragging] {
+  opacity: .35;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cui-card[data-card="campaign"]:has(.cui-card__action):hover {
+    transform: none;
+  }
+}
+
+/* Identity: brand mark, the name and brand stack, owner faces. */
+.cui-campaign-card__id {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+.cui-campaign-card__mark {
+  flex: none;
+  width: var(--cui-campaign-card-mark-size);
+  height: var(--cui-campaign-card-mark-size);
+  border-radius: var(--cui-campaign-card-mark-radius);
+  display: block;
+  object-fit: contain;
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-neutral-1);
+  box-sizing: border-box;
+}
+.cui-campaign-card__mark[data-placeholder] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: var(--color-water-bg);
+  color: var(--color-navy);
+}
+.cui-campaign-card__mark[data-placeholder] svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-campaign-card__name {
+  flex: 1;
+  min-width: 0;
+}
+.cui-campaign-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+.cui-card .cui-campaign-card__title {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--font-primary);
+  font-size: var(--text-label2-size);
+  line-height: var(--text-label2-lh);
+  font-weight: var(--text-label2-weight);
+  color: var(--color-neutral-9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-card .cui-campaign-card__brand {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Lead tag: dashed and colourless, so it says provisional without reading as a status. */
+.cui-campaign-card__lead {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: var(--cui-campaign-card-lead-height);
+  padding: 0 var(--spacing-8);
+  border: var(--border-width-sm) dashed var(--color-neutral-4);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-family: var(--font-primary);
+  font-size: var(--text-label3-size);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--cui-campaign-card-tracking);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+/* Owner faces: above the stretched action, so hovering or focusing them reaches the tooltip, not the card. */
+.cui-campaign-card__id > .cui-tooltip {
+  flex: none;
+  z-index: 1;
+}
+.cui-campaign-card__faces {
+  display: flex;
+  flex: none;
+  border-radius: var(--radius-pill);
+  outline: none;
+}
+/* Focus ring on the faces (the source draws the browser's default; decided 2026-11-04, Q-CAMPAIGN-3). */
+.cui-campaign-card__faces:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-campaign-card__face {
+  width: var(--cui-campaign-card-face-size);
+  height: var(--cui-campaign-card-face-size);
+  border-radius: var(--radius-pill);
+  border: var(--border-width-md) solid var(--color-neutral-1);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-family: var(--font-primary);
+  font-size: var(--cui-campaign-card-face-text);
+  font-weight: var(--weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.cui-campaign-card__face[data-overseer] {
+  margin-left: var(--cui-campaign-card-face-overlap);
+  background: var(--cui-campaign-card-overseer-fill);
+}
+
+/* What is known about it. The divider runs the card's full width. */
+.cui-campaign-card__when {
+  margin-top: var(--spacing-12);
+  padding-top: var(--spacing-8);
+  border-top: var(--border-width-sm) solid var(--cui-campaign-card-divider);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--weight-medium);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+}
+.cui-campaign-card__when svg {
+  flex: none;
+  width: var(--cui-campaign-card-date-icon);
+  height: var(--cui-campaign-card-date-icon);
+}
+.cui-campaign-card__when[data-empty] {
+  color: var(--color-neutral-4);
+}
+.cui-campaign-card__metrics {
+  margin: var(--spacing-8) 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-8);
+}
+.cui-campaign-card__metrics > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* The one sub-11px type in the system: it sits quieter than the 12px value under it. */
+.cui-campaign-card__label {
+  font-family: var(--font-primary);
+  font-size: var(--cui-campaign-card-label-size);
+  line-height: var(--cui-campaign-card-label-lh);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--cui-campaign-card-tracking);
+  color: var(--cui-campaign-card-label-color);
+}
+.cui-campaign-card__value {
+  margin: var(--spacing-4) 0 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-campaign-card__value[data-empty] {
+  color: var(--color-neutral-4);
+}
+/* "Not set" after an unset value's dash, for screen readers only (decided 2026-11-04, Q-CAMPAIGN-8). */
+.cui-campaign-card__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Forced colours: the card has no border and its shadows aren't drawn, so it takes a 1px border to keep its edge (decided 2026-11-04, Q-CAMPAIGN-5). */
+@media (forced-colors: active) {
+  .cui-card[data-card="campaign"] {
+    border: var(--border-width-sm) solid CanvasText;
+    padding: calc(var(--spacing-16) - var(--border-width-sm));
+  }
+}

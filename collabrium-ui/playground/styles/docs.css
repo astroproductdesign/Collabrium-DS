@@ -66,6 +66,17 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-stage[data-mobile] { max-width: var(--docs-mobile-width); margin-inline: auto; }
 /* A preview wider than the box (a card with a 280px floor on a phone) scrolls inside the box, not the page. The padding and matching negative margin leave room for shadows and focus rings at the edges. */
 .docs-stage-inner { min-width: 0; overflow-x: auto; padding: var(--spacing-12); margin: calc(var(--spacing-12) * -1); }
+/* A board column's worth of tiles that hug their content (Campaign card), as the gallery's .campaign-cards-grid. */
+.docs-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--spacing-120) * 2)), 1fr)); gap: var(--spacing-16); align-items: start; }
+/* A mock page of ad slots for Ad Placement Card: a top banner, the article and a rail, and a feed slot. */
+.docs-placement-map { display: grid; grid-template-columns: 2fr 1fr; grid-template-areas: "top top" "article side" "feed side"; gap: var(--spacing-12); max-width: calc(var(--spacing-120) * 4); padding: var(--spacing-16); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); background: var(--color-neutral-1); }
+.docs-placement-slot { min-height: var(--spacing-48); padding: var(--spacing-8); border: var(--border-width-sm) dashed var(--color-navy); border-radius: var(--radius-sm); background: var(--color-water-bg); color: var(--color-navy); font: inherit; font-size: var(--text-caption-size); font-weight: var(--weight-bold); cursor: pointer; }
+.docs-placement-slot:hover { background: var(--color-water-bg-strong); }
+.docs-placement-slot:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+.docs-placement-slot[data-slot="top"] { grid-area: top; }
+.docs-placement-slot[data-slot="article"] { grid-area: article; min-height: calc(var(--spacing-48) * 2); }
+.docs-placement-slot[data-slot="side"] { grid-area: side; }
+.docs-placement-slot[data-slot="feed"] { grid-area: feed; }
 .docs-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-12); }
 .docs-row--beacon { padding-block: var(--spacing-12); }
 .docs-status { font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); }

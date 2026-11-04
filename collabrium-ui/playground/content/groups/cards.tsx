@@ -42,8 +42,6 @@ export const rules: GroupOverviewDocs['rules'] = [
 ];
 
 export const comingSoon: GroupOverviewDocs['comingSoon'] = [
-  { title: 'Ad Placement Card', summary: 'A floating hover card for one ad slot on a placement map: what it is, its sizes and where it runs.' },
-  { title: 'Campaign card', summary: 'One campaign as a kanban board tile: brand, name, owners, dates and its Pax and Quote figures.' },
   { title: 'Entry Card', summary: 'A compact "start here" tile in a small set, where the whole card is one button that opens one thing.' },
   { title: 'Hero Card', summary: 'A promotional or insight tile with an eyebrow, heading, media and a call to action, in four states.' },
   { title: 'Media Ad Card', summary: 'One ad format as a gallery tile, whose body turns into spec rows when the card goes live on hover or focus.' },
