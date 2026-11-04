@@ -59,9 +59,10 @@ The `ref` is forwarded to the root `<div>`. `formatGoalValue(value, { currency, 
 17. **No data reads "No data yet."** when there is no footer. (Decided 2026-11-04.)
 18. **`labels` (legend, row, none) replaces the DS's `showLegend`,** so the In-table rail can carry a row; `compact` stays. The component is `GoalBar`. (Decided 2026-11-04.)
 19. **In forced colours** the segments, swatches and target line keep their colours and the track takes a 1px outline. The DS's one-off sizes stay local values. (Decided 2026-11-04.)
+20. **The percent is to 1 decimal place** ("60.0% of target"), as Pacing card, and never 100.0% while the total is short. (Decided 2026-11-04.)
 
 ## Accessibility
-- The chart area is `role="img"` with a summary label ("RM 6,000.00 of RM 10,000.00 target, 60%."); override with `summary`.
+- The chart area is `role="img"` with a summary label ("RM 6,000.00 of RM 10,000.00 target, 60.0%."); override with `summary`.
 - The legend pairs each colour with its label and value; the gap is dashed as well as Red.
 - Read-only: no focus, no interaction.
 - In forced colours the segments, swatches and target line keep their colours and the track takes an outline.

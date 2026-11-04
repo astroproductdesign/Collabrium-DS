@@ -36,7 +36,7 @@ interface GoalBarBaseProps extends NativeDivProps {
   title?: string;
   /** The heading level, 2 to 6, for `card`. The look is always h5. Default 3. */
   headingLevel?: CardHeadingLevel;
-  /** Shows the target figures top-right ("RM 6,000 / 10,000", "60% of target"), for `card`. Default true. */
+  /** Shows the target figures top-right ("RM 6,000.00 / 10,000.00", "60.0% of target"), for `card`. Default true. */
   showTarget?: boolean;
   /**
    * What names the values under the bar. `legend`: a swatch, label and value per category, plus Gap, and a "Target"
@@ -55,7 +55,7 @@ interface GoalBarBaseProps extends NativeDivProps {
   currency?: string;
   /** One line under a divider, for `card`: e.g. how the scale works. */
   footer?: string;
-  /** Overrides the bar's spoken summary ("RM 6,000 of RM 10,000 target, 60%."). */
+  /** Overrides the bar's spoken summary ("RM 6,000.00 of RM 10,000.00 target, 60.0%."). */
   summary?: string;
 }
 
@@ -97,6 +97,16 @@ export function formatGoalValue(
   return currency ? `${currency} ${full}` : full;
 }
 
+/**
+ * Percent of target, always to 1 decimal place ("60.0", "64.7", "116.7"), and never 100.0 while the total is short,
+ * so it can't claim a target that isn't met (decided 2026-11-04, Q-PACING-12).
+ */
+export function goalPercent(total: number, target: number): string {
+  if (target <= 0) return '0.0';
+  const p = Math.round((total / target) * 1000) / 10;
+  return (total < target ? Math.min(p, 99.9) : p).toFixed(1);
+}
+
 const pct = (n: number) => `${Math.round(n * 10000) / 100}%`;
 
 /**
@@ -136,7 +146,7 @@ export const GoalBar = forwardRef<HTMLDivElement, GoalBarProps>(function GoalBar
   const short = total < target;
   const gap = target - total;
   const fmt = (n: number) => formatGoalValue(n, { currency, compact });
-  const percent = target > 0 ? Math.round((total / target) * 100) : 0;
+  const percent = goalPercent(total, target);
   const spoken = summary ?? `${fmt(total)} of ${fmt(target)} target, ${percent}%.`;
   const drawGap = short && !empty && size !== 'small' && variant !== 'table';
   const Heading = `h${headingLevel}` as 'h3';

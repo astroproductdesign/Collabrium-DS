@@ -60,6 +60,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 36 | Campaign card (a variant of Card) | **review** | Converted 2026-11-04: `CampaignCard`, built on Card (no border, 14px radius, `height: auto`) with the real Tooltip on the owner faces. Opens through the name's stretched link or button, as Card; `movable` and `dragging` for the board. See CAMPAIGN-1 to CAMPAIGN-6, Decision D-122 and Open questions Q-CAMPAIGN-1 to Q-CAMPAIGN-10. |
 | 37 | Ad Placement Card (a variant of Card) | **review** | Converted 2026-11-04: `AdPlacementCard`, built on Card, wrapping the slot button. The gallery shows the card statically, so the behaviour (pointer and keyboard positioning, one at a time, sticky Escape, scroll and resize, touch) is built from the DS. See ADPL-1 to ADPL-4, Decision D-123 and Open questions Q-ADPL-1 to Q-ADPL-6. |
 | 38 | Progress-to-Goal Bar | **review** | Converted 2026-11-04: `GoalBar` with the Card, Chart and In-table variants and three sizes. The gallery is static markup, so the scale, gap, headroom, re-base, colour walk, tag edge collision and the label row's Gap rule are computed from the DS. Built before Pacing card, which uses it. See GOAL-1 to GOAL-6, Decision D-124 and Open questions Q-GOAL-1 to Q-GOAL-11. Pacing card is next. |
+| 39 | Pacing card (a variant of Card) | **review** | Converted 2026-11-04: `PacingCard`, built on Card, GoalBar (In-table, a Total and Target row) and Badge. The gallery hard-codes the badge, the percent and the footer; the card computes them from `value`, `target`, `day`, `days` and `metOnDay`. See PACING-1 to PACING-5, Decision D-125 and Open questions Q-PACING-1 to Q-PACING-12. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -589,6 +590,23 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-GOAL-10 | The component is named `GoalBar` (after `.c-goal-bar`); its docs page is "Progress-to-Goal Bar". Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `GoalBar.tsx` |
 | Q-GOAL-11 | The gallery hand-sets every position; the scale, re-base, colour walk, tag edge collision and the row's Gap rule are built from the DS text and checked against the gallery's numbers. Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `GoalBar.tsx` |
 
+### Pacing card
+
+| ID | Question | Where |
+|---|---|---|
+| Q-PACING-1 | The gallery's rail summary says "RM6.6M booked of a RM10.2M target, 65% to target." "Booked" is one domain's word (spent, delivered…). Built without it: "RM6.6M of a RM10.2M target, 65% to target." Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `PacingCard.tsx` |
+| Q-PACING-2 | The footer is worked out, not written: "Day {day} of {days} · {rate} a day to reach target", the rate being (target − total) ÷ (days − day); once met, "· target met on day {metOnDay}". The DS gives the format only. Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `PacingCard.tsx` |
+| Q-PACING-3 | The rate is short form with "k" below 1M ("RM277k", as the gallery), rounded up so it never understates what is needed; Progress-to-Goal Bar's short form starts at 1M. Keep "k" for the rate? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `formatPacingRate` |
+| Q-PACING-4 | The percent is rounded, but never shows 100 while the target is unmet (99.6% shows 99%, Red), so the badge's colour always agrees with its number. Keep? My recommendation: keep **Answered 2026-11-04: the percent is shown to 1 decimal place ("64.7% to target", "116.7%", "100.0%"); never 100.0% while unmet (99.9% at most). Built** | `pacingPercent` |
+| Q-PACING-5 | Not specified: the last day with the target unmet (no days left for a rate). Built: "Day 31 of 31" alone (TODO). Suggest: "Day 31 of 31 · RM3.6M short of target". Which? My recommendation: the suggestion **Answered 2026-11-04: "Day 31 of 31 · RM3.6M short of target" (the suggestion). Built** | `PacingCard.tsx` (TODO) |
+| Q-PACING-6 | The label row follows Progress-to-Goal Bar's (no space before the bold value), about 3px narrower than the gallery's. Keep one convention? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `GoalBar.tsx` |
+| Q-PACING-7 | The rail width is computed (48.53% for TV), not the gallery's 48.75%. Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `GoalBar.tsx` |
+| Q-PACING-8 | The headline figure uses the short form from 1M ("RM11.4M"); below 1M it is the full value to 2 decimals, as decided for money (Q-GOAL-8). Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `PacingCard.tsx` |
+| Q-PACING-9 | The label is a real heading, level 3 by default, drawn at h4 (the gallery uses an `<h5>`). Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `PacingCard.tsx` |
+| Q-PACING-10 | Met, but no `metOnDay` given: the footer says "Day 18 of 31 · target met". Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `PacingCard.tsx` |
+| Q-PACING-11 | The label: the DS says h4 (20px/800) and "don't correct it back to h5", but in the CSS `.c-card h5` (0,1,1) outranks `.c-card-pacing-label` (0,1,0), so the gallery draws it at 16px/700. Built at h4, as the DS (the selector out-ranks Card's). Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `PacingCard.css` |
+| Q-PACING-12 | Should Progress-to-Goal Bar's "60% of target" also show 1 decimal place, to match Pacing card? My recommendation: yes **Answered 2026-11-04: yes. Built: `goalPercent`, shared with Pacing card ("60.0% of target", never 100.0% while short)** | `GoalBar.tsx` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -763,6 +781,16 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | GOAL-4 | The gallery is static markup with hand-set positions. Everything computed (scale, gap, headroom, re-base, colour walk, short form, tag edge collision, the Gap rule) is built from the DS. Q-GOAL-11 | — | Scale, States, Responsive |
 | GOAL-5 | No forced-colours rule: the fills are backgrounds, so in forced colours the segments, swatches and target line vanish. Q-GOAL-5 | — | — |
 | GOAL-6 | The DS names `showLegend` and `compact`; built as `labels` (`legend`, `row`, `none`) plus `compact`, since the In-table variant also needs a row (Pacing card) and the Small default is a row. Q-GOAL-9 | — | Small size |
+
+### Pacing card, a variant of Card (affects the Pacing card conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| PACING-1 | The gallery hard-codes the percent, badge colour, rail width and footer. Built: computed from the data. The gallery's TV rail is 48.75% (65% × 75%); the computed one is 48.53% (6.6 ÷ 13.6). Q-PACING-2, Q-PACING-7 | — | Badge colour; Footer |
+| PACING-2 | The gallery's label row has a space before each bold value ("Total <b>RM6.6M</b>"); Progress-to-Goal Bar's own row has none. Built with the GoalBar row, about 3px narrower. Q-PACING-6 | — | Minibar labels |
+| PACING-3 | The label is an `<h5>` drawn at h4 in the gallery. Built as a real heading (`headingLevel`, default 3) drawn at h4. Q-PACING-9 | 505 | Label |
+| PACING-4 | The row must name only Total and Target; GoalBar's row adds Gap when short (Q-GOAL-3). GoalBar gains `rowShowsGap`, false here | — | Minibar labels |
+| PACING-5 | The label's h4 rule loses to `.c-card h5` in the CSS, so the gallery draws 16px/700; the DS says h4 (20px/800) on purpose. Built at h4. Q-PACING-11 | 505 | Label |
 
 ### Tokens and global
 
@@ -1075,6 +1103,7 @@ Grouped by component. Line numbers are CSS / DS.
 | D-122 | Campaign card: built on Card with `data-card="campaign"` (no border, 14px radius, `height: auto`); opens through the name's stretched link or button; owner faces are the real Tooltip with `role="label"`; `movable` and `dragging` are props, the drag itself the board's; dates and ringgit formatted by the component | CAMPAIGN-1 to CAMPAIGN-6. Flagged Q-CAMPAIGN-1 to Q-CAMPAIGN-10 |
 | D-123 | Ad Placement Card: one component wrapping the slot `<button>` (adds `aria-describedby`, the name and the pointer and focus handlers) and rendering the card, built on Card with `data-card="ad-placement"`, in a body portal once mounted; positioning, dismissal and touch from the DS; `inline` for documentation | ADPL-1 to ADPL-4. Flagged Q-ADPL-1 to Q-ADPL-6 |
 | D-124 | Progress-to-Goal Bar: one `GoalBar` with `variant` (card, chart, table) and `size`; `value` (Obsidian) or `categories` (the walk); the scale, gap, headroom and re-base computed; `labels` for legend, row or none; positions inline, colours as `data-color` | GOAL-1 to GOAL-6. Flagged Q-GOAL-1 to Q-GOAL-11 |
+| D-125 | Pacing card: built on Card (`data-card="pacing"`), GoalBar (`variant="table" labels="row" rowShowsGap={false}`) and Badge; the percent, badge colour and footer computed from `value`, `target`, `day`, `days`, `metOnDay`; `badge="neutral"` for early in a period | PACING-1 to PACING-5. Flagged Q-PACING-1 to Q-PACING-12 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -1430,3 +1459,8 @@ Every place where the React library now follows a decision that differs from the
 | 107 | Progress-to-Goal Bar: in forced colours keep the segments, swatches and target line in their colours (`forced-color-adjust: none`) and outline the track (decided Q-GOAL-5) | components.css after 4781 | 2026-11-04 |
 | 108 | Money always to 2 decimal places in Progress-to-Goal Bar ("RM 6,000.00", "/ 10,000.00", "Target RM 10,000.00"), outside the short form ("RM10.2M"); consider making it the system's Numbers rule, since Price summary and Campaign card already do it (decided Q-GOAL-8) | DESIGN-SYSTEM.md Numbers rule (89); Progress-to-Goal Bar; preview.html 2902–3042 | 2026-11-04 |
 | 109 | Progress-to-Goal Bar: name `labels` (legend, row, none) in place of `showLegend`, and record the short form's rules (no space, one decimal, ".0" dropped, B from a billion) (decided Q-GOAL-7, Q-GOAL-9) | DESIGN-SYSTEM.md Progress-to-Goal Bar, Small size | 2026-11-04 |
+| 110 | Pacing card: the badge's percent to 1 decimal place ("64.7% to target", "116.7% to target"), never 100.0% while the target is unmet (decided Q-PACING-4) | DESIGN-SYSTEM.md Pacing Card, Badge colour; preview.html 2677, 2697 | 2026-11-04 |
+| 111 | Pacing card: work the footer out from the data: rate = (target − total) ÷ days left, in short form with "k" and rounded up ("RM277k"); "· target met" when no day is known; on the last day unmet, "Day 31 of 31 · RM3.6M short of target" (decided Q-PACING-2, Q-PACING-3, Q-PACING-5, Q-PACING-10) | DESIGN-SYSTEM.md Pacing Card, Footer | 2026-11-04 |
+| 112 | Pacing card: the rail's summary without "booked" ("RM6.6M of a RM10.2M target, 64.7% to target.") (decided Q-PACING-1); the label as a real heading at h4, with a selector that beats `.c-card h5` so the CSS draws 20px/800 as the DS says (decided Q-PACING-9, Q-PACING-11) | preview.html 2663–2668; components.css 505 | 2026-11-04 |
+| 113 | Pacing card: compute the rail (48.53% for TV, not the hand-set 48.75%) and drop the space before each bold label value, as Progress-to-Goal Bar's row (decided Q-PACING-6, Q-PACING-7) | preview.html 2666, 2672–2673 | 2026-11-04 |
+| 114 | Progress-to-Goal Bar: "60.0% of target" and the summary's percent to 1 decimal place, never 100.0% while short, as Pacing card (decided Q-PACING-12) | DESIGN-SYSTEM.md Progress-to-Goal Bar, Anatomy (Target figures), Accessibility; preview.html 2907, 2910 | 2026-11-04 |

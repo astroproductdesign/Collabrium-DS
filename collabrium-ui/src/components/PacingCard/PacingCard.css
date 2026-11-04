@@ -1,0 +1,74 @@
+/*
+  Pacing card — ported from collabrium-dls/components.css lines 490–523
+  (.c-card-pacing and its .c-card-pacing-* parts). Arrangement only: the
+  surface and footer are the base Card's (Card.css), the rail is
+  Progress-to-Goal Bar's In-table variant (GoalBar.css) and the status pill
+  is the real Badge.
+
+  Mapping from the old classes:
+    .c-card.c-card-pacing              -> .cui-card[data-card="pacing"]
+    .c-card-pacing-label               -> .cui-pacing-card__label
+    .c-card-pacing-kpi (.value, .qualifier)
+                                       -> .cui-pacing-card__kpi (__value, __qualifier)
+    .c-card-pacing .c-goal-bar.variant-table .c-goal-bar-chart
+                                       -> .cui-card[data-card="pacing"] .cui-goal-bar[data-variant="table"] .cui-goal-bar__chart
+    .c-card-pacing .c-goal-bar-labels  -> .cui-card[data-card="pacing"] .cui-goal-bar__labels
+    .c-card-pacing-status              -> .cui-pacing-card__status
+    .c-card-pacing .c-card-footer      -> .cui-card[data-card="pacing"] .cui-card__footer
+
+  Specificity keeps the source's order: the card (0,2,0), then the parts
+  scoped under it where the source scopes them.
+*/
+
+/* Five stacked bands need more than the base card's 8px. */
+.cui-card[data-card="pacing"] {
+  gap: var(--spacing-12);
+}
+/* The label is h4 (20px/800), overriding Card's h5 title on purpose: these tiles are read in grids of many channels. */
+.cui-card[data-card="pacing"] .cui-pacing-card__label {
+  margin: 0;
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  font-weight: var(--text-h4-weight);
+  letter-spacing: var(--text-h4-tracking);
+  color: var(--color-neutral-9);
+}
+.cui-pacing-card__kpi {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+.cui-pacing-card__value {
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-tracking);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-pacing-card__qualifier {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+/* Minibar: nothing sits above the rail, so the In-table label band collapses to the target line's overhang. */
+.cui-card[data-card="pacing"] .cui-goal-bar[data-variant="table"] .cui-goal-bar__chart {
+  padding: var(--cui-goal-bar-overhang) 0 0;
+}
+.cui-card[data-card="pacing"] .cui-goal-bar__labels {
+  margin-top: var(--spacing-6);
+  line-height: var(--cui-goal-bar-row-lh);
+}
+/* The card is a column flexbox: a bare badge would stretch to full width. This row contains it. */
+.cui-pacing-card__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+/* The footer's own 16px margin would double-count against the 12px band gap. */
+.cui-card[data-card="pacing"] .cui-card__footer {
+  margin-top: var(--spacing-4);
+}

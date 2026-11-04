@@ -40,12 +40,12 @@ export const anatomy: DocsAnatomyNode[] = [
       {
         name: 'Head',
         element: '.cui-goal-bar__head',
-        description: 'The heading (h5) with the target figures top-right: the total at h4 over "/ 10,000.00", and "60% of target".',
+        description: 'The heading (h5) with the target figures top-right: the total at h4 over "/ 10,000.00", and "60.0% of target".',
       },
       {
         name: 'Chart area',
         element: '.cui-goal-bar__chart[role="img"]',
-        description: 'Named by its summary ("RM 6,000.00 of RM 10,000.00 target, 60%.").',
+        description: 'Named by its summary ("RM 6,000.00 of RM 10,000.00 target, 60.0%.").',
         children: [
           { name: 'Track', element: '.cui-goal-bar__track', description: 'Neutral-2, 16/32/40px tall by size, radius 6/8/10px. In-table: an 8px pill.' },
           { name: 'Segments', element: '.cui-goal-bar__segment', description: 'Stacked from the left, no gaps. The department walk; Obsidian for one value.' },
@@ -185,7 +185,7 @@ export const rules: DocsRules = {
 export const accessibility: DocsAccessibility = {
   keyboard: 'None. The bar is read-only and takes no focus.',
   notes: [
-    'The chart area is `role="img"`, named by its summary ("RM 6,000.00 of RM 10,000.00 target, 60%."), so it is never read as empty boxes. Override it with `summary`.',
+    'The chart area is `role="img"`, named by its summary ("RM 6,000.00 of RM 10,000.00 target, 60.0%."), so it is never read as empty boxes. Override it with `summary`.',
     'The legend pairs each colour with its label and value; the gap is a dashed outline as well as Red, so colour is never the only signal.',
     'In forced colours the segments, swatches and target line keep their colours and the track takes an outline.',
   ],

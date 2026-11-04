@@ -22,6 +22,7 @@ export * from './components/EmptyState';
 export * from './components/GoalBar';
 export * from './components/InputField';
 export * from './components/LoadingState';
+export * from './components/PacingCard';
 export * from './components/PermissionPrompt';
 export * from './components/PriceSummaryCard';
 export * from './components/ProfileCard';

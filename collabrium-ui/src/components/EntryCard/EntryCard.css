@@ -1,0 +1,578 @@
+/*
+  Entry Card — ported from collabrium-dls/components.css lines 879–1173
+  (.c-card-entry-set, .c-card-entry-grid, .c-card.c-card-entry and its
+  .c-card-entry-* parts). The surface is the base Card's (.cui-card in
+  Card.css); .c-card-interactive's hover shadow, cursor and focus halo are
+  written here, because the card is itself the button, not a Card with a
+  stretched title.
+
+  Mapping from the old classes:
+    .c-card-entry-set                  -> .cui-entry-set (the query container)
+    .c-card-entry-set:has(.c-card-entry-character)
+                                       -> .cui-entry-set[data-variant="character"]
+    .c-card-entry-set.is-swapping / .is-entering
+                                       -> [data-swapping] / [data-entering]
+    .c-card-entry-grid (> li)          -> .cui-entry-set__grid (> li)
+    .c-card.c-card-interactive.c-card-entry
+                                       -> .cui-card.cui-entry-card
+    .c-card-entry-character / -artefact
+                                       -> .cui-entry-card[data-variant="character" | "artefact"]
+    .c-card-entry-media / -text / -title / -hint / -go
+                                       -> __media / __text / __title / __hint / __go
+    .sr-only (the ", " separator)      -> __sep
+    .c-card-entry-figure (.is-playing) -> __figure ([data-playing])
+    .c-card-entry-still / -clip / -figure-placeholder
+                                       -> __still / __clip / __placeholder
+    .c-card-entry-art (.c-card-entry-art-{kind})
+                                       -> __art ([data-art="kind"])
+    .c-card-entry-art-row / -col / -bar (.is-short, .is-strong) / -label / -dot (.is-wood …) / -field
+                                       -> __art-row / __art-col / __art-bar ([data-short], [data-strong]) / __art-label / __art-dot ([data-tone]) / __art-field
+    .c-card-entry-art-lens / -bulb / -mix / -seg / -slide (.is-back1, .is-back2, .is-front)
+                                       -> __art-lens / __art-bulb / __art-mix / __art-seg / __art-slide ([data-slide])
+    --c-card-entry-i / -figure-x / -headroom / -cols
+                                       -> --cui-entry-card-i / --cui-entry-card-figure-x / --cui-entry-set-headroom /
+                                          --cui-entry-set-cols (set by the components from props)
+
+  Specificity keeps the source's order: the card is two classes (0,2,0) as
+  `.c-card.c-card-entry`; states and parts follow in the source's order.
+*/
+
+.cui-entry-set {
+  /* Q-ENTRY-9: one-off values with no token, kept local as the DS records them. Headroom: clamp(24px, 0.31c + 21px, 112px). */
+  --cui-entry-set-headroom-min: 24px;
+  --cui-entry-set-headroom-add: 21px;
+  --cui-entry-set-headroom-max: 112px;
+  --cui-entry-set-headroom-rate: .31;
+  --cui-entry-set-stagger: 50ms;
+  container: cui-entry-set / inline-size;
+}
+/*
+  Headroom = clamp(24px, 0.31c + 21px, 112px), c being the card's content width (card − 2 × card-padding − 2px border).
+  Used three times so they never disagree: the grid's padding-top, its row-gap, and the slot's clip ceiling. It lives
+  on the grid because container units on the set would resolve against the set's ancestor.
+*/
+.cui-entry-set__grid {
+  --cui-entry-set-c: calc((100cqw - var(--spacing-12)) / 2 - var(--card-padding) * 2 - var(--border-width-sm) * 2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-entry-set__grid > li {
+  display: flex;
+  min-width: 0;
+}
+.cui-entry-set[data-variant="character"] .cui-entry-set__grid {
+  padding-top: var(--cui-entry-set-headroom, clamp(var(--cui-entry-set-headroom-min), calc(var(--cui-entry-set-c) * var(--cui-entry-set-headroom-rate) + var(--cui-entry-set-headroom-add)), var(--cui-entry-set-headroom-max)));
+  row-gap: var(--cui-entry-set-headroom, clamp(var(--cui-entry-set-headroom-min), calc(var(--cui-entry-set-c) * var(--cui-entry-set-headroom-rate) + var(--cui-entry-set-headroom-add)), var(--cui-entry-set-headroom-max)));
+}
+/*
+  Columns follow the set's width, not the viewport: 1 under 280px, 2, 3 from 640px, 5 (or --cui-entry-set-cols) from
+  860px. No 4-up step: a 4 + 1 row reads as one left over. Container queries can't read custom properties, so the
+  three steps are literals (Q-ENTRY-9).
+*/
+@container cui-entry-set (max-width: 279.98px) {
+  .cui-entry-set__grid {
+    grid-template-columns: minmax(0, 1fr);
+    --cui-entry-set-c: calc(100cqw - var(--card-padding) * 2 - var(--border-width-sm) * 2);
+  }
+}
+@container cui-entry-set (min-width: 640px) {
+  .cui-entry-set__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    --cui-entry-set-c: calc((100cqw - var(--spacing-12) * 2) / 3 - var(--card-padding) * 2 - var(--border-width-sm) * 2);
+  }
+}
+@container cui-entry-set (min-width: 860px) {
+  .cui-entry-set__grid {
+    grid-template-columns: repeat(var(--cui-entry-set-cols, 5), minmax(0, 1fr));
+    --cui-entry-set-c: calc((100cqw - var(--spacing-12) * (var(--cui-entry-set-cols, 5) - 1)) / var(--cui-entry-set-cols, 5) - var(--card-padding) * 2 - var(--border-width-sm) * 2);
+  }
+}
+
+/* Card: the base Card surface on the button itself, its own container (the stage sizes in cqw of the card). */
+.cui-card.cui-entry-card {
+  /* Q-ENTRY-9: one-off values with no token, kept local. */
+  --cui-entry-card-lift: 2px;
+  --cui-entry-card-nudge: 2px;
+  --cui-entry-card-rise: 6px;
+  --cui-entry-card-disabled-media: .4;
+  --cui-entry-card-stage: clamp(76px, 43.4cqw, 132px);
+  --cui-entry-card-crop: clamp(-28px, -9.3cqw, -20px);
+  --cui-entry-card-board-width: 112%;
+  --cui-entry-card-tile: 84px;
+  position: relative;
+  container-type: inline-size;
+  min-width: 0;
+  gap: var(--spacing-12);
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  font: inherit;
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    box-shadow var(--duration-base) var(--ease-settle),
+    transform var(--duration-base) var(--ease-settle);
+}
+/* .c-card-interactive: shadow-2 on hover, the focus halo on keyboard focus. */
+.cui-card.cui-entry-card:hover {
+  box-shadow: var(--shadow-2);
+  z-index: 1;
+}
+.cui-card.cui-entry-card:focus-visible {
+  box-shadow: var(--shadow-focus);
+  z-index: 1;
+}
+.cui-card.cui-entry-card:hover:focus-visible {
+  box-shadow: var(--shadow-2), var(--shadow-focus);
+}
+/* Pressed: the lift collapses and the shadow drops back to rest, on duration-instant. */
+.cui-card.cui-entry-card:active {
+  box-shadow: var(--shadow-1);
+  transition-duration: var(--duration-instant);
+}
+.cui-card.cui-entry-card:active:focus-visible {
+  box-shadow: var(--shadow-1), var(--shadow-focus);
+}
+/* Disabled: 40% media, Neutral-4 text, no chevron (it promises a destination), no hover response. */
+.cui-card.cui-entry-card:disabled {
+  cursor: not-allowed;
+  box-shadow: var(--shadow-1);
+  transform: none;
+}
+.cui-card.cui-entry-card:disabled .cui-entry-card__media {
+  opacity: var(--cui-entry-card-disabled-media);
+}
+.cui-card.cui-entry-card:disabled :is(.cui-entry-card__title, .cui-entry-card__hint) {
+  color: var(--color-neutral-4);
+}
+.cui-card.cui-entry-card:disabled .cui-entry-card__go {
+  display: none;
+}
+
+/* Media slot: always decorative, never a hit target; drawings keep their colours under forced colours. */
+.cui-entry-card__media {
+  position: relative;
+  display: block;
+  flex: none;
+  pointer-events: none;
+  forced-color-adjust: none;
+}
+.cui-entry-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+.cui-entry-card__title {
+  display: block;
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* ", " between title and hint, for the accessible name only. */
+.cui-entry-card__sep {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+/* Hint: caption, Neutral-5, one line; the full text stays in the name. Selectable's 24px right reserve for the chevron. */
+.cui-entry-card__hint {
+  display: block;
+  padding-right: var(--spacing-24);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Chevron: Tier 1 Regular, icon-sm, pinned to the card's padding corner. */
+.cui-entry-card__go {
+  position: absolute;
+  right: var(--card-padding);
+  bottom: var(--card-padding);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-neutral-4);
+  transition:
+    transform var(--duration-base) var(--ease-settle),
+    color var(--duration-fast) var(--ease-standard);
+}
+@media (hover: hover) {
+  .cui-card.cui-entry-card:not(:disabled):hover .cui-entry-card__go {
+    color: var(--color-neutral-9);
+  }
+}
+.cui-card.cui-entry-card:focus-visible .cui-entry-card__go {
+  color: var(--color-neutral-9);
+}
+
+/*
+  Character: the card opens at its top edge and the slot bleeds spacing-8 into the side padding. The figure is bigger
+  than the slot and bottom-anchored below it; the clip is open above and beside, closed at the slot's bottom edge.
+*/
+.cui-card.cui-entry-card[data-variant="character"] {
+  padding-top: 0;
+}
+.cui-entry-card[data-variant="character"] .cui-entry-card__media {
+  height: var(--cui-entry-card-stage);
+  margin-inline: calc(var(--spacing-8) * -1);
+  /* Clip ceiling = the set's headroom formula; here the card is the container, so 100cqw is c. */
+  clip-path: inset(calc(var(--cui-entry-set-headroom, clamp(var(--cui-entry-set-headroom-min, 24px), calc(100cqw * var(--cui-entry-set-headroom-rate, .31) + var(--cui-entry-set-headroom-add, 21px)), var(--cui-entry-set-headroom-max, 112px))) * -1) calc(var(--spacing-40) * -1) 0 calc(var(--spacing-40) * -1));
+}
+.cui-entry-card__figure {
+  position: absolute;
+  left: 50%;
+  bottom: var(--cui-entry-card-crop);
+  width: var(--cui-entry-card-board-width);
+  aspect-ratio: 4 / 3;
+  transform: translateX(calc(-50% + var(--cui-entry-card-figure-x, 0px)));
+  transition: transform var(--duration-base) var(--ease-settle);
+}
+.cui-entry-card__figure > :is(img, video) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  border: 0;
+}
+/* Still to clip is a hard switch, no cross-fade: the clip stays hidden until it is actually playing. */
+.cui-entry-card__clip {
+  opacity: 0;
+}
+.cui-entry-card__figure[data-playing] .cui-entry-card__clip {
+  opacity: 1;
+}
+.cui-entry-card__figure[data-playing] .cui-entry-card__still {
+  opacity: 0;
+}
+/* Placeholder: the only shipped figure, a neutral head and shoulders on the 4:3 board. Proportions are drawing values. */
+.cui-entry-card__placeholder {
+  position: absolute;
+  inset: 0;
+}
+.cui-entry-card__placeholder::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 50%;
+  height: 58%;
+  transform: translateX(-50%);
+  border-radius: var(--radius-pill) var(--radius-pill) 0 0;
+  background: var(--color-neutral-4);
+}
+.cui-entry-card__placeholder::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 52%;
+  width: 34%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: var(--radius-pill);
+  background:
+    radial-gradient(circle at 36% 52%, var(--color-neutral-5) 0 6%, transparent 7%),
+    radial-gradient(circle at 64% 52%, var(--color-neutral-5) 0 6%, transparent 7%),
+    var(--color-neutral-3);
+}
+
+/* Artefact: an 84px Neutral-2 tile, radius-sm, holding a pure-CSS drawing per kind, built from spans. */
+.cui-entry-card[data-variant="artefact"] .cui-entry-card__media {
+  height: var(--cui-entry-card-tile);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-2);
+  overflow: hidden;
+}
+.cui-entry-card__art {
+  /* Drawing line weight (Tag's 6px dot) and mini-UI corner; drawing values, kept local (Q-ENTRY-9). */
+  --cui-entry-card-art-bar: 6px;
+  --cui-entry-card-art-r: 4px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-12);
+}
+.cui-entry-card__art-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+.cui-entry-card__art-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.cui-entry-card__art-bar {
+  display: block;
+  width: 100%;
+  height: var(--cui-entry-card-art-bar);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-4);
+}
+.cui-entry-card__art-bar[data-short] {
+  width: 55%;
+}
+.cui-entry-card__art-bar[data-strong] {
+  height: var(--spacing-8);
+  background: var(--color-neutral-6);
+}
+.cui-entry-card__art-row > .cui-entry-card__art-bar {
+  flex: 1;
+  width: auto;
+}
+.cui-entry-card__art-row > .cui-entry-card__art-bar[data-short] {
+  flex: .55;
+}
+.cui-entry-card__art-label {
+  flex: none;
+  width: var(--spacing-20);
+  height: var(--cui-entry-card-art-bar);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-5);
+}
+.cui-entry-card__art-dot {
+  flex: none;
+  width: var(--cui-entry-card-art-bar);
+  height: var(--cui-entry-card-art-bar);
+  border-radius: var(--radius-pill);
+}
+.cui-entry-card__art-dot[data-tone="wood"] { background: var(--color-salmon-pink); }
+.cui-entry-card__art-dot[data-tone="gold"] { background: var(--color-amber); }
+.cui-entry-card__art-dot[data-tone="water"] { background: var(--color-navy); }
+
+/* Brief: three form rows; on hover the first field "types". */
+.cui-entry-card__art-field {
+  position: relative;
+  flex: 1;
+  height: var(--spacing-12);
+  box-sizing: border-box;
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--cui-entry-card-art-r);
+  background: var(--color-neutral-1);
+}
+.cui-entry-card__art-row:first-child .cui-entry-card__art-field::after {
+  content: "";
+  position: absolute;
+  left: var(--spacing-4);
+  top: 50%;
+  width: 55%;
+  height: 33%;
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-4);
+  transform: translateY(-50%) scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--duration-slow) var(--ease-settle);
+}
+/* Research: a lens and three colour-keyed findings; the lens scans. */
+.cui-entry-card__art[data-art="research"],
+.cui-entry-card__art[data-art="idea"] {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+.cui-entry-card__art-lens {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+  box-shadow: var(--shadow-1);
+  color: var(--color-neutral-5);
+  transition: transform var(--duration-slow) var(--ease-settle);
+}
+.cui-entry-card__art-lens svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+/* Big idea: a bulb that lights (colour only, so it also runs under reduced motion). */
+.cui-entry-card__art-bulb {
+  flex: none;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  color: var(--color-neutral-5);
+  transition: color var(--duration-slow) var(--ease-settle);
+}
+/* Package: two line items and a channel-mix bar that re-balances. */
+.cui-entry-card__art[data-art="package"] .cui-entry-card__art-label {
+  width: var(--spacing-24);
+  background: var(--color-neutral-6);
+}
+.cui-entry-card__art-mix {
+  display: flex;
+  gap: var(--spacing-4);
+  height: var(--cui-entry-card-art-bar);
+}
+.cui-entry-card__art-seg {
+  display: block;
+  border-radius: var(--radius-pill);
+  transition: flex-grow var(--duration-slow) var(--ease-settle);
+}
+.cui-entry-card__art-seg:nth-child(1) { flex: 3 1 0; background: var(--color-obsidian); }
+.cui-entry-card__art-seg:nth-child(2) { flex: 2 1 0; background: var(--color-navy); }
+.cui-entry-card__art-seg:nth-child(3) { flex: 1.5 1 0; background: var(--color-neutral-4); }
+/* Deck: three 16:9 slides at 58% of the tile; the back two fan out. */
+.cui-entry-card__art[data-art="deck"] {
+  --cui-entry-card-slide: 58%;
+  --cui-entry-card-fan: 7deg;
+  --cui-entry-card-fan-open: 12deg;
+  padding: 0;
+}
+.cui-entry-card__art-slide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--cui-entry-card-slide);
+  aspect-ratio: 16 / 9;
+  box-sizing: border-box;
+  border-radius: var(--cui-entry-card-art-r);
+  transform-origin: 50% 100%;
+  transition: transform var(--duration-slow) var(--ease-settle);
+}
+.cui-entry-card__art-slide[data-slide="back1"],
+.cui-entry-card__art-slide[data-slide="back2"] {
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-entry-card__art-slide[data-slide="back1"] {
+  transform: translate(-50%, -50%) rotate(calc(var(--cui-entry-card-fan) * -1)) translateX(calc(var(--spacing-8) * -1));
+}
+.cui-entry-card__art-slide[data-slide="back2"] {
+  transform: translate(-50%, -50%) rotate(var(--cui-entry-card-fan)) translateX(var(--spacing-8));
+}
+.cui-entry-card__art-slide[data-slide="front"] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-4);
+  padding: 0 var(--spacing-8);
+  background: var(--color-obsidian);
+  box-shadow: var(--shadow-2);
+  transform: translate(-50%, -50%);
+}
+.cui-entry-card__art-slide[data-slide="front"] .cui-entry-card__art-bar {
+  width: 80%;
+  background: color-mix(in srgb, var(--color-neutral-1) 85%, transparent);
+}
+.cui-entry-card__art-slide[data-slide="front"] .cui-entry-card__art-bar[data-short] {
+  width: 45%;
+  background: color-mix(in srgb, var(--color-neutral-1) 40%, transparent);
+}
+
+/* Colour-only hover changes (not motion, so not behind reduced motion). */
+@media (hover: hover) {
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__art-bulb {
+    color: var(--color-amber);
+  }
+}
+.cui-entry-card:focus-visible .cui-entry-card__art-bulb {
+  color: var(--color-amber);
+}
+
+/* Motion, only with no-preference. Hover motion is gated to (hover: hover); keyboard focus gets the same motion. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .cui-card.cui-entry-card:not(:disabled):hover { transform: translateY(calc(var(--cui-entry-card-lift) * -1)); }
+  .cui-card.cui-entry-card:not(:disabled):hover:active { transform: none; }
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__go { transform: translateX(var(--cui-entry-card-nudge)); }
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__figure { transform: translateX(calc(-50% + var(--cui-entry-card-figure-x, 0px))) translateY(calc(var(--cui-entry-card-rise) * -1)); }
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__art-row:first-child .cui-entry-card__art-field::after { transform: translateY(-50%) scaleX(1); }
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__art-lens { transform: translateX(var(--spacing-4)); }
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__art-seg:nth-child(1) { flex-grow: 2; }
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__art-seg:nth-child(2) { flex-grow: 3; }
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__art-slide[data-slide="back1"] { transform: translate(-50%, -50%) rotate(calc(var(--cui-entry-card-fan-open) * -1)) translateX(calc(var(--spacing-16) * -1)); }
+  .cui-entry-card:not(:disabled):hover .cui-entry-card__art-slide[data-slide="back2"] { transform: translate(-50%, -50%) rotate(var(--cui-entry-card-fan-open)) translateX(var(--spacing-16)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cui-card.cui-entry-card:focus-visible { transform: translateY(calc(var(--cui-entry-card-lift) * -1)); }
+  .cui-card.cui-entry-card:focus-visible:active { transform: none; }
+  .cui-entry-card:focus-visible .cui-entry-card__go { transform: translateX(var(--cui-entry-card-nudge)); }
+  .cui-entry-card:focus-visible .cui-entry-card__figure { transform: translateX(calc(-50% + var(--cui-entry-card-figure-x, 0px))) translateY(calc(var(--cui-entry-card-rise) * -1)); }
+  .cui-entry-card:focus-visible .cui-entry-card__art-row:first-child .cui-entry-card__art-field::after { transform: translateY(-50%) scaleX(1); }
+  .cui-entry-card:focus-visible .cui-entry-card__art-lens { transform: translateX(var(--spacing-4)); }
+  .cui-entry-card:focus-visible .cui-entry-card__art-seg:nth-child(1) { flex-grow: 2; }
+  .cui-entry-card:focus-visible .cui-entry-card__art-seg:nth-child(2) { flex-grow: 3; }
+  .cui-entry-card:focus-visible .cui-entry-card__art-slide[data-slide="back1"] { transform: translate(-50%, -50%) rotate(calc(var(--cui-entry-card-fan-open) * -1)) translateX(calc(var(--spacing-16) * -1)); }
+  .cui-entry-card:focus-visible .cui-entry-card__art-slide[data-slide="back2"] { transform: translate(-50%, -50%) rotate(var(--cui-entry-card-fan-open)) translateX(var(--spacing-16)); }
+
+  /* Variant switch: cards fade down and out, the variant changes in place, then they rise back in, 50ms apart. */
+  .cui-entry-set__grid {
+    transition:
+      padding-top var(--duration-slow) var(--ease-settle),
+      row-gap var(--duration-slow) var(--ease-settle);
+  }
+  .cui-entry-set[data-swapping] .cui-entry-card {
+    opacity: 0;
+    transform: translateY(var(--spacing-8));
+    transition:
+      opacity var(--duration-base) var(--ease-standard),
+      transform var(--duration-base) var(--ease-standard);
+  }
+  .cui-entry-set[data-entering] .cui-entry-card {
+    animation: cui-entry-card-in var(--duration-morph) var(--ease-settle) both;
+    animation-delay: calc(var(--cui-entry-card-i, 0) * var(--cui-entry-set-stagger));
+  }
+}
+@keyframes cui-entry-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-8));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reduced motion: stills only. A backstop in case playback is ever started: a clip can never show. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-entry-card__clip {
+    display: none;
+  }
+  .cui-entry-card__figure[data-playing] .cui-entry-card__still {
+    opacity: 1;
+  }
+}
+
+/* Forced colours strip box-shadow, which takes the focus ring with it. */
+@media (forced-colors: active) {
+  .cui-card.cui-entry-card:focus-visible {
+    outline: var(--focus-ring-width) solid CanvasText;
+    outline-offset: var(--focus-ring-offset);
+  }
+  .cui-card.cui-entry-card:disabled {
+    border-color: GrayText;
+  }
+  .cui-card.cui-entry-card:disabled :is(.cui-entry-card__title, .cui-entry-card__hint) {
+    color: GrayText;
+  }
+}

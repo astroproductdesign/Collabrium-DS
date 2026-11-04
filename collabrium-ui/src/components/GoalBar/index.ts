@@ -1,2 +1,2 @@
-export { GoalBar, formatGoalValue } from './GoalBar';
+export { GoalBar, formatGoalValue, goalPercent } from './GoalBar';
 export type { GoalBarProps, GoalBarCategory, GoalBarColor } from './GoalBar';

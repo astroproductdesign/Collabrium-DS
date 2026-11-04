@@ -19,6 +19,7 @@
 @import './components/GoalBar/GoalBar.css';
 @import './components/InputField/InputField.css';
 @import './components/LoadingState/LoadingState.css';
+@import './components/PacingCard/PacingCard.css';
 @import './components/PermissionPrompt/PermissionPrompt.css';
 @import './components/PriceSummaryCard/PriceSummaryCard.css';
 @import './components/ProfileCard/ProfileCard.css';
