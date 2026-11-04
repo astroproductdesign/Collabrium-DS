@@ -60,6 +60,11 @@ The `ref` is forwarded to the set's `<div>` and to the card's button or link.
 8. **Playback:** only one card plays at a time; touch never plays. After 8s with no interaction the next card plays one 4s beat, once; any input stops a beat; after every card has had a turn the tour is over for that page view. Nothing plays under reduced motion, in a hidden tab, or for a card less than half in view.
 9. **Switching the look** fades the cards down and out, changes them in place, and brings them back up 50ms apart. Same buttons, so focus is kept.
 10. **The research dots are decoration,** not department ownership.
+11. **The set owns the look and the motion:** its `variant` applies to every card; it runs the swap (instantly under reduced motion) and the playback scheduler from the DS reference, `idleTour={false}` turning the tour off. (Decided 2026-11-04.)
+12. **Five drawings ship:** brief, research, idea, package, deck. Research, Big idea, Package and Deck are built from the CSS and the DS (the gallery draws only Brief). A sixth kind of entry gets a drawing when it exists. (Decided 2026-11-04.)
+13. **The idle tour is once per page view;** a set that mounts again (coming back to the page) starts a new one. (Decided 2026-11-04.)
+14. **The hover shadow isn't gated to hover-capable devices,** as the source; only the motion is. The DS's one-off sizes and the 280 / 640 / 860px steps stay local values. (Decided 2026-11-04.)
+15. **The look switch is a page-level Segmented Control** (not converted yet; its labels are parked in the DS). (Decided 2026-11-04.)
 
 ## Accessibility
 - One name per card from its content: "Brief, Turn an email into a brief" (a hidden ", " separates the lines). No `aria-label`.

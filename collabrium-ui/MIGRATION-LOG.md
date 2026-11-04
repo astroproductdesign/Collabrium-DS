@@ -61,6 +61,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 37 | Ad Placement Card (a variant of Card) | **review** | Converted 2026-11-04: `AdPlacementCard`, built on Card, wrapping the slot button. The gallery shows the card statically, so the behaviour (pointer and keyboard positioning, one at a time, sticky Escape, scroll and resize, touch) is built from the DS. See ADPL-1 to ADPL-4, Decision D-123 and Open questions Q-ADPL-1 to Q-ADPL-6. |
 | 38 | Progress-to-Goal Bar | **review** | Converted 2026-11-04: `GoalBar` with the Card, Chart and In-table variants and three sizes. The gallery is static markup, so the scale, gap, headroom, re-base, colour walk, tag edge collision and the label row's Gap rule are computed from the DS. Built before Pacing card, which uses it. See GOAL-1 to GOAL-6, Decision D-124 and Open questions Q-GOAL-1 to Q-GOAL-11. Pacing card is next. |
 | 39 | Pacing card (a variant of Card) | **review** | Converted 2026-11-04: `PacingCard`, built on Card, GoalBar (In-table, a Total and Target row) and Badge. The gallery hard-codes the badge, the percent and the footer; the card computes them from `value`, `target`, `day`, `days` and `metOnDay`. See PACING-1 to PACING-5, Decision D-125 and Open questions Q-PACING-1 to Q-PACING-12. |
+| 40 | Entry Card (Character / Artefact) | **review** | Converted 2026-11-04: `EntryCardSet` and `EntryCard`. The gallery shows one Brief card per variant; the other four drawings, the swap and the playback scheduler (DS reference code) are built from the CSS and the DS. See ENTRY-1 to ENTRY-5, Decision D-126 and Open questions Q-ENTRY-1 to Q-ENTRY-9. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -607,6 +608,20 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-PACING-11 | The label: the DS says h4 (20px/800) and "don't correct it back to h5", but in the CSS `.c-card h5` (0,1,1) outranks `.c-card-pacing-label` (0,1,0), so the gallery draws it at 16px/700. Built at h4, as the DS (the selector out-ranks Card's). Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `PacingCard.css` |
 | Q-PACING-12 | Should Progress-to-Goal Bar's "60% of target" also show 1 decimal place, to match Pacing card? My recommendation: yes **Answered 2026-11-04: yes. Built: `goalPercent`, shared with Pacing card ("60.0% of target", never 100.0% while short)** | `GoalBar.tsx` |
 
+### Entry Card
+
+| ID | Question | Where |
+|---|---|---|
+| Q-ENTRY-1 | The DS hands playback to the host with reference code. Built into `EntryCardSet`, as written: hover and keyboard focus loop a clip; an 8s idle tour of one 4s beat per card, once per page view; stops for reduced motion, a hidden tab or a card under half in view. `idleTour={false}` turns the tour off. Keep it in the component? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.tsx` |
+| Q-ENTRY-2 | Research, Big idea, Package and Deck have no gallery markup. Built from the CSS and the DS table: Research is the lens beside three dot-and-bar findings (the last short); Big idea the bulb beside a strong bar, a bar and a short bar; Package two label-and-bar items (the second short) over the three-part mix; Deck the two back slides and the front with two bars. Please look at them on the docs page. Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.tsx` |
+| Q-ENTRY-3 | The set's `variant` applies to all its cards (a card's own `variant` is used only outside a set), so a set can never mix. Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.tsx` |
+| Q-ENTRY-4 | The look swap runs in the set when its `variant` changes, on the same buttons (focus kept). Under reduced motion it switches at once. Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.tsx` |
+| Q-ENTRY-5 | Only the five drawings ship. An Artefact entry for any other kind of work has no drawing. Should the DLS add more, or should a host be able to pass its own drawing? My recommendation: keep the five for now; add a drawing when a sixth entry exists **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.tsx` |
+| Q-ENTRY-6 | The swap's look switch is a compact Segmented Control (not converted); its labels are parked in the DS's Needs Input. The docs demo uses two Buttons for now. Fine until Segmented Control is converted? My recommendation: yes **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.docs.tsx` |
+| Q-ENTRY-7 | The idle tour's "once per page view" restarts if the set unmounts and mounts again (a route change back to the page). Keep? My recommendation: keep: that is a new page view **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.tsx` |
+| Q-ENTRY-8 | The base Card's hover shadow-2 isn't gated to `(hover: hover)` in the source (only the motion is), so a tap can leave shadow-2 behind until the next tap. Kept as the source. Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.css` |
+| Q-ENTRY-9 | One-off values, kept local as the DS records them: the headroom formula (24px, 0.31, 21px, 112px), the stage and crop clamps, 112% and 4:3, the 6px rise and 2px lift and nudge, the 84px tile, the 6px bar and 4px corner, the deck's 58%, 16:9, 7deg and 12deg, the 80% / 45% bars at 85% / 40%, 55% / 33%, the 50ms stagger, the 0.4 disabled media, and the 280 / 640 / 860px container steps (literals: container queries can't read custom properties). Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.css` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -791,6 +806,16 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | PACING-3 | The label is an `<h5>` drawn at h4 in the gallery. Built as a real heading (`headingLevel`, default 3) drawn at h4. Q-PACING-9 | 505 | Label |
 | PACING-4 | The row must name only Total and Target; GoalBar's row adds Gap when short (Q-GOAL-3). GoalBar gains `rowShowsGap`, false here | — | Minibar labels |
 | PACING-5 | The label's h4 rule loses to `.c-card h5` in the CSS, so the gallery draws 16px/700; the DS says h4 (20px/800) on purpose. Built at h4. Q-PACING-11 | 505 | Label |
+
+### Entry Card (affects the Entry Card conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| ENTRY-1 | The DS says playback is the host's, and gives a reference scheduler (`EntryPlayback`). Built into `EntryCardSet`, ported as written, with `idleTour` to turn the tour off. Q-ENTRY-1 | — | Playback rules; EntryPlayback |
+| ENTRY-2 | The gallery draws only Brief. Research, Big idea, Package and Deck have CSS and a DS description but no markup; built from both. Q-ENTRY-2 | 1086–1123 | The five artefact drawings |
+| ENTRY-3 | The variant class sits on each card in the source; the set's `variant` is passed to every card here, so a set can't mix. A card outside a set takes its own. Q-ENTRY-3 | 1022, 1060 | One variant per set |
+| ENTRY-4 | The swap (`.is-swapping`, `.is-entering`) is the host's in the source; here the set runs it when `variant` changes (fade out on duration-base, change, enter on duration-morph, 50ms apart). Q-ENTRY-4 | 1157–1160 | Switching |
+| ENTRY-5 | `.c-card-interactive` (shadow-2 hover, focus halo) has no class here: the card is the button, so its rules are written into EntryCard.css | Card 300–303 | — |
 
 ### Tokens and global
 
@@ -1104,6 +1129,7 @@ Grouped by component. Line numbers are CSS / DS.
 | D-123 | Ad Placement Card: one component wrapping the slot `<button>` (adds `aria-describedby`, the name and the pointer and focus handlers) and rendering the card, built on Card with `data-card="ad-placement"`, in a body portal once mounted; positioning, dismissal and touch from the DS; `inline` for documentation | ADPL-1 to ADPL-4. Flagged Q-ADPL-1 to Q-ADPL-6 |
 | D-124 | Progress-to-Goal Bar: one `GoalBar` with `variant` (card, chart, table) and `size`; `value` (Obsidian) or `categories` (the walk); the scale, gap, headroom and re-base computed; `labels` for legend, row or none; positions inline, colours as `data-color` | GOAL-1 to GOAL-6. Flagged Q-GOAL-1 to Q-GOAL-11 |
 | D-125 | Pacing card: built on Card (`data-card="pacing"`), GoalBar (`variant="table" labels="row" rowShowsGap={false}`) and Badge; the percent, badge colour and footer computed from `value`, `target`, `day`, `days`, `metOnDay`; `badge="neutral"` for early in a period | PACING-1 to PACING-5. Flagged Q-PACING-1 to Q-PACING-12 |
+| D-126 | Entry Card: `EntryCardSet` (container, list, headroom, swap, playback scheduler) and `EntryCard` (button or link, `.cui-card.cui-entry-card[data-variant]`); variant from the set by context; the five drawings as markup in the component; still and clip props with the clip's sources loaded on first play | ENTRY-1 to ENTRY-5. Flagged Q-ENTRY-1 to Q-ENTRY-9 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -1464,3 +1490,5 @@ Every place where the React library now follows a decision that differs from the
 | 112 | Pacing card: the rail's summary without "booked" ("RM6.6M of a RM10.2M target, 64.7% to target.") (decided Q-PACING-1); the label as a real heading at h4, with a selector that beats `.c-card h5` so the CSS draws 20px/800 as the DS says (decided Q-PACING-9, Q-PACING-11) | preview.html 2663–2668; components.css 505 | 2026-11-04 |
 | 113 | Pacing card: compute the rail (48.53% for TV, not the hand-set 48.75%) and drop the space before each bold label value, as Progress-to-Goal Bar's row (decided Q-PACING-6, Q-PACING-7) | preview.html 2666, 2672–2673 | 2026-11-04 |
 | 114 | Progress-to-Goal Bar: "60.0% of target" and the summary's percent to 1 decimal place, never 100.0% while short, as Pacing card (decided Q-PACING-12) | DESIGN-SYSTEM.md Progress-to-Goal Bar, Anatomy (Target figures), Accessibility; preview.html 2907, 2910 | 2026-11-04 |
+| 115 | Entry Card: draw Research, Big idea, Package and Deck in the gallery (only Brief has markup), as built in the library (decided Q-ENTRY-2) | preview.html 2800–2802; DESIGN-SYSTEM.md Entry Card, The five artefact drawings | 2026-11-04 |
+| 116 | Entry Card: say the set owns the variant (every card takes the set's; a lone card takes its own) and runs the swap and the playback scheduler itself, with `idleTour` to turn the tour off (decided Q-ENTRY-1, Q-ENTRY-3, Q-ENTRY-4) | DESIGN-SYSTEM.md Entry Card, Class API, Playback rules | 2026-11-04 |

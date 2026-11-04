@@ -16,6 +16,7 @@
 @import './components/AdPlacementCard/AdPlacementCard.css';
 @import './components/Chip/Chip.css';
 @import './components/EmptyState/EmptyState.css';
+@import './components/EntryCard/EntryCard.css';
 @import './components/GoalBar/GoalBar.css';
 @import './components/InputField/InputField.css';
 @import './components/LoadingState/LoadingState.css';
