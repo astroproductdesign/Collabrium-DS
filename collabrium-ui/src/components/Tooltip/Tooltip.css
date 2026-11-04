@@ -1,0 +1,65 @@
+/*
+  Tooltip — ported from collabrium-dls/components.css lines 3577–3593
+  (.c-tooltip-wrap, .c-tooltip-bubble, .is-visible, .is-portaled). The
+  240px wrap and the bottom, left and right placements are in
+  DESIGN-SYSTEM.md's Tooltip section only; they are built from it (TOOLTIP-2
+  and TOOLTIP-3). The DS's caret is not drawn, as the CSS (TOOLTIP-1,
+  decided Q-TOOLTIP-1).
+
+  Mapping from the old classes:
+    .c-tooltip-wrap                    -> .cui-tooltip
+    .c-tooltip-bubble                  -> .cui-tooltip__bubble
+    .c-tooltip-bubble.is-visible       -> [data-visible]
+    .c-tooltip-bubble.is-portaled      -> [data-portaled]
+    (DESIGN-SYSTEM.md only)            -> [data-placement]
+
+  Specificity keeps the source's order: the bubble (0,1,0), then visible and
+  portaled (0,2,0). The portaled bubble's top and left are set inline from
+  the trigger's rectangle, as the source's script does.
+*/
+
+.cui-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.cui-tooltip__bubble {
+  /* Q-TOOLTIP-4: the 10px side padding (a one-off in the DLS) and the 240px wrap width have no token; kept local. */
+  --cui-tooltip-padding-x: 10px;
+  --cui-tooltip-max-width: 240px;
+  position: absolute;
+  bottom: calc(100% + var(--spacing-8));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  /* Up to 240px on one line, then it wraps, growing in height only (DESIGN-SYSTEM.md; the source never wraps, TOOLTIP-2). */
+  width: max-content;
+  max-width: var(--cui-tooltip-max-width);
+  padding: var(--spacing-6) var(--cui-tooltip-padding-x);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-7);
+  color: var(--color-neutral-1);
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-medium);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-tooltip__bubble[data-visible] {
+  opacity: 1;
+}
+/* In the body portal: fixed, placed by the component, above modals (the source keeps z-index 2; TOOLTIP-4). */
+.cui-tooltip__bubble[data-portaled] {
+  position: fixed;
+  bottom: auto;
+  transform: none;
+  z-index: var(--z-tooltip);
+}
+
+/* Forced colours: the fill isn't drawn, so the bubble takes a 1px border, as Tag (decided Q-TOOLTIP-5). */
+@media (forced-colors: active) {
+  .cui-tooltip__bubble {
+    border: var(--border-width-sm) solid CanvasText;
+  }
+}

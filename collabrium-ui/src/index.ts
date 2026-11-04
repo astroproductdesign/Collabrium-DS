@@ -31,6 +31,7 @@ export * from './components/Tag';
 export * from './components/TaskRows';
 export * from './components/Textarea';
 export * from './components/Thinking';
+export * from './components/Tooltip';
 export * from './components/ToolApproval';
 
 // Utilities

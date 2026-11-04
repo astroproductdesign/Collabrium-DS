@@ -27,6 +27,7 @@
 @import './components/TaskRows/TaskRows.css';
 @import './components/Textarea/Textarea.css';
 @import './components/Thinking/Thinking.css';
+@import './components/Tooltip/Tooltip.css';
 @import './components/ToolApproval/ToolApproval.css';
 @import './charts-extra/charts-extra.css';
 @import './motion/motion.css';

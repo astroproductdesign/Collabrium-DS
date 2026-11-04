@@ -55,6 +55,7 @@ The `ref` is forwarded to the card's `<div>`. `profileInitials(name)` and
 13. **After a naming particle, the second initial is the word right after it**, as the DLS example shows (MA), not the last word. (Decided 2026-11-04.)
 14. **The menu works from the keyboard like a menu:** opening it puts focus on the first item; the arrow keys move through the items and wrap; Home and End jump to the ends; Tab leaves and closes it. (Decided 2026-11-04.)
 15. **The avatar is 56px and the menu 160px**, kept as local values (no tokens). (Decided 2026-11-04.)
+16. **The card raises on hover only when it opens something** (`href` or `onOpen` on the name), as Card and Selectable card do; being selectable doesn't make it raise. (Decided 2026-11-04.)
 
 ## Accessibility
 - The name is a real heading (`headingLevel`), and with `href` or `onOpen` a real link or button stretched over the card.
