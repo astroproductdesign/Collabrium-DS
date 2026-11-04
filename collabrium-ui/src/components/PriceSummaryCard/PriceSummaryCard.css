@@ -1,0 +1,175 @@
+/*
+  Price summary card — ported from collabrium-dls/components.css lines 317–357
+  (.c-card-price-summary and its .c-card-price-* parts). The surface, title
+  and footer are the base Card's (Card.css), unchanged; the empty state is
+  the real Empty state (Section).
+
+  Mapping from the old classes:
+    .c-card.c-card-price-summary       -> .cui-card[data-card="price-summary"] (Card's minWidth="functional" gives the 280px)
+    .c-card-price-list                 -> .cui-price-summary__list
+    .c-card-price-row                  -> .cui-price-summary__row
+    .c-card-price-name / -cost         -> .cui-price-summary__name / __cost
+    .c-card-price-remove               -> .cui-price-summary__remove
+    .c-card-price-overflow             -> .cui-price-summary__overflow, [data-expanded] for .is-expanded
+    .c-card-price-overflow-inner       -> .cui-price-summary__overflow-inner
+    .c-card-price-more                 -> .cui-price-summary__more
+    .c-card-price-total / .value       -> .cui-price-summary__total / __total-value
+    .c-card-price-summary .c-card-footer .c-btn
+                                       -> .cui-card[data-card="price-summary"] .cui-card__footer > .cui-button
+
+  Specificity keeps the source's order: one class per part (0,1,0), the
+  row's :last-child, :hover and :focus-within reveals at (0,2,0) and up,
+  and the footer button last at (0,4,0) (the source's 0,3,0, plus the
+  attribute that stands in for its modifier class).
+*/
+
+.cui-price-summary__list {
+  /* TODO(open-question Q-PRICE-9): the 320px scroll cap is a literal in the DLS (Dropdown's list cap), with no token; kept local. */
+  --cui-price-summary-overflow-max-height: 320px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cui-price-summary__row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) 0;
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-price-summary__row:last-child {
+  border-bottom: none;
+}
+
+/* Name: body2 at 700, Neutral-9, one line with an ellipsis. */
+.cui-price-summary__name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-strong-weight);
+  color: var(--color-neutral-9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Cost: caption, Neutral-5, tabular figures so the amounts line up. */
+.cui-price-summary__cost {
+  flex: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Remove ×: 24×24, icon-micro, hidden until its row is hovered or holds focus, so it never sits under the pointer at rest. */
+.cui-price-summary__remove {
+  flex: none;
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-neutral-5);
+  font-size: var(--icon-micro);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.cui-price-summary__row:hover .cui-price-summary__remove,
+.cui-price-summary__row:focus-within .cui-price-summary__remove {
+  opacity: 1;
+}
+/* Touch screens have no hover, so the × always shows there (Q-PRICE-2, as Selectable card, Q-SEL-1). */
+@media (hover: none) {
+  .cui-price-summary__remove {
+    opacity: 1;
+  }
+}
+.cui-price-summary__remove:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-price-summary__remove:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Items 5 and on: folded with grid rows 0fr -> 1fr, then a 320px scrolling zone. */
+.cui-price-summary__overflow {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--duration-base) var(--ease-settle);
+}
+.cui-price-summary__overflow[data-expanded] {
+  grid-template-rows: 1fr;
+}
+.cui-price-summary__overflow-inner {
+  overflow-y: auto;
+  min-height: 0;
+  max-height: var(--cui-price-summary-overflow-max-height);
+}
+
+/*
+  "Show X more" / "Show less": Chip's show-less link recipe without the underline, with a trailing caret.
+  TODO(open-question Q-PRICE-4): the source gives it no hover and no focus style (the browser's own focus outline shows).
+*/
+.cui-price-summary__more {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  width: 100%;
+  padding: var(--spacing-8) 0;
+  background: transparent;
+  border: none;
+  color: var(--color-neutral-9);
+  font-family: inherit;
+  font-size: var(--text-label2-size);
+  font-weight: var(--text-label2-weight);
+  cursor: pointer;
+}
+.cui-price-summary__more svg {
+  flex: none;
+  font-size: var(--icon-micro);
+}
+
+/* Total: label1, "Total" in Neutral-9 and the amount in Neutral-5, on one baseline. */
+.cui-price-summary__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--text-label1-size);
+  line-height: var(--text-label1-lh);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-price-summary__total-value {
+  color: var(--color-neutral-5);
+}
+
+/* The call to action: the real Primary Button, full width, 12px under the total. */
+.cui-card[data-card="price-summary"] .cui-card__footer > .cui-button {
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--spacing-12);
+}
+
+/* Reduced motion: the list opens and closes at once; the rows it reveals are the same (Q-PRICE-7, as Thinking's trace). */
+@media (prefers-reduced-motion: reduce) {
+  .cui-price-summary__overflow,
+  .cui-price-summary__remove {
+    transition: none;
+  }
+}

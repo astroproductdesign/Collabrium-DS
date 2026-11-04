@@ -61,7 +61,7 @@ export function hrefTo(from: PageKey, to: PageKey, hash?: string): string {
   return `${up}${target}${hash ? `#${hash}` : ''}` || './';
 }
 
-/** A file in playground/public (such as the download zip), as a path relative to the page it is linked from. */
+/** A file in playground/public (the download zip, logo.html, logo-mark.html), as a path relative to the page it is linked from. */
 export function assetHref(from: PageKey, file: string): string {
   const depth = from ? from.split('/').length - 1 : 0;
   return `${'../'.repeat(depth)}${file}`;
@@ -115,10 +115,4 @@ export function parentOf(key: PageKey): { key: PageKey; hash?: string; title: st
   const part = components.find(c => c.group && componentKey(c) === key);
   const group = part && groups.find(g => g.slug === part.group);
   return group ? { key: `components/${group.slug}`, title: group.title } : { key: '', hash: 'components', title: 'Components' };
-}
-
-/** A file in playground/public (logo.html, logo-mark.html), relative to the current page. */
-export function assetHref(from: PageKey, file: string): string {
-  const depth = from ? from.split('/').length - 1 : 0;
-  return `${'../'.repeat(depth)}${file}`;
 }

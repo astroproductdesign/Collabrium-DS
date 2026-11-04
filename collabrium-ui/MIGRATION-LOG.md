@@ -52,6 +52,8 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 28 | Card (base): Card, CardTitle, CardHeader, CardFooter, CardGrid, IconChip | **review** | Built 2026-10-30. See CARD-1 to CARD-5, Decision D-113 and Open questions Q-CARD-1 to Q-CARD-6. The card variants that have their own sections (Selectable, USP, Price summary, Profile, Campaign, Hero, Pacing, Media Ad, Entry, Ad Placement) are separate components and are not built. The docs site now uses Card and CardGrid for its own cards. |
 | 29 | Selectable card (a variant of Card, not a separate component) | **review** | Built 2026-10-30 into Card: a card given a `selectLabel` carries the real Checkbox, now on the left (user, 2026-10-30). See SEL-1 to SEL-3, Decision D-114 and Open questions Q-SEL-1 to Q-SEL-4, all answered (and Q-CHK-6, now answered). Profile card keeps its own always-visible checkbox and is a separate component. USP card is next. |
 | 30 | USP card (feature tile), a variant of Card | **review** | Built 2026-10-30 into Card: `minWidth="functional"` (280px), `CardList` (three check-circle points) and a Button as a direct child, full width. See USP-1 to USP-3, Decision D-115 and Open questions Q-USP-1 to Q-USP-3. Price summary card is next among the functional cards (it needs Empty state). |
+| 31 | Empty state | **review** | Converted 2026-11-04: `EmptyState` with the Full-page, Section and Inline variants, the Error tone, Primary and Ghost actions (the real Button) and the inline link. Built before Price summary card, which needs it. See EMPTY-1 to EMPTY-5, Decision D-116 and Open questions Q-EMPTY-1 to Q-EMPTY-5. Approved as built by the user 2026-11-04 (Q-EMPTY-1 to Q-EMPTY-5 still open). The body became optional outside Inline for Price summary card (Q-PRICE-6). |
+| 32 | Price summary card (a variant of Card) | **review** | Converted 2026-11-04: `PriceSummaryCard`, built on Card (functional width, title, footer), the real Empty state and Button. Four rows, then "Show X more" with the display rules 1 to 9 from the DS (the gallery has no script for them). See PRICE-1 to PRICE-7, Decision D-117 and Open questions Q-PRICE-1 to Q-PRICE-11. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -479,6 +481,32 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-USP-2 | The DS says the USP header is h4; the base title is h5, so the USP uses the base title (h5 look, heading level 3 by default). Keep? My recommendation: keep | `CardTitle` |
 | Q-USP-3 | The call to action is the real Button as a direct child of the card: the card stretches it to full width and centres its label (`.cui-card > .cui-button`). Keep, or add a `fullWidth` prop to Button? My recommendation: keep (no prop; the card owns the layout) | `Card.css` |
 
+### Empty state
+
+| ID | Question | Where |
+|---|---|---|
+| Q-EMPTY-1 | The inline link (`.c-empty-link`) has no hover and no focus style in the source, so only the browser's own focus outline shows. Ported as it is. Should it take the DLS focus ring (2px Obsidian, the Button token) and a hover step (Neutral-7, as Button's `link` variant does)? Button's `link` itself is not reused because it is label2 (700) and this link is link2 (500). My recommendation: add the focus ring and the hover, keep link2 | `EmptyState.css` `.cui-empty-state__link` |
+| Q-EMPTY-2 | Inline padding on mobile: the DS says 12px all sides (below 768px); the CSS has no rule, so inline keeps 16px. Followed the CSS. Change to 12px? My recommendation: follow the DS (12px); it is a one-line rule the CSS simply missed | `EmptyState.css` mobile block |
+| Q-EMPTY-3 | Full-page min-height: the DS says `calc(100vh − nav height)`; the CSS ships 100vh and leaves the subtraction to the host. Followed the CSS (100vh). Because the component takes no `style`, the height is read from an inherited custom property, `--cui-empty-state-fullpage-min-height`, which a container (App Shell, once converted; the docs frame now, at 360px as the DLS gallery does) can set. Keep that, or add a prop? My recommendation: keep the custom property and have App Shell set it when it is converted | `EmptyState.css` `[data-variant="fullpage"]` |
+| Q-EMPTY-4 | The heading is a real heading drawn as h4, with the level a prop (2 to 6), default 3, as Card's title (Q-CARD-2). The DLS styles a bare `h4`. Keep? My recommendation: keep | `EmptyState.tsx` |
+| Q-EMPTY-5 | No tokens for the 480px outer cap, the 380px and 320px body caps, the 240px section floor or the link's 3px underline offset. Local custom properties. Keep local? My recommendation: keep local (as Q-CARD-6) | `EmptyState.css` |
+
+### Price summary card
+
+| ID | Question | Where |
+|---|---|---|
+| Q-PRICE-1 | The DS says the header is h4; the gallery draws the base card title (h5). Built with the base title (h5 look, level 3 by default), as Q-USP-2. Keep? My recommendation: keep | `CardTitle` |
+| Q-PRICE-2 | The remove × is hidden until its row is hovered or focused (the source). On a touch screen there is no hover, so it is built to always show there (`hover: none`), as Selectable card (Q-SEL-1). Keep? My recommendation: keep | `PriceSummaryCard.css` |
+| Q-PRICE-3 | While folded, the hidden rows are `inert`, so their × buttons can't be reached by Tab or read (the source leaves them focusable inside a 0-height box). As Thinking's closed trace (D-29). Keep? My recommendation: keep | `PriceSummaryCard.tsx` |
+| Q-PRICE-4 | "Show X more" has no hover and no focus style in the source (the browser's own outline shows), although the Chip recipe it adapts has the focus ring. Ported as it is. Add the DLS focus ring (and a hover step)? My recommendation: add the focus ring, as Chip's show-less has; decide with Q-EMPTY-1 | `PriceSummaryCard.css` `.cui-price-summary__more` |
+| Q-PRICE-5 | After a focused × removes its row, the button is gone and focus would fall to the page. Built: focus moves to the next row's × (or the previous one at the end, or the card title when none is left), only when the press came from a focused button. This needs an exception to "focus moves only to a heading or an error message", like Permission Prompt's. Keep? My recommendation: keep | `PriceSummaryCard.tsx` |
+| Q-PRICE-6 | Empty: the DS reuses Empty state's icon and heading only ("No items added", a list glyph). Built with the Section variant (48px icon, 240px floor, 40px / 24px padding) and no body, so Empty state's body became optional outside Inline. The DS doesn't say which variant; the CSS reuses `.c-empty` "verbatim". Keep Section, and the optional body? My recommendation: keep | `PriceSummaryCard.tsx`, `EmptyState.tsx` |
+| Q-PRICE-7 | Reduced motion: the source has no rule, and the DS says the list is "never instant". Built: under reduced motion the list opens and closes at once and the × appears at once, as Thinking's trace does. Keep? My recommendation: keep | `PriceSummaryCard.css` |
+| Q-PRICE-8 | The DS says an item added while the list is open "animates in at the bottom"; there is no animation for it in the DLS. Not built: a new row appears. Design one (a fade on `--duration-base`), or drop the line from the DS? My recommendation: drop it from the DS | `PriceSummaryCard.tsx` |
+| Q-PRICE-9 | No token for the 320px scroll cap (Dropdown's list cap). Local custom property. Keep local? My recommendation: keep local, and share it with Dropdown when that is converted | `PriceSummaryCard.css` |
+| Q-PRICE-10 | Built as its own component (`PriceSummaryCard`, which renders Card) rather than a prop on Card like USP and Selectable, because it owns its items, the folding and the total. Keep? My recommendation: keep | `PriceSummaryCard.tsx` |
+| Q-PRICE-11 | The markup follows the source: the folded rows are a second list inside the last item of the first, so a screen reader announces the first list as five items when it is open. Keep, or one flat list with the fold done another way? My recommendation: keep the source markup | `PriceSummaryCard.tsx` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -567,6 +595,28 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | USP-1 | The DS names the header "h4, same as base", but the base card's title is h5. Built it with the base title (an h5 look, level 3 by default). Q-USP-2 | 307 | 2641 |
 | USP-2 | The DLS added USP "as a variant of Card, not a new component" (v0.9.43), and the Selectable decision puts variants inside Card. Built it as `minWidth="functional"` and `CardList` on Card, not a separate component. Q-USP-1 | 304–314 | 2641, 13002 |
 | USP-3 | The button's full width and centred label are `.c-card-usp .c-btn` in the source. Built as `.cui-card > .cui-button`, so any Button that is a direct child of a card stretches; Button has no width prop. Q-USP-3 | 314 | 2641 |
+
+### Empty state (affects the Empty state conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| EMPTY-1 | The inline link has no hover or focus style. Ported as it is. Q-EMPTY-1 | 2643 | 5205 |
+| EMPTY-2 | Inline has no mobile padding rule; the DS says 12px below 768px. Followed the CSS (16px). Q-EMPTY-2 | 2641, 2645–2653 | 5257 |
+| EMPTY-3 | Full-page min-height is 100vh; the DS says `calc(100vh − nav height)`. Followed the CSS, settable by a container. Q-EMPTY-3 | 2633 | 5227 |
+| EMPTY-4 | Inline is left-aligned here and in the DS Empty state section, but the Table section draws its no-results row centred (Table, "No results from filter/search"). Followed the Empty state CSS; Table decides its own when it is converted | 2641 | 9353 |
+| EMPTY-5 | Anatomy: the CSS comment makes the icon and heading optional; the DS Variants table lists both for Full-page and Section. Built both optional, as the CSS says; inline takes neither (the types forbid them) | 2616 | 5220 |
+
+### Price summary card, a variant of Card (affects the Price summary card conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| PRICE-1 | The DS says the header is h4; the gallery's card uses the base `h5`. Built with the base title. Q-PRICE-1 | 339 | 2905, 2912 |
+| PRICE-2 | Show more, Show less, removal and the count (display rules 1 to 9 and the edge cases) are written in the DS only; the gallery has no script for them. Built from the DS text | 350–353 | 2931–2998 |
+| PRICE-3 | The remove × shows on hover and focus only; nothing for touch. Q-PRICE-2 | 346–347 | 2914 |
+| PRICE-4 | "Show X more" has no hover or focus style, though the DS says it adapts Chip's show-less recipe, which has a focus ring. Q-PRICE-4 | 353 | 2939 |
+| PRICE-5 | The Empty state's variant isn't named (the CSS says `.c-empty` is reused "verbatim"; the DS names the icon and heading only), and there is no gallery demo of it. Q-PRICE-6 | 320 | 2906 |
+| PRICE-6 | "Item animates in at the bottom of the list" has no animation in the CSS. Q-PRICE-8 | — | 2992 |
+| PRICE-7 | The DS's amounts always carry two decimals (`RM 1,200.00`), against the Numbers rule's own examples, on purpose. Built that way: the card formats every amount | — | 2919 |
 
 ### Tokens and global
 
@@ -870,6 +920,9 @@ Grouped by component. Line numbers are CSS / DS.
 | D-113 | Card (base): the surface, header, icon chip, footer, accent, tint, warm and grid are ported; a clickable card is a real link or button in the title, stretched over the card; the title is a real heading with a level prop; the five elements each get an accent, a tint and a chip colour; forced-colours focus is an outline | CARD-1 to CARD-5. Flagged Q-CARD-1 to Q-CARD-6 |
 | D-114 | Selectable is a variant of Card (a `selectLabel` prop), not a separate component: the real Checkbox on the LEFT (user), hidden at rest, shown on hover, focus-within, while selected and (always) on touch; all content sits in one column 16px right of the checkbox; Selected is a 2px Obsidian border and shadow-3 with an instant border swap; the halo shows over Selected; the 2px checkbox nudge stays | SEL-1 to SEL-3. Flagged Q-SEL-1 to Q-SEL-3; Q-SEL-4 answered |
 | D-115 | USP card: a variant of Card, not a component: `minWidth="functional"` (280px), a `CardList` of three check-circle points (Fill, Obsidian) and the real Button (Primary, md) as a direct child, stretched to full width; the list takes the room left, so the button is pinned to the bottom of every card in a row | USP-1 to USP-3. Flagged Q-USP-1 to Q-USP-3 |
+| D-116 | Empty state: one component with a `variant` (`fullpage`, `section`, `inline`) and a `tone` (`empty`, `error`) passed explicitly, never inferred; actions are objects (`primaryAction`, `secondaryAction`) drawn as the real Primary and Ghost Buttons, so two is the most and the order is fixed; inline takes only `linkAction` and cannot take an icon, heading or button (TypeScript union); the heading is a real heading with a level prop, drawn as h4; the body beats `.cui-card p` so it keeps body1 inside a Card | EMPTY-1 to EMPTY-5. Flagged Q-EMPTY-1 to Q-EMPTY-5 |
+| D-117 | Price summary card: its own component built on Card (`minWidth="functional"`, `CardTitle`, `CardFooter`), the real Empty state (Section, no body) and Button; `items` with number costs, formatted as the currency, a space and two decimals; the total is the sum; four rows, then "Show X more" with the DS display rules; folded rows `inert`; focus moves to the next × after a removal | PRICE-1 to PRICE-7. Flagged Q-PRICE-1 to Q-PRICE-11 |
+| D-118 | Docs site only (no library or DLS change): the card types are one **Cards** group, like Motion and Charts (extra): Card, Selectable card, USP card and Price summary card are its parts, and the DLS's other card variants are "Coming soon". Selectable and USP, settings on Card, each have their own docs file in `src/components/Card/` | User, 2026-11-04 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
