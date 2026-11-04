@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useId, useRef, useState, type HTMLAttributes } from 'react';
+import { forwardRef, useEffect, useId, useRef, useState, type HTMLAttributes, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Archive, ArrowsClockwise, DotsThree, Eye, PencilSimple, PushPin, type Icon } from '@phosphor-icons/react';
 import type { WithoutStyling } from '../../utils/types';
 import { Card, CardTitle, type CardHeadingLevel } from '../Card';
@@ -18,7 +18,7 @@ export type ProfileMenuAction = 'view' | 'pin' | 'edit' | 'sync' | 'archive';
 export interface ProfilePlatform {
   /** The platform's name, e.g. "Instagram". Rows are sorted by it. */
   platform: string;
-  /** The follower count as a number, e.g. `31000`. Shown abbreviated ("31K"); the ranked tier is computed from it. */
+  /** The follower count as a number, e.g. `31000`. Shown abbreviated and rounded down ("31K"); the ranked tier is computed from it. */
   followers: number;
   /** The address of this person's profile on the platform. The follower count links to it. */
   href: string;
@@ -96,8 +96,8 @@ const PARTICLES = new Set(['bin', 'binti', 'b.', 'bt.', 'a/l', 'a/p']);
 
 /**
  * The avatar's initials (DESIGN-SYSTEM.md, "Avatar initials logic"): the first letter of the first word and of the
- * last word; after a naming particle, the word that follows it (TODO(open-question Q-PROFILE-3)); one letter for a
- * one-word name. Uppercase.
+ * last word; after a naming particle, the word that follows it (as the DLS example does; decided 2026-11-04,
+ * Q-PROFILE-3); one letter for a one-word name. Uppercase.
  */
 export function profileInitials(name: string): string {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -115,7 +115,23 @@ export function profileInitials(name: string): string {
   return (first.charAt(0) + second.charAt(0)).toUpperCase();
 }
 
-const compact = new Intl.NumberFormat('en', { notation: 'compact' });
+/**
+ * A follower count in short form, rounded down so it never overstates the count or crosses into the next tier:
+ * 720, 1.3K, 8K, 31K, 99K (99,999), 220K, 1.2M. One decimal under 10 of a unit, none above. (Decided 2026-11-04,
+ * Q-PROFILE-5.)
+ */
+export function formatFollowers(count: number): string {
+  const n = Math.max(0, Math.floor(count));
+  const units: [number, string][] = [[1e9, 'B'], [1e6, 'M'], [1e3, 'K']];
+  for (const [size, suffix] of units) {
+    if (n >= size) {
+      const value = n / size;
+      const shown = value < 10 ? Math.floor(value * 10) / 10 : Math.floor(value);
+      return `${shown}${suffix}`;
+    }
+  }
+  return String(n);
+}
 
 // Only one Profile card menu is open at a time across the page: opening one closes the last.
 let closeOpenMenu: (() => void) | null = null;
@@ -123,7 +139,7 @@ let closeOpenMenu: (() => void) | null = null;
 /**
  * Collabrium Profile card: one person across every platform they have connected. A Controls row (Select checkbox
  * and kebab menu), a centred identity block (avatar, name, Meta and Persona lines) and a platform list with each
- * row's follower count and tier. A variant of Card, ported from components.css `.c-card-profile-*` (388–430).
+ * row's follower count and tier. A variant of Card, ported from components.css `.c-card-profile-*` (359–430).
  */
 export const ProfileCard = forwardRef<HTMLDivElement, ProfileCardProps>(function ProfileCard(
   {
@@ -151,6 +167,7 @@ export const ProfileCard = forwardRef<HTMLDivElement, ProfileCardProps>(function
   const menuId = useId();
   const controlsRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const itemsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const on = selectable && (selected ?? own);
 
   const meta = [age, gender, location].filter(part => part !== undefined && part !== '').join(' · ');
@@ -175,12 +192,24 @@ export const ProfileCard = forwardRef<HTMLDivElement, ProfileCardProps>(function
     };
     document.addEventListener('pointerdown', onPointer);
     document.addEventListener('keydown', onKey);
+    // Opening moves focus to the first item, as a menu button does (an approved exception to the focus rule, Q-PROFILE-1).
+    itemsRef.current[0]?.focus();
     return () => {
       document.removeEventListener('pointerdown', onPointer);
       document.removeEventListener('keydown', onKey);
       if (closeOpenMenu === mine) closeOpenMenu = null;
     };
   }, [menuOpen]);
+
+  // Arrow keys move through the items and wrap; Home and End jump to the ends (Q-PROFILE-1).
+  const onMenuKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    const items = itemsRef.current.filter((item): item is HTMLButtonElement => item !== null);
+    const at = items.indexOf(document.activeElement as HTMLButtonElement);
+    const to = { ArrowDown: (at + 1) % items.length, ArrowUp: (at - 1 + items.length) % items.length, Home: 0, End: items.length - 1 }[event.key];
+    if (to === undefined) return;
+    event.preventDefault();
+    items[to]?.focus();
+  };
 
   const title =
     href !== undefined ? (
@@ -225,13 +254,26 @@ export const ProfileCard = forwardRef<HTMLDivElement, ProfileCardProps>(function
           <DotsThree aria-hidden="true" focusable="false" />
         </button>
         {menuOpen && (
-          // TODO(open-question Q-PROFILE-1): the source's menu has no arrow-key movement and doesn't move focus into the menu.
-          <div className="cui-profile-card__menu" id={menuId} role="menu" aria-label="Profile actions">
-            {MENU.map(({ action, label, icon: ItemIcon }) => (
+          // Tab leaves the menu (items are not Tab stops) and closes it once focus is outside the controls row.
+          <div
+            className="cui-profile-card__menu"
+            id={menuId}
+            role="menu"
+            aria-label="Profile actions"
+            onKeyDown={onMenuKey}
+            onBlur={event => {
+              if (!controlsRef.current?.contains(event.relatedTarget as Node | null)) setMenuOpen(false);
+            }}
+          >
+            {MENU.map(({ action, label, icon: ItemIcon }, i) => (
               <button
                 key={action}
+                ref={node => {
+                  itemsRef.current[i] = node;
+                }}
                 type="button"
                 role="menuitem"
+                tabIndex={-1}
                 className="cui-profile-card__menu-item"
                 onClick={() => {
                   close(true);
@@ -258,7 +300,7 @@ export const ProfileCard = forwardRef<HTMLDivElement, ProfileCardProps>(function
         <ul className="cui-profile-card__platforms">
           {rows.map(row => {
             const tier = TIERS[row.role ?? profileTier(row.followers)];
-            const count = compact.format(row.followers);
+            const count = formatFollowers(row.followers);
             return (
               <li key={row.platform} className="cui-profile-card__row">
                 <p className="cui-profile-card__platform">{row.platform}</p>

@@ -18,6 +18,7 @@
 @import './components/LoadingState/LoadingState.css';
 @import './components/PermissionPrompt/PermissionPrompt.css';
 @import './components/PriceSummaryCard/PriceSummaryCard.css';
+@import './components/ProfileCard/ProfileCard.css';
 @import './components/PromptInputBar/PromptInputBar.css';
 @import './components/Radio/Radio.css';
 @import './components/StreamingText/StreamingText.css';
