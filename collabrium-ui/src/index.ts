@@ -21,6 +21,7 @@ export * from './components/Chip';
 export * from './components/EmptyState';
 export * from './components/EntryCard';
 export * from './components/GoalBar';
+export * from './components/InfoBanner';
 export * from './components/InputField';
 export * from './components/LoadingState';
 export * from './components/PacingCard';

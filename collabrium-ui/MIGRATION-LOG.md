@@ -62,6 +62,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 38 | Progress-to-Goal Bar | **review** | Converted 2026-11-04: `GoalBar` with the Card, Chart and In-table variants and three sizes. The gallery is static markup, so the scale, gap, headroom, re-base, colour walk, tag edge collision and the label row's Gap rule are computed from the DS. Built before Pacing card, which uses it. See GOAL-1 to GOAL-6, Decision D-124 and Open questions Q-GOAL-1 to Q-GOAL-11. Pacing card is next. |
 | 39 | Pacing card (a variant of Card) | **review** | Converted 2026-11-04: `PacingCard`, built on Card, GoalBar (In-table, a Total and Target row) and Badge. The gallery hard-codes the badge, the percent and the footer; the card computes them from `value`, `target`, `day`, `days` and `metOnDay`. See PACING-1 to PACING-5, Decision D-125 and Open questions Q-PACING-1 to Q-PACING-12. |
 | 40 | Entry Card (Character / Artefact) | **review** | Converted 2026-11-04: `EntryCardSet` and `EntryCard`. The gallery shows one Brief card per variant; the other four drawings, the swap and the playback scheduler (DS reference code) are built from the CSS and the DS. See ENTRY-1 to ENTRY-5, Decision D-126 and Open questions Q-ENTRY-1 to Q-ENTRY-9. |
+| 41 | Info Banner | **review** | Converted 2026-11-04: `InfoBanner` with the six tones, dismissible and persistent, up to two actions (one for AI), and the slide-and-fade entrance and exit. Built before Hero Card, which uses it. See BANNER-1 to BANNER-6, Decision D-127 and Open questions Q-BANNER-1 to Q-BANNER-8. |
 | — | everything else | todo | Not started. |
 
 ---
@@ -622,6 +623,19 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-ENTRY-8 | The base Card's hover shadow-2 isn't gated to `(hover: hover)` in the source (only the motion is), so a tap can leave shadow-2 behind until the next tap. Kept as the source. Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.css` |
 | Q-ENTRY-9 | One-off values, kept local as the DS records them: the headroom formula (24px, 0.31, 21px, 112px), the stage and crop clamps, 112% and 4:3, the 6px rise and 2px lift and nudge, the 84px tile, the 6px bar and 4px corner, the deck's 58%, 16:9, 7deg and 12deg, the 80% / 45% bars at 85% / 40%, 55% / 33%, the 50ms stagger, the 0.4 disabled media, and the 280 / 640 / 860px container steps (literals: container queries can't read custom properties). Keep? My recommendation: keep **Answered 2026-11-04: keep (the recommendation)** | `EntryCard.css` |
 
+### Info Banner
+
+| ID | Question | Where |
+|---|---|---|
+| Q-BANNER-1 | Contrast: the message is the tone colour at 80%, which on its tint measures Info 2.99, Success 3.09, Warning 3.39:1 (AA needs 4.5; Danger is red, decided). Success also differs: the CSS is rgb(0,133,76), the DS `#007d47`. Built as the CSS. Option A: keep. Option B: full strength on the AA text tokens: Success `--color-green-text` (4.67), Warning `--color-amber-text` (4.88), Info Neutral-9, since Navy has no AA text token (Navy at full strength is 3.98). My recommendation: B | `InfoBanner.css` |
+| Q-BANNER-2 | After a dismiss, focus was on the close button, which is gone, so focus drops to the page. The focus rule lets focus move only to a heading or an error. Built: nothing moves; the docs say to use `onDismiss` to send focus to the section's heading. Keep? My recommendation: keep | `InfoBanner.tsx` |
+| Q-BANNER-3 | The actions take the system focus ring (the source has none). Keep? My recommendation: keep | `InfoBanner.css` |
+| Q-BANNER-4 | "Escape dismisses the active dismissible banner": built as Escape while focus is inside a dismissible banner. Keep? My recommendation: keep | `InfoBanner.tsx` |
+| Q-BANNER-5 | The close button is the real Button (ghost, sm, icon-only), as the DS says, in place of the gallery's `.c-icon-btn`: same 32px and hover, plus a focus ring. Keep? My recommendation: keep | `InfoBanner.tsx` |
+| Q-BANNER-6 | Forced colours: the tints aren't drawn, so the banner takes a CanvasText border, and the AI wash and ring are hidden. Keep? My recommendation: keep | `InfoBanner.css` |
+| Q-BANNER-7 | The entrance plays whenever a banner mounts, including one present when the page first loads. Keep? My recommendation: keep: it is a short, small move | `InfoBanner.tsx` |
+| Q-BANNER-8 | The AI tone's rules are in the types: always dismissible, exactly one action. Keep? My recommendation: keep | `InfoBanner.tsx` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -816,6 +830,17 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | ENTRY-3 | The variant class sits on each card in the source; the set's `variant` is passed to every card here, so a set can't mix. A card outside a set takes its own. Q-ENTRY-3 | 1022, 1060 | One variant per set |
 | ENTRY-4 | The swap (`.is-swapping`, `.is-entering`) is the host's in the source; here the set runs it when `variant` changes (fade out on duration-base, change, enter on duration-morph, 50ms apart). Q-ENTRY-4 | 1157–1160 | Switching |
 | ENTRY-5 | `.c-card-interactive` (shadow-2 hover, focus halo) has no class here: the card is the button, so its rules are written into EntryCard.css | Card 300–303 | — |
+
+### Info Banner (affects the Info Banner conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| BANNER-1 | Message text is the tone colour at 80% (rgba literals). On the tints that measures Info 2.99, Success 3.09, Warning 3.39:1, under AA's 4.5 (Danger 2.70 is red, decided). Built as the CSS. Q-BANNER-1 | 3283–3299 | Tone table |
+| BANNER-2 | Success text: the CSS uses rgb(0,133,76); the DS says `#007d47` (the `--color-green-text` token). Followed the CSS, as a local value. Q-BANNER-1 | 3291 | Tone table |
+| BANNER-3 | The close button is `.c-icon-btn` in the gallery (no focus style); the DS says a Ghost icon Button, sm. Built with the real Button. Q-BANNER-5 | 1787 | Close |
+| BANNER-4 | The actions have no focus style (browser default). Built with the system ring. Q-BANNER-3 | 3276 | — |
+| BANNER-5 | No forced-colours rules: the tints vanish, leaving no edge. Built: a CanvasText border, and the AI layers hidden. Q-BANNER-6 | — | — |
+| BANNER-6 | Entrance, exit, stacked reposition and Escape are DS only; the gallery is static. Built from the DS with the `motion` library. Q-BANNER-4, Q-BANNER-7 | — | Animation; Accessibility |
 
 ### Tokens and global
 
@@ -1130,6 +1155,7 @@ Grouped by component. Line numbers are CSS / DS.
 | D-124 | Progress-to-Goal Bar: one `GoalBar` with `variant` (card, chart, table) and `size`; `value` (Obsidian) or `categories` (the walk); the scale, gap, headroom and re-base computed; `labels` for legend, row or none; positions inline, colours as `data-color` | GOAL-1 to GOAL-6. Flagged Q-GOAL-1 to Q-GOAL-11 |
 | D-125 | Pacing card: built on Card (`data-card="pacing"`), GoalBar (`variant="table" labels="row" rowShowsGap={false}`) and Badge; the percent, badge colour and footer computed from `value`, `target`, `day`, `days`, `metOnDay`; `badge="neutral"` for early in a period | PACING-1 to PACING-5. Flagged Q-PACING-1 to Q-PACING-12 |
 | D-126 | Entry Card: `EntryCardSet` (container, list, headroom, swap, playback scheduler) and `EntryCard` (button or link, `.cui-card.cui-entry-card[data-variant]`); variant from the set by context; the five drawings as markup in the component; still and clip props with the clip's sources loaded on first play | ENTRY-1 to ENTRY-5. Flagged Q-ENTRY-1 to Q-ENTRY-9 |
+| D-127 | Info Banner: one `InfoBanner` with `tone`, `dismissible`, `actions` and `onDismiss`; role note or status; entrance and exit with `motion` (AnimatePresence, height closing); the AI gradient reuses Prompt input bar's keyframe; the close is the real Button | BANNER-1 to BANNER-6. Flagged Q-BANNER-1 to Q-BANNER-8 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
