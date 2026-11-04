@@ -315,3 +315,12 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
   .docs-hk-line, .docs-hk-dot, .docs-hk-chip, .docs-hk-scroll__content, .docs-hk-scroll__progress, .docs-hk-scroll__thumb, .docs-hk-item, .docs-hk-phone, .docs-hk-wave { animation: none; }
   .docs-hk-scroll__progress { transform: scaleX(.5); }
 }
+
+/* Download: the home page's call to action (a link drawn with the library's Button classes) and the top bar's link. */
+.docs-download { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-12) var(--spacing-16); margin: var(--spacing-24) 0 var(--spacing-32); }
+.docs-download .docs-status { margin: 0; max-width: 56ch; }
+a.cui-button { text-decoration: none; }
+.topbar-download { margin-left: auto; margin-right: var(--spacing-12); font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--weight-bold); color: var(--color-neutral-9); text-decoration: none; border-radius: var(--radius-xs); padding: var(--spacing-4) var(--spacing-8); }
+.topbar-download + .flag { margin-left: 0; }
+.topbar-download:hover { background: var(--color-neutral-2); }
+.topbar-download:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }

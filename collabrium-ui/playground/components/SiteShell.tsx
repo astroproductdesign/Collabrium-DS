@@ -4,7 +4,7 @@
 // nav below 900px, the scrolling content pane and the search dialog.
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { foundationPages, hrefTo, pageKeyFromPathname } from '../lib/site';
+import { assetHref, foundationPages, hrefTo, pageKeyFromPathname } from '../lib/site';
 import { SearchDialog, openSearch } from './SearchDialog';
 import { Sidebar } from './Sidebar';
 
@@ -20,6 +20,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
           </span>{' '}
           <b>Collabrium UI</b>
         </span>
+        <a className="topbar-download" href={assetHref(current, 'collabrium-ui.zip')} download="collabrium-ui.zip">
+          Download
+        </a>
         <span className="flag">@collabrium/ui 0.1.0</span>
       </header>
 

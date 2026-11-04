@@ -1,0 +1,86 @@
+/*
+  Tag — ported from collabrium-dls/components.css lines 1650–1663 (.c-tag,
+  its .dot, the five elemental variants and Purple).
+
+  Mapping from the old classes:
+    .c-tag                                     -> .cui-tag (with data-variant="neutral" for the plain one)
+    .c-tag-fire / -wood / -earth / -water /
+    -gold / -purple                            -> [data-variant="..."]
+    .c-tag .dot                                -> .cui-tag__dot
+    (DESIGN-SYSTEM.md only)                    -> svg.cui-tag__icon
+
+  Specificity is kept in the same order as the source: the base (0,1,0)
+  sets the Neutral look, each variant (0,2,0 here, 0,1,0 later in the
+  source) replaces the fill and text colour, and the dot takes the
+  variant's colour at (0,3,0), as `.c-tag-fire .dot` (0,2,0) beats
+  `.c-tag .dot` (0,2,0) by coming later. Nothing is interactive, so there
+  are no state rules.
+*/
+
+.cui-tag {
+  /* Q-TAG-2 (decided 2026-11-04): the 10px side padding and the 6px dot are literals in the DLS with no token; kept local. */
+  --cui-tag-padding-x: 10px;
+  --cui-tag-dot-size: 6px;
+  --cui-tag-dot-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  height: var(--control-height-xs);
+  padding: 0 var(--cui-tag-padding-x);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-5);
+}
+
+/* The dot: 6px, the element's full-strength colour. Neutral has none. */
+.cui-tag .cui-tag__dot {
+  width: var(--cui-tag-dot-size);
+  height: var(--cui-tag-dot-size);
+  border-radius: var(--radius-pill);
+  flex: none;
+  background: var(--cui-tag-dot-color);
+}
+
+/*
+  Elemental fill: the owning element's -bg tint (8%), not Neutral-2. Text and dot stay the element's full colour.
+  Q-TAG-3 (decided 2026-11-04): the colours stay as the DLS has them, though every element's text is below AA (4.5:1)
+  on its tint at caption size (Fire 2.8, Wood 2.3, Earth 2.2, Water 4.0, Gold 1.9). Neutral (6.1) and Purple (5.0) pass.
+*/
+.cui-tag[data-variant="fire"] { background: var(--color-fire-bg); color: var(--color-orange); --cui-tag-dot-color: var(--color-orange); }
+.cui-tag[data-variant="wood"] { background: var(--color-wood-bg); color: var(--color-salmon-pink); --cui-tag-dot-color: var(--color-salmon-pink); }
+.cui-tag[data-variant="earth"] { background: var(--color-earth-bg); color: var(--color-green); --cui-tag-dot-color: var(--color-green); }
+.cui-tag[data-variant="water"] { background: var(--color-water-bg); color: var(--color-navy); --cui-tag-dot-color: var(--color-navy); }
+.cui-tag[data-variant="gold"] { background: var(--color-gold-bg); color: var(--color-amber); --cui-tag-dot-color: var(--color-amber); }
+
+/* Purple: not an element. Text is Purple mixed 80/20 toward Neutral-9 for AA on its tint; the dot stays full Purple. */
+.cui-tag[data-variant="purple"] {
+  /* The 80% mix is the DLS's own one-off (no token), as components.css 1663 writes it. */
+  --cui-tag-purple-text-mix: 80%;
+  background: var(--color-purple-bg);
+  color: color-mix(in srgb, var(--color-purple) var(--cui-tag-purple-text-mix), var(--color-neutral-9));
+  --cui-tag-dot-color: var(--color-purple);
+}
+
+/* Icon: icon-micro (14px), in the text colour (DESIGN-SYSTEM.md; components.css has no icon rule). */
+.cui-tag__icon {
+  flex: none;
+  font-size: var(--icon-micro);
+}
+
+/*
+  Forced colours (Windows high contrast): the tint and the dot are backgrounds, so neither would be drawn. Only here,
+  a 1px border shows the pill's edge (the padding gives up 1px a side, so the size doesn't change) and the dot is
+  painted in the text's system colour. Normal mode is untouched. (Decided 2026-11-04, Q-TAG-4.)
+*/
+@media (forced-colors: active) {
+  .cui-tag {
+    border: var(--border-width-sm) solid CanvasText;
+    padding: 0 calc(var(--cui-tag-padding-x) - var(--border-width-sm));
+  }
+  .cui-tag .cui-tag__dot {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}

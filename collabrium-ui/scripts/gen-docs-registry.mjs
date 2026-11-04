@@ -1,5 +1,8 @@
 // Generates the docs site's component registry from what exists in
-// src/components: every folder with a <Name>.docs.tsx becomes a page.
+// src/components: every <Name>.docs.tsx becomes a page. A folder usually has
+// one, named after the folder; a variant that lives inside another
+// component's folder (Selectable card and USP card, inside Card) has its own
+// docs file there, next to the component's, and gets its own page.
 // A docs file that exports `group` (a name such as 'AI Native') is a part of
 // that group: it drops out of the sidebar and home grid, and its page lives
 // under the group's overview page (components/<group-slug>/<part-slug>).
@@ -32,17 +35,22 @@ const entries = sources.flatMap(({ dir, group: fixedGroup }) => {
   const base = `${root}src/${dir}`;
   if (!existsSync(base)) return [];
   return readdirSync(base, { withFileTypes: true })
+    // A component folder has its own <Folder>.docs.tsx; helper folders (lib) don't, and are skipped.
     .filter(d => d.isDirectory() && existsSync(`${base}/${d.name}/${d.name}.docs.tsx`))
-    .map(d => {
-      const name = d.name;
-      const docsSrc = readFileSync(`${base}/${name}/${name}.docs.tsx`, 'utf8');
+    .flatMap(d =>
+      readdirSync(`${base}/${d.name}`)
+        .filter(f => /^[A-Z]\w*\.docs\.tsx$/.test(f))
+        .map(f => ({ folder: d.name, name: f.slice(0, -'.docs.tsx'.length) })),
+    )
+    .map(({ folder, name }) => {
+      const docsSrc = readFileSync(`${base}/${folder}/${name}.docs.tsx`, 'utf8');
       const m = /export const title\s*=\s*(['"])(.+?)\1/.exec(docsSrc);
-      if (!m) throw new Error(`${name}.docs.tsx must export a string \`title\``);
+      if (!m) throw new Error(`${folder}/${name}.docs.tsx must export a string \`title\``);
       const g = /export const group\s*=\s*(['"])(.+?)\1/.exec(docsSrc);
-      const compFile = `${base}/${name}/${name}.tsx`;
-      const compFiles = [compFile, compFile.replace(/\.tsx$/, '.ts')].filter(existsSync);
+      // A variant's docs file has no component file of its own: it takes the folder's.
+      const compFiles = [name, folder].flatMap(n => [`${base}/${folder}/${n}.tsx`, `${base}/${folder}/${n}.ts`]).filter(existsSync);
       const client = compFiles.length > 0 && /^\s*['"]use client['"]/.test(readFileSync(compFiles[0], 'utf8'));
-      return { dir, folder: name, slug: slugify(name), title: m[2], client, groupTitle: fixedGroup ?? (g ? g[2] : null) };
+      return { dir, folder, name, slug: slugify(name), title: m[2], client, groupTitle: fixedGroup ?? (g ? g[2] : null) };
     });
 });
 
@@ -50,8 +58,8 @@ const entries = sources.flatMap(({ dir, group: fixedGroup }) => {
 // component's is components/<slug>: every slug must be unique across both.
 const seen = new Map();
 for (const e of entries) {
-  if (seen.has(e.slug)) throw new Error(`Two components share the slug "${e.slug}": ${seen.get(e.slug)} and ${e.folder}`);
-  seen.set(e.slug, e.folder);
+  if (seen.has(e.slug)) throw new Error(`Two components share the slug "${e.slug}": ${seen.get(e.slug)} and ${e.folder}/${e.name}`);
+  seen.set(e.slug, `${e.folder}/${e.name}`);
 }
 
 // Groups: one per distinct `group` name, each with an overview file.
@@ -124,11 +132,11 @@ export const navMeta: NavMeta[] = ${JSON.stringify(nav, null, 2)};
 writeFileSync(`${outDir}/components-docs.ts`, `${header}
 import type { ComponentDocs } from '../../../src/components/docs.types';
 import type { GroupOverviewDocs } from '../../lib/group-types';
-${entries.map(e => `import * as ${e.folder}Docs from '../../../src/${e.dir}/${e.folder}/${e.folder}.docs';`).join('\n')}
+${entries.map(e => `import * as ${e.name}Docs from '../../../src/${e.dir}/${e.folder}/${e.name}.docs';`).join('\n')}
 ${groups.map(g => `import * as ${g.slug.replace(/-(.)/g, (_, c) => c.toUpperCase())}Group from '../../content/groups/${g.slug}';`).join('\n')}
 
 export const componentDocs: Record<string, ComponentDocs> = {
-${entries.map(e => `  ${JSON.stringify(e.slug)}: ${e.folder}Docs,`).join('\n')}
+${entries.map(e => `  ${JSON.stringify(e.slug)}: ${e.name}Docs,`).join('\n')}
 };
 
 /** The overview page of each group. */

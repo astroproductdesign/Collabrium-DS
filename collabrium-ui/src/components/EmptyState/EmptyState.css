@@ -1,0 +1,160 @@
+/*
+  Empty state — ported from collabrium-dls/components.css lines 2616–2653
+  (.c-empty, its three variants, .is-error, .c-empty-actions, .c-empty-link and
+  the mobile rules).
+
+  Mapping from the old classes:
+    .c-empty                           -> .cui-empty-state
+    .c-empty.is-fullpage / .is-section /
+    .is-inline                         -> [data-variant="fullpage" | "section" | "inline"]
+    .c-empty.is-error                  -> [data-tone="error"]
+    .c-empty > i                       -> svg.cui-empty-state__icon
+    .c-empty h4                        -> .cui-empty-state__heading (any level, drawn as h4)
+    .c-empty p                         -> .cui-empty-state__body
+    .c-empty-actions                   -> .cui-empty-state__actions
+    .c-empty-actions .c-btn            -> .cui-empty-state__actions > .cui-button
+    .c-empty-link                      -> .cui-empty-state__link
+
+  Specificity keeps the source's order, one class higher throughout: the
+  source's (0,1,1) element rules become (0,2,0) part rules, and its variant
+  rules (0,2,0) and (0,2,1) become (0,2,0) and (0,3,0). The one place this
+  matters beyond the source: the body is (0,2,0), so inside a Card it still
+  beats `.cui-card p` (0,1,1), as `.c-empty p` beats `.c-card p` in the source
+  by coming later in the file.
+
+  The empty state has no fill: it shows whatever surface it sits on.
+*/
+
+.cui-empty-state {
+  /* TODO(open-question Q-EMPTY-5): the 480px, 380px and 320px caps and the 240px floor are literals in the DLS with no token; kept local. */
+  --cui-empty-state-max-width: 480px;
+  --cui-empty-state-body-max-width: 380px;
+  --cui-empty-state-inline-body-max-width: 320px;
+  --cui-empty-state-section-min-height: 240px;
+  --cui-empty-state-link-underline-offset: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: var(--cui-empty-state-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-40) var(--spacing-24);
+  color: var(--color-neutral-5);
+}
+
+/* Icon: icon-empty (48px), Neutral-4, Fill (Tier 2). 12px to the heading. */
+.cui-empty-state .cui-empty-state__icon {
+  display: block;
+  flex: none;
+  font-size: var(--icon-empty);
+  color: var(--color-neutral-4);
+  margin-bottom: var(--spacing-12);
+}
+.cui-empty-state[data-tone="error"] .cui-empty-state__icon {
+  color: var(--color-red);
+}
+
+/* Heading: h4 (20px / 800), Neutral-9. 4px to the body. */
+.cui-empty-state .cui-empty-state__heading {
+  margin: 0 0 var(--spacing-4);
+  color: var(--color-neutral-9);
+  font-size: var(--text-h4-size);
+  font-weight: var(--text-h4-weight);
+  line-height: var(--text-h4-lh);
+}
+
+/* Body: body1 (16px / 500), Neutral-5 from the container, capped at 380px. 16px to the actions. */
+.cui-empty-state .cui-empty-state__body {
+  margin: 0 0 var(--spacing-16);
+  max-width: var(--cui-empty-state-body-max-width);
+  font-size: var(--text-body1-size);
+  font-weight: var(--text-body1-weight);
+  line-height: var(--text-body1-lh);
+}
+
+/* Actions: Primary, then Ghost, 8px apart, centred. */
+.cui-empty-state__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+}
+
+/* Full-page: fills the viewport, centred; icon-hero (64px). */
+.cui-empty-state[data-variant="fullpage"] {
+  /*
+    TODO(open-question Q-EMPTY-3): the DLS says calc(100vh − nav height); its CSS ships 100vh, followed here.
+    Read from an inherited custom property so a container (App Shell, a docs frame) can set the height for
+    what is around it; it is not declared on the component, so 100vh applies unless a container sets it.
+  */
+  min-height: var(--cui-empty-state-fullpage-min-height, 100vh);
+  justify-content: center;
+}
+.cui-empty-state[data-variant="fullpage"] .cui-empty-state__icon {
+  font-size: var(--icon-hero);
+}
+
+/* Section: a 240px floor so it can't collapse. */
+.cui-empty-state[data-variant="section"] {
+  min-height: var(--cui-empty-state-section-min-height);
+  justify-content: center;
+}
+
+/* Inline: left-aligned, no cap, 16px padding, body2 text capped at 320px, a text link only. */
+.cui-empty-state[data-variant="inline"] {
+  max-width: none;
+  text-align: left;
+  align-items: flex-start;
+  padding: var(--spacing-16);
+  min-height: 0;
+}
+.cui-empty-state[data-variant="inline"] .cui-empty-state__body {
+  font-size: var(--text-body2-size);
+  font-weight: var(--text-body2-weight);
+  line-height: var(--text-body2-lh);
+  max-width: var(--cui-empty-state-inline-body-max-width);
+  margin-bottom: var(--spacing-8);
+}
+
+/* TODO(open-question Q-EMPTY-1): the source gives the link no hover and no focus style (the browser's own focus outline shows). */
+.cui-empty-state__link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: var(--text-link2-size);
+  font-weight: var(--text-link2-weight);
+  line-height: var(--text-link2-lh);
+  color: var(--color-neutral-9);
+  text-decoration: underline;
+  text-underline-offset: var(--cui-empty-state-link-underline-offset);
+  cursor: pointer;
+}
+
+/* Mobile (below 768px, the source's breakpoint): less padding, no caps, a 48px icon, stacked full-width actions. */
+@media (max-width: 767px) {
+  /* TODO(open-question Q-EMPTY-2): the DLS gives inline 12px padding on mobile; its CSS has no rule, so inline keeps 16px. */
+  .cui-empty-state[data-variant="fullpage"],
+  .cui-empty-state[data-variant="section"] {
+    padding: var(--spacing-24) var(--spacing-16);
+  }
+  .cui-empty-state[data-variant="fullpage"] .cui-empty-state__icon {
+    font-size: var(--icon-empty);
+  }
+  .cui-empty-state {
+    max-width: 100%;
+  }
+  .cui-empty-state .cui-empty-state__body {
+    max-width: 100%;
+  }
+  .cui-empty-state__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: var(--spacing-8);
+  }
+  .cui-empty-state__actions > .cui-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

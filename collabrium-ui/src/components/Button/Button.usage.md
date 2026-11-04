@@ -14,7 +14,7 @@ form, a loading state and the CTA beacon.
 - **It goes to another page or URL.** Use a real link, not a button. The `link` variant is a button that looks like a text link, for in-page actions.
 - **It is destructive but only a step before the commit.** Use Secondary or Ghost for the opening action ("Delete…") and keep Danger for the action that actually commits.
 - **It is a choice between options.** Use Radio, or Segmented Control or Chip (not converted yet).
-- **It shows status.** Use Badge or Tag (not converted yet).
+- **It shows status.** Use Badge or Tag.
 - **You want an element or department colour as the fill.** Never: Obsidian is the only action colour (DLS Component Rule 2).
 
 ## Props

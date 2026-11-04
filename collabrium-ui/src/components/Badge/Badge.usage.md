@@ -11,7 +11,7 @@ optional leading icon. Not interactive.
 - A short system-generated fact needs to stand out next to a title (a count, "Highest").
 
 ## Don't use when
-- **It says who owns something** (Fire · Marketing). Use Tag (not converted yet): ownership is not a status.
+- **It says who owns something** (Fire · Marketing). Use Tag: ownership is not a status.
 - **It is clickable or removable.** Use Chip (not converted yet) or Button. A badge is never interactive.
 - **The message needs a sentence.** Use Info Banner or Toast (not converted yet).
 
