@@ -20,7 +20,7 @@
 
 .cui-info-banner {
   /*
-    Q-BANNER-1: the message and actions are the tone colour at 80% opacity (rgba literals in the source); written
+    Q-BANNER-1 (kept for now, 2026-11-05): the message and actions are the tone colour at 80% opacity (rgba literals in the source); written
     with color-mix on the tokens. Success's text is rgb(0,133,76), which no token holds (the DS says #007d47); kept local.
   */
   --cui-info-banner-text-strength: 80%;
@@ -66,7 +66,7 @@
   text-decoration: underline;
   cursor: pointer;
 }
-/* Focus ring on the actions (the source draws the browser default; Q-BANNER-3). */
+/* Focus ring on the actions (the source draws the browser default; decided Q-BANNER-3). */
 .cui-info-banner .cui-info-banner__action:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
@@ -172,7 +172,7 @@
   }
 }
 
-/* Forced colours: the tints aren't drawn, so the banner keeps its edge as a CanvasText border; the AI ring hides (Q-BANNER-6). */
+/* Forced colours: the tints aren't drawn, so the banner keeps its edge as a CanvasText border; the AI ring hides (decided Q-BANNER-6). */
 @media (forced-colors: active) {
   .cui-info-banner {
     border-color: CanvasText;

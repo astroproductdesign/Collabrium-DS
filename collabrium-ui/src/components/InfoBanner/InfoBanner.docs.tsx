@@ -1,6 +1,6 @@
 // Documentation for Info Banner, rendered by the docs site (playground).
 // Keep it consistent with InfoBanner.usage.md. Not part of the package build.
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { InfoBanner } from './InfoBanner';
 import { Button } from '../Button';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
@@ -46,6 +46,24 @@ export const anatomy: DocsAnatomyNode[] = [
   },
 ];
 
+// Brings a dismissed demo banner back. Only for these docs: in a product, an AI Recommendation never comes back in
+// the same session once dismissed (rule 5).
+function Replayable({ children }: { children: ReactNode }) {
+  const [key, setKey] = useState(0);
+  return (
+    <div className="docs-stack">
+      <div key={key} className="docs-stack">
+        {children}
+      </div>
+      <div className="docs-row">
+        <Button variant="secondary" size="sm" onClick={() => setKey(k => k + 1)}>
+          Show again
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function Dismissing() {
   const [key, setKey] = useState(0);
   return (
@@ -88,11 +106,11 @@ export const examples: DocsExample[] = [
     title: 'Dismissible, with actions',
     description: 'Up to two actions, styled like the message. Clicking one doesn’t dismiss the banner: only the close button does.',
     render: () => (
-      <div className="docs-stack">
+      <Replayable>
         <InfoBanner tone="warning" dismissible actions={[{ label: 'Update billing', onClick: noop }, { label: 'Remind me later', onClick: noop }]}>
           Your card on file expires this month.
         </InfoBanner>
-      </div>
+      </Replayable>
     ),
     code: `<InfoBanner
   tone="warning"
@@ -108,13 +126,13 @@ export const examples: DocsExample[] = [
   {
     id: 'ai',
     title: 'AI Recommendation',
-    description: 'A proactive suggestion with a real signal behind it: always dismissible, always exactly one action, one per section. The pastel wash and ring move; under reduced motion they hold still.',
+    description: 'A proactive suggestion with a real signal behind it: always dismissible, always exactly one action, one per section. The pastel wash and ring move; under reduced motion they hold still. "Show again" is for this page only: in a product, a dismissed recommendation doesn\'t come back in the same session.',
     render: () => (
-      <div className="docs-stack">
+      <Replayable>
         <InfoBanner tone="ai" actions={[{ label: 'Apply suggestion', onClick: noop }]}>
           3 of your workspaces share the same permissions. Combine them into one group?
         </InfoBanner>
-      </div>
+      </Replayable>
     ),
     code: `<InfoBanner tone="ai" actions={[{ label: 'Apply suggestion', onClick: combineGroups }]}>
   3 of your workspaces share the same permissions. Combine them into one group?

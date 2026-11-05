@@ -41,6 +41,10 @@ The `ref` is forwarded to the banner's `<div>`.
 6. **Placement:** at the top of its section or card, full width; at most two per section (one if either is AI), 8px apart.
 7. **Content limits are authoring rules:** 120 characters for the message, 3 words for an action. The banner never truncates.
 8. **The AI wash and ring reuse Prompt input bar's glow** (its gradient and keyframe), so the two never drift apart.
+9. **The message is the tone colour at 80%,** as the CSS draws it (Success at rgb(0,133,76)). Kept for now, to be revisited: on Info, Success and Warning it measures under AA (2.99, 3.09, 3.39:1). (Decided 2026-11-05.)
+10. **The close is the real Button** (ghost, sm, icon-only), and the actions take the system focus ring. (Decided 2026-11-05.)
+11. **Escape dismisses the dismissible banner that holds focus.** After a dismiss, focus isn't moved by the banner; use `onDismiss` to send it to the section's heading. (Decided 2026-11-05.)
+12. **The entrance plays whenever a banner mounts,** including on page load. The AI tone's rules (always dismissible, exactly one action) are enforced by the types. In forced colours the banner takes a CanvasText edge and the AI layers hide. (Decided 2026-11-05.)
 
 ## Accessibility
 - Persistent: `role="note"`; dismissible: `role="status"`; both `aria-live="polite"`.
