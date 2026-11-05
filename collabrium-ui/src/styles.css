@@ -15,6 +15,7 @@
 @import './components/CampaignCard/CampaignCard.css';
 @import './components/AdPlacementCard/AdPlacementCard.css';
 @import './components/Chip/Chip.css';
+@import './components/ElementBadge/ElementBadge.css';
 @import './components/EmptyState/EmptyState.css';
 @import './components/EntryCard/EntryCard.css';
 @import './components/GoalBar/GoalBar.css';
