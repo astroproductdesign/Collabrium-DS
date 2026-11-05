@@ -1,0 +1,272 @@
+/*
+  Metrics card — ported from collabrium-dls/components.css lines 714–878
+  (.c-card-media-ad-metrics and its -metrics-* parts), plus the Progress Bar
+  rules its bars use (4573–4587, 4620–4623: the track, the compact size, the
+  fill, the trailing wrap and forced colours), copied here until Progress Bar
+  is converted (decided 2026-11-05, Q-METRICS-7). Everything else is Media Ad Card's
+  (MediaAdCard.css): this file only adds what the metrics body needs.
+
+  Mapping from the old classes:
+    .c-card-media-ad.c-card-media-ad-metrics
+                                       -> .cui-card[data-card="media-ad"][data-variant="metrics"]
+    .is-added                          -> [data-added]
+    .c-card-media-ad-metrics-name      -> .cui-metrics-card__name
+    .c-card-media-ad-metrics-tag-label -> .cui-metrics-card__tag-label
+    .c-card-media-ad-metrics-clip (.is-playing)
+                                       -> .cui-metrics-card__clip ([data-playing])
+    .c-card-media-ad-metrics-add       -> .cui-media-ad-card__compare (unchanged in look)
+    .c-card-media-ad-metrics-size      -> .cui-metrics-card__size
+    .c-card-media-ad-metrics-total (.is-empty)
+                                       -> .cui-card .cui-metrics-card__total ([data-empty])
+    .c-card-media-ad-metrics-more      -> .cui-metrics-card__more
+    .c-card-media-ad-metrics-nobars    -> .cui-card .cui-metrics-card__nobars
+    .c-card-media-ad-metrics-bars / -bar
+                                       -> .cui-metrics-card__bars / __bar
+    .c-progress-trailing-wrap (dd)     -> .cui-metrics-card__bar dd
+    .c-progress-track.size-compact     -> .cui-metrics-card__track
+    .c-progress-fill (--bar-w, --bar-i)
+                                       -> .cui-metrics-card__fill (--cui-metrics-card-bar-w, --cui-metrics-card-bar-i)
+    .c-card-media-ad-metrics-bar-value (.is-empty)
+                                       -> .cui-metrics-card__value ([data-empty])
+
+  Specificity keeps the source's order: the metrics rules sit one class above
+  Media Ad Card's where they replace it (title, swap, spec), Added copies
+  Compared at Compared's specificity so the focus rules still win, and the
+  forced-colours focus outline is restated last.
+*/
+
+.cui-card[data-card="media-ad"][data-variant="metrics"] {
+  /*
+    Q-METRICS-6 (decided 2026-11-05): one-off values with no token, kept local (the DS records them as deliberate one-offs): the 120px Tag
+    cap, the 4ch value column and the 4px compact track (Progress Bar's).
+  */
+  --cui-metrics-card-tag-cap: 120px;
+  --cui-metrics-card-value-col: 4ch;
+  --cui-metrics-card-track: 4px;
+}
+
+/*
+  0. Title row — the heading wins over the Tag. The title block is reserved at exactly 2 lines, whether the name takes
+  1 or 2, so every card in a grid is the same height; the clamp sits on the name's span inside the full-width button.
+*/
+.cui-card[data-variant="metrics"] .cui-media-ad-card__title {
+  display: block;
+  height: calc(var(--text-h5-lh) * 2);
+  overflow: hidden;
+}
+.cui-card[data-variant="metrics"] .cui-media-ad-card__open {
+  display: block;
+  width: 100%;
+}
+.cui-metrics-card__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+/* The Tag never wraps and is capped at 120px, which fits every approved label; over it, an ellipsis as a safety net. */
+.cui-card[data-variant="metrics"] .cui-media-ad-card__titlerow > .cui-tag {
+  max-width: var(--cui-metrics-card-tag-cap);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.cui-card[data-variant="metrics"][data-skeleton] .cui-media-ad-card__titlerow {
+  height: calc(var(--text-h5-lh) * 2);
+}
+.cui-metrics-card__tag-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 1. Media — the clip sits over the still and fades in only while Live and actually playing. */
+.cui-media-ad-card__slot > .cui-metrics-card__clip {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+.cui-media-ad-card__slot > .cui-metrics-card__clip[data-playing] {
+  opacity: 1;
+}
+
+/* 2. Swap — total (label1 line) + spacing-8 + 5 caption lines + 4 × spacing-4 (124px), whatever the bar count. 3-line tagline. */
+.cui-card[data-variant="metrics"] .cui-media-ad-card__swap {
+  height: calc(var(--text-label1-lh) + var(--spacing-8) + var(--text-caption-lh) * 5 + var(--spacing-4) * 4);
+}
+.cui-card[data-variant="metrics"] .cui-media-ad-card__tagline {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* 3. Size line — the funnel recipe with the figure picked out. */
+.cui-metrics-card__size b {
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+
+/* 4. Spec layer — a column holding the total and the bars, in place of Media Ad Card's 3-row grid. */
+.cui-card[data-card="media-ad"][data-variant="metrics"] .cui-media-ad-card__spec {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: var(--spacing-8);
+}
+.cui-card .cui-metrics-card__total {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-4);
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-label1-lh);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cui-metrics-card__total b {
+  font-size: var(--text-label1-size);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-metrics-card__total[data-empty] b {
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+/* "+N more" — pushed to the right end of the total line, as a note; it takes no row, so the swap height holds. */
+.cui-metrics-card__more {
+  margin-left: auto;
+  padding-left: var(--spacing-8);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+}
+.cui-card .cui-metrics-card__nobars {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+
+/* Bars — a <dl> on one shared grid, so every track starts on one line. Rows are display:contents. */
+.cui-metrics-card__bars {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-8);
+  margin: 0;
+}
+.cui-metrics-card__bar {
+  display: contents;
+}
+.cui-metrics-card__bar dt {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+}
+/* The dd is Progress Bar's trailing wrap. */
+.cui-metrics-card__bar dd {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin: 0;
+  min-width: 0;
+}
+/* Progress Bar's compact track. */
+.cui-metrics-card__track {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: var(--cui-metrics-card-track);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-3);
+  overflow: hidden;
+}
+.cui-metrics-card__value {
+  flex: none;
+  min-width: var(--cui-metrics-card-value-col);
+  text-align: right;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-metrics-card__value[data-empty] {
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+
+/*
+  Fill — Progress Bar's Obsidian fill. It grows in when the card goes Live, rows staggered (a duration-fast wait, then
+  duration-instant / 2 per row); leaving Live, it resets instantly but only after duration-base, once the Spec layer
+  has faded out, so a bar is never seen shrinking.
+*/
+.cui-metrics-card__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+  width: 0;
+  transition: width 0s linear var(--duration-base);
+}
+.cui-card[data-variant="metrics"][data-live] .cui-metrics-card__fill,
+.cui-card[data-variant="metrics"]:has(:focus-visible) .cui-metrics-card__fill {
+  width: clamp(0%, var(--cui-metrics-card-bar-w, 0%), 100%);
+  transition: width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--cui-metrics-card-bar-i, 0) * var(--duration-instant) / 2);
+}
+@media (hover: hover) {
+  .cui-card[data-variant="metrics"]:hover .cui-metrics-card__fill {
+    width: clamp(0%, var(--cui-metrics-card-bar-w, 0%), 100%);
+    transition: width var(--duration-base) var(--ease-standard) calc(var(--duration-fast) + var(--cui-metrics-card-bar-i, 0) * var(--duration-instant) / 2);
+  }
+}
+
+/* 5. Added — Compared's treatment, copied at Compared's specificity so the focus rules still win. */
+.cui-card[data-card="media-ad"][data-added] {
+  border-color: var(--color-obsidian);
+  box-shadow: var(--shadow-3), 0 0 0 var(--border-width-sm) var(--color-obsidian);
+}
+.cui-card[data-card="media-ad"][data-added]:has(.cui-media-ad-card__open:focus-visible) {
+  box-shadow: 0 0 0 var(--border-width-sm) var(--color-obsidian), var(--shadow-focus), var(--shadow-3);
+}
+
+/* 6. Forced colours — the track is outlined and the fill painted CanvasText; Added a Highlight outline, focus restated last. */
+@media (forced-colors: active) {
+  .cui-metrics-card__track {
+    outline: var(--border-width-sm) solid CanvasText;
+  }
+  .cui-metrics-card__fill {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+  .cui-card[data-card="media-ad"][data-added] {
+    outline: var(--focus-ring-width) solid Highlight;
+  }
+  .cui-card[data-card="media-ad"][data-added]:has(.cui-media-ad-card__open:focus-visible) {
+    outline: var(--focus-ring-width) solid CanvasText;
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+/* Reduced motion — no clip (the still stays), and the bars sit at their value with no growth. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-media-ad-card__slot > .cui-metrics-card__clip {
+    display: none;
+  }
+  .cui-card[data-variant="metrics"] .cui-metrics-card__fill,
+  .cui-card[data-variant="metrics"][data-live] .cui-metrics-card__fill,
+  .cui-card[data-variant="metrics"]:has(:focus-visible) .cui-metrics-card__fill,
+  .cui-card[data-variant="metrics"]:hover .cui-metrics-card__fill {
+    width: clamp(0%, var(--cui-metrics-card-bar-w, 0%), 100%);
+    transition: none;
+  }
+}

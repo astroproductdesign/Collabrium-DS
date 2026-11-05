@@ -26,6 +26,7 @@ export * from './components/InfoBanner';
 export * from './components/InputField';
 export * from './components/LoadingState';
 export * from './components/MediaAdCard';
+export * from './components/MetricsCard';
 export * from './components/PacingCard';
 export * from './components/PermissionPrompt';
 export * from './components/PriceSummaryCard';

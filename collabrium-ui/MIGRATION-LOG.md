@@ -65,6 +65,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 41 | Info Banner | **review** | Converted 2026-11-04: `InfoBanner` with the six tones, dismissible and persistent, up to two actions (one for AI), and the slide-and-fade entrance and exit. Built before Hero Card, which uses it. See BANNER-1 to BANNER-6, Decision D-127 and Open questions Q-BANNER-1 to Q-BANNER-8. |
 | 42 | Hero Card + Command brief (a variant of Card) | **review** | Converted 2026-11-05: `HeroCard` (Default, Risk, AI, Selected) and `CommandBrief`. The gallery shows Default and Selected only; Risk, AI, the tilt and the brief are built from the DS. See HERO-1 to HERO-5, Decision D-128 and Open questions Q-HERO-1 to Q-HERO-9 (answered 2026-11-05). |
 | 43 | Media Ad Card (a variant of Card) | **review** | Converted 2026-11-05: `MediaAdCard` and `MediaAdCardSkeleton`. The gallery shows one card at rest; the families, missing data, Compared, the badge, touch, the tilt and the skeleton are built from the CSS and the DS. See MEDIA-AD-1 to MEDIA-AD-4, Decision D-129 and Open questions Q-MEDIA-AD-1 to Q-MEDIA-AD-8 (answered 2026-11-05). |
+| 44 | Metrics card (a variant of Media Ad Card) | **review** | Converted 2026-11-05: `MetricsCard` and `MetricsCardSkeleton`, on Media Ad Card's shell (now shared internally as `MediaAdShell`). The gallery shows one card; the bar-count states, missing data, Added, the clip and the skeleton are built from the CSS and the DS. See METRICS-1 to METRICS-4, Decision D-130 and Open questions Q-METRICS-1 to Q-METRICS-10 (answered 2026-11-05). |
 | — | everything else | todo | Not started. |
 
 ---
@@ -665,6 +666,21 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-MEDIA-AD-7 | The Built-for-this-slot badge: the DS says a Neutral-3 border; the CSS sets one, but `.c-badge`'s transparent border comes later in components.css at the same specificity and wins, so the gallery draws none. Built as the gallery (no border). Option A: keep as the gallery. Option B: the Neutral-3 border, as the DS and the CSS intend. My recommendation: B **Answered 2026-11-05: option B: the Neutral-3 border (the recommendation)** | `MediaAdCard.css` |
 | Q-MEDIA-AD-8 | The skeleton's shimmer is Progress Bar's keyframe; Progress Bar isn't converted, so it is copied into this component for now, to be shared once Progress Bar is built. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MediaAdCard.css` |
 
+### Metrics card
+
+| ID | Question | Where |
+|---|---|---|
+| Q-METRICS-1 | The size line names the top bar ("· 66% social"); the gallery lowercases "Social", but lowercasing every label would turn "TV" into "tv". Built: the first letter lowercased mid-sentence, an all-capitals label kept ("· 43% TV"). Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MetricsCard.tsx` |
+| Q-METRICS-2 | No size: the DS says the size line reads "Size not published" and the total "Not published". Built literally: the rest line is only "Size not published" (no "· top" part), and the Live total is "Not published" without "total audience" after it. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MetricsCard.tsx` |
+| Q-METRICS-3 | The name's accessible name follows the gallery: "Foodies, Trendsetter, 16M audience. Open details". With no size, the size part is dropped ("Football fans, Sports. Open details"). Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MetricsCard.tsx` |
+| Q-METRICS-4 | Host strings: `unit`, `totalLabel` and `addLabel` are required; `moreLabel` defaults to " in details" (the DS's " channels in details" is the audience wording) and `emptyLabel` to "No breakdown on file". Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MetricsCard.tsx` |
+| Q-METRICS-5 | The category Tag colour is a prop (`categoryTag`), with the DS's audience mapping exported as `audienceCategoryTags`, so influencers or channels can bring their own. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MetricsCard.tsx` |
+| Q-METRICS-6 | One-off values with no token, kept local (the DS records them): the 120px Tag cap, the 4ch value column, and Progress Bar's 4px compact track. The two-line title, three-line tagline, swap height and stagger are built from tokens. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MetricsCard.css` |
+| Q-METRICS-7 | The bars use Progress Bar's track, fill and trailing wrap; Progress Bar isn't converted, so those rules (and its forced-colours rule) are copied into this component until it is, then shared. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MetricsCard.css` |
+| Q-METRICS-8 | The tilt is off by default, as Media Ad Card (decided Q-MEDIA-AD-3); the gallery card has it on. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MetricsCard.tsx` |
+| Q-METRICS-9 | Bar values show as given ("57%"): no rounding, no forced decimal. Pacing and Progress-to-Goal show 1 decimal, but those are progress to a target; these are shares, and the gallery shows whole numbers. Keep as given? My recommendation: keep as given **Answered 2026-11-05: keep as given (the recommendation)** | `MetricsCard.tsx` |
+| Q-METRICS-10 | The skeleton: the DS says only that it keeps the reserved title row. Built: Media Ad Card's three line bones, inside the taller swap, so it is exactly as tall as a loaded card. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MediaAdCard.tsx` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -889,6 +905,15 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | MEDIA-AD-2 | A missing size is a bare em dash, with nothing for a screen reader. Built with hidden "No fixed size". Q-MEDIA-AD-1 | 661 | Missing data |
 | MEDIA-AD-3 | The gallery shows one card at rest; the families, missing data, Compared, the badge, touch, the tilt and the skeleton are built from the CSS and the DS (the touch and tilt logic ported from the gallery script, preview.html 25344–25429). Q-MEDIA-AD-3 | 526–712 | States, Interaction contract |
 | MEDIA-AD-4 | `.is-touch` is a demo hook; not ported. Q-MEDIA-AD-6 | 593 | States, Touch |
+
+### Metrics card (affects the Metrics card conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| METRICS-1 | The gallery shows one card with five bars at rest; more than five, an empty bar, no bars, no size, Added, the clip and the skeleton are built from the CSS and the DS (the clip logic ported from the gallery script, preview.html 25430–25549). Q-METRICS-2, Q-METRICS-10 | 714–878 | Bar count, States and interaction |
+| METRICS-2 | The DS writes the size line as "{size} {unit} · {top bar}" without saying how the label is cased; the gallery lowercases "Social". Q-METRICS-1 | — | Anatomy, Rest layer |
+| METRICS-3 | "No size" gives the two strings but not whether the "· top" part and the total label stay. Q-METRICS-2 | — | Bar count |
+| METRICS-4 | The bars depend on Progress Bar's CSS (4573–4587, 4620–4623), not converted yet. Q-METRICS-7 | 4573–4623 | Progress Bar deviations |
 
 ### Tokens and global
 
@@ -1206,6 +1231,7 @@ Grouped by component. Line numbers are CSS / DS.
 | D-127 | Info Banner: one `InfoBanner` with `tone`, `dismissible`, `actions` and `onDismiss`; role note or status; entrance and exit with `motion` (AnimatePresence, height closing); the AI gradient reuses Prompt input bar's keyframe; the close is the real Button | BANNER-1 to BANNER-6. Flagged Q-BANNER-1 to Q-BANNER-8 |
 | D-128 | Hero Card: one `HeroCard` with `variant`, the CTA's Button style set by the variant, the tilt from pointer position; `CommandBrief` renders the Selected content in a body portal, kept mounted through the asymmetric exit; `onOpen` puts a stretched button in the heading | HERO-1 to HERO-5. Flagged Q-HERO-1 to Q-HERO-9 |
 | D-129 | Media Ad Card: an `<article>` with the `cui-card` classes (`data-card="media-ad"`) so Card's surface and hover apply; the name is Card's stretched action; Live by touch, Compared and the tilt are data attributes set by the component; the family Tag colour comes from a fixed map; Compare is controlled or not (`compared` / `defaultCompared`); `MediaAdCardSkeleton` is a separate export | MEDIA-AD-1 to MEDIA-AD-4. Flagged Q-MEDIA-AD-1 to Q-MEDIA-AD-8 |
+| D-130 | Metrics card: Media Ad Card's article, Live, touch, tilt, toggle key and swap box moved into an internal `MediaAdShell` that both cards render (`data-variant="metrics"`, `data-added` in place of `data-compared`); the clip follows Live through the shell's `onLiveChange`, and `data-playing` follows the video's own events; the bar fills take their width from `--cui-metrics-card-bar-w`; `MetricsCardSkeleton` is the shared skeleton with `variant="metrics"` | METRICS-1 to METRICS-4. Flagged Q-METRICS-1 to Q-METRICS-10 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -1577,3 +1603,6 @@ Every place where the React library now follows a decision that differs from the
 | 123 | Media Ad Card: give the Built-for-this-slot badge its Neutral-3 border in the CSS (the rule loses to `.c-badge`'s transparent border, later at the same specificity) (decided Q-MEDIA-AD-7) | components.css 599, 1642 | 2026-11-05 |
 | 124 | Media Ad Card: a missing size reads "No fixed size" to a screen reader (the dash `aria-hidden`); Objective, tagline and funnel are required; the tilt is off unless asked for; Compare is always shown (decided Q-MEDIA-AD-1 to Q-MEDIA-AD-4) | DESIGN-SYSTEM.md Media Ad Card, Missing data, States; preview.html 2736–2761 | 2026-11-05 |
 | 125 | Media Ad Card: drop `.is-touch` (a demo hook; `(hover: none)` covers touch devices); show the families, missing data, Compared, the badge and the skeleton in the gallery (decided Q-MEDIA-AD-6) | components.css 593; preview.html 2736–2761 | 2026-11-05 |
+| 126 | Metrics card: the size line's top bar lowercases only the label's first letter, keeping an all-capitals label ("43% TV"); no size gives "Size not published" alone and a Live total of "Not published" alone, and drops the size from the name's accessible name (decided Q-METRICS-1 to Q-METRICS-3) | DESIGN-SYSTEM.md Metrics card, Anatomy (Rest layer), Bar count | 2026-11-05 |
+| 127 | Metrics card: name the host strings that have defaults (" in details", "No breakdown on file") and that the category colour is the host's, with the audience mapping as the example; bar values show as given, no forced decimal; the tilt is optional, off unless asked for (decided Q-METRICS-4, Q-METRICS-5, Q-METRICS-8, Q-METRICS-9) | DESIGN-SYSTEM.md Metrics card, Host strings, Category Tag mapping | 2026-11-05 |
+| 128 | Metrics card: describe the skeleton's body (three line bones in the taller swap); show more than five bars, an empty bar, no bars, no size, Added and the skeleton in the gallery (decided Q-METRICS-10) | DESIGN-SYSTEM.md Metrics card; preview.html 2768–2798 | 2026-11-05 |

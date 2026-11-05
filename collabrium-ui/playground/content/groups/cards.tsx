@@ -42,5 +42,4 @@ export const rules: GroupOverviewDocs['rules'] = [
 ];
 
 export const comingSoon: GroupOverviewDocs['comingSoon'] = [
-  { title: 'Metrics card', summary: 'A Media Ad Card for an item whose figures matter most: a headline total and up to five bars.' },
 ];

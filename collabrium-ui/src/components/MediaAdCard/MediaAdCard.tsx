@@ -71,8 +71,8 @@ export interface MediaAdCardProps extends NativeArticleProps {
 
 const DASH = '—';
 
-/** A missing spec value: what the eye reads, and what a screen reader reads instead of a bare dash. */
-function Empty({ shown, spoken }: { shown: string; spoken?: string }) {
+/** A missing value: what the eye reads, and what a screen reader reads instead of a bare dash. */
+export function MediaAdEmpty({ shown, spoken }: { shown: string; spoken?: string }) {
   if (!spoken) return <>{shown}</>;
   return (
     <>
@@ -87,6 +87,210 @@ function pointerOf(event: ReactMouseEvent) {
   const native = event.nativeEvent as MouseEvent & { pointerType?: string };
   return 'pointerType' in native ? native.pointerType || 'keyboard' : 'mouse';
 }
+
+/** The neutral placeholder, the default (and only shipped) slot child. */
+export const mediaAdPlaceholder = (
+  <div className="cui-media-ad-card__placeholder" aria-hidden="true">
+    <FrameCorners focusable="false" />
+    <span>Media</span>
+  </div>
+);
+
+/**
+ * The shell Media Ad Card and Metrics card share: the surface, the frame and slot, the round toggle, the stretched
+ * title button, the swap box, Live (hover, focus, a first tap), the toggle's key and the tilt. Internal: each card
+ * passes its own title, Tag, toggle and swap content.
+ */
+export interface MediaAdShellProps extends NativeArticleProps {
+  /** `metrics` for Metrics card. */
+  variant?: 'metrics';
+  /** The title button's content: the visible name and the hidden rest of its accessible name. */
+  title: ReactNode;
+  headingLevel: CardHeadingLevel;
+  tag: ReactNode;
+  /** The slot's children. */
+  media: ReactNode;
+  /** Anything else over the frame (the Built-for-this-slot badge). */
+  overlay?: ReactNode;
+  /** The swap box's two layers. */
+  swap: ReactNode;
+  onOpen: () => void;
+  pressed: boolean;
+  /** The attribute the pressed state sets on the card: `data-compared` or `data-added`. */
+  pressedAs: 'compared' | 'added';
+  toggleLabel: string;
+  /** The key that toggles while focus is in the card. */
+  toggleKey: 'c' | 'a';
+  onToggle: () => void;
+  tilt: boolean;
+  /** Told whenever the card goes Live or leaves it (hover on hover-capable devices, keyboard focus, a first tap). */
+  onLiveChange?: (live: boolean) => void;
+}
+
+export const MediaAdShell = forwardRef<HTMLElement, MediaAdShellProps>(function MediaAdShell(
+  {
+    variant,
+    title,
+    headingLevel,
+    tag,
+    media,
+    overlay,
+    swap,
+    onOpen,
+    pressed,
+    pressedAs,
+    toggleLabel,
+    toggleKey,
+    onToggle,
+    tilt,
+    onLiveChange,
+    onKeyDown,
+    onPointerEnter,
+    onPointerMove,
+    onPointerLeave,
+    onFocus,
+    onBlur,
+    ...rest
+  },
+  ref,
+) {
+  const Heading = `h${headingLevel}` as 'h3';
+  // Live by touch: the first tap shows the specs, the second opens. Hover and focus are CSS.
+  const [live, setLive] = useState(false);
+  const [tilting, setTilting] = useState<{ x: number; y: number } | null>(null);
+  const root = useRef<HTMLElement | null>(null);
+  const rect = useRef<DOMRect | null>(null);
+
+  // A touch anywhere outside the card (another card's toggle included) clears Live.
+  useEffect(() => {
+    if (!live) return;
+    const clear = (event: PointerEvent) => {
+      if (event.pointerType === 'touch' && !root.current?.contains(event.target as Node)) setLive(false);
+    };
+    document.addEventListener('pointerdown', clear, true);
+    return () => document.removeEventListener('pointerdown', clear, true);
+  }, [live]);
+
+  // Live as the CSS draws it, for a host that needs to follow it (Metrics card's clip). Read after the event settles.
+  const report = () => {
+    if (!onLiveChange) return;
+    window.setTimeout(() => {
+      const card = root.current;
+      if (!card) return;
+      const matches = (selector: string) => {
+        try {
+          return card.matches(selector);
+        } catch {
+          return false;
+        }
+      };
+      onLiveChange(card.hasAttribute('data-live') || matches(':has(:focus-visible)') || (window.matchMedia('(hover: hover)').matches && matches(':hover')));
+    }, 0);
+  };
+  useEffect(report, [live]);
+
+  return (
+    <article
+      {...rest}
+      ref={node => {
+        root.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      }}
+      className="cui-card cui-media-ad-card"
+      data-card="media-ad"
+      data-variant={variant}
+      data-live={live ? '' : undefined}
+      data-compared={pressed && pressedAs === 'compared' ? '' : undefined}
+      data-added={pressed && pressedAs === 'added' ? '' : undefined}
+      data-tilting={tilting ? '' : undefined}
+      style={tilting ? ({ '--cui-media-ad-card-tilt-x': tilting.x, '--cui-media-ad-card-tilt-y': tilting.y } as CSSProperties) : undefined}
+      onKeyDown={(event: ReactKeyboardEvent<HTMLElement>) => {
+        onKeyDown?.(event);
+        // The toggle's key, while focus is anywhere in the card: no modifier, no key repeat, never from a text field.
+        if (event.key.toLowerCase() !== toggleKey) return;
+        if (event.repeat || event.metaKey || event.ctrlKey || event.altKey) return;
+        if ((event.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+        event.preventDefault();
+        onToggle();
+      }}
+      onFocus={event => {
+        report();
+        onFocus?.(event);
+      }}
+      onBlur={event => {
+        report();
+        onBlur?.(event);
+      }}
+      onPointerEnter={(event: ReactPointerEvent<HTMLElement>) => {
+        // Measured once on entry: measuring mid-tilt returns the rotated box and feeds the angle back into itself.
+        if (tilt && event.pointerType === 'mouse') rect.current = event.currentTarget.getBoundingClientRect();
+        report();
+        onPointerEnter?.(event);
+      }}
+      onPointerMove={(event: ReactPointerEvent<HTMLElement>) => {
+        if (tilt && event.pointerType === 'mouse' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          const r = (rect.current ??= event.currentTarget.getBoundingClientRect());
+          const clamp = (n: number) => Math.max(-1, Math.min(1, n));
+          setTilting({
+            x: Number(clamp(((event.clientX - r.left) / r.width - 0.5) * 2).toFixed(3)),
+            y: Number(clamp(((event.clientY - r.top) / r.height - 0.5) * 2).toFixed(3)),
+          });
+        }
+        onPointerMove?.(event);
+      }}
+      onPointerLeave={(event: ReactPointerEvent<HTMLElement>) => {
+        rect.current = null;
+        setTilting(null);
+        report();
+        onPointerLeave?.(event);
+      }}
+    >
+      <div className="cui-media-ad-card__frame">
+        <div className="cui-media-ad-card__slot">{media}</div>
+        {overlay}
+        <span className="cui-media-ad-card__hint" aria-hidden="true">
+          <Play focusable="false" />
+          Tap to play
+        </span>
+      </div>
+      <div className="cui-media-ad-card__body">
+        <div className="cui-media-ad-card__titlerow">
+          <Heading className="cui-media-ad-card__title">
+            <button
+              type="button"
+              className="cui-card__action cui-media-ad-card__open"
+              onClick={event => {
+                if (pointerOf(event) === 'touch' && !live) {
+                  setLive(true);
+                  return;
+                }
+                onOpen();
+              }}
+            >
+              {title}
+            </button>
+          </Heading>
+          {tag}
+        </div>
+        <div className="cui-media-ad-card__swap">{swap}</div>
+      </div>
+      <button
+        type="button"
+        className="cui-media-ad-card__compare"
+        aria-pressed={pressed}
+        aria-label={toggleLabel}
+        aria-keyshortcuts={toggleKey}
+        onClick={event => {
+          if (pointerOf(event) === 'touch') setLive(false);
+          onToggle();
+        }}
+      >
+        {pressed ? <Check aria-hidden="true" focusable="false" /> : <Plus aria-hidden="true" focusable="false" />}
+      </button>
+    </article>
+  );
+});
 
 /**
  * Collabrium Media Ad Card: one ad format as a gallery tile. A full-bleed 16:10 media slot, a round Compare toggle,
@@ -111,33 +315,13 @@ export const MediaAdCard = forwardRef<HTMLElement, MediaAdCardProps>(function Me
     onComparedChange,
     tilt = false,
     headingLevel = 3,
-    onKeyDown,
-    onPointerEnter,
-    onPointerMove,
-    onPointerLeave,
     ...rest
   },
   ref,
 ) {
-  const Heading = `h${headingLevel}` as 'h3';
   const { label: familyLabel, tag } = FAMILIES[family];
   const [ownCompared, setOwnCompared] = useState(defaultCompared);
   const on = compared ?? ownCompared;
-  // Live by touch: the first tap shows the specs, the second opens. Hover and focus are CSS.
-  const [live, setLive] = useState(false);
-  const [tilting, setTilting] = useState<{ x: number; y: number } | null>(null);
-  const root = useRef<HTMLElement | null>(null);
-  const rect = useRef<DOMRect | null>(null);
-
-  // A touch anywhere outside the card (another card's Compare included) clears Live.
-  useEffect(() => {
-    if (!live) return;
-    const clear = (event: PointerEvent) => {
-      if (event.pointerType === 'touch' && !root.current?.contains(event.target as Node)) setLive(false);
-    };
-    document.addEventListener('pointerdown', clear, true);
-    return () => document.removeEventListener('pointerdown', clear, true);
-  }, [live]);
 
   const toggle = () => {
     if (compared === undefined) setOwnCompared(!on);
@@ -147,97 +331,34 @@ export const MediaAdCard = forwardRef<HTMLElement, MediaAdCardProps>(function Me
   const sizeText = sizes && sizes.length > 0 ? sizes.join(' · ') : undefined;
   const specs = [
     { label: 'Objective', value: objective },
-    { label: 'Sizes', value: sizeText, empty: <Empty shown={DASH} spoken="No fixed size" /> },
-    { label: 'Benchmark', value: benchmark, empty: <Empty shown="Not published" /> },
+    { label: 'Sizes', value: sizeText, empty: <MediaAdEmpty shown={DASH} spoken="No fixed size" /> },
+    { label: 'Benchmark', value: benchmark, empty: <MediaAdEmpty shown="Not published" /> },
   ];
 
   return (
-    <article
+    <MediaAdShell
       {...rest}
-      ref={node => {
-        root.current = node;
-        if (typeof ref === 'function') ref(node);
-        else if (ref) ref.current = node;
-      }}
-      className="cui-card cui-media-ad-card"
-      data-card="media-ad"
-      data-live={live ? '' : undefined}
-      data-compared={on ? '' : undefined}
-      data-tilting={tilting ? '' : undefined}
-      style={tilting ? ({ '--cui-media-ad-card-tilt-x': tilting.x, '--cui-media-ad-card-tilt-y': tilting.y } as CSSProperties) : undefined}
-      onKeyDown={(event: ReactKeyboardEvent<HTMLElement>) => {
-        onKeyDown?.(event);
-        // C toggles compare while focus is anywhere in the card: no modifier, no key repeat, never from a text field.
-        if (event.key !== 'c' && event.key !== 'C') return;
-        if (event.repeat || event.metaKey || event.ctrlKey || event.altKey) return;
-        if ((event.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
-        event.preventDefault();
-        toggle();
-      }}
-      onPointerEnter={(event: ReactPointerEvent<HTMLElement>) => {
-        // Measured once on entry: measuring mid-tilt returns the rotated box and feeds the angle back into itself.
-        if (tilt && event.pointerType === 'mouse') rect.current = event.currentTarget.getBoundingClientRect();
-        onPointerEnter?.(event);
-      }}
-      onPointerMove={(event: ReactPointerEvent<HTMLElement>) => {
-        if (tilt && event.pointerType === 'mouse' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          const r = (rect.current ??= event.currentTarget.getBoundingClientRect());
-          const clamp = (n: number) => Math.max(-1, Math.min(1, n));
-          setTilting({
-            x: Number(clamp(((event.clientX - r.left) / r.width - 0.5) * 2).toFixed(3)),
-            y: Number(clamp(((event.clientY - r.top) / r.height - 0.5) * 2).toFixed(3)),
-          });
-        }
-        onPointerMove?.(event);
-      }}
-      onPointerLeave={(event: ReactPointerEvent<HTMLElement>) => {
-        rect.current = null;
-        setTilting(null);
-        onPointerLeave?.(event);
-      }}
-    >
-      <div className="cui-media-ad-card__frame">
-        <div className="cui-media-ad-card__slot">
-          {media ?? (
-            <div className="cui-media-ad-card__placeholder" aria-hidden="true">
-              <FrameCorners focusable="false" />
-              <span>Media</span>
-            </div>
-          )}
-        </div>
-        {builtForSlot && (
+      ref={ref}
+      headingLevel={headingLevel}
+      title={
+        <>
+          {name}
+          <span className="cui-media-ad-card__hidden">, {familyLabel}. Open details</span>
+        </>
+      }
+      tag={<Tag variant={tag}>{familyLabel}</Tag>}
+      media={media ?? mediaAdPlaceholder}
+      overlay={
+        builtForSlot && (
           <span className="cui-media-ad-card__native">
             <Badge variant="neutral" icon={PushPin}>
               Built for this slot
             </Badge>
           </span>
-        )}
-        <span className="cui-media-ad-card__hint" aria-hidden="true">
-          <Play focusable="false" />
-          Tap to play
-        </span>
-      </div>
-      <div className="cui-media-ad-card__body">
-        <div className="cui-media-ad-card__titlerow">
-          <Heading className="cui-media-ad-card__title">
-            <button
-              type="button"
-              className="cui-card__action cui-media-ad-card__open"
-              onClick={event => {
-                if (pointerOf(event) === 'touch' && !live) {
-                  setLive(true);
-                  return;
-                }
-                onOpen();
-              }}
-            >
-              {name}
-              <span className="cui-media-ad-card__hidden">, {familyLabel}. Open details</span>
-            </button>
-          </Heading>
-          <Tag variant={tag}>{familyLabel}</Tag>
-        </div>
-        <div className="cui-media-ad-card__swap">
+        )
+      }
+      swap={
+        <>
           <div className="cui-media-ad-card__rest">
             <p className="cui-media-ad-card__tagline">{tagline}</p>
             <p className="cui-media-ad-card__funnel">{funnel.join(' · ')}</p>
@@ -250,22 +371,43 @@ export const MediaAdCard = forwardRef<HTMLElement, MediaAdCardProps>(function Me
               </div>
             ))}
           </dl>
+        </>
+      }
+      onOpen={onOpen}
+      pressed={on}
+      pressedAs="compared"
+      toggleLabel={`Compare ${name}`}
+      toggleKey="c"
+      onToggle={toggle}
+      tilt={tilt}
+    />
+  );
+});
+
+type NativeDivProps = WithoutStyling<Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'color'>>;
+
+/** The skeleton shell, shared with Metrics card's. */
+export const MediaAdSkeletonShell = forwardRef<HTMLDivElement, NativeDivProps & { variant?: 'metrics' }>(function MediaAdSkeletonShell(
+  { variant, ...props },
+  ref,
+) {
+  return (
+    <div {...props} ref={ref} className="cui-card cui-media-ad-card" data-card="media-ad" data-variant={variant} data-skeleton="" aria-hidden="true">
+      <div className="cui-media-ad-card__frame">
+        <span className="cui-media-ad-card__bone" data-bone="media" />
+      </div>
+      <div className="cui-media-ad-card__body">
+        <div className="cui-media-ad-card__titlerow">
+          <span className="cui-media-ad-card__bone" data-bone="title" />
+          <span className="cui-media-ad-card__bone" data-bone="pill" />
+        </div>
+        <div className="cui-media-ad-card__swap">
+          <span className="cui-media-ad-card__bone" data-bone="line" />
+          <span className="cui-media-ad-card__bone" data-bone="line" />
+          <span className="cui-media-ad-card__bone" data-bone="line" />
         </div>
       </div>
-      <button
-        type="button"
-        className="cui-media-ad-card__compare"
-        aria-pressed={on}
-        aria-label={`Compare ${name}`}
-        aria-keyshortcuts="c"
-        onClick={event => {
-          if (pointerOf(event) === 'touch') setLive(false);
-          toggle();
-        }}
-      >
-        {on ? <Check aria-hidden="true" focusable="false" /> : <Plus aria-hidden="true" focusable="false" />}
-      </button>
-    </article>
+    </div>
   );
 });
 
@@ -273,25 +415,6 @@ export const MediaAdCard = forwardRef<HTMLElement, MediaAdCardProps>(function Me
  * The Media Ad Card while its data loads: the same shell with Neutral-2 bones (media, title, Tag pill, three lines),
  * exactly as tall as the card that replaces it. Hidden from assistive technology; set `aria-busy` on the grid.
  */
-export const MediaAdCardSkeleton = forwardRef<HTMLDivElement, WithoutStyling<Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'color'>>>(
-  function MediaAdCardSkeleton(props, ref) {
-    return (
-      <div {...props} ref={ref} className="cui-card cui-media-ad-card" data-card="media-ad" data-skeleton="" aria-hidden="true">
-        <div className="cui-media-ad-card__frame">
-          <span className="cui-media-ad-card__bone" data-bone="media" />
-        </div>
-        <div className="cui-media-ad-card__body">
-          <div className="cui-media-ad-card__titlerow">
-            <span className="cui-media-ad-card__bone" data-bone="title" />
-            <span className="cui-media-ad-card__bone" data-bone="pill" />
-          </div>
-          <div className="cui-media-ad-card__swap">
-            <span className="cui-media-ad-card__bone" data-bone="line" />
-            <span className="cui-media-ad-card__bone" data-bone="line" />
-            <span className="cui-media-ad-card__bone" data-bone="line" />
-          </div>
-        </div>
-      </div>
-    );
-  },
-);
+export const MediaAdCardSkeleton = forwardRef<HTMLDivElement, NativeDivProps>(function MediaAdCardSkeleton(props, ref) {
+  return <MediaAdSkeletonShell {...props} ref={ref} />;
+});

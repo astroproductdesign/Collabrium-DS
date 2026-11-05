@@ -11,7 +11,7 @@
     .is-live (first tap on touch)      -> [data-live]
     .is-compared                       -> [data-compared]
     .is-tilting, --tilt-x / --tilt-y   -> [data-tilting], --cui-media-ad-card-tilt-x / -y
-    .is-touch (demo hook)              -> not ported: (hover: none) shows the hint on real touch devices (Q-MEDIA-AD-6)
+    .is-touch (demo hook)              -> not ported: (hover: none) shows the hint on real touch devices (decided 2026-11-05, Q-MEDIA-AD-6)
     .c-card-media-ad-frame / -slot     -> .cui-media-ad-card__frame / __slot
     .c-card-media-ad-placeholder       -> .cui-media-ad-card__placeholder
     .c-card-media-ad-hint              -> .cui-media-ad-card__hint
@@ -40,7 +40,7 @@
 
 .cui-card[data-card="media-ad"] {
   /*
-    Q-MEDIA-AD-5: one-off values with no token, kept local (the DS records them as deliberate one-offs): the 2px lift,
+    Q-MEDIA-AD-5 (decided 2026-11-05): one-off values with no token, kept local (the DS records them as deliberate one-offs): the 2px lift,
     the 16:10 ratio, the 1.1 zoom, the 800px / 4deg / 1.015 tilt, the hint's 24px (Tag metrics), the Compare hit area's
     6px spill (44px for touch), the 72px pill and 60% title bones, and the shimmer's 40% Neutral-5.
   */
