@@ -84,7 +84,7 @@ export const anatomy: DocsAnatomyNode[] = [
           { name: 'Overflow', element: '<li>.cui-price-summary__overflow', when: 'five items or more', description: 'Items 5 and on in their own list, folded (inert) or open, scrolling past 320px.' },
         ],
       },
-      { name: 'Show X more', element: 'button.cui-price-summary__more', when: 'five items or more', description: 'label2, Neutral-9, no underline, a 14px caret. "Show less" when open.' },
+      { name: 'Show X more', element: 'button.cui-price-summary__more', when: 'five items or more', description: 'label2, Neutral-9, no underline, a 14px caret; Neutral-7 on hover, with the focus ring. "Show less" when open.' },
       {
         name: 'Footer',
         element: '<div>.cui-card__footer',

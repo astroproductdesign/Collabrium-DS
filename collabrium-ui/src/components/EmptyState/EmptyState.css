@@ -26,7 +26,7 @@
 */
 
 .cui-empty-state {
-  /* TODO(open-question Q-EMPTY-5): the 480px, 380px and 320px caps and the 240px floor are literals in the DLS with no token; kept local. */
+  /* No token, kept local: the 480px, 380px and 320px caps, the 240px floor and the 3px underline offset (decided 2026-11-05, Q-EMPTY-5). */
   --cui-empty-state-max-width: 480px;
   --cui-empty-state-body-max-width: 380px;
   --cui-empty-state-inline-body-max-width: 320px;
@@ -83,8 +83,8 @@
 /* Full-page: fills the viewport, centred; icon-hero (64px). */
 .cui-empty-state[data-variant="fullpage"] {
   /*
-    TODO(open-question Q-EMPTY-3): the DLS says calc(100vh − nav height); its CSS ships 100vh, followed here.
-    Read from an inherited custom property so a container (App Shell, a docs frame) can set the height for
+    The DLS says calc(100vh − nav height); its CSS ships 100vh, followed here. Decided 2026-11-05 (Q-EMPTY-3):
+    App Shell sets the property when it is converted. Read from an inherited custom property so a container (App Shell, a docs frame) can set the height for
     what is around it; it is not declared on the component, so 100vh applies unless a container sets it.
   */
   min-height: var(--cui-empty-state-fullpage-min-height, 100vh);
@@ -116,7 +116,7 @@
   margin-bottom: var(--spacing-8);
 }
 
-/* TODO(open-question Q-EMPTY-1): the source gives the link no hover and no focus style (the browser's own focus outline shows). */
+/* The source gives the link no hover and no focus style; it takes the DLS focus ring and Button link's Neutral-7 hover, and keeps link2 (decided 2026-11-05, Q-EMPTY-1). */
 .cui-empty-state__link {
   background: none;
   border: none;
@@ -130,13 +130,23 @@
   text-underline-offset: var(--cui-empty-state-link-underline-offset);
   cursor: pointer;
 }
+.cui-empty-state__link:hover {
+  color: var(--color-neutral-7);
+}
+.cui-empty-state__link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
 
 /* Mobile (below 768px, the source's breakpoint): less padding, no caps, a 48px icon, stacked full-width actions. */
 @media (max-width: 767px) {
-  /* TODO(open-question Q-EMPTY-2): the DLS gives inline 12px padding on mobile; its CSS has no rule, so inline keeps 16px. */
   .cui-empty-state[data-variant="fullpage"],
   .cui-empty-state[data-variant="section"] {
     padding: var(--spacing-24) var(--spacing-16);
+  }
+  /* Inline: 12px all sides, as the DS says; the DLS CSS has no rule (decided 2026-11-05, Q-EMPTY-2). */
+  .cui-empty-state[data-variant="inline"] {
+    padding: var(--spacing-12);
   }
   .cui-empty-state[data-variant="fullpage"] .cui-empty-state__icon {
     font-size: var(--icon-empty);

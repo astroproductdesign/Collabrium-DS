@@ -1,0 +1,240 @@
+/*
+  Ad Placement Card — ported from collabrium-dls/components.css lines
+  1176–1261 (.c-card.c-card-ad-placement and its .c-card-ad-placement-*
+  parts). The surface is the base Card's (Card.css), raised to shadow-3;
+  the behaviour is Tooltip's (instant, one at a time, at <body> level,
+  never takes the pointer), built in the component from DESIGN-SYSTEM.md
+  (the gallery shows the card statically and has no script).
+
+  Mapping from the old classes:
+    .c-card.c-card-ad-placement        -> .cui-card[data-card="ad-placement"]
+    .c-card-ad-placement.is-on         -> [data-visible]
+    .c-card-ad-placement.is-none       -> [data-fit-none]
+    .adplacement-demo (gallery only)   -> [data-inline]
+    .c-card-ad-placement-head (+ .is-title-wrapped)
+                                       -> .cui-ad-placement-card__head (+ [data-title-wrapped])
+    .c-card-ad-placement-icon          -> .cui-ad-placement-card__icon (an <svg>)
+    .c-card-ad-placement-titles        -> (dropped: it was display: contents)
+    .c-card-ad-placement-title / -where
+                                       -> .cui-ad-placement-card__title / __where
+    .c-card-ad-placement-desc          -> .cui-ad-placement-card__desc
+    .c-card-ad-placement-facts / -fact (dt, dd, dd.is-empty)
+                                       -> .cui-ad-placement-card__facts / __fact (dt, dd, dd[data-empty])
+    .c-card-ad-placement-more          -> .cui-ad-placement-card__more
+    .c-card-ad-placement-fit / -count / -fit-text
+                                       -> .cui-ad-placement-card__fit / __count / __fit-text
+    .c-card-ad-placement-cta (+ i)     -> .cui-ad-placement-card__cta (+ svg)
+
+  Specificity keeps the source's order: the root is two classes deep in the
+  source (0,2,0) and here a class and an attribute (0,2,0); the parts are
+  scoped under the root, so `.cui-card p` (0,1,1) doesn't reset them.
+*/
+
+.cui-card[data-card="ad-placement"] {
+  /* Q-ADPL-5: the 268px width (the one Card with a fixed width: it never sits in a grid) has no token; kept local, as the DS records it. */
+  --cui-ad-placement-card-width: 268px;
+  /* Water is Collab:Media's element: slots are always Navy, never a family colour. */
+  --cui-ad-placement-card-accent: var(--color-navy);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-tooltip);
+  display: block;
+  gap: 0;
+  width: var(--cui-ad-placement-card-width);
+  min-width: 0;
+  max-width: calc(100vw - var(--spacing-12) * 2);
+  height: auto;
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-3);
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+  text-align: left;
+  overflow-wrap: break-word;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--spacing-4));
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-settle),
+    visibility 0s linear var(--duration-fast);
+}
+.cui-card[data-card="ad-placement"][data-visible] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+/* Inline: in the page flow and visible, for documentation (the gallery's .adplacement-demo). */
+.cui-card[data-card="ad-placement"][data-inline] {
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: auto;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+/* Head: icon, then the title and "where" as rows 1 and 2. The icon centres on the head's first two lines. */
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--spacing-12);
+  align-items: start;
+  margin: 0 0 var(--spacing-8);
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__icon {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: center;
+  display: block;
+  width: var(--icon-base);
+  height: var(--icon-base);
+  color: var(--cui-ad-placement-card-accent);
+}
+/* A wrapped title: both of the first two lines are title, so the icon centres one title line-height down. */
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__head[data-title-wrapped] .cui-ad-placement-card__icon {
+  grid-row: 1;
+  align-self: start;
+  margin-top: calc(var(--text-h5-lh) - var(--icon-base) / 2);
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__title {
+  grid-column: 2;
+  grid-row: 1;
+  display: block;
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__where {
+  grid-column: 2;
+  grid-row: 2;
+  display: block;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+
+/* One-sentence description. */
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__desc {
+  margin: 0 0 var(--spacing-12);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-6);
+}
+
+/* Facts: Sizes, Runs on, on one shared grid so both values start on the same line. Values wrap, never truncate. */
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--spacing-4) var(--spacing-12);
+  margin: 0 0 var(--spacing-12);
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__fact {
+  display: contents;
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__fact dt {
+  align-self: baseline;
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--text-label3-weight);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__fact dd {
+  align-self: baseline;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-strong-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__fact dd[data-empty] {
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__more {
+  color: var(--color-neutral-5);
+}
+
+/* Fit: the headline count. */
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__fit {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding-top: var(--spacing-12);
+  border-top: var(--border-width-sm) solid var(--color-neutral-2);
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__count {
+  flex: none;
+  font-size: var(--text-h4-size);
+  /* Q-ADPL-5: line-height 1 on the count is a recorded one-off. */
+  line-height: 1;
+  font-weight: var(--text-h4-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__fit-text {
+  min-width: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-card[data-card="ad-placement"][data-fit-none] .cui-ad-placement-card__count {
+  color: var(--color-neutral-5);
+}
+
+/* CTA hint (optional). Not a button: the card never takes the pointer. */
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__cta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin: var(--spacing-12) 0 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+.cui-card[data-card="ad-placement"] .cui-ad-placement-card__cta svg {
+  flex: none;
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+}
+
+/* Touch-primary devices: never shown. The same text still reaches assistive technology through aria-describedby. */
+@media (hover: none) {
+  .cui-card[data-card="ad-placement"]:not([data-inline]) {
+    display: none;
+  }
+}
+
+/* Reduced motion: opacity only, no rise. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-card[data-card="ad-placement"] {
+    transform: none;
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      visibility 0s linear var(--duration-fast);
+  }
+}
+
+/* Forced colours strip box-shadow; keep the edge and the rule visible. */
+@media (forced-colors: active) {
+  .cui-card[data-card="ad-placement"] {
+    border-color: CanvasText;
+  }
+  .cui-card[data-card="ad-placement"] .cui-ad-placement-card__fit {
+    border-top-color: CanvasText;
+  }
+}

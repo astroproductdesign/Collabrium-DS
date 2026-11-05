@@ -62,7 +62,7 @@ const rows: Row[] = [
   {
     id: 'inline',
     label: 'Inline',
-    note: 'The old link has no hover or focus style (Q-EMPTY-1).',
+    note: 'The old link has no hover or focus style; the new one adds both (decided Q-EMPTY-1).',
     next: (
       <EmptyState variant="inline" linkAction={{ label: 'Clear filters', onClick: noop }}>
         No campaigns match "Q5 launch".

@@ -1,0 +1,241 @@
+/*
+  Progress Bar — ported from collabrium-dls/components.css lines 4561–4634
+  (.c-progress and its parts, the stacked segments, indeterminate, reduced
+  motion, forced colours and the stacked legend).
+
+  Mapping from the old classes:
+    .c-progress                        -> .cui-progress
+    .c-progress-header / -title / -value
+                                       -> .cui-progress__header / __title / __value
+    .c-progress-track (.size-compact / -default / -large)
+                                       -> .cui-progress__track[data-size="compact" | "default" | "large"]
+    .c-progress-fill (.tone-*)         -> .cui-progress__fill[data-tone]
+    .c-progress-fill-label             -> .cui-progress__fill-label
+    .c-progress-trailing-wrap / -trailing
+                                       -> .cui-progress__trailing-wrap / __trailing
+    .c-progress-track.stacked          -> [data-stacked]
+    .c-progress-stack-segment (.tone-*) -> .cui-progress__segment[data-tone]
+    .c-progress-stack-remainder        -> .cui-progress__remainder
+    .c-progress-track.indeterminate    -> [data-indeterminate]
+    .c-progress-indeterminate-fill     -> .cui-progress__indeterminate
+    @keyframes c-progress-shimmer      -> @keyframes cui-progress-shimmer (shared: Media Ad Card's skeleton uses it)
+    .c-progress-legend (.is-hidden)    -> .cui-progress__legend (legend={false} leaves it out)
+    .c-progress-legend-item / -swatch  -> .cui-progress__legend-item / __swatch[data-tone]
+    (no CSS in the source)             -> [data-tone="purple" | "turquoise" | "overflow"] (from the DS, decided Q-PROGRESS-2)
+
+  Specificity keeps the source's order: base parts, sizes, then tones, the
+  stacked and indeterminate rules, reduced motion and forced colours last.
+*/
+
+.cui-progress {
+  /*
+    No token, kept local: the 4/8/16px track heights (on the track, below; the DS records them as one-offs, as Slider's track), the inside
+    label's 40px minimum fill, the legend's 8px swatch and 2px radius, and the shimmer's 40% band and 60% reduced-motion
+    width (decided Q-PROGRESS-5).
+  */
+  --cui-progress-label-min: 40px;
+  --cui-progress-swatch: 8px;
+  --cui-progress-swatch-radius: 2px;
+  --cui-progress-shimmer-width: 40%;
+  --cui-progress-shimmer-mix: 40%;
+  --cui-progress-still-width: 60%;
+  width: 100%;
+}
+.cui-progress__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-4);
+}
+.cui-progress__title {
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+.cui-progress__value {
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-progress__track {
+  /* The track heights live on the track, so a track used on its own (Metrics card's bars) keeps them. */
+  --cui-progress-compact: 4px;
+  --cui-progress-default: 8px;
+  --cui-progress-large: 16px;
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-3);
+  overflow: hidden;
+}
+.cui-progress__track[data-size="compact"] { height: var(--cui-progress-compact); }
+.cui-progress__track[data-size="default"] { height: var(--cui-progress-default); }
+.cui-progress__track[data-size="large"] { height: var(--cui-progress-large); }
+.cui-progress__fill {
+  position: relative;
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+  transition:
+    width var(--duration-base) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-progress__fill[data-tone="success"], .cui-progress__segment[data-tone="success"] { background: var(--color-green); }
+.cui-progress__fill[data-tone="error"], .cui-progress__segment[data-tone="error"] { background: var(--color-red); }
+.cui-progress__fill[data-tone="fire"], .cui-progress__segment[data-tone="fire"] { background: var(--color-orange); }
+.cui-progress__fill[data-tone="wood"], .cui-progress__segment[data-tone="wood"] { background: var(--color-salmon-pink); }
+.cui-progress__fill[data-tone="earth"], .cui-progress__segment[data-tone="earth"] { background: var(--color-green); }
+.cui-progress__fill[data-tone="water"], .cui-progress__segment[data-tone="water"] { background: var(--color-navy); }
+.cui-progress__fill[data-tone="gold"], .cui-progress__segment[data-tone="gold"] { background: var(--color-amber); }
+/* The general-data reserve and the overflow colour (DS Stacked color rules; no CSS in the source). */
+.cui-progress__segment[data-tone="purple"] { background: var(--color-purple); }
+.cui-progress__segment[data-tone="turquoise"] { background: var(--color-turquoise); }
+.cui-progress__segment[data-tone="overflow"] { background: var(--color-neutral-4); }
+/*
+  Centred within the fill, as the DS says (the source has no positioned fill, so it centred on the whole track and
+  a short fill left the white label on grey). Decided 2026-11-05, Q-PROGRESS-3.
+*/
+.cui-progress__fill-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-1);
+  white-space: nowrap;
+}
+.cui-progress__trailing-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+.cui-progress__trailing-wrap .cui-progress__track {
+  flex: 1;
+}
+.cui-progress__trailing {
+  flex: none;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+
+/* Stacked — contiguous segments, radius-pill on the outer edges only; the remainder takes the space left. */
+.cui-progress__track[data-stacked] {
+  display: flex;
+}
+.cui-progress__segment {
+  display: block;
+  height: 100%;
+  flex: none;
+  transition: width var(--duration-base) var(--ease-standard);
+}
+.cui-progress__segment:first-child {
+  border-top-left-radius: var(--radius-pill);
+  border-bottom-left-radius: var(--radius-pill);
+}
+.cui-progress__segment:last-child {
+  border-top-right-radius: var(--radius-pill);
+  border-bottom-right-radius: var(--radius-pill);
+}
+.cui-progress__remainder {
+  display: block;
+  flex: 1;
+  height: 100%;
+}
+
+/* Indeterminate — Neutral-5 at 40% travelling over the Neutral-3 track. */
+.cui-progress__indeterminate {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--cui-progress-shimmer-width);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) var(--cui-progress-shimmer-mix), transparent), transparent);
+  animation: cui-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;
+}
+/* Travels to 350%, as the source (the DS's 200% is owed a correction). Decided 2026-11-05, Q-PROGRESS-1. */
+@keyframes cui-progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cui-progress__indeterminate {
+    animation: none;
+    position: static;
+    width: var(--cui-progress-still-width);
+    background: var(--color-neutral-4);
+  }
+  .cui-progress__fill,
+  .cui-progress__segment {
+    transition: none;
+  }
+}
+
+/*
+  Forced colours — the track is outlined and every fill and segment painted CanvasText, toned ones included (the
+  [data-tone] selectors match the tone rules' specificity), as the DS says; the in-bar label flips to Canvas. The
+  legend's swatches are stripped; each item's text still names its segment. Decided 2026-11-05, Q-PROGRESS-8 and 9.
+*/
+@media (forced-colors: active) {
+  .cui-progress__track {
+    outline: var(--border-width-sm) solid CanvasText;
+  }
+  .cui-progress__fill,
+  .cui-progress__fill[data-tone],
+  .cui-progress__segment,
+  .cui-progress__segment[data-tone],
+  .cui-progress__indeterminate {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+  .cui-progress__fill-label {
+    forced-color-adjust: none;
+    color: Canvas;
+  }
+}
+
+/* Legend — stacked only, under the bar. */
+.cui-progress__legend {
+  margin-top: var(--spacing-8);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-16);
+}
+.cui-progress__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+}
+.cui-progress__swatch {
+  width: var(--cui-progress-swatch);
+  height: var(--cui-progress-swatch);
+  border-radius: var(--cui-progress-swatch-radius);
+  flex: none;
+}
+.cui-progress__swatch[data-tone="fire"] { background: var(--color-orange); }
+.cui-progress__swatch[data-tone="wood"] { background: var(--color-salmon-pink); }
+.cui-progress__swatch[data-tone="earth"] { background: var(--color-green); }
+.cui-progress__swatch[data-tone="water"] { background: var(--color-navy); }
+.cui-progress__swatch[data-tone="gold"] { background: var(--color-amber); }
+.cui-progress__swatch[data-tone="purple"] { background: var(--color-purple); }
+.cui-progress__swatch[data-tone="turquoise"] { background: var(--color-turquoise); }
+.cui-progress__swatch[data-tone="overflow"] { background: var(--color-neutral-4); }

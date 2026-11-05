@@ -1,0 +1,87 @@
+/*
+  ElementBadge — ported from collabrium-dls/components.css lines 3595–3604
+  (.c-elbadge, its chip, the five element fills and the label text).
+
+  Mapping from the old classes:
+    .c-elbadge                         -> .cui-element-badge (also wraps a chip shown alone)
+    .c-elbadge-chip                    -> .cui-element-badge__chip
+    .c-elbadge-fire / -earth / -water /
+    -gold / -wood                      -> .cui-element-badge__chip[data-element="..."]
+    .c-elbadge .text                   -> .cui-element-badge__text
+    .c-elbadge .text .name             -> .cui-element-badge__name
+    .c-elbadge .text .fn               -> .cui-element-badge__sublabel
+    <i class="ph-fill ph-…"> (17px)    -> svg (Phosphor, Fill), 16px icon-sm (decided Q-ELBADGE-2)
+
+  Specificity is kept in the same order as the source: the chip (0,1,0) sets the box and the element fills (0,2,0
+  here, 0,1,0 later in the source) set the colour; the label parts are (0,1,0) here where the source's are (0,3,0),
+  with nothing else competing. Nothing is interactive, so there are no state rules.
+*/
+
+.cui-element-badge {
+  /*
+    No token, kept local: the 32px chip and the 12% tint (the DS's documented one-off, as Card's icon chip).
+    Decided 2026-11-05, Q-ELBADGE-7.
+  */
+  --cui-element-badge-size: 32px;
+  --cui-element-badge-tint: 12%;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+.cui-element-badge__chip {
+  --cui-element-badge-color: var(--color-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cui-element-badge-size);
+  height: var(--cui-element-badge-size);
+  border-radius: var(--radius-sm);
+  flex: none;
+  background: color-mix(in srgb, var(--cui-element-badge-color) var(--cui-element-badge-tint), transparent);
+  color: var(--cui-element-badge-color);
+}
+/* The glyph is icon-sm (16px): the source's 17px and the DS's 60% (19.2px) have no token. Decided 2026-11-05, Q-ELBADGE-2. */
+.cui-element-badge__chip svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-element-badge__chip[data-element="fire"] { --cui-element-badge-color: var(--color-orange); }
+.cui-element-badge__chip[data-element="earth"] { --cui-element-badge-color: var(--color-green); }
+.cui-element-badge__chip[data-element="water"] { --cui-element-badge-color: var(--color-navy); }
+.cui-element-badge__chip[data-element="gold"] { --cui-element-badge-color: var(--color-amber); }
+.cui-element-badge__chip[data-element="wood"] { --cui-element-badge-color: var(--color-salmon-pink); }
+
+/*
+  The label: the name (caption 700, eyebrow tracking, uppercase, Neutral-9) over the sublabel (caption, Neutral-5).
+  The source sets no font family, line height or sublabel weight, so they come from the page; set here from the
+  caption tokens (Mulish, 16px, 400), as the DLS's other eyebrows. Decided 2026-11-05, Q-ELBADGE-6.
+*/
+.cui-element-badge__text {
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+}
+.cui-element-badge__name {
+  display: block;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-9);
+}
+.cui-element-badge__sublabel {
+  display: block;
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+/*
+  Forced colours: the tint is dropped, so the chip takes a 1px border in the system text colour to keep its shape,
+  as Tag does; the 32px box includes it. Not in the source. Decided 2026-11-05, Q-ELBADGE-8.
+*/
+@media (forced-colors: active) {
+  .cui-element-badge__chip {
+    box-sizing: border-box;
+    border: var(--border-width-sm) solid CanvasText;
+  }
+}

@@ -1,0 +1,184 @@
+/*
+  Info Banner — ported from collabrium-dls/components.css lines 3267–3324
+  (.c-banner, the five tones and .c-banner-ai). The AI tone's gradient
+  reuses Prompt input bar's keyframe by name (cui-prompt-bar-glow-move in
+  PromptInputBar.css), as the source reuses c-prompt-bar-glow-move.
+
+  Mapping from the old classes:
+    .c-banner                          -> .cui-info-banner
+    .c-banner-{neutral|info|success|danger|warning|ai}
+                                       -> [data-tone="…"]
+    .c-banner .icon / .body / .message -> __icon / __body / __message
+    .c-banner .actions / .actions .action
+                                       -> __actions / __action
+    .c-banner .close (.c-icon-btn)     -> __close (the real Button, ghost, sm, icon-only)
+
+  Specificity keeps the source's order: the base parts are a class and a
+  descendant (0,2,0) as `.c-banner .message`; tone colours add the tone
+  attribute (0,3,0) as `.c-banner-info .message` (0,2,0) did over the base.
+*/
+
+.cui-info-banner {
+  /*
+    Q-BANNER-1 (kept for now, 2026-11-05): the message and actions are the tone colour at 80% opacity (rgba literals in the source); written
+    with color-mix on the tokens. Success's text is rgb(0,133,76), which no token holds (the DS says #007d47); kept local.
+  */
+  --cui-info-banner-text-strength: 80%;
+  --cui-info-banner-success-text: rgb(0 133 76);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--spacing-12) var(--spacing-16);
+  border-radius: var(--radius-md);
+  border: var(--border-width-sm) solid transparent;
+  box-shadow: none;
+  font-family: var(--font-primary);
+}
+.cui-info-banner .cui-info-banner__icon {
+  flex: none;
+  width: var(--icon-base);
+  height: var(--icon-base);
+}
+.cui-info-banner .cui-info-banner__body {
+  flex: 1;
+  min-width: 0;
+}
+.cui-info-banner .cui-info-banner__message {
+  font-size: var(--text-body2-size);
+  font-weight: var(--text-body2-weight);
+  line-height: var(--text-body2-lh);
+}
+.cui-info-banner .cui-info-banner__actions {
+  display: flex;
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-8);
+}
+/* Actions look exactly like the message, underlined: no primary/secondary split beyond order. */
+.cui-info-banner .cui-info-banner__action {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  font-weight: var(--text-body2-weight);
+  text-decoration: underline;
+  cursor: pointer;
+}
+/* Focus ring on the actions (the source draws the browser default; decided Q-BANNER-3). */
+.cui-info-banner .cui-info-banner__action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+.cui-info-banner .cui-info-banner__close {
+  margin-left: auto;
+  display: flex;
+}
+
+/* Tones: fill, border, icon at full strength, message and actions at 80%. */
+.cui-info-banner[data-tone="neutral"] {
+  background: var(--color-neutral-2);
+  border-color: var(--color-neutral-3);
+}
+.cui-info-banner[data-tone="neutral"] .cui-info-banner__icon { color: var(--color-neutral-9); }
+.cui-info-banner[data-tone="neutral"] :is(.cui-info-banner__message, .cui-info-banner__action) {
+  color: color-mix(in srgb, var(--color-neutral-9) var(--cui-info-banner-text-strength), transparent);
+}
+
+.cui-info-banner[data-tone="info"] {
+  background: var(--color-navy-tint);
+  border-color: var(--color-navy-tint-border);
+}
+.cui-info-banner[data-tone="info"] .cui-info-banner__icon { color: var(--color-navy); }
+.cui-info-banner[data-tone="info"] :is(.cui-info-banner__message, .cui-info-banner__action) {
+  color: color-mix(in srgb, var(--color-navy) var(--cui-info-banner-text-strength), transparent);
+}
+
+.cui-info-banner[data-tone="success"] {
+  background: var(--color-green-tint);
+  border-color: var(--color-green-tint-border);
+}
+.cui-info-banner[data-tone="success"] .cui-info-banner__icon { color: var(--color-green); }
+.cui-info-banner[data-tone="success"] :is(.cui-info-banner__message, .cui-info-banner__action) {
+  color: color-mix(in srgb, var(--cui-info-banner-success-text) var(--cui-info-banner-text-strength), transparent);
+}
+
+.cui-info-banner[data-tone="danger"] {
+  background: var(--color-red-tint);
+  border-color: var(--color-red-tint-border);
+}
+.cui-info-banner[data-tone="danger"] .cui-info-banner__icon { color: var(--color-red); }
+.cui-info-banner[data-tone="danger"] :is(.cui-info-banner__message, .cui-info-banner__action) {
+  color: color-mix(in srgb, var(--color-red) var(--cui-info-banner-text-strength), transparent);
+}
+
+.cui-info-banner[data-tone="warning"] {
+  background: var(--color-amber-tint);
+  border-color: var(--color-amber-tint-border);
+}
+.cui-info-banner[data-tone="warning"] .cui-info-banner__icon { color: var(--color-amber); }
+.cui-info-banner[data-tone="warning"] :is(.cui-info-banner__message, .cui-info-banner__action) {
+  color: color-mix(in srgb, var(--color-amber-text) var(--cui-info-banner-text-strength), transparent);
+}
+
+/*
+  AI Recommendation: Prompt input bar's glow gradient and keyframe, reused by name. The fill (a 12% wash) and the 1px
+  ring are two pseudo-element layers, so both animate apart from the fixed text.
+*/
+.cui-info-banner[data-tone="ai"] {
+  --cui-info-banner-ai-loop: 4s;
+  --cui-info-banner-ai-wash: .12;
+  position: relative;
+  background: none;
+  border-color: transparent;
+  overflow: hidden;
+}
+.cui-info-banner[data-tone="ai"] :is(.cui-info-banner__icon, .cui-info-banner__body, .cui-info-banner__close) {
+  position: relative;
+  z-index: 1;
+}
+.cui-info-banner[data-tone="ai"] .cui-info-banner__icon { color: var(--color-neutral-9); }
+.cui-info-banner[data-tone="ai"] :is(.cui-info-banner__message, .cui-info-banner__action) {
+  color: color-mix(in srgb, var(--color-neutral-9) var(--cui-info-banner-text-strength), transparent);
+}
+.cui-info-banner[data-tone="ai"]::before,
+.cui-info-banner[data-tone="ai"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: linear-gradient(90deg, var(--color-fire-pastel) 0%, var(--color-wood-pastel) 20%, var(--color-earth-pastel) 40%, var(--color-water-pastel) 60%, var(--color-gold-pastel) 80%, var(--color-fire-pastel) 100%);
+  background-size: 200% 100%;
+  animation: cui-prompt-bar-glow-move var(--cui-info-banner-ai-loop) linear infinite;
+}
+.cui-info-banner[data-tone="ai"]::before {
+  opacity: var(--cui-info-banner-ai-wash);
+}
+.cui-info-banner[data-tone="ai"]::after {
+  z-index: 2;
+  padding: var(--border-width-sm);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cui-info-banner[data-tone="ai"]::before,
+  .cui-info-banner[data-tone="ai"]::after {
+    animation: none;
+  }
+}
+
+/* Forced colours: the tints aren't drawn, so the banner keeps its edge as a CanvasText border; the AI ring hides (decided Q-BANNER-6). */
+@media (forced-colors: active) {
+  .cui-info-banner {
+    border-color: CanvasText;
+  }
+  .cui-info-banner[data-tone="ai"]::before,
+  .cui-info-banner[data-tone="ai"]::after {
+    display: none;
+  }
+}

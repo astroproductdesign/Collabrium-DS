@@ -1,0 +1,43 @@
+// Info Banner preview: the gallery's six banners, with the OLD HTML + CSS (collabrium-dls/components.css) rendered
+// beside them for visual comparison. Never part of the package build.
+import { InfoBanner } from './InfoBanner';
+
+// Copied verbatim from collabrium-dls/components.css lines 3267–3324 (Info Banner), with the c-prompt-bar-glow-move
+// keyframe and .c-icon-btn (1787–1788) it uses, for side-by-side comparison only. Never shipped in the package.
+export const legacyInfoBannerCss = "/* Info Banner — inline, persistent, container-anchored (vs. Toast's\n   floating/viewport-level). No Title part — Message is the only text\n   content. Actions are always the last element, styled identically to\n   Message (underlined), no Ghost-button/Link split. */\n.c-banner{display:flex; align-items:center; gap:var(--spacing-12); width:100%; box-sizing:border-box; padding:var(--spacing-12) var(--spacing-16); border-radius:var(--radius-md); border:1px solid transparent; box-shadow:none;}\n.c-banner .icon{font-size:var(--icon-base); flex:none;}\n.c-banner .body{flex:1; min-width:0;}\n.c-banner .message{font-size:var(--text-body2-size); font-weight:var(--text-body2-weight); line-height:var(--text-body2-lh);}\n.c-banner .actions{display:flex; gap:var(--spacing-12); margin-top:var(--spacing-8);}\n.c-banner .actions .action{background:none; border:none; padding:0; font-family:inherit; font-size:var(--text-body2-size); font-weight:var(--text-body2-weight); text-decoration:underline; cursor:pointer;}\n.c-banner .close{margin-left:auto;}\n\n.c-banner-neutral{background:var(--color-neutral-2); border-color:var(--color-neutral-3);}\n.c-banner-neutral .icon{color:var(--color-neutral-9);}\n.c-banner-neutral .message,.c-banner-neutral .actions .action{color:rgba(8,8,8,.8);}\n\n.c-banner-info{background:var(--color-navy-tint); border-color:var(--color-navy-tint-border);}\n.c-banner-info .icon{color:var(--color-navy);}\n.c-banner-info .message,.c-banner-info .actions .action{color:rgba(20,115,230,.8);}\n\n.c-banner-success{background:var(--color-green-tint); border-color:var(--color-green-tint-border);}\n.c-banner-success .icon{color:var(--color-green);}\n.c-banner-success .message,.c-banner-success .actions .action{color:rgba(0,133,76,.8);}\n\n.c-banner-danger{background:var(--color-red-tint); border-color:var(--color-red-tint-border);}\n.c-banner-danger .icon{color:var(--color-red);}\n.c-banner-danger .message,.c-banner-danger .actions .action{color:rgba(253,51,67,.8);}\n\n.c-banner-warning{background:var(--color-amber-tint); border-color:var(--color-amber-tint-border);}\n.c-banner-warning .icon{color:var(--color-amber);}\n.c-banner-warning .message,.c-banner-warning .actions .action{color:rgba(154,92,0,.8);}\n\n/* AI Recommendation — reuses Prompt input bar's own glow gradient and\n   c-prompt-bar-glow-move keyframe verbatim (defined further down this\n   file), not a second copy of the animation. Fill and border are two\n   pseudo-element layers instead of a flat background/border-color pair,\n   since both need to animate independently of the tone's fixed text. */\n.c-banner-ai{position:relative; background:none; border-color:transparent; overflow:hidden;}\n.c-banner-ai .icon{position:relative; z-index:1; color:var(--color-neutral-9);}\n.c-banner-ai .body{position:relative; z-index:1;}\n.c-banner-ai .close{position:relative; z-index:1;}\n.c-banner-ai .message,.c-banner-ai .actions .action{color:rgba(8,8,8,.8);}\n.c-banner-ai::before,\n.c-banner-ai::after{\n  content:''; position:absolute; inset:0; z-index:0; pointer-events:none;\n  border-radius:inherit;\n  background-image:linear-gradient(90deg,var(--color-fire-pastel) 0%,var(--color-wood-pastel) 20%,var(--color-earth-pastel) 40%,var(--color-water-pastel) 60%,var(--color-gold-pastel) 80%,var(--color-fire-pastel) 100%);\n  background-size:200% 100%;\n  animation:c-prompt-bar-glow-move 4s linear infinite;\n}\n.c-banner-ai::before{opacity:.12;}\n.c-banner-ai::after{\n  z-index:2; padding:1px;\n  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);\n  -webkit-mask-composite:xor;\n  mask-composite:exclude;\n}\n@media (prefers-reduced-motion:reduce){";
+const legacyExtras = "@keyframes c-prompt-bar-glow-move{ from{background-position:0% 0;} to{background-position:200% 0;} }\n.c-icon-btn{width:var(--control-height-sm); height:var(--control-height-sm); display:flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); background:transparent; border:none; cursor:pointer;}\n.c-icon-btn:hover{background:var(--color-neutral-2);}";
+
+// preview.html 3655–3697 (the Phosphor <i> icons removed: the preview has no icon font).
+const oldBanners = "<div class=\"comp-row\" style=\"flex-direction:column; align-items:stretch; gap:var(--spacing-8);\">\n<div class=\"c-banner c-banner-neutral\" role=\"note\">\n<div class=\"body\"><div class=\"message\">Message-only is the default shape. A general FYI with no positive or negative charge.</div></div>\n</div>\n<div class=\"c-banner c-banner-info\" role=\"status\">\n<div class=\"body\"><div class=\"message\">Dismissible, no action slot. Just a close button.</div></div>\n<button class=\"c-icon-btn close\" type=\"button\" aria-label=\"Dismiss\"></button>\n</div>\n<div class=\"c-banner c-banner-success\" role=\"note\">\n<div class=\"body\"><div class=\"message\">Sync complete. All records are up to date.</div></div>\n</div>\n<div class=\"c-banner c-banner-warning\" role=\"status\">\n<div class=\"body\">\n<div class=\"message\">Your card on file expires this month.</div>\n<div class=\"actions\">\n<button class=\"action\" type=\"button\">Update billing</button>\n<button class=\"action\" type=\"button\">Remind me later</button>\n</div>\n</div>\n<button class=\"c-icon-btn close\" type=\"button\" aria-label=\"Dismiss\"></button>\n</div>\n<div class=\"c-banner c-banner-danger\" role=\"note\">\n<div class=\"body\"><div class=\"message\">We can&rsquo;t reach the server right now. Retrying automatically.</div></div>\n</div>\n<div style=\"display:flex; align-items:center; gap:var(--spacing-8); margin-top:var(--spacing-8);\">\n<p style=\"margin:0; font-size:12px; color:var(--color-neutral-5);\">AI Recommendation</p>\n<span style=\"font-size:11px;font-weight:700;color:var(--color-neutral-1);background:var(--color-obsidian);padding:2px 8px;border-radius:var(--radius-pill);\">AI Native</span>\n</div>\n<div class=\"c-banner c-banner-ai\" role=\"status\">\n<div class=\"body\">\n<div class=\"message\">3 of your workspaces share the same permissions. Combine them into one group?</div>\n<div class=\"actions\">\n<button class=\"action\" type=\"button\">Apply suggestion</button>\n</div>\n</div>\n<button class=\"c-icon-btn close\" type=\"button\" aria-label=\"Dismiss\"></button>\n</div>\n</div>";
+
+const noop = () => {};
+
+export function InfoBannerPreview() {
+  return (
+    <>
+      <style>{[legacyInfoBannerCss, legacyExtras].join('\n')}</style>
+      <section className="pg-row" id="tones" aria-labelledby="tones-h">
+        <h3 className="pg-row-title" id="tones-h">The gallery's six banners (preview.html 3655–3697)</h3>
+        <div className="pg-cols">
+          <div className="pg-col" data-col="new">
+            <p className="pg-col-label">React · @collabrium/ui</p>
+            <div className="pg-specimen" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-8)' }}>
+              <InfoBanner tone="neutral">Message-only is the default shape. A general FYI with no positive or negative charge.</InfoBanner>
+              <InfoBanner tone="info" dismissible>Dismissible, no action slot. Just a close button.</InfoBanner>
+              <InfoBanner tone="success">Sync complete. All records are up to date.</InfoBanner>
+              <InfoBanner tone="warning" dismissible actions={[{ label: 'Update billing', onClick: noop }, { label: 'Remind me later', onClick: noop }]}>Your card on file expires this month.</InfoBanner>
+              <InfoBanner tone="danger">We can’t reach the server right now. Retrying automatically.</InfoBanner>
+              <InfoBanner tone="ai" actions={[{ label: 'Apply suggestion', onClick: noop }]}>3 of your workspaces share the same permissions. Combine them into one group?</InfoBanner>
+            </div>
+          </div>
+          <div className="pg-col" data-col="old">
+            <p className="pg-col-label">Old HTML + CSS · components.css</p>
+            <div className="pg-specimen" dangerouslySetInnerHTML={{ __html: oldBanners }} />
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+export default InfoBannerPreview;
