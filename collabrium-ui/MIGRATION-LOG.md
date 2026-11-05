@@ -63,6 +63,8 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 39 | Pacing card (a variant of Card) | **review** | Converted 2026-11-04: `PacingCard`, built on Card, GoalBar (In-table, a Total and Target row) and Badge. The gallery hard-codes the badge, the percent and the footer; the card computes them from `value`, `target`, `day`, `days` and `metOnDay`. See PACING-1 to PACING-5, Decision D-125 and Open questions Q-PACING-1 to Q-PACING-12. |
 | 40 | Entry Card (Character / Artefact) | **review** | Converted 2026-11-04: `EntryCardSet` and `EntryCard`. The gallery shows one Brief card per variant; the other four drawings, the swap and the playback scheduler (DS reference code) are built from the CSS and the DS. See ENTRY-1 to ENTRY-5, Decision D-126 and Open questions Q-ENTRY-1 to Q-ENTRY-9. |
 | 41 | Info Banner | **review** | Converted 2026-11-04: `InfoBanner` with the six tones, dismissible and persistent, up to two actions (one for AI), and the slide-and-fade entrance and exit. Built before Hero Card, which uses it. See BANNER-1 to BANNER-6, Decision D-127 and Open questions Q-BANNER-1 to Q-BANNER-8. |
+| 42 | Hero Card + Command brief (a variant of Card) | **review** | Converted 2026-11-05: `HeroCard` (Default, Risk, AI, Selected) and `CommandBrief`. The gallery shows Default and Selected only; Risk, AI, the tilt and the brief are built from the DS. See HERO-1 to HERO-5, Decision D-128 and Open questions Q-HERO-1 to Q-HERO-9 (answered 2026-11-05). |
+| 43 | Media Ad Card (a variant of Card) | **review** | Converted 2026-11-05: `MediaAdCard` and `MediaAdCardSkeleton`. The gallery shows one card at rest; the families, missing data, Compared, the badge, touch, the tilt and the skeleton are built from the CSS and the DS. See MEDIA-AD-1 to MEDIA-AD-4, Decision D-129 and Open questions Q-MEDIA-AD-1 to Q-MEDIA-AD-8 (answered 2026-11-05). |
 | — | everything else | todo | Not started. |
 
 ---
@@ -636,6 +638,33 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-BANNER-7 | The entrance plays whenever a banner mounts, including one present when the page first loads. Keep? My recommendation: keep: it is a short, small move **Answered 2026-11-05: keep (the recommendation)** | `InfoBanner.tsx` |
 | Q-BANNER-8 | The AI tone's rules are in the types: always dismissible, exactly one action. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `InfoBanner.tsx` |
 
+### Hero Card
+
+| ID | Question | Where |
+|---|---|---|
+| Q-HERO-1 | The DS notes a known gap: the card that opens the brief is a click-only `<div>`. Built: `onOpen` makes the heading a real button stretched over the card (as Card), so it opens from the keyboard; the CTA stays its own button. A Default or Risk card with `onOpen` raises to shadow-2 on hover, as Card's interactive cards. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `HeroCard.tsx` |
+| Q-HERO-2 | The brief's close: the DS draws a bare 20px Neutral-5 X with no focus style. Built with the real Button (ghost, sm, icon-only: a 32px target, a focus ring). Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `HeroCard.tsx` |
+| Q-HERO-3 | The brief as a dialog: `role="dialog"`, `aria-modal`, named by its heading; opening moves focus to the heading (an approved focus target), Tab stays inside, closing returns focus to the opener. The DS has none of this. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `HeroCard.tsx` |
+| Q-HERO-4 | Reduced motion (the DS is silent): no tilt, no arrow nudge, and the brief fades in place without the swing. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `HeroCard.css` |
+| Q-HERO-5 | Forced colours (no source): every card and the brief keep a CanvasText edge; the ribbon keeps its colours; an openable card's focus is a Highlight outline. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `HeroCard.css` |
+| Q-HERO-6 | One-off values with no token, kept local: the 80px ribbon box, 150px strip and 5px padding, the 112px and 160px media heights, 560px, the tilt's 800px, 4deg and 1.05, the brief's 1000px and -8deg, and the AI card's white-on-dark rgba values (the DS keeps them scoped). Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `HeroCard.css` |
+| Q-HERO-7 | Risk, AI (Dark), the tilt and the Command brief aren't in the gallery; built from the CSS and the DS. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `HeroCard.tsx` |
+| Q-HERO-8 | The AI card shows a pointer cursor even with nothing to open (as the source). Show it only when the card has `onOpen`? My recommendation: yes, only with `onOpen` **Answered 2026-11-05: keep (the recommendation)** | `HeroCard.css` |
+| Q-HERO-9 | The recommendation and source lines are `<p>`s with no margin rule, so the browser gives them 12px above and below (the card is 24px taller for it). Built to match. It looks unintended: the body line resets its margin. Drop the margins (the card's 8px or 16px gap would separate them)? My recommendation: drop them **Answered 2026-11-05: keep the 12px margins: the extra spacing is intended** | `HeroCard.css` |
+
+### Media Ad Card
+
+| ID | Question | Where |
+|---|---|---|
+| Q-MEDIA-AD-1 | A missing size shows an em dash, as the DS says; a screen reader skips a bare dash or reads "em dash". Built as Campaign card (Q-CAMPAIGN-8): the dash hidden from screen readers, "No fixed size" read instead. "Not published" is already words. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MediaAdCard.tsx` |
+| Q-MEDIA-AD-2 | The DS's missing-data rule covers Sizes and Benchmark only. Built: `objective`, `tagline` and `funnel` are required, so they can't be missing. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MediaAdCard.tsx` |
+| Q-MEDIA-AD-3 | The tilt is "optional" in the DS; the gallery turns it on. Built as a `tilt` prop, off by default. Keep off by default? My recommendation: off by default **Answered 2026-11-05: off by default (the recommendation)** | `MediaAdCard.tsx` |
+| Q-MEDIA-AD-4 | Compare is always on the card, as the DS's anatomy has it, even when nothing listens to `onComparedChange`. Keep? My recommendation: keep: a catalogue without compare would want a different card **Answered 2026-11-05: keep (the recommendation)** | `MediaAdCard.tsx` |
+| Q-MEDIA-AD-5 | One-off values with no token, kept local (the DS records them as deliberate one-offs): the 2px lift, 16:10, the 1.1 zoom, the 800px / 4deg / 1.015 tilt, the hint's 24px, the Compare hit area's 6px spill, the 72px pill and 60% title bones, the shimmer's 40%. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MediaAdCard.css` |
+| Q-MEDIA-AD-6 | `.is-touch` (a hook that forces the tap hint on a non-touch screen) isn't ported: `(hover: none)` shows it on real touch devices. Keep it out? My recommendation: keep it out **Answered 2026-11-05: keep it out (the recommendation)** | `MediaAdCard.css` |
+| Q-MEDIA-AD-7 | The Built-for-this-slot badge: the DS says a Neutral-3 border; the CSS sets one, but `.c-badge`'s transparent border comes later in components.css at the same specificity and wins, so the gallery draws none. Built as the gallery (no border). Option A: keep as the gallery. Option B: the Neutral-3 border, as the DS and the CSS intend. My recommendation: B **Answered 2026-11-05: option B: the Neutral-3 border (the recommendation)** | `MediaAdCard.css` |
+| Q-MEDIA-AD-8 | The skeleton's shimmer is Progress Bar's keyframe; Progress Bar isn't converted, so it is copied into this component for now, to be shared once Progress Bar is built. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `MediaAdCard.css` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -841,6 +870,25 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | BANNER-4 | The actions have no focus style (browser default). Built with the system ring. Q-BANNER-3 | 3276 | — |
 | BANNER-5 | No forced-colours rules: the tints vanish, leaving no edge. Built: a CanvasText border, and the AI layers hidden. Q-BANNER-6 | — | — |
 | BANNER-6 | Entrance, exit, stacked reposition and Escape are DS only; the gallery is static. Built from the DS with the `motion` library. Q-BANNER-4, Q-BANNER-7 | — | Animation; Accessibility |
+
+### Hero Card and Command brief (affects the Hero Card conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| HERO-1 | The DS's known gap: the card that opens the brief is a `<div>` with a click handler, not reachable by keyboard. Built: `onOpen` makes the heading a real button stretched over the card, as Card (Q-CARD-1). Q-HERO-1 | — | Selected, Known gap |
+| HERO-2 | The brief's close is a bare 20px Neutral-5 X with no focus style. Built with the real Button (ghost, sm, icon-only). Q-HERO-2 | 1633 | Selected, Close |
+| HERO-3 | The brief has no focus handling, Tab containment or dialog role in the source. Built as a dialog: focus to its heading, Tab kept inside, focus back on close. Q-HERO-3 | 1627–1636 | Selected |
+| HERO-4 | No reduced-motion or forced-colours rules for the tilt, the swing or the dark card. Built: no tilt, nudge or swing under reduced motion; a CanvasText edge in forced colours. Q-HERO-4, Q-HERO-5 | — | — |
+| HERO-5 | The gallery shows Default (with ribbon) and Selected only, and has no tilt or brief script; Risk, AI, the tilt and the brief are built from the CSS and the DS. Q-HERO-7 | — | Risk, AI (Dark), Selected |
+
+### Media Ad Card (affects the Media Ad Card conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| MEDIA-AD-1 | The badge's Neutral-3 border (599) loses to `.c-badge`'s transparent border (1642), so the gallery draws none; the DS says Neutral-3. Q-MEDIA-AD-7 | 599, 1642 | Anatomy, Built for this slot |
+| MEDIA-AD-2 | A missing size is a bare em dash, with nothing for a screen reader. Built with hidden "No fixed size". Q-MEDIA-AD-1 | 661 | Missing data |
+| MEDIA-AD-3 | The gallery shows one card at rest; the families, missing data, Compared, the badge, touch, the tilt and the skeleton are built from the CSS and the DS (the touch and tilt logic ported from the gallery script, preview.html 25344–25429). Q-MEDIA-AD-3 | 526–712 | States, Interaction contract |
+| MEDIA-AD-4 | `.is-touch` is a demo hook; not ported. Q-MEDIA-AD-6 | 593 | States, Touch |
 
 ### Tokens and global
 
@@ -1156,6 +1204,8 @@ Grouped by component. Line numbers are CSS / DS.
 | D-125 | Pacing card: built on Card (`data-card="pacing"`), GoalBar (`variant="table" labels="row" rowShowsGap={false}`) and Badge; the percent, badge colour and footer computed from `value`, `target`, `day`, `days`, `metOnDay`; `badge="neutral"` for early in a period | PACING-1 to PACING-5. Flagged Q-PACING-1 to Q-PACING-12 |
 | D-126 | Entry Card: `EntryCardSet` (container, list, headroom, swap, playback scheduler) and `EntryCard` (button or link, `.cui-card.cui-entry-card[data-variant]`); variant from the set by context; the five drawings as markup in the component; still and clip props with the clip's sources loaded on first play | ENTRY-1 to ENTRY-5. Flagged Q-ENTRY-1 to Q-ENTRY-9 |
 | D-127 | Info Banner: one `InfoBanner` with `tone`, `dismissible`, `actions` and `onDismiss`; role note or status; entrance and exit with `motion` (AnimatePresence, height closing); the AI gradient reuses Prompt input bar's keyframe; the close is the real Button | BANNER-1 to BANNER-6. Flagged Q-BANNER-1 to Q-BANNER-8 |
+| D-128 | Hero Card: one `HeroCard` with `variant`, the CTA's Button style set by the variant, the tilt from pointer position; `CommandBrief` renders the Selected content in a body portal, kept mounted through the asymmetric exit; `onOpen` puts a stretched button in the heading | HERO-1 to HERO-5. Flagged Q-HERO-1 to Q-HERO-9 |
+| D-129 | Media Ad Card: an `<article>` with the `cui-card` classes (`data-card="media-ad"`) so Card's surface and hover apply; the name is Card's stretched action; Live by touch, Compared and the tilt are data attributes set by the component; the family Tag colour comes from a fixed map; Compare is controlled or not (`compared` / `defaultCompared`); `MediaAdCardSkeleton` is a separate export | MEDIA-AD-1 to MEDIA-AD-4. Flagged Q-MEDIA-AD-1 to Q-MEDIA-AD-8 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -1520,3 +1570,10 @@ Every place where the React library now follows a decision that differs from the
 | 116 | Entry Card: say the set owns the variant (every card takes the set's; a lone card takes its own) and runs the swap and the playback scheduler itself, with `idleTour` to turn the tour off (decided Q-ENTRY-1, Q-ENTRY-3, Q-ENTRY-4) | DESIGN-SYSTEM.md Entry Card, Class API, Playback rules | 2026-11-04 |
 | 117 | Info Banner: the close is a Ghost icon Button (sm) with a focus ring, not `.c-icon-btn`; the actions take the system focus ring; in forced colours a CanvasText border and the AI layers hidden; Escape dismisses the banner that holds focus; after a dismiss the host moves focus to the section heading (decided Q-BANNER-2 to Q-BANNER-6) | preview.html 3660–3697; components.css 3271–3324; DESIGN-SYSTEM.md Info Banner, Accessibility | 2026-11-05 |
 | 118 | Info Banner: reconcile Success's text, rgb(0,133,76) in the CSS against `#007d47` in the DS; the 80% tone text stays for now, below AA on Info, Success and Warning (kept, Q-BANNER-1, to revisit) | components.css 3291; DESIGN-SYSTEM.md Info Banner, tone table | 2026-11-05 |
+| 119 | Hero Card: fix the known gap: the card that opens the brief holds a real button in its heading, stretched over the card, so it opens from the keyboard; an openable Default or Risk card raises to shadow-2 on hover; the AI card's pointer cursor only when it opens something (decided Q-HERO-1, Q-HERO-8) | components.css 1597–1625; DESIGN-SYSTEM.md Hero Card, Known gap | 2026-11-05 |
+| 120 | Command brief: a dialog (`role="dialog"`, `aria-modal`, named by its heading), focus to the heading on open, Tab kept inside, focus back on close; the close a Ghost icon Button (sm) with a focus ring, not the bare 20px X (decided Q-HERO-2, Q-HERO-3) | components.css 1627–1636; DESIGN-SYSTEM.md Hero Card, Selected | 2026-11-05 |
+| 121 | Hero Card: add reduced motion (no tilt, arrow nudge or swing; the brief fades in place) and forced colours (a CanvasText edge on every card and the brief); say the recommendation and source lines keep their 12px margins, as intended (decided Q-HERO-4, Q-HERO-5, Q-HERO-9) | components.css 1597–1636; DESIGN-SYSTEM.md Hero Card | 2026-11-05 |
+| 122 | Hero Card: show Risk, AI (Dark) with its tilt, and the Command brief in the gallery (only Default and Selected have markup) (decided Q-HERO-7) | preview.html 2703–2729 | 2026-11-05 |
+| 123 | Media Ad Card: give the Built-for-this-slot badge its Neutral-3 border in the CSS (the rule loses to `.c-badge`'s transparent border, later at the same specificity) (decided Q-MEDIA-AD-7) | components.css 599, 1642 | 2026-11-05 |
+| 124 | Media Ad Card: a missing size reads "No fixed size" to a screen reader (the dash `aria-hidden`); Objective, tagline and funnel are required; the tilt is off unless asked for; Compare is always shown (decided Q-MEDIA-AD-1 to Q-MEDIA-AD-4) | DESIGN-SYSTEM.md Media Ad Card, Missing data, States; preview.html 2736–2761 | 2026-11-05 |
+| 125 | Media Ad Card: drop `.is-touch` (a demo hook; `(hover: none)` covers touch devices); show the families, missing data, Compared, the badge and the skeleton in the gallery (decided Q-MEDIA-AD-6) | components.css 593; preview.html 2736–2761 | 2026-11-05 |

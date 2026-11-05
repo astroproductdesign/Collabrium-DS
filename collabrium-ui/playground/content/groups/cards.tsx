@@ -42,7 +42,5 @@ export const rules: GroupOverviewDocs['rules'] = [
 ];
 
 export const comingSoon: GroupOverviewDocs['comingSoon'] = [
-  { title: 'Hero Card', summary: 'A promotional or insight tile with an eyebrow, heading, media and a call to action, in four states.' },
-  { title: 'Media Ad Card', summary: 'One ad format as a gallery tile, whose body turns into spec rows when the card goes live on hover or focus.' },
   { title: 'Metrics card', summary: 'A Media Ad Card for an item whose figures matter most: a headline total and up to five bars.' },
 ];

@@ -1,0 +1,532 @@
+/*
+  Media Ad Card — ported from collabrium-dls/components.css lines 526–712
+  (.c-card-media-ad and its .c-card-media-ad-* parts). The surface is the
+  base Card's (Card.css): fill, border, radius, shadow-1 and the interactive
+  shadow-2 hover come from .cui-card and its stretched action. The Family
+  Tag and the Built-for-this-slot badge are the real Tag and Badge.
+
+  Mapping from the old classes:
+    .c-card.c-card-interactive.c-card-media-ad
+                                       -> .cui-card[data-card="media-ad"] (an <article>)
+    .is-live (first tap on touch)      -> [data-live]
+    .is-compared                       -> [data-compared]
+    .is-tilting, --tilt-x / --tilt-y   -> [data-tilting], --cui-media-ad-card-tilt-x / -y
+    .is-touch (demo hook)              -> not ported: (hover: none) shows the hint on real touch devices (Q-MEDIA-AD-6)
+    .c-card-media-ad-frame / -slot     -> .cui-media-ad-card__frame / __slot
+    .c-card-media-ad-placeholder       -> .cui-media-ad-card__placeholder
+    .c-card-media-ad-hint              -> .cui-media-ad-card__hint
+    .c-card-media-ad-native (.c-badge) -> .cui-media-ad-card__native > Badge
+    .c-card-media-ad-compare           -> .cui-media-ad-card__compare
+    .c-card-media-ad-body / -titlerow  -> .cui-media-ad-card__body / __titlerow (> Tag)
+    .c-card-media-ad .c-card-media-ad-title
+                                       -> .cui-card .cui-media-ad-card__title
+    .c-card-media-ad-open              -> .cui-card__action.cui-media-ad-card__open (Card's stretched action)
+    .c-card-media-ad-swap / -rest / -spec / -spec-row
+                                       -> .cui-media-ad-card__swap / __rest / __spec / __spec-row
+    .c-card-media-ad .c-card-media-ad-tagline / -funnel
+                                       -> .cui-card .cui-media-ad-card__tagline / __funnel
+    dd.is-empty                        -> dd[data-empty]
+    .c-card-media-ad-skeleton          -> [data-skeleton]
+    .c-card-media-ad-bone (.is-media / .is-title / .is-pill / .is-line)
+                                       -> .cui-media-ad-card__bone[data-bone="media" | "title" | "pill" | "line"]
+    .sr-only                           -> .cui-media-ad-card__hidden
+
+  Specificity keeps the source's order: the card, Live, the slot zoom, the
+  Compare states, the swap, Compared, then focus last so the focus halo wins;
+  tilting and reduced motion close the file. The title, tagline and funnel
+  stay two classes deep, as the source, so `.cui-card p` and Card's title
+  rules can't reset them.
+*/
+
+.cui-card[data-card="media-ad"] {
+  /*
+    Q-MEDIA-AD-5: one-off values with no token, kept local (the DS records them as deliberate one-offs): the 2px lift,
+    the 16:10 ratio, the 1.1 zoom, the 800px / 4deg / 1.015 tilt, the hint's 24px (Tag metrics), the Compare hit area's
+    6px spill (44px for touch), the 72px pill and 60% title bones, and the shimmer's 40% Neutral-5.
+  */
+  --cui-media-ad-card-lift: -2px;
+  --cui-media-ad-card-ratio: 16 / 10;
+  --cui-media-ad-card-zoom: 1.1;
+  --cui-media-ad-card-tilt-depth: 800px;
+  --cui-media-ad-card-tilt: 4deg;
+  --cui-media-ad-card-tilt-scale: 1.015;
+  --cui-media-ad-card-hint-height: 24px;
+  --cui-media-ad-card-hit-spill: -6px;
+  --cui-media-ad-card-pill-width: 72px;
+  --cui-media-ad-card-title-bone: 60%;
+  --cui-media-ad-card-shimmer: 40%;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  transition:
+    box-shadow var(--duration-base) var(--ease-settle),
+    transform var(--duration-base) var(--ease-settle);
+}
+
+/* Live — real hover (hover-capable devices only), keyboard focus anywhere inside the card, or a first tap on touch. */
+.cui-card[data-card="media-ad"][data-live],
+.cui-card[data-card="media-ad"]:has(:focus-visible) {
+  box-shadow: var(--shadow-2);
+  transform: translateY(var(--cui-media-ad-card-lift));
+}
+@media (hover: hover) {
+  .cui-card[data-card="media-ad"]:hover {
+    transform: translateY(var(--cui-media-ad-card-lift));
+  }
+}
+
+/* Frame — clip wrapper; Slot — the 16:10 zoom target. */
+.cui-media-ad-card__frame {
+  position: relative;
+  overflow: hidden;
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-media-ad-card__slot {
+  position: relative;
+  aspect-ratio: var(--cui-media-ad-card-ratio);
+  overflow: hidden;
+  background: var(--color-neutral-2);
+  transform-origin: center;
+  transition: transform var(--duration-slow) var(--ease-settle);
+}
+.cui-media-ad-card__slot > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+.cui-media-ad-card__slot > :is(img, video, picture, iframe, canvas) {
+  display: block;
+  object-fit: cover;
+  border: 0;
+}
+.cui-card[data-card="media-ad"][data-live] .cui-media-ad-card__slot,
+.cui-card[data-card="media-ad"]:has(:focus-visible) .cui-media-ad-card__slot {
+  transform: scale(var(--cui-media-ad-card-zoom));
+}
+@media (hover: hover) {
+  .cui-card[data-card="media-ad"]:hover .cui-media-ad-card__slot {
+    transform: scale(var(--cui-media-ad-card-zoom));
+  }
+}
+
+/* Placeholder — the default (and only shipped) slot child. */
+.cui-media-ad-card__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-5);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+}
+.cui-media-ad-card__placeholder svg {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  color: var(--color-neutral-4);
+}
+
+/* Touch hint — "Tap to play", centred on the Frame. Shown on hover:none devices; hidden once Live. */
+.cui-media-ad-card__hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  display: none;
+  align-items: center;
+  gap: var(--spacing-4);
+  height: var(--cui-media-ad-card-hint-height);
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-9);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+}
+.cui-media-ad-card__hint svg {
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+}
+@media (hover: none) {
+  .cui-media-ad-card__hint {
+    display: inline-flex;
+  }
+}
+.cui-card[data-card="media-ad"][data-live] .cui-media-ad-card__hint {
+  display: none;
+}
+
+/* "Built for this slot" — the real Badge, light fill and dark text so it stays AA over any media. Push-pin is Fill (status). */
+.cui-media-ad-card__native {
+  position: absolute;
+  left: var(--spacing-16);
+  bottom: var(--spacing-16);
+  z-index: 2;
+  display: flex;
+  pointer-events: none;
+}
+/*
+  The Neutral-3 border, as the DS and the source rule intend; in the gallery it loses to `.c-badge`'s transparent border,
+  which comes later in components.css at the same specificity (decided 2026-11-05, Q-MEDIA-AD-7).
+*/
+.cui-media-ad-card__native .cui-badge {
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-9);
+  border-color: var(--color-neutral-3);
+  box-shadow: var(--shadow-1);
+}
+.cui-media-ad-card__native .cui-badge__icon {
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+  color: var(--color-navy);
+}
+
+/*
+  Compare — round 32px toggle (Button Secondary colours; Primary Obsidian when pressed). State lives in aria-pressed,
+  the label never changes. ::after widens the hit area to 44px for touch without growing the drawn circle.
+*/
+.cui-media-ad-card__compare {
+  position: absolute;
+  top: var(--spacing-16);
+  left: var(--spacing-16);
+  z-index: 3;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+  box-shadow: var(--shadow-1);
+  color: var(--color-neutral-5);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.cui-media-ad-card__compare svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-media-ad-card__compare::after {
+  content: '';
+  position: absolute;
+  inset: var(--cui-media-ad-card-hit-spill);
+  border-radius: var(--radius-pill);
+}
+.cui-card[data-card="media-ad"][data-live] .cui-media-ad-card__compare:not([aria-pressed="true"]),
+.cui-card[data-card="media-ad"]:has(:focus-visible) .cui-media-ad-card__compare:not([aria-pressed="true"]) {
+  border-color: var(--color-neutral-4);
+  color: var(--color-neutral-9);
+}
+@media (hover: hover) {
+  .cui-card[data-card="media-ad"]:hover .cui-media-ad-card__compare:not([aria-pressed="true"]) {
+    border-color: var(--color-neutral-4);
+    color: var(--color-neutral-9);
+  }
+}
+.cui-media-ad-card__compare:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-media-ad-card__compare:active {
+  background: var(--color-neutral-3);
+}
+.cui-media-ad-card__compare:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-media-ad-card__compare[aria-pressed="true"] {
+  background: var(--color-obsidian);
+  border-color: var(--color-obsidian);
+  color: var(--color-neutral-1);
+}
+.cui-media-ad-card__compare[aria-pressed="true"]:hover {
+  background: var(--color-neutral-8);
+  border-color: var(--color-neutral-8);
+}
+.cui-media-ad-card__compare[aria-pressed="true"]:active {
+  background: var(--color-neutral-7);
+}
+
+/* Body */
+.cui-media-ad-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  padding: var(--card-padding);
+}
+.cui-media-ad-card__titlerow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+}
+.cui-media-ad-card__titlerow > .cui-tag {
+  flex: none;
+}
+/* Title — the Card title style (h5 look). Two classes deep so Card's title rules can't reset it. Wraps to 2 lines, then clamps. */
+.cui-card .cui-media-ad-card__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+/* Primary action — Card's stretched action, above the frame (z-index 1); the ring is drawn on the card, below. */
+.cui-card[data-card="media-ad"] .cui-media-ad-card__open::after {
+  z-index: 1;
+}
+
+/*
+  Swap — rest (tagline + funnel) cross-fades to specs when Live. Height = 2 tagline lines + gap + 1 funnel line, all
+  from tokens; the skeleton reuses this box so a loaded card never changes height.
+*/
+.cui-media-ad-card__swap {
+  position: relative;
+  height: calc(var(--text-body2-lh) * 2 + var(--spacing-8) + var(--text-caption-lh));
+}
+.cui-media-ad-card__rest,
+.cui-media-ad-card__spec {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-settle);
+}
+.cui-media-ad-card__rest {
+  gap: var(--spacing-8);
+}
+.cui-media-ad-card__spec {
+  justify-content: center;
+  gap: var(--spacing-4);
+  opacity: 0;
+  transform: translateY(var(--spacing-8));
+}
+/* Spec rows share one grid, so every value starts on the same line; rows are display:contents. */
+.cui-card .cui-media-ad-card__spec {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-content: center;
+  gap: var(--spacing-4) var(--spacing-12);
+}
+.cui-card[data-card="media-ad"][data-live] .cui-media-ad-card__rest,
+.cui-card[data-card="media-ad"]:has(:focus-visible) .cui-media-ad-card__rest {
+  opacity: 0;
+  transform: translateY(calc(var(--spacing-8) * -1));
+}
+.cui-card[data-card="media-ad"][data-live] .cui-media-ad-card__spec,
+.cui-card[data-card="media-ad"]:has(:focus-visible) .cui-media-ad-card__spec {
+  opacity: 1;
+  transform: none;
+}
+@media (hover: hover) {
+  .cui-card[data-card="media-ad"]:hover .cui-media-ad-card__rest {
+    opacity: 0;
+    transform: translateY(calc(var(--spacing-8) * -1));
+  }
+  .cui-card[data-card="media-ad"]:hover .cui-media-ad-card__spec {
+    opacity: 1;
+    transform: none;
+  }
+}
+.cui-card .cui-media-ad-card__tagline {
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.cui-card .cui-media-ad-card__funnel {
+  margin: auto 0 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cui-media-ad-card__spec-row {
+  display: contents;
+}
+.cui-media-ad-card__spec-row dt {
+  align-self: baseline;
+  margin: 0;
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--text-label3-weight);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+.cui-media-ad-card__spec-row dd {
+  align-self: baseline;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-label2-lh);
+  font-weight: var(--text-body2-strong-weight);
+  color: var(--color-neutral-9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Missing value — em dash / "Not published", never blank. */
+.cui-media-ad-card__spec-row dd[data-empty] {
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+
+/*
+  Compared — Obsidian border + 1px Obsidian ring (reads as 2px without a border-width change, so the full-bleed Frame
+  never shifts) and shadow-3. border-color is not in the transition list, so the outline switches instantly.
+*/
+.cui-card[data-card="media-ad"][data-compared] {
+  border-color: var(--color-obsidian);
+  box-shadow: var(--shadow-3), 0 0 0 var(--border-width-sm) var(--color-obsidian);
+}
+
+/* Focus-visible — the Card family's halo on the card, driven by the title button's focus. */
+.cui-card[data-card="media-ad"]:has(.cui-media-ad-card__open:focus-visible) {
+  box-shadow: var(--shadow-2), var(--shadow-focus);
+}
+.cui-card[data-card="media-ad"][data-compared]:has(.cui-media-ad-card__open:focus-visible) {
+  box-shadow: 0 0 0 var(--border-width-sm) var(--color-obsidian), var(--shadow-focus), var(--shadow-3);
+}
+/* Forced colours drop box-shadow, which would take the focus ring with it: a real outline stands in. */
+@media (forced-colors: active) {
+  .cui-card[data-card="media-ad"]:has(.cui-media-ad-card__open:focus-visible) {
+    outline: var(--focus-ring-width) solid CanvasText;
+    outline-offset: var(--focus-ring-offset);
+  }
+  .cui-card[data-card="media-ad"][data-compared] {
+    outline: var(--focus-ring-width) solid Highlight;
+  }
+}
+
+/* Pointer tilt — optional (`tilt`), mouse only. The same custom-property pattern and 800px perspective as Hero Card's AI. */
+.cui-card[data-card="media-ad"][data-tilting] {
+  z-index: 1;
+  will-change: transform;
+  transform:
+    perspective(var(--cui-media-ad-card-tilt-depth))
+    translateY(var(--cui-media-ad-card-lift))
+    scale(var(--cui-media-ad-card-tilt-scale))
+    rotateX(calc(var(--cui-media-ad-card-tilt-y, 0) * var(--cui-media-ad-card-tilt) * -1))
+    rotateY(calc(var(--cui-media-ad-card-tilt-x, 0) * var(--cui-media-ad-card-tilt)));
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-settle);
+}
+
+/*
+  Loading skeleton — the same shell, Neutral-2 bones. The body reuses __swap so the skeleton is exactly as tall as a
+  loaded card. The shimmer is Progress Bar's keyframe (c-progress-shimmer), ported here until Progress Bar is converted.
+*/
+.cui-card[data-card="media-ad"][data-skeleton] {
+  pointer-events: none;
+}
+.cui-card[data-card="media-ad"][data-skeleton] .cui-media-ad-card__swap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-8);
+}
+.cui-media-ad-card__bone {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-neutral-2);
+  border-radius: var(--radius-sm);
+}
+.cui-media-ad-card__bone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) var(--cui-media-ad-card-shimmer), transparent), transparent);
+  animation: cui-media-ad-card-shimmer var(--duration-ambient) var(--ease-standard) infinite;
+}
+.cui-media-ad-card__bone[data-bone="media"] {
+  aspect-ratio: var(--cui-media-ad-card-ratio);
+  border-radius: 0;
+}
+.cui-media-ad-card__bone[data-bone="title"] {
+  height: var(--spacing-16);
+  width: var(--cui-media-ad-card-title-bone);
+}
+.cui-media-ad-card__bone[data-bone="pill"] {
+  height: var(--cui-media-ad-card-hint-height);
+  width: var(--cui-media-ad-card-pill-width);
+  flex: none;
+  border-radius: var(--radius-pill);
+}
+.cui-media-ad-card__bone[data-bone="line"] {
+  height: var(--spacing-12);
+}
+@keyframes cui-media-ad-card-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+.cui-media-ad-card__hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced motion — no lift, zoom, tilt or slide; the body swap keeps a short opacity cross-fade; the shimmer stops. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-card[data-card="media-ad"],
+  .cui-card[data-card="media-ad"][data-tilting],
+  .cui-card[data-card="media-ad"][data-live],
+  .cui-card[data-card="media-ad"]:hover,
+  .cui-card[data-card="media-ad"]:has(:focus-visible) {
+    transform: none !important;
+  }
+  .cui-media-ad-card__slot {
+    transition: none;
+    transform: none !important;
+  }
+  .cui-media-ad-card__rest,
+  .cui-media-ad-card__spec {
+    transform: none !important;
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+  .cui-media-ad-card__bone::after {
+    animation: none;
+    background: var(--color-neutral-2);
+  }
+}
