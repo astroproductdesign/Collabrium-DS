@@ -1,0 +1,76 @@
+/*
+  Modal / dialog — ported from collabrium-dls/components.css lines 1782–1788
+  (.c-modal, its head, body and footer, and .c-icon-btn, the close button).
+
+  Mapping from the old classes:
+    .c-modal                           -> .cui-modal (role="dialog")
+    .c-modal-head                      -> .cui-modal__head
+    .c-modal-head h4                   -> .cui-modal__title (a real heading, h2 by default, drawn as h4)
+    .c-modal-body                      -> .cui-modal__body
+    .c-modal-foot                      -> .cui-modal__foot
+    .c-icon-btn (:hover)               -> the real Button, ghost, sm, icon-only (32×32, radius-sm, Neutral-2 hover)
+    (no CSS in the source)             -> .cui-modal-scrim, from Command brief's scrim (TODO(open-question Q-MODAL-2))
+
+  TODO(open-question Q-MODAL-1): the CSS and the DS disagree on the panel (400px against ~480px, 16px padding against
+  24px, an h4 title against h3, no border against a Neutral-3 border, a footer divider and a 12px gap against none and
+  8px). Built as the CSS.
+
+  Specificity keeps the source's order: every part is one class, as in the source (.c-modal-head h4 is 0,1,1 there,
+  with nothing competing). Nothing in the panel is interactive but the Button, which brings its own states.
+*/
+
+.cui-modal-scrim {
+  /* TODO(open-question Q-MODAL-5): the scrim's 16px inset keeps the panel off the screen edge; the source has no scrim. */
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-16);
+  background: var(--shadow-overlay);
+}
+.cui-modal {
+  /* TODO(open-question Q-MODAL-6): the 400px panel and the body's 1.5 line height are literals with no token; kept local. */
+  --cui-modal-max-width: 400px;
+  --cui-modal-body-lh: 1.5;
+  width: 100%;
+  max-width: var(--cui-modal-max-width);
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--color-neutral-1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  font-family: var(--font-primary);
+}
+.cui-modal__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-16);
+}
+.cui-modal__title {
+  margin: 0;
+  font-size: var(--text-h4-size);
+  font-weight: var(--text-h4-weight);
+  color: var(--color-neutral-9);
+}
+/* It takes focus when the modal opens; it is a heading, not a control, so it shows no ring (as Tool approval). */
+.cui-modal__title:focus {
+  outline: none;
+}
+.cui-modal__body {
+  padding: 0 var(--spacing-16) var(--spacing-16);
+  font-size: var(--text-body1-size);
+  color: var(--color-neutral-9);
+  line-height: var(--cui-modal-body-lh);
+}
+.cui-modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+
+/* TODO(open-question Q-MODAL-7): no forced-colours rule in the source; the shadow isn't drawn there, so the panel has no edge. */

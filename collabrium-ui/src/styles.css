@@ -25,6 +25,7 @@
 @import './components/LoadingState/LoadingState.css';
 @import './components/MediaAdCard/MediaAdCard.css';
 @import './components/MetricsCard/MetricsCard.css';
+@import './components/Modal/Modal.css';
 @import './components/PacingCard/PacingCard.css';
 @import './components/PermissionPrompt/PermissionPrompt.css';
 @import './components/PriceSummaryCard/PriceSummaryCard.css';
