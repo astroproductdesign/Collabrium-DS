@@ -1,0 +1,185 @@
+/*
+  Stepper — ported from collabrium-dls/components.css lines 4297–4408
+  (.c-stepper, .c-step, the rail, the indicator and its five states, the
+  connector in both orientations, the label and description, and the
+  480px container query).
+
+  Mapping from the old classes:
+    .c-stepper (.vertical)             -> ol.cui-stepper[data-orientation="horizontal" | "vertical"]
+    (each step and its connector)      -> li.cui-stepper__item (aria-current="step" on the Active one)
+    .c-step                            -> .cui-stepper__step
+    .c-step.is-disabled                -> not ported: no meaning in a read-only stepper (decided 2026-11-05, Q-STEPPER-4)
+    .c-step-rail                       -> .cui-stepper__rail
+    .c-step-indicator (.completed / .active / .upcoming / .error / .warning)
+                                       -> .cui-stepper__indicator[data-state]
+    .c-step-connector                  -> .cui-stepper__connector
+    .c-step-text / -label / -desc      -> __text / __label[data-state] / __desc[data-state]
+    (no class in the source)           -> __spoken: "Step 2 of 4: … , current step" for screen readers (decided Q-STEPPER-1)
+    <i class="ph ph-check | ph-x">, <i class="ph-fill ph-warning">
+                                       -> svg (Phosphor React: Check, X Regular; Warning Fill)
+
+  The source's horizontal stepper is a flex row of steps and connectors as
+  siblings. A list can only hold list items, so here each li holds its step
+  and the connector after it, and the li carries the share the pair had:
+  two parts for every step but the last, one for the last (decided 2026-11-05, Q-STEPPER-2).
+
+  Specificity keeps the source's order: the base parts (0,1,0), the
+  orientation rules (0,2,0, as `.c-stepper.vertical .c-step` and
+  `.c-stepper:not(.vertical) .c-step` there), then the states (0,2,0, as
+  `.c-step-indicator.completed` there, declared after the base indicator).
+*/
+
+.cui-stepper {
+  /* No token for the 24px indicator; kept local (decided 2026-11-05, Q-STEPPER-6). */
+  --cui-stepper-indicator: 24px;
+  display: flex;
+  align-items: flex-start;
+  container-type: inline-size;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-stepper[data-orientation="vertical"] {
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.cui-stepper__item {
+  display: flex;
+  align-items: flex-start;
+}
+.cui-stepper[data-orientation="horizontal"] .cui-stepper__item:not(:last-child) {
+  flex: 1 1 0;
+}
+.cui-stepper__step {
+  display: flex;
+  flex: none;
+}
+/* Horizontal: the step is pinned to the indicator's 24px, so the connector meets the circle's edge whatever the label's length; the text overflows it, centred. */
+.cui-stepper[data-orientation="horizontal"] .cui-stepper__step {
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: var(--cui-stepper-indicator);
+}
+.cui-stepper[data-orientation="vertical"] .cui-stepper__step {
+  gap: var(--spacing-12);
+}
+.cui-stepper__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cui-stepper[data-orientation="vertical"] .cui-stepper__rail {
+  gap: var(--spacing-8);
+}
+
+.cui-stepper__indicator {
+  flex: none;
+  box-sizing: border-box;
+  width: var(--cui-stepper-indicator);
+  height: var(--cui-stepper-indicator);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-label1-weight);
+}
+/* Completed and Active are solid fills; Upcoming is outlined. Error and Warning are flags with their own glyph and fill. */
+.cui-stepper__indicator[data-state="completed"] { background: var(--color-green); color: var(--color-neutral-1); }
+.cui-stepper__indicator[data-state="active"] { background: var(--color-obsidian); color: var(--color-neutral-1); }
+.cui-stepper__indicator[data-state="upcoming"] { background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); color: var(--color-neutral-5); }
+.cui-stepper__indicator[data-state="error"] { background: var(--color-red); color: var(--color-neutral-1); }
+.cui-stepper__indicator[data-state="warning"] { background: var(--color-amber); color: var(--color-obsidian); }
+.cui-stepper__indicator svg {
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+}
+
+.cui-stepper__connector {
+  background: var(--color-neutral-3);
+  flex: none;
+}
+/* Horizontal: an equal share of the row, 4px off each circle, centred on it (12px down). */
+.cui-stepper[data-orientation="horizontal"] .cui-stepper__connector {
+  flex: 1;
+  height: var(--border-width-sm);
+  margin: var(--spacing-12) var(--spacing-4) 0;
+}
+/* Vertical: a fixed 16px, held 8px off the circle above (the rail's gap) and 8px off the one below (the list's gap). */
+.cui-stepper[data-orientation="vertical"] .cui-stepper__connector {
+  width: var(--border-width-sm);
+  height: var(--spacing-16);
+}
+
+.cui-stepper__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.cui-stepper[data-orientation="horizontal"] .cui-stepper__text {
+  text-align: center;
+}
+.cui-stepper__label {
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+}
+.cui-stepper__label[data-state="active"] { font-weight: var(--text-label1-weight); color: var(--color-neutral-9); }
+.cui-stepper__label[data-state="completed"],
+.cui-stepper__label[data-state="upcoming"] { font-weight: var(--text-body2-weight); color: var(--color-neutral-5); }
+.cui-stepper__label[data-state="error"] { font-weight: var(--text-body2-weight); color: var(--color-red); }
+.cui-stepper__label[data-state="warning"] { font-weight: var(--text-body2-weight); color: var(--color-neutral-9); }
+/* A flag's message takes the description's slot, bold, as Input field's error replaces its helper. */
+.cui-stepper__desc {
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-stepper__desc[data-state="error"] { color: var(--color-red); font-weight: var(--weight-bold); }
+.cui-stepper__desc[data-state="warning"] { color: var(--color-neutral-9); font-weight: var(--weight-bold); }
+
+.cui-stepper__spoken {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+  Below 480px of the stepper's own width (a container query, so it holds inside a narrow modal or drawer too),
+  horizontal only: descriptions hide and a long label truncates. The steps and connectors share the row equally, as
+  the source's `flex: 1 1 0` on every step and connector.
+*/
+@container (max-width: 480px) {
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__desc { display: none; }
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__item { flex: 1 1 0; min-width: 0; }
+  /* Two shares (step + connector) for every step but the last, plus the connector's 4px margins, so each part gets exactly the source's share. */
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__item:not(:last-child) { flex: 2 1 calc(var(--spacing-4) * 2); }
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__step { width: auto; flex: 1 1 0; min-width: 0; }
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__label {
+    display: block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/*
+  Forced colours: the fills are dropped, so every indicator takes a 1px border in the system text colour to keep its
+  circle (Upcoming already has one). Not in the source. Decided 2026-11-05, Q-STEPPER-5.
+*/
+@media (forced-colors: active) {
+  .cui-stepper__indicator {
+    border: var(--border-width-sm) solid CanvasText;
+  }
+}

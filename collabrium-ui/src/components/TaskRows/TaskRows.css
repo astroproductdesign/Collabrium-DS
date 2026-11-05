@@ -4,6 +4,8 @@
   chevron, detail steps, failure block, overflow line, reduced motion), plus
   the three status discs it reuses from Stepper's `.c-step-indicator`
   (lines 4334 and 4370–4375), copied here so this package stays standalone.
+  Stepper is now converted: on Task Rows' next change these discs move to
+  Stepper's `.cui-stepper__indicator[data-state]` (decided 2026-11-05, Q-STEPPER-8).
   The pills are the real Badge and Retry is the real Button (both converted).
 
   Mapping from the old classes:

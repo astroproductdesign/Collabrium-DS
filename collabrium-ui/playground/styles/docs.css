@@ -99,6 +99,14 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-tree-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-8); }
 .docs-tree-name { font-size: var(--text-body2-size); line-height: var(--text-body2-lh); font-weight: var(--weight-bold); }
 .docs-tree-desc { margin: var(--spacing-4) 0 0; max-width: 68ch; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
+/*
+  A "when" badge never wraps (Badge's rule), so a long condition four levels deep (Task Rows) was wider than a phone.
+  Here only: it may take its row's width and wrap, still a pill; and on phones each level indents 12px, not 20px.
+*/
+.docs-tree-row .cui-badge { max-width: 100%; height: auto; min-height: var(--cui-badge-height); padding-block: var(--spacing-2); line-height: var(--text-caption-lh); white-space: normal; }
+@media (max-width: 480px) {
+  .docs-tree .docs-tree { padding-left: var(--spacing-12); }
+}
 
 /* ---------- Tables, rules, notes ---------- */
 .docs-table-wrap { overflow-x: auto; }
@@ -335,3 +343,18 @@ a.cui-button { text-decoration: none; }
 .topbar-download + .flag { margin-left: 0; }
 .topbar-download:hover { background: var(--color-neutral-2); }
 .topbar-download:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+
+/*
+  Top bar on phones: the mark, the name, Download and the version flag can't shrink, and together they needed ~400px,
+  so every page was wider than a 320px screen. Below 480px the bar takes the content's 16px gutter and drops Download
+  (the home page has its own Download button); the name shortens with an ellipsis as a last resort.
+*/
+.topbar { min-width: 0; }
+.topbar .crumb { min-width: 0; overflow: hidden; }
+.topbar .crumb b { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.topbar .flag { flex: none; }
+@media (max-width: 480px) {
+  .topbar { padding: 0 var(--spacing-16); }
+  .topbar-download { display: none; }
+  .topbar-download + .flag { margin-left: auto; }
+}

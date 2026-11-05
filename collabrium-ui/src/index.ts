@@ -38,6 +38,7 @@ export * from './components/PromptInputBar';
 export * from './components/Radio';
 export * from './components/StreamingText';
 export * from './components/Card';
+export * from './components/Stepper';
 export * from './components/Switch';
 export * from './components/Tag';
 export * from './components/TaskRows';

@@ -34,6 +34,7 @@
 @import './components/PromptInputBar/PromptInputBar.css';
 @import './components/Radio/Radio.css';
 @import './components/StreamingText/StreamingText.css';
+@import './components/Stepper/Stepper.css';
 @import './components/Switch/Switch.css';
 @import './components/Tag/Tag.css';
 @import './components/TaskRows/TaskRows.css';
