@@ -56,7 +56,7 @@ its loading state.
 16. **The one-off values stay local to the component:** the 2px lift, 16:10, the 1.1 zoom, the tilt's 800px / 4deg / 1.015, the hint's 24px, the Compare hit area, the bone sizes and the shimmer's 40%. (Decided 2026-11-05.)
 17. **No `.is-touch` hook:** the tap hint shows on real touch devices through `(hover: none)`. (Decided 2026-11-05.)
 18. **The Built-for-this-slot badge has a Neutral-3 border,** as the DS says. (Decided 2026-11-05.)
-19. **The skeleton's shimmer is Progress Bar's keyframe, copied here** until Progress Bar is converted, then shared. (Decided 2026-11-05.)
+19. **The skeleton's shimmer is Progress Bar's keyframe,** shared from Progress Bar. (Decided 2026-11-05.)
 
 ## Accessibility
 - The root is a plain `<article>`, never `role="button"`. The name is a real button stretched over the card, announced "{Name}, {Family}. Open details"; Compare is a sibling button above it.

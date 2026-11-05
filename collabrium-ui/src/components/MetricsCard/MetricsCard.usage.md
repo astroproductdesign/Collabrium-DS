@@ -54,7 +54,7 @@ influencers, channels or campaigns. `MetricsCardSkeleton` is its loading state.
 14. **No size:** the rest line is only "Size not published" (no top bar), and the Live total only "Not published" (no total label). The name's accessible name drops the size part. (Decided 2026-11-05.)
 15. **Host strings:** `unit`, `totalLabel` and `addLabel` are required; `moreLabel` defaults to " in details" and `emptyLabel` to "No breakdown on file". (Decided 2026-11-05.)
 16. **The category colour is the host's choice** (`categoryTag`); the audience mapping ships as `audienceCategoryTags`. (Decided 2026-11-05.)
-17. **One-off values stay local:** the 120px Tag cap, the 4ch value column, the 4px track. **The bars' Progress Bar rules are copied here** until Progress Bar is converted, then shared. (Decided 2026-11-05.)
+17. **One-off values stay local:** the 120px Tag cap, the 4ch value column. **The bars are Progress Bar's** compact track and fill. (Decided 2026-11-05.)
 18. **The tilt is off by default,** as Media Ad Card. (Decided 2026-11-05.)
 19. **Bar values show as given** ("57%"): shares, not progress to a target, so no forced decimal. (Decided 2026-11-05.)
 20. **The skeleton** is Media Ad Card's, with the reserved title row and three line bones in the taller swap. (Decided 2026-11-05.)

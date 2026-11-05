@@ -24,7 +24,7 @@
 */
 
 .cui-price-summary__list {
-  /* TODO(open-question Q-PRICE-9): the 320px scroll cap is a literal in the DLS (Dropdown's list cap), with no token; kept local. */
+  /* The 320px scroll cap is a literal in the DLS (Dropdown's list cap), with no token; kept local, shared with Dropdown when it is converted (decided 2026-11-05, Q-PRICE-9). */
   --cui-price-summary-overflow-max-height: 320px;
   list-style: none;
   margin: 0;
@@ -123,7 +123,8 @@
 
 /*
   "Show X more" / "Show less": Chip's show-less link recipe without the underline, with a trailing caret.
-  TODO(open-question Q-PRICE-4): the source gives it no hover and no focus style (the browser's own focus outline shows).
+  The source gives it no hover and no focus style; it takes the DLS focus ring, as Chip's show-less, and a Neutral-7
+  hover, as Empty state's link (decided 2026-11-05, Q-PRICE-4).
 */
 .cui-price-summary__more {
   display: flex;
@@ -138,6 +139,13 @@
   font-size: var(--text-label2-size);
   font-weight: var(--text-label2-weight);
   cursor: pointer;
+}
+.cui-price-summary__more:hover {
+  color: var(--color-neutral-7);
+}
+.cui-price-summary__more:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 .cui-price-summary__more svg {
   flex: none;

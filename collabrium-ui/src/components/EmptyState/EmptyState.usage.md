@@ -44,14 +44,16 @@ The `ref` is forwarded to the root `<div>`.
 5. **Inline has a text link only.** No icon, no heading, never a Primary or Ghost button. The types enforce this.
 6. **Spacing inside is fixed:** icon to heading 12px, heading to body 4px, body to actions 16px. The body always keeps its 16px bottom margin, as in the DLS.
 7. **The body is capped at 380px and the whole state at 480px**, centred. Inline has no outer cap and a 320px body.
-8. **Below 768px** the caps go, full-page and section padding drops to 24px / 16px, the full-page icon drops to 48px, and the actions stack full width, Primary above Ghost, 8px apart.
-9. **Full-page is at least the viewport tall (100vh).** The DLS asks for the viewport minus the nav height; that is open (Q-EMPTY-3).
-10. **The heading level follows the page.** Default 3; the look is always h4, as Card's title does.
+8. **Below 768px** the caps go, full-page and section padding drops to 24px / 16px, inline padding to 12px all sides, as the DS says (the DLS CSS has no rule; decided 2026-11-05), the full-page icon drops to 48px, and the actions stack full width, Primary above Ghost, 8px apart.
+9. **Full-page is at least the viewport tall (100vh).** The DLS asks for the viewport minus the nav height; a container sets `--cui-empty-state-fullpage-min-height`, and App Shell will when it is converted. (Decided 2026-11-05.)
+10. **The heading level follows the page.** Default 3; the look is always h4, as Card's title does. (Decided 2026-11-05.)
+11. **The inline link has a hover and a focus ring:** Neutral-7 on hover, as Button's link, and the DLS focus ring; it keeps link2 (500), so Button's link (label2, 700) isn't reused. (Decided 2026-11-05.)
+12. **One-off sizes stay local:** the 480px, 380px and 320px caps, the 240px floor and the 3px underline offset. (Decided 2026-11-05.)
 
 ## Accessibility
 - The heading is a real heading (`headingLevel`), so the empty state appears in the page's outline.
 - The icon is decorative and `aria-hidden`; the heading and body carry the meaning.
-- The actions are real Buttons; the inline link is a real `<button>`. Its focus style is the browser's own for now (Q-EMPTY-1).
+- The actions are real Buttons; the inline link is a real `<button>`. It takes the DLS focus ring.
 - No live region. If the empty or error state replaces content while the person is on the page, the host tells the person where it happened; the component itself announces nothing.
 - Contrast: body Neutral-5 on white and on the warm canvas passes AA; the heading is Neutral-9.
 

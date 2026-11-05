@@ -448,7 +448,7 @@
 
 /*
   Loading skeleton — the same shell, Neutral-2 bones. The body reuses __swap so the skeleton is exactly as tall as a
-  loaded card. The shimmer is Progress Bar's keyframe (c-progress-shimmer), ported here until Progress Bar is converted.
+  loaded card. The shimmer is Progress Bar's keyframe (cui-progress-shimmer, ProgressBar.css).
 */
 .cui-card[data-card="media-ad"][data-skeleton] {
   pointer-events: none;
@@ -471,7 +471,7 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) var(--cui-media-ad-card-shimmer), transparent), transparent);
-  animation: cui-media-ad-card-shimmer var(--duration-ambient) var(--ease-standard) infinite;
+  animation: cui-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;
 }
 .cui-media-ad-card__bone[data-bone="media"] {
   aspect-ratio: var(--cui-media-ad-card-ratio);
@@ -489,10 +489,6 @@
 }
 .cui-media-ad-card__bone[data-bone="line"] {
   height: var(--spacing-12);
-}
-@keyframes cui-media-ad-card-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(350%); }
 }
 
 .cui-media-ad-card__hidden {

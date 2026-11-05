@@ -1,9 +1,9 @@
 /*
   Metrics card — ported from collabrium-dls/components.css lines 714–878
-  (.c-card-media-ad-metrics and its -metrics-* parts), plus the Progress Bar
-  rules its bars use (4573–4587, 4620–4623: the track, the compact size, the
-  fill, the trailing wrap and forced colours), copied here until Progress Bar
-  is converted (decided 2026-11-05, Q-METRICS-7). Everything else is Media Ad Card's
+  (.c-card-media-ad-metrics and its -metrics-* parts). The bars are Progress
+  Bar's compact track and fill (ProgressBar.css), with this card's recorded
+  deviations: the width from a custom property, held at 0 until Live, an
+  aria-hidden track and a re-grow on every Live. Everything else is Media Ad Card's
   (MediaAdCard.css): this file only adds what the metrics body needs.
 
   Mapping from the old classes:
@@ -23,9 +23,9 @@
     .c-card-media-ad-metrics-bars / -bar
                                        -> .cui-metrics-card__bars / __bar
     .c-progress-trailing-wrap (dd)     -> .cui-metrics-card__bar dd
-    .c-progress-track.size-compact     -> .cui-metrics-card__track
+    .c-progress-track.size-compact     -> .cui-progress__track[data-size="compact"] (Progress Bar)
     .c-progress-fill (--bar-w, --bar-i)
-                                       -> .cui-metrics-card__fill (--cui-metrics-card-bar-w, --cui-metrics-card-bar-i)
+                                       -> .cui-progress__fill.cui-metrics-card__fill (--cui-metrics-card-bar-w, --cui-metrics-card-bar-i)
     .c-card-media-ad-metrics-bar-value (.is-empty)
                                        -> .cui-metrics-card__value ([data-empty])
 
@@ -38,11 +38,10 @@
 .cui-card[data-card="media-ad"][data-variant="metrics"] {
   /*
     Q-METRICS-6 (decided 2026-11-05): one-off values with no token, kept local (the DS records them as deliberate one-offs): the 120px Tag
-    cap, the 4ch value column and the 4px compact track (Progress Bar's).
+    cap and the 4ch value column.
   */
   --cui-metrics-card-tag-cap: 120px;
   --cui-metrics-card-value-col: 4ch;
-  --cui-metrics-card-track: 4px;
 }
 
 /*
@@ -172,7 +171,7 @@
   color: var(--color-neutral-5);
   white-space: nowrap;
 }
-/* The dd is Progress Bar's trailing wrap. */
+/* The dd is Progress Bar's trailing wrap; the track takes the room left. */
 .cui-metrics-card__bar dd {
   display: flex;
   align-items: center;
@@ -180,15 +179,8 @@
   margin: 0;
   min-width: 0;
 }
-/* Progress Bar's compact track. */
-.cui-metrics-card__track {
-  position: relative;
+.cui-metrics-card__bar dd > .cui-progress__track {
   flex: 1;
-  width: 100%;
-  height: var(--cui-metrics-card-track);
-  border-radius: var(--radius-pill);
-  background: var(--color-neutral-3);
-  overflow: hidden;
 }
 .cui-metrics-card__value {
   flex: none;
@@ -210,11 +202,7 @@
   duration-instant / 2 per row); leaving Live, it resets instantly but only after duration-base, once the Spec layer
   has faded out, so a bar is never seen shrinking.
 */
-.cui-metrics-card__fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--radius-pill);
-  background: var(--color-obsidian);
+.cui-card[data-variant="metrics"] .cui-metrics-card__fill {
   width: 0;
   transition: width 0s linear var(--duration-base);
 }
@@ -239,15 +227,8 @@
   box-shadow: 0 0 0 var(--border-width-sm) var(--color-obsidian), var(--shadow-focus), var(--shadow-3);
 }
 
-/* 6. Forced colours — the track is outlined and the fill painted CanvasText; Added a Highlight outline, focus restated last. */
+/* 6. Forced colours — Progress Bar's own block outlines the tracks and paints the fills; Added a Highlight outline, focus restated last. */
 @media (forced-colors: active) {
-  .cui-metrics-card__track {
-    outline: var(--border-width-sm) solid CanvasText;
-  }
-  .cui-metrics-card__fill {
-    forced-color-adjust: none;
-    background: CanvasText;
-  }
   .cui-card[data-card="media-ad"][data-added] {
     outline: var(--focus-ring-width) solid Highlight;
   }

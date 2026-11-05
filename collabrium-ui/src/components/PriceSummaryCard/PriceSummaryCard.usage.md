@@ -38,18 +38,24 @@ The `ref` is forwarded to the card's `<div>`.
 2. **Expanded, the extra items scroll inside a 320px zone.** The total and the button sit in the card's footer, outside it, so they are always in view.
 3. **"Show less" folds back to four** and puts the list's scroll position back at the top.
 4. **Removals settle by themselves.** Removing a hidden item while folded lowers the count; at four or fewer items the control goes away, folded or expanded, with nothing for the person to do.
-5. **The list opens and closes over `--duration-base` on `--ease-settle`**, never instant and never bouncy (instant under reduced motion, Q-PRICE-7).
+5. **The list opens and closes over `--duration-base` on `--ease-settle`**, never instant and never bouncy (instant under reduced motion, as Thinking's trace; decided 2026-11-05).
 6. **Every amount has the currency, a space and two decimals:** `RM 1,200.00`. These are exact costs, not rounded figures. The total is the sum of the items.
-7. **The remove × is optional per row.** It stays hidden until its row is hovered or focused, so it never sits under the pointer at rest; on a touch screen it always shows (Q-PRICE-2).
+7. **The remove × is optional per row.** It stays hidden until its row is hovered or focused, so it never sits under the pointer at rest; on a touch screen it always shows. (Decided 2026-11-05.)
 8. **Names stay on one line** and end in an ellipsis when they run out of room.
 9. **Use it in a `CardGrid columns="functional"`**, like the USP card; the card is 280px at its narrowest.
-10. **The title looks like the card title (h5)**, as the DLS gallery draws it, though the DLS text says h4 (Q-PRICE-1).
+10. **The title looks like the card title (h5)**, as the DLS gallery draws it, though the DLS text says h4. (Decided 2026-11-05.)
+11. **"Show X more" has a hover and a focus ring:** Neutral-7 on hover and the DLS focus ring, as Empty state's link and Chip's show-less. (Decided 2026-11-05.)
+12. **Empty is Empty state's Section variant with no body:** the list icon and "No items added". (Decided 2026-11-05.)
+13. **A newly added row simply appears;** there is no entrance animation for it (the DS line saying it animates in is owed a removal). (Decided 2026-11-05.)
+14. **The 320px scroll cap stays local,** to be shared with Dropdown when that is converted. (Decided 2026-11-05.)
+15. **Its own component,** rendering Card, because it owns its items, the folding and the total. (Decided 2026-11-05.)
+16. **The markup follows the source:** the folded rows are a second list inside the first list's last item. (Decided 2026-11-05.)
 
 ## Accessibility
 - The title is a real heading (`headingLevel`), and the Empty state's heading sits one level below it.
 - Each remove × is a real button named "Remove {item name}". It shows whenever its row holds keyboard focus.
-- "Show X more" is a real button with `aria-expanded` and `aria-controls`. While folded, the hidden rows are `inert`: not reachable by Tab and not read (Q-PRICE-3).
-- After a focused × removes its row, focus moves to the next row's ×, or the previous one at the end of the list, or the card title when no × is left (Q-PRICE-5).
+- "Show X more" is a real button with `aria-expanded` and `aria-controls`. While folded, the hidden rows are `inert`: not reachable by Tab and not read. (Decided 2026-11-05.)
+- After a focused × removes its row, focus moves to the next row's ×, or the previous one at the end of the list, or the card title when no × is left: an approved exception to "focus moves only to a heading or an error", as Permission Prompt's. (Decided 2026-11-05.)
 - No live region. The total and the count change in place.
 - Amounts use tabular figures so they line up; no monospace font.
 
@@ -60,7 +66,7 @@ The `ref` is forwarded to the card's `<div>`.
 | Show X more / Show less | The hidden rows grow open and fold shut (grid rows 0fr to 1fr) | `--duration-base` · `--ease-settle` |
 | Row hover or focus | The remove × fades in; its hover fill and colour change | `--duration-fast` · `--ease-standard` |
 
-Under reduced motion both happen at once (Q-PRICE-7).
+Under reduced motion both happen at once. (Decided 2026-11-05.)
 
 ## Example
 

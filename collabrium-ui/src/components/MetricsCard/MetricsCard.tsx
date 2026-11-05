@@ -216,9 +216,9 @@ export const MetricsCard = forwardRef<HTMLElement, MetricsCardProps>(function Me
                   <div key={i} className="cui-metrics-card__bar">
                     <dt>{bar.label}</dt>
                     <dd>
-                      <span className="cui-metrics-card__track" aria-hidden="true">
+                      <span className="cui-progress__track" data-size="compact" aria-hidden="true">
                         <span
-                          className="cui-metrics-card__fill"
+                          className="cui-progress__fill cui-metrics-card__fill"
                           style={{ '--cui-metrics-card-bar-w': `${bar.value ?? 0}%`, '--cui-metrics-card-bar-i': i } as CSSProperties}
                         />
                       </span>

@@ -30,6 +30,7 @@ export * from './components/MetricsCard';
 export * from './components/PacingCard';
 export * from './components/PermissionPrompt';
 export * from './components/PriceSummaryCard';
+export * from './components/ProgressBar';
 export * from './components/ProfileCard';
 export * from './components/PromptInputBar';
 export * from './components/Radio';

@@ -121,8 +121,8 @@ export const PriceSummaryCard = forwardRef<HTMLDivElement, PriceSummaryCardProps
     onRemove?.(item.id);
   };
 
-  // TODO(open-question Q-PRICE-8): DESIGN-SYSTEM.md says an item added while the list is open "animates in at the
-  // bottom"; there is no animation for it in the DLS, so a new row simply appears.
+  // DESIGN-SYSTEM.md says an item added while the list is open "animates in at the bottom"; the DLS has no
+  // animation for it, so a new row simply appears and the line is owed a removal (decided 2026-11-05, Q-PRICE-8).
   const row = (item: PriceSummaryItem, index: number) => (
     <li key={item.id} className="cui-price-summary__row">
       <span className="cui-price-summary__name">{item.name}</span>

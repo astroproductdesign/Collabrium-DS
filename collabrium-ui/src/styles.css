@@ -27,6 +27,7 @@
 @import './components/PacingCard/PacingCard.css';
 @import './components/PermissionPrompt/PermissionPrompt.css';
 @import './components/PriceSummaryCard/PriceSummaryCard.css';
+@import './components/ProgressBar/ProgressBar.css';
 @import './components/ProfileCard/ProfileCard.css';
 @import './components/PromptInputBar/PromptInputBar.css';
 @import './components/Radio/Radio.css';
