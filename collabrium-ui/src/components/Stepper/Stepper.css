@@ -165,6 +165,46 @@
   /* Two shares (step + connector) for every step but the last, plus the connector's 4px margins, so each part gets exactly the source's share. */
   .cui-stepper[data-orientation="horizontal"] .cui-stepper__item:not(:last-child) { flex: 2 1 calc(var(--spacing-4) * 2); }
   .cui-stepper[data-orientation="horizontal"] .cui-stepper__step { width: auto; flex: 1 1 0; min-width: 0; }
+  /*
+    The step is now as wide as a connector's share, with the circle centred in it, so the line would start ~19px off
+    the circle. The line is drawn past the connector's box by the step's spare width on each side, so it stops 4px
+    off each circle, as on desktop (decided 2026-11-05). The step and the connector get equal shares, so the spare
+    width is (connector width − 24px) / 2.
+  */
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__connector {
+    position: relative;
+    background: transparent;
+  }
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__connector::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc((var(--cui-stepper-indicator) - 100%) / 2);
+    background: var(--color-neutral-3);
+  }
+  /*
+    Labels (decided 2026-11-05, user). The source's text block is centred in the step and sizes to its content, so the
+    ellipsis never took effect and long labels ran into each other. Here each label gets the room between circles:
+    with every step and connector an equal share (w), circles are 2w + 8px apart, so a centred label 2w wide leaves
+    exactly 8px to the next. The first label starts at its circle's left edge and the last ends at its circle's right
+    edge, w + 12px wide, so nothing hangs past the stepper; they keep the same 8px to their neighbours.
+  */
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__text {
+    flex: none;
+    width: 200%;
+  }
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__item:first-child .cui-stepper__text {
+    align-self: flex-start;
+    width: calc(100% + var(--cui-stepper-indicator) / 2);
+    margin-inline-start: calc((100% - var(--cui-stepper-indicator)) / 2);
+    text-align: start;
+  }
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__item:last-child .cui-stepper__text {
+    align-self: flex-end;
+    width: calc(100% + var(--cui-stepper-indicator) / 2);
+    margin-inline-end: calc((100% - var(--cui-stepper-indicator)) / 2);
+    text-align: end;
+  }
   .cui-stepper[data-orientation="horizontal"] .cui-stepper__label {
     display: block;
     max-width: 100%;
@@ -177,9 +217,19 @@
 /*
   Forced colours: the fills are dropped, so every indicator takes a 1px border in the system text colour to keep its
   circle (Upcoming already has one). Not in the source. Decided 2026-11-05, Q-STEPPER-5.
+  The connectors are background fills too, so they would vanish: they are drawn in the system text colour, at every
+  width (decided 2026-11-05). The narrow line is the connector's ::after, matched at its own specificity.
 */
 @media (forced-colors: active) {
   .cui-stepper__indicator {
     border: var(--border-width-sm) solid CanvasText;
+  }
+  .cui-stepper__connector {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+  .cui-stepper[data-orientation="horizontal"] .cui-stepper__connector::after {
+    forced-color-adjust: none;
+    background: CanvasText;
   }
 }

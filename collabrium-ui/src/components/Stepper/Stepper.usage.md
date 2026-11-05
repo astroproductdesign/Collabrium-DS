@@ -39,7 +39,7 @@ The `ref` is forwarded to the `<ol>`.
 5. **Descriptions are all or nothing:** every step has one, or none does.
 6. **Connectors never depend on label length.** Horizontal: an equal share of the row, 4px off each circle. Vertical: a fixed 16px, 8px off the circle on each side.
 7. **The Active label is bold Neutral-9;** Completed and Upcoming labels are Neutral-5; Error's is Red, Warning's Neutral-9.
-8. **Below 480px of its own width,** a horizontal stepper hides its descriptions and truncates long labels. Vertical needs nothing.
+8. **Below 480px of its own width,** a horizontal stepper hides its descriptions and truncates long labels. Vertical needs nothing. The line still stops 4px off each circle, as on desktop (the DLS lets it drift to ~19px there). Each label gets the room between circles, 8px from the next, the first starting at its circle's left edge and the last ending at its circle's right edge, and shortens with "…" only past that (in the DLS the ellipsis never takes effect, so long labels run together). (Decided 2026-11-05.)
 9. **Read-only:** steps can't be clicked, and there is no disabled step (the DLS's `.is-disabled` has no meaning here). (Decided 2026-11-05.)
 10. **The component enforces the flags:** an Error off the Active step, or a Warning off a Completed one, is ignored. (Decided 2026-11-05.)
 11. **`currentStep` counts from 0;** `steps.length` means all done. (Decided 2026-11-05.)
@@ -51,7 +51,7 @@ The `ref` is forwarded to the `<ol>`.
 - Each step reads "Step 2 of 4: Profile, current step" (or completed, upcoming, current step, error, or completed, warning), then its description or flag message ("…, current step, error. Photo upload failed"); the discs are decoration.
 - Not focusable: there is nothing to operate.
 - The list, `aria-current` and the spoken step text are the library's; the DLS gallery has none. (Decided 2026-11-05.)
-- In forced colours every indicator keeps a 1px circle in the system text colour, since the fills drop out. (Decided 2026-11-05.)
+- In forced colours every indicator keeps a 1px circle and every connector is drawn, both in the system text colour, since the fills drop out. (Decided 2026-11-05.)
 
 ## Motion
 None. Stepper doesn't animate.

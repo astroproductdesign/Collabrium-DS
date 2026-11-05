@@ -131,7 +131,7 @@ export const accessibility: DocsAccessibility = {
     'An ordered list; the Active step\'s item has `aria-current="step"`.',
     'Each step reads "Step 2 of 4: Profile, current step" (or completed, upcoming, current step, error, or completed, warning). The discs are decoration.',
     'Error text is Red and bold; the state is also spoken, never colour alone.',
-    'In forced colours every indicator keeps a 1px circle in the system text colour.',
+    'In forced colours every indicator keeps a 1px circle and every connector is drawn, both in the system text colour.',
   ],
 };
 
