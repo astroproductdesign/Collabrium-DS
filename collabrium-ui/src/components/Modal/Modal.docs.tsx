@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Modal } from './Modal';
 import { Button } from '../Button';
-import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsProp, DocsRules } from '../docs.types';
+import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
 
 export const title = 'Modal / dialog';
 
@@ -84,9 +84,9 @@ export const anatomy: DocsAnatomyNode[] = [
         description: 'Neutral-1, radius-lg, shadow-modal, up to 400px wide, centred, 16px from the screen edges.',
         children: [
           { name: 'Head', element: '.cui-modal__head', description: 'The title and the close button, 16px padding, centred on one line.' },
-          { name: 'Title', element: 'h2.cui-modal__title', description: 'h4 look (20px, 800), Neutral-9. A real heading that names the dialog and takes focus on open.' },
+          { name: 'Title', element: 'h2.cui-modal__title', description: 'h4 look (20px / 28px, 800), Neutral-9. A real heading that names the dialog and takes focus on open.' },
           { name: 'Close', element: 'Button ghost sm icon-only', description: '32×32, an X, Neutral-2 on hover. Named "Close".' },
-          { name: 'Body', element: '.cui-modal__body', description: 'body1 size, Neutral-9, 1.5 line height; 16px at the sides and bottom.' },
+          { name: 'Body', element: '.cui-modal__body', description: 'body1 size and line height, Neutral-9; 16px at the sides and bottom.' },
           { name: 'Footer', element: '.cui-modal__foot', when: 'with actions', description: 'Right-aligned buttons 12px apart, 16px padding, a Neutral-3 divider above.' },
         ],
       },
@@ -98,7 +98,7 @@ export const examples: DocsExample[] = [
   {
     id: 'confirm',
     title: 'Confirmation',
-    description: 'One decision: the title asks it, the body says what it means, Cancel and Archive answer it. Escape, the X or a click on the scrim close it too.',
+    description: 'One decision: the title asks it, the body says what it means, Cancel and Archive answer it. Escape, the X or a click on the scrim close it too. The page behind stays still while it is open.',
     render: () => <Demo />,
     code: `const [open, setOpen] = useState(false);
 
@@ -150,8 +150,14 @@ export const accessibility: DocsAccessibility = {
     'The panel is `role="dialog"` with `aria-modal`, named by the title.',
     'Opening moves focus to the title (a heading), so the question is read first.',
     'The close button is a real Button named "Close".',
+    'While open, everything else on the page is `inert`, so a screen reader can\'t move behind the dialog, and the page can\'t scroll.',
     'No live region.',
+    'In forced colours the panel takes a 1px border in the system text colour, since its shadow isn\'t drawn.',
   ],
 };
 
-export const motion = 'None. The modal appears and goes at once.';
+export const motion: DocsMotion[] = [
+  { interaction: 'Open', motion: 'The scrim and panel fade in together.', token: '--duration-fast · --ease-standard' },
+  { interaction: 'Close', motion: 'They fade out together; focus returns once it has gone.', token: '--duration-fast · --ease-standard' },
+  { interaction: 'Reduced motion', motion: 'The same fade: it has no travel.', token: '—' },
+];

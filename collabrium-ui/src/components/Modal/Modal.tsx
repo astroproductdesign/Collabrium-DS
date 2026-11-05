@@ -5,12 +5,14 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type HTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from '@phosphor-icons/react';
+import { tokens } from '../../tokens/tokens';
 import type { WithoutStyling } from '../../utils/types';
 import { Button } from '../Button';
 
@@ -41,9 +43,39 @@ export interface ModalProps extends NativeDivProps {
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
+ * Holds the page still while a modal is open, the three ways Media Ad Modal does (decided 2026-11-05, Q-MODAL-4):
+ * `overflow: hidden` on <html> with the scrollbar's width padded back, wheel and touchmove blocked outside the panel
+ * (iOS ignores overflow alone), and every other child of <body> made `inert`. Returns the undo.
+ */
+function holdPage(layer: HTMLElement) {
+  const html = document.documentElement;
+  const gap = window.innerWidth - html.clientWidth;
+  const before = { overflow: html.style.overflow, paddingRight: html.style.paddingRight };
+  html.style.overflow = 'hidden';
+  if (gap > 0) html.style.paddingRight = `${gap}px`;
+  const block = (event: Event) => {
+    if (!(event.target instanceof Node) || !layer.contains(event.target) || event.target === layer) event.preventDefault();
+  };
+  document.addEventListener('wheel', block, { passive: false });
+  document.addEventListener('touchmove', block, { passive: false });
+  const others = [...document.body.children].filter(
+    (el): el is HTMLElement => el instanceof HTMLElement && el !== layer && !el.inert,
+  );
+  others.forEach(el => (el.inert = true));
+  return () => {
+    html.style.overflow = before.overflow;
+    html.style.paddingRight = before.paddingRight;
+    document.removeEventListener('wheel', block);
+    document.removeEventListener('touchmove', block);
+    others.forEach(el => (el.inert = false));
+  };
+}
+
+/**
  * Collabrium Modal / dialog: one focused decision in a 400px panel over a scrim. A title with a close button, a body,
- * and a footer of Secondary then Primary. Opens with focus on the title; Tab stays inside; Escape, the close button or a
- * scrim click closes it, and focus returns to what opened it. Ported from components.css `.c-modal` (1782–1788).
+ * and a footer of Secondary then Primary. Fades in and out; holds the page still while open. Opens with focus on the
+ * title; Tab stays inside; Escape, the close button or a scrim click closes it, and focus returns to what opened it.
+ * Ported from components.css `.c-modal` (1782–1788).
  */
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   { open, onClose, title, headingLevel = 2, children, actions, closeLabel = 'Close', ...rest },
@@ -52,17 +84,40 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   const titleId = useId();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const layerRef = useRef<HTMLDivElement>(null);
   const returnTo = useRef<HTMLElement | null>(null);
   const Heading = `h${headingLevel}` as const;
+  // Mounted while open and while the fade out runs; `shown` drives the fade (decided 2026-11-05, Q-MODAL-3).
+  const [mounted, setMounted] = useState(open);
+  const [shown, setShown] = useState(false);
 
-  // On open, focus moves to the title (a heading: the approved focus target); on close, back to what opened it.
-  // TODO(open-question Q-MODAL-3): the DLS gives the base modal no motion, so it appears and goes at once.
   useEffect(() => {
-    if (!open) return;
-    returnTo.current = document.activeElement as HTMLElement | null;
-    titleRef.current?.focus();
-    return () => returnTo.current?.focus?.();
+    if (open) {
+      returnTo.current = document.activeElement as HTMLElement | null;
+      setMounted(true);
+      const raf = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)));
+      return () => cancelAnimationFrame(raf);
+    }
+    setShown(false);
+    const done = window.setTimeout(() => setMounted(false), tokens.duration.fast);
+    return () => window.clearTimeout(done);
   }, [open]);
+
+  // On open, focus moves to the title (a heading: the approved focus target).
+  useEffect(() => {
+    if (mounted && open) titleRef.current?.focus();
+  }, [mounted, open]);
+
+  // The page stays still from the moment the modal mounts until it has faded out. Once the page is released (no
+  // longer inert), focus goes back to whatever opened the modal.
+  useEffect(() => {
+    if (!mounted || !layerRef.current) return;
+    const release = holdPage(layerRef.current);
+    return () => {
+      release();
+      returnTo.current?.focus?.();
+    };
+  }, [mounted]);
 
   useEffect(() => {
     if (!open) return;
@@ -92,11 +147,12 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
     }
   };
 
-  if (!open || typeof document === 'undefined') return null;
-  // TODO(open-question Q-MODAL-4): the page behind isn't held still (no scroll lock), as Command brief.
+  if (!mounted || typeof document === 'undefined') return null;
   return createPortal(
     <div
+      ref={layerRef}
       className="cui-modal-scrim"
+      data-open={shown ? '' : undefined}
       onMouseDown={event => {
         if (event.target === event.currentTarget) onClose();
       }}
