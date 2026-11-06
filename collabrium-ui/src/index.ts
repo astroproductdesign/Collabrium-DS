@@ -12,6 +12,7 @@ export { FadeIn, SlideUp, Collapse, type FadeInProps, type SlideUpProps, type Co
 
 // Components
 export * from './components/AdPlacementCard';
+export * from './components/BackButton';
 export * from './components/Button';
 export * from './components/CampaignCard';
 export * from './components/Badge';
@@ -30,6 +31,7 @@ export * from './components/MediaAdCard';
 export * from './components/MetricsCard';
 export * from './components/Modal';
 export * from './components/PacingCard';
+export * from './components/PageHeader';
 export * from './components/PermissionPrompt';
 export * from './components/PriceSummaryCard';
 export * from './components/ProgressBar';

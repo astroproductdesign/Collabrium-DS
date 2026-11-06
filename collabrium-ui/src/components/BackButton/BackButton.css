@@ -1,0 +1,64 @@
+/*
+  Back button — ported from collabrium-dls/components.css lines 4409–4420
+  (.c-back-button-row and .c-back-button with its hover, active and
+  focus-visible states).
+
+  Mapping from the old classes:
+    .c-back-button-row                 -> .cui-back-button-row
+    .c-back-button (a <button> in the gallery)
+                                       -> a.cui-back-button (href) or button.cui-back-button (onClick)
+    .c-back-button i                   -> svg.cui-back-button__icon (Phosphor ArrowLeft, Regular)
+    <span> (the label)                 -> .cui-back-button__label
+
+  Decided 2026-11-06: above the page header, never replacing its title (Q-BACK-1); the row keeps its own 12px (Q-BACK-8);
+  no disabled state (Q-BACK-6).
+
+  Every state reuses Button Ghost's tokens: hover Neutral-2, pressed Neutral-3, the Obsidian focus ring.
+  Specificity keeps the source's order: the base (0,1,0), then :hover, :active and :focus-visible (0,2,0), in that
+  order, so pressing over a hovered button shows Neutral-3.
+*/
+
+/* 12px between the row and the page header's title below it. */
+.cui-back-button-row {
+  margin-bottom: var(--spacing-12);
+}
+.cui-back-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-primary);
+  font-size: var(--text-label2-size);
+  /* label2's 18px, 34px tall: the CSS sets none, so the gallery's <button> draws `normal`, 32px (decided 2026-11-06, Q-BACK-4). */
+  line-height: var(--text-label2-lh);
+  font-weight: var(--text-label2-weight);
+  color: var(--color-neutral-9);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+/* The hit area reaches the 44px minimum above and below without changing what is drawn (decided 2026-11-06, Q-BACK-7). */
+.cui-back-button::after {
+  content: '';
+  position: absolute;
+  inset: calc((100% - var(--hit-target-min)) / 2) 0;
+}
+.cui-back-button__icon {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-back-button:hover {
+  background: var(--color-neutral-2);
+}
+.cui-back-button:active {
+  background: var(--color-neutral-3);
+}
+.cui-back-button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}

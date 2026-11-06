@@ -70,6 +70,8 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 46 | ElementBadge | **review** | Converted 2026-11-05: `ElementBadge`, the chip alone (named by `title`) or with the element's name and function (`showLabel`, `sublabel`); the glyph is fixed per element. See ELBADGE-1 to ELBADGE-4, Decision D-132 and Open questions Q-ELBADGE-1 to Q-ELBADGE-8 (answered 2026-11-05). |
 | 47 | Modal / dialog (base) | **review** | Converted 2026-11-05: `Modal`, the panel from the CSS (title, close, body, footer) over a scrim, with Command brief's open and close contract (focus to the title, Tab trapped, Escape, scrim click, focus returned). Fades in and out; holds the page still while open. See MODAL-1 to MODAL-5, Decision D-133 and Open questions Q-MODAL-1 to Q-MODAL-10 (answered 2026-11-05). |
 | 48 | Stepper | **review** | Converted 2026-11-05: `Stepper`, horizontal and vertical, every step's state from one `currentStep`, Error and Warning as flags whose message takes the description's slot, the 480px container rule. Matches the gallery's three steppers at 600px and 400px. See STEPPER-1 to STEPPER-3, Decision D-134 and Open questions Q-STEPPER-1 to Q-STEPPER-9 (answered 2026-11-05). |
+| 49 | Back button | **review** | Converted 2026-11-06: `BackButton`, its own row above the page header, a real link (`href`) or button (`onClick`), Button Ghost's states. Matches the gallery in every state; 34px tall by decision (Q-BACK-4). See BACK-1 to BACK-4, Decision D-137 and Open questions Q-BACK-1 to Q-BACK-8 (answered 2026-11-06). |
+| 50 | PageHeader | **review** | Converted 2026-11-06: `PageHeader`, title, subtitle and an actions row, flush in the layout. Matches the gallery's two headers exactly. Back button's docs now use it. See PAGEHEADER-1 to PAGEHEADER-4, Decision D-138 and Open questions Q-PAGEHEADER-1 to Q-PAGEHEADER-5 (answered 2026-11-06). |
 | — | everything else | todo | Not started. |
 
 ---
@@ -101,8 +103,8 @@ The "Order" column is the suggested conversion order: simplest and most depended
 | **Progress Bar** `.c-progress-*` | 4558–4631 (used by Card 843/873, Modal 2191–2454; shimmer keyframe reused 688, 1767, 6142, 6307, 6675) | default, tones (success, error, 5 elements), labels, stacked, indeterminate, legend | compact 4, default 8, large 16 | reduced motion, forced colours (4617–4621) | Progress Bar 7114–7310 | Default fill Obsidian. Stacked order = departments, then Purple, Turquoise, Neutral-4 overflow. Width transition duration-base | — | M, little JS | 9 |
 | **Modal / dialog (base)** `.c-modal`, `.c-icon-btn` | 1782–1788 | — | — | `.c-icon-btn` hover only | Modal / dialog 6206–6232 | Overlay = shadow-overlay; 1px Neutral-3 border; shadow-4; ~480px; h3 title; spacing-24 body; one decision only | Button | S (no scrim/layer CSS) | 10 |
 | **Stepper** `.c-stepper`, `.c-step*` | 4297–4408 (`.c-step-indicator` reused by Task Rows 5579–5705) | horizontal, vertical | — | completed, active, upcoming, error, warning, `.is-disabled`; container query 480 | Stepper 8491–8573 | State from one `currentStep`. Error only on Active, Warning only on Completed. 24px indicator | Phosphor | M, no JS | 11 |
-| **PageHeader** `.c-pageheader` | 4419–4429 (+2922) | with actions row | — | none | PageHeader 6893–6921; App Shell › Page header 2023–2085 | h1 (32/38, 40/56 at -lg), body2 subtitle, no chrome | Button | S | 12 |
-| **Back button** `.c-back` | 4407–4417 | — | — | hover, active, focus-visible | Back button 2086–2145 | Ghost style, label2, arrow-left icon-sm; label = parent screen, max 40 chars + ellipsis | Phosphor | S | 12 |
+| **PageHeader** `.c-pageheader` | 4422–4432 (+2925) | with actions row | — | none | PageHeader 6893–6921; App Shell › Page header 2023–2085 | h1 (32/38, 40/56 at -lg), body2 subtitle, no chrome | Button | S | 12 |
+| **Back button** `.c-back-button` | 4409–4420 | — | — | hover, active, focus-visible | Back button 2086–2145 | Ghost style, label2, arrow-left icon-sm; label = parent screen, max 40 chars + ellipsis | Phosphor | S | 12 |
 | **Tabs** `.c-tabs` | 2975–2997 | with count, scroll fades | — | active, hover, :active, focus-visible, `.is-disabled` | Tabs 9243–9348 | Active = 2px inset Obsidian underline. Disabled Neutral-4 at 40%. Panel cross-fade. URL persistence | Phosphor, JS | S–M, JS | 13 |
 | **Segmented Control** `.c-segctl`, `.c-seg-*` | 4431–4468 | text, icon-only (with tooltip) | default, compact | selected (`aria-checked`), hover, active, focus-visible, disabled; reduced motion | Segmented Control 7832–7951 | 2–5 segments. 36 / 28px heights. Pill moves duration-fast / ease-standard | Phosphor, JS | M, JS | 14 |
 | **Chip** (Input Chip, Filter Chip) `.c-chip` | 4519–4556 (reused 2193, 3549, 3724; Chat pillars) | input, filter, overflow `+N`, show less | input 24, filter 32 | input: disabled, remove hover/focus; filter: hover, active, `.is-active`, focus-visible, disabled, count | Chip 4364–4566 | Filter active = Obsidian. Input labels truncate. Overflow after 3. radiogroup / group roles | Phosphor, JS | M, JS | 15 |
@@ -743,6 +745,29 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-STEPPER-8 | Task Rows copied Stepper's three discs (Completed, Upcoming, Error) because Stepper wasn't converted. Share them now (Task Rows uses Stepper's indicator classes), as Progress Bar's shimmer was shared once it existed? My recommendation: yes, in Task Rows' next change **Answered 2026-11-05: yes, in Task Rows' next change (the recommendation)** | `TaskRows.css` |
 | Q-STEPPER-9 | `currentStep` counts from 0 (the first step is 0; the number shown is 1), and `steps.length` means all done. Keep? My recommendation: keep **Answered 2026-11-05: keep (the recommendation)** | `Stepper.tsx` |
 
+### Back button
+
+| ID | Question | Where |
+|---|---|---|
+| Q-BACK-1 | Placement: the Back button section says it sits above the page header, which is unchanged; App Shell's Level 2 paragraph says it replaces the page header's title and subtitle. The CSS comment and the gallery put it above. Built above. Keep, and correct App Shell's line? My recommendation: keep **Answered 2026-11-06: keep (the recommendation)** | `BackButton.tsx` |
+| Q-BACK-2 | Length: the DS cuts a label past 40 characters with an ellipsis; the CSS has no rule, so a long parent name runs on. Built as the CSS. Cut at 40 characters ("…"), keeping the full name for screen readers? My recommendation: yes **Answered 2026-11-06: yes (the recommendation)** | `BackButton.tsx` |
+| Q-BACK-3 | Its name: a screen reader hears only "Reports" (the gallery's markup), with nothing saying it goes back. Name it "Back to Reports" (the visible word still in the name)? My recommendation: yes **Answered 2026-11-06: yes (the recommendation)** | `BackButton.tsx` |
+| Q-BACK-4 | Height: the CSS sets no line height, so the gallery's `<button>` draws `normal` and is 32px tall; the DS says label2 (13/18), 34px. Built with label2's 18px. Keep the token (34px)? My recommendation: keep the token **Answered 2026-11-06: keep the token (the recommendation)** | `BackButton.css` |
+| Q-BACK-5 | Link or button: the gallery uses a `<button>`. Going up a level is navigation, so `href` makes a real link (opens in a new tab, shows its address); `onClick` keeps a button for app routing that isn't a link. Both look the same. Keep both, and recommend `href`? My recommendation: keep **Answered 2026-11-06: keep (the recommendation)** | `BackButton.tsx` |
+| Q-BACK-6 | No disabled state in the DLS (the audit noted it). Not built: a Level 2+ screen always has a parent. Keep it out? My recommendation: keep it out **Answered 2026-11-06: keep it out (the recommendation)** | `BackButton.tsx` |
+| Q-BACK-7 | Touch target: 34px tall (8px padding around 18px), under the 44px minimum. Extend the hit area to 44px with an invisible margin, the look unchanged (as Media Ad Card's Compare)? My recommendation: yes **Answered 2026-11-06: yes (the recommendation)** | `BackButton.css` |
+| Q-BACK-8 | The 12px below the row is the component's (the CSS's `.c-back-button-row`), though spacing between components normally comes from layout. Keep it in the component, as the DS states it? My recommendation: keep **Answered 2026-11-06: keep (the recommendation)** | `BackButton.css` |
+
+### PageHeader
+
+| ID | Question | Where |
+|---|---|---|
+| Q-PAGEHEADER-1 | The large title: the DS gives the title h1's `-lg` size (40/56) for screens 1280px and wider; the CSS never uses it (32/38 everywhere), and no other component uses any `-lg` size yet. Built as the CSS. Use 40/56 from 1280px? My recommendation: yes, from 1280px **Answered 2026-11-06: yes, from 1280px (the recommendation)** | `PageHeader.css` |
+| Q-PAGEHEADER-2 | Actions on a narrow screen: the row never wraps, so with actions the title squeezes (about 100px at 320px) and a word that can't break runs under the buttons ("Overview" under Export). The DLS has the same. Let the actions drop below the title when they don't fit beside it (left-aligned there, 12px under the subtitle)? My recommendation: yes **Answered 2026-11-06: yes (the recommendation)** | `PageHeader.css` |
+| Q-PAGEHEADER-3 | Actions are a slot on PageHeader (`actions`), though the DS documents them as App Shell's addition to `.c-pageheader` rather than a PageHeader variant: the CSS is PageHeader's, and App Shell will render PageHeader. Keep the slot here? My recommendation: keep **Answered 2026-11-06: keep (the recommendation)** | `PageHeader.tsx` |
+| Q-PAGEHEADER-4 | The title is a real `h1` by default, with `headingLevel` 2 or 3 for a header that titles a panel inside a page that has its own h1 (the DS says it can top "a page or panel"). The look is always h1. Keep? My recommendation: keep **Answered 2026-11-06: keep (the recommendation)** | `PageHeader.tsx` |
+| Q-PAGEHEADER-5 | The 48px under the header (`.c-shell .c-pageheader`, line 2925) is App Shell's, not PageHeader's, as the DS says spacing below belongs to the page layout. Not built here. Keep it with App Shell? My recommendation: keep **Answered 2026-11-06: keep (the recommendation)** | `PageHeader.css` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -1013,6 +1038,24 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | STEPPER-1 | The gallery's steppers have no list, no current-step marker and no state for screen readers; Timeline, its variant, does (`sr-only` "Step 3 of 5, … current"). Q-STEPPER-1 | 4329–4408 | Stepper (no accessibility section) |
 | STEPPER-2 | `.is-disabled` is in the CSS only, with a not-allowed cursor on a stepper that can't be clicked. Q-STEPPER-4, Q-STEPPER-7 | 4334 | — |
 | STEPPER-3 | The audit row (section 2.1) cites 4294–4405; the CSS is 4297–4408 (comment from 4297, rules 4329–4408). The audit row is corrected | 4297–4408 | — |
+
+### Back button (affects the Back button conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| BACK-1 | Placement: above the page header (Back button section, CSS comment, gallery) against replacing its title and subtitle (App Shell, Level 2). Built above. Q-BACK-1 | 4409–4413 | Back button; App Shell, Level 2 |
+| BACK-2 | The 40-character ellipsis is in the DS only. Q-BACK-2 | 4416 | Back button, Label content |
+| BACK-3 | No line height in the CSS (`normal`, 32px tall in the gallery) against label2 13/18 (34px). Q-BACK-4 | 4416 | Back button, Label |
+| BACK-4 | The audit row (section 2.1) cites `.c-back` at 4407–4417; the CSS is `.c-back-button` at 4409–4420. The audit row is corrected | 4409–4420 | — |
+
+### PageHeader (affects the PageHeader conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| PAGEHEADER-1 | The `-lg` title (40/56 from 1280px) is in the DS only. Q-PAGEHEADER-1 | 4430 | PageHeader, Title; Typography, `-lg` tier |
+| PAGEHEADER-2 | Actions: CSS on `.c-pageheader-row` / `-actions`, documented as App Shell's addition, not a PageHeader variant. Q-PAGEHEADER-3 | 4428, 4432 | PageHeader, Variants; App Shell, Page header |
+| PAGEHEADER-3 | The row never wraps: with actions on a phone the title runs under them. Q-PAGEHEADER-2 | 4428 | — |
+| PAGEHEADER-4 | The audit row (section 2.1) cites 4419–4429 (+2922); the CSS is 4422–4432 (+2925). The audit row is corrected | 4422–4432, 2925 | — |
 
 ### Tokens and global
 
@@ -1337,6 +1380,8 @@ Grouped by component. Line numbers are CSS / DS.
 | D-134 | Stepper: one `Stepper` (an `<ol>`, not a client component) that derives each step's state from `currentStep` and draws the five indicator states from `data-state`; each `<li>` holds a step and, horizontally, the connector after it, with flex shares that reproduce the source's sibling layout; the 480px rule is a container query on the list itself. Timeline stays its own component | STEPPER-1 to STEPPER-3. Flagged Q-STEPPER-1 to Q-STEPPER-9 |
 | D-135 | Stepper, below 480px: the connector's box turns transparent and an `::after` draws the line `inset-inline: calc((24px − 100%) / 2)`, out past the box by the step's spare width, so the line stops 4px off each circle at every width (user, 2026-11-05). The layout and shares are unchanged | DLS owed row 142 |
 | D-136 | Stepper, below 480px: the text block takes `width: 200%` of the step (the circle-to-circle room less 8px), centred; the first and last take `100% + 12px`, pinned to their circle's outer edge. Forced colours: connectors and the narrow `::after` line in CanvasText (user, 2026-11-05) | DLS owed rows 143, 144 |
+| D-137 | Back button: one `BackButton` (not a client component) that renders its row and, inside it, a real link (`href`) or button (`onClick`), as Card's title does; the ref goes to the link or button; Phosphor `ArrowLeft` Regular | BACK-1 to BACK-4. Flagged Q-BACK-1 to Q-BACK-8 |
+| D-138 | PageHeader: one `PageHeader` (not a client component) rendering the row, the text block (a real heading, h1 by default, and an optional `<p>` subtitle) and an optional actions block; the gap below is left to the layout (App Shell) | PAGEHEADER-1 to PAGEHEADER-4. Flagged Q-PAGEHEADER-1 to Q-PAGEHEADER-5 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -1727,3 +1772,7 @@ Every place where the React library now follows a decision that differs from the
 | 142 | Stepper: below 480px the connector should still stop `spacing-4` off each circle, as on desktop. Today the steps widen to an equal share with the circle centred, so the gap grows to ~19px; draw the line past the connector's box by the step's spare width ((share − 24px) / 2) on each side (decided 2026-11-05, user) | components.css 4404–4408 | 2026-11-05 |
 | 143 | Stepper, below 480px: the label's ellipsis never takes effect (`.c-step-text` is centred and sizes to its content), so long labels run together. Give each label the room between circles (2 × the share, which leaves 8px to the next), the first starting at its circle's left edge and the last ending at its circle's right edge (share + 12px each), and cap the text so the ellipsis works (decided 2026-11-05, user) | components.css 4404–4408 | 2026-11-05 |
 | 144 | Stepper: draw the connectors in CanvasText in forced colours (they are background fills, so they vanish there today, at every width) (decided 2026-11-05, user) | components.css 4392–4394 and after 4408 | 2026-11-05 |
+| 145 | Back button: App Shell's Level 2 paragraph should say the Back button row sits above the page header (not that it replaces the title and subtitle); add the 40-character cut to the CSS or markup, with the full name as the accessible name; name the control "Back to {parent}" (decided Q-BACK-1 to Q-BACK-3) | DESIGN-SYSTEM.md App Shell, Level 2; Back button; preview.html 2245–2250 | 2026-11-06 |
+| 146 | Back button: set `line-height: var(--text-label2-lh)` (34px; today the `<button>` draws `normal`, 32px); a 44px hit area (`--hit-target-min`) by an `::after` above and below; say there is no disabled state and that a link (`href`) is preferred (decided Q-BACK-4 to Q-BACK-7) | components.css 4416; DESIGN-SYSTEM.md Back button | 2026-11-06 |
+| 147 | PageHeader: use h1's `-lg` size (40/56) for the title from 1280px, as the DS already says (decided Q-PAGEHEADER-1) | components.css 4430 | 2026-11-06 |
+| 148 | PageHeader: let `.c-pageheader-row` wrap, the text block `flex: 1 1 0` with a 240px minimum (or the row's width), and a 12px row gap, so on a phone the actions move under the title instead of covering it; say the actions are PageHeader's slot that App Shell fills, the title is h1 by default (2 or 3 for a panel), and the 48px below is App Shell's (decided Q-PAGEHEADER-2 to Q-PAGEHEADER-5) | components.css 4428–4429; DESIGN-SYSTEM.md PageHeader, App Shell › Page header | 2026-11-06 |
