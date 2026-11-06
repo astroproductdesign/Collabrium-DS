@@ -23,6 +23,7 @@
 @import './components/HeroCard/HeroCard.css';
 @import './components/InfoBanner/InfoBanner.css';
 @import './components/InputField/InputField.css';
+@import './components/List/List.css';
 @import './components/LoadingState/LoadingState.css';
 @import './components/MediaAdCard/MediaAdCard.css';
 @import './components/MetricsCard/MetricsCard.css';

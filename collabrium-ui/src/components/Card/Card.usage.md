@@ -24,6 +24,7 @@ The base surface for grouping content: dashboard tiles, list items, panels. Neut
 | `Card` `selectLabel` | `string` | none | Makes the card selectable and names its checkbox, e.g. "Select Q3 plan". |
 | `Card` `selected`, `defaultSelected`, `onSelectedChange` | `boolean`, `boolean` (false), `(selected) => void` | none | The selected state: control it, or let the card keep its own. Only with `selectLabel`. |
 | `Card` `minWidth` | `base`, `functional` | `base` | The narrowest the card gets: 240px, or 280px for a feature tile. |
+| `Card` `padding` | `default`, `list` | `default` | `list` for a card whose body is a List: 8px top and bottom, no side padding, so the rows run edge to edge and the card clips their fills. A CardHeader or CardFooter in it keeps 16px at the sides. (Decided 2026-11-06.) |
 | `CardList` `items` | `ReactNode[]` | required | The points of a feature tile, one per line. |
 | `CardTitle` `children` | `ReactNode` | required | The title text. |
 | `CardTitle` `headingLevel` | `2` to `6` | `3` | The heading level. The look is always h5 (16px, 700). |
@@ -53,6 +54,7 @@ The base surface for grouping content: dashboard tiles, list items, panels. Neut
 13. A feature tile is a Card with `minWidth="functional"` (280px: three points and a full-width button need the room), a title, a description, a `CardList` of three points and a Button. Each point is a check-circle (Fill, Obsidian, 16px: Tier 2) and body2 Neutral-9 text, centred on one line, 8px apart. The button is the real Button, Primary and md, as a direct child of the card, stretched to its full width with the label centred. The list takes the room left in the card, so the button is at the bottom of every card in a row. Put these cards in a `CardGrid columns="functional"`. (DESIGN-SYSTEM.md 2641; the DLS adds USP as a variant of Card, not a separate component.)
 14. In forced-colours mode the focus halo (a shadow) becomes a 2px Highlight outline. (Q-CARD-4.)
 
+15. **A List in a card runs edge to edge:** `padding="list"` gives the card 8px top and bottom and no side padding, as Lists' DS section describes; the card's overflow is hidden so it clips the rows' square fills. (Decided 2026-11-06, Q-LIST-2.)
 ## Accessibility
 - The title is a heading at the level you give it. A clickable card is a real link or button named by the title text.
 - Keyboard: Tab reaches the checkbox (when selectable), then the title's link or button; Enter follows or presses it; Space presses a button or ticks the checkbox.

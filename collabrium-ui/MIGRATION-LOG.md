@@ -31,7 +31,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 7 | Task Rows (AI Native, 4 of 8) | **review** | Converted 2026-10-26; Stopped state added the same day. See TASK-1 to TASK-8, Decisions D-43 to D-50 and Open questions Q-TASK-*. Four AI Native parts remain (Chat window, Permission Prompt, Prompt input bar, Tool approval). |
 | 8 | Permission Prompt (AI Native, 5 of 8) | **review** | Converted 2026-10-26. See PERM-1 to PERM-8, Decisions D-56 to D-62 and Open questions Q-PERM-*. Three AI Native parts remain (Chat window, Prompt input bar, Tool approval). |
 | 9 | Radio | **review** | Converted 2026-10-26. The plain Radio and a RadioGroup; Radio Card (3101–3214) waits for Card. See RADIO-1 to RADIO-5, Decisions D-64 to D-67 and Open questions Q-RADIO-*. Switch is still not converted. |
-| 10 | Input field | **review** | Converted 2026-10-26: the plain field with its icon, adornment, success, required and counter parts. Textarea, Password field and Search input are separate components and wait. See INPUT-1 to INPUT-8, Decisions D-68 to D-72 and Open questions Q-INPUT-*. |
+| 10 | Input field | **review** | Converted 2026-10-26: the plain field with its icon, adornment, success, required and counter parts. Textarea and Search input are separate components; Password field became Input field's `type="password"` (2026-11-06, row 54). See INPUT-1 to INPUT-8, Decisions D-68 to D-72 and Open questions Q-INPUT-*. |
 | 11 | Textarea | **review** | Converted 2026-10-26. It extends Input field and takes its decisions (100% width, Neutral-5 placeholder, bold error, `hideLabel`, 1px error border). Password field and Search input still wait. See TEXTAREA-1 to TEXTAREA-5, Decisions D-73 and D-74 and Open questions Q-TEXTAREA-*. |
 | 12 | Tool approval (AI Native, 6 of 8) | **review** | Converted 2026-10-26. See TOOL-1 to TOOL-8, Decisions D-75 to D-78 and Open questions Q-TOOL-*. Two AI Native parts remain (Chat window, Prompt input bar). |
 | 13 | Prompt input bar (AI Native, 7 of 8) | **review** | Converted 2026-10-26: the floating bar, the inline composer and the model switcher. See PIB-1 to PIB-8, Decisions D-79 to D-83 and Open questions Q-PIB-*. One AI Native part remains (Chat window). |
@@ -74,6 +74,8 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 50 | PageHeader | **review** | Converted 2026-11-06: `PageHeader`, title, subtitle and an actions row, flush in the layout. Matches the gallery's two headers exactly. Back button's docs now use it. See PAGEHEADER-1 to PAGEHEADER-4, Decision D-138 and Open questions Q-PAGEHEADER-1 to Q-PAGEHEADER-5 (answered 2026-11-06). |
 | 51 | Tabs | **review** | Converted 2026-11-06: `Tabs`, the tab row with icon, count, active underline, hover, pressed, focus and disabled, the scrolling row and its edge fades, and panels that cross-fade (DS only). Matches the gallery's tab row exactly. The docs site's Preview / Code tabs now use it; its copied `.c-tabs` CSS and `Tabs.tsx` are deleted. See TABS-1 to TABS-5, Decision D-139 and Open questions Q-TABS-1 to Q-TABS-9 (answered 2026-11-06). |
 | 52 | Segmented Control | **review** | Converted 2026-11-06: `SegmentedControl`, text or icon-only (with the tooltip), default and compact, the sliding pill, a disabled option or control. Matches the gallery's two controls exactly. See SEG-1 to SEG-5, Decision D-141 and Open questions Q-SEG-1 to Q-SEG-10. |
+| 53 | Lists | **review** | Converted 2026-11-06: `List`, `ListItem` (link, button, control and static rows; icon, avatar, thumbnail and logo leading at S/M/L; heading, description, caption with icon or dot; value, badge, control, button and chevron trailing), `ListItemSkeleton`, `ListSection` (the Section header), `ListEmpty`, `ListError`, `ListFooter`; timeline, bleed, selected, disabled, busy. Matches the gallery's three cards exactly (Badge's 24px aside, decided D-142). See LIST-1 to LIST-7, Decision D-143 and Open questions Q-LIST-1 to Q-LIST-9. |
+| 54 | Password field | **review** | Converted 2026-11-06 as a type of Input field (`InputField type="password"`; the user moved it there the same day, so there is no `PasswordField` component): the show/hide toggle and the 40px kept clear at the end, on Input field's own label, box, states, sizes and counter. Matches the gallery's field exactly, including the toggle's click behaviour. See PW-1 to PW-4, Decision D-144 and Open questions Q-PW-1 to Q-PW-4 (all answered). |
 | — | everything else | todo | Not started. |
 
 ---
@@ -110,7 +112,7 @@ The "Order" column is the suggested conversion order: simplest and most depended
 | **Tabs** `.c-tabs` | 2978–3000 | with count, scroll fades | — | active, hover, :active, focus-visible, `.is-disabled` | Tabs 9243–9348 | Active = 2px inset Obsidian underline. Disabled Neutral-4 at 40%. Panel cross-fade. URL persistence | Phosphor, JS | S–M, JS | 13 |
 | **Segmented Control** `.c-segctl`, `.c-seg-*` | 4436–4471 | text, icon-only (with tooltip) | default, compact | selected (`aria-checked`), hover, active, focus-visible, disabled; reduced motion | Segmented Control 7832–7951 | 2–5 segments. 36 / 28px heights. Pill moves duration-fast / ease-standard | Phosphor, JS | M, JS | 14 |
 | **Chip** (Input Chip, Filter Chip) `.c-chip` | 4519–4556 (reused 2193, 3549, 3724; Chat pillars) | input, filter, overflow `+N`, show less | input 24, filter 32 | input: disabled, remove hover/focus; filter: hover, active, `.is-active`, focus-visible, disabled, count | Chip 4364–4566 | Filter active = Obsidian. Input labels truncate. Overflow after 3. radiogroup / group roles | Phosphor, JS | M, JS | 15 |
-| **Lists** `.c-list`, `.c-list-item` | 6106–6363 | leading icon/avatar/thumb/logo, rich and 2-line heading, trailing value/chevron/badge/control, timeline line, bleed | S / M / L leading | hover (hover devices), focus-visible, active, selected (`aria-current`), disabled, loading bones, empty, error, footer; reduced motion; forced colours | Lists 5838–6205 | Element decides behaviour (`a` opens, `button` acts, `label` toggles). Chevron only on links. Selected = `aria-current` | Badge, Checkbox, Switch, Button | L, no JS | 16 |
+| **Lists** `.c-list`, `.c-list-item` | 6106–6363 | leading icon/avatar/thumb/logo, rich and 2-line heading, trailing value/chevron/badge/control, timeline line, bleed | S / M / L leading | hover (hover devices), focus-visible, active, selected (`aria-current`), disabled, loading bones, empty, error, footer; reduced motion; forced colours | Lists 6050–6418 (corrected 2026-11-06; was 5838–6205) | Element decides behaviour (`a` opens, `button` acts, `label` toggles). Chevron only on links. Selected = `aria-current` | Badge, Checkbox, Switch, Button | L, no JS | 16 |
 
 ### 2.2 Forms, selection and data entry
 
@@ -799,6 +801,29 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-SEG-9 | A disabled control: the DS says track and segments together at 40%; since its segments are disabled buttons too, they would fade again (to 16%). Built so they don't: one 40% over the whole control, colours otherwise unchanged. Keep? My recommendation: keep **Answered 2026-11-06 (user): keep one 40% fade (the recommendation).** | `SegmentedControl.css` |
 | Q-SEG-10 | Before the page's script runs (a server render), the selected segment carries the white fill itself (the source's no-pill fallback) until the pill is measured. Keep? My recommendation: keep **Answered 2026-11-06 (user): keep (the recommendation).** | `SegmentedControl.css` |
 
+### Lists
+
+| ID | Question | Where |
+|---|---|---|
+| Q-LIST-1 | A control row whose switch or checkbox is disabled still takes the pressed fill, fades its dividers and draws the high-contrast hover outline (only the hover fill skips it). Built as the source. Exclude disabled control rows from all of them, as the hover fill already does? My recommendation: yes **Answered 2026-11-06 (user): yes, exclude them (the recommendation).** | `List.css` |
+| Q-LIST-2 | In a card, the DS has the list run edge to edge: the card keeps 8px top and bottom and no side padding, and clips the square row fills. Card has no setting for that. The docs show a stand-in card. Add a Card setting for a list body (8px top and bottom, no sides)? My recommendation: yes, on Card (the card owns its padding) **Answered 2026-11-06 (user): yes, Card `padding="list"` (the recommendation). A CardHeader or CardFooter in it keeps 16px at the sides.** | `Card`, `List.docs.tsx` |
+| Q-LIST-3 | Leading corners are a quarter of the box: 6 / 8 / 12px. 6 is `--radius-xs` and 12 `--radius-sm` (built so); 8px (M) has no token. Keep 8px local, or use `--radius-xs` (6) / `--radius-sm` (12)? My recommendation: keep 8px local, so the shape stays the same at every size **Answered 2026-11-06 (user): keep 8px local (the recommendation).** | `List.css` |
+| Q-LIST-4 | Pressed never shows with a mouse: the hover rule outranks it, so a press stays Neutral-2 (as Tabs had). Built as the source. Make pressed win, as decided for Tabs? My recommendation: yes **Answered 2026-11-06 (user): yes, pressed wins (the recommendation).** | `List.css` |
+| Q-LIST-5 | Skeleton rows are 56px (M leading), the row they stand for 62px, so the list jumps 6px a row when it loads; the DS says they match. Built as the source. Give the skeleton row a minimum height from tokens (heading line 20 + 2 + caption line 16 + 24 padding = 62)? My recommendation: yes **Answered 2026-11-06 (user): yes, a 62px minimum from tokens (the recommendation).** | `List.css` |
+| Q-LIST-6 | No tokens for the 40% disabled fade, the 50% trailing cap or the 62% / 38% bone widths: local. The 6px dot and 2px line gap use `--spacing-6` and `--spacing-2`. Keep? My recommendation: keep (the opacity joins the opacity-token request) **Answered 2026-11-06 (user): keep (the recommendation).** | `List.css` |
+| Q-LIST-7 | Leading size is set once on the List (`leadingSize`), not per row as the DS's props table has it, so one list can't mix sizes (the DS's own rule). Keep? My recommendation: keep **Answered 2026-11-06 (user): keep (the recommendation).** | `List.tsx` |
+| Q-LIST-8 | The hidden "Loading…" text of a busy list sits in its own hidden first `<li>` (the DS doesn't say where). Keep? My recommendation: keep **Answered 2026-11-06 (user): keep (the recommendation).** | `List.tsx` |
+| Q-LIST-9 | The sticky Section header's background, a custom property in the DLS (`--c-list-subheader-bg`), is a `surface` setting here: `default` (Neutral-1) or `canvas` (Canvas warm), as Tabs. Keep? My recommendation: keep **Answered 2026-11-06 (user): keep (the recommendation).** | `List.tsx` |
+
+### Password field
+
+| ID | Question | Where |
+|---|---|---|
+| Q-PW-1 | The toggle is a 16px target, under the 44px minimum. Give it an invisible 44px hit area centred on the icon (nothing drawn changes; it overlaps the box's reserved 40px end)? My recommendation: yes **Answered 2026-11-06 (user): yes, a 44px hit area (the recommendation).** | `InputField.css` |
+| Q-PW-2 | Edge adds its own reveal button inside a password box, so Edge would show two eyes. Hide Edge's (`::-ms-reveal`)? My recommendation: yes **Answered 2026-11-06 (user): yes, hide Edge's (the recommendation).** | `InputField.css` |
+| Q-PW-3 | On a disabled field the toggle still works and reacts to hover (as the source). Disable it with the field (out of the tab order, no hover)? My recommendation: yes **Answered 2026-11-06 (user): yes, disabled with the field (the recommendation).** | `InputField.tsx`, `InputField.css` |
+| Q-PW-4 | A success check, trailing icon, prefix or suffix would collide with the toggle at the end, and the DS doesn't say. Built without them (the props aren't offered); a leading icon is. Keep? My recommendation: keep **Answered 2026-11-06 (user): keep (the recommendation). The types don't offer them with `type="password"`.** | `InputField.tsx` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -1107,6 +1132,27 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | SEG-3 | Hover is Neutral-2 on a Neutral-2 track. Q-SEG-3 | 4447, 4456 | Segmented Control, States |
 | SEG-4 | Escape returns focus elsewhere (DS only). Q-SEG-4 | — | Segmented Control, Accessibility |
 | SEG-5 | The audit row (section 2.1) cites 4431–4468; the CSS is 4436–4471 (comment from 4436, rules 4447–4463 and 4469–4471). The audit row is corrected | 4436–4471 | — |
+
+### Lists (affects the Lists conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| LIST-1 | A control row whose input is disabled (a `<label>`, never `:disabled`) still takes the pressed fill, fades its dividers when pressed or hovered, and draws the forced-colours hover outline; only the fill on hover excludes it. Q-LIST-1 | 6193–6232, 6359 | Lists, States, Disabled |
+| LIST-2 | The disabled colour rule lists the chevron, and the forced-colours one doesn't. Moot: the chevron is only on link rows, which are never disabled. No change; the DLS can drop the chevron from the rule | 6232 / 6359 | — |
+| LIST-3 | The DS says there is no radius token below radius-sm, so the S (6px) and M (8px) corners are one-offs; `--radius-xs` is 6px. Built with `--radius-xs` for S. Q-LIST-3 | 6155–6158 | Lists, Tokens and one-offs |
+| LIST-4 | Hover (0,6,1) outranks pressed (0,4,1), so with a mouse the DS's Neutral-3 press never shows (as TABS-3). Q-LIST-4 | 6203, 6212 | Lists, States, Pressed |
+| LIST-5 | The DS says a skeleton row is "the same height as a loaded heading + caption row" (62); with M leading it is 56 (the lead), so loaded rows jump 6px each. Q-LIST-5 | 6299–6305 | Lists, States, Loading |
+| LIST-6 | In a card the DS gives the card 8px top and bottom and no side padding; Card has no such setting (in the DLS it's hand-written per card). Q-LIST-2 | — | Lists, Sizing, Surfaces |
+| LIST-7 | The audit row (section 2.2) cited the DS section as 5838–6205; it is 6050–6418. Corrected | — | — |
+
+### Password field (affects the Password field conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| PW-1 | The toggle is a 16px target (the icon alone), under the 44px minimum. Q-PW-1 | 166 | Password field |
+| PW-2 | Edge (Chromium) draws its own reveal button in a password box; neither file hides it, so Edge shows two eyes. Q-PW-2 | — | — |
+| PW-3 | No disabled toggle: on a disabled field the toggle still reveals the password and reacts to hover. Q-PW-3 | 166–168 | Password field |
+| PW-4 | The DS says "same anatomy as Input field" but doesn't say what happens to a success check, trailing icon or suffix, which would sit under the toggle. Q-PW-4 | — | Password field |
 
 ### Tokens and global
 
@@ -1437,6 +1483,8 @@ Grouped by component. Line numbers are CSS / DS.
 | D-140 | Tabs `scrollButtons` (user, 2026-11-06): two `aria-hidden`, `tabIndex=-1` buttons in the scroll area, each `hidden` unless its edge hides tabs, scrolling the list by 80% of its width (`smooth`, or instantly under reduced motion); a media query hides them on touch; with them on, the fades start 32px in | DLS owed row 151 |
 | D-141 | Segmented Control: one client `SegmentedControl` (a `radiogroup` track) whose options are typed all-text or all-icon; the pill is measured from the selected segment (offset from the track's padding box) on render and on resize, placed with no transition the first time; icon options are wrapped with the source's tooltip bubble; a roving Tab stop with manual activation | SEG-1 to SEG-5. Flagged Q-SEG-1 to Q-SEG-10 |
 | D-142 | Token audit (user, 2026-11-06): one-off values close to an existing token were reviewed side by side (review-drafts) and moved to the token chosen per row: Badge, Button, Chip, CampaignCard, Card, ChatWindow, EmptyState, EntryCard, HeroCard, GoalBar, InputField, LoadingState, Modal (reverses Q-MODAL-6), ProfileCard, PromptInputBar, Radio, StreamingText, Tag, Tooltip, Textarea, Thinking. Card's 3px accent and Switch's 3px inset were kept. Each CSS line says what it was | DLS owed 159–178 |
+| D-143 | Lists: one `ListItem` whose element follows its props (`href` → `<a>`, `onClick` → `<button>`, `control` → `<label>` with the library's Checkbox box or Switch track in their own wrappers, none → `<div>`), typed so a chevron is only on links and `disabled` only on button and control rows; leading size on the List; `ListSection` labels its List with its heading; the states are separate components. Server-safe (no client directive). The list mutes the control's own hover, press and focus ring, as the source has none | LIST-1 to LIST-7. Flagged Q-LIST-1 to Q-LIST-9 |
+| D-144 | Password field is a type of Input field, not its own component (the user, 2026-11-06): `InputField type="password"` adds the 40px end padding and the toggle (a real button named "Show password" / "Hide password", `aria-controls` the input, 44px hit area, disabled with the field; the shown state is component state, so it never persists across a reload) and hides Edge's reveal. Its props are a separate branch of the type, so `success`, `trailingIcon`, `prefix` and `suffix` can't be set with it. Toggle names are props for other languages | PW-1 to PW-4. Q-PW-1 to Q-PW-4 answered |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |
@@ -1861,3 +1909,15 @@ Every place where the React library now follows a decision that differs from the
 | 176 | Side padding 12px (`--spacing-12`), was 10: Tag and Tooltip (decided D-142, user token audit) | components.css .c-tag, .c-tooltip; DESIGN-SYSTEM.md Tag, Tooltip | 2026-11-06 |
 | 177 | Textarea: resize grip 12px (`--spacing-12`, was 10), 4px inset (`--spacing-4`, was 5) (decided D-142, user token audit) | components.css .c-textarea; DESIGN-SYSTEM.md Textarea | 2026-11-06 |
 | 178 | Thinking: row and query minimum height 32px (`--control-height-sm`), were 28 / 26 (decided D-142, user token audit) | components.css Thinking; DESIGN-SYSTEM.md Thinking | 2026-11-06 |
+| 179 | Lists: a control row whose input is disabled takes no pressed fill, no divider fade (pressed or hovered) and no forced-colours hover outline, as the hover fill already skips it (decided Q-LIST-1, user) | components.css 6193–6232, 6359; DESIGN-SYSTEM.md Lists, States | 2026-11-06 |
+| 180 | Card: a list-body padding setting (8px top and bottom, no sides, overflow hidden; a header or footer keeps 16px at the sides), so Lists' in-card surface is a Card option, not hand-written per card (decided Q-LIST-2, user) | components.css .c-card; DESIGN-SYSTEM.md Card, Lists (Sizing, Surfaces) | 2026-11-06 |
+| 181 | Lists: the Tokens section says no radius token sits below radius-sm; `--radius-xs` (6px) exists and is the S corner. The M 8px stays a one-off (decided Q-LIST-3, user) | DESIGN-SYSTEM.md Lists, Leading and Tokens and one-offs; components.css 6157 | 2026-11-06 |
+| 182 | Lists: pressed (Neutral-3) wins over hover with a mouse, as Tabs (decided Q-LIST-4, user) | components.css 6203, 6212; DESIGN-SYSTEM.md Lists, States | 2026-11-06 |
+| 183 | Lists: a skeleton row is at least the heading + caption row's 62px (heading line + 2px + caption line + 24px padding), not 56 (decided Q-LIST-5, user) | components.css 6299–6305; DESIGN-SYSTEM.md Lists, States (Loading) | 2026-11-06 |
+| 184 | Lists: the props table's `leadingSize` is a list-level setting (one size per list), matching the Don't "mix leading sizes in one list" (decided Q-LIST-7, user) | DESIGN-SYSTEM.md Lists, Props → markup | 2026-11-06 |
+| 185 | Lists: say where a busy list's hidden "Loading…" text goes: its own hidden first item (decided Q-LIST-8, user) | DESIGN-SYSTEM.md Lists, States (Loading) and Accessibility | 2026-11-06 |
+| 186 | Password field is a type of Input field (one Input field section with a Password part, not its own component and index entry) (decided by the user) | DESIGN-SYSTEM.md Password field and component index; preview.html sidebar | 2026-11-06 |
+| 187 | Password field: the show/hide toggle gets a 44px hit area around its 16px icon (decided Q-PW-1, user) | components.css 166; DESIGN-SYSTEM.md Password field | 2026-11-06 |
+| 188 | Password field: hide Edge's own reveal button (`::-ms-reveal`) so the toggle is the only one (decided Q-PW-2, user) | components.css 187 | 2026-11-06 |
+| 189 | Password field: the toggle is disabled with the field (decided Q-PW-3, user) | DESIGN-SYSTEM.md Password field | 2026-11-06 |
+| 190 | Password field: no success check, trailing icon, prefix or suffix; the end of the box is the toggle's (decided Q-PW-4, user) | DESIGN-SYSTEM.md Password field | 2026-11-06 |

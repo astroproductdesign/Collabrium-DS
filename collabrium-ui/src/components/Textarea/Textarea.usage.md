@@ -12,7 +12,7 @@ consistent.
 
 ## Don't use when
 - **It is one line.** Use Input field.
-- **It is a password.** Use Password field (not converted yet).
+- **It is a password.** Use Input field with `type="password"`.
 - **It is a search.** Use Search input (not converted yet).
 - **It is a quick reply in a conversation.** Use the Prompt input bar (not converted yet).
 

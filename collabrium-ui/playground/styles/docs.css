@@ -357,3 +357,11 @@ a.cui-button { text-decoration: none; }
   .topbar-download { display: none; }
   .topbar-download + .flag { margin-left: auto; }
 }
+
+/* Lists: example grid. */
+.docs-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: var(--spacing-24);
+  align-items: start;
+}

@@ -1,0 +1,639 @@
+/*
+  List — ported from collabrium-dls/components.css lines 6106–6363 (.c-list, .c-list-item and its slots, the
+  skeleton row, the timeline line, the section header, the Activity Log list states, reduced motion and forced
+  colours). The row's bone shimmer reuses Progress Bar's keyframe (cui-progress-shimmer), as the source reuses
+  c-progress-shimmer.
+
+  Mapping from the old classes:
+    .c-list                              -> ul.cui-list (role="list")
+    .c-list-no-divider / -timeline       -> [data-dividers="off"] / [data-timeline]
+    .c-list-bleed                        -> [data-bleed] (List and the section header)
+    .c-list > li                         -> .cui-list > li
+    .c-list-item                         -> .cui-list-item (a[href] | button | label | div)
+    .c-list-item.is-loading              -> .cui-list-item[data-loading]
+    .c-list-item-lead.is-{type}          -> .cui-list-item__lead[data-type="icon|avatar|thumbnail|logo"]
+    .is-s / .is-l on the lead            -> List's leadingSize: ul[data-leading-size="s|l"] (one size per list, as the
+                                            DS's "don't mix leading sizes in one list")
+    .c-list-item-content                 -> .cui-list-item__content
+    .c-list-item-heading (.is-rich, .is-2-line)
+                                         -> .cui-list-item__heading ([data-rich], [data-lines="2"])
+    .c-list-item-desc (.is-2-line)       -> .cui-list-item__desc ([data-lines="2"])
+    .c-list-item-caption, > i, -text     -> .cui-list-item__caption, __caption-icon, __caption-text
+    .c-list-item-dot.is-{status}         -> .cui-list-item__dot[data-status]
+    .c-list-item-trailing                -> .cui-list-item__trailing
+    .c-list-item-value (.is-large)       -> .cui-list-item__value ([data-size="large"])
+    .c-list-item-chevron                 -> svg.cui-list-item__chevron (Phosphor CaretRight, Regular)
+    .c-list-item-input                   -> .cui-list-item__input (on the control's own input)
+    .c-checkbox-box, .c-switch-track     -> the library's Checkbox box and Switch track, in their own wrappers
+    .c-list-item-bone (.is-lead/.is-round/.is-heading/.is-line/.is-value)
+                                         -> .cui-list-item__bone[data-part="lead|heading|line|value"] ([data-round])
+    .c-list-subheader (.is-upper, .is-sticky), --c-list-subheader-bg
+                                         -> .cui-list-subheader ([data-upper], [data-sticky], [data-surface="canvas"])
+    .c-list-empty / .c-list-error        -> .cui-list-state[data-kind="empty|error"]
+    .c-list-state-title / -hint          -> .cui-list-state__title / __hint
+    .c-list-error .c-btn                 -> .cui-list-state__action
+    .c-list-footer                       -> .cui-list-footer
+    .sr-only                             -> .cui-list__sr
+
+  Specificity keeps the source's order: the list, the divider and its fades (on the <li>), the row, hover, focus,
+  pressed, selected, disabled, then the slots, the skeleton, the timeline and the section header.
+
+  Tokens where the source wrote numbers: the S corner is --radius-xs (6px; the DS says no radius token sits below
+  radius-sm, but --radius-xs is 6px), the 2px line gap --spacing-2, the 6px status dot --spacing-6.
+*/
+
+.cui-list {
+  /* No token, kept local (decided 2026-11-06, Q-LIST-3 and Q-LIST-6): the M corner (a quarter of 32), the 40% disabled fade, the 50% trailing cap, the bone widths. */
+  --cui-list-lead-r-m: 8px;
+  --cui-list-disabled-opacity: 0.4;
+  --cui-list-trailing-cap: 50%;
+  --cui-list-bone-heading: 62%;
+  --cui-list-bone-line: 38%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+}
+/* Leading size lives on the <li> as one variable, so the lead box, the skeleton bone and the timeline read one number. */
+.cui-list > li {
+  --cui-list-lead: var(--spacing-32);
+  --cui-list-lead-r: var(--cui-list-lead-r-m);
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+/* The corner scales with the box, a quarter of it: 24 -> 6, 32 -> 8, 48 -> 12. */
+.cui-list[data-leading-size="s"] > li {
+  --cui-list-lead: var(--spacing-24);
+  --cui-list-lead-r: var(--radius-xs);
+}
+.cui-list[data-leading-size="l"] > li {
+  --cui-list-lead: var(--spacing-48);
+  --cui-list-lead-r: var(--radius-sm);
+}
+/* On page (no card): pull out by the row padding so row content lines up with page text; rows round to radius-sm. */
+.cui-list[data-bleed] {
+  margin-inline: calc(var(--spacing-16) * -1);
+}
+.cui-list[data-bleed] .cui-list-item {
+  border-radius: var(--radius-sm);
+}
+
+/* Divider: on by default, between rows only, inset 16px to the content edges. It fades on both sides of a filled row. */
+.cui-list > li + li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  inset-inline: var(--spacing-16);
+  height: var(--border-width-sm);
+  background: var(--color-neutral-3);
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-list[data-dividers="off"] > li + li::before,
+.cui-list[data-timeline] > li + li::before {
+  display: none;
+}
+/* Disabled control rows don't fade the dividers (decided 2026-11-06, Q-LIST-1; the source let them). The check sits on the <li>: :has() can't nest. */
+.cui-list > li:has(> :is(a[href], button).cui-list-item:focus-visible)::before,
+.cui-list > li:has(> :is(a[href], button).cui-list-item:focus-visible) + li::before,
+.cui-list > li:has(> label.cui-list-item .cui-list-item__input:focus-visible)::before,
+.cui-list > li:has(> label.cui-list-item .cui-list-item__input:focus-visible) + li::before,
+.cui-list > li:has(> :is(a[href], button, label).cui-list-item:not(:disabled):active):not(:has(.cui-list-item__input:disabled))::before,
+.cui-list > li:has(> :is(a[href], button, label).cui-list-item:not(:disabled):active):not(:has(.cui-list-item__input:disabled)) + li::before,
+.cui-list > li:has(> .cui-list-item[aria-current]:not([aria-current="false"]))::before,
+.cui-list > li:has(> .cui-list-item[aria-current]:not([aria-current="false"])) + li::before {
+  opacity: 0;
+}
+@media (hover: hover) {
+  .cui-list > li:has(> :is(a[href], button, label).cui-list-item:not(:disabled):hover):not(:has(.cui-list-item__input:disabled))::before,
+  .cui-list > li:has(> :is(a[href], button, label).cui-list-item:not(:disabled):hover):not(:has(.cui-list-item__input:disabled)) + li::before {
+    opacity: 0;
+  }
+}
+
+/* Row. Heading only is 48px tall, over the 44px touch minimum. */
+.cui-list-item {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  min-height: var(--spacing-48);
+  margin: 0;
+  padding: var(--spacing-12) var(--spacing-16);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  appearance: none;
+  font: inherit;
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+  text-align: start;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+/* One line of content: everything centred. Two or more: the leading top-aligns with the heading; trailing stays centred. */
+.cui-list-item:has(.cui-list-item__desc, .cui-list-item__caption, .cui-list-item__heading[data-lines="2"]) .cui-list-item__lead {
+  align-self: flex-start;
+}
+.cui-list-item__trailing {
+  align-self: center;
+}
+
+/* Interactive rows. */
+:is(a[href], button, label).cui-list-item {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  :is(a[href], button, label).cui-list-item:not(:disabled):not(:focus-visible):not(:has(.cui-list-item__input:disabled)):hover {
+    background: var(--color-neutral-2);
+  }
+}
+/* Focus: the Obsidian ring, inset, because cards and scrollers clip outside the row. A control row shows it when its input has focus. */
+:is(a[href], button).cui-list-item:focus-visible,
+label.cui-list-item:has(.cui-list-item__input:focus-visible) {
+  background: var(--color-neutral-2);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+/*
+  Pressed. A row whose control is disabled doesn't take it (decided 2026-11-06, Q-LIST-1). With a mouse the hover rule
+  above would outrank it, so the press never showed; the second selector lets pressed win, as Tabs (Q-LIST-4).
+*/
+:is(a[href], button, label).cui-list-item:not(:disabled):not(:has(.cui-list-item__input:disabled)):active,
+:is(a[href], button, label).cui-list-item:not(:disabled):not(:has(.cui-list-item__input:disabled)):hover:active {
+  background: var(--color-neutral-3);
+  transition-duration: var(--duration-instant);
+}
+/* Selected: aria-current, the open item in a list/detail layout only. Table's selected mark, drawn as a rounded bar. */
+.cui-list-item[aria-current]:not([aria-current="false"]) {
+  background: var(--color-neutral-2);
+}
+.cui-list-item[aria-current]:not([aria-current="false"])::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: var(--spacing-8);
+  width: var(--border-width-md);
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+  pointer-events: none;
+}
+/* Disabled: button rows and control rows (a disabled input). Never links. */
+:is(button.cui-list-item:disabled, label.cui-list-item:has(.cui-list-item__input:disabled)) {
+  cursor: not-allowed;
+}
+:is(button.cui-list-item:disabled, label.cui-list-item:has(.cui-list-item__input:disabled))
+  :is(.cui-list-item__heading, .cui-list-item__desc, .cui-list-item__caption, .cui-list-item__value, .cui-list-item__chevron) {
+  color: var(--color-neutral-4);
+}
+:is(button.cui-list-item:disabled, label.cui-list-item:has(.cui-list-item__input:disabled))
+  :is(.cui-list-item__lead, .cui-badge, .cui-switch__track, .cui-checkbox__box) {
+  opacity: var(--cui-list-disabled-opacity);
+}
+
+/* Leading. */
+.cui-list-item__lead {
+  flex: none;
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cui-list-lead);
+  height: var(--cui-list-lead);
+  overflow: hidden;
+  font-family: var(--font-primary);
+  font-style: normal;
+  line-height: 1;
+}
+.cui-list-item__lead > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.cui-list-item__lead-icon {
+  width: 1em;
+  height: 1em;
+}
+/* Icon: a Neutral-2 chip at every size; the glyph steps 14 / 16 / 24 for S / M / L, so S never looks bigger than M. */
+.cui-list-item__lead[data-type="icon"] {
+  border-radius: var(--cui-list-lead-r);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-8);
+  font-size: var(--icon-sm);
+}
+.cui-list[data-leading-size="l"] .cui-list-item__lead[data-type="icon"] {
+  font-size: var(--icon-md);
+}
+.cui-list[data-leading-size="s"] .cui-list-item__lead[data-type="icon"] {
+  font-size: var(--icon-micro);
+}
+/* Avatar: the Search input avatar recipe, scaled per size. */
+.cui-list-item__lead[data-type="avatar"] {
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+}
+.cui-list[data-leading-size="s"] .cui-list-item__lead[data-type="avatar"] {
+  font-size: var(--text-label3-size);
+}
+.cui-list[data-leading-size="l"] .cui-list-item__lead[data-type="avatar"] {
+  font-size: var(--text-body2-size);
+}
+.cui-list-item__lead[data-type="avatar"] > img {
+  object-fit: cover;
+}
+/* Thumbnail: an image cropped to fill. */
+.cui-list-item__lead[data-type="thumbnail"] {
+  border-radius: var(--cui-list-lead-r);
+  background: var(--color-neutral-2);
+}
+.cui-list-item__lead[data-type="thumbnail"] > img {
+  object-fit: cover;
+}
+/* Logo: a 1px Neutral-3 ring; a logo image contained on Neutral-1, or initials on Neutral-2. */
+.cui-list-item__lead[data-type="logo"] {
+  border-radius: var(--cui-list-lead-r);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--text-label3-tracking);
+}
+.cui-list[data-leading-size="s"] .cui-list-item__lead[data-type="logo"] {
+  font-size: var(--text-label3-size);
+}
+.cui-list[data-leading-size="l"] .cui-list-item__lead[data-type="logo"] {
+  font-size: var(--text-label1-size);
+}
+.cui-list-item__lead[data-type="logo"]:has(> img) {
+  background: var(--color-neutral-1);
+}
+.cui-list-item__lead[data-type="logo"] > img {
+  object-fit: contain;
+}
+
+/* Content: fills the width and shrinks first. Lines sit 2px apart (Dropdown's option text gap). */
+.cui-list-item__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+.cui-list-item__heading {
+  display: block;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-semibold);
+  color: var(--color-neutral-9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Rich: a sentence in regular weight with bold names and items. */
+.cui-list-item__heading[data-rich] {
+  font-weight: var(--text-body2-weight);
+}
+.cui-list-item__heading :is(b, strong) {
+  font-weight: var(--text-body2-strong-weight);
+}
+.cui-list-item__desc {
+  display: block;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:is(.cui-list-item__heading, .cui-list-item__desc)[data-lines="2"] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* Caption: always one line, with an optional icon or status dot first. */
+.cui-list-item__caption {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  min-width: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+}
+.cui-list-item__caption-icon {
+  flex: none;
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+}
+.cui-list-item__caption-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* The status dot is Tag's 6px dot. It never carries meaning alone: the caption text says the status. */
+.cui-list-item__dot {
+  flex: none;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-5);
+}
+.cui-list-item__dot[data-status="success"] {
+  background: var(--color-green);
+}
+.cui-list-item__dot[data-status="warning"] {
+  background: var(--color-amber);
+}
+.cui-list-item__dot[data-status="error"] {
+  background: var(--color-red);
+}
+.cui-list-item__dot[data-status="info"] {
+  background: var(--color-navy);
+}
+
+/* Trailing: never shrinks (capped at half the row, so a runaway value can't eat the heading); content truncates first. */
+.cui-list-item__trailing {
+  flex: 0 0 auto;
+  max-width: var(--cui-list-trailing-cap);
+  min-width: 0;
+  padding-inline: var(--spacing-16);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+}
+.cui-list-item__value {
+  min-width: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-neutral-9);
+}
+/* The Stat preset's large value: h4. */
+.cui-list-item__value[data-size="large"] {
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  font-weight: var(--text-h4-weight);
+}
+.cui-list-item__chevron {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-neutral-5);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  a[href].cui-list-item:hover .cui-list-item__chevron {
+    transform: translateX(var(--spacing-4));
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  a[href].cui-list-item:focus-visible .cui-list-item__chevron {
+    transform: translateX(var(--spacing-4));
+  }
+}
+/*
+  The control in a control row is the library's Checkbox box or Switch track, inside its own wrapper (which holds
+  their sizes). The row is the target and the feedback, as in the source: the box's 2px label nudge is reset (as
+  Dropdown does), and the control's own hover, pressed and focus ring are left to the row's fill and ring.
+*/
+.cui-list-item__trailing .cui-checkbox__box {
+  margin-top: 0;
+}
+.cui-list-item__control {
+  cursor: inherit;
+}
+.cui-list-item__control.cui-checkbox:hover > .cui-checkbox__input + .cui-checkbox__box,
+.cui-list-item__control.cui-checkbox:active > .cui-checkbox__input + .cui-checkbox__box {
+  border-color: var(--color-neutral-3);
+  background: var(--color-neutral-1);
+}
+.cui-list-item__control.cui-checkbox:hover > .cui-checkbox__input:is(:checked, :indeterminate) + .cui-checkbox__box,
+.cui-list-item__control.cui-checkbox:active > .cui-checkbox__input:is(:checked, :indeterminate) + .cui-checkbox__box {
+  border-color: var(--color-obsidian);
+  background: var(--color-obsidian);
+}
+.cui-list-item__control.cui-switch:hover .cui-switch__thumb,
+.cui-list-item__control.cui-switch:active .cui-switch__thumb {
+  box-shadow: var(--shadow-1);
+}
+.cui-list-item__control .cui-list-item__input:focus-visible + :is(.cui-checkbox__box, .cui-switch__track) {
+  outline: none;
+}
+.cui-list-item__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+/* Skeleton row: the same box as a loaded heading + caption row, so nothing jumps. */
+/* At least the height of the heading + caption row it stands for (62), so nothing jumps when it loads (decided 2026-11-06, Q-LIST-5; the source's was 56). */
+.cui-list-item[data-loading] {
+  min-height: calc(var(--text-body2-lh) + var(--spacing-2) + var(--text-caption-lh) + var(--spacing-12) * 2);
+  pointer-events: none;
+  align-items: center;
+}
+.cui-list-item[data-loading] .cui-list-item__content {
+  gap: var(--spacing-8);
+}
+.cui-list-item__bone {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: var(--spacing-12);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+}
+.cui-list-item__bone[data-part="lead"] {
+  flex: none;
+  width: var(--cui-list-lead);
+  height: var(--cui-list-lead);
+  border-radius: var(--cui-list-lead-r);
+}
+.cui-list-item__bone[data-part="lead"][data-round] {
+  border-radius: var(--radius-pill);
+}
+.cui-list-item__bone[data-part="heading"] {
+  width: var(--cui-list-bone-heading);
+}
+.cui-list-item__bone[data-part="line"] {
+  width: var(--cui-list-bone-line);
+  height: var(--spacing-8);
+}
+.cui-list-item__bone[data-part="value"] {
+  flex: none;
+  width: var(--spacing-32);
+}
+.cui-list-item__bone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) 40%, transparent), transparent);
+  animation: cui-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;
+}
+
+/*
+  Timeline (Activity Log): a 2px Neutral-3 line through the leading centres, from 4px under one leading element to
+  4px above the next. Activity rows always have a caption, so the leading top is always the row's 12px padding.
+*/
+.cui-list[data-timeline] > li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  inset-inline-start: calc(var(--spacing-16) + var(--cui-list-lead) / 2 - var(--border-width-md) / 2);
+  top: calc(var(--spacing-12) + var(--cui-list-lead) + var(--spacing-4));
+  bottom: calc(var(--spacing-4) - var(--spacing-12));
+  width: var(--border-width-md);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-3);
+}
+
+/* Section header: groups an Activity Log by day. A real heading; the list after it is labelled by it. */
+.cui-list-section {
+  display: block;
+}
+.cui-list-subheader {
+  margin: 0;
+  padding: var(--spacing-8) var(--spacing-16) var(--spacing-4);
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-semibold);
+  color: var(--color-neutral-5);
+}
+.cui-list-subheader[data-bleed] {
+  margin-inline: calc(var(--spacing-16) * -1);
+}
+.cui-list-subheader[data-upper] {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+}
+.cui-list-subheader[data-sticky] {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-neutral-1);
+}
+.cui-list-subheader[data-sticky][data-surface="canvas"] {
+  background: var(--color-canvas-warm);
+}
+
+/* List states (Activity Log): empty and error, swapped in place by the host. */
+.cui-list-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-24) var(--spacing-16);
+  font-family: var(--font-primary);
+}
+.cui-list-state__icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  color: var(--color-neutral-4);
+}
+.cui-list-state[data-kind="error"] .cui-list-state__icon {
+  color: var(--color-red);
+}
+.cui-list-state__title {
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+.cui-list-state__hint {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-list-state__action {
+  margin-top: var(--spacing-8);
+}
+.cui-list-footer {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-8) var(--spacing-16);
+}
+
+.cui-list__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-list-item__bone::after {
+    animation: none;
+    background: none;
+  }
+}
+
+@media (forced-colors: active) {
+  :is(a[href], button).cui-list-item:focus-visible,
+  label.cui-list-item:has(.cui-list-item__input:focus-visible) {
+    outline-color: Highlight;
+  }
+  .cui-list > li + li::before,
+  .cui-list[data-timeline] > li::after {
+    forced-color-adjust: none;
+    background: GrayText;
+  }
+  .cui-list-item[aria-current]:not([aria-current="false"])::after {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+  .cui-list-item__lead:is([data-type="icon"], [data-type="avatar"], [data-type="thumbnail"]),
+  .cui-list-item__bone {
+    border: var(--border-width-sm) solid CanvasText;
+  }
+  .cui-list-item__dot {
+    forced-color-adjust: none;
+  }
+  :is(button.cui-list-item:disabled, label.cui-list-item:has(.cui-list-item__input:disabled))
+    :is(.cui-list-item__heading, .cui-list-item__desc, .cui-list-item__caption, .cui-list-item__value) {
+    color: GrayText;
+  }
+}
+@media (forced-colors: active) and (hover: hover) {
+  /* Not on a row whose control is disabled (decided 2026-11-06, Q-LIST-1). */
+  :is(a[href], button, label).cui-list-item:not(:disabled):not(:focus-visible):not(:has(.cui-list-item__input:disabled)):hover {
+    outline: var(--border-width-sm) solid CanvasText;
+    outline-offset: calc(var(--border-width-sm) * -1);
+  }
+}

@@ -63,6 +63,14 @@
   box-sizing: border-box;
   font-family: var(--font-primary);
 }
+.cui-card[data-padding="list"] {
+  /* A List body (decided 2026-11-06, Q-LIST-2): 8px top and bottom, rows edge to edge, the card clipping their fills. */
+  padding: var(--spacing-8) 0;
+  overflow: hidden;
+}
+.cui-card[data-padding="list"] > :is(.cui-card__header, .cui-card__footer) {
+  padding-inline: var(--spacing-16);
+}
 .cui-card[data-surface="warm"] {
   background: var(--color-canvas-warm-card);
   border-color: transparent;

@@ -26,6 +26,7 @@ export * from './components/GoalBar';
 export * from './components/HeroCard';
 export * from './components/InfoBanner';
 export * from './components/InputField';
+export * from './components/List';
 export * from './components/LoadingState';
 export * from './components/MediaAdCard';
 export * from './components/MetricsCard';
