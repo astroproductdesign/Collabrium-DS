@@ -55,7 +55,6 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-example { padding: var(--spacing-24); border-radius: var(--radius-lg); background: var(--color-canvas-warm-card); }
 .docs-example + .docs-example { margin-top: var(--spacing-16); }
 @media (max-width: 600px) { .docs-example { padding: var(--spacing-16); } }
-.docs-tabpanel { margin-top: var(--spacing-16); }
 
 /* ---------- Preview ---------- */
 .docs-preview-toolbar { display: flex; flex-wrap: wrap; gap: var(--spacing-24); margin-bottom: var(--spacing-12); }

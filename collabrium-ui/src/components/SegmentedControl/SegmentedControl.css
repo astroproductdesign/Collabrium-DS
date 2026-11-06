@@ -1,0 +1,152 @@
+/*
+  Segmented Control — ported from collabrium-dls/components.css lines 4436–4471
+  (.c-segctl, .c-seg-pill, .c-seg with its sizes and states, the disabled
+  control, reduced motion, and the icon-only tooltip .c-seg-tt-*).
+
+  Mapping from the old classes:
+    .c-segctl (.c-segctl-default / -compact)
+                                       -> .cui-segmented[data-size="default" | "compact"] (role="radiogroup")
+    .c-segctl.has-pill                 -> [data-pill] (set once the pill is measured)
+    .c-segctl-disabled                 -> [data-disabled]
+    .c-seg-pill                        -> .cui-segmented__pill ([data-settled] once first placed)
+    .c-seg ([aria-checked], :disabled) -> .cui-segmented__segment (role="radio")
+    .c-seg i                           -> svg.cui-segmented__icon (Phosphor, Regular)
+    .c-seg-tt-wrap / -bubble           -> the library's Tooltip (decided 2026-11-06, Q-SEG-6)
+
+  Specificity keeps the source's order: the track and segment (0,1,0); sizes (0,2,0); checked (0,2,0); the no-pill
+  fallback (0,3,0); hover and pressed on an unchecked, enabled segment (0,4,0); focus-visible; disabled last.
+
+  TODO(open-question Q-SEG-1): heights and minimum widths follow the CSS (default 36 icon / 32 text, compact 24 / 26;
+  32px minimum for every segment); the DS says 36 / 28 and a 48px minimum for text.
+*/
+
+.cui-segmented {
+  /* TODO(open-question Q-SEG-7): the compact 5px padding, the 32px minimum and the 40% disabled opacity have no token; kept local. */
+  --cui-segmented-compact-pad-y: 5px;
+  --cui-segmented-min: 32px;
+  --cui-segmented-disabled-opacity: 0.4;
+  position: relative;
+  display: inline-flex;
+  background: var(--color-neutral-2);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  gap: var(--spacing-4);
+}
+
+/* The sliding pill: the selected segment's white fill and shadow, on one shared element behind the segments. */
+.cui-segmented__pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: var(--color-neutral-1);
+  box-shadow: var(--shadow-1);
+  border-radius: var(--radius-sm);
+  z-index: 0;
+  pointer-events: none;
+}
+.cui-segmented__pill[data-settled] {
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    width var(--duration-fast) var(--ease-standard),
+    height var(--duration-fast) var(--ease-standard);
+}
+
+.cui-segmented__segment {
+  position: relative;
+  z-index: 1;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-neutral-5);
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  cursor: pointer;
+  flex: 1;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.cui-segmented__icon {
+  flex: none;
+  width: var(--icon-base);
+  height: var(--icon-base);
+}
+.cui-segmented[data-size="compact"] .cui-segmented__icon {
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+}
+.cui-segmented[data-size="default"] .cui-segmented__segment {
+  padding: var(--spacing-8) var(--spacing-12);
+  min-width: var(--cui-segmented-min);
+}
+.cui-segmented[data-size="compact"] .cui-segmented__segment {
+  padding: var(--cui-segmented-compact-pad-y) var(--spacing-12);
+  min-width: var(--cui-segmented-min);
+}
+.cui-segmented__segment[aria-checked="true"] {
+  color: var(--color-neutral-9);
+  font-weight: var(--weight-bold);
+}
+/* Before the pill is measured (server render, first paint), the selected segment carries the fill itself, as the source's no-pill fallback. */
+.cui-segmented:not([data-pill]) .cui-segmented__segment[aria-checked="true"] {
+  background: var(--color-neutral-1);
+  box-shadow: var(--shadow-1);
+}
+/* TODO(open-question Q-SEG-3): hover is Neutral-2 on a Neutral-2 track, so it doesn't show (as the source). */
+.cui-segmented__segment:not([aria-checked="true"]):not(:disabled):hover {
+  background: var(--color-neutral-2);
+}
+.cui-segmented__segment:not([aria-checked="true"]):not(:disabled):active {
+  background: var(--color-neutral-3);
+}
+.cui-segmented__segment:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-segmented__segment:disabled {
+  color: var(--color-neutral-4);
+  opacity: var(--cui-segmented-disabled-opacity);
+  cursor: not-allowed;
+}
+.cui-segmented__segment:disabled:hover {
+  background: transparent;
+}
+/* The whole control disabled: track and segments at 40% (the segments don't add their own 40% on top). */
+.cui-segmented[data-disabled] {
+  opacity: var(--cui-segmented-disabled-opacity);
+}
+.cui-segmented[data-disabled] .cui-segmented__segment {
+  cursor: not-allowed;
+}
+.cui-segmented[data-disabled] .cui-segmented__segment:disabled {
+  opacity: 1;
+  color: var(--color-neutral-5);
+}
+.cui-segmented[data-disabled] .cui-segmented__segment[aria-checked="true"]:disabled {
+  color: var(--color-neutral-9);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cui-segmented__pill[data-settled] {
+    transition: none;
+  }
+}
+
+/*
+  Icon only: each segment sits inside the library's Tooltip, whose wrapper takes the segment's equal share. The source's
+  own bubble (.c-seg-tt-*) was clipped by any box that hides overflow (decided 2026-11-06, user; Q-SEG-6).
+*/
+.cui-segmented > .cui-tooltip {
+  flex: 1;
+}
+.cui-segmented > .cui-tooltip > .cui-segmented__segment {
+  flex: 1;
+}
+
+/* TODO(open-question Q-SEG-8): no forced-colours rule in the source; the pill's fill and shadow are dropped there, so the selection shows only by weight. */
