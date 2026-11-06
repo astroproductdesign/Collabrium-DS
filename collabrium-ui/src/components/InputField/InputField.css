@@ -51,7 +51,7 @@
   --cui-input-field-pad: var(--spacing-12);
   --cui-input-field-icon-pad: calc(var(--spacing-12) + var(--icon-sm) + var(--spacing-8));
   /* 28px has no token (Input field only): room for a one- or two-character adornment. */
-  --cui-input-field-adornment-pad: 28px;
+  --cui-input-field-adornment-pad: var(--spacing-24); /* was 28px (decided 2026-11-06, token audit) */
 
   display: flex;
   flex-direction: column;

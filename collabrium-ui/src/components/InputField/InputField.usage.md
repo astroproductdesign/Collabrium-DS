@@ -44,7 +44,7 @@ The `ref` is forwarded to the `<input>` element.
 5. **Success follows validation, not typing.** The Green border and check-circle show after the field passes (on blur or submit).
 6. **Focus is a border swap, on every focus.** A mouse click shows the same 2px Obsidian border a Tab does. The horizontal padding drops by 1px so the text stays put. It is the one exception to "focus rings are Water, not Obsidian" (DESIGN-SYSTEM.md).
 7. **Size is a density choice made per context**, never swapped at a screen width. sm (32px) for a dense table's inline edit, md (40px) for forms, lg (48px) for a large form.
-8. **An icon is decorative; an adornment is fixed text of one or two characters**, with 28px reserved for it at either end. The icon is 16px, Regular, Neutral-5, 12px from the edge, and the text moves in to clear it. If something inside the box must be pressed it is an icon button (Password field, Search input), never an adornment.
+8. **An icon is decorative; an adornment is fixed text of one or two characters**, with 24px (`--spacing-24`; decided 2026-11-06) reserved for it at either end. The icon is 16px, Regular, Neutral-5, 12px from the edge, and the text moves in to clear it. If something inside the box must be pressed it is an icon button (Password field, Search input), never an adornment.
 9. **The box fills the container.** Set the width with the layout around it. (The DLS's 220px is a demo default.)
 10. **The count is its own row** (decided 2026-10-26): right-aligned under the box and the helper, `12/60`, Red once the limit is reached.
 11. **Autofill keeps the Neutral-1 fill**, not the browser's yellow or blue tint.

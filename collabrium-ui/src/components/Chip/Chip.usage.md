@@ -51,6 +51,7 @@ Interactive pills for a selection or an input. **Filter chips** (`FilterChipGrou
 11. **Remove stops propagation**, so removing a chip never triggers whatever it sits inside. Delete or Backspace on the focused × removes it too.
 12. **Single-select arrow keys move and choose.** (Decided 2026-10-27, Q-CHIP-1: Left, Up, Right and Down move and choose, with Home and End to the ends, wrapping. The DLS Chip text says arrows only move focus, but the DLS's own working radio groups choose as they move.)
 13. **Chip carries no shadow at any state**, and no `box-shadow` in the transition.
+14. **"Show less" is underlined 4px below the text** (`--spacing-4`, was 3px), the same offset as every link. (Decided 2026-11-06, token audit.)
 
 ## Accessibility
 - **Filter, single:** a `role="radiogroup"` wrapper, each chip a `<button role="radio" aria-checked>`. One tab stop (the chosen chip); arrow keys move and choose; Home and End go to the ends; Tab leaves the group.

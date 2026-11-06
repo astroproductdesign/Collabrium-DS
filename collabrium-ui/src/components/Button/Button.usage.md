@@ -55,8 +55,9 @@ The `ref` is forwarded to the `<button>` element.
    - Keep 12px clear around the button so the ring isn't cropped.
 6. **Spacing between buttons** comes from the layout around them, not from the button.
 7. **Danger is for the committing action of a destructive flow** (Delete, Revoke), never the beacon. Hover and pressed darken the red a little more each step. White on Red is about 3.7:1, below AA for 16px text; the DLS specifies it, so it ships.
-8. **Link is text, not a box.** Underlined (3px offset), Neutral-9, 13px bold, no height or padding, so it sits in a line of content. Hover and pressed lighten the text one step each (Neutral-7, then Neutral-5); disabled is Neutral-4 with the underline kept. It has no beacon and no icon-only form.
+8. **Link is text, not a box.** Underlined (4px offset, `--spacing-4`; decided 2026-11-06), Neutral-9, 13px bold, no height or padding, so it sits in a line of content. Hover and pressed lighten the text one step each (Neutral-7, then Neutral-5); disabled is Neutral-4 with the underline kept. It has no beacon and no icon-only form.
 9. **Danger and Link states are defined by this library** (the DLS names both and defines no hover, pressed or disabled). Disabled Danger is the same Neutral-4 fill as every button.
+10. **The CTA beacon nods 4px** (`--spacing-4`, was 3). (Decided 2026-11-06, token audit.)
 
 ## Accessibility
 - Renders a native `<button type="button">`, so Enter and Space work and it is in the tab order.

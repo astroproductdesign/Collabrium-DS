@@ -44,7 +44,7 @@ export const anatomy: DocsAnatomyNode[] = [
     description: 'Neutral-2, a 1px Neutral-3 border, radius-md, 4px padding and 4px between segments. Hugs its content.',
     children: [
       { name: 'Pill', element: 'span.cui-segmented__pill', description: 'Neutral-1 with shadow-1, radius-sm: one shared element behind the selected segment, sliding to the next. aria-hidden.' },
-      { name: 'Segment', element: 'button[role="radio"].cui-segmented__segment', description: 'Equal width, 8px / 12px padding (5px / 12px compact), radius-sm. Neutral-5; Neutral-9 and bold when selected.' },
+      { name: 'Segment', element: 'button[role="radio"].cui-segmented__segment', description: 'Equal width, 36px tall (24px compact) for icons and text alike, 12px side padding, at least 32px wide (48px for text), radius-sm. Neutral-5; Neutral-9 and bold when selected.' },
       { name: 'Icon', element: 'svg.cui-segmented__icon', when: 'icon options', description: 'Phosphor, Regular, 20px (14px compact). aria-hidden: the segment is named by its label.' },
       { name: 'Tooltip', element: 'Tooltip (role="label")', when: 'icon options', description: 'The library\'s Tooltip: the option\'s name above the segment on hover and focus, rendered above the page so nothing clips it. Its text is the segment\'s name.' },
     ],
@@ -115,7 +115,7 @@ export const props: DocsProp[] = [
   { name: 'value', options: 'string', default: '—', description: 'The selected value, when you control it.' },
   { name: 'defaultValue', options: 'string', default: 'the first enabled option', description: 'The selected value on first render when you don\'t.' },
   { name: 'onValueChange', options: '(value: string) => void', default: '—', description: 'Called with the new selection. It takes effect at once.' },
-  { name: 'size', options: "'default' | 'compact'", default: "'default'", description: 'Compact for toolbars and tight rows.' },
+  { name: 'size', options: "'default' | 'compact'", default: "'default'", description: 'Segment height: 36px default, 24px compact. Compact for toolbars and tight rows.' },
   { name: 'disabled', options: 'boolean', default: 'false', description: 'Disables the whole control: everything at 40%.' },
   { name: 'id, aria-*, data-*', options: 'native', default: '—', description: 'Passed to the track. `style` and `className` are not accepted. The ref is forwarded to it.' },
 ];

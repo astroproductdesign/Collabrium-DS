@@ -54,8 +54,8 @@
   --prompt-bar-shift: 0px;
   --prompt-bar-push: 0px;
   --cui-prompt-bar-width: 620px;
-  --cui-prompt-bar-pill-pad-y: 11px;
-  --cui-prompt-bar-pill-pad-start: 56px;
+  --cui-prompt-bar-pill-pad-y: var(--spacing-12); /* was 11px (decided 2026-11-06, token audit) */
+  --cui-prompt-bar-pill-pad-start: var(--spacing-60); /* was 56px (decided 2026-11-06, token audit) */
   --cui-prompt-bar-surface-z: 10;
   --cui-prompt-bar-model-max: 160px;
 
@@ -434,7 +434,7 @@
 /* The menu is a portal, outside .cui-prompt-bar, so its own numbers are declared on it. */
 .cui-prompt-bar__model-menu {
   --cui-prompt-bar-menu-min-width: 180px;
-  --cui-prompt-bar-menu-item-height: 36px;
+  --cui-prompt-bar-menu-item-height: var(--control-height-md); /* was 36px (decided 2026-11-06, token audit) */
 
   position: fixed;
   z-index: var(--z-menu);

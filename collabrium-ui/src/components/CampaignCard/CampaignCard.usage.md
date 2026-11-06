@@ -4,7 +4,7 @@
 One campaign as a tile on a kanban board, one column per stage. An identity
 row (brand mark, campaign name with an optional Lead tag, brand, owner
 faces), a full-width divider, the dates, then a two-column Pax and Quote
-grid. A variant of Card with no border, a 14px radius and its own height.
+grid. A variant of Card with no border, a 16px radius (`--radius-md`) and its own height.
 
 ⚠️ From a product handoff spec (`CampaignBoardCard`), reconciled in the DLS
 against its tokens.
@@ -46,7 +46,7 @@ The `ref` is forwarded to the card's `<div>`. `formatCampaignDate(date)` and
 3. **The faces ride the name**, not a row of their own. Their tooltip reads "Sarah K. · overseen by Lina M." (or "· no overseer"; "No PIC" when there is no owner).
 4. **The divider runs the card's full width.** It separates what the campaign is from what is known about it.
 5. **Em dash, never zero.** An unset Pax, Quote or date shows `—` in Neutral-4; an unknown brand shows `—`.
-6. **No border, a 14px radius, `height: auto`.** Shadow-1 alone carries the edge, so a column of tiles reads as objects on a surface. A tile hugs its content: put tiles in a column (`align-items: start`), not a stretching grid row.
+6. **No border, a 16px radius (`--radius-md`; decided 2026-11-06), `height: auto`.** Shadow-1 alone carries the edge, so a column of tiles reads as objects on a surface. A tile hugs its content: put tiles in a column (`align-items: start`), not a stretching grid row.
 7. **Dragging leaves the tile in place,** faded to 35%, so the board doesn't reflow under the pointer. The drag itself (and the drop) is the board's. **A board that lets you drag tiles also offers a "Move to…" control** (a menu of the stages), so a tile can be moved by keyboard, voice or switch without dragging (WCAG 2.5.7). The card doesn't provide it; the board does. (Decided 2026-11-04.)
 8. **The cursor is the only sign of permission:** `grab` when the viewer can move tiles, a pointer when they can only open them.
 9. **Clamp a very long name** by character count before passing it, as well as the CSS truncation.
@@ -57,7 +57,7 @@ The `ref` is forwarded to the card's `<div>`. `formatCampaignDate(date)` and
 14. **An unset value is the dash on screen and "Not set" to screen readers**, which skip a bare dash or read "em dash". (Decided 2026-11-04.)
 15. **Dates read "12 Mar 2026 – 30 Apr 2026"**, months as the DLS writes them ("Sept"), both ends required. **Quote always has 2 decimals, "RM 72,500.00"**, as Price summary card. (Decided 2026-11-04.)
 16. **The cursor is `grab` by default** (`movable`); `movable={false}` gives the pointer, as the source's `.is-static`. (Decided 2026-11-04.)
-17. **The 14px radius, 32px mark, 22px faces and the card's other one-off values stay local**, as the DLS keeps them. In forced colours the card takes a 1px border, so it keeps an edge. (Decided 2026-11-04.)
+17. **Tokens where the token audit chose them** (decided 2026-11-06): radius `--radius-md` (16, was 14), mark radius `--radius-sm` (12, was 9), faces `--icon-md` (24, was 22), initials and metric label `--text-label3-size` (11, was 10), overseer overlap `--spacing-8` (8, was 7). **The card's other one-off values stay local**, as the DLS keeps them. In forced colours the card takes a 1px border, so it keeps an edge. (Decided 2026-11-04.)
 
 ## Accessibility
 - The name is a real heading, and with `href` or `onOpen` a real link or button stretched over the card (CAMPAIGN-1).

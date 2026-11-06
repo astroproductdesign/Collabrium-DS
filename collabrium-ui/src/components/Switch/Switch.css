@@ -35,7 +35,7 @@
   --cui-switch-width: 40px;
   --cui-switch-height: 24px;
   --cui-switch-thumb: 18px;
-  --cui-switch-inset: 3px;
+  --cui-switch-inset: 3px; /* kept: 3px, no token (decided 2026-11-06, token audit) */
 
   /* position:relative anchors the hidden native input to its own row, so
      clicking the label never scrolls the page to a stray input. */

@@ -31,7 +31,7 @@ export const anatomy: DocsAnatomyNode[] = [
       {
         name: 'Grid',
         element: 'span.cui-loading-state__grid',
-        description: '3×3 cells, 4px each, 1.5px gap. The variant is a data attribute: data-variant. aria-hidden.',
+        description: '3×3 cells, 4px each, 2px gap. The variant is a data attribute: data-variant. aria-hidden.',
         children: [
           { name: 'Cell', element: 'span.cui-loading-state__cell', description: 'Nine of them. Each pulses opacity on its own delay and steps through the pastel colours. In Orbit the centre cell stays dim (data-off).' },
         ],
@@ -272,8 +272,8 @@ export const accessibility: DocsAccessibility = {
 };
 
 export const motion: DocsMotion[] = [
-  { interaction: 'Drive and Dots', motion: 'Each cell pulses opacity (.15 → 1 → .15) on a 650ms loop, staggered 90ms per step, so two fronts are always in flight.', token: '--ease-standard' },
-  { interaction: 'Orbit', motion: 'The same pulse on a 950ms loop, staggered 110ms around the outer ring, clockwise from top-left. The centre cell never animates.', token: '--ease-standard' },
+  { interaction: 'Drive and Dots', motion: 'Each cell pulses opacity (.15 → 1 → .15) on a 650ms loop, staggered 80ms per step, so two fronts are always in flight.', token: '--ease-standard' },
+  { interaction: 'Orbit', motion: 'The same pulse on a 900ms loop, staggered 120ms around the outer ring, clockwise from top-left. The centre cell never animates.', token: '--ease-standard' },
   { interaction: 'Colour', motion: 'Every active cell steps through Gold, Water, Wood, Fire and Earth pastel together, one flat colour at a time, on a 5s linear loop.', token: '--color-gold-pastel · --color-water-pastel · --color-wood-pastel · --color-fire-pastel · --color-earth-pastel' },
   { interaction: 'Reduced motion', motion: 'The grid settles on a flat Gold-pastel frame. The label was never animated and the timer keeps running: it is the one thing left proving the work is happening.', token: '—' },
 ];

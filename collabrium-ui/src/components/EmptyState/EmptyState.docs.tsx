@@ -41,7 +41,7 @@ export const anatomy: DocsAnatomyNode[] = [
     children: [
       { name: 'Icon', element: 'svg.cui-empty-state__icon', when: 'fullpage and section, with icon', description: 'Phosphor Fill, 48px (64px full-page on desktop), Neutral-4 or Red for error. aria-hidden. 12px to the heading.' },
       { name: 'Heading', element: '<h2>–<h6>.cui-empty-state__heading', when: 'fullpage and section, with heading', description: 'Names what is absent. Drawn as h4, Neutral-9. 4px to the body.' },
-      { name: 'Body', element: '<p>.cui-empty-state__body', description: 'How to resolve it. body1, Neutral-5, up to 380px wide (inline: body2, 320px). 16px to the actions.' },
+      { name: 'Body', element: '<p>.cui-empty-state__body', description: 'How to resolve it. body1, Neutral-5, up to 360px wide (inline: body2, 320px). 16px to the actions.' },
       {
         name: 'Actions',
         element: '<div>.cui-empty-state__actions',

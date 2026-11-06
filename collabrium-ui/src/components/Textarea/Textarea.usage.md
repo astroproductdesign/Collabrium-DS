@@ -41,6 +41,7 @@ The `ref` is forwarded to the `<textarea>` element.
 8. **The box fills the container.** Set the width with the layout around it.
 9. **The resize grip is pulled in from the corner.** The browser draws it right in the corner, where the box's 12px curve cuts across it. In Chrome, Edge and Safari it is redrawn as two thin Neutral-4 strokes clear of the curve (the handle works the same); Firefox keeps its own.
 10. **The character count is the user's choice.** It is off by default; set `showCount` with `maxLength` to show it. It is Input field's counter: caption, Neutral-5, its own right-aligned row under the box, Red once the limit is reached. A field can have a `maxLength` and no visible count.
+11. **The resize grip is 12px** (`--spacing-12`, was 10), pulled 4px in from the corner (`--spacing-4`, was 5). (Decided 2026-11-06, token audit.)
 
 ## Accessibility
 - A native `<textarea>` with a real `<label for>`: the whole label focuses it. The label is always in the page, even with `hideLabel`.

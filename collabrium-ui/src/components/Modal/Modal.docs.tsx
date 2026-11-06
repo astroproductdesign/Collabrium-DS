@@ -8,7 +8,7 @@ import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsP
 export const title = 'Modal / dialog';
 
 export const description =
-  'One focused decision, asked over the page: a 400px panel on a scrim with a title, a short body, and a footer of Secondary (cancel) then Primary (commit).';
+  'One focused decision, asked over the page: a 420px panel on a scrim with a title, a short body, and a footer of Secondary (cancel) then Primary (commit).';
 
 export const usage = `import { Button, Modal } from '@collabrium/ui';
 
@@ -81,7 +81,7 @@ export const anatomy: DocsAnatomyNode[] = [
       {
         name: 'Panel',
         element: '<div role="dialog">.cui-modal',
-        description: 'Neutral-1, radius-lg, shadow-modal, up to 400px wide, centred, 16px from the screen edges.',
+        description: 'Neutral-1, radius-lg, shadow-modal, up to 420px wide, centred, 16px from the screen edges.',
         children: [
           { name: 'Head', element: '.cui-modal__head', description: 'The title and the close button, 16px padding, centred on one line.' },
           { name: 'Title', element: 'h2.cui-modal__title', description: 'h4 look (20px / 28px, 800), Neutral-9. A real heading that names the dialog and takes focus on open.' },

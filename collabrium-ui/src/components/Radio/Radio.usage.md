@@ -52,7 +52,7 @@ The `ref` is forwarded to the `<fieldset>`.
 ## Rules
 1. **Every radio has a name.** A visible `label`, or an `aria-label` when that is impossible. Never an unlabelled circle.
 2. **Use a group.** Radios that answer one question go in a `RadioGroup`; its legend names the question for assistive tech and it gives them one `name`, so only one can be chosen.
-3. **The circle is an outline that never fills solid.** Chosen is an Obsidian border and a 9px Obsidian dot on the Neutral-1 fill. Never mix Radio and Checkbox in one group: outline against filled box is how people tell single from multiple choice.
+3. **The circle is an outline that never fills solid.** Chosen is an Obsidian border and an 8px Obsidian dot (`--spacing-8`; decided 2026-11-06) on the Neutral-1 fill. Never mix Radio and Checkbox in one group: outline against filled box is how people tell single from multiple choice.
 4. **The label is the option itself**, in body1, weight 500: "Weekly digest".
 5. **Spacing between radios** comes from the group (12px), or from the layout around a standalone radio, never from the radio.
 6. **Start with nothing chosen, or a real default.** Don't pre-select to speed the person along.

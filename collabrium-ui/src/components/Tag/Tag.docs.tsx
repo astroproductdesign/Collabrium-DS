@@ -26,7 +26,7 @@ export const anatomy: DocsAnatomyNode[] = [
   {
     name: 'Tag',
     element: '<span>.cui-tag',
-    description: '24px tall, 10px side padding, caption at 700, a pill. The owner is a data attribute: data-variant.',
+    description: '24px tall, 12px side padding, caption at 700, a pill. The owner is a data attribute: data-variant.',
     children: [
       { name: 'Dot', element: 'span.cui-tag__dot', when: 'every variant but neutral, with no icon', description: '6px, the element\'s full colour. aria-hidden.' },
       { name: 'Icon', element: 'svg.cui-tag__icon', when: 'with icon', description: 'Phosphor, 14px, in the text colour, in place of the dot. aria-hidden.' },

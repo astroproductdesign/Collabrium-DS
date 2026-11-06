@@ -22,7 +22,7 @@
     The tints and the Success and Warning text colours come from tokens. The
     22px height has no token (Badge only).
   */
-  --cui-badge-height: 22px;
+  --cui-badge-height: var(--control-height-xs); /* was 22px (decided 2026-11-06, token audit) */
   --cui-badge-success-text: var(--color-green-text);
   --cui-badge-warning-text: var(--color-amber-text);
   --cui-badge-success-bg: var(--color-green-tint);

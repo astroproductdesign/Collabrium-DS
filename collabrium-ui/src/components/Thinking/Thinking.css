@@ -39,8 +39,8 @@
   --cui-thinking-max-width: var(--measure-sm);
   --cui-thinking-active-min-height: 176px;
   --cui-thinking-hit-pad: var(--spacing-6);
-  --cui-thinking-row-min-height: 28px;
-  --cui-thinking-query-min-height: 26px;
+  --cui-thinking-row-min-height: var(--control-height-sm); /* was 28px (decided 2026-11-06, token audit) */
+  --cui-thinking-query-min-height: var(--control-height-sm); /* was 26px (decided 2026-11-06, token audit) */
   --cui-thinking-row-radius: var(--radius-xs);
   --cui-thinking-row-pad: var(--spacing-2);
   --cui-thinking-row-gap: var(--spacing-2);

@@ -46,7 +46,7 @@
   --cui-streaming-caret-gap: var(--spacing-2);
   --cui-streaming-caret-blink: var(--duration-blink);
   --cui-streaming-cite-height: 18px;
-  --cui-streaming-cite-pad: 5px;
+  --cui-streaming-cite-pad: var(--spacing-4); /* was 5px (decided 2026-11-06, token audit) */
   --cui-streaming-cite-gap: var(--spacing-4);
   --cui-streaming-cite-margin: var(--spacing-2);
   --cui-streaming-cite-radius: var(--radius-xs);
@@ -55,16 +55,17 @@
   --cui-streaming-cite-avatar-radius: 3px;
   --cui-streaming-cite-avatar-size: 8px;
   --cui-streaming-actions-gap: var(--spacing-2);
-  --cui-streaming-action-size: 28px;
-  --cui-streaming-action-hit: var(--spacing-8);
+  --cui-streaming-action-size: var(--control-height-xs); /* was 28px (decided 2026-11-06, token audit) */
+  /* Half the gap between the button and the 44px hit target (10px since the 24px size; decided 2026-11-06, token audit). */
+  --cui-streaming-action-hit: calc((var(--hit-target-min) - var(--cui-streaming-action-size)) / 2);
   --cui-streaming-stack-size: var(--icon-micro);
   --cui-streaming-stack-overlap: var(--spacing-4);
-  --cui-streaming-stack-ring: 1.5px;
-  --cui-streaming-stack-font: 7px;
+  --cui-streaming-stack-ring: var(--spacing-2); /* was 1.5px (decided 2026-11-06, token audit) */
+  --cui-streaming-stack-font: var(--spacing-6); /* was 7px (decided 2026-11-06, token audit) */
   --cui-streaming-trigger-pad: var(--spacing-2);
   --cui-streaming-source-avatar: var(--icon-base);
-  --cui-streaming-source-avatar-size: 10px;
-  --cui-streaming-source-radius: 8px;
+  --cui-streaming-source-avatar-size: var(--icon-xs); /* was 10px (decided 2026-11-06, token audit) */
+  --cui-streaming-source-radius: var(--radius-xs); /* was 8px (decided 2026-11-06, token audit) */
   --cui-streaming-followup-pad: var(--spacing-2);
   --cui-streaming-followup-stagger: var(--stagger-sm);
   --cui-streaming-avatar-default: var(--color-neutral-7);

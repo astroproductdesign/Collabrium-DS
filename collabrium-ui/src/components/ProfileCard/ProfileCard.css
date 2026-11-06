@@ -32,7 +32,7 @@
 
 .cui-card[data-card="profile"] {
   /* Q-PROFILE-8 (decided 2026-11-04): the 56px avatar and the 160px menu are literals in the DLS with no token; kept local. */
-  --cui-profile-card-avatar-size: 56px;
+  --cui-profile-card-avatar-size: var(--spacing-60); /* was 56px (decided 2026-11-06, token audit) */
   --cui-profile-card-menu-width: 160px;
   gap: 0;
   transition:

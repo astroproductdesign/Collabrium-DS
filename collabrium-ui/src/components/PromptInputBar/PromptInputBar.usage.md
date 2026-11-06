@@ -47,7 +47,7 @@ The `ref` is forwarded to the wrapper `<div>`.
 The component owns the rules that are local to it:
 1. **The floating bar arrives once** (fades and rises in, 1150ms after it mounts) **and then changes pose on the morph timing.**
 2. **Scroll collapse is asymmetric** (floating): collapse once the region has scrolled past 240px, expand only within 8px of the top. One threshold would flip-flop. The listener is on the scroll container, passive and throttled to a frame.
-3. **Collapsed is a pill.** The bar narrows to 406px, parks at `parkShift`, becomes a pill (the glow too), the toolbar row folds away, and the round AI mark scales in at the start. The 11px and 56px padding are deliberate one-offs.
+3. **Collapsed is a pill.** The bar narrows to 406px, parks at `parkShift`, becomes a pill (the glow too), the toolbar row folds away, and the round AI mark scales in at the start. The pill padding is 12px top and bottom and 60px at the start (`--spacing-12`, `--spacing-60`; were 11px and 56px; decided 2026-11-06).
 4. **The typing line runs once and never loops** (floating, expanded): it types the first line, pulses the caret for 5 seconds, deletes it, types the second and stops. Every step waits while the box is focused. If the bar collapses first it jumps to the second line, and a guard lands it regardless. It hides when anyone types, and is left-aligned like typed text.
 5. **The inline composer is the floating bar minus the scroll behaviour:** no collapse, no AI mark, a plain hint instead of the typing line, a softer glow and shadow, a round Send.
 6. **The toolbar is the real Button.** Add image, Attach file, More options and Voice input are Ghost icon-only; Send is Primary icon-only (a pill in the inline variant). The model switcher is a Ghost button with a label.
@@ -62,6 +62,7 @@ The host (your code) owns the rest:
 12. **Open the chat from `onLaunch`, never from focus.** The chat hands focus back to the bar on close, which would reopen it at once.
 13. **While a Tool approval card is open or the AI works,** set `working` and change the placeholder to "Or reply directly"; put both back as soon as it ends.
 14. **Give every popover you draw inside the bar `position: fixed`** (the model menu does this itself, from the body): the folded row has `overflow: hidden`.
+15. **Model menu items are 40px** (`--control-height-md`, were 36). (Decided 2026-11-06, token audit.)
 
 ## Accessibility
 - The text box is a real `<input>` named by `label`. The typing line, the static hint, the glow and the AI mark are decorative and `aria-hidden`; the mark is not a control.

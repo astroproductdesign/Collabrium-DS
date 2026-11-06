@@ -45,7 +45,7 @@ export const anatomy: DocsAnatomyNode[] = [
         when: 'with CardHeader',
         description: 'An optional icon chip, then the title block, 12px apart, with 8px between it and what follows.',
         children: [
-          { name: 'Icon chip', element: 'span.cui-icon-chip', when: 'with an icon', description: '36×36px, radius-sm. The icon is drawn Fill in the element colour on a 12% tint of it. aria-hidden.' },
+          { name: 'Icon chip', element: 'span.cui-icon-chip', when: 'with an icon', description: '40×40px (`--control-height-md`), radius-sm. The icon is drawn Fill in the element colour on a 12% tint of it. aria-hidden.' },
           { name: 'Title', element: '<h3>.cui-card__title', description: 'A heading drawn as h5 (16px, 700). Becomes the card\'s link or button when it has an `href` or an `onClick`.' },
           { name: 'Subtitle', element: 'p.cui-card__subtitle', when: 'with a subtitle', description: 'Caption, Neutral-5, weight 400.' },
         ],
@@ -96,7 +96,7 @@ export const examples: DocsExample[] = [
       <CardGrid>
         <Card>
           <CardHeader icon={Drop} title="Icon-chip header" />
-          <p>36px chip, the element at 12% tint.</p>
+          <p>40px chip, the element at 12% tint.</p>
         </Card>
         <Card>
           <CardHeader icon={Plant} element="earth" title="With a subtitle" subtitle="Earth · Operations" />
@@ -106,7 +106,7 @@ export const examples: DocsExample[] = [
     ),
     code: `<Card>
   <CardHeader icon={Drop} title="Icon-chip header" />
-  <p>36px chip, the element at 12% tint.</p>
+  <p>40px chip, the element at 12% tint.</p>
 </Card>
 <Card>
   <CardHeader icon={Plant} element="earth" title="With a subtitle" subtitle="Earth · Operations" />

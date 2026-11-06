@@ -68,7 +68,7 @@ export const anatomy: DocsAnatomyNode[] = [
         name: 'Actions',
         element: 'div.cui-streaming__actions',
         when: 'once settled or stopped',
-        description: 'Not rendered during the stream. Round 28px icon buttons, 2px apart.',
+        description: 'Not rendered during the stream. Round 24px icon buttons, 2px apart.',
         children: [
           { name: 'Copy', element: 'button.cui-streaming__action', description: 'Always there. Swaps to a green check for 1.6 seconds.' },
           { name: 'Retry', element: 'button.cui-streaming__action', when: 'with onRetry', description: 'Phosphor ArrowClockwise.' },

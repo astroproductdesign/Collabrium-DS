@@ -89,7 +89,7 @@ export const anatomy: DocsAnatomyNode[] = [
       { name: 'Heading', element: '<h3>.cui-hero-card__heading', description: 'h4, Neutral-9, clamped to two lines; 60px clear of a ribbon.' },
       { name: 'Body', element: '<p>.cui-hero-card__body', description: 'body2, Neutral-5.' },
       { name: 'Banner', element: 'InfoBanner tone="ai"', description: 'Selected only: an AI Recommendation.' },
-      { name: 'Media', element: '.cui-hero-card__media', description: 'radius-md, 112px minimum (160px on Selected). The placeholder: Neutral-2, a dashed Neutral-3 border, an image glyph and caption.' },
+      { name: 'Media', element: '.cui-hero-card__media', description: 'radius-md, 120px minimum (160px on Selected). The placeholder: Neutral-2, a dashed Neutral-3 border, an image glyph and caption.' },
       { name: 'Recommendation / Source', element: '<p>', description: 'A caption next-step line (Default, Risk, AI), or a footnote source line (Selected).' },
       { name: 'CTA', element: 'Button + trailing arrow', description: 'Ghost on Default and Risk, Secondary on AI, Primary on Selected.' },
     ],

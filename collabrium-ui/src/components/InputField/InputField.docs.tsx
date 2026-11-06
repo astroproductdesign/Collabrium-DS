@@ -36,7 +36,7 @@ export const anatomy: DocsAnatomyNode[] = [
         description: '40px (sm 32px, lg 48px), 12px radius, 1px Neutral-3 border, Neutral-1 fill, body2 type. Focus swaps in a 2px Obsidian border.',
         children: [
           { name: 'Leading or trailing icon', element: 'svg.cui-input-field__icon', when: 'with leadingIcon or trailingIcon', description: '16px, Regular, Neutral-5, decorative, 12px from the edge.' },
-          { name: 'Prefix or suffix', element: 'span.cui-input-field__adornment', when: 'with prefix or suffix', description: 'Caption type, Neutral-5, fixed text. The box reserves 28px for it.' },
+          { name: 'Prefix or suffix', element: 'span.cui-input-field__adornment', when: 'with prefix or suffix', description: 'Caption type, Neutral-5, fixed text. The box reserves 24px for it.' },
           { name: 'Success icon', element: 'svg.cui-input-field__icon--trailing', when: 'with success', description: 'A Green check-circle, Fill (Tier 2).' },
         ],
       },
@@ -154,7 +154,7 @@ function WorkspaceName() {
   {
     id: 'adornments',
     title: 'Prefix and suffix',
-    description: 'Fixed, non-editable text inside the box: a currency sign, a unit, an @. Keep it to one or two characters: the box reserves 28px for it at either end. A screen reader does not read it, so name the unit in the label or helper too. If it has to be pressed, it is an icon instead.',
+    description: 'Fixed, non-editable text inside the box: a currency sign, a unit, an @. Keep it to one or two characters: the box reserves 24px for it at either end. A screen reader does not read it, so name the unit in the label or helper too. If it has to be pressed, it is an icon instead.',
     render: () => (
       <div className="docs-stack">
         <InputField label="Monthly budget" prefix="$" placeholder="0.00" helper="In USD" />

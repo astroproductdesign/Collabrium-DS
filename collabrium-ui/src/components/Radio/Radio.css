@@ -32,7 +32,7 @@
   */
   --cui-radio-size: var(--choice-size);
   --cui-radio-nudge: var(--spacing-2);
-  --cui-radio-dot-size: 9px;
+  --cui-radio-dot-size: var(--spacing-8); /* was 9px (decided 2026-11-06, token audit) */
 
   /* position:relative anchors the hidden native input to its own row, so
      clicking the label never scrolls the page to a stray input. */

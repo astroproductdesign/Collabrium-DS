@@ -36,7 +36,7 @@ The `ref` is forwarded to the wrapping `<span>`.
 5. **It hides on Escape, page scroll, or a tap elsewhere.** While the trigger holds keyboard focus, a scroll moves the bubble with the trigger instead, so tabbing to a control below the fold (which scrolls it into view) still shows its tooltip; a hover or touch tooltip still hides. (Decided 2026-11-04.)
 6. **Placement:** top by default, 8px from the trigger, centred on it. If it doesn't fit, it flips to the opposite side; then it shifts along that side to stay 8px inside the viewport; bottom is the last resort. The DS's bottom, left and right placements are built, as a `placement` prop. (Decided 2026-11-04.)
 7. **One line up to 240px, then it wraps**, growing taller, never wider, as the DS says; the old CSS never wrapped, so a 60-character tooltip ran past 300px. (Decided 2026-11-04.)
-8. **Bubble:** Neutral-7 fill, Neutral-1 text, caption at 500, 6px / 10px padding, `radius-sm`. The 10px side padding and the 240px width are kept as local values (no tokens). (Decided 2026-11-04.)
+8. **Bubble:** Neutral-7 fill, Neutral-1 text, caption at 500, 6px / 12px padding, `radius-sm`. The 240px width is a local value (no token). (Decided 2026-11-04.) The side padding is `--spacing-12` (12, was 10). (Decided 2026-11-06.)
 9. **No caret.** The bubble is a plain rounded rectangle, as the CSS draws it; the DS's 6px caret is not built. (Decided 2026-11-04.)
 10. **It sits above modals** (`--z-tooltip`), as the DS says, not at the CSS's `z-index: 2`. (Decided 2026-11-04.)
 11. **On touch, a long press (500ms) shows it.**

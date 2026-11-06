@@ -41,7 +41,7 @@
 }
 .cui-modal {
   /* No token for the 400px panel; kept local (decided 2026-11-05, Q-MODAL-6). */
-  --cui-modal-max-width: 400px;
+  --cui-modal-max-width: var(--measure-md); /* was 400px (decided 2026-11-06, token audit) */
   width: 100%;
   max-width: var(--cui-modal-max-width);
   max-height: 100%;

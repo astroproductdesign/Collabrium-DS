@@ -39,7 +39,7 @@ export const anatomy: DocsAnatomyNode[] = [
         name: 'Circle',
         element: 'span.cui-radio__circle',
         description: '18×18px, round. Neutral-3 border and Neutral-1 fill when empty, an Obsidian border when chosen. It never fills solid. aria-hidden.',
-        children: [{ name: 'Dot', element: 'span.cui-radio__dot', when: 'when chosen', description: '9×9px, round, Obsidian.' }],
+        children: [{ name: 'Dot', element: 'span.cui-radio__dot', when: 'when chosen', description: '8×8px, round, Obsidian.' }],
       },
       {
         name: 'Text',

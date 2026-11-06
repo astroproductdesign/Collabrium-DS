@@ -479,7 +479,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  height: 28px;
+  height: var(--control-height-xs); /* was 28px (decided 2026-11-06, token audit) */
   margin-top: var(--spacing-4);
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-standard);
@@ -503,8 +503,8 @@
 .cui-chat-msg__action {
   position: relative;
   flex: none;
-  width: 28px;
-  height: 28px;
+  width: var(--control-height-xs); /* was 28px (decided 2026-11-06, token audit) */
+  height: var(--control-height-xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -523,7 +523,8 @@
 .cui-chat-msg__action::after {
   content: '';
   position: absolute;
-  inset: -8px;
+  /* The hit area stays 44px around the 24px button (decided 2026-11-06, token audit). */
+  inset: calc((var(--hit-target-min) - var(--control-height-xs)) / -2);
 }
 .cui-chat-msg__action:hover {
   background: var(--color-neutral-2);
@@ -580,7 +581,7 @@
 */
 .cui-chat-msg__menu {
   --cui-chat-menu-min-width: 180px;
-  --cui-chat-menu-item-height: 36px;
+  --cui-chat-menu-item-height: var(--control-height-md); /* was 36px (decided 2026-11-06, token audit) */
   position: fixed;
   z-index: var(--z-menu);
   min-width: var(--cui-chat-menu-min-width);

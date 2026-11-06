@@ -19,7 +19,7 @@
 
 .cui-tag {
   /* Q-TAG-2 (decided 2026-11-04): the 10px side padding and the 6px dot are literals in the DLS with no token; kept local. */
-  --cui-tag-padding-x: 10px;
+  --cui-tag-padding-x: var(--spacing-12); /* was 10px (decided 2026-11-06, token audit) */
   --cui-tag-dot-size: 6px;
   --cui-tag-dot-color: transparent;
   display: inline-flex;

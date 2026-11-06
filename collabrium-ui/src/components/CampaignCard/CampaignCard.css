@@ -43,18 +43,18 @@
     and #E6E0F5 fill, the 20px Lead tag, the .08em tracking, the 12px calendar (--icon-xs is "never a standalone
     icon"), the #EDEDED divider and the 10px/13px #777777 metric label.
   */
-  --cui-campaign-card-radius: 14px;
+  --cui-campaign-card-radius: var(--radius-md); /* was 14px (decided 2026-11-06, token audit) */
   --cui-campaign-card-mark-size: 32px;
-  --cui-campaign-card-mark-radius: 9px;
-  --cui-campaign-card-face-size: 22px;
-  --cui-campaign-card-face-text: 10px;
-  --cui-campaign-card-face-overlap: -7px;
+  --cui-campaign-card-mark-radius: var(--radius-sm); /* was 9px (decided 2026-11-06, token audit) */
+  --cui-campaign-card-face-size: var(--icon-md); /* was 22px (decided 2026-11-06, token audit) */
+  --cui-campaign-card-face-text: var(--text-label3-size); /* was 10px (decided 2026-11-06, token audit) */
+  --cui-campaign-card-face-overlap: calc(var(--spacing-8) * -1); /* was -7px (decided 2026-11-06, token audit) */
   --cui-campaign-card-overseer-fill: #E6E0F5;
   --cui-campaign-card-lead-height: 20px;
   --cui-campaign-card-tracking: .08em;
   --cui-campaign-card-date-icon: 12px;
   --cui-campaign-card-divider: #EDEDED;
-  --cui-campaign-card-label-size: 10px;
+  --cui-campaign-card-label-size: var(--text-label3-size); /* was 10px (decided 2026-11-06, token audit) */
   --cui-campaign-card-label-lh: 13px;
   --cui-campaign-card-label-color: #777777;
   border: 0;

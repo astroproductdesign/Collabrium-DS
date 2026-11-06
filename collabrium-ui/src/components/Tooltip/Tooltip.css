@@ -25,7 +25,7 @@
 
 .cui-tooltip__bubble {
   /* Q-TOOLTIP-4: the 10px side padding (a one-off in the DLS) and the 240px wrap width have no token; kept local. */
-  --cui-tooltip-padding-x: 10px;
+  --cui-tooltip-padding-x: var(--spacing-12); /* was 10px (decided 2026-11-06, token audit) */
   --cui-tooltip-max-width: 240px;
   position: absolute;
   bottom: calc(100% + var(--spacing-8));

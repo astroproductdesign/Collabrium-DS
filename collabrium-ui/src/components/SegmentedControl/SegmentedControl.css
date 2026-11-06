@@ -16,14 +16,16 @@
   Specificity keeps the source's order: the track and segment (0,1,0); sizes (0,2,0); checked (0,2,0); the no-pill
   fallback (0,3,0); hover and pressed on an unchecked, enabled segment (0,4,0); focus-visible; disabled last.
 
-  TODO(open-question Q-SEG-1): heights and minimum widths follow the CSS (default 36 icon / 32 text, compact 24 / 26;
-  32px minimum for every segment); the DS says 36 / 28 and a 48px minimum for text.
+  Decided 2026-11-06 (Q-SEG-1, Q-SEG-7): fixed heights for icon and text alike, built from tokens. Default is 36px,
+  the 20px icon plus 8px above and below; compact is --control-height-xs (24px; the DS's 28px has no token). Minimum
+  widths: 32px for icons, 48px for text (the CSS gave every segment 32px). The source's compact 5px padding is gone:
+  the fixed height centres the content.
 */
 
 .cui-segmented {
-  /* TODO(open-question Q-SEG-7): the compact 5px padding, the 32px minimum and the 40% disabled opacity have no token; kept local. */
-  --cui-segmented-compact-pad-y: 5px;
-  --cui-segmented-min: 32px;
+  /* Sizes from tokens (decided 2026-11-06, Q-SEG-1 and Q-SEG-7). The 40% disabled fade has no token (the DLS has no opacity tokens); kept local. */
+  --cui-segmented-height: calc(var(--icon-base) + var(--spacing-8) * 2);
+  --cui-segmented-min: var(--spacing-32);
   --cui-segmented-disabled-opacity: 0.4;
   position: relative;
   display: inline-flex;
@@ -82,29 +84,32 @@
   width: var(--icon-micro);
   height: var(--icon-micro);
 }
-.cui-segmented[data-size="default"] .cui-segmented__segment {
-  padding: var(--spacing-8) var(--spacing-12);
-  min-width: var(--cui-segmented-min);
+.cui-segmented[data-size="compact"] {
+  --cui-segmented-height: var(--control-height-xs);
 }
-.cui-segmented[data-size="compact"] .cui-segmented__segment {
-  padding: var(--cui-segmented-compact-pad-y) var(--spacing-12);
+.cui-segmented[data-kind="text"] {
+  --cui-segmented-min: var(--spacing-48);
+}
+.cui-segmented__segment {
+  height: var(--cui-segmented-height);
+  padding: 0 var(--spacing-12);
   min-width: var(--cui-segmented-min);
 }
 .cui-segmented__segment[aria-checked="true"] {
   color: var(--color-neutral-9);
   font-weight: var(--weight-bold);
 }
-/* Before the pill is measured (server render, first paint), the selected segment carries the fill itself, as the source's no-pill fallback. */
+/* Before the pill is measured (server render, first paint), the selected segment carries the fill itself, as the source's no-pill fallback (kept, decided 2026-11-06, Q-SEG-10). */
 .cui-segmented:not([data-pill]) .cui-segmented__segment[aria-checked="true"] {
   background: var(--color-neutral-1);
   box-shadow: var(--shadow-1);
 }
-/* TODO(open-question Q-SEG-3): hover is Neutral-2 on a Neutral-2 track, so it doesn't show (as the source). */
+/* Hover Neutral-3, pressed Neutral-4: one step darker than the source, whose Neutral-2 hover was the track's own colour (decided 2026-11-06, Q-SEG-3). */
 .cui-segmented__segment:not([aria-checked="true"]):not(:disabled):hover {
-  background: var(--color-neutral-2);
+  background: var(--color-neutral-3);
 }
 .cui-segmented__segment:not([aria-checked="true"]):not(:disabled):active {
-  background: var(--color-neutral-3);
+  background: var(--color-neutral-4);
 }
 .cui-segmented__segment:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -149,4 +154,10 @@
   flex: 1;
 }
 
-/* TODO(open-question Q-SEG-8): no forced-colours rule in the source; the pill's fill and shadow are dropped there, so the selection shows only by weight. */
+/* Forced colours drop the pill's fill and shadow, so it gets a 2px CanvasText border to mark the selection (decided 2026-11-06, Q-SEG-8; not in the source). */
+@media (forced-colors: active) {
+  .cui-segmented__pill,
+  .cui-segmented:not([data-pill]) .cui-segmented__segment[aria-checked="true"] {
+    border: var(--border-width-md) solid CanvasText;
+  }
+}

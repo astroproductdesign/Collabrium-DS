@@ -148,6 +148,7 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
       aria-label={label}
       aria-disabled={disabled || undefined}
       data-size={size}
+      data-kind={iconOnly ? 'icon' : 'text'}
       data-pill={pill ? '' : undefined}
       data-disabled={disabled ? '' : undefined}
     >

@@ -36,7 +36,7 @@
   */
   --cui-button-danger-hover: color-mix(in srgb, var(--color-red) 88%, var(--color-neutral-9));
   --cui-button-danger-active: color-mix(in srgb, var(--color-red) 78%, var(--color-neutral-9));
-  --cui-button-link-underline-offset: 3px;
+  --cui-button-link-underline-offset: var(--spacing-4); /* was 3px (decided 2026-11-06, token audit) */
 
   font-family: inherit;
   font-weight: var(--weight-bold);
@@ -243,7 +243,7 @@
   --cui-button-beacon-count: 3;
   --cui-button-beacon-ink: color-mix(in srgb, var(--color-neutral-9) 32%, transparent);
   --cui-button-beacon-ink-0: color-mix(in srgb, var(--color-neutral-9) 0%, transparent);
-  --cui-button-beacon-nod: 3px;
+  --cui-button-beacon-nod: var(--spacing-4); /* was 3px (decided 2026-11-06, token audit) */
 }
 @keyframes cui-button-beacon-ring {
   0% { box-shadow: 0 0 0 0 var(--cui-button-beacon-ink); }

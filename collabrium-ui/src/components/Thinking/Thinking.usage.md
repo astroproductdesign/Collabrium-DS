@@ -59,6 +59,7 @@ The host (your code) owns the rest:
 13. **Never without a Stop, and the Stop stays reachable while the trace is open** (Rule 17).
 14. **It occupies the space the result will fill** (Rule 18).
 15. **Never go back to Loading State** (Rule 21): if steps stop arriving, the last one stays in progress until the first token.
+16. **Rows are at least 32px** (`--control-height-sm`), search queries too (were 28 and 26px). (Decided 2026-11-06, token audit.)
 
 ## Accessibility
 - The header is a real `<button>` with `aria-expanded` and `aria-controls` (pointing at the trace).
