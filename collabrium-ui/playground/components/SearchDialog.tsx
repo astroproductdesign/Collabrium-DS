@@ -195,18 +195,18 @@ export function SearchDialog({ current }: { current: PageKey }) {
         type="button"
         role="option"
         aria-selected={on}
-        className={`c-search-input-row${on ? ' is-cursor' : ''}`}
+        className={`cui-search-input__row${on ? ' is-cursor' : ''}`}
         onClick={() => go(item)}
         onMouseMove={() => setCursor(i)}
       >
         <span className="site-search-ico">
           <i className={k.icon} aria-hidden="true" />
         </span>
-        <span className="c-search-input-text">
-          <span className="c-search-input-title">
+        <span className="cui-search-input__text">
+          <span className="cui-search-input__title">
             <Mark text={item.title} q={q} />
           </span>
-          <span className="c-search-input-subtitle">{item.crumb}</span>
+          <span className="cui-search-input__subtitle">{item.crumb}</span>
         </span>
         <span className="site-search-kind">{k.label}</span>
       </button>
@@ -270,7 +270,7 @@ export function SearchDialog({ current }: { current: PageKey }) {
               {rows.map(row)}
             </>
           ) : rows.length === 0 ? (
-            <div className="c-search-input-empty">No matches for “{query.trim()}”</div>
+            <div className="cui-search-input__empty">No matches for “{query.trim()}”</div>
           ) : (
             groups.map(g => (
               <div key={g.kind} role="presentation">

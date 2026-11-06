@@ -76,6 +76,7 @@ Line numbers below refer to these files. "CSS" means components.css and "DS" mea
 | 52 | Segmented Control | **review** | Converted 2026-11-06: `SegmentedControl`, text or icon-only (with the tooltip), default and compact, the sliding pill, a disabled option or control. Matches the gallery's two controls exactly. See SEG-1 to SEG-5, Decision D-141 and Open questions Q-SEG-1 to Q-SEG-10. |
 | 53 | Lists | **review** | Converted 2026-11-06: `List`, `ListItem` (link, button, control and static rows; icon, avatar, thumbnail and logo leading at S/M/L; heading, description, caption with icon or dot; value, badge, control, button and chevron trailing), `ListItemSkeleton`, `ListSection` (the Section header), `ListEmpty`, `ListError`, `ListFooter`; timeline, bleed, selected, disabled, busy. Matches the gallery's three cards exactly (Badge's 24px aside, decided D-142). See LIST-1 to LIST-7, Decision D-143 and Open questions Q-LIST-1 to Q-LIST-9. |
 | 54 | Password field | **review** | Converted 2026-11-06 as a type of Input field (`InputField type="password"`; the user moved it there the same day, so there is no `PasswordField` component): the show/hide toggle and the 40px kept clear at the end, on Input field's own label, box, states, sizes and counter. Matches the gallery's field exactly, including the toggle's click behaviour. See PW-1 to PW-4, Decision D-144 and Open questions Q-PW-1 to Q-PW-4 (all answered). |
+| 55 | Search input | **review** | Converted 2026-11-06: `SearchInput`, Default (with the gallery's loading and no-results panel), User Search and Item Search (a combobox list to pick one, collapsing to the choice), every state in the gallery. Matches the gallery's box, clear button, panel, rows, avatar, collapsed rows and focused box exactly. Behaviour the DLS doesn't define (the list's keyboard, roles, focus after picking) is built to the standard combobox pattern and flagged. See SEARCH-1 to SEARCH-8, Decision D-145 and Open questions Q-SEARCH-1 to Q-SEARCH-13. Next: a 6-digit OTP code for Input field (the user's request, 2026-11-06). |
 | — | everything else | todo | Not started. |
 
 ---
@@ -824,6 +825,24 @@ Source: `MonoRounded{Composed,Sparkline}Chart.tsx`. The DLS Marks table covers "
 | Q-PW-3 | On a disabled field the toggle still works and reacts to hover (as the source). Disable it with the field (out of the tab order, no hover)? My recommendation: yes **Answered 2026-11-06 (user): yes, disabled with the field (the recommendation).** | `InputField.tsx`, `InputField.css` |
 | Q-PW-4 | A success check, trailing icon, prefix or suffix would collide with the toggle at the end, and the DS doesn't say. Built without them (the props aren't offered); a leading icon is. Keep? My recommendation: keep **Answered 2026-11-06 (user): keep (the recommendation). The types don't offer them with `type="password"`.** | `InputField.tsx` |
 
+### Search input
+
+| ID | Question | Where |
+|---|---|---|
+| Q-SEARCH-1 | Width: the source caps the field at 320px; Input field fills its container (decided INPUT-2). Fill the container here too? My recommendation: yes | `SearchInput.css` |
+| Q-SEARCH-2 | The label sits 8px above the box (its own 4px margin plus the 4px gap); Input field's is 4px. Use 4px? My recommendation: yes, to match Input field | `SearchInput.css` |
+| Q-SEARCH-3 | The clear (×) is a 24px target and has no focus ring of its own (the browser's default shows). Give it a 44px hit area and the standard 2px Obsidian ring, as decided for the password toggle? My recommendation: yes | `SearchInput.css` |
+| Q-SEARCH-4 | The results panel sits in the page's flow, so opening it pushes everything below down. Float it under the box instead (over the content, at the menu layer)? My recommendation: yes | `SearchInput.css` |
+| Q-SEARCH-5 | A focused field in error keeps its 1px Red border (and the text shifts 1px); in Input field focus wins. Let focus win here too? My recommendation: yes | `SearchInput.css` |
+| Q-SEARCH-6 | The DS says Default has no dropdown, but the gallery shows Default with No results and Loading panels. Built as the gallery (`loading`, `noResults`). Keep? My recommendation: keep | `SearchInput.tsx` |
+| Q-SEARCH-7 | User/Item list behaviour isn't in the DLS. Built as the standard combobox: ↓ ↑ move (wrapping), Enter picks, Escape closes, typing reopens; the keyboard's row takes the hover fill. Keep? My recommendation: keep | `SearchInput.tsx`, `SearchInput.css` |
+| Q-SEARCH-8 | The spinner keeps turning under reduced motion. Stop it (the icon and the hidden "Searching…" stay)? My recommendation: yes | `SearchInput.css` |
+| Q-SEARCH-9 | The collapsed row has a pointer cursor, but only its × does anything. Use the normal cursor? My recommendation: yes | `SearchInput.css` |
+| Q-SEARCH-10 | Focus moves three times, each because the focused thing disappears: the × returns focus to the box (the source does this); picking a result moves it to the collapsed row's ×; clearing the choice moves it back to the box. Add these to the focus-rule exceptions? My recommendation: yes | `SearchInput.tsx`, `CLAUDE.md` |
+| Q-SEARCH-11 | The gallery's collapsed rows have no label. Built with the label kept above (and naming the row as a group). Keep? My recommendation: keep | `SearchInput.tsx` |
+| Q-SEARCH-12 | The gallery's Error example has text but no ×; the DS says the × shows whenever there is text. Built with the ×. Keep? My recommendation: keep | `SearchInput.tsx` |
+| Q-SEARCH-13 | Disabled text is Neutral-4 (the DS and CSS agree); Input field's disabled text is Neutral-5. Keep Neutral-4? My recommendation: keep | `SearchInput.css` |
+
 ### Motion, batch 1 (Fade in, Slide up, Slide down, Slide left, Slide right, Collapse)
 
 Source: Amicro `registry/ui/entrance/*` (fade-in, fade-up, fade-down, slide-left, slide-right, scale-in, zoom-in). The DLS sources are Motion (DESIGN-SYSTEM.md 536 to 580) and the entrance and exit rule (1089, 2222, 2233).
@@ -1153,6 +1172,19 @@ Source: Amicro `src/components/cards/*` (CardArc5, CardArc7, CardLongArc5, CardL
 | PW-2 | Edge (Chromium) draws its own reveal button in a password box; neither file hides it, so Edge shows two eyes. Q-PW-2 | — | — |
 | PW-3 | No disabled toggle: on a disabled field the toggle still reveals the password and reacts to hover. Q-PW-3 | 166–168 | Password field |
 | PW-4 | The DS says "same anatomy as Input field" but doesn't say what happens to a success check, trailing icon or suffix, which would sit under the toggle. Q-PW-4 | — | Password field |
+
+### Search input (affects the Search input conversion)
+
+| ID | What | CSS | DS |
+|---|---|---|---|
+| SEARCH-1 | The DS says Default has no dropdown; the gallery shows Default with a No results and a Loading panel. Built as the gallery. Q-SEARCH-6 | 230–241 | Search input, variants |
+| SEARCH-2 | No behaviour for the User/Item list: no roles, keyboard, open/close or focus after picking; only the Default clear script exists. Q-SEARCH-7, Q-SEARCH-10 | — | Search input |
+| SEARCH-3 | Error wins over focus (both 0,2,1; error later), so a focused field in error keeps a 1px Red border while the focus padding shifts the text 1px; Input field's focus wins. Q-SEARCH-5 | 207–212 | Search input, Active / Error |
+| SEARCH-4 | The clear button is a 24px target with no focus-visible rule of its own. Q-SEARCH-3 | 216–219 | Search input, Clear (×) |
+| SEARCH-5 | The panel is in the page's flow (margin-top), so opening it pushes content down. Q-SEARCH-4 | 230 | Search input, Dropdown panel |
+| SEARCH-6 | No reduced-motion rule for the spinner. Q-SEARCH-8 | 240 | — |
+| SEARCH-7 | The gallery's Error demo has text but no ×; the DS says the × shows whenever there is text. Built with the ×. Q-SEARCH-12 | — | Search input, Clear (×) |
+| SEARCH-8 | The gallery's collapsed rows have no label; the DS doesn't say the label goes. Built with the label kept. Q-SEARCH-11 | — | — |
 
 ### Tokens and global
 
@@ -1485,6 +1517,7 @@ Grouped by component. Line numbers are CSS / DS.
 | D-142 | Token audit (user, 2026-11-06): one-off values close to an existing token were reviewed side by side (review-drafts) and moved to the token chosen per row: Badge, Button, Chip, CampaignCard, Card, ChatWindow, EmptyState, EntryCard, HeroCard, GoalBar, InputField, LoadingState, Modal (reverses Q-MODAL-6), ProfileCard, PromptInputBar, Radio, StreamingText, Tag, Tooltip, Textarea, Thinking. Card's 3px accent and Switch's 3px inset were kept. Each CSS line says what it was | DLS owed 159–178 |
 | D-143 | Lists: one `ListItem` whose element follows its props (`href` → `<a>`, `onClick` → `<button>`, `control` → `<label>` with the library's Checkbox box or Switch track in their own wrappers, none → `<div>`), typed so a chevron is only on links and `disabled` only on button and control rows; leading size on the List; `ListSection` labels its List with its heading; the states are separate components. Server-safe (no client directive). The list mutes the control's own hover, press and focus ring, as the source has none | LIST-1 to LIST-7. Flagged Q-LIST-1 to Q-LIST-9 |
 | D-144 | Password field is a type of Input field, not its own component (the user, 2026-11-06): `InputField type="password"` adds the 40px end padding and the toggle (a real button named "Show password" / "Hide password", `aria-controls` the input, 44px hit area, disabled with the field; the shown state is component state, so it never persists across a reload) and hides Edge's reveal. Its props are a separate branch of the type, so `success`, `trailingIcon`, `prefix` and `suffix` can't be set with it. Toggle names are props for other languages | PW-1 to PW-4. Q-PW-1 to Q-PW-4 answered |
+| D-145 | Search input: one client `SearchInput` with `variant` default / user / item, typed so Default takes `value` and User/Item take `query`, `results` and `selected`. The box is the source's (border on the `<input>`, real :focus); User/Item are a combobox (`role="combobox"`, `aria-activedescendant`, a `listbox` of `option`s) whose rows keep focus in the box on press; the collapsed choice is a `group` named by the label, with a hidden input carrying the id for forms. The 36px end padding is built from tokens, as Input field's | SEARCH-1 to SEARCH-8. Flagged Q-SEARCH-1 to Q-SEARCH-13 |
 | D-16 | Badge `children` accepts any React content, not only text | preview.html puts visually hidden context inside a badge (3407: "Highest" + sr-only text). The 20-character limit is an authoring rule (DS), so it is not enforced in code |
 | D-17 | Checkbox renders a native `<input type="checkbox">` (hidden but focusable) inside a `<label>`, not the DLS's `span[role=checkbox]` | CHK-5. A native input gives Space, form value, focus and `indeterminate` for free, and cannot drift from its visual state |
 | D-18 | The checked and partly-selected look comes from `input:checked` / `input:indeterminate`, not an `.on` class | Same colours and glyphs as `.c-checkbox-box.on`, driven by the real state, so uncontrolled checkboxes work without React state |

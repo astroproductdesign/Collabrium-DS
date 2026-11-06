@@ -1,0 +1,276 @@
+/*
+  Search input — ported from collabrium-dls/components.css lines 195–256 (.c-search-input: the box, icon, clear
+  button, error, the results panel and its rows, empty and loading states, the spinner, the avatar and text, and the
+  selected/collapsed row).
+
+  Mapping from the old classes:
+    .c-search-input                      -> .cui-search-input (data-variant="default|user|item")
+    .c-search-input label                -> __label
+    .c-search-input-box (.is-active, .is-disabled, .is-error)
+                                         -> __box ([data-error]; active is real :focus, disabled the native attribute)
+    .c-search-input-box input            -> __input
+    .c-search-input-icon                 -> svg.__icon (MagnifyingGlass, Regular)
+    .c-search-input-clear                -> button.__clear (X, Regular)
+    .c-search-input-error                -> __error
+    .c-search-input-dropdown             -> __panel (a ul.__list role="listbox" inside it for results)
+    .c-search-input-row                  -> __row (role="option"; [data-active] for the keyboard's row)
+    .c-search-input-empty / -loading     -> __empty / __loading
+    .c-search-input-spinner (+ c-search-input-spin)
+                                         -> svg.__spinner (SpinnerGap, Regular) + @keyframes cui-search-input-spin
+    .c-search-input-avatar / -text / -title / -subtitle
+                                         -> __avatar / __text / __title / __subtitle
+    .c-search-input-collapsed (.is-disabled)
+                                         -> __collapsed ([data-disabled])
+
+  Specificity keeps the source's order: the input (0,2,1 in the source, 0,1,0 here as one class each), focus, disabled,
+  then error last, so (as in the source) a focused field in error keeps its 1px Red border (Q-SEARCH-5).
+*/
+
+.cui-search-input {
+  /* No token (Q-SEARCH-1): the source's 320px cap. */
+  --cui-search-input-max: 320px;
+  /* The 36px kept clear at each end: 12px inset + the 16px icon + 8px, as Input field's icon padding. */
+  --cui-search-input-pad: calc(var(--spacing-12) + var(--icon-sm) + var(--spacing-8));
+  /* TODO(open-question Q-SEARCH-1): the source caps the field at 320px; Input field fills its container. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  max-width: var(--cui-search-input-max);
+}
+/* TODO(open-question Q-SEARCH-2): the label's own 4px margin plus the 4px gap puts it 8px above the box (Input field: 4px). */
+.cui-search-input__label {
+  display: block;
+  margin-bottom: var(--spacing-4);
+  font-family: var(--font-primary);
+  font-size: var(--text-label1-size);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+}
+.cui-search-input__label[data-hidden] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The box's border, radius and fill live on the <input>; the icon and clear button sit over it, so Active is real :focus. */
+.cui-search-input__box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.cui-search-input__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: var(--control-height-md);
+  border-radius: var(--radius-sm);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-neutral-1);
+  padding: 0 var(--cui-search-input-pad);
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-9);
+  outline: none;
+}
+.cui-search-input__input::placeholder {
+  color: var(--color-neutral-5);
+}
+.cui-search-input__input:focus {
+  border: var(--border-width-md) solid var(--color-obsidian);
+  padding: 0 calc(var(--cui-search-input-pad) - var(--border-width-sm));
+}
+.cui-search-input__input:disabled {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-4);
+  cursor: not-allowed;
+}
+.cui-search-input__box[data-error] .cui-search-input__input {
+  border: var(--border-width-sm) solid var(--color-red);
+}
+.cui-search-input__icon {
+  position: absolute;
+  left: var(--spacing-12);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-neutral-5);
+  pointer-events: none;
+}
+.cui-search-input__error {
+  margin: 0;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  color: var(--color-red);
+}
+
+/* Clear (×): only once there is a value. TODO(open-question Q-SEARCH-3): a 24px target with no focus ring of its own (the source's). */
+.cui-search-input__clear {
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-neutral-5);
+  cursor: pointer;
+}
+.cui-search-input__clear-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-search-input__clear:hover {
+  color: var(--color-neutral-9);
+}
+.cui-search-input__clear[hidden] {
+  display: none;
+}
+.cui-search-input__box .cui-search-input__clear {
+  position: absolute;
+  right: var(--spacing-12);
+  flex: none;
+}
+.cui-search-input__collapsed .cui-search-input__clear {
+  flex: none;
+}
+
+/* Results panel: the popover convention (radius-md, 1px Neutral-3, shadow-3, 8px below). TODO(open-question Q-SEARCH-4): in the page's flow, as the source, so opening it pushes what's below down. */
+.cui-search-input__panel {
+  margin-top: var(--spacing-8);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+.cui-search-input__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-search-input__row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-12);
+  cursor: pointer;
+}
+/* TODO(open-question Q-SEARCH-7): the keyboard's current row has no look in the source; it takes the hover fill. */
+.cui-search-input__row:hover,
+.cui-search-input__row[data-active] {
+  background: var(--color-neutral-2);
+}
+.cui-search-input__empty {
+  padding: var(--spacing-16);
+  text-align: center;
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-5);
+}
+
+/* Loading: spinner-gap turning on duration-ambient, linear (the system's one spin). */
+.cui-search-input__loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-16);
+}
+/* TODO(open-question Q-SEARCH-8): the source keeps the spinner turning under reduced motion. */
+.cui-search-input__spinner {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  color: var(--color-neutral-5);
+  animation: cui-search-input-spin var(--duration-ambient) linear infinite;
+}
+@keyframes cui-search-input-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Row and collapsed text. User Search puts an avatar in front (the Search input avatar recipe Lists also uses). */
+.cui-search-input__avatar {
+  flex: none;
+  width: var(--spacing-32);
+  height: var(--spacing-32);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+}
+.cui-search-input__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.cui-search-input__title {
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-search-input__subtitle {
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+
+/* Selected (collapsed): the same 40px box, so choosing doesn't reflow the layout. */
+/* TODO(open-question Q-SEARCH-9): the source gives the collapsed row a pointer cursor, though only its × does anything. */
+.cui-search-input__collapsed {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-12);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-1);
+  cursor: pointer;
+}
+.cui-search-input__collapsed[data-disabled] {
+  background: var(--color-neutral-2);
+  cursor: not-allowed;
+}
+.cui-search-input__collapsed[data-disabled] :is(.cui-search-input__title, .cui-search-input__subtitle) {
+  color: var(--color-neutral-4);
+}
+/* The × stays in the layout (a real disabled button) so Selected — disabled keeps Selected's width. */
+.cui-search-input__collapsed[data-disabled] .cui-search-input__clear {
+  visibility: hidden;
+}
+
+.cui-search-input__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

@@ -36,6 +36,7 @@
 @import './components/ProfileCard/ProfileCard.css';
 @import './components/PromptInputBar/PromptInputBar.css';
 @import './components/Radio/Radio.css';
+@import './components/SearchInput/SearchInput.css';
 @import './components/StreamingText/StreamingText.css';
 @import './components/SegmentedControl/SegmentedControl.css';
 @import './components/Stepper/Stepper.css';
