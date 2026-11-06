@@ -34,7 +34,7 @@ The `ref` is forwarded to the `<span>` element.
 4. **The text carries the meaning, not the colour.** "Failed" in red, never a red badge with no word.
 5. **Spacing between badges is 4px** (`spacing-4`), set by the layout around them, not by the badge.
 6. **Icons follow their own tier.** Status icons such as `CheckCircle` are Fill (the default), 14px.
-7. **22px tall, caption type (12px), weight 700.** The height is fixed, so a label never wraps.
+7. **24px tall (`--control-height-xs`), caption type (12px), weight 700.** The height is fixed, so a label never wraps. (Decided 2026-11-06.)
 8. **Success and Warning text are darker than their fill colour** (`--color-green-text`, `--color-amber-text`), because the full-strength colours fail contrast on their own tints at this size. Error text stays the full Red (`--color-red`, 3.2:1 on its tint): a decision of 2026-10-26, not to be raised again. Neutral text stays Neutral-9.
 
 ## Accessibility

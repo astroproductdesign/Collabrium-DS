@@ -64,6 +64,7 @@ The modal chat surface, and the expanded form of the floating Prompt input bar. 
 19. **The footer says "AI can make mistakes. Please double-check responses."** as the DLS specifies (kept 2026-10-27, Q-CHAT-7, although the house rule skips "please").
 20. **On a phone (600px and below) the window is the whole screen**: no margin, rounded corners or shadow, with the notch and the home bar cleared. Above that it floats as a card, 24px from every edge. The fold still starts from the bar. (Decided 2026-10-27, Q-CHAT-10: not in the DLS.)
 21. **Reduced motion** removes the fold and the fades (the window appears at once); Jump to present keeps its fade, drops the 8px travel, and scrolls instantly.
+22. **Menus and message actions use control heights** (decided 2026-11-06, token audit): More options menu items are 40px (`--control-height-md`, were 36), and the message action buttons 24px (`--control-height-xs`, were 28).
 
 ## Accessibility
 - The shell is `role="dialog"` with `aria-modal`, named by the title. The rail is an `aside` named "Conversations".

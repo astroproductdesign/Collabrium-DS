@@ -1,0 +1,75 @@
+/*
+  PageHeader — ported from collabrium-dls/components.css lines 4422–4432
+  (.c-pageheader, its row, text block, h1, subtitle and actions).
+
+  Mapping from the old classes:
+    .c-pageheader                      -> .cui-page-header
+    .c-pageheader-row                  -> .cui-page-header__row
+    .c-pageheader-text                 -> .cui-page-header__text
+    .c-pageheader h1                   -> .cui-page-header__title (h1 by default; the look is always h1)
+    .c-pageheader .sub                 -> .cui-page-header__subtitle
+    .c-pageheader-actions              -> .cui-page-header__actions
+    .c-shell .c-pageheader (2925, 48px below in App Shell)
+                                       -> App Shell's, not this component's
+
+  Decided 2026-11-06: the title takes h1's -lg size (40/56) from 1280px, as the DS says (Q-PAGEHEADER-1); the actions
+  drop below the title when they don't fit beside it (Q-PAGEHEADER-2). Neither is in the source.
+
+  Specificity: every part is one class here; the source's `.c-pageheader h1` and `.sub` are (0,1,1) and (0,2,0), with
+  nothing competing. Nothing is interactive, so there are no state rules.
+*/
+
+.cui-page-header {
+  /* No token: the narrowest the title block gets before the actions move below it (decided 2026-11-06, Q-PAGEHEADER-2). */
+  --cui-page-header-text-min: 240px;
+  display: flex;
+  flex-direction: column;
+}
+/*
+  The source's row never wraps, so on a phone a long title word ran under the actions. Here the text block grows to
+  fill the row but never gets narrower than 240px (or the row, if that is narrower); when the actions can't fit beside
+  that, they wrap to their own line, left-aligned, 12px under the text. Beside the title they keep the source's 16px.
+*/
+.cui-page-header__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-12) var(--spacing-16);
+}
+.cui-page-header__text {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: min(100%, var(--cui-page-header-text-min));
+}
+.cui-page-header__title {
+  margin: 0;
+  font-family: var(--font-primary);
+  font-weight: var(--text-h1-weight);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-lh);
+  letter-spacing: var(--text-h1-tracking);
+  color: var(--color-neutral-9);
+}
+/* From 1280px the title is h1's -lg size, the DS's responsive tier for wide screens (decided 2026-11-06, Q-PAGEHEADER-1). */
+@media (min-width: 1280px) {
+  .cui-page-header__title {
+    font-size: var(--text-h1-size-lg);
+    line-height: var(--text-h1-lh-lg);
+  }
+}
+.cui-page-header__subtitle {
+  margin: 0;
+  font-family: var(--font-primary);
+  font-weight: var(--text-body2-weight);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-5);
+}
+.cui-page-header__actions {
+  display: flex;
+  gap: var(--element-gap);
+  flex: none;
+}

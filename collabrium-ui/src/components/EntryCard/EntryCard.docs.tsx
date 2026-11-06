@@ -115,7 +115,7 @@ export const examples: DocsExample[] = [
   {
     id: 'switch',
     title: 'Switching the look',
-    description: 'A page-level pattern: the set\'s `variant` changes, the cards fade out, change in place and rise back in, 50ms apart. They are the same buttons, so focus stays put.',
+    description: 'A page-level pattern: the set\'s `variant` changes, the cards fade out, change in place and rise back in, 80ms apart. They are the same buttons, so focus stays put.',
     render: () => <Switching />,
     code: `const [variant, setVariant] = useState<EntryCardVariant>('artefact');
 
@@ -182,6 +182,6 @@ export const accessibility: DocsAccessibility = {
 export const motion: DocsMotion[] = [
   { interaction: 'Hover or keyboard focus', motion: 'The card lifts 2px with shadow-2, the chevron nudges 2px, the figure rises 6px and its clip loops; an Artefact drawing runs its one motion.', token: '--duration-base · --ease-settle (drawings --duration-slow)' },
   { interaction: 'Press', motion: 'The lift collapses and the shadow drops to rest.', token: '--duration-instant' },
-  { interaction: 'Switching the look', motion: 'Cards fade down and out, then rise back in 50ms apart; the headroom eases.', token: '--duration-base, --duration-morph · --ease-standard, --ease-settle' },
+  { interaction: 'Switching the look', motion: 'Cards fade down and out, then rise back in 80ms apart; the headroom eases.', token: '--duration-base, --duration-morph · --ease-standard, --ease-settle' },
   { interaction: 'Reduced motion', motion: 'No lift, nudge, rise, drawing motion or swap; no clips load or play. Shadow and colour changes stay (the bulb still lights).', token: '—' },
 ];

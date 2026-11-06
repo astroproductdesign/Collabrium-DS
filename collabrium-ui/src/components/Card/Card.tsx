@@ -28,6 +28,11 @@ interface CardBaseProps extends NativeDivProps {
   tint?: CardElement;
   /** The narrowest the card gets. `base` is 240px; `functional` is 280px, for a card that carries a list and a full-width button (the feature tile). Default `base`. */
   minWidth?: 'base' | 'functional';
+  /**
+   * `list` for a card whose body is a List: 8px top and bottom and no side padding, so the rows run edge to edge and
+   * the card clips their square fills. A CardHeader or CardFooter in it keeps 16px at the sides. Default `default` (16px).
+   */
+  padding?: 'default' | 'list';
   children?: ReactNode;
 }
 
@@ -64,7 +69,7 @@ export type CardProps = PlainCardProps | SelectableCardProps;
  * To let people tick it, give it a `selectLabel`.
  */
 export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(props, ref) {
-  const { surface = 'default', accent, tint, minWidth = 'base', children, selectLabel, selected, defaultSelected = false, onSelectedChange, ...rest } = props as SelectableCardProps;
+  const { surface = 'default', accent, tint, minWidth = 'base', padding = 'default', children, selectLabel, selected, defaultSelected = false, onSelectedChange, ...rest } = props as SelectableCardProps;
   const [own, setOwn] = useState(defaultSelected);
   const selectable = selectLabel !== undefined;
   const on = selected ?? own;
@@ -77,6 +82,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(props, r
       data-accent={accent}
       data-tint={tint}
       data-min-width={minWidth === 'functional' ? 'functional' : undefined}
+      data-padding={padding === 'list' ? 'list' : undefined}
       data-selectable={selectable ? '' : undefined}
       data-selected={selectable && on ? '' : undefined}
     >

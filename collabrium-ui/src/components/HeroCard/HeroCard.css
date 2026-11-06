@@ -28,10 +28,10 @@
 .cui-hero-card,
 .cui-command-brief__panel {
   /* Q-HERO-6: one-off values with no token, kept local (the DS records the dark-surface rgba values as scoped literals). */
-  --cui-hero-card-media-min: 112px;
+  --cui-hero-card-media-min: var(--spacing-120); /* was 112px (decided 2026-11-06, token audit) */
   --cui-hero-card-ribbon-box: 80px;
   --cui-hero-card-ribbon-strip: 150px;
-  --cui-hero-card-ribbon-pad: 5px;
+  --cui-hero-card-ribbon-pad: var(--spacing-4); /* was 5px (decided 2026-11-06, token audit) */
   --cui-hero-card-selected-max: 560px;
   font-family: var(--font-primary);
 }

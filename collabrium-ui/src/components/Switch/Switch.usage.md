@@ -37,6 +37,7 @@ The `ref` is forwarded to the `<input>`.
 9. **In forced-colours mode the track is outlined (off) or Highlight (on)**, with a CanvasText or HighlightText thumb, so the two states still differ. (Provisional, Q-SWITCH-2.)
 10. **Reduced motion makes the move instant.** The travel is the state change, so it is removed, not turned into a fade. (Provisional, Q-SWITCH-2.)
 11. **There is no error state.** A switch always has a value, and a setting that applies at once cannot be submitted wrong.
+12. **The thumb's 3px inset stays a local value**: reviewed against `--spacing-2` and `--spacing-4` and kept. (Decided 2026-11-06, token audit.)
 
 ## Accessibility
 - A native checkbox with `role="switch"`: Space toggles it, and assistive tech announces "switch", its label and on or off. The state comes from the input's `checked`, never from a separate `aria-checked`.

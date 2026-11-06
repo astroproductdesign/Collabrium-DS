@@ -38,8 +38,8 @@
   --cui-textarea-min-height: 96px;
   --cui-textarea-pad: var(--spacing-12);
   /* The redrawn resize grip: its size, and how far it is pulled in from the corner (no tokens: Textarea only). */
-  --cui-textarea-grip-size: 10px;
-  --cui-textarea-grip-inset: 5px;
+  --cui-textarea-grip-size: var(--spacing-12); /* was 10px (decided 2026-11-06, token audit) */
+  --cui-textarea-grip-inset: var(--spacing-4); /* was 5px (decided 2026-11-06, token audit) */
 
   display: flex;
   flex-direction: column;

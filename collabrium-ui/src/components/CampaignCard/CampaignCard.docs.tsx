@@ -49,22 +49,22 @@ export const anatomy: DocsAnatomyNode[] = [
   {
     name: 'Campaign card',
     element: '<div>.cui-card[data-card="campaign"]',
-    description: 'The base Card with no border, a 14px radius, shadow-1 and `height: auto`.',
+    description: 'The base Card with no border, a 16px radius, shadow-1 and `height: auto`.',
     children: [
       {
         name: 'Identity row',
         element: '.cui-campaign-card__id',
         description: 'Mark, name stack and faces, 12px apart.',
         children: [
-          { name: 'Brand mark', element: '<img> or <span>.cui-campaign-card__mark', description: '32px, 9px radius. A logo on Neutral-1 with a 1px Neutral-3 border, or the placeholder: a Fill buildings glyph in Navy on Water 8%.' },
+          { name: 'Brand mark', element: '<img> or <span>.cui-campaign-card__mark', description: '32px, 12px radius. A logo on Neutral-1 with a 1px Neutral-3 border, or the placeholder: a Fill buildings glyph in Navy on Water 8%.' },
           { name: 'Name', element: '<h3>.cui-campaign-card__title', description: 'label2, Neutral-9, truncating. Holds the link or button stretched over the card.' },
           { name: 'Lead tag', element: '.cui-campaign-card__lead', description: 'Optional. 20px, 1px dashed Neutral-4, transparent, label3 at 700, uppercase, Neutral-5.' },
           { name: 'Brand line', element: '<p>.cui-campaign-card__brand', description: 'Caption, Neutral-5, truncating. `—` when unknown.' },
-          { name: 'Owner faces', element: 'Tooltip > .cui-campaign-card__faces', description: 'One or two 22px circles with a 2px Neutral-1 ring and 10px initials; the overseer overlaps by 7px on a lilac fill. A Tab stop with a tooltip naming both.' },
+          { name: 'Owner faces', element: 'Tooltip > .cui-campaign-card__faces', description: 'One or two 24px circles with a 2px Neutral-1 ring and 11px initials; the overseer overlaps by 8px on a lilac fill. A Tab stop with a tooltip naming both.' },
         ],
       },
       { name: 'Date row', element: '.cui-campaign-card__when', description: 'A full-width 1px divider, then a 12px Regular calendar and the dates at 11px, 500, Neutral-5. `—` in Neutral-4 when unset.' },
-      { name: 'Metrics', element: '<dl>.cui-campaign-card__metrics', description: 'Two equal columns, 8px apart: a 10px uppercase label over a 12px bold value. `—` in Neutral-4 when unset.' },
+      { name: 'Metrics', element: '<dl>.cui-campaign-card__metrics', description: 'Two equal columns, 8px apart: an 11px uppercase label over a 12px bold value. `—` in Neutral-4 when unset.' },
     ],
   },
 ];

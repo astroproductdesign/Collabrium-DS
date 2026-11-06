@@ -53,12 +53,12 @@ The `ref` is forwarded to the set's `<div>` and to the card's button or link.
 1. **The whole card is one button** (or one link). Nothing interactive inside it.
 2. **One variant per set.** The set's `variant` applies to every card; a mixed row reads as broken.
 3. **Columns follow the set, not the viewport:** 1 under 280px, 2, 3 from 640px, 5 (or `columns`) from 860px. No 4-up step: a 4 + 1 row reads as one left over. Cards drop the base 240px floor (an entry needs about 150px).
-4. **Character headroom:** `clamp(24px, 0.31c + 21px, 112px)`, c being the card's content width, used as the grid's top padding, its row gap and the slot's clip ceiling, so the heads never hit anything.
+4. **Character headroom:** `clamp(24px, 0.31c + 20px, 120px)` (`--spacing-20`, `--spacing-120`; decided 2026-11-06), c being the card's content width, used as the grid's top padding, its row gap and the slot's clip ceiling, so the heads never hit anything.
 5. **Hover and keyboard focus** lift the card 2px with shadow-2, nudge the chevron 2px, raise the figure 6px and loop its clip, or run the drawing's one motion. Pressed collapses the lift.
 6. **Disabled (button only):** 40% media, Neutral-4 text, no chevron, no hover. A link entry is never disabled.
 7. **The still and clip switch hard,** never cross-fade: the clip shows only once it is playing. If it can't play, the still stays, silently.
 8. **Playback:** only one card plays at a time; touch never plays. After 8s with no interaction the next card plays one 4s beat, once; any input stops a beat; after every card has had a turn the tour is over for that page view. Nothing plays under reduced motion, in a hidden tab, or for a card less than half in view.
-9. **Switching the look** fades the cards down and out, changes them in place, and brings them back up 50ms apart. Same buttons, so focus is kept.
+9. **Switching the look** fades the cards down and out, changes them in place, and brings them back up 80ms apart (`--stagger-sm`; decided 2026-11-06). Same buttons, so focus is kept.
 10. **The research dots are decoration,** not department ownership.
 11. **The set owns the look and the motion:** its `variant` applies to every card; it runs the swap (instantly under reduced motion) and the playback scheduler from the DS reference, `idleTour={false}` turning the tour off. (Decided 2026-11-04.)
 12. **Five drawings ship:** brief, research, idea, package, deck. Research, Big idea, Package and Deck are built from the CSS and the DS (the gallery draws only Brief). A sixth kind of entry gets a drawing when it exists. (Decided 2026-11-04.)
@@ -80,7 +80,7 @@ The `ref` is forwarded to the set's `<div>` and to the card's button or link.
 |---|---|---|
 | Hover / keyboard focus | 2px lift, chevron 2px, figure 6px; the drawing's motion | `--duration-base` · `--ease-settle`; drawings `--duration-slow` |
 | Press | Lift and shadow back to rest | `--duration-instant` |
-| Switch look | Fade down and out, rise back in 50ms apart; headroom eases | `--duration-base`, `--duration-morph`, `--duration-slow` |
+| Switch look | Fade down and out, rise back in 80ms apart; headroom eases | `--duration-base`, `--duration-morph`, `--duration-slow`, `--stagger-sm` |
 | Reduced motion | No movement and no clips; shadow and colour stay (the bulb still lights) | — |
 
 ## Example

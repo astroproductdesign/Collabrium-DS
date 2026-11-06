@@ -40,8 +40,8 @@ body{
    palette: an icon in the sidebar header (expanded rail), a row above
    General (collapsed rail), and an icon leading the jump nav (below
    900px, where the rail is gone). The result rows reuse Search input's
-   real anatomy from components.css — .c-search-input-row / -text /
-   -title / -subtitle / -empty — so the gallery's own component is what
+   real anatomy from @collabrium/ui (SearchInput.css) — .cui-search-input__row / __text /
+   __title / __subtitle / __empty — so the library's own component is what
    the page is actually running. Only the palette shell, the scope
    chips and the three triggers are local to this file. */
 .site-search-hdr{
@@ -136,10 +136,10 @@ body{
 }
 /* Search input's own row anatomy, re-used as-is; these few overrides
    only widen it to the palette and mark the keyboard cursor. */
-.site-search-results .c-search-input-row{position:relative; width:100%; border:0; background:transparent;
+.site-search-results .cui-search-input__row{position:relative; width:100%; border:0; background:transparent;
   font-family:inherit; text-align:left; padding:var(--spacing-8) var(--spacing-16);}
-.site-search-results .c-search-input-row.is-cursor{background:var(--color-neutral-2);}
-.site-search-results .c-search-input-row.is-cursor::before{
+.site-search-results .cui-search-input__row.is-cursor{background:var(--color-neutral-2);}
+.site-search-results .cui-search-input__row.is-cursor::before{
   content:''; position:absolute; left:0; top:50%; margin-top:-16px;
   width:3px; height:32px; border-radius:0 3px 3px 0; background:var(--color-obsidian);
 }
@@ -148,7 +148,7 @@ body{
   justify-content:center; background:var(--color-neutral-2); color:var(--color-neutral-5);
   font-size:var(--icon-sm);
 }
-.c-search-input-row.is-cursor .site-search-ico{background:var(--color-obsidian); color:var(--color-neutral-1);}
+.cui-search-input__row.is-cursor .site-search-ico{background:var(--color-obsidian); color:var(--color-neutral-1);}
 .site-search-results mark{background:rgba(255,164,37,.42); color:inherit; border-radius:2px; padding:0 1px;}
 .site-search-kind{
   flex:none; padding:3px 7px; border-radius:var(--radius-pill);

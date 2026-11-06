@@ -34,7 +34,7 @@ The `ref` is forwarded to the `<span>` element.
 3. **Use the element that owns the content**, never one picked for its colour.
 4. **Never a solid brand fill with white text.** Use the tints as shipped.
 5. **Spacing between tags is 4px** (`spacing-4`), set by the layout around them, not by the tag.
-6. **24px tall, caption type at weight 700, 10px side padding, a 6px dot.** Neutral has no dot.
+6. **24px tall, caption type at weight 700, 12px side padding (`--spacing-12`; decided 2026-11-06), a 6px dot.** Neutral has no dot.
 7. **Element icons are Fill (Tier 2)**, 14px, because a motif is a department indicator, not a control.
 8. **Purple's text is Purple mixed 80/20 toward Neutral-9**, because full Purple fails contrast on its tint; the dot stays full Purple.
 9. **An icon takes the dot's place**, so the owner is marked once, not twice. (Decided 2026-11-04.)

@@ -34,12 +34,12 @@
     label line height.
   */
   --cui-goal-bar-max-width: 560px;
-  --cui-goal-bar-swatch: 10px;
+  --cui-goal-bar-swatch: var(--spacing-8); /* was 10px (decided 2026-11-06, token audit) */
   --cui-goal-bar-swatch-radius: 2px;
-  --cui-goal-bar-swatch-gap-edge: 1.5px;
-  --cui-goal-bar-tagrow-extra: 14px;
+  --cui-goal-bar-swatch-gap-edge: var(--border-width-sm); /* was 1.5px (decided 2026-11-06, token audit) */
+  --cui-goal-bar-tagrow-extra: var(--spacing-12); /* was 14px (decided 2026-11-06, token audit) */
   --cui-goal-bar-row-lh: 1.4;
-  --cui-goal-bar-row-value-gap: 3px;
+  --cui-goal-bar-row-value-gap: var(--spacing-4); /* was 3px (decided 2026-11-06, token audit) */
   --cui-goal-bar-tablelabel-lh: 12px;
   --cui-goal-bar-pad: var(--spacing-16);
   font-family: var(--font-primary);
@@ -55,20 +55,20 @@
 .cui-goal-bar[data-size="small"] {
   --cui-goal-bar-head-gap: var(--spacing-16);
   --cui-goal-bar-bar-h: var(--spacing-16);
-  --cui-goal-bar-bar-radius: 6px;
-  --cui-goal-bar-overhang: 5px;
+  --cui-goal-bar-bar-radius: var(--radius-xs); /* was 6px (decided 2026-11-06, token audit) */
+  --cui-goal-bar-overhang: var(--spacing-4); /* was 5px (decided 2026-11-06, token audit) */
 }
 .cui-goal-bar[data-size="medium"] {
   --cui-goal-bar-head-gap: var(--spacing-24);
   --cui-goal-bar-bar-h: var(--spacing-32);
-  --cui-goal-bar-bar-radius: 8px;
-  --cui-goal-bar-overhang: 7px;
+  --cui-goal-bar-bar-radius: var(--radius-xs); /* was 8px (decided 2026-11-06, token audit) */
+  --cui-goal-bar-overhang: var(--spacing-6); /* was 7px (decided 2026-11-06, token audit) */
 }
 .cui-goal-bar[data-size="large"] {
   --cui-goal-bar-head-gap: var(--spacing-24);
   --cui-goal-bar-bar-h: var(--spacing-40);
-  --cui-goal-bar-bar-radius: 10px;
-  --cui-goal-bar-overhang: 9px;
+  --cui-goal-bar-bar-radius: var(--radius-sm); /* was 10px (decided 2026-11-06, token audit) */
+  --cui-goal-bar-overhang: var(--spacing-8); /* was 9px (decided 2026-11-06, token audit) */
 }
 
 /* Chart: the chart area and legend with no container, for a surface that owns its own. */
@@ -279,7 +279,7 @@
 .cui-goal-bar[data-variant="table"] {
   --cui-goal-bar-bar-h: 8px;
   --cui-goal-bar-bar-radius: var(--radius-pill);
-  --cui-goal-bar-overhang: 3px;
+  --cui-goal-bar-overhang: var(--spacing-2); /* was 3px (decided 2026-11-06, token audit) */
   --cui-goal-bar-label-space: 16px;
   background: transparent;
   border: none;

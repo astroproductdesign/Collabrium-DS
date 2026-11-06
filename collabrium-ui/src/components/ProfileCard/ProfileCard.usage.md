@@ -2,7 +2,7 @@
 
 ## Purpose
 One person across every platform they have connected: a Controls row (Select
-checkbox and a kebab menu), a centred identity block (a 56px avatar, the
+checkbox and a kebab menu), a centred identity block (a 60px avatar, the
 name, a Meta line and a Persona line) and a platform list where each row
 shows the platform, the follower count (a link to the profile) and a tier.
 A variant of Card, at the base 240px floor.
@@ -54,7 +54,7 @@ The `ref` is forwarded to the card's `<div>`. `profileInitials(name)` and
 12. **The Meta and Persona lines are caption, 12px on 16px**, as the DLS text says, not the 14px its CSS draws. (Decided 2026-11-04.)
 13. **After a naming particle, the second initial is the word right after it**, as the DLS example shows (MA), not the last word. (Decided 2026-11-04.)
 14. **The menu works from the keyboard like a menu:** opening it puts focus on the first item; the arrow keys move through the items and wrap; Home and End jump to the ends; Tab leaves and closes it. (Decided 2026-11-04.)
-15. **The avatar is 56px and the menu 160px**, kept as local values (no tokens). (Decided 2026-11-04.)
+15. **The avatar is 60px (`--spacing-60`; decided 2026-11-06) and the menu 160px**, a local value (no token). (Decided 2026-11-04.)
 16. **The card raises on hover only when it opens something** (`href` or `onOpen` on the name), as Card and Selectable card do; being selectable doesn't make it raise. (Decided 2026-11-04.)
 
 ## Accessibility

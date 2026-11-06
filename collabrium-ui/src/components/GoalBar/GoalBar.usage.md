@@ -44,7 +44,7 @@ The `ref` is forwarded to the root `<div>`. `formatGoalValue(value, { currency, 
 2. **Short of target:** the gap is outlined (2px dashed Red, top, bottom and right) from the total to the target, and Neutral-3 headroom runs from the target to the end.
 3. **At or over target:** no gap and no headroom; segments run past the line. Past the end of the track the scale re-bases on the total, the one case the line moves off 75%.
 4. **Colours walk the departments:** Orange, Salmon Pink, Green, Navy, Amber, then Purple and Turquoise, then Neutral-4. One value is Obsidian. A category may set its own.
-5. **Size changes the bar, never the text.** Bar 16/32/40px, radius 6/8/10px, overhang 5/7/9px; head gap 16/24/24px.
+5. **Size changes the bar, never the text.** Bar 16/32/40px, radius 6/6/12px, overhang 4/6/8px (in-table 2px); head gap 16/24/24px. Radii and overhangs are tokens (`--radius-xs`/`-sm`, `--spacing-*`); so are the 8px legend swatch, its 1px gap edge, the 12px tag row and the 4px row value gap. (Decided 2026-11-06.)
 6. **Small:** a label row instead of the legend, short numbers from 1M up, no gap outline and no target tag. With several categories the row shows Total, not each one.
 7. **Target is named once:** by the tag under the line with a legend, by the row's Target item, or by the value above the rail in a table. Never in the legend.
 8. **The tag stays centred on the line** and slides just far enough inward when it would cross the edge, re-checked on resize.

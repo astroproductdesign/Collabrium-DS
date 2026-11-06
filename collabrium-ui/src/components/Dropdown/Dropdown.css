@@ -1,0 +1,382 @@
+/*
+  Dropdown — ported from collabrium-dls/components.css lines 3002–3078 (Single select's .c-dropdown-field trigger:
+  style, hover, open, filled, read-only; the panel; the Dropdown Option row), 4072–4190 (Multiple select: its trigger,
+  which is the same recipe again, the group label, the divider, the checkbox row, Select all, the footer) and
+  4204–4294 (the shared option slots, the description alignment, the empty state, searchable, drop-up). Loading reuses
+  Search input's spinner recipe (.cui-search-input__loading / __spinner), as the source reuses .c-search-input-loading.
+
+  One trigger for both variants: the source's .c-dropdown-multi-field rules are a copy of .c-dropdown-field's, so they
+  are ported once ([data-multiple] only changes the rows and adds the footer).
+
+  The trigger is Input field's own box: the field renders Input field's classes (label, wrap, input, trailing icon,
+  helper, focus, error, disabled), and this file adds only what Input field doesn't have.
+
+  Mapping from the old classes:
+    .c-field.c-dropdown-field            -> .cui-input-field.cui-dropdown
+    .style-borderless                    -> [data-style="borderless"]
+    .open / .has-value / .read-only / .is-searchable / .hover
+                                         -> [data-open] / [data-filled] / [data-readonly] / [data-searchable] / real :hover
+    .c-dropdown-input                    -> .cui-input-field__input.cui-dropdown__trigger (a div role="combobox"; an
+                                            <input> when searchable)
+    .c-dropdown-chevron (.icon-trailing) -> svg.cui-dropdown__chevron (CaretDown, Regular)
+    .c-dropdown-panel (.is-above)        -> .cui-dropdown__panel ([data-above])
+    .c-dropdown-list                     -> ul.cui-dropdown__list (role="listbox")
+    .c-dropdown-row (.hover, .selected, .disabled, .has-desc)
+                                         -> li.cui-dropdown__row (role="option"; [data-active], [aria-selected="true"],
+                                            [aria-disabled="true"], [data-desc])
+    .c-dropdown-row-media (.is-avatar) / -text / -label / -desc / -meta / -check
+                                         -> __media ([data-avatar]) / __text / __label / __desc / __meta / svg.__check
+    .c-dropdown-empty / -empty-title / -empty-hint, > i
+                                         -> __empty / __empty-title / __empty-hint / svg.__empty-icon
+    .c-dropdown-multi-field / -input / -chevron / -panel / -list
+                                         -> the same classes as Single select, plus [data-multiple]
+    .c-dropdown-multi-group / -divider   -> .cui-dropdown__group (inside role="group") / .cui-dropdown__divider (both variants)
+    label.c-dropdown-option (.hover, .disabled, .select-all, .has-desc)
+                                         -> .cui-dropdown__row ([data-active], [aria-disabled="true"], [data-all], [data-desc])
+    .c-checkbox-box (.on, ph-check / ph-minus)
+                                         -> Checkbox's .cui-checkbox__box[data-state="checked" | "mixed"] (no input: the row is the option)
+    .c-dropdown-multi-footer .clear / .done
+                                         -> .cui-dropdown__footer with Button ghost / primary, size sm
+
+  Specificity: Input field's rules first (base 0,1,0; error 0,2,0 via :where; focus 0,2,0), then the trigger's hover
+  and style (0,3,0), filled (excluded in error: the error wins, decided 2026-11-06, Q-DROP-3), open (0,3,0, wins over
+  both), borderless's own overrides (0,4,0), as the source's order.
+*/
+
+.cui-dropdown {
+  /* The list's 320px cap (about 9 one-line rows): no token (the nearest, --measure-sm, is 360px), kept local (decided 2026-11-06, Q-DROP-8). */
+  --cui-dropdown-list-max: 320px;
+  /* The 1px that sets a two-line row's media, meta, check and checkbox on the label's line: --border-width-sm (decided 2026-11-06, Q-DROP-8). */
+  --cui-dropdown-desc-nudge: var(--border-width-sm);
+  position: relative;
+}
+.cui-dropdown .cui-input-field__wrap {
+  cursor: pointer;
+}
+/* The trigger: Input field's box, here a focusable element (or an <input> when searchable). Its text never shows a caret. The chevron's room is Input field's trailing-icon padding (the wrap's [data-trailing]). */
+.cui-dropdown__trigger {
+  display: flex;
+  align-items: center;
+  /* An <input> doesn't inherit the page's weight; this <div> would, so it is set to the input's body2 400. */
+  font-weight: var(--text-body2-weight);
+  cursor: pointer;
+  caret-color: transparent;
+  outline: none;
+  text-align: start;
+}
+.cui-dropdown__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-dropdown__value[data-placeholder] {
+  color: var(--color-neutral-5);
+}
+.cui-dropdown__trigger::placeholder {
+  color: var(--color-neutral-5);
+}
+/* Disabled: Input field's :disabled look, for the div trigger too. */
+.cui-dropdown__trigger[aria-disabled="true"] {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-5);
+  cursor: not-allowed;
+}
+.cui-dropdown__chevron {
+  position: absolute;
+  right: var(--spacing-12);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-neutral-5);
+  pointer-events: none;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+/* Style. Outlined is Input field's own box. Hover: Neutral-2 (no :hover on a disabled or read-only field). */
+.cui-dropdown:not([data-disabled]):not([data-readonly]):hover .cui-input-field__input {
+  background: var(--color-neutral-2);
+}
+.cui-dropdown[data-style="borderless"] .cui-input-field__input {
+  background: transparent;
+  border-color: transparent;
+}
+.cui-dropdown[data-style="borderless"]:not([data-disabled]):not([data-readonly]):hover .cui-input-field__input {
+  background: var(--color-neutral-2);
+}
+
+/* States. Filled: an Obsidian border, but the error's Red wins over it (decided 2026-11-06, Q-DROP-3; the source let
+   filled win). A disabled or read-only field keeps the plain border, as the gallery draws them, so a muted field never
+   looks active (decided 2026-11-06, Q-DROP-5). */
+/* Outlined only: Borderless never shows a filled border. */
+.cui-dropdown[data-filled]:not([data-style="borderless"]):not([data-disabled]):not([data-readonly]):not([data-error]) .cui-input-field__input {
+  border-color: var(--color-obsidian);
+}
+.cui-dropdown[data-open] .cui-input-field__input {
+  border: var(--border-width-md) solid var(--color-obsidian);
+  padding-left: calc(var(--spacing-12) - var(--border-width-sm));
+}
+.cui-dropdown[data-open] .cui-dropdown__chevron {
+  transform: rotate(180deg);
+}
+.cui-dropdown[data-readonly] .cui-input-field__wrap {
+  cursor: default;
+}
+.cui-dropdown[data-readonly] .cui-dropdown__trigger {
+  cursor: default;
+}
+.cui-dropdown[data-readonly] .cui-dropdown__chevron {
+  display: none;
+}
+/* Borderless: focus, disabled and error first (the source's explicit overrides), then Open and Filled stay borderless. */
+.cui-dropdown[data-style="borderless"] .cui-input-field__input:focus {
+  border-color: transparent;
+}
+.cui-dropdown[data-style="borderless"] .cui-dropdown__trigger[aria-disabled="true"],
+.cui-dropdown[data-style="borderless"] .cui-input-field__input:disabled {
+  background: var(--color-neutral-2);
+  border-color: transparent;
+}
+.cui-dropdown[data-style="borderless"][data-error] .cui-input-field__input {
+  border-color: var(--color-red);
+}
+/* Open and Filled stay borderless; a field in error keeps its Red border once it has a value (decided 2026-11-06, Q-DROP-3). */
+.cui-dropdown[data-style="borderless"][data-open] .cui-input-field__input,
+.cui-dropdown[data-style="borderless"][data-filled]:not([data-error]) .cui-input-field__input {
+  border-color: transparent;
+}
+/* Searchable: the box is a real input, so the caret and text cursor come back. */
+.cui-dropdown[data-searchable] .cui-input-field__wrap,
+.cui-dropdown[data-searchable] .cui-dropdown__trigger {
+  cursor: text;
+  caret-color: auto;
+}
+
+/*
+  Panel: the popover convention (radius-md, 1px Neutral-3, shadow-3), exactly the trigger's width. It floats 8px under
+  the trigger at the menu layer, as Search input's (decided 2026-11-06, Q-DROP-4; the source puts it in the page's
+  flow, 12px under). If a card that hides overflow clips it, the fix is a portal, as the Tooltip's.
+*/
+.cui-dropdown__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + var(--spacing-8));
+  z-index: var(--z-menu);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+/* Drop-up: when the panel doesn't fit below and there is more room above. */
+.cui-dropdown__panel[data-above] {
+  top: auto;
+  bottom: calc(100% + var(--spacing-8));
+}
+/* With a helper or error under the box, the panel still hangs from the box, not from the text. */
+.cui-dropdown__anchor {
+  position: relative;
+}
+.cui-dropdown__list {
+  max-height: var(--cui-dropdown-list-max);
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--spacing-8) 0;
+  list-style: none;
+}
+
+/* Dropdown Option. */
+.cui-dropdown__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
+  cursor: pointer;
+}
+/* The keyboard's current row takes the hover fill (the source has hover only; decided 2026-11-06, Q-DROP-6). */
+.cui-dropdown__row:hover,
+.cui-dropdown__row[data-active] {
+  background: var(--color-neutral-2);
+}
+.cui-dropdown__row[aria-selected="true"] {
+  background: var(--color-neutral-2);
+}
+.cui-dropdown__row[aria-disabled="true"] {
+  color: var(--color-neutral-4);
+  cursor: not-allowed;
+  background: transparent;
+}
+.cui-dropdown__label {
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-9);
+}
+.cui-dropdown__row[aria-disabled="true"] .cui-dropdown__label {
+  color: var(--color-neutral-4);
+}
+.cui-dropdown__check {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-obsidian);
+  visibility: hidden;
+}
+.cui-dropdown__row[aria-selected="true"] .cui-dropdown__check {
+  visibility: visible;
+}
+
+/* Option slots: leading media (an icon, or a 24px initials avatar), a description line, trailing meta. */
+.cui-dropdown__media {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-base);
+  font-size: var(--icon-base);
+  color: var(--color-neutral-5);
+}
+.cui-dropdown__media-icon {
+  width: 1em;
+  height: 1em;
+}
+.cui-dropdown__media[data-avatar] {
+  width: var(--spacing-24);
+  height: var(--spacing-24);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-family: var(--font-primary);
+  font-size: var(--text-label3-size);
+  font-weight: var(--weight-bold);
+}
+.cui-dropdown__row > .cui-dropdown__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.cui-dropdown__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+.cui-dropdown__text .cui-dropdown__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-dropdown__desc {
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-dropdown__meta {
+  flex: none;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-dropdown__row[aria-disabled="true"] :is(.cui-dropdown__desc, .cui-dropdown__meta) {
+  color: var(--color-neutral-4);
+}
+/* Two-line rows: media, check and meta sit on the label's line; a 24px avatar centres on the pair. */
+.cui-dropdown__row[data-desc] {
+  align-items: flex-start;
+}
+.cui-dropdown__row[data-desc] > :is(.cui-dropdown__media, .cui-dropdown__check, .cui-dropdown__meta) {
+  margin-top: var(--cui-dropdown-desc-nudge);
+}
+.cui-dropdown__row[data-desc] > .cui-dropdown__media[data-avatar] {
+  margin-top: 0;
+}
+
+/* Groups (both variants, decided 2026-11-06, Q-DROP-7): SidebarNav's section label recipe, and a 1px Neutral-3 divider
+   between groups and under Select all. */
+.cui-dropdown__group {
+  padding: var(--spacing-4) var(--spacing-12);
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+.cui-dropdown__divider {
+  height: var(--border-width-sm);
+  background: var(--color-neutral-3);
+  margin: var(--spacing-8) 0;
+}
+
+/* Multiple select's row: Checkbox's box leads, and a ticked row has no fill (the box says it) and no trailing check. */
+.cui-dropdown[data-multiple] .cui-dropdown__row {
+  justify-content: flex-start;
+}
+.cui-dropdown[data-multiple] .cui-dropdown__row[aria-selected="true"]:not(:hover):not([data-active]) {
+  background: transparent;
+}
+.cui-dropdown__row .cui-checkbox__box {
+  margin-top: 0;
+}
+.cui-dropdown__row[data-desc] > .cui-checkbox__box {
+  margin-top: var(--cui-dropdown-desc-nudge);
+}
+.cui-dropdown__row[data-all] .cui-dropdown__label {
+  font-weight: var(--weight-bold);
+}
+/* A disabled option's box: Neutral-3 border on Neutral-2, as components.css (the DS's text says Neutral-1: DROPM-2). */
+.cui-dropdown__row[aria-disabled="true"] .cui-checkbox__box {
+  border-color: var(--color-neutral-3);
+  background: var(--color-neutral-2);
+}
+/* A disabled option that is ticked keeps its tick: Neutral-4 fill (the source's CSS paints it Neutral-2 and the white
+   tick vanishes). Decided 2026-11-06, Q-DROPM-2. */
+.cui-dropdown__row[aria-disabled="true"] .cui-checkbox__box:is([data-state="checked"], [data-state="mixed"]) {
+  border-color: var(--color-neutral-4);
+  background: var(--color-neutral-4);
+}
+
+/* Footer (Multiple select): Button ghost "Clear" and primary "Done" at sm (14px text; the source's own buttons are 13px:
+   decided 2026-11-06, Q-DROPM-6), Modal footer's divider at a smaller scale. */
+.cui-dropdown__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+
+/* Empty: Empty state's search variant at popover scale. */
+.cui-dropdown__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-24) var(--spacing-16);
+}
+.cui-dropdown__empty-icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  color: var(--color-neutral-4);
+}
+.cui-dropdown__empty-title {
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+.cui-dropdown__empty-hint {
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}

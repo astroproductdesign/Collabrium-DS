@@ -54,6 +54,7 @@ state as a centred pop-up dialog, opened from a Hero Card.
 13. **Reduced motion stops the tilt, the arrow nudge and the swing;** in forced colours every card keeps a CanvasText edge. (Decided 2026-11-05.)
 14. **The recommendation and source lines keep 12px above and below,** on top of the card's gap. Intended. (Decided 2026-11-05.)
 15. **Risk, AI (Dark), the tilt and the brief are built from the DS,** which the gallery doesn't show. (Decided 2026-11-05.)
+16. **The media is at least 120px tall** (`--spacing-120`, was 112; Selected keeps 160px) and the ribbon's padding is 4px (`--spacing-4`, was 5). (Decided 2026-11-06, token audit.)
 
 ## Accessibility
 - The heading is a real heading. With `onOpen` it holds a real button stretched over the card, so the card can be reached and opened from the keyboard; the CTA stays its own button above it.

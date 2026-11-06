@@ -56,8 +56,8 @@ The host (your code) owns the rest:
 - Forced colours: the browser removes backgrounds, so the cells are painted in the system text colour (`CanvasText`) to keep the grid visible. The colour cycle is lost in this mode, by design.
 
 ## Motion
-- **Drive and Dots:** each cell pulses opacity (.15 → 1 → .15) on a 650ms loop with `ease-standard`, staggered 90ms per step, so two fronts are always in flight.
-- **Orbit:** the same pulse on a 950ms loop, staggered 110ms around the ring clockwise from top-left. The centre cell never animates.
+- **Drive and Dots:** each cell pulses opacity (.15 → 1 → .15) on a 650ms loop with `ease-standard`, staggered 80ms per step (`--duration-instant`), so two fronts are always in flight.
+- **Orbit:** the same pulse on a 900ms loop (`--duration-ambient`), staggered 120ms (`--stagger-md`) around the ring clockwise from top-left. The centre cell never animates.
 - **Colour:** every active cell steps through Gold, Water, Wood, Fire, Earth pastel together on a 5s linear loop, one flat colour at a time.
 - **Reduced motion:** the grid settles on a flat Gold-pastel frame at .15 opacity. The label was never animated and the timer keeps running.
 

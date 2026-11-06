@@ -3,8 +3,9 @@
 ## Purpose
 A single-line text box with a label, an optional helper or error line,
 optional icons and text adornments, and a character count. It is the base
-the other text fields extend: Textarea, Password field and Search input
-share its label, border, fill and type.
+the other text fields extend: Textarea and Search input share its label,
+border, fill and type. A password is one of its types (`type="password"`),
+with a show/hide toggle, and so is a 6-digit one-time code (`type="otp"`).
 
 ## Use when
 - The person types one line of text, an email address, a URL, a telephone number or a number.
@@ -12,7 +13,6 @@ share its label, border, fill and type.
 
 ## Don't use when
 - **It is a whole-number quantity with − and + buttons.** Use Quantity selector (not converted yet), which is built on this box.
-- **It is a password.** Use Password field (not converted yet).
 - **It is a search.** Use Search input (not converted yet).
 - **The text runs to several lines.** Use Textarea.
 - **The person picks from a list.** Use Radio, a select, or Chip, never a text box with a list of valid answers.
@@ -23,7 +23,8 @@ share its label, border, fill and type.
 |---|---|---|---|
 | `label` | text | **required** | The visible label. Always required: a placeholder is never a substitute. |
 | `hideLabel` | boolean | `false` | Hides the label visually and keeps it for assistive tech. Only where the layout already names the field. |
-| `type` | `'text'` \| `'email'` \| `'url'` \| `'tel'` \| `'number'` | `'text'` | The kind of input. |
+| `type` | `'text'` \| `'email'` \| `'url'` \| `'tel'` \| `'number'` \| `'password'` \| `'otp'` | `'text'` | The kind of input. `password` masks the text and adds the show/hide toggle; `success`, `trailingIcon`, `prefix` and `suffix` are then not offered. `otp` is a 6-digit code in six boxes; `size`, icons, prefix, suffix and the count are then not offered. |
+| `onComplete` | `(code) => void` | — | OTP only: called once all six digits are in. The field never submits the form. |
 | `helper` | text | — | A helper line under the box (caption, Neutral-5). |
 | `error` | text | — | Bold Red error text that replaces `helper`, a 1px Red border and `aria-invalid`. Clear it when the value passes. |
 | `success` | boolean | `false` | A 1px Green border and a trailing Green check-circle. Set it after validation passes. Ignored while `error` is set. |
@@ -31,6 +32,7 @@ share its label, border, fill and type.
 | `size` | `'sm'` \| `'md'` \| `'lg'` | `'md'` | 32, 40 or 48px. |
 | `leadingIcon`, `trailingIcon` | Phosphor icon | — | A decorative icon inside the box, Regular weight. |
 | `prefix`, `suffix` | text | — | Fixed, non-editable text inside the box (`$`, `kg`). |
+| `showPasswordLabel`, `hidePasswordLabel` | text | `'Show password'`, `'Hide password'` | Password only: the toggle's name in each state, for other languages. |
 | `showCount` | boolean | `false` | A character count under the box, Red at the limit. Needs `maxLength`. |
 | `value`, `defaultValue`, `onChange`, `placeholder`, `disabled`, `maxLength`, `name`, `id`, `aria-*`, `data-*`, … | native | — | Passed to the `<input>`. `style` and `className` are not accepted. |
 
@@ -44,11 +46,18 @@ The `ref` is forwarded to the `<input>` element.
 5. **Success follows validation, not typing.** The Green border and check-circle show after the field passes (on blur or submit).
 6. **Focus is a border swap, on every focus.** A mouse click shows the same 2px Obsidian border a Tab does. The horizontal padding drops by 1px so the text stays put. It is the one exception to "focus rings are Water, not Obsidian" (DESIGN-SYSTEM.md).
 7. **Size is a density choice made per context**, never swapped at a screen width. sm (32px) for a dense table's inline edit, md (40px) for forms, lg (48px) for a large form.
-8. **An icon is decorative; an adornment is fixed text of one or two characters**, with 28px reserved for it at either end. The icon is 16px, Regular, Neutral-5, 12px from the edge, and the text moves in to clear it. If something inside the box must be pressed it is an icon button (Password field, Search input), never an adornment.
+8. **An icon is decorative; an adornment is fixed text of one or two characters**, with 24px (`--spacing-24`; decided 2026-11-06) reserved for it at either end. The icon is 16px, Regular, Neutral-5, 12px from the edge, and the text moves in to clear it. If something inside the box must be pressed it is an icon button (Password field, Search input), never an adornment.
 9. **The box fills the container.** Set the width with the layout around it. (The DLS's 220px is a demo default.)
 10. **The count is its own row** (decided 2026-10-26): right-aligned under the box and the helper, `12/60`, Red once the limit is reached.
 11. **Autofill keeps the Neutral-1 fill**, not the browser's yellow or blue tint.
 12. **A label's trailing info icon** (a tooltip trigger beside the `*`) is not part of this component until Tooltip is converted.
+13. **Password is a type of Input field** (`type="password"`; decided 2026-11-06), not its own component. The browser masks the text; a show/hide toggle sits at the end: `Eye` while hidden, `EyeSlash` while shown, 16px, Regular (Tier 1), Neutral-5 (Neutral-9 on hover), 12px from the end. The box keeps 40px clear at the end at every size. The shown state lasts until the toggle is pressed again, never across a reload.
+14. **The password toggle has a 44px hit area** around its 16px icon (nothing drawn changes), **is disabled with the field**, and **is the only reveal button**: Edge's own is hidden. (Decided 2026-11-06.)
+15. **A password has no success check, trailing icon, prefix or suffix**: the end of the box belongs to the toggle. A leading icon is fine. (Decided 2026-11-06.)
+16. **Set `autoComplete` on a password**: `current-password` to sign in, `new-password` to set one, and put its rules in the helper before the person types.
+17. **A one-time code is `type="otp"`** (not in the DLS; designed and decided 2026-11-06): one real input (numeric keyboard, `autocomplete="one-time-code"`, so phones offer the SMS code) under six drawn boxes, never six inputs. Every size is a token: 48px boxes (`--control-height-lg`) shrinking evenly to 40px (`--control-height-md`) on a narrow phone, 8px apart (`--spacing-8`), `radius-sm`, digits at `--text-h4-size`, bold.
+18. **OTP states follow Input field:** the box for the next digit takes the 2px Obsidian border and a caret (blinking on `--duration-blink`, still under reduced motion); error turns every box Red with the bold Red message; success turns them Green with the check; disabled is Neutral-2 with Neutral-4 digits.
+19. **OTP typing:** digits only; Backspace deletes the last; paste fills from the start, dropping spaces and dashes; the caret stays after the last digit (clear back to fix one). Never masked. `onComplete` fires on the sixth digit; the field never submits the form. "Resend code" and its countdown are the page's own content under the field, and the helper says where the code was sent.
 
 ## Accessibility
 - A native `<input>` with a real `<label for>`: the whole label focuses it. The label is always in the page, even with `hideLabel`.
@@ -57,6 +66,8 @@ The `ref` is forwarded to the `<input>` element.
 - Icons, adornments and the success check are `aria-hidden`; say what a unit means in the label or helper. The count is attached with `aria-describedby` and is not announced as you type.
 - Error and success are stated in words, not only by colour.
 - Focus is a border swap, not a ring.
+- OTP: one field, named by the label, with the helper or error as its description; the six boxes are hidden from screen readers and focus never moves between them.
+- Password: the toggle is a real button named "Show password" or "Hide password", which changes with the state; Tab reaches it after the box, Enter or Space toggles it, and focus stays on it.
 - No live region.
 
 ## Motion
@@ -70,10 +81,13 @@ import { InputField } from '@collabrium/ui';
 <InputField label="Workspace name" placeholder="e.g. Astro Growth" helper="Visible to your whole team" />
 <InputField label="Workspace name" defaultValue="Astro" error="This workspace name is already taken" />
 <InputField label="Monthly budget" prefix="$" placeholder="0.00" helper="In USD" />
+<InputField type="password" label="Password" helper="Minimum 8 characters" autoComplete="current-password" />
+<InputField type="otp" label="Verification code" helper="Sent to +60 12-345 6789" onComplete={verify} />
 ```
 
 ## Replaces
 - `.c-field` with `label`, `input`, `.required-mark`, `.c-helper`, `.c-field-error`, `.c-field-success`
 - `.input-wrap` with `.icon-leading`, `.icon-trailing`, `.adornment`, `.has-leading-icon`, `.has-trailing-icon`, `.has-prefix`, `.has-suffix`
 - `.counter-row` and `.char-counter`
-(`.icon-btn`, `.password-field` and `.c-field textarea` belong to Password field, Textarea and Search input.)
+- `.c-field.password-field` and its `.icon-btn` toggle (`.js-password-toggle`, `ph-eye` / `ph-eye-slash`)
+(`.c-field textarea` is Textarea's; the search `.icon-btn` is Search input's.)

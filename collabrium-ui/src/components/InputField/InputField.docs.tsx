@@ -1,14 +1,14 @@
 // Documentation for InputField, rendered by the docs site (playground).
 // Keep it consistent with InputField.usage.md. Not part of the package build.
 import { useState } from 'react';
-import { Envelope, MagnifyingGlass } from '@phosphor-icons/react';
+import { Envelope, LockSimple, MagnifyingGlass } from '@phosphor-icons/react';
 import { InputField } from './InputField';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
 
 export const title = 'Input field';
 
 export const description =
-  'A single-line text box with a label, an optional helper or error line, icons, text adornments and a character count. For a whole-number quantity use Quantity selector; for passwords, search and several lines use their own components.';
+  'A single-line text box with a label, an optional helper or error line, icons, text adornments and a character count. `type="password"` masks the text and adds a show/hide toggle; `type="otp"` is a 6-digit code in six boxes. For a whole-number quantity use Quantity selector; for search and several lines use their own components.';
 
 export const usage = `import { InputField } from '@collabrium/ui';
 
@@ -36,8 +36,10 @@ export const anatomy: DocsAnatomyNode[] = [
         description: '40px (sm 32px, lg 48px), 12px radius, 1px Neutral-3 border, Neutral-1 fill, body2 type. Focus swaps in a 2px Obsidian border.',
         children: [
           { name: 'Leading or trailing icon', element: 'svg.cui-input-field__icon', when: 'with leadingIcon or trailingIcon', description: '16px, Regular, Neutral-5, decorative, 12px from the edge.' },
-          { name: 'Prefix or suffix', element: 'span.cui-input-field__adornment', when: 'with prefix or suffix', description: 'Caption type, Neutral-5, fixed text. The box reserves 28px for it.' },
+          { name: 'Prefix or suffix', element: 'span.cui-input-field__adornment', when: 'with prefix or suffix', description: 'Caption type, Neutral-5, fixed text. The box reserves 24px for it.' },
           { name: 'Success icon', element: 'svg.cui-input-field__icon--trailing', when: 'with success', description: 'A Green check-circle, Fill (Tier 2).' },
+          { name: 'Code boxes', element: '.cui-input-field__otp-row > span.cui-input-field__otp-box ×6', when: 'type="otp"', description: 'Six 48px boxes (shrinking evenly to 40px on a narrow phone), 8px apart, radius-sm, 1px Neutral-3; digits h4 size, bold. The box for the next digit takes the 2px Obsidian border and a caret. One invisible input lies over them.' },
+          { name: 'Show/hide toggle', element: 'button.cui-input-field__toggle', when: 'type="password"', description: '`Eye` while hidden, `EyeSlash` while shown: 16px, Regular, Neutral-5 (Neutral-9 on hover), 12px from the end, with a 44px hit area. Named "Show password" or "Hide password". The box keeps 40px clear for it at every size.' },
         ],
       },
       { name: 'Helper or error', element: 'span.cui-input-field__helper', when: 'with helper or error', description: 'Caption, Neutral-5. The error is bold Red and replaces the helper.' },
@@ -154,7 +156,7 @@ function WorkspaceName() {
   {
     id: 'adornments',
     title: 'Prefix and suffix',
-    description: 'Fixed, non-editable text inside the box: a currency sign, a unit, an @. Keep it to one or two characters: the box reserves 28px for it at either end. A screen reader does not read it, so name the unit in the label or helper too. If it has to be pressed, it is an icon instead.',
+    description: 'Fixed, non-editable text inside the box: a currency sign, a unit, an @. Keep it to one or two characters: the box reserves 24px for it at either end. A screen reader does not read it, so name the unit in the label or helper too. If it has to be pressed, it is an icon instead.',
     render: () => (
       <div className="docs-stack">
         <InputField label="Monthly budget" prefix="$" placeholder="0.00" helper="In USD" />
@@ -163,6 +165,38 @@ function WorkspaceName() {
     ),
     code: `<InputField label="Monthly budget" prefix="$" placeholder="0.00" helper="In USD" />
 <InputField label="Package weight" suffix="kg" placeholder="0" helper="Rounded to the nearest 0.1kg" />`,
+  },
+  {
+    id: 'password',
+    title: 'Password',
+    description: '`type="password"`: the browser masks the text and a show/hide toggle sits at the end of the box. The shown state lasts until the toggle is pressed again, never across a reload. Set `autoComplete` (`current-password` to sign in, `new-password` to set one). There is no success check, trailing icon or suffix: the end belongs to the toggle. Disabled, the toggle is disabled too.',
+    render: () => (
+      <div className="docs-stack">
+        <InputField type="password" label="Password" defaultValue="hunter22collabrium" helper="Minimum 8 characters" autoComplete="current-password" />
+        <InputField type="password" label="New password" leadingIcon={LockSimple} required defaultValue="short" error="Use at least 8 characters" autoComplete="new-password" />
+        <InputField type="password" label="Password" defaultValue="hunter22collabrium" disabled />
+      </div>
+    ),
+    code: `<InputField type="password" label="Password" defaultValue="hunter22collabrium" helper="Minimum 8 characters" autoComplete="current-password" />
+<InputField type="password" label="New password" leadingIcon={LockSimple} required defaultValue="short" error="Use at least 8 characters" autoComplete="new-password" />
+<InputField type="password" label="Password" defaultValue="hunter22collabrium" disabled />`,
+  },
+  {
+    id: 'otp',
+    title: 'One-time code',
+    description: '`type="otp"`: six boxes over one real input with a numeric keyboard and `autocomplete="one-time-code"`, so a phone offers the code from an SMS. Digits only; paste fills from the start, dropping spaces and dashes; Backspace deletes the last digit. Never masked. `onComplete` fires when all six are in; the field never submits the form itself. Resend is the page\'s own content under it.',
+    render: () => (
+      <div className="docs-stack">
+        <InputField type="otp" label="Verification code" helper="Sent to +60 12-345 6789" />
+        <InputField type="otp" label="Verification code" defaultValue="482913" error="That code didn't match. Check the SMS and try again." />
+        <InputField type="otp" label="Verification code" defaultValue="482913" success helper="Verified" />
+        <InputField type="otp" label="Verification code" defaultValue="482913" disabled helper="Too many tries. Wait 5 minutes." />
+      </div>
+    ),
+    code: `<InputField type="otp" label="Verification code" helper="Sent to +60 12-345 6789" onComplete={verify} />
+<InputField type="otp" label="Verification code" defaultValue="482913" error="That code didn't match. Check the SMS and try again." />
+<InputField type="otp" label="Verification code" defaultValue="482913" success helper="Verified" />
+<InputField type="otp" label="Verification code" defaultValue="482913" disabled helper="Too many tries. Wait 5 minutes." />`,
   },
   {
     id: 'counter',
@@ -183,7 +217,8 @@ function WorkspaceName() {
 export const props: DocsProp[] = [
   { name: 'label', options: 'ReactNode', default: '—', required: true, description: 'The visible label. Always required: a placeholder is never a substitute.' },
   { name: 'hideLabel', options: 'boolean', default: 'false', description: 'Hides the label visually and keeps it for assistive tech. Only where the layout already names the field.' },
-  { name: 'type', options: "'text' | 'email' | 'url' | 'tel' | 'number'", default: "'text'", description: 'The kind of input. Passwords and search have their own components.' },
+  { name: 'type', options: "'text' | 'email' | 'url' | 'tel' | 'number' | 'password' | 'otp'", default: "'text'", description: 'The kind of input. `password` masks the text and adds the show/hide toggle (then `success`, `trailingIcon`, `prefix` and `suffix` are not offered). `otp` is a 6-digit code in six boxes (then no `size`, icons, prefix, suffix or count). Search has its own component.' },
+  { name: 'onComplete', options: '(code: string) => void', default: '—', description: 'OTP only: called with the code once all six digits are in. The field never submits the form itself.' },
   { name: 'helper', options: 'ReactNode', default: '—', description: 'A helper line under the box (caption, Neutral-5).' },
   { name: 'error', options: 'ReactNode', default: '—', description: 'Bold Red error text that replaces `helper`, a 1px Red border and `aria-invalid`. Clear it when the value passes.' },
   { name: 'success', options: 'boolean', default: 'false', description: 'A 1px Green border and a trailing Green check-circle. Set it after validation passes (on blur or submit). Ignored while `error` is set.' },
@@ -191,6 +226,7 @@ export const props: DocsProp[] = [
   { name: 'size', options: "'sm' | 'md' | 'lg'", default: "'md'", description: 'The height: 32, 40 or 48px. A density choice, never tied to a screen width.' },
   { name: 'leadingIcon, trailingIcon', options: 'Icon (Phosphor)', default: '—', description: 'A decorative icon inside the box, Regular weight. The trailing icon is replaced by the success check while `success` shows.' },
   { name: 'prefix, suffix', options: 'string', default: '—', description: 'Fixed, non-editable text inside the box (`$`, `kg`). One or two characters, and never interactive.' },
+  { name: 'showPasswordLabel, hidePasswordLabel', options: 'string', default: "'Show password', 'Hide password'", description: 'Password only: the toggle\'s name in each state, for other languages.' },
   { name: 'showCount', options: 'boolean', default: 'false', description: 'A character count under the box, `12/60`, Red at the limit. Needs `maxLength`.' },
   { name: 'value / defaultValue, onChange, placeholder, disabled, maxLength, name, id, aria-*, data-*, …', options: 'native', default: '—', description: 'Passed to the `<input>`. `style` and `className` are not accepted. The ref is forwarded to the `<input>`.' },
 ];
@@ -203,6 +239,8 @@ export const rules: DocsRules = {
     'Say what to do in the error ("Enter a name with at least 3 letters"), and clear it as soon as the value passes.',
     'Pick the size for the context and keep it: sm for a dense table, md for forms, lg for a large form.',
     'Show success only after validation passes, not on every valid keystroke.',
+    'For a password, set `autoComplete` and put the rules in the helper before the person types.',
+    'For a one-time code, say where it was sent in the helper, and put "Resend code" under the field.',
   ],
   dont: [
     'Don\'t use a placeholder instead of a label.',
@@ -210,7 +248,9 @@ export const rules: DocsRules = {
     'Don\'t put anything pressable in a prefix or suffix. Use an icon button.',
     'Don\'t change the size at a screen width. Change the layout.',
     'Don\'t show the helper and the error together: the error replaces the helper.',
-    'Don\'t use it for a whole-number quantity (Quantity selector), a password, a search, or several lines.',
+    'Don\'t use it for a whole-number quantity (Quantity selector), a search, or several lines.',
+    'Don\'t draw your own password mask, or remember the shown state across a reload.',
+    'Don\'t mask a one-time code, split it into six inputs, or submit the form on the sixth digit.',
   ],
 };
 
@@ -218,6 +258,8 @@ export const accessibility: DocsAccessibility = {
   keyboard: [
     { keys: 'Tab', action: 'Moves focus into the box. A 2px Obsidian border shows.' },
     { keys: 'Type', action: 'Enters text as in any native input.' },
+    { keys: 'Tab, then Enter / Space', action: 'Password: moves from the box to the toggle, which shows or hides the password. Focus stays on the toggle.' },
+    { keys: 'Digits, Backspace, paste', action: 'OTP: digits fill the boxes in order; Backspace removes the last; paste fills from the start. Focus never moves between boxes: it is one field.' },
   ],
   notes: [
     'A native `<input>` with a real `<label for>`, so the whole label focuses it. The label is always in the page, even with `hideLabel`.',
@@ -227,9 +269,13 @@ export const accessibility: DocsAccessibility = {
     'The character count is attached with `aria-describedby`. It is not announced as you type.',
     'The error and the success are stated in words under the box, not only by the border colour.',
     'Focus is shown by a border swap, on every focus (mouse or keyboard), not a ring.',
+    'OTP: one real input (numeric keyboard, `autocomplete="one-time-code"`) under six drawn boxes, so it is read as one field named by the label, with the helper or error as its description. The boxes are hidden from screen readers.',
+    'Password: the toggle is a real button named "Show password" or "Hide password", which changes with the state, so the icon swap is never the only signal. Its focus ring is the standard 2px Obsidian ring.',
   ],
 };
 
 export const motion: DocsMotion[] = [
+  { interaction: 'Show or hide a password', motion: 'The masking and the icon swap at once.', token: '—' },
+  { interaction: 'OTP caret', motion: 'Blinks in the box for the next digit; still under reduced motion.', token: '--duration-blink' },
   { interaction: 'Focus, error, success, disabled', motion: 'The border and padding change at once. Nothing animates, so there is nothing to remove under reduced motion.', token: '—' },
 ];

@@ -30,13 +30,13 @@
     its variant's step (Drive 90ms, Orbit 110ms), tied to the loop length.
   */
   --cui-loading-state-cell: 4px;
-  --cui-loading-state-gap: 1.5px;
+  --cui-loading-state-gap: var(--spacing-2); /* was 1.5px (decided 2026-11-06, token audit) */
   --cui-loading-state-cell-radius: 1px;
   --cui-loading-state-color-cycle: 5s;
   --cui-loading-state-drive-cycle: 650ms;
-  --cui-loading-state-orbit-cycle: 950ms;
-  --cui-loading-state-drive-step: 90ms;
-  --cui-loading-state-orbit-step: 110ms;
+  --cui-loading-state-orbit-cycle: var(--duration-ambient); /* was 950ms (decided 2026-11-06, token audit) */
+  --cui-loading-state-drive-step: var(--duration-instant); /* was 90ms (decided 2026-11-06, token audit) */
+  --cui-loading-state-orbit-step: var(--stagger-md); /* was 110ms (decided 2026-11-06, token audit) */
 
   display: inline-flex;
   align-items: center;

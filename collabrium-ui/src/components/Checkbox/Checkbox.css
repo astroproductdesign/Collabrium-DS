@@ -92,10 +92,28 @@
     border-color var(--duration-fast) var(--ease-standard);
 }
 
+/*
+  A drawn box with no input of its own: Dropdown's Multiple select rows, where the row is the option and
+  aria-selected is the state (the DS: "don't also expose the input as a second checkbox"). The same recipe, keyed to
+  data-state="checked" | "mixed" instead of the input. The sizes are declared on the box too, since it has no
+  .cui-checkbox around it there.
+*/
+.cui-checkbox__box[data-state] {
+  --cui-checkbox-size: var(--choice-size);
+  --cui-checkbox-radius: var(--radius-xs);
+  --cui-checkbox-nudge: var(--spacing-2);
+  --cui-checkbox-glyph-size: var(--icon-micro);
+}
+
 /* Checked and indeterminate share one fill. */
-.cui-checkbox__input:is(:checked, :indeterminate) + .cui-checkbox__box {
+.cui-checkbox__input:is(:checked, :indeterminate) + .cui-checkbox__box,
+.cui-checkbox__box:is([data-state="checked"], [data-state="mixed"]) {
   border-color: var(--color-obsidian);
   background: var(--color-obsidian);
+}
+.cui-checkbox__box[data-state="checked"] .cui-checkbox__check,
+.cui-checkbox__box[data-state="mixed"] .cui-checkbox__minus {
+  display: block;
 }
 
 /* Glyphs: Phosphor Regular (Tier 1) at 1em of the box's type size, in the

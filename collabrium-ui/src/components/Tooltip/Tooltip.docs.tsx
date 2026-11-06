@@ -37,7 +37,7 @@ export const anatomy: DocsAnatomyNode[] = [
       {
         name: 'Bubble',
         element: '<span>.cui-tooltip__bubble[role="tooltip"]',
-        description: 'In a portal at the document body: Neutral-7, Neutral-1 caption text at 500, 6px / 10px padding, radius-sm. One line up to 240px, then wraps. Always in the DOM; opacity 0 when hidden. No caret.',
+        description: 'In a portal at the document body: Neutral-7, Neutral-1 caption text at 500, 6px / 12px padding, radius-sm. One line up to 240px, then wraps. Always in the DOM; opacity 0 when hidden. No caret.',
       },
     ],
   },

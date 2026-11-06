@@ -3,7 +3,7 @@
   (the shared .c-choice row and its text styles, .c-radio-circle, .on and
   .dot). The Checkbox box rules in the same block belong to Checkbox, and the
   Switch rules (3095–3100) to Switch; neither is ported here. Radio Card
-  (3101–3214) is a variant built on Card and is not converted yet.
+  (3101–3214) is RadioCard.css, beside this file.
 
   Mapping from the old classes:
     label.c-choice                  -> label.cui-radio
@@ -32,7 +32,7 @@
   */
   --cui-radio-size: var(--choice-size);
   --cui-radio-nudge: var(--spacing-2);
-  --cui-radio-dot-size: 9px;
+  --cui-radio-dot-size: var(--spacing-8); /* was 9px (decided 2026-11-06, token audit) */
 
   /* position:relative anchors the hidden native input to its own row, so
      clicking the label never scrolls the page to a stray input. */

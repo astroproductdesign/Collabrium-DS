@@ -44,7 +44,7 @@
 .cui-card {
   /* Q-CARD-6 (decided 2026-10-30): the 240px floor and the 3px accent border are literals in the DLS with no token; kept local. */
   --cui-card-min-width: 240px;
-  --cui-card-accent-width: 3px;
+  --cui-card-accent-width: 3px; /* kept: 3px, no token (decided 2026-11-06, token audit) */
   /* The checkbox's own box size (Checkbox keeps it local), to work out the room beside it. */
   --cui-card-select-size: 18px;
   position: relative;
@@ -62,6 +62,14 @@
   height: 100%;
   box-sizing: border-box;
   font-family: var(--font-primary);
+}
+.cui-card[data-padding="list"] {
+  /* A List body (decided 2026-11-06, Q-LIST-2): 8px top and bottom, rows edge to edge, the card clipping their fills. */
+  padding: var(--spacing-8) 0;
+  overflow: hidden;
+}
+.cui-card[data-padding="list"] > :is(.cui-card__header, .cui-card__footer) {
+  padding-inline: var(--spacing-16);
 }
 .cui-card[data-surface="warm"] {
   background: var(--color-canvas-warm-card);
@@ -125,7 +133,7 @@
 
 .cui-icon-chip {
   /* Q-CARD-6 (decided 2026-10-30): the 36px chip and its 12% tint are literals in the DLS (the tint is documented as a one-off, not the 8% -bg token); kept local. */
-  --cui-icon-chip-size: 36px;
+  --cui-icon-chip-size: var(--control-height-md); /* was 36px (decided 2026-11-06, token audit) */
   --cui-icon-chip-tint: 12%;
   --cui-icon-chip-color: var(--color-navy);
   display: flex;

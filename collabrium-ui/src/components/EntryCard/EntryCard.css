@@ -40,10 +40,10 @@
 .cui-entry-set {
   /* Q-ENTRY-9: one-off values with no token, kept local as the DS records them. Headroom: clamp(24px, 0.31c + 21px, 112px). */
   --cui-entry-set-headroom-min: 24px;
-  --cui-entry-set-headroom-add: 21px;
-  --cui-entry-set-headroom-max: 112px;
+  --cui-entry-set-headroom-add: var(--spacing-20); /* was 21px (decided 2026-11-06, token audit) */
+  --cui-entry-set-headroom-max: var(--spacing-120); /* was 112px (decided 2026-11-06, token audit) */
   --cui-entry-set-headroom-rate: .31;
-  --cui-entry-set-stagger: 50ms;
+  --cui-entry-set-stagger: var(--stagger-sm); /* was 50ms (decided 2026-11-06, token audit) */
   container: cui-entry-set / inline-size;
 }
 /*

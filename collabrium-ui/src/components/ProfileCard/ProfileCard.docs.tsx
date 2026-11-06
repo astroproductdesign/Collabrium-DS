@@ -119,7 +119,7 @@ export const anatomy: DocsAnatomyNode[] = [
           { name: 'Menu', element: 'div.cui-profile-card__menu[role="menu"]', when: 'open', description: '160px, opening down from the kebab\'s right edge: View details, Pin to top, Edit, Sync profile, Archive.' },
         ],
       },
-      { name: 'Avatar', element: 'div.cui-profile-card__avatar', description: '56px circle with two initials, a photo over them when there is one. aria-hidden.' },
+      { name: 'Avatar', element: 'div.cui-profile-card__avatar', description: '60px circle with two initials, a photo over them when there is one. aria-hidden.' },
       {
         name: 'Identity',
         element: 'div.cui-profile-card__identity',
