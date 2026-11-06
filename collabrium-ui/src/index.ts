@@ -39,6 +39,7 @@ export * from './components/PriceSummaryCard';
 export * from './components/ProgressBar';
 export * from './components/ProfileCard';
 export * from './components/PromptInputBar';
+export * from './components/QuantitySelector';
 export * from './components/Radio';
 export * from './components/SearchInput';
 export * from './components/StreamingText';
