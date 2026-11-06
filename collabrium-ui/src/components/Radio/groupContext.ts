@@ -11,6 +11,8 @@ export interface RadioGroupContextValue {
   invalid: boolean;
   disabled: boolean;
   required: boolean;
+  /** The group's error line, when there is one: Radio Card adds it to each radio's description, as the DS asks. */
+  errorId?: string;
 }
 
 export const RadioGroupContext = createContext<RadioGroupContextValue | null>(null);

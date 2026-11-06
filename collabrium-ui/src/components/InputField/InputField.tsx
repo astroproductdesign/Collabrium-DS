@@ -13,8 +13,8 @@ import type { WithoutStyling } from '../../utils/types';
 
 /** The three heights: 32px for a dense table's inline edit, 40px for a form, 48px for a large form. A density choice, never tied to a screen width. */
 export type InputFieldSize = 'sm' | 'md' | 'lg';
-/** The kinds of single-line input this component covers. `password` masks the text and adds a show/hide toggle. Search has its own component. */
-export type InputFieldType = 'text' | 'email' | 'url' | 'tel' | 'number' | 'password';
+/** The kinds of single-line input this component covers. `password` masks the text and adds a show/hide toggle; `otp` is a 6-digit code drawn as six boxes. Search has its own component. */
+export type InputFieldType = 'text' | 'email' | 'url' | 'tel' | 'number' | 'password' | 'otp';
 
 type NativeInputProps = WithoutStyling<
   Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size' | 'children' | 'color' | 'width' | 'height' | 'required' | 'prefix'>
@@ -47,7 +47,7 @@ interface InputFieldBase extends NativeInputProps {
 
 interface TextInputProps extends InputFieldBase {
   /** The kind of input. `text` unless the value is an email, URL, telephone number or number. */
-  type?: Exclude<InputFieldType, 'password'>;
+  type?: Exclude<InputFieldType, 'password' | 'otp'>;
   /**
    * The value passed validation: a 1px Green border and a trailing Green check-circle. Fire it after the
    * field passes validation (on blur or submit), not on every valid keystroke. `helper` can say why ("Name is available").
@@ -62,6 +62,7 @@ interface TextInputProps extends InputFieldBase {
   suffix?: string;
   showPasswordLabel?: never;
   hidePasswordLabel?: never;
+  onComplete?: never;
 }
 
 /**
@@ -79,9 +80,34 @@ interface PasswordInputProps extends InputFieldBase {
   showPasswordLabel?: string;
   /** The toggle's name while the password is shown. Default "Hide password". */
   hidePasswordLabel?: string;
+  onComplete?: never;
 }
 
-export type InputFieldProps = TextInputProps | PasswordInputProps;
+/**
+ * A 6-digit one-time code: one real input (numeric keyboard, `autocomplete="one-time-code"`, so phones offer the code
+ * from an SMS) drawn as six boxes. Digits only; paste fills from the start, dropping spaces and dashes. Never masked.
+ * The field never submits a form itself: `onComplete` says when all six are in.
+ */
+interface OtpInputProps extends Omit<InputFieldBase, 'size' | 'leadingIcon' | 'showCount'> {
+  type: 'otp';
+  /** Called with the code once all six digits are in. Verify it, or enable the submit button; the field doesn't submit. */
+  onComplete?: (code: string) => void;
+  size?: never;
+  leadingIcon?: never;
+  showCount?: never;
+  /** The code was accepted: every box Green and the check. Ignored while `error` is set. */
+  success?: boolean;
+  trailingIcon?: never;
+  prefix?: never;
+  suffix?: never;
+  showPasswordLabel?: never;
+  hidePasswordLabel?: never;
+}
+
+/** The number of boxes in a one-time code. */
+const OTP_LENGTH = 6;
+
+export type InputFieldProps = TextInputProps | PasswordInputProps | OtpInputProps;
 
 /**
  * Collabrium Input field. A single-line text box with a label, an optional
@@ -108,10 +134,16 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(function
     showCount = false,
     showPasswordLabel = 'Show password',
     hidePasswordLabel = 'Hide password',
+    onComplete,
     id: idProp,
     onChange,
     ...rest
-  } = props as Omit<TextInputProps, 'type' | 'showPasswordLabel' | 'hidePasswordLabel'> & { type?: InputFieldType; showPasswordLabel?: string; hidePasswordLabel?: string };
+  } = props as Omit<TextInputProps, 'type' | 'showPasswordLabel' | 'hidePasswordLabel' | 'onComplete'> & {
+    type?: InputFieldType;
+    showPasswordLabel?: string;
+    hidePasswordLabel?: string;
+    onComplete?: (code: string) => void;
+  };
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const messageId = useId();
@@ -120,6 +152,10 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(function
   const isPassword = type === 'password';
   // The shown state lives in the component, so it never outlasts a reload (DESIGN-SYSTEM.md, Password field).
   const [shown, setShown] = useState(false);
+  const isOtp = type === 'otp';
+  // A one-time code keeps its own digits (or follows `value` when it is controlled) and where the caret box is.
+  const [ownCode, setOwnCode] = useState(String(rest.defaultValue ?? '').replace(/\D/g, '').slice(0, OTP_LENGTH));
+  const [otpFocused, setOtpFocused] = useState(false);
 
   const invalid = Boolean(error);
   const confirmed = success && !invalid && !isPassword;
@@ -133,6 +169,88 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(function
   };
 
   const hasTrailingIcon = Boolean(TrailingIcon) || confirmed;
+
+  if (isOtp) {
+    const code = rest.value !== undefined ? String(rest.value).replace(/\D/g, '').slice(0, OTP_LENGTH) : ownCode;
+    const next = Math.min(code.length, OTP_LENGTH - 1);
+    const { value: _value, defaultValue: _defaultValue, maxLength: _maxLength, ...otpRest } = rest;
+    const moveCaretToEnd = (input: HTMLInputElement) => {
+      if (input.selectionStart !== input.value.length || input.selectionEnd !== input.value.length) {
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    };
+    const handleOtpChange = (event: ChangeEvent<HTMLInputElement>) => {
+      // Digits only, at most six. No maxLength on the input: it would cut a pasted "123 456" before the space is dropped.
+      const digits = event.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH);
+      event.target.value = digits;
+      if (rest.value === undefined) setOwnCode(digits);
+      onChange?.(event);
+      if (digits.length === OTP_LENGTH && digits !== code) onComplete?.(digits);
+    };
+    return (
+      <div
+        className="cui-input-field"
+        data-otp=""
+        data-error={invalid || undefined}
+        data-success={confirmed || undefined}
+        data-disabled={rest.disabled || undefined}
+      >
+        <label className="cui-input-field__label" htmlFor={id} data-hidden={hideLabel || undefined}>
+          {label}
+          {required && (
+            <span className="cui-input-field__required" aria-hidden="true">
+              *
+            </span>
+          )}
+        </label>
+        <div className="cui-input-field__otp">
+          <div className="cui-input-field__otp-row">
+            {Array.from({ length: OTP_LENGTH }, (_, i) => (
+              <span key={i} className="cui-input-field__otp-box" data-active={otpFocused && i === next ? '' : undefined} aria-hidden="true">
+                {code[i] ?? (otpFocused && i === next ? <span className="cui-input-field__otp-caret" /> : null)}
+              </span>
+            ))}
+            <input
+              {...otpRest}
+              ref={ref}
+              id={id}
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]*"
+              className="cui-input-field__otp-input"
+              value={code}
+              aria-required={required || undefined}
+              aria-invalid={invalid || undefined}
+              aria-describedby={describedBy}
+              onChange={handleOtpChange}
+              onFocus={(event) => {
+                setOtpFocused(true);
+                const input = event.currentTarget;
+                requestAnimationFrame(() => moveCaretToEnd(input));
+                otpRest.onFocus?.(event);
+              }}
+              onBlur={(event) => {
+                setOtpFocused(false);
+                otpRest.onBlur?.(event);
+              }}
+              onSelect={(event) => {
+                // The caret always sits after the last digit: a code is cleared back, never edited in the middle.
+                moveCaretToEnd(event.currentTarget);
+                otpRest.onSelect?.(event);
+              }}
+            />
+          </div>
+          {confirmed && <CheckCircle className="cui-input-field__otp-check" weight="fill" aria-hidden="true" focusable="false" />}
+        </div>
+        {message && (
+          <span className="cui-input-field__helper" id={messageId}>
+            {message}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

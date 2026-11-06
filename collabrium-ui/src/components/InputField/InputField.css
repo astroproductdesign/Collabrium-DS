@@ -246,3 +246,100 @@
 .cui-input-field__toggle:disabled:hover {
   color: var(--color-neutral-5);
 }
+
+/*
+  One-time code (type="otp"). Not in the DLS: designed 2026-11-06 at the user's request (Q-OTP-1 to Q-OTP-10). Every size
+  is a token, with no local values: boxes are --control-height-lg (48px) and shrink evenly to no less than
+  --control-height-md (40px) so the row fits a 320px phone; --spacing-8 apart; Input field's radius and borders; digits
+  at --text-h4-size, bold. One real input lies invisibly over the six boxes, so autofill, paste and screen readers see
+  one field.
+*/
+.cui-input-field__otp {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+.cui-input-field__otp-row {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--spacing-8);
+  max-width: calc(var(--control-height-lg) * 6 + var(--spacing-8) * 5);
+  cursor: text;
+}
+.cui-input-field__otp-box {
+  flex: 1 1 0;
+  min-width: var(--control-height-md);
+  max-width: var(--control-height-lg);
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-1);
+  font-family: var(--font-primary);
+  font-size: var(--text-h4-size);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-neutral-9);
+}
+/* Error and success before focus: the box for the next digit keeps the focus border, as Input field's focus wins. */
+.cui-input-field[data-error] .cui-input-field__otp-box {
+  border-color: var(--color-red);
+}
+.cui-input-field[data-success] .cui-input-field__otp-box {
+  border-color: var(--color-green);
+}
+.cui-input-field__otp-box[data-active] {
+  border: var(--border-width-md) solid var(--color-obsidian);
+}
+.cui-input-field[data-disabled] .cui-input-field__otp-box {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-4);
+}
+.cui-input-field[data-disabled] .cui-input-field__otp-row {
+  cursor: not-allowed;
+}
+/* The real input: over the boxes, invisible, its own caret hidden (the drawn caret shows where the next digit goes). */
+.cui-input-field__otp-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  font-size: var(--text-body1-size);
+  caret-color: transparent;
+  cursor: inherit;
+}
+.cui-input-field__otp-caret {
+  width: var(--border-width-md);
+  height: var(--text-h4-size);
+  background: var(--color-neutral-9);
+  animation: cui-input-field-caret var(--duration-blink) steps(1) infinite alternate;
+}
+@keyframes cui-input-field-caret {
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cui-input-field__otp-caret {
+    animation: none;
+  }
+}
+.cui-input-field__otp-check {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-green);
+}
+@media (forced-colors: active) {
+  .cui-input-field__otp-caret {
+    background: CanvasText;
+  }
+}

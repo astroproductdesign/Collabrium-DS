@@ -5,7 +5,7 @@ A single-line text box with a label, an optional helper or error line,
 optional icons and text adornments, and a character count. It is the base
 the other text fields extend: Textarea and Search input share its label,
 border, fill and type. A password is one of its types (`type="password"`),
-with a show/hide toggle.
+with a show/hide toggle, and so is a 6-digit one-time code (`type="otp"`).
 
 ## Use when
 - The person types one line of text, an email address, a URL, a telephone number or a number.
@@ -23,7 +23,8 @@ with a show/hide toggle.
 |---|---|---|---|
 | `label` | text | **required** | The visible label. Always required: a placeholder is never a substitute. |
 | `hideLabel` | boolean | `false` | Hides the label visually and keeps it for assistive tech. Only where the layout already names the field. |
-| `type` | `'text'` \| `'email'` \| `'url'` \| `'tel'` \| `'number'` \| `'password'` | `'text'` | The kind of input. `password` masks the text and adds the show/hide toggle; `success`, `trailingIcon`, `prefix` and `suffix` are then not offered. |
+| `type` | `'text'` \| `'email'` \| `'url'` \| `'tel'` \| `'number'` \| `'password'` \| `'otp'` | `'text'` | The kind of input. `password` masks the text and adds the show/hide toggle; `success`, `trailingIcon`, `prefix` and `suffix` are then not offered. `otp` is a 6-digit code in six boxes; `size`, icons, prefix, suffix and the count are then not offered. |
+| `onComplete` | `(code) => void` | — | OTP only: called once all six digits are in. The field never submits the form. |
 | `helper` | text | — | A helper line under the box (caption, Neutral-5). |
 | `error` | text | — | Bold Red error text that replaces `helper`, a 1px Red border and `aria-invalid`. Clear it when the value passes. |
 | `success` | boolean | `false` | A 1px Green border and a trailing Green check-circle. Set it after validation passes. Ignored while `error` is set. |
@@ -54,6 +55,9 @@ The `ref` is forwarded to the `<input>` element.
 14. **The password toggle has a 44px hit area** around its 16px icon (nothing drawn changes), **is disabled with the field**, and **is the only reveal button**: Edge's own is hidden. (Decided 2026-11-06.)
 15. **A password has no success check, trailing icon, prefix or suffix**: the end of the box belongs to the toggle. A leading icon is fine. (Decided 2026-11-06.)
 16. **Set `autoComplete` on a password**: `current-password` to sign in, `new-password` to set one, and put its rules in the helper before the person types.
+17. **A one-time code is `type="otp"`** (not in the DLS; designed and decided 2026-11-06): one real input (numeric keyboard, `autocomplete="one-time-code"`, so phones offer the SMS code) under six drawn boxes, never six inputs. Every size is a token: 48px boxes (`--control-height-lg`) shrinking evenly to 40px (`--control-height-md`) on a narrow phone, 8px apart (`--spacing-8`), `radius-sm`, digits at `--text-h4-size`, bold.
+18. **OTP states follow Input field:** the box for the next digit takes the 2px Obsidian border and a caret (blinking on `--duration-blink`, still under reduced motion); error turns every box Red with the bold Red message; success turns them Green with the check; disabled is Neutral-2 with Neutral-4 digits.
+19. **OTP typing:** digits only; Backspace deletes the last; paste fills from the start, dropping spaces and dashes; the caret stays after the last digit (clear back to fix one). Never masked. `onComplete` fires on the sixth digit; the field never submits the form. "Resend code" and its countdown are the page's own content under the field, and the helper says where the code was sent.
 
 ## Accessibility
 - A native `<input>` with a real `<label for>`: the whole label focuses it. The label is always in the page, even with `hideLabel`.
@@ -62,6 +66,7 @@ The `ref` is forwarded to the `<input>` element.
 - Icons, adornments and the success check are `aria-hidden`; say what a unit means in the label or helper. The count is attached with `aria-describedby` and is not announced as you type.
 - Error and success are stated in words, not only by colour.
 - Focus is a border swap, not a ring.
+- OTP: one field, named by the label, with the helper or error as its description; the six boxes are hidden from screen readers and focus never moves between them.
 - Password: the toggle is a real button named "Show password" or "Hide password", which changes with the state; Tab reaches it after the box, Enter or Space toggles it, and focus stays on it.
 - No live region.
 
@@ -77,6 +82,7 @@ import { InputField } from '@collabrium/ui';
 <InputField label="Workspace name" defaultValue="Astro" error="This workspace name is already taken" />
 <InputField label="Monthly budget" prefix="$" placeholder="0.00" helper="In USD" />
 <InputField type="password" label="Password" helper="Minimum 8 characters" autoComplete="current-password" />
+<InputField type="otp" label="Verification code" helper="Sent to +60 12-345 6789" onComplete={verify} />
 ```
 
 ## Replaces

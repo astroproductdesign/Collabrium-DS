@@ -345,35 +345,35 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(functi
             <X className="cui-search-input__clear-icon" weight="regular" aria-hidden="true" focusable="false" />
           </button>
         )}
+        {defaultPanel && <div className="cui-search-input__panel">{status}</div>}
+        {picker && (
+          <div className="cui-search-input__panel" hidden={!listOpen}>
+            <ul className="cui-search-input__list" id={listId} role="listbox" aria-labelledby={labelId} hidden={!showList}>
+              {showList &&
+                results.map((r, i) => (
+                  <li
+                    key={r.id}
+                    id={`${listId}-${r.id}`}
+                    role="option"
+                    aria-selected={i === activeIndex}
+                    className="cui-search-input__row"
+                    data-active={i === activeIndex ? '' : undefined}
+                    // Keep focus in the field while a row is pressed, so the list doesn't close before the click lands.
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => choose(r)}
+                  >
+                    {rowContent(r)}
+                  </li>
+                ))}
+            </ul>
+            {listOpen && !showList && status}
+          </div>
+        )}
       </div>
       {error && (
         <p className="cui-search-input__error" id={errorId}>
           {error}
         </p>
-      )}
-      {defaultPanel && <div className="cui-search-input__panel">{status}</div>}
-      {picker && (
-        <div className="cui-search-input__panel" hidden={!listOpen}>
-          <ul className="cui-search-input__list" id={listId} role="listbox" aria-labelledby={labelId} hidden={!showList}>
-            {showList &&
-              results.map((r, i) => (
-                <li
-                  key={r.id}
-                  id={`${listId}-${r.id}`}
-                  role="option"
-                  aria-selected={i === activeIndex}
-                  className="cui-search-input__row"
-                  data-active={i === activeIndex ? '' : undefined}
-                  // Keep focus in the field while a row is pressed, so the list doesn't close before the click lands.
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => choose(r)}
-                >
-                  {rowContent(r)}
-                </li>
-              ))}
-          </ul>
-          {listOpen && !showList && status}
-        </div>
       )}
     </div>
   );

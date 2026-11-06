@@ -1,14 +1,16 @@
 // Documentation for Radio, rendered by the docs site (playground).
-// Keep it consistent with Radio.usage.md. Not part of the package build.
+// Keep it consistent with Radio.usage.md (which includes Radio card). Not part of the package build.
 import { useState } from 'react';
 import { Radio } from './Radio';
 import { RadioGroup } from './RadioGroup';
+import { RadioCard, RadioCardGroup } from './RadioCard';
+import { Button } from '../Button';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
 
 export const title = 'Radio';
 
 export const description =
-  'One choice from a short set. A real native radio with a label and an optional description, drawn as an outline circle with a dot, and a group that shares one name.';
+  'One choice from a short set. A real native radio with a label and an optional description, drawn as an outline circle with a dot, and a group that shares one name. Radio card is its large variant: the whole card is one option, for 2 or 3 paths that each need a sentence or a live figure.';
 
 export const usage = `import { Radio, RadioGroup } from '@collabrium/ui';
 
@@ -27,6 +29,46 @@ export const thumbnail = () => (
     <Radio value="daily" label="Daily" />
   </RadioGroup>
 );
+
+function RadioCardErrorExample() {
+  const [value, setValue] = useState('');
+  const [error, setError] = useState<string | undefined>();
+  return (
+    <form
+      className="docs-stack"
+      // The page checks the group itself (the DS's error state), so the browser's own required bubble is off.
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!value) {
+          setError('Choose an audience to continue');
+          (e.currentTarget.querySelector('input[type="radio"]:not(:disabled)') as HTMLInputElement | null)?.focus();
+        }
+      }}
+    >
+      <RadioCardGroup
+        legend="Audience"
+        required
+        value={value}
+        onValueChange={(v) => {
+          setValue(v);
+          setError(undefined);
+        }}
+        error={error}
+        description="You can change this until the plan is booked."
+      >
+        <RadioCard value="personas" title="Personas" description="Segments from the KULT playbook, built on real viewing behaviour." meta="12 personas available" />
+        <RadioCard value="mass" title="Mass" description="The whole Malaysia footprint, no segmentation." meta="16,150,000" />
+      </RadioCardGroup>
+      <div>
+        <Button variant="primary" type="submit">
+          Continue
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 
 export const anatomy: DocsAnatomyNode[] = [
   {
@@ -61,6 +103,35 @@ export const anatomy: DocsAnatomyNode[] = [
       { name: 'Legend', element: 'legend.cui-radio-group__legend', description: 'The group\'s question, in label1 type. An optional Red `*` follows it.' },
       { name: 'Helper or error', element: 'p.cui-radio-group__message', when: 'with description or error', description: 'Caption under the legend. The error is bold Red and replaces the helper.' },
       { name: 'List', element: 'div.cui-radio-group__list', description: 'The radios in a column, 12px apart.' },
+    ],
+  },
+  {
+    name: 'Radio card group',
+    element: '<fieldset>.cui-radio-card-group',
+    description: 'A real fieldset. It is also the size container the grid\'s columns are measured against.',
+    children: [
+      { name: 'Legend', element: 'legend.cui-radio-group__legend', description: 'The group\'s question, label1. An optional Red `*` when required.' },
+      { name: 'Helper / error', element: 'p.cui-radio-group__message', when: 'description or error', description: 'Caption, 4px under the legend. The error (caption, bold, Red) replaces the helper.' },
+      {
+        name: 'Grid',
+        element: '.cui-radio-card-grid',
+        description: '12px under the legend, 16px gap. One column, then straight to 2 at a 496px group (or straight to 3 at 752px with `columns={3}`). Equal-height rows.',
+        children: [
+          {
+            name: 'Card',
+            element: 'label.cui-card.cui-radio-card',
+            description: 'Card\'s surface: Neutral-1, 1px Neutral-3, radius-lg, shadow-1, 16px padding, 8px gap, the 240px floor. The whole card is the label.',
+            children: [
+              { name: 'Radio', element: 'input[type=radio]', description: 'Visually hidden, still focusable. Named by the title; the description, badge, meta and any error describe it.' },
+              { name: 'Circle', element: '.cui-radio__circle', description: 'Radio\'s 18px circle; the dot shows when the card is chosen.' },
+              { name: 'Title', element: '.cui-radio-card__title', description: 'h5, Neutral-9.' },
+              { name: 'Badge', element: 'Badge neutral', when: 'badge', description: 'Beside the title; drops under it when there\'s no room. At most one per group.' },
+              { name: 'Description', element: '.cui-radio-card__desc', when: 'description', description: 'Caption, Neutral-5, indented to the title\'s left edge (18px + 8px).' },
+              { name: 'Meta', element: '.cui-radio-card__meta', when: 'meta', description: 'Caption bold, Neutral-9, tabular figures, indented like the description and pinned to the bottom.' },
+            ],
+          },
+        ],
+      },
     ],
   },
 ];
@@ -184,6 +255,55 @@ function Digest() {
   <Radio value="post" label="Post" />
 </RadioGroup>`,
   },
+  {
+    id: 'card',
+    title: 'Radio card: two paths',
+    description: 'Click anywhere on a card, or Tab into the group and use the arrow keys. Mass is pre-selected as a real default.',
+    render: () => (
+      <RadioCardGroup legend="Audience" defaultValue="mass">
+        <RadioCard value="personas" title="Personas" description="Segments from the KULT playbook, built on real viewing behaviour." meta="12 personas available" />
+        <RadioCard value="mass" title="Mass" description="The whole Malaysia footprint, no segmentation." meta="16,150,000" />
+      </RadioCardGroup>
+    ),
+    code: `<RadioCardGroup legend="Audience" defaultValue="mass">
+  <RadioCard value="personas" title="Personas" description="Segments from the KULT playbook, built on real viewing behaviour." meta="12 personas available" />
+  <RadioCard value="mass" title="Mass" description="The whole Malaysia footprint, no segmentation." meta="16,150,000" />
+</RadioCardGroup>`,
+  },
+  {
+    id: 'card-three',
+    title: 'Radio card: three paths, a badge and a disabled card',
+    description: 'With `columns={3}` the grid goes straight from one column to three. A disabled card gives its reason in the meta, at full strength.',
+    render: () => (
+      <RadioCardGroup legend="Booking type" columns={3}>
+        <RadioCard value="guaranteed" title="Guaranteed" badge="Recommended" description="Fixed spots at a fixed rate, confirmed at booking." meta="From RM 12,500.00" />
+        <RadioCard value="preemptible" title="Pre-emptible" description="Lower rate; a higher bid can move your spot." meta="From RM 8,900.00" />
+        <RadioCard value="bonus" title="Bonus" description="Unsold inventory added at no charge." meta="Not available for this plan" disabled />
+      </RadioCardGroup>
+    ),
+    code: `<RadioCardGroup legend="Booking type" columns={3}>
+  <RadioCard value="guaranteed" title="Guaranteed" badge="Recommended" description="Fixed spots at a fixed rate, confirmed at booking." meta="From RM 12,500.00" />
+  <RadioCard value="preemptible" title="Pre-emptible" description="Lower rate; a higher bid can move your spot." meta="From RM 8,900.00" />
+  <RadioCard value="bonus" title="Bonus" description="Unsold inventory added at no charge." meta="Not available for this plan" disabled />
+</RadioCardGroup>`,
+  },
+  {
+    id: 'card-error',
+    title: 'Radio card: required, with an error',
+    description: 'Press Continue with nothing chosen: the error replaces the helper, the cards turn Red and focus moves to the first card. Choosing one clears it.',
+    render: () => <RadioCardErrorExample />,
+    code: `<RadioCardGroup
+  legend="Audience"
+  required
+  value={value}
+  onValueChange={(v) => { setValue(v); setError(undefined); }}
+  error={error}
+  description="You can change this until the plan is booked."
+>
+  <RadioCard value="personas" title="Personas" description="Segments from the KULT playbook, built on real viewing behaviour." meta="12 personas available" />
+  <RadioCard value="mass" title="Mass" description="The whole Malaysia footprint, no segmentation." meta="16,150,000" />
+</RadioCardGroup>`,
+  },
 ];
 
 export const props: DocsProp[] = [
@@ -203,6 +323,19 @@ export const props: DocsProp[] = [
   { name: 'RadioGroup: disabled', options: 'boolean', default: 'false', description: 'Disables every radio in the group.' },
   { name: 'RadioGroup: children', options: 'ReactNode', default: '—', required: true, description: 'The `Radio` components, stacked 12px apart. Each needs a `value`.' },
   { name: 'id, form, aria-*, data-*, …', options: 'native', default: '—', description: 'Passed to the `<input>` (Radio) or the `<fieldset>` (RadioGroup). `style` and `className` are not accepted. The ref is forwarded to the `<input>`, or to the `<fieldset>`.' },
+  { name: 'RadioCardGroup: legend', options: 'ReactNode', default: '—', required: true, description: 'The group\'s question.' },
+  { name: 'RadioCardGroup: hideLegend', options: 'boolean', default: 'false', description: 'Hides the legend visually; still read out.' },
+  { name: 'RadioCardGroup: description', options: 'ReactNode', default: '—', description: 'A helper line under the legend.' },
+  { name: 'RadioCardGroup: error', options: 'ReactNode', default: '—', description: 'Replaces the helper; enabled, unselected cards turn Red. Clear it on the first selection.' },
+  { name: 'RadioCardGroup: required / disabled / name', options: '—', default: '—', description: 'As Radio group.' },
+  { name: 'RadioCardGroup: value / defaultValue / onValueChange', options: 'string', default: '—', description: 'The chosen card.' },
+  { name: 'RadioCardGroup: columns', options: '2 | 3', default: '2', description: 'Two (at 496px) or three (at 752px) side by side; one column below that.' },
+  { name: 'RadioCard: value', options: 'string', default: '—', required: true, description: 'What the card submits.' },
+  { name: 'RadioCard: title', options: 'ReactNode', default: '—', required: true, description: 'The option\'s name (h5).' },
+  { name: 'RadioCard: description', options: 'ReactNode', default: '—', description: 'One or two sentences.' },
+  { name: 'RadioCard: meta', options: 'ReactNode', default: '—', description: 'A live figure, pinned to the bottom; on a disabled card, the reason.' },
+  { name: 'RadioCard: badge', options: 'ReactNode', default: '—', description: 'A neutral Badge beside the title. At most one per group.' },
+  { name: 'RadioCard: disabled', options: 'boolean', default: 'false', description: 'Can\'t be chosen.' },
 ];
 
 export const rules: DocsRules = {
@@ -212,6 +345,7 @@ export const rules: DocsRules = {
     'Use Radio for one choice from up to four or five visible options.',
     'Write each label as the option itself: "Weekly digest".',
     'Start with nothing chosen, or a real default.',
+    'Use a Radio card group for 2 or 3 paths that each need a sentence or a live figure; give a disabled card its reason in the meta.',
   ],
   dont: [
     'Don\'t use Radio when several options can be on at once. That is a Checkbox.',
@@ -219,6 +353,7 @@ export const rules: DocsRules = {
     'Don\'t mix Radio and Checkbox in one group: the outline circle against the filled box is how people tell single from multiple choice.',
     'Don\'t use it to switch a view straight away. That is a Segmented Control.',
     'Don\'t keep an error showing once a radio is chosen.',
+    'Don\'t put buttons or links inside a Radio card: the card is a label.',
   ],
 };
 
@@ -237,9 +372,11 @@ export const accessibility: DocsAccessibility = {
     'A required group puts the native `required` on every radio; the Red `*` is visual only and hidden from assistive tech.',
     'An error sets `aria-invalid` on each enabled radio and is the group\'s description in place of the helper. It is not a live region: move focus to the first radio when you set it.',
     'The error is stated in words, not only by the red border and text colour.',
+    'Radio card: each card is the label of a real radio, named by its title; the description, badge, meta and the group\'s error describe it. Focus shows as the Water ring on the whole card, never the circle. An updated meta is read on the next focus (no live region).',
   ],
 };
 
 export const motion: DocsMotion[] = [
+  { interaction: 'Radio card: hover, choose', motion: 'The card\'s shadow and border colour ease, no movement; none under reduced motion.', token: '--duration-base · --ease-settle' },
   { interaction: 'Hover, press, choose', motion: 'The circle\'s fill and border colour fade between states. Nothing moves, so there is nothing to remove under reduced motion.', token: '--duration-fast · --ease-standard' },
 ];

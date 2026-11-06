@@ -67,16 +67,16 @@ export const anatomy: DocsAnatomyNode[] = [
   {
     name: 'SearchInput',
     element: '<div>.cui-search-input',
-    description: 'A column: the label, the box, an error, and (User, Item) the results panel. Up to 320px wide.',
+    description: 'A column: the label (4px above the box), the box and an error. Fills its container.',
     children: [
       { name: 'Label', element: 'label.cui-search-input__label', description: 'label1, Neutral-9.' },
       {
         name: 'Box',
         element: '.cui-search-input__box > input',
-        description: 'Input field\'s box: 40px, radius-sm, 1px Neutral-3, Neutral-1; 2px Obsidian on focus. 36px kept clear at each end.',
+        description: 'Input field\'s box at 48px (`--control-height-lg`), radius-sm, 1px Neutral-3, Neutral-1; 2px Obsidian on focus. 36px kept clear at each end.',
         children: [
           { name: 'Search icon', element: 'svg.cui-search-input__icon', description: 'MagnifyingGlass, 16px, Regular, Neutral-5, 12px from the start. Decorative.' },
-          { name: 'Clear (×)', element: 'button.cui-search-input__clear', when: 'there is text', description: '24×24, X 16px Regular, Neutral-5 (Neutral-9 on hover), 12px from the end. Gone (not just hidden) while the box is empty.' },
+          { name: 'Clear (×)', element: 'button.cui-search-input__clear', when: 'there is text', description: '24×24 with a 44px hit area, X 16px Regular, Neutral-5 (Neutral-9 on hover), 12px from the end; the standard focus ring. Gone (not just hidden) while the box is empty.' },
         ],
       },
       { name: 'Error', element: 'p.cui-search-input__error', when: 'error', description: 'caption, bold, Red.' },
@@ -84,14 +84,14 @@ export const anatomy: DocsAnatomyNode[] = [
         name: 'Results panel',
         element: '.cui-search-input__panel',
         when: 'User / Item while searching; Default with loading or noResults',
-        description: 'radius-md, 1px Neutral-3, shadow-3, 8px under the box.',
+        description: 'radius-md, 1px Neutral-3, shadow-3, 8px under the box, floating over the content below.',
         children: [
           { name: 'Row', element: 'li.cui-search-input__row (role="option")', description: '8px / 12px padding, 12px gap, Neutral-2 on hover and for the keyboard\'s row. User: a 32px avatar; then the name (body2 size, 700) and the role or type (caption, Neutral-5).' },
-          { name: 'Loading', element: '.cui-search-input__loading', when: 'loading', description: 'A SpinnerGap (24px, Regular, Neutral-5) turning on duration-ambient, centred, 16px padding.' },
+          { name: 'Loading', element: '.cui-search-input__loading', when: 'loading', description: 'A SpinnerGap (24px, Regular, Neutral-5) turning on duration-ambient (still under reduced motion), centred, 16px padding.' },
           { name: 'No matches', element: '.cui-search-input__empty', when: 'nothing matched', description: '"No matches found", body2, Neutral-5, centred, 16px padding.' },
         ],
       },
-      { name: 'Selected (collapsed)', element: '.cui-search-input__collapsed', when: 'User / Item with a choice', description: 'The same 40px box: the avatar (User), the name and role, and a clear (×) that empties the choice.' },
+      { name: 'Selected (collapsed)', element: '.cui-search-input__collapsed', when: 'User / Item with a choice', description: 'The same 48px box: the avatar (User), the name and role, centred, and a clear (×) that empties the choice.' },
     ],
   },
 ];
@@ -106,28 +106,37 @@ export const examples: DocsExample[] = [
   },
   {
     id: 'default-states',
-    title: 'Has value, disabled, error, no results and loading',
-    description: 'The Default box\'s states. While results load or none match, a panel under the box says so.',
+    title: 'Has value, disabled and error',
+    description: 'The Default box\'s states.',
     render: () => (
       <div className="docs-stack">
         <SearchInput label="Search" defaultValue="campaign" />
         <SearchInput label="Search" disabled />
         <SearchInput label="Search" defaultValue="zzz???" error="Search couldn't run — try again" />
-        <SearchInput label="Search" defaultValue="zzz" noResults />
-        <SearchInput label="Search" defaultValue="ke" loading />
       </div>
     ),
     code: `<SearchInput label="Search" defaultValue="campaign" />
 <SearchInput label="Search" disabled />
-<SearchInput label="Search" defaultValue="zzz???" error="Search couldn't run — try again" />
-<SearchInput label="Search" defaultValue="zzz" noResults />
+<SearchInput label="Search" defaultValue="zzz???" error="Search couldn't run — try again" />`,
+  },
+  {
+    id: 'default-panel',
+    title: 'No results and loading',
+    description: 'While results load or none match, a panel floats 8px under the box, over the content below it. Under reduced motion the spinner stands still.',
+    render: () => (
+      <div className="docs-row docs-popover-room" style={{ alignItems: 'flex-start' }}>
+        <div style={{ flex: '1 1 240px' }}><SearchInput label="Search" defaultValue="zzz" noResults /></div>
+        <div style={{ flex: '1 1 240px' }}><SearchInput label="Search" defaultValue="ke" loading /></div>
+      </div>
+    ),
+    code: `<SearchInput label="Search" defaultValue="zzz" noResults />
 <SearchInput label="Search" defaultValue="ke" loading />`,
   },
   {
     id: 'user',
     title: 'User Search',
     description: 'Type to search people ("ke", "rahman"). Pick one with the mouse, or ↓ ↑ and Enter: the box collapses to the person, and focus moves to its ×, which clears the choice.',
-    render: () => <UserSearchExample />,
+    render: () => <div className="docs-popover-room"><UserSearchExample /></div>,
     code: `const [query, setQuery] = useState('');
 const { loading, results } = usePeopleSearch(query);
 
@@ -145,7 +154,7 @@ const { loading, results } = usePeopleSearch(query);
     id: 'item',
     title: 'Item Search',
     description: 'The same, for records: no avatar ("growth").',
-    render: () => <ItemSearchExample />,
+    render: () => <div className="docs-popover-room"><ItemSearchExample /></div>,
     code: `<SearchInput
   variant="item"
   label="Search for a campaign"
@@ -159,7 +168,7 @@ const { loading, results } = usePeopleSearch(query);
   {
     id: 'selected',
     title: 'Selected and selected — disabled',
-    description: 'The collapsed choice keeps the 40px box. Disabled, the × is hidden but keeps its space, so the row is the same width.',
+    description: 'The collapsed choice keeps the 48px box. Disabled, the × is hidden but keeps its space, so the row is the same width.',
     render: () => (
       <div className="docs-stack">
         <SearchInput variant="user" label="Owner" results={[]} defaultSelected={people[3]} />
@@ -192,7 +201,7 @@ export const props: DocsProp[] = [
 
 export const rules: DocsRules = {
   do: [
-    'Keep it at 40px in every state, so picking or clearing never moves the layout.',
+    'Keep it at 48px in every state, so picking or clearing never moves the layout.',
     'Keep the clear button reachable by Tab once it shows.',
     'Use User Search for a person and Item Search for a record; Default when the results show on the page.',
   ],
@@ -221,4 +230,5 @@ export const accessibility: DocsAccessibility = {
 
 export const motion: DocsMotion[] = [
   { interaction: 'Loading', motion: 'The spinner turns, linear.', token: '--duration-ambient' },
+  { interaction: 'Reduced motion', motion: 'The spinner stands still; the hidden "Searching…" stays.', token: '—' },
 ];

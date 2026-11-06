@@ -1,0 +1,215 @@
+/*
+  Radio card — ported from collabrium-dls/components.css lines 3101–3214 (.c-radio-card-group, -legend, -required,
+  the helper / error, .c-radio-card-grid and its container queries, .c-radio-card and its head, titles, title, badge,
+  desc and meta, hover, selected, focus, disabled, group error, reduced motion and forced colours).
+
+  Reused, not copied: the card is Card's own surface (.cui-card: Neutral-1, 1px Neutral-3, radius-lg, shadow-1,
+  16px padding, 8px gap, the 240px floor); the circle and dot are Radio's (.cui-radio__circle / __dot); the legend,
+  required marker, helper and error are Radio group's (.cui-radio-group__*); the badge is Badge neutral.
+
+  Mapping from the old classes:
+    fieldset.c-radio-card-group (.is-error)  -> fieldset.cui-radio-group.cui-radio-card-group ([data-error])
+    .c-radio-card-legend / -required         -> .cui-radio-group__legend / __required (Radio group's)
+    .c-helper / .c-radio-card-error          -> .cui-radio-group__message ([data-error])
+    .c-radio-card-grid (.is-3up)             -> .cui-radio-card-grid ([data-columns="3"])
+    label.c-card.c-radio-card                -> label.cui-card.cui-radio-card
+    input.sr-only                            -> .cui-radio-card__input (hidden, still focusable)
+    .c-radio-card-head / -titles / -title    -> .cui-radio-card__head / __titles / __title
+    .c-radio-circle (.on) / .dot ([hidden])  -> .cui-radio__circle / __dot, drawn from the radio's :checked (no script)
+    .c-radio-card-badge / -desc / -meta      -> .cui-radio-card__badge / __desc / __meta
+    .hover / .focus (static hooks)           -> real :hover / :focus-visible
+
+  The source keeps the circle in sync with the radio by script (window.CollabriumRadioCard.sync). Here the circle reads
+  the radio's real :checked state through :has(), so it can never disagree with the form value.
+
+  Specificity, in the source's order: Card's base (0,1,0); hover (0,2,0 here); selected (0,3,0 and up) wins over
+  hover; focus layers its ring over the current elevation; disabled; then the group error, which never reaches a
+  checked or disabled card.
+*/
+
+.cui-radio-card-group {
+  container: cui-radio-card / inline-size;
+}
+/* A hidden legend still names the group (the gallery's demo names it with aria-label instead). */
+.cui-radio-card-group > .cui-radio-group__legend[data-hidden] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+  Grid: one column, then straight to 2 (default) or straight to 3 once every column holds Card's 240px floor, so there
+  is never a 2 + 1 orphan. The 496px and 752px thresholds are 2 × 240 + 16 and 3 × 240 + 2 × 16; they are literals
+  because a container query can't read a custom property (no token matches either). Rows stretch, so cards in a row
+  are equal height.
+*/
+.cui-radio-card-grid {
+  display: grid;
+  gap: var(--spacing-16);
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: var(--spacing-12);
+}
+@container cui-radio-card (min-width: 496px) {
+  .cui-radio-card-grid:not([data-columns="3"]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container cui-radio-card (min-width: 752px) {
+  .cui-radio-card-grid[data-columns="3"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Card: composes .cui-card on the same <label>. Only additions here. */
+.cui-radio-card {
+  /* Radio's circle sizes, declared here because the circle has no .cui-radio around it. */
+  --cui-radio-size: var(--choice-size);
+  --cui-radio-nudge: var(--spacing-2);
+  --cui-radio-dot-size: var(--spacing-8);
+  cursor: pointer;
+  color: var(--color-neutral-9);
+  transition:
+    box-shadow var(--duration-base) var(--ease-settle),
+    border-color var(--duration-base) var(--ease-settle);
+}
+.cui-radio-card__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/*
+  Head: circle + a wrapping text column, so a badge that doesn't fit drops under the title (not under the circle) and
+  the circle stays on the title's first line. The description and meta are indented by the circle's width plus the
+  head's gap, so title, description and meta share one left edge and the circle hangs alone.
+*/
+.cui-radio-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+}
+.cui-radio-card__circle {
+  /* Centred on the title's 20px h5 line: 1px from the top (Radio's 2px nudge is for body1 and left it 1px low, as the
+     DS noted; decided 2026-11-06, Q-RC-1). The empty circle keeps Radio's Neutral-3 border (decided 2026-11-06, Q-RC-2). */
+  --cui-radio-nudge: calc((var(--text-h5-lh) - var(--choice-size)) / 2);
+  box-sizing: border-box;
+}
+.cui-radio-card__titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--spacing-4) var(--spacing-8);
+}
+.cui-radio-card__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  letter-spacing: var(--text-h5-tracking);
+  color: var(--color-neutral-9);
+  overflow-wrap: break-word;
+}
+.cui-radio-card__badge {
+  flex: none;
+  display: inline-flex;
+}
+.cui-radio-card__desc {
+  padding-inline-start: calc(var(--choice-size) + var(--spacing-8));
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+/* Meta: pinned to the bottom so meta lines align across a row. */
+.cui-radio-card__meta {
+  margin-top: auto;
+  padding-inline-start: calc(var(--choice-size) + var(--spacing-8));
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The circle: Radio's, filled from the card's radio (the source's script-toggled .on and the dot's hidden). */
+.cui-radio-card:has(.cui-radio-card__input:checked) .cui-radio-card__circle {
+  border-color: var(--color-obsidian);
+}
+.cui-radio-card:has(.cui-radio-card__input:checked) .cui-radio__dot {
+  display: block;
+}
+
+/* Hover: Card Interactive's shadow-2, pointer devices only. Radio's circle hover isn't applied: one hover signal per card (decided 2026-11-06, Q-RC-4). */
+@media (hover: hover) {
+  .cui-radio-card:hover {
+    box-shadow: var(--shadow-2);
+  }
+}
+
+/* Selected: Card Selected's values. The padding gives up 1px a side so the card never changes size. */
+.cui-radio-card:has(.cui-radio-card__input:checked),
+.cui-radio-card:has(.cui-radio-card__input:checked):hover {
+  border: var(--border-width-md) solid var(--color-obsidian);
+  padding: calc(var(--spacing-16) - var(--border-width-sm));
+  box-shadow: var(--shadow-3);
+}
+
+/* Focus-visible: Card's Water ring on the whole card, never the circle, over the card's current elevation. */
+.cui-radio-card:has(.cui-radio-card__input:focus-visible) {
+  box-shadow: var(--shadow-focus), var(--shadow-1);
+}
+@media (hover: hover) {
+  .cui-radio-card:not(:has(.cui-radio-card__input:checked)):has(.cui-radio-card__input:focus-visible):hover {
+    box-shadow: var(--shadow-focus), var(--shadow-2);
+  }
+}
+.cui-radio-card:has(.cui-radio-card__input:checked):has(.cui-radio-card__input:focus-visible) {
+  box-shadow: var(--shadow-focus), var(--shadow-3);
+}
+
+/* Disabled: Radio's 50% and not-allowed, on the circle, title and description only. The meta carries the reason and stays at full strength. */
+.cui-radio-card:has(.cui-radio-card__input:disabled) {
+  cursor: not-allowed;
+}
+.cui-radio-card:has(.cui-radio-card__input:disabled):hover {
+  box-shadow: var(--shadow-1);
+}
+.cui-radio-card:has(.cui-radio-card__input:disabled) :is(.cui-radio-card__head, .cui-radio-card__desc) {
+  opacity: 0.5;
+}
+
+/* Group error: Input field's 1px Red border on each enabled, unselected card. Never on a checked or disabled card. */
+.cui-radio-card-group[data-error] .cui-radio-card:not(:has(.cui-radio-card__input:checked)):not(:has(.cui-radio-card__input:disabled)) {
+  border-color: var(--color-red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-radio-card {
+    transition: none;
+  }
+}
+
+/* Forced colours strip box-shadow: the selected border is recoloured to Highlight, focus gets a real outline, and a disabled card's border is GrayText. */
+@media (forced-colors: active) {
+  .cui-radio-card:has(.cui-radio-card__input:checked),
+  .cui-radio-card:has(.cui-radio-card__input:checked):hover {
+    border-color: Highlight;
+  }
+  .cui-radio-card:has(.cui-radio-card__input:focus-visible) {
+    outline: var(--border-width-md) solid CanvasText;
+    outline-offset: var(--border-width-md);
+  }
+  .cui-radio-card:has(.cui-radio-card__input:disabled) {
+    border-color: GrayText;
+  }
+}

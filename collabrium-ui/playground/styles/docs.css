@@ -365,3 +365,8 @@ a.cui-button { text-decoration: none; }
   gap: var(--spacing-24);
   align-items: start;
 }
+
+/* Room under an example whose popover floats over the content below it (Search input's results panel). */
+.docs-popover-room { padding-bottom: calc(var(--spacing-120) * 2 + var(--spacing-40)); }
+/* Room for a Multiple select panel: the 320px list, its 8px padding and the footer. */
+.docs-popover-room[data-room="tall"] { padding-bottom: calc(var(--spacing-120) * 3 + var(--spacing-40)); }

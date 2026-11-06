@@ -8,7 +8,7 @@ import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsP
 export const title = 'Input field';
 
 export const description =
-  'A single-line text box with a label, an optional helper or error line, icons, text adornments and a character count. `type="password"` masks the text and adds a show/hide toggle. For a whole-number quantity use Quantity selector; for search and several lines use their own components.';
+  'A single-line text box with a label, an optional helper or error line, icons, text adornments and a character count. `type="password"` masks the text and adds a show/hide toggle; `type="otp"` is a 6-digit code in six boxes. For a whole-number quantity use Quantity selector; for search and several lines use their own components.';
 
 export const usage = `import { InputField } from '@collabrium/ui';
 
@@ -38,6 +38,7 @@ export const anatomy: DocsAnatomyNode[] = [
           { name: 'Leading or trailing icon', element: 'svg.cui-input-field__icon', when: 'with leadingIcon or trailingIcon', description: '16px, Regular, Neutral-5, decorative, 12px from the edge.' },
           { name: 'Prefix or suffix', element: 'span.cui-input-field__adornment', when: 'with prefix or suffix', description: 'Caption type, Neutral-5, fixed text. The box reserves 24px for it.' },
           { name: 'Success icon', element: 'svg.cui-input-field__icon--trailing', when: 'with success', description: 'A Green check-circle, Fill (Tier 2).' },
+          { name: 'Code boxes', element: '.cui-input-field__otp-row > span.cui-input-field__otp-box ×6', when: 'type="otp"', description: 'Six 48px boxes (shrinking evenly to 40px on a narrow phone), 8px apart, radius-sm, 1px Neutral-3; digits h4 size, bold. The box for the next digit takes the 2px Obsidian border and a caret. One invisible input lies over them.' },
           { name: 'Show/hide toggle', element: 'button.cui-input-field__toggle', when: 'type="password"', description: '`Eye` while hidden, `EyeSlash` while shown: 16px, Regular, Neutral-5 (Neutral-9 on hover), 12px from the end, with a 44px hit area. Named "Show password" or "Hide password". The box keeps 40px clear for it at every size.' },
         ],
       },
@@ -181,6 +182,23 @@ function WorkspaceName() {
 <InputField type="password" label="Password" defaultValue="hunter22collabrium" disabled />`,
   },
   {
+    id: 'otp',
+    title: 'One-time code',
+    description: '`type="otp"`: six boxes over one real input with a numeric keyboard and `autocomplete="one-time-code"`, so a phone offers the code from an SMS. Digits only; paste fills from the start, dropping spaces and dashes; Backspace deletes the last digit. Never masked. `onComplete` fires when all six are in; the field never submits the form itself. Resend is the page\'s own content under it.',
+    render: () => (
+      <div className="docs-stack">
+        <InputField type="otp" label="Verification code" helper="Sent to +60 12-345 6789" />
+        <InputField type="otp" label="Verification code" defaultValue="482913" error="That code didn't match. Check the SMS and try again." />
+        <InputField type="otp" label="Verification code" defaultValue="482913" success helper="Verified" />
+        <InputField type="otp" label="Verification code" defaultValue="482913" disabled helper="Too many tries. Wait 5 minutes." />
+      </div>
+    ),
+    code: `<InputField type="otp" label="Verification code" helper="Sent to +60 12-345 6789" onComplete={verify} />
+<InputField type="otp" label="Verification code" defaultValue="482913" error="That code didn't match. Check the SMS and try again." />
+<InputField type="otp" label="Verification code" defaultValue="482913" success helper="Verified" />
+<InputField type="otp" label="Verification code" defaultValue="482913" disabled helper="Too many tries. Wait 5 minutes." />`,
+  },
+  {
     id: 'counter',
     title: 'Character count',
     description: 'For a field with a limit. Set `maxLength` and `showCount`: the count sits under the box, right-aligned, and turns Red when the limit is reached.',
@@ -199,7 +217,8 @@ function WorkspaceName() {
 export const props: DocsProp[] = [
   { name: 'label', options: 'ReactNode', default: '—', required: true, description: 'The visible label. Always required: a placeholder is never a substitute.' },
   { name: 'hideLabel', options: 'boolean', default: 'false', description: 'Hides the label visually and keeps it for assistive tech. Only where the layout already names the field.' },
-  { name: 'type', options: "'text' | 'email' | 'url' | 'tel' | 'number' | 'password'", default: "'text'", description: 'The kind of input. `password` masks the text and adds the show/hide toggle (then `success`, `trailingIcon`, `prefix` and `suffix` are not offered). Search has its own component.' },
+  { name: 'type', options: "'text' | 'email' | 'url' | 'tel' | 'number' | 'password' | 'otp'", default: "'text'", description: 'The kind of input. `password` masks the text and adds the show/hide toggle (then `success`, `trailingIcon`, `prefix` and `suffix` are not offered). `otp` is a 6-digit code in six boxes (then no `size`, icons, prefix, suffix or count). Search has its own component.' },
+  { name: 'onComplete', options: '(code: string) => void', default: '—', description: 'OTP only: called with the code once all six digits are in. The field never submits the form itself.' },
   { name: 'helper', options: 'ReactNode', default: '—', description: 'A helper line under the box (caption, Neutral-5).' },
   { name: 'error', options: 'ReactNode', default: '—', description: 'Bold Red error text that replaces `helper`, a 1px Red border and `aria-invalid`. Clear it when the value passes.' },
   { name: 'success', options: 'boolean', default: 'false', description: 'A 1px Green border and a trailing Green check-circle. Set it after validation passes (on blur or submit). Ignored while `error` is set.' },
@@ -221,6 +240,7 @@ export const rules: DocsRules = {
     'Pick the size for the context and keep it: sm for a dense table, md for forms, lg for a large form.',
     'Show success only after validation passes, not on every valid keystroke.',
     'For a password, set `autoComplete` and put the rules in the helper before the person types.',
+    'For a one-time code, say where it was sent in the helper, and put "Resend code" under the field.',
   ],
   dont: [
     'Don\'t use a placeholder instead of a label.',
@@ -230,6 +250,7 @@ export const rules: DocsRules = {
     'Don\'t show the helper and the error together: the error replaces the helper.',
     'Don\'t use it for a whole-number quantity (Quantity selector), a search, or several lines.',
     'Don\'t draw your own password mask, or remember the shown state across a reload.',
+    'Don\'t mask a one-time code, split it into six inputs, or submit the form on the sixth digit.',
   ],
 };
 
@@ -238,6 +259,7 @@ export const accessibility: DocsAccessibility = {
     { keys: 'Tab', action: 'Moves focus into the box. A 2px Obsidian border shows.' },
     { keys: 'Type', action: 'Enters text as in any native input.' },
     { keys: 'Tab, then Enter / Space', action: 'Password: moves from the box to the toggle, which shows or hides the password. Focus stays on the toggle.' },
+    { keys: 'Digits, Backspace, paste', action: 'OTP: digits fill the boxes in order; Backspace removes the last; paste fills from the start. Focus never moves between boxes: it is one field.' },
   ],
   notes: [
     'A native `<input>` with a real `<label for>`, so the whole label focuses it. The label is always in the page, even with `hideLabel`.',
@@ -247,11 +269,13 @@ export const accessibility: DocsAccessibility = {
     'The character count is attached with `aria-describedby`. It is not announced as you type.',
     'The error and the success are stated in words under the box, not only by the border colour.',
     'Focus is shown by a border swap, on every focus (mouse or keyboard), not a ring.',
+    'OTP: one real input (numeric keyboard, `autocomplete="one-time-code"`) under six drawn boxes, so it is read as one field named by the label, with the helper or error as its description. The boxes are hidden from screen readers.',
     'Password: the toggle is a real button named "Show password" or "Hide password", which changes with the state, so the icon swap is never the only signal. Its focus ring is the standard 2px Obsidian ring.',
   ],
 };
 
 export const motion: DocsMotion[] = [
   { interaction: 'Show or hide a password', motion: 'The masking and the icon swap at once.', token: '—' },
+  { interaction: 'OTP caret', motion: 'Blinks in the box for the next digit; still under reduced motion.', token: '--duration-blink' },
   { interaction: 'Focus, error, success, disabled', motion: 'The border and padding change at once. Nothing animates, so there is nothing to remove under reduced motion.', token: '—' },
 ];
