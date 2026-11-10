@@ -1,14 +1,17 @@
 /*
   Back to top: ported from components.css `.c-back-to-top` (5103–5138). Transcribed in the DLS from kult-creator's
   BackToTop, on Chat window's Jump to present recipe (here `.cui-chat__jump`): bottom-right instead of centred, fixed to
-  the window, no new-content dot.
+  the window, no new-content dot. When the page scrolls in a frame (`scrollRef`) whose scrollbar runs down the window's
+  right edge, the button steps in by that scrollbar's width (--cui-back-to-top-gutter, measured by BackToTop.tsx), so
+  it keeps its 24px from the content and never sits on the scrollbar (decided 2026-11-10, the user).
 
   Class mapping (source -> here), specificity kept in the source's order:
     :root --c-back-to-top-edge / -y / -bottom  -> :root --cui-back-to-top-edge / -y / -bottom (a page sets -bottom on <html>)
-    --c-action-bar-clearance (Action bar's)    -> --cui-action-bar-clearance (TODO(open-question Q-BTT-3))
+    --c-action-bar-clearance (Action bar's)    -> --cui-action-bar-clearance (Action bar writes it when built; Q-BTT-3)
     .c-back-to-top (.is-visible)               -> .cui-back-to-top ([data-visible])
     .c-back-to-top i                           -> .cui-back-to-top__icon (ArrowUp, Regular)
-    html.c-back-to-top-shown                   -> html[data-cui-back-to-top-shown] (read by Toast.css)
+    html.c-back-to-top-shown                   -> html[data-cui-back-to-top-shown] (read by Toast.css; Q-BTT-5)
+    (new) --cui-back-to-top-gutter            the scrolling frame's right-edge scrollbar width, set on the button
 
   No token, kept local: the safe-area fallback `0px` (env()'s own fallback, as the source) and the 640px breakpoint,
   the DS's own (Toast's and Action bar's too).
@@ -32,7 +35,7 @@
 .cui-back-to-top {
   --cui-back-to-top-move: var(--duration-base);
   position: fixed;
-  right: calc(var(--cui-back-to-top-edge) + env(safe-area-inset-right, 0px));
+  right: calc(var(--cui-back-to-top-edge) + env(safe-area-inset-right, 0px) + var(--cui-back-to-top-gutter, 0px));
   bottom: var(--cui-back-to-top-y);
   z-index: var(--z-float);
   width: var(--control-height-sm);

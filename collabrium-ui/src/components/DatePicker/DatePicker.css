@@ -1,0 +1,276 @@
+/*
+  Date picker: ported from components.css `.c-dp-*` (3808–3825). Designed from scratch in the DLS.
+  The trigger is Input field's own box (label, wrap, leading icon, helper, focus, error, disabled), as the DS says
+  ("same box as Select"), with Dropdown's hover and open looks; this file adds only what Input field doesn't have.
+
+  Class mapping (source -> here), specificity kept in the source's order:
+    .c-dp-trigger (+ i)                 -> .cui-input-field.cui-datepicker > button.cui-datepicker__trigger (+ the leading
+                                           icon slot, Calendar Fill)
+    .c-dp-panel                         -> .cui-datepicker__panel (role="dialog")
+    .c-dp-header (+ h5)                 -> .cui-datepicker__header; the h5 is two buttons, __switch (month, year)
+    .c-icon-btn (month arrows)          -> the library's Button, ghost, sm, icon-only
+    .c-dp-grid                          -> table.cui-datepicker__grid (role="grid")
+    .c-dp-weekday                       -> th.cui-datepicker__weekday
+    .c-dp-day (.today, .selected, .range, .range-start, .range-end, .disabled)
+                                        -> td.cui-datepicker__cell > .cui-datepicker__day ([data-today], [data-state=
+                                           "selected" | "start" | "middle" | "end"], [aria-disabled])
+    (DS only) range footer              -> .cui-datepicker__footer, Button secondary + primary
+
+  No token, kept local:
+    --cui-datepicker-panel-width 280px   the panel, with days about 34px (decided 2026-11-10, Q-DP-2: the DS's 36px
+                                         would need 296px)
+*/
+
+.cui-datepicker {
+  --cui-datepicker-panel-width: 280px;
+  position: relative;
+}
+
+/* Trigger: the date (or placeholder) in body1 500, as the source and the DS, left-aligned in Input field's box. Scoped to
+   the field (0,2,0) so it beats Input field's body2 whatever the stylesheet order. */
+.cui-datepicker .cui-datepicker__trigger {
+  display: flex;
+  align-items: center;
+  text-align: start;
+  font-size: var(--text-body1-size);
+  font-weight: var(--text-body1-weight);
+  cursor: pointer;
+}
+.cui-datepicker__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-datepicker__value[data-placeholder] {
+  color: var(--color-neutral-5);
+}
+.cui-datepicker__icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+/* Hover Neutral-2 and open's 2px Obsidian border, as Dropdown's trigger (decided 2026-11-10, Q-DP-4: the source's
+   trigger has no states). */
+.cui-datepicker:not([data-disabled]):hover .cui-input-field__input {
+  background: var(--color-neutral-2);
+}
+.cui-datepicker[data-open] .cui-input-field__input {
+  border: var(--border-width-md) solid var(--color-obsidian);
+  padding-left: calc(var(--cui-input-field-icon-pad) - var(--border-width-sm));
+}
+.cui-datepicker .cui-input-field__input:focus {
+  padding-left: calc(var(--cui-input-field-icon-pad) - var(--border-width-sm));
+}
+.cui-datepicker .cui-input-field__input:disabled {
+  cursor: not-allowed;
+}
+
+/* Panel: the popover convention (radius-md, 1px Neutral-3, shadow-3), 280px, 16px in. Fixed to the window 8px under
+   the trigger (the script places it), at the menu layer, so no clipping box cuts it. */
+.cui-datepicker__panel {
+  position: fixed;
+  z-index: var(--z-menu);
+  box-sizing: border-box;
+  width: var(--cui-datepicker-panel-width);
+  max-width: calc(100vw - var(--spacing-16));
+  padding: var(--spacing-16);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+}
+
+.cui-datepicker__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-12);
+}
+/* The month and year (h5), each a button that opens its grid (designed here, not in the DS; decided 2026-11-10, the
+   user): plain text, no caret (not a dropdown), 32px, radius-sm, hover Neutral-2, Neutral-2 while its grid shows. */
+.cui-datepicker__title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+.cui-datepicker__switch {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-8);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-datepicker__switch:hover,
+.cui-datepicker__switch[aria-pressed="true"] {
+  background: var(--color-neutral-2);
+}
+.cui-datepicker__switch:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-datepicker__nav {
+  display: inline-flex;
+}
+/* In the year grid the arrows step aside (it scrolls instead), keeping their place so the title doesn't move. */
+.cui-datepicker__header[data-pane="years"] .cui-datepicker__nav {
+  visibility: hidden;
+}
+
+/* The month and year grids keep the days grid's height (set by the script); the year grid scrolls inside it. */
+.cui-datepicker__body[data-pane="years"] {
+  overflow-x: hidden; /* the grid's 2px outer steps would otherwise scroll sideways */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.cui-datepicker__body[data-pane="months"] .cui-datepicker__grid,
+.cui-datepicker__body[data-pane="years"] .cui-datepicker__grid {
+  border-spacing: var(--spacing-2) var(--spacing-8);
+}
+/* A month or a year: a 40px cell with the day's looks (hover, today's outline, selected Obsidian, Neutral-4 off). */
+.cui-datepicker__pick {
+  aspect-ratio: auto;
+  height: var(--control-height-md);
+}
+
+/* The grid: 7 columns, 2px apart (the source's gap, as border-spacing; the table steps 2px out so the outer columns
+   sit on the padding's edge, as the source's grid does). */
+.cui-datepicker__grid {
+  width: calc(100% + var(--spacing-2) * 2);
+  margin: 0 calc(var(--spacing-2) * -1);
+  border-collapse: separate;
+  border-spacing: var(--spacing-2);
+  table-layout: fixed;
+}
+.cui-datepicker__weekday {
+  padding: 0 0 var(--spacing-4);
+  text-align: center;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+.cui-datepicker__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.cui-datepicker__cell {
+  padding: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.cui-datepicker__cell:focus {
+  outline: none;
+}
+.cui-datepicker__cell:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Day: square, radius-sm, body2, centred; Neutral-9 on transparent. */
+.cui-datepicker__day {
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body2-size);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-neutral-9);
+}
+.cui-datepicker__cell:hover .cui-datepicker__day {
+  background: var(--color-neutral-2);
+}
+/* Today: a 1px Obsidian outline only, never filled (after hover, as the source, so today shows no hover fill). */
+.cui-datepicker__cell[data-today] .cui-datepicker__day {
+  border: var(--border-width-sm) solid var(--color-obsidian);
+  background: transparent;
+}
+.cui-datepicker__cell[data-state="selected"] .cui-datepicker__day {
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+}
+/* A range: Neutral-2 between the ends, square inner corners; the ends Obsidian, rounded on the outside only. */
+.cui-datepicker__cell[data-state="middle"] .cui-datepicker__day {
+  background: var(--color-neutral-2);
+  border-radius: 0;
+}
+.cui-datepicker__cell[data-state="start"] .cui-datepicker__day {
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+.cui-datepicker__cell[data-state="end"] .cui-datepicker__day {
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+/* The range reads as one band (decided 2026-11-10, Q-DP-5): the start and each day between fill the 2px gap to their
+   right in Neutral-2, except at the week's end. */
+.cui-datepicker__day {
+  position: relative;
+}
+.cui-datepicker__cell[data-state="start"]:not(:last-child) .cui-datepicker__day::after,
+.cui-datepicker__cell[data-state="middle"]:not(:last-child) .cui-datepicker__day::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: var(--spacing-2);
+  background: var(--color-neutral-2);
+}
+
+/* Disabled and outside the month: Neutral-4, no hover, not-allowed. */
+.cui-datepicker__cell[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+.cui-datepicker__cell[aria-disabled="true"] .cui-datepicker__day {
+  color: var(--color-neutral-4);
+}
+.cui-datepicker__cell[aria-disabled="true"]:hover .cui-datepicker__day {
+  background: transparent;
+}
+
+/* Range footer (the DS; not in the source's CSS): Secondary and Primary, right-aligned, 8px apart, a 1px Neutral-3 line
+   and 16px above them, as Modal's footer. */
+.cui-datepicker__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-16);
+  padding-top: var(--spacing-16);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+
+@media (forced-colors: active) {
+  .cui-datepicker__cell[data-state] .cui-datepicker__day { background: Highlight; color: HighlightText; }
+  .cui-datepicker__cell[data-state="middle"] .cui-datepicker__day { background: Canvas; color: CanvasText; border: var(--border-width-sm) solid Highlight; }
+  .cui-datepicker__cell[aria-disabled="true"] .cui-datepicker__day { color: GrayText; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-datepicker__switch { transition: none; }
+}

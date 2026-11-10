@@ -381,3 +381,8 @@ a.cui-button { text-decoration: none; }
 .docs-btt-readout { margin: var(--spacing-12) 0 0; font-size: var(--text-caption-size); color: var(--color-neutral-5); font-variant-numeric: tabular-nums; }
 .docs-btt-readout b { color: var(--color-neutral-9); }
 .docs-btt-thumb .cui-back-to-top { position: static; opacity: 1; visibility: visible; transform: none; }
+/* A field at a form's width (Date picker), rather than the stage's full width. */
+.docs-field { max-width: calc(var(--spacing-120) * 2.5); }
+/* FileUploader: a narrow column (its stacked layout), and the card picture. */
+.docs-uploader-narrow { max-width: calc(var(--spacing-120) * 3); }
+.docs-uploader-thumb { width: calc(var(--spacing-120) * 2.5); pointer-events: none; }

@@ -36,18 +36,20 @@ Page-level settings are custom properties on `<html>`:
 ## Rules
 1. **Mount it once per page,** anywhere in the tree (it is fixed to the window).
 2. **Box:** a 32px circle, Neutral-1, 1px Neutral-3, `shadow-2`; ArrowUp (Regular, Tier 1: a movement) 16px Neutral-9. A 44px hit area around it; the box never changes size.
-3. **Place:** bottom-right, 24px from the edges, 12px at 640px and below, plus the phone's safe area; z-index `--z-float` (20).
+3. **Place:** bottom-right, 24px from the edges (12px at 640px and below), plus the phone's safe area; z-index `--z-float` (20). When the page scrolls in a frame (`scrollRef`) whose scrollbar runs down the window's right edge, it steps in by the scrollbar's width, so it keeps its 24px from the content and never sits on the scrollbar (decided 2026-11-10).
 4. **Show and hide:** it appears past 480px of scroll and hides only under 240px; between the two it keeps its state, so it never flickers. It reads the position on mount, so a page reopened part-way down shows it at once.
 5. **Which element scrolls:** the larger of the window's scroll and `scrollRef`'s; it listens to both.
-6. **Click:** scrolls both the window and `scrollRef` to the top, smooth (instant under reduced motion).
+6. **Click:** scrolls both the window and `scrollRef` to the top, smooth (instant under reduced motion), and moves focus to the page's main heading (the first `h1`, inside `scrollRef` if given; it takes `tabindex="-1"`), so a keyboard user carries on from the top instead of from where the hidden button sat (decided 2026-11-10). Give every page that has it an `h1`.
 7. **States:** hover Neutral-2 with `shadow-3`; focus-visible the 2px Obsidian ring, 2px off.
 8. **Higher offsets:** above an open Action bar automatically (the higher of the two), above a permanent bottom bar through `--cui-back-to-top-bottom` on `<html>`. Never move it any other way.
 9. **With Toast:** while it shows, it sets `data-cui-back-to-top-shown` on `<html>`, and Toast's stack rises to sit 12px above it; near the top it hides and toasts return to their corner. With an Action bar too, the corner stacks Action bar, Back to top, toasts, from the bottom up.
+10. **Settings:** `scrollRef` and `label` only; the 480 / 240px thresholds are fixed (decided 2026-11-10). Hover text is the native `title`, as the DS says, not Tooltip (decided 2026-11-10).
 
 ## Accessibility
 - A real `<button type="button">`, named "Back to top" (`aria-label`, and `title` for the hover text).
 - Hidden is `visibility: hidden`: out of the tab order and the accessibility tree. Arriving, it is focusable at once; leaving, it stays painted until the fade ends.
 - Focus ring on `:focus-visible` only.
+- After the click, focus moves to the page's `h1` (the heading exception), so the next Tab starts from the top of the page.
 
 ## Motion
 

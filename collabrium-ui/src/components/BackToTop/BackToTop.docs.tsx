@@ -80,7 +80,7 @@ export const anatomy: DocsAnatomyNode[] = [
   {
     name: 'Back to top',
     element: 'button.cui-back-to-top',
-    description: '32px circle, Neutral-1, 1px Neutral-3, shadow-2; fixed in the bottom-right corner, 24px from the edges (12px on phones). A 44px hit area around it.',
+    description: '32px circle, Neutral-1, 1px Neutral-3, shadow-2; fixed in the bottom-right corner, 24px from the edges (12px on phones), stepping in past a scrolling frame\'s scrollbar. A 44px hit area around it.',
     children: [
       { name: 'Icon', element: 'svg.cui-back-to-top__icon', description: 'ArrowUp, Regular, 16px, Neutral-9.' },
     ],
@@ -91,7 +91,7 @@ export const examples: DocsExample[] = [
   {
     id: 'default',
     title: 'On this page, with toasts',
-    description: 'This page has one, in the window\'s bottom-right corner. It appears once you have scrolled past 480px and hides only when you are back above 240px, so it never flickers. Show a toast: the stack sits 12px above the button. Scroll to the top and the button hides, and the toast drops back to the corner.',
+    description: 'This page has one, in the bottom-right corner, 24px clear of the page\'s scrollbar. It appears once you have scrolled past 480px and hides only when you are back above 240px, so it never flickers. Show a toast: the stack sits 12px above the button. Scroll to the top and the button hides, and the toast drops back to the corner.',
     render: () => <PageExample />,
     code: `<ToastProvider>
   {/* the page */}
@@ -101,7 +101,7 @@ export const examples: DocsExample[] = [
 ];
 
 export const props: DocsProp[] = [
-  { name: 'scrollRef', options: 'RefObject<HTMLElement>', default: '—', description: 'The region that scrolls, when the page scrolls inside a frame (App Shell\'s content). The window is always read too.' },
+  { name: 'scrollRef', options: 'RefObject<HTMLElement>', default: '—', description: 'The region that scrolls, when the page scrolls inside a frame (App Shell\'s content). The window is always read too, and the button steps in past the frame\'s scrollbar.' },
   { name: 'label', options: 'string', default: '"Back to top"', description: 'The button\'s name and hover text.' },
 ];
 
@@ -119,11 +119,12 @@ export const rules: DocsRules = {
 };
 
 export const accessibility: DocsAccessibility = {
-  keyboard: 'Tab reaches it while it shows; Enter or Space scrolls to the top. Hidden, it is out of the tab order.',
+  keyboard: 'Tab reaches it while it shows; Enter or Space scrolls to the top and moves focus to the page\'s main heading, so the next Tab starts from the top. Hidden, it is out of the tab order.',
   notes: [
     'A real `<button>` named "Back to top" (also its hover text).',
     'Hidden uses `visibility: hidden`, so it leaves the tab order and the accessibility tree; on the way out it stays until the fade ends.',
     'The scroll is smooth, or instant under reduced motion.',
+    'After the click, focus moves to the page\'s first `h1` (given `tabindex="-1"`).',
   ],
 };
 
