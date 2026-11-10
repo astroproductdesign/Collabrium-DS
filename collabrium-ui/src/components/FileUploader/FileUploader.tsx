@@ -479,6 +479,7 @@ export const FileUploader = forwardRef<HTMLDivElement, FileUploaderProps>(functi
       data-error={(error && !dragging) || undefined}
       data-full={(full && !disabled) || undefined}
       data-readonly={readOnly || undefined}
+      data-thumbnails={thumbnails || undefined}
       data-disabled={disabled || undefined}
     >
       {!readOnly && (

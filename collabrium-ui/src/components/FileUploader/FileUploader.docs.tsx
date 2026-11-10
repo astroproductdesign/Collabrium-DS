@@ -56,8 +56,8 @@ const brief: FileUploaderRules = {
 };
 
 /** A stand-in file of a given size (the docs have no real files). */
-// A real 1×1 PNG, so sample image files show a thumbnail instead of a broken image (padded to the stated size).
-const PIXEL = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='), (c) => c.charCodeAt(0));
+// A real 1×1 grey PNG, so sample image files show a thumbnail instead of a broken image (padded to the stated size).
+const PIXEL = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGM4ceIEAAS0AlkWLoFAAAAAAElFTkSuQmCC'), (c) => c.charCodeAt(0));
 const fake = (name: string, kb: number, type: string) =>
   new File(type.startsWith('image/') ? [PIXEL, new Uint8Array(kb * 1024 - PIXEL.length)] : [new Uint8Array(kb * 1024)], name, { type, lastModified: 1 });
 
@@ -235,7 +235,7 @@ export const anatomy: DocsAnatomyNode[] = [
         description: '1px Neutral-3, radius-sm, 8px 12px. Type chip or 32px thumbnail, the name (the extension always shows), the size or progress, then "More actions" and ×.',
         children: [
           { name: 'Uploading', element: '[data-status="uploading"]', description: 'The name in Neutral-5, "Uploading 40%", a 2px Obsidian bar along the bottom (or a sliding segment).' },
-          { name: 'Done', element: '[data-status="done"]', description: 'A check and "Uploaded", both in the success colour (Green text).' },
+          { name: 'Done', element: '[data-status="done"]', description: 'A check and "Uploaded", both in the success colour (Green).' },
           { name: 'Failed', element: '[data-status="failed"]', description: 'A Red border, "Try again" and ×; the message under the row.' },
           { name: 'More actions', element: '.cui-file-uploader__menu', when: 'actions', description: 'Preview (new tab) and Download, in a menu.' },
         ],
@@ -335,7 +335,7 @@ export const props: DocsProp[] = [
   { name: 'files / defaultFiles / onFilesChange', options: '{ file, status?, progress?, message? }[]', default: '—', description: 'The list and each row\'s state: `uploading` (with `progress` 0–1, or none for "Uploading…"), `done`, `failed` (with `message`).' },
   { name: 'onAccept / onRetry / onRemove', options: '(file) => void', default: '—', description: 'Start an upload; restart one; × (cancels while uploading).' },
   { name: 'actions / onPreview / onDownload', options: "('preview' | 'download')[]", default: '[]', description: 'Row actions under "More actions". Preview opens a new tab.' },
-  { name: 'showTypeIcons / thumbnails', options: 'boolean', default: 'false', description: 'The type icons in the zone; image thumbnails in rows.' },
+  { name: 'showTypeIcons / thumbnails', options: 'boolean', default: 'false', description: 'The type icons in the zone; image thumbnails in rows (every row is then 50px, so the list keeps one height).' },
   { name: 'showRequiredError', options: 'boolean', default: 'false', description: 'Shows "Add a file to continue." when empty, and moves focus to it.' },
   { name: 'readOnly / disabled', options: 'boolean', default: 'false', description: 'No zone and no ×; or everything off.' },
 ];

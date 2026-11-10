@@ -353,10 +353,11 @@ button.cui-thinking__row[aria-pressed="true"] {
   display: flex;
   gap: var(--cui-thinking-diff-gap);
 }
-/* The diff counts are 11px text. The added count takes the AA-safe green text colour;
-   the removed count stays the full Red (3.2:1, decided 2026-10-26). */
+/* The diff counts are 11px text. The added count is the success green, --color-green, and the removed count the
+   full Red (3.2:1, decided 2026-10-26); the + and − signs carry the meaning. Green text is only Badge's (decided
+   2026-11-10; components.css 5467 has --color-green-text). */
 .cui-thinking__row-diff .cui-thinking__add {
-  color: var(--color-green-text);
+  color: var(--color-green);
 }
 .cui-thinking__row-diff .cui-thinking__del {
   color: var(--color-red);
