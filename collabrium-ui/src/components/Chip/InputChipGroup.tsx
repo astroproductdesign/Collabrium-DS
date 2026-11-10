@@ -10,6 +10,8 @@ export interface InputChip {
   id: string;
   /** The value, as the person entered or confirmed it ("Marketing"), not "Department: Marketing". */
   label: string;
+  /** The ×'s accessible name when the value alone is ambiguous ("Remove Department: Marketing"). Default "Remove {label}". */
+  removeLabel?: string;
 }
 
 type NativeListProps = WithoutStyling<Omit<HTMLAttributes<HTMLUListElement>, 'children' | 'color' | 'role'>>;
@@ -62,7 +64,7 @@ export const InputChipGroup = forwardRef<HTMLUListElement, InputChipGroupProps>(
             <button
               type="button"
               className="cui-chip__remove"
-              aria-label={`Remove ${chip.label}`}
+              aria-label={chip.removeLabel ?? `Remove ${chip.label}`}
               disabled={disabled}
               onClick={event => {
                 event.stopPropagation();

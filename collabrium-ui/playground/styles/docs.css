@@ -386,3 +386,7 @@ a.cui-button { text-decoration: none; }
 /* FileUploader: a narrow column (its stacked layout), and the card picture. */
 .docs-uploader-narrow { max-width: calc(var(--spacing-120) * 3); }
 .docs-uploader-thumb { width: calc(var(--spacing-120) * 2.5); pointer-events: none; }
+/* SidebarNav examples: a fixed-height column so the footer pins to the bottom and the menu scrolls. */
+.docs-sbn { display: flex; height: calc(var(--spacing-120) * 5); }
+.docs-sbn > .cui-sidebar-nav { height: 100%; }
+.docs-sbn-thumb { display: flex; height: calc(var(--spacing-120) * 1.6); overflow: hidden; pointer-events: none; }

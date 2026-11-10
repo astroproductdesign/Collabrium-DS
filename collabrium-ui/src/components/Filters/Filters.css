@@ -1,0 +1,525 @@
+/*
+  Filters — ported from collabrium-dls/components.css lines 3650–3729 (.c-filterbar, the search box and its divider,
+  the trigger and its count, the panel and its title, the option row, the nested list and Back, the footer, the
+  applied tray, the two Clear alls). The DS section is DESIGN-SYSTEM.md 5594–5763.
+
+  Reused, not copied: Checkbox's box (.cui-checkbox__box) in the option rows, as Dropdown's Multiple select row;
+  Button ghost / primary sm for the Clear / Done footer and the bar's Clear All; Chip's Input chip group for the
+  applied values (with its "+N" / Show less), and its Show less link recipe for Clear all.
+
+  Mapping from the old classes:
+    .c-filterbar                         -> .cui-filters (role="group") > .cui-filters__bar
+    .c-filter-search (input, .icon-leading)
+                                         -> .cui-filters__search (__search-input, svg.__search-icon)
+    .c-filter-search-clear ([hidden])    -> .cui-filters__search-clear (rendered only with text)
+    .c-filter-search-divider             -> .cui-filters__divider
+    .c-filter-trigger (.is-open, .active, :disabled, i.leading, .chev, .count)
+                                         -> .cui-filters__trigger ([data-open], [data-applied], :disabled, svg.__lead,
+                                            svg.__caret, .__count)
+    .c-filter-panel (.is-right, .is-open) -> .cui-filters__panel ([data-open]; placed by the script, fixed)
+    .c-filter-panel-title                -> .cui-filters__panel-title
+    .c-filter-option (.label)            -> .cui-filters__option (role="option"; [data-active], __option-label)
+    .c-filter-nested-list / -item        -> ul.cui-filters__nested / button.__nested-item (+ __nested-count)
+    .c-filter-back (i)                   -> button.cui-filters__back (svg.__back-icon)
+    .c-filter-footer                     -> .cui-filters__footer
+    .c-filter-tray ([hidden])            -> .cui-filters__tray (rendered only with values)
+    .c-filter-clear-bar                  -> .cui-filters__clear-bar (wraps a Button ghost sm)
+    .c-chip-showless (Clear all)         -> .cui-filters__link (Chip's Show less recipe)
+    Compact filter's inline-styled footer -> .cui-filters__nested-footer
+
+  Specificity follows the source: trigger base, then hover and open (0,2,0), applied (0,2,0), disabled last.
+
+  No token, kept local (decided 2026-11-10, Q-FLT-7):
+    --cui-filters-search-w 240px          the search box's width (the DS: "this row's own default size")
+    --cui-filters-panel-min 240px         the panel's minimum width
+    --cui-filters-count 16px              the count badge's height and minimum width
+    640px                                 the phone step (Toast's), in the media query
+*/
+
+.cui-filters {
+  --cui-filters-search-w: 240px;
+  --cui-filters-panel-min: 240px;
+  --cui-filters-count: 16px;
+  /* The icon column at each end of the search box: 8px in, a 16px icon, 6px to the text (the source's 30px). */
+  --cui-filters-search-pad: calc(var(--spacing-8) + var(--icon-sm) + var(--spacing-6));
+  /* The option list's cap, as Dropdown's (about 9 rows); the source has none (decided 2026-11-10, Q-FLT-6). */
+  --cui-filters-list-max: 320px;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-primary);
+}
+
+/* Above an embedded Table: in by the table's 16px cell padding, so the search box starts where the column text does
+   (decided 2026-11-10, user; the DS doesn't say). */
+.cui-filters[data-align="table"] {
+  padding-inline: var(--spacing-16);
+}
+
+.cui-filters__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+.cui-filters__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Search: Search input's Default at the bar's 32px. Border, radius and fill sit on the <input>, so :focus is a real
+   swap (2px Obsidian, the padding 1px less). */
+.cui-filters__search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.cui-filters__search-input {
+  box-sizing: border-box;
+  width: var(--cui-filters-search-w);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-sm);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-neutral-1);
+  padding: 0 var(--cui-filters-search-pad);
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  color: var(--color-neutral-9);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.cui-filters__search-input::placeholder {
+  color: var(--color-neutral-5);
+}
+.cui-filters__search-input:focus {
+  border: var(--border-width-md) solid var(--color-obsidian);
+  padding: 0 calc(var(--cui-filters-search-pad) - var(--border-width-sm));
+}
+.cui-filters__search-input:disabled {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-4);
+  cursor: not-allowed;
+}
+.cui-filters__search-icon {
+  position: absolute;
+  left: var(--spacing-8);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-neutral-5);
+  pointer-events: none;
+}
+.cui-filters__search-clear {
+  position: absolute;
+  right: var(--spacing-4);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-neutral-5);
+  cursor: pointer;
+}
+.cui-filters__search-clear-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-filters__search-clear:hover {
+  color: var(--color-neutral-9);
+}
+.cui-filters__search-clear:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+/* Only when both a search box and a trigger are present (the script leaves it out otherwise). */
+.cui-filters__divider {
+  width: var(--border-width-sm);
+  height: var(--control-height-sm);
+  background: var(--color-neutral-3);
+  flex: 0 0 auto;
+}
+@media (max-width: 640px) {
+  .cui-filters__search {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  .cui-filters__search-input {
+    width: 100%;
+  }
+  .cui-filters__divider {
+    display: none;
+  }
+}
+
+/* Trigger: Button Secondary's recipe at 32px (600 weight and no shadow, as the source; decided 2026-11-10, Q-FLT-1). */
+.cui-filters__item {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+.cui-filters__trigger {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  box-sizing: border-box;
+  height: var(--control-height-sm);
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-sm);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-9);
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+.cui-filters__trigger:hover {
+  background: var(--color-neutral-2);
+}
+.cui-filters__trigger[data-open] {
+  background: var(--color-neutral-2);
+}
+.cui-filters__trigger[data-applied] {
+  border-color: var(--color-obsidian);
+}
+.cui-filters__trigger:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-filters__trigger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--color-neutral-1);
+  border-color: var(--color-neutral-3);
+}
+.cui-filters__lead {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+/* The caret: the source's 12px, as icon-xs; Neutral-5. */
+.cui-filters__caret {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  color: var(--color-neutral-5);
+}
+/* The count: a small Obsidian pill inside the trigger's padding, caption bold Neutral-1. Hidden at 0 and when disabled. */
+.cui-filters__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: var(--cui-filters-count);
+  height: var(--cui-filters-count);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+}
+
+/* Panel: the popover convention (radius-md, 1px Neutral-3, shadow-3, 16px padding), 8px off the trigger. Fixed to the
+   window at the trigger (the script sets left and top or bottom), so no box that hides its overflow clips it
+   (decided 2026-11-10, Q-FLT-5; the source is absolute). Fades and slides 4px; closing fades back. */
+.cui-filters__panel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  min-width: var(--cui-filters-panel-min);
+  max-width: calc(100vw - var(--spacing-24));
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  padding: var(--spacing-16);
+  z-index: var(--z-float);
+  opacity: 0;
+  transform: translateY(calc(var(--spacing-4) * -1));
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    visibility 0s linear var(--duration-fast);
+}
+.cui-filters__panel[data-open] {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+/* The title: the source's 11px uppercase at .04em, as Dropdown's group label (caption bold, eyebrow tracking) — the
+   nearest tokens (decided 2026-11-10, Q-FLT-7). */
+.cui-filters__panel-title {
+  margin: 0 0 var(--spacing-12);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+
+/* Option: Dropdown's Multiple select row (Checkbox's box, Neutral-2 hover), 8px padding pulled 8px into the panel's
+   padding. The keyboard's row takes the hover fill, as Dropdown. */
+/* The list, not each row, reaches 8px into the panel's padding, so a scrolling list never scrolls sideways. */
+.cui-filters__list {
+  max-height: var(--cui-filters-list-max);
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0 calc(var(--spacing-8) * -1);
+  outline: none;
+}
+.cui-filters__list:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+.cui-filters__option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-filters__option:hover,
+.cui-filters__option[data-active] {
+  background: var(--color-neutral-2);
+}
+.cui-filters__option .cui-checkbox__box {
+  margin-top: 0;
+}
+/* Select all: a pinned first row, its label bold, a 1px Neutral-3 rule under it (Dropdown's). */
+.cui-filters__option[data-all] .cui-filters__option-label {
+  font-weight: var(--weight-bold);
+}
+.cui-filters__all-rule {
+  height: var(--border-width-sm);
+  background: var(--color-neutral-3);
+  margin: var(--spacing-8) var(--spacing-8);
+}
+.cui-filters__option-label {
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-9);
+}
+
+/* Nested list (Compact filter, More filters): each dimension a bold row with its applied count in Neutral-5. */
+.cui-filters__nested {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-filters__nested-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  box-sizing: content-box;
+  width: 100%;
+  padding: var(--spacing-8);
+  margin: 0 calc(var(--spacing-8) * -1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  text-align: left;
+}
+.cui-filters__nested-item:hover {
+  background: var(--color-neutral-2);
+}
+.cui-filters__nested-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-filters__nested-item:disabled {
+  color: var(--color-neutral-4);
+  background: transparent;
+  cursor: not-allowed;
+}
+.cui-filters__nested-count {
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-5);
+}
+.cui-filters__back {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  box-sizing: border-box;
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+  padding: 0 0 var(--spacing-12);
+  margin: 0 0 var(--spacing-12);
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  cursor: pointer;
+  text-align: left;
+}
+.cui-filters__back:hover {
+  color: var(--color-neutral-5);
+}
+.cui-filters__back:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+.cui-filters__back-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+/* Compact filter's Clear all row (the gallery's inline styles): right-aligned under a 1px line. */
+.cui-filters__nested-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-12);
+  padding-top: var(--spacing-12);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+
+/* Footer: Dropdown's Multiple select footer, Button ghost "Clear" and primary "Done" at sm. */
+.cui-filters__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-12);
+  padding-top: var(--spacing-12);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+
+/* Row 2, the applied tray: Neutral-1, 1px Neutral-3, radius-sm, 12px padding, 8px under the bar; chips 4px apart. */
+.cui-filters__tray {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-12);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-sm);
+}
+
+/* Clear all (the tray, Compact's panel): Chip's Show less, a Link (Neutral-9, underlined 3px below), sentence case. */
+.cui-filters__link {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-neutral-9);
+  font-family: var(--font-primary);
+  font-size: var(--text-label2-size);
+  font-weight: var(--text-label2-weight);
+  text-decoration: underline;
+  text-underline-offset: var(--spacing-4); /* Chip's Show less: 3px in the source, decided 2026-11-06 */
+  cursor: pointer;
+}
+.cui-filters__link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-filters__clear-tray {
+  margin-left: var(--spacing-16);
+}
+/* Clear All in the bar: Button ghost with Red text, 16px after the last trigger. */
+.cui-filters__clear-bar {
+  margin-left: var(--spacing-16);
+}
+.cui-filters__clear-bar .cui-button {
+  color: var(--color-red);
+}
+
+/* Entrances after the first paint only (a restored view shows at once): the tray fades in; a new chip fades in from
+   95%; a new count fades in. Leaving is instant: focus moves the moment a chip goes (decided 2026-11-10, Q-FLT-8). */
+@media (prefers-reduced-motion: no-preference) {
+  .cui-filters[data-ready] .cui-filters__tray {
+    transition: opacity var(--duration-fast);
+    @starting-style {
+      opacity: 0;
+    }
+  }
+  .cui-filters[data-ready] .cui-filters__tray .cui-chip {
+    transition:
+      opacity var(--duration-fast),
+      scale var(--duration-fast);
+    @starting-style {
+      opacity: 0;
+      scale: 0.95;
+    }
+  }
+  .cui-filters[data-ready] .cui-filters__count {
+    transition: opacity var(--duration-fast);
+    @starting-style {
+      opacity: 0;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cui-filters__panel,
+  .cui-filters__panel[data-open],
+  .cui-filters__trigger,
+  .cui-filters__option,
+  .cui-filters__search-input {
+    transition: none;
+  }
+  .cui-filters__panel {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .cui-filters__trigger[data-applied] {
+    border-color: Highlight;
+  }
+  .cui-filters__count {
+    forced-color-adjust: none;
+    background: CanvasText;
+    color: Canvas;
+  }
+  .cui-filters__option[data-active] {
+    outline: var(--border-width-md) solid Highlight;
+    outline-offset: calc(var(--border-width-md) * -1);
+  }
+  .cui-filters__panel {
+    border-color: CanvasText;
+  }
+}
