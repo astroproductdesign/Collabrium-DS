@@ -1,0 +1,136 @@
+/*
+  Toast: ported from components.css `.c-toast*` (3217–3265). Transcribed in the DLS from the teammate's Toast.jsx.
+
+  Class mapping (source -> here), specificity kept in the source's order:
+    .c-toast-host                     -> .cui-toast-host (the live list inside it: .cui-toast-host__list)
+    .c-toast                          -> .cui-toast
+    .c-toast i.tone (.tone-*)         -> .cui-toast__icon ([data-tone] on the toast)
+    .c-toast .body / .title / .message -> __body / __title / __message
+    .c-toast.is-message-only          -> [data-layout="message"]
+    .c-toast .action                  -> __action (a Button, link)
+    .c-icon-btn (the close)           -> __close (the real Button, ghost, sm, icon-only; TOAST-3)
+    .is-entering / .is-exiting        -> the motion library (Toast.tsx), same values
+    html.c-back-to-top-shown .c-toast-host -> :root[data-cui-back-to-top-shown] .cui-toast-host (BackToTop sets it)
+
+  No token, kept local (decided 2026-11-10, Q-TOAST-9):
+    --cui-toast-min 320px, --cui-toast-max 420px   the toast's width range (nearest: --measure-* are text measures)
+    --cui-toast-host-width 380px                    the stack's width
+    640px (in the media query)                      the band's breakpoint, the DS's own
+*/
+
+.cui-toast-host {
+  --cui-toast-host-width: 380px;
+  position: fixed;
+  right: var(--spacing-24);
+  bottom: var(--spacing-24);
+  z-index: var(--z-toast);
+  width: var(--cui-toast-host-width);
+  max-width: calc(100vw - var(--spacing-24) * 2);
+  pointer-events: none;
+}
+/* The stack: newest on top, as the DS says, spacing-8 apart. The stack grows upward from the corner, so the oldest
+   sits nearest it (decided 2026-11-10, Q-TOAST-1, user; the gallery's script put the newest at the bottom). */
+.cui-toast-host__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.cui-toast-host .cui-toast {
+  pointer-events: auto;
+  position: relative;
+}
+/* Phones: a full-width band, spacing-12 from the sides and bottom. The toast fills it (decided 2026-11-10, Q-TOAST-2:
+   the source keeps the 320px floor, which overflows a 320px phone, and the 420px cap, so it isn't full width from
+   452px up). */
+@media (max-width: 640px) {
+  .cui-toast-host {
+    left: var(--spacing-12);
+    right: var(--spacing-12);
+    bottom: var(--spacing-12);
+    width: auto;
+    max-width: none;
+  }
+  .cui-toast-host .cui-toast {
+    min-width: 0;
+    max-width: none;
+  }
+}
+/* Above Back to top: while the button shows, BackToTop sets `data-cui-back-to-top-shown` on <html> and the stack rises
+   to sit spacing-12 above the 32px button, reading the same --cui-back-to-top-y the button uses (BackToTop.css). Near
+   the top of the page the button hides and the stack keeps its corner. Applies to the phone band too. The glide is
+   Toast's own duration-base / ease-standard, off under reduced motion (components.css 3255–3265; decided 2026-11-10,
+   Q-TOAST-8). */
+.cui-toast-host {
+  transition: bottom var(--duration-base) var(--ease-standard);
+}
+:root[data-cui-back-to-top-shown] .cui-toast-host {
+  bottom: calc(var(--cui-back-to-top-y) + var(--control-height-sm) + var(--spacing-12));
+}
+@media (prefers-reduced-motion: reduce) {
+  .cui-toast-host { transition: none; }
+}
+
+.cui-toast {
+  --cui-toast-min: 320px;
+  --cui-toast-max: 420px;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+  box-sizing: border-box;
+  min-width: var(--cui-toast-min);
+  max-width: var(--cui-toast-max);
+  padding: var(--spacing-12) var(--spacing-16);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+}
+
+/* Icon: icon-base, Fill, 2px down to sit on the first line. Full-strength tone colours (a status icon, not text). */
+.cui-toast__icon {
+  flex: none;
+  width: var(--icon-base);
+  height: var(--icon-base);
+  margin-top: var(--spacing-2);
+}
+.cui-toast[data-tone="neutral"] .cui-toast__icon { color: var(--color-neutral-9); }
+.cui-toast[data-tone="success"] .cui-toast__icon { color: var(--color-green); }
+.cui-toast[data-tone="danger"] .cui-toast__icon { color: var(--color-red); }
+.cui-toast[data-tone="warning"] .cui-toast__icon { color: var(--color-amber); }
+
+.cui-toast__body {
+  flex: 1;
+  min-width: 0;
+}
+/* The source sets sizes only; the line heights are the tokens' (TOAST-4). */
+.cui-toast__title {
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+.cui-toast__message {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+/* Message only: the message is the main content, body1 at 500, Neutral-9. */
+.cui-toast[data-layout="message"] .cui-toast__message {
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--text-body1-weight);
+  color: var(--color-neutral-9);
+}
+.cui-toast__action {
+  margin-top: var(--spacing-8);
+}
+/* Close: Button ghost sm icon-only, top right, 32px as the source's .c-icon-btn (TOAST-3). */
+.cui-toast__close {
+  flex: none;
+}
+
+@media (forced-colors: active) {
+  .cui-toast { border-color: CanvasText; }
+}

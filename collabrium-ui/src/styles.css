@@ -31,6 +31,8 @@
 @import './components/Modal/Modal.css';
 @import './components/PacingCard/PacingCard.css';
 @import './components/PageHeader/PageHeader.css';
+@import './components/Pagination/Pagination.css';
+@import './components/BackToTop/BackToTop.css';
 @import './components/PermissionPrompt/PermissionPrompt.css';
 @import './components/PriceSummaryCard/PriceSummaryCard.css';
 @import './components/ProgressBar/ProgressBar.css';
@@ -42,13 +44,17 @@
 @import './components/SearchInput/SearchInput.css';
 @import './components/StreamingText/StreamingText.css';
 @import './components/SegmentedControl/SegmentedControl.css';
+@import './components/Slider/Slider.css';
+@import './components/StatCard/StatCard.css';
 @import './components/Stepper/Stepper.css';
 @import './components/Switch/Switch.css';
+@import './components/Table/Table.css';
 @import './components/Tabs/Tabs.css';
 @import './components/Tag/Tag.css';
 @import './components/TaskRows/TaskRows.css';
 @import './components/Textarea/Textarea.css';
 @import './components/Thinking/Thinking.css';
+@import './components/Toast/Toast.css';
 @import './components/Tooltip/Tooltip.css';
 @import './components/ToolApproval/ToolApproval.css';
 @import './charts-extra/charts-extra.css';

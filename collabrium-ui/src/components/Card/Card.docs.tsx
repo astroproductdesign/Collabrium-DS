@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { ChartLineUp, Drop, Plant } from '@phosphor-icons/react';
 import { Card, CardFooter, CardGrid, CardHeader, CardTitle, IconChip } from './Card';
+import { Dropdown } from '../Dropdown';
+import { List, ListItem } from '../List';
 import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsProp, DocsRules } from '../docs.types';
 
 export const title = 'Card';
@@ -241,6 +243,33 @@ export const examples: DocsExample[] = [
 <IconChip icon={Plant} element="earth" />
 <IconChip icon={ChartLineUp} element="fire" />`,
   },
+  {
+    id: 'header-action',
+    title: 'A header action',
+    description: 'One control at the end of the title row, such as a borderless Dropdown to sort what the card shows. Here the card is a list card: its title still sits 16px down.',
+    render: () => (
+      <Card padding="list">
+        <CardHeader
+          title="Projects"
+          action={<Dropdown label="Sort projects by" hideLabel appearance="borderless" defaultValue="recent" options={[{ value: 'recent', label: 'Most recent' }, { value: 'name', label: 'Name, A to Z' }]} />}
+        />
+        <List aria-label="Projects">
+          <ListItem heading="Brand refresh" value="12 tasks" />
+          <ListItem heading="Q4 media plan" value="8 tasks" />
+        </List>
+      </Card>
+    ),
+    code: `<Card padding="list">
+  <CardHeader
+    title="Projects"
+    action={<Dropdown label="Sort projects by" hideLabel appearance="borderless" defaultValue="recent" options={sortOptions} />}
+  />
+  <List aria-label="Projects">
+    <ListItem heading="Brand refresh" value="12 tasks" />
+    <ListItem heading="Q4 media plan" value="8 tasks" />
+  </List>
+</Card>`,
+  },
 ];
 
 export const props: DocsProp[] = [
@@ -258,6 +287,7 @@ export const props: DocsProp[] = [
   { name: 'CardHeader · icon', options: 'Icon', default: '—', description: 'A Phosphor icon component for the chip (`icon={Drop}`). Leave out for no chip.' },
   { name: 'CardHeader · element', options: "'fire' | 'wood' | 'earth' | 'water' | 'gold'", default: "'water'", description: 'The chip\'s element colour.' },
   { name: 'CardHeader · headingLevel / href / onTitleClick', options: 'as CardTitle', default: '—', description: 'Passed to the title. `onTitleClick` is CardTitle\'s `onClick`.' },
+  { name: 'CardHeader · action', options: 'ReactNode', default: '—', description: 'One control at the end of the title row: a borderless Dropdown, a "View all" link, a ⋯ menu. Not with `href` / `onTitleClick`.' },
   { name: 'IconChip · icon', options: 'Icon', default: '—', required: true, description: 'A Phosphor icon component, drawn Fill.' },
   { name: 'IconChip · element', options: "'fire' | 'wood' | 'earth' | 'water' | 'gold'", default: "'water'", description: 'The element that owns the content.' },
   { name: 'CardGrid · columns', options: "'base' | 'functional'", default: "'base'", description: 'The narrowest a column gets: 240px, or 280px for cards that need more room.' },

@@ -89,4 +89,4 @@ const questions: ToolApprovalQuestion[] = [
 ```
 
 ## Replaces
-`.c-tool-approval`, `-head`, `-question`, `-topbar`, `-dismiss`, `-viewport`, `-body`, `-options`, `-option`, `-custom`, `-footer`, `-actions`, with `.c-card` as its shell, `.c-pagination-indicator` for the step count, `.c-choice` with `.c-radio-circle` or `.c-checkbox-box` for the options, and the `.c-field` input and textarea for the written answer. (`-slot` belongs to the Chat window.)
+`.c-tool-approval`, `-head`, `-question`, `-topbar`, `-dismiss`, `-viewport`, `-body`, `-options`, `-option`, `-custom`, `-footer`, `-actions`, with `.c-card` as its shell, `.c-pagination-indicator` for the step count (now Pagination's own `.cui-pagination__indicator`), `.c-choice` with `.c-radio-circle` or `.c-checkbox-box` for the options, and the `.c-field` input and textarea for the written answer. (`-slot` belongs to the Chat window.)

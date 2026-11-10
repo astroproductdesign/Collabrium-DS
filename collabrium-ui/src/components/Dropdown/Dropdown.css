@@ -154,13 +154,12 @@
 /*
   Panel: the popover convention (radius-md, 1px Neutral-3, shadow-3), exactly the trigger's width. It floats 8px under
   the trigger at the menu layer, as Search input's (decided 2026-11-06, Q-DROP-4; the source puts it in the page's
-  flow, 12px under). If a card that hides overflow clips it, the fix is a portal, as the Tooltip's.
+  flow, 12px under). It is fixed to the window at the trigger's place (the script sets left / top / bottom and the
+  trigger's width), so a card, table or preview box that hides its overflow never clips it (decided 2026-11-10).
 */
 .cui-dropdown__panel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + var(--spacing-8));
+  position: fixed;
+  width: var(--cui-dropdown-anchor-w);
   z-index: var(--z-menu);
   background: var(--color-neutral-1);
   border: var(--border-width-sm) solid var(--color-neutral-3);
@@ -171,7 +170,6 @@
 /* Drop-up: when the panel doesn't fit below and there is more room above. */
 .cui-dropdown__panel[data-above] {
   top: auto;
-  bottom: calc(100% + var(--spacing-8));
 }
 /* With a helper or error under the box, the panel still hangs from the box, not from the text. */
 .cui-dropdown__anchor {

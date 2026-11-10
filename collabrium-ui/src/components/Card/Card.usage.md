@@ -34,6 +34,7 @@ The base surface for grouping content: dashboard tiles, list items, panels. Neut
 | `CardHeader` `icon` | Phosphor `Icon` | none | The icon in the chip. Leave out for no chip. |
 | `CardHeader` `element` | `fire`, `wood`, `earth`, `water`, `gold` | `water` | The chip's element colour. |
 | `CardHeader` `headingLevel`, `href`, `onTitleClick` | as `CardTitle` | none | Passed to the title. |
+| `CardHeader` `action` | `ReactNode` | none | One control at the end of the title row: a borderless `Dropdown` to sort or filter, a "View all" link, a ⋯ menu. Not with `href` / `onTitleClick`. (Decided 2026-11-10.) |
 | `IconChip` `icon` | Phosphor `Icon` | required | The icon, drawn Fill. |
 | `IconChip` `element` | `fire`, `wood`, `earth`, `water`, `gold` | `water` | The element that owns the content. |
 | `CardGrid` `columns` | `base`, `functional` | `base` | The narrowest a column gets: 240px, or 280px for cards that need more room. |
@@ -54,7 +55,8 @@ The base surface for grouping content: dashboard tiles, list items, panels. Neut
 13. A feature tile is a Card with `minWidth="functional"` (280px: three points and a full-width button need the room), a title, a description, a `CardList` of three points and a Button. Each point is a check-circle (Fill, Obsidian, 16px: Tier 2) and body2 Neutral-9 text, centred on one line, 8px apart. The button is the real Button, Primary and md, as a direct child of the card, stretched to its full width with the label centred. The list takes the room left in the card, so the button is at the bottom of every card in a row. Put these cards in a `CardGrid columns="functional"`. (DESIGN-SYSTEM.md 2641; the DLS adds USP as a variant of Card, not a separate component.)
 14. In forced-colours mode the focus halo (a shadow) becomes a 2px Highlight outline. (Q-CARD-4.)
 
-15. **A List in a card runs edge to edge:** `padding="list"` gives the card 8px top and bottom and no side padding, as Lists' DS section describes; the card's overflow is hidden so it clips the rows' square fills. (Decided 2026-11-06, Q-LIST-2.)
+15. **A List in a card runs edge to edge:** `padding="list"` gives the card 8px top and bottom and no side padding, as Lists' DS section describes; the card's overflow is hidden so it clips the rows' square fills. (Decided 2026-11-06, Q-LIST-2.) A CardHeader in it gets the other 8px back at the top and a CardFooter at the bottom, so a list card's title sits 16px down like every other card's in a row, and its footer 16px from the bottom. (Decided 2026-11-10.)
+16. **A header action** (`CardHeader action`) sits at the end of the title row, and the title and action centre on each other. One control: a **borderless** Dropdown (the DLS's look for toolbars and table headers) to sort or filter what the card shows, a "View all" link or a ⋯ menu. A 40px control makes the header 40px tall, so that card's title sits 10px lower than in its neighbours. Never with `href` or `onTitleClick`: a card that is itself a link can't hold another control in its title row. (Decided 2026-11-10.)
 ## Accessibility
 - The title is a heading at the level you give it. A clickable card is a real link or button named by the title text.
 - Keyboard: Tab reaches the checkbox (when selectable), then the title's link or button; Enter follows or presses it; Space presses a button or ticks the checkbox.

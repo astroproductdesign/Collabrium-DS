@@ -1,0 +1,237 @@
+/*
+  Pagination: ported from components.css `.c-page*` and `.c-pagination*` (3730–3806). Designed from scratch in the DLS.
+  Two variants chosen by page count: Default (under 10 pages) and Overflow (10 or more).
+
+  Class mapping (source -> here), specificity kept in the source's order:
+    .c-pagination / .c-pagination-overflow     -> .cui-pagination ([data-variant="default" | "overflow"])
+    .c-pagination .count                       -> .cui-pagination__count ([data-stale] while loading), in __summary
+    .c-page-controls / -overflow-controls      -> .cui-pagination__controls
+    .c-page-btn (.current, :disabled)          -> .cui-pagination__page ([aria-current="page"])
+    .c-page-ellipsis                           -> .cui-pagination__ellipsis
+    .c-page-nav                                -> .cui-pagination__nav
+    .c-pagination-indicator                    -> .cui-pagination__indicator
+    .c-pagination-overflow-rows (+ label)      -> .cui-pagination__rows (the label is Dropdown's)
+    .c-pagination-overflow-select(-wrap) + i   -> .cui-pagination__picker around the library's Dropdown (Q-PAG-2)
+    .c-pagination-overflow-nav                 -> .cui-pagination__text-nav
+    .c-pagination-overflow-total               -> .cui-pagination__total
+
+  No token, kept local (decided Q-PAG-9):
+    767px                                  the DS's mobile breakpoint (Table's and Permission Prompt's too)
+  The native selects' 28px caret padding went with them: the pickers are Dropdown, with its own 36px (decided Q-PAG-2).
+*/
+
+.cui-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-16);
+  padding-top: var(--spacing-16);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+  font-family: var(--font-primary);
+}
+
+/* Result count: caption, Neutral-5; Neutral-4 while the next page loads (the previous count). */
+.cui-pagination__count {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-pagination__count[data-stale] { color: var(--color-neutral-4); }
+
+.cui-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+/* Default's left side: the count, then Rows per page when offered (decided Q-PAG-1). */
+.cui-pagination__summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-16);
+}
+
+/* Page numbers: 32px, radius-sm, caption bold, Neutral-5; Neutral-2 and Neutral-9 on hover and pressed. */
+.cui-pagination__page {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-5);
+  font-family: inherit;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.cui-pagination__page:hover { background: var(--color-neutral-2); color: var(--color-neutral-9); }
+/* Pressed looks like hover, as Button ghost (decided Q-PAG-6; the source draws Neutral-3). */
+.cui-pagination__page:active { background: var(--color-neutral-2); color: var(--color-neutral-9); }
+.cui-pagination__page:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+/* Current: Obsidian, white text, the only filled one; not clickable but stays focusable. */
+.cui-pagination__page[aria-current="page"] {
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+  cursor: default;
+}
+.cui-pagination__page[aria-current="page"]:hover,
+.cui-pagination__page[aria-current="page"]:active { background: var(--color-obsidian); }
+
+.cui-pagination__ellipsis {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neutral-5);
+  font-size: var(--text-caption-size);
+}
+
+/* Prev / Next (Default): 32px ghost icon buttons, the caret Neutral-9 (unlike the numbers' Neutral-5). */
+.cui-pagination__nav {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-9);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.cui-pagination__nav:hover { background: var(--color-neutral-2); }
+.cui-pagination__nav:active { background: var(--color-neutral-2); }
+.cui-pagination__nav:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-pagination__nav:disabled {
+  color: var(--color-neutral-4);
+  cursor: not-allowed;
+  background: transparent;
+}
+.cui-pagination__nav-icon,
+.cui-pagination__text-nav-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex: none;
+}
+
+/* Mobile indicator ("3 of 6"): caption bold Neutral-9, shown in place of the numbers below 768px.
+   Tool approval shows it at every width for its step count (decided Q-PAG-8). */
+.cui-pagination__indicator {
+  display: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  padding: 0 var(--spacing-4);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Overflow: Rows per page, then Prev / current-page select / "of N" / Next. */
+.cui-pagination__rows {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+/*
+  The pickers are the library's Dropdown (decided 2026-11-10, Q-PAG-2), fitted into the row: the label beside the box,
+  not above it (caption, Neutral-5, as the DS's Rows per page label); the box as wide as its longest number
+  (--cui-pagination-digits, set from the data) plus Dropdown's own padding, chevron room and the open state's 2px border; the closed value in
+  caption with tabular figures so it matches "of N" (the DS's own exception to Dropdown's body2). The open list is
+  Dropdown's, unchanged, at least the box's width.
+*/
+.cui-pagination__picker .cui-input-field {
+  width: auto;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+.cui-pagination__picker .cui-input-field__label {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: inherit; /* the source's label sets none */
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+}
+.cui-pagination__picker .cui-input-field__input {
+  width: calc(
+    var(--cui-pagination-digits) * 1ch + var(--cui-input-field-pad) + var(--cui-input-field-icon-pad) + 2 * var(--border-width-md)
+  );
+  font-size: var(--text-caption-size);
+  font-variant-numeric: tabular-nums;
+}
+.cui-pagination__picker .cui-dropdown__panel {
+  min-width: var(--cui-dropdown-anchor-w);
+  width: max-content;
+}
+/* Prev / Next (Overflow): text-style ghost links, caret and label, caption bold Neutral-9. */
+.cui-pagination__text-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-8);
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.cui-pagination__text-nav:hover { background: var(--color-neutral-2); }
+.cui-pagination__text-nav:active { background: var(--color-neutral-2); }
+.cui-pagination__text-nav:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-pagination__text-nav:disabled {
+  color: var(--color-neutral-4);
+  cursor: not-allowed;
+  background: transparent;
+}
+.cui-pagination__total {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  padding: 0 var(--spacing-4);
+  white-space: nowrap;
+}
+
+/* Phones (below 768px): centred; Default drops the count and the numbers for "3 of 6"; both drop Rows per page. */
+@media (max-width: 767px) {
+  .cui-pagination { justify-content: center; }
+  .cui-pagination[data-variant="default"] .cui-pagination__summary { display: none; }
+  .cui-pagination__controls .cui-pagination__page,
+  .cui-pagination__controls .cui-pagination__ellipsis { display: none; }
+  .cui-pagination__indicator { display: inline-flex; }
+  .cui-pagination__rows { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-pagination__page,
+  .cui-pagination__nav,
+  .cui-pagination__text-nav { transition: none; }
+}
+
+@media (forced-colors: active) {
+  .cui-pagination__page[aria-current="page"] { background: Highlight; color: HighlightText; }
+  .cui-pagination__nav:disabled,
+  .cui-pagination__text-nav:disabled { color: GrayText; }
+}

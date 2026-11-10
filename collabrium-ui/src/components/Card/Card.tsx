@@ -182,11 +182,16 @@ export interface CardHeaderProps extends WithoutStyling<Omit<HTMLAttributes<HTML
   href?: string;
   /** Makes the whole card a button. See `CardTitle`. */
   onTitleClick?: () => void;
+  /**
+   * A control at the end of the title row: a borderless `Dropdown` to sort or filter what the card shows, a "View all"
+   * link or a ⋯ menu. Keep it to one control. Not with `href` or `onTitleClick`, which make the whole card the target.
+   */
+  action?: ReactNode;
 }
 
 /** The top of a card: an optional icon chip, then the title with an optional subtitle. 12px between them. */
 export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(function CardHeader(
-  { title, subtitle, icon, element, headingLevel, href, onTitleClick, ...rest },
+  { title, subtitle, icon, element, headingLevel, href, onTitleClick, action, ...rest },
   ref,
 ) {
   const titleProps = { headingLevel };
@@ -207,6 +212,7 @@ export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(function C
         )}
         {subtitle && <p className="cui-card__subtitle">{subtitle}</p>}
       </div>
+      {action && <div className="cui-card__header-action">{action}</div>}
     </div>
   );
 });

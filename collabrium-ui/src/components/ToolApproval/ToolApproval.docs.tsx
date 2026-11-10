@@ -85,7 +85,7 @@ export const anatomy: DocsAnatomyNode[] = [
             description: 'Previous, the step count, Next, and dismiss.',
             children: [
               { name: 'Previous and Next', element: 'Button', description: 'Ghost, icon-only, small. Disabled at the first and last question.' },
-              { name: 'Step count', element: 'span.cui-tool-approval__indicator', description: 'Caption, bold, Neutral-9: `1 / 2`.' },
+              { name: 'Step count', element: 'span.cui-pagination__indicator (from Pagination)', description: 'Caption, bold, Neutral-9: `1 / 2`.' },
               { name: 'Dismiss', element: 'Button[data-part="dismiss"]', description: 'Ghost, icon-only, a close ×, Neutral-5. Always there, never disabled.' },
             ],
           },
