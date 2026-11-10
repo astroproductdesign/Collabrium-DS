@@ -56,7 +56,10 @@ const brief: FileUploaderRules = {
 };
 
 /** A stand-in file of a given size (the docs have no real files). */
-const fake = (name: string, kb: number, type: string) => new File([new Uint8Array(kb * 1024)], name, { type, lastModified: 1 });
+// A real 1×1 PNG, so sample image files show a thumbnail instead of a broken image (padded to the stated size).
+const PIXEL = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='), (c) => c.charCodeAt(0));
+const fake = (name: string, kb: number, type: string) =>
+  new File(type.startsWith('image/') ? [PIXEL, new Uint8Array(kb * 1024 - PIXEL.length)] : [new Uint8Array(kb * 1024)], name, { type, lastModified: 1 });
 
 /**
  * A pretend upload for the docs: each accepted file climbs to 100% over about 2 seconds, then is done. A name with
@@ -232,7 +235,7 @@ export const anatomy: DocsAnatomyNode[] = [
         description: '1px Neutral-3, radius-sm, 8px 12px. Type chip or 32px thumbnail, the name (the extension always shows), the size or progress, then "More actions" and ×.',
         children: [
           { name: 'Uploading', element: '[data-status="uploading"]', description: 'The name in Neutral-5, "Uploading 40%", a 2px Obsidian bar along the bottom (or a sliding segment).' },
-          { name: 'Done', element: '[data-status="done"]', description: 'An Obsidian check and "Uploaded".' },
+          { name: 'Done', element: '[data-status="done"]', description: 'A check and "Uploaded", both in the success colour (Green text).' },
           { name: 'Failed', element: '[data-status="failed"]', description: 'A Red border, "Try again" and ×; the message under the row.' },
           { name: 'More actions', element: '.cui-file-uploader__menu', when: 'actions', description: 'Preview (new tab) and Download, in a menu.' },
         ],
@@ -267,7 +270,7 @@ export const examples: DocsExample[] = [
   {
     id: 'one',
     title: 'One file, narrow',
-    description: 'A one-file uploader (a new pick replaces it) with the type icons and a caption. Under 480px of its own width it stacks and centres, the button full width.',
+    description: 'A one-file uploader with the type icons and a caption. Add a file: the zone then says "Drop a new brief to replace it" and the button "Replace file", so it\'s clear before anyone acts that a new one replaces it (no pop-up). Under 480px of its own width it stacks and centres, the button full width.',
     render: () => <BriefExample />,
     code: `<FileUploader
   title="Drop the client's brief here"
@@ -327,6 +330,7 @@ export const props: DocsProp[] = [
   { name: 'caption', options: 'ReactNode', default: '—', description: 'What happens to the file.' },
   { name: 'hint', options: 'string', default: 'from rules', description: 'The limits sentence; `fileUploaderHint(rules)` by default. Must state the backend\'s real limits.' },
   { name: 'buttonLabel', options: 'string', default: 'required', description: '"Choose a file" or "Choose files".' },
+  { name: 'replaceTitle / replaceTouchTitle / replaceDragTitle / replaceButtonLabel', options: 'string', default: 'from rules.noun', description: 'One file, once it\'s in: "Drop a new brief to replace it", "Choose a new brief to replace it", "Let go to replace it", "Replace file".' },
   { name: 'rules', options: '{ noun, many, maxFiles, maxBytes, maxTotalBytes, types, label, sizeTip, capture }', default: 'required', description: 'Matching the real backend; no defaults.' },
   { name: 'files / defaultFiles / onFilesChange', options: '{ file, status?, progress?, message? }[]', default: '—', description: 'The list and each row\'s state: `uploading` (with `progress` 0–1, or none for "Uploading…"), `done`, `failed` (with `message`).' },
   { name: 'onAccept / onRetry / onRemove', options: '(file) => void', default: '—', description: 'Start an upload; restart one; × (cancels while uploading).' },

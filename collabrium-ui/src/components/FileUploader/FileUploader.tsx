@@ -87,6 +87,15 @@ export interface FileUploaderProps extends NativeDivProps {
   hint?: string;
   /** The button: "Choose a file" (one) or "Choose files" (many). Say "choose", never "click". */
   buttonLabel: string;
+  /**
+   * One-file uploaders, once a file is in: the wording that says a new one replaces it (decided 2026-11-10, Q-FU-5).
+   * Defaults from `rules.noun`: "Drop a new brief to replace it", "Choose a new brief to replace it" (touch),
+   * "Let go to replace it" (drag) and "Replace file".
+   */
+  replaceTitle?: string;
+  replaceTouchTitle?: string;
+  replaceDragTitle?: string;
+  replaceButtonLabel?: string;
   /** The rules, matching the real backend. */
   rules: FileUploaderRules;
   /** Shows the first three types' icons in the zone (off by default). */
@@ -231,6 +240,10 @@ export const FileUploader = forwardRef<HTMLDivElement, FileUploaderProps>(functi
     caption,
     hint: hintProp,
     buttonLabel,
+    replaceTitle,
+    replaceTouchTitle,
+    replaceDragTitle,
+    replaceButtonLabel,
     rules,
     showTypeIcons = false,
     actions = [],
@@ -258,6 +271,16 @@ export const FileUploader = forwardRef<HTMLDivElement, FileUploaderProps>(functi
   const items = filesProp ?? own;
   const many = Boolean(rules.many);
   const full = many && rules.maxFiles !== undefined && items.length >= rules.maxFiles;
+  // One file, already in: a new pick replaces it, and the zone says so before anyone acts (decided 2026-11-10, Q-FU-5).
+  const replacing = !many && items.length > 0;
+  const shown = replacing
+    ? {
+        title: replaceTitle ?? `Drop a new ${rules.noun} to replace it`,
+        touch: replaceTouchTitle ?? `Choose a new ${rules.noun} to replace it`,
+        drag: replaceDragTitle ?? 'Let go to replace it',
+        button: replaceButtonLabel ?? 'Replace file',
+      }
+    : { title, touch: touchTitle ?? title, drag: dragTitle ?? title, button: buttonLabel };
 
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -271,9 +294,14 @@ export const FileUploader = forwardRef<HTMLDivElement, FileUploaderProps>(functi
   const pendingFocus = useRef<string | null>(null);
 
   // Image thumbnails: one object URL per File, revoked when its row goes or the uploader unmounts.
+  // Made only in the browser, after mount: a URL made during a server render points nowhere, and hydration would keep it.
+  // Until then an image row shows the empty 32px thumbnail box, so nothing shifts.
   const thumbs = useRef(new Map<File, string>());
+  const [canThumb, setCanThumb] = useState(false);
+  useEffect(() => setCanThumb(true), []);
   const thumbFor = (f: File) => {
     if (!thumbnails || !f.type.startsWith('image/')) return null;
+    if (!canThumb) return '';
     let u = thumbs.current.get(f);
     if (!u) thumbs.current.set(f, (u = URL.createObjectURL(f)));
     return u;
@@ -346,7 +374,7 @@ export const FileUploader = forwardRef<HTMLDivElement, FileUploaderProps>(functi
     else if (from === 'pick' && added.length) pendingFocus.current = keyOf(added[added.length - 1]);
   };
 
-  // A successful pick moves focus to the newest row's first button, so its name is read (Q-FU-2).
+  // A successful pick moves focus to the newest row's first button, so its name is read (decided 2026-11-10, Q-FU-1).
   useEffect(() => {
     const k = pendingFocus.current;
     if (!k) return;
@@ -381,7 +409,7 @@ export const FileUploader = forwardRef<HTMLDivElement, FileUploaderProps>(functi
     commit(next);
     onRemove?.(f);
     setMenuFor(null);
-    // Focus goes to the next row's ×, or the previous one's, or the button (Q-FU-2).
+    // Focus goes to the next row's ×, or the previous one's, or the button (decided 2026-11-10, Q-FU-1).
     const target = next[i] ?? next[i - 1];
     requestAnimationFrame(() => {
       const el = target
@@ -480,13 +508,13 @@ export const FileUploader = forwardRef<HTMLDivElement, FileUploaderProps>(functi
           <span className="cui-file-uploader__text">
             <span className="cui-file-uploader__title" id={titleId}>
               <span className="cui-file-uploader__msg" data-when="rest fine">
-                {title}
+                {shown.title}
               </span>
               <span className="cui-file-uploader__msg" data-when="rest coarse">
-                {touchTitle ?? title}
+                {shown.touch}
               </span>
               <span className="cui-file-uploader__msg" data-when="drag" aria-hidden="true">
-                {dragTitle ?? title}
+                {shown.drag}
               </span>
             </span>
             <span className="cui-file-uploader__hint" id={hintId}>
@@ -505,7 +533,7 @@ export const FileUploader = forwardRef<HTMLDivElement, FileUploaderProps>(functi
               aria-describedby={[titleId, hintId, error ? errorId : ''].filter(Boolean).join(' ')}
               onClick={choose}
             >
-              {buttonLabel}
+              {shown.button}
             </Button>
           </span>
         </div>
@@ -621,6 +649,8 @@ function Row({ item, uid, thumb, actions, readOnly, disabled, menuOpen, onMenu, 
       >
         {thumb ? (
           <img className="cui-file-uploader__thumb" src={thumb} alt="" />
+        ) : thumb === '' ? (
+          <span className="cui-file-uploader__thumb" aria-hidden="true" />
         ) : (
           <span className="cui-file-uploader__kind">{(ext || 'File').toUpperCase()}</span>
         )}
@@ -720,9 +750,12 @@ function RowMenu({ id, name, anchor, actions, onClose, onPreview, onDownload }: 
     const up = b.bottom + gap + m.offsetHeight > window.innerHeight && b.top > m.offsetHeight + gap;
     const left = Math.max(gap, Math.min(b.right - m.offsetWidth, document.documentElement.clientWidth - m.offsetWidth - gap));
     setPos(up ? { left, bottom: window.innerHeight - b.top + gap } : { left, top: b.bottom + gap });
-    // Opening focuses the first item.
-    m.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
   }, [anchor]);
+  // Opening focuses the first item, once the menu is placed (and so visible).
+  const placed = pos.visibility !== 'hidden';
+  useEffect(() => {
+    if (placed) ref.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+  }, [placed]);
 
   // It closes on an outside press, scroll or resize.
   useEffect(() => {
