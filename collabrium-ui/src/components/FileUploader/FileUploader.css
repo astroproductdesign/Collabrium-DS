@@ -1,0 +1,479 @@
+/*
+  FileUploader: ported from components.css `.c-uploader*` (3862–4070), v2 (one component). Designed, not transcribed,
+  in the DLS (from Collab:Sales Home's brief drop zone).
+
+  Class mapping (source -> here), specificity kept in the source's order:
+    .c-uploader (.is-dragover .is-error .is-full .is-readonly .is-disabled)
+                                         -> .cui-file-uploader ([data-dragover] [data-error] [data-full] [data-readonly]
+                                            [data-disabled])
+    .c-uploader-zone / -types (i) / -text / -title / -hint
+                                         -> __zone / __types (__type-icon) / __text / __title / __hint
+    .c-uploader-msg-rest / -drag / -fine / -coarse
+                                         -> __msg[data-when~="rest" | "drag" | "fine" | "coarse"]
+    .c-uploader-trigger (.c-btn-secondary.c-btn-sm)
+                                         -> __trigger around the library's Button, secondary, sm
+    .c-uploader-error (i)                -> __error (__error-icon)
+    .c-uploader-files / -row (.is-uploading .is-indeterminate .is-failed .is-done)
+                                         -> __files / __row ([data-status] [data-indeterminate])
+    .c-uploader-kind / -thumb / -name (-stem, -ext) / -size / -done (i)
+                                         -> __kind / __thumb / __name (__name-stem, __name-ext) / __size / __done
+    .c-uploader-remove / -row-more       -> __remove / __more (24px)
+    .c-uploader-retry (.c-btn-ghost.c-btn-sm) -> __retry around the library's Button, ghost, sm, held to 24px
+    .c-uploader-row-msg (i)              -> __row-msg
+    .c-uploader-menu / -menu-item / -menu-ext -> __menu / __menu-item / __menu-ext
+    .c-uploader-show-all                 -> __show-all around Button, ghost, sm
+    --c-uploader-progress                -> --cui-file-uploader-progress (on the row, 0–1)
+    .sr-only (the input, row names)      -> __input / __sr
+  Not ported: the legacy `.c-uploader-label` markup and the deprecated `.c-uploader-zone.dragover` / `-zone i` aliases.
+
+  No token, kept local (the DS's own one-offs; decided 2026-11-10, Q-FU-6):
+    --cui-file-uploader-step 480px        container width where the zone stacks (in the query, as a literal)
+    --cui-file-uploader-kind-h 22px       the kind chip's height (shipped)
+    --cui-file-uploader-thumb 32px        the thumbnail
+    --cui-file-uploader-menu-w 180px      the menu's minimum width
+    --cui-file-uploader-menu-row 36px     a menu item's height
+    1.8s indeterminate cycle = 2 × --duration-ambient; 300% / 45–55% gradient
+*/
+
+.cui-file-uploader {
+  --cui-file-uploader-kind-h: 22px;
+  --cui-file-uploader-thumb: 32px;
+  --cui-file-uploader-menu-w: 180px;
+  --cui-file-uploader-menu-row: 36px;
+  container: cui-file-uploader / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  font-family: var(--font-primary);
+}
+
+/* Zone: a plain drop target (not a button); a pointer press on it forwards to the button. */
+.cui-file-uploader__zone {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-24);
+  text-align: left;
+  border-radius: var(--radius-lg);
+  border: var(--border-width-sm) dashed var(--color-neutral-3);
+  background: var(--color-neutral-1);
+}
+.cui-file-uploader__types {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  line-height: 1;
+}
+.cui-file-uploader__type-icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  color: var(--color-neutral-5);
+}
+.cui-file-uploader__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.cui-file-uploader__title {
+  display: block;
+  font-size: var(--text-label1-size);
+  line-height: var(--text-label1-lh);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+}
+.cui-file-uploader__hint {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-file-uploader__trigger {
+  flex: none;
+  display: flex;
+}
+@media (hover: hover) {
+  .cui-file-uploader:not([data-dragover], [data-error], [data-disabled], [data-full]) .cui-file-uploader__zone:hover {
+    background: var(--color-neutral-2);
+    border-color: var(--color-neutral-4);
+  }
+}
+
+/* Narrow (under 480px of the uploader's own width, not the window): stacked and centred, the button full width. */
+@container cui-file-uploader (max-width: 479.98px) {
+  .cui-file-uploader__zone {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-12);
+  }
+  .cui-file-uploader__trigger {
+    align-self: stretch;
+  }
+  .cui-file-uploader__trigger .cui-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Message slots: the drag wording only while dragging; touch wording on touch devices (no hover, coarse pointer). */
+.cui-file-uploader:not([data-dragover]) .cui-file-uploader__msg[data-when="drag"],
+.cui-file-uploader[data-dragover] .cui-file-uploader__msg[data-when~="rest"] {
+  display: none;
+}
+@media not all and (hover: none) and (pointer: coarse) {
+  .cui-file-uploader__msg[data-when~="coarse"] { display: none; }
+}
+@media (hover: none) and (pointer: coarse) {
+  .cui-file-uploader__msg[data-when~="fine"] { display: none; }
+}
+
+/* Drag-over and error: 2px, with 1px less padding so nothing moves (no error look during a drag). */
+.cui-file-uploader:is([data-dragover], [data-error]) .cui-file-uploader__zone {
+  border-width: var(--border-width-md);
+  padding: calc(var(--spacing-24) - var(--border-width-sm));
+}
+.cui-file-uploader[data-dragover] .cui-file-uploader__zone {
+  border-color: var(--color-obsidian);
+  background: var(--color-neutral-2);
+}
+.cui-file-uploader[data-error] .cui-file-uploader__zone {
+  border-color: var(--color-red);
+}
+
+/* Disabled, and Full (maxFiles reached). Full keeps the button focusable (aria-disabled, Button's disabled look) and
+   still validates drops. */
+.cui-file-uploader:is([data-disabled], [data-full]) .cui-file-uploader__zone {
+  cursor: not-allowed;
+  background: var(--color-neutral-2);
+  border-color: var(--color-neutral-3);
+}
+.cui-file-uploader[data-disabled] :is(.cui-file-uploader__title, .cui-file-uploader__hint, .cui-file-uploader__type-icon) {
+  color: var(--color-neutral-4);
+}
+.cui-file-uploader[data-full] .cui-file-uploader__type-icon {
+  color: var(--color-neutral-4);
+}
+
+/* Inline error, the only error surface: the library's error text, bold Red (decided 2026-10-26, every component; the
+   DS says Neutral-9 text), with a Red warning-circle (Fill). Focus moves here after a picker error. */
+.cui-file-uploader__error,
+.cui-file-uploader__row-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-red);
+}
+.cui-file-uploader__error:focus {
+  outline: none;
+}
+.cui-file-uploader__error:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--border-width-md);
+}
+.cui-file-uploader__error-icon {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-red);
+}
+
+/* File list and row. */
+.cui-file-uploader__files {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.cui-file-uploader__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-12);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-1);
+}
+/* With thumbnails on, every row is as tall as a thumbnail row (50px), so a list mixing images and other files keeps
+   one rhythm. Decided 2026-11-10 (user; the DS lets rows size to their media: 42px with a type chip). */
+.cui-file-uploader[data-thumbnails] .cui-file-uploader__row {
+  box-sizing: content-box;
+  min-height: var(--cui-file-uploader-thumb);
+}
+.cui-file-uploader__kind {
+  flex: none;
+  box-sizing: border-box;
+  height: var(--cui-file-uploader-kind-h);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  color: var(--color-neutral-5);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+.cui-file-uploader__thumb {
+  flex: none;
+  width: var(--cui-file-uploader-thumb);
+  height: var(--cui-file-uploader-thumb);
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-neutral-2);
+  object-fit: cover;
+}
+/* Name: the stem truncates in the middle, the extension always shows; the full name is its title. */
+.cui-file-uploader__name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-9);
+}
+.cui-file-uploader__name-stem {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-file-uploader__name-ext {
+  flex: none;
+  white-space: nowrap;
+}
+.cui-file-uploader__size {
+  flex: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+
+/* Row buttons: ×, "More actions". 24px, Neutral-5, Neutral-2 hover. */
+.cui-file-uploader__remove,
+.cui-file-uploader__more {
+  flex: none;
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-neutral-5);
+  cursor: pointer;
+}
+.cui-file-uploader__btn-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-file-uploader__remove:hover,
+.cui-file-uploader__more:hover,
+.cui-file-uploader__more[aria-expanded="true"] {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-file-uploader__remove:focus-visible,
+.cui-file-uploader__more:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--border-width-md);
+}
+.cui-file-uploader__remove:disabled {
+  color: var(--color-neutral-4);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* Uploading: a 2px Obsidian bar inside the row's straight bottom edge (inset by the 12px padding, which equals its
+   corner), so the row never clips and the ×'s hit area is never cut. */
+.cui-file-uploader__row[data-status="uploading"]::after {
+  content: '';
+  position: absolute;
+  left: var(--spacing-12);
+  bottom: 0;
+  height: var(--border-width-md);
+  width: calc((100% - var(--spacing-24)) * var(--cui-file-uploader-progress, 0));
+  background: var(--color-obsidian);
+}
+.cui-file-uploader__row[data-status="uploading"] .cui-file-uploader__name {
+  color: var(--color-neutral-5);
+}
+/* Indeterminate: a static Neutral-3 track under reduced motion; otherwise a segment sliding along it. */
+.cui-file-uploader__row[data-status="uploading"][data-indeterminate]::after {
+  width: calc(100% - var(--spacing-24));
+  background: var(--color-neutral-3);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cui-file-uploader__row[data-status="uploading"]::after {
+    transition: width var(--duration-base) var(--ease-standard);
+  }
+  .cui-file-uploader__row[data-status="uploading"][data-indeterminate]::after {
+    transition: none;
+    background: linear-gradient(90deg, transparent 0 45%, var(--color-obsidian) 45% 55%, transparent 55%) 100% 0 / 300% 100% no-repeat;
+    animation: cui-file-uploader-indeterminate calc(var(--duration-ambient) * 2) linear infinite;
+  }
+}
+@keyframes cui-file-uploader-indeterminate {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+
+/* Done: a check and "Uploaded", both in the success colour (Green, #00C26E), so a finished file reads as a success;
+   the word keeps the state from resting on colour. Decided 2026-11-10 (user; the DS has an Obsidian check and
+   Neutral-5 text, components.css 4013–4015). */
+.cui-file-uploader__done {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-green);
+}
+.cui-file-uploader__done-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-green);
+}
+
+/* Failed: one line, a Red border, "Try again" (Button ghost sm held to 24px) and ×; the message sits after the row,
+   4px below it. */
+.cui-file-uploader__row[data-status="failed"] {
+  border-color: var(--color-red);
+}
+.cui-file-uploader__retry {
+  flex: none;
+  display: inline-flex;
+}
+.cui-file-uploader__retry .cui-button {
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-8);
+  font-size: var(--text-caption-size);
+}
+.cui-file-uploader__row[data-status="failed"] + .cui-file-uploader__row-msg {
+  margin-top: calc(var(--spacing-4) - var(--spacing-8));
+}
+
+.cui-file-uploader__show-all {
+  align-self: flex-start;
+}
+
+.cui-file-uploader__input,
+.cui-file-uploader__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* "More actions" menu: fixed, placed from its button (flipping up near the bottom), so nothing clips it. */
+.cui-file-uploader__menu {
+  position: fixed;
+  z-index: var(--z-menu);
+  box-sizing: border-box;
+  min-width: var(--cui-file-uploader-menu-w);
+  padding: var(--spacing-4);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  font-family: var(--font-primary);
+}
+.cui-file-uploader__menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  height: var(--cui-file-uploader-menu-row);
+  padding: 0 var(--spacing-12);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-9);
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  text-align: left;
+  cursor: pointer;
+}
+.cui-file-uploader__menu-icon {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--color-neutral-5);
+}
+.cui-file-uploader__menu-ext {
+  margin-left: auto;
+}
+.cui-file-uploader__menu-item:hover {
+  background: var(--color-neutral-2);
+}
+.cui-file-uploader__menu-item:focus {
+  outline: none;
+}
+.cui-file-uploader__menu-item:focus-visible {
+  background: var(--color-neutral-2);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(var(--border-width-md) * -1);
+}
+
+/* Coarse pointers: the button 44px tall; row buttons get 44px hit areas (look unchanged), spaced so they don't overlap. */
+@media (pointer: coarse) {
+  .cui-file-uploader__trigger .cui-button {
+    min-height: var(--hit-target-min);
+  }
+  .cui-file-uploader__remove,
+  .cui-file-uploader__more,
+  .cui-file-uploader__retry {
+    position: relative;
+  }
+  .cui-file-uploader__remove::before,
+  .cui-file-uploader__more::before,
+  .cui-file-uploader__retry::before {
+    content: '';
+    position: absolute;
+    inset: calc((var(--hit-target-min) - var(--control-height-xs)) / -2);
+  }
+  .cui-file-uploader__more,
+  .cui-file-uploader__retry {
+    margin-right: var(--spacing-8);
+  }
+}
+
+/* Forced colours: rest dashed, drag-over solid, error and failed dotted (state never rests on colour). */
+@media (forced-colors: active) {
+  .cui-file-uploader[data-dragover] .cui-file-uploader__zone { border-style: solid; }
+  .cui-file-uploader[data-error] .cui-file-uploader__zone { border-style: dotted; }
+  .cui-file-uploader:is([data-disabled], [data-full]) .cui-file-uploader__zone { border-color: GrayText; }
+  .cui-file-uploader[data-disabled] :is(.cui-file-uploader__title, .cui-file-uploader__hint, .cui-file-uploader__type-icon),
+  .cui-file-uploader[data-full] .cui-file-uploader__type-icon { color: GrayText; }
+  .cui-file-uploader__error-icon,
+  .cui-file-uploader__done-icon { color: CanvasText; }
+  .cui-file-uploader__row[data-status="failed"] { border-color: CanvasText; border-style: dotted; }
+  .cui-file-uploader__row[data-status="uploading"]::after { forced-color-adjust: none; background: CanvasText; }
+  .cui-file-uploader__row[data-status="uploading"][data-indeterminate]::after {
+    forced-color-adjust: none;
+    background: linear-gradient(90deg, transparent 0 45%, CanvasText 45% 55%, transparent 55%) 100% 0 / 300% 100% no-repeat;
+  }
+  .cui-file-uploader__menu { border-color: CanvasText; }
+  .cui-file-uploader__menu-item:focus-visible { outline-color: Highlight; }
+}

@@ -78,8 +78,9 @@
   line-height: var(--text-caption-lh);
   font-weight: var(--weight-bold);
 }
+/* Up is the success green, --color-green, as components.css 3614 (decided 2026-11-10: green text is only Badge's). */
 .cui-stat__trend[data-direction="up"] {
-  color: var(--color-green-text);
+  color: var(--color-green);
 }
 .cui-stat__trend[data-direction="down"] {
   color: var(--color-red);

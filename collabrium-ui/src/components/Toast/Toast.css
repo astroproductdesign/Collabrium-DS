@@ -57,9 +57,8 @@
 }
 /* Above Back to top: while the button shows, BackToTop sets `data-cui-back-to-top-shown` on <html> and the stack rises
    to sit spacing-12 above the 32px button, reading the same --cui-back-to-top-y the button uses (BackToTop.css). Near
-   the top of the page the button hides and the stack keeps its corner. Applies to the phone band too. The glide is
-   Toast's own duration-base / ease-standard, off under reduced motion (components.css 3255–3265; decided 2026-11-10,
-   Q-TOAST-8). */
+   the top of the page the button hides and the stack keeps its corner. Applies to the phone band too. The glide is Toast's own duration-base / ease-standard, off under reduced motion (components.css 3255–3265;
+   decided 2026-11-10, Q-TOAST-8). */
 .cui-toast-host {
   transition: bottom var(--duration-base) var(--ease-standard);
 }
