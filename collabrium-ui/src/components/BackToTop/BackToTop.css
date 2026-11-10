@@ -1,0 +1,102 @@
+/*
+  Back to top: ported from components.css `.c-back-to-top` (5103–5138). Transcribed in the DLS from kult-creator's
+  BackToTop, on Chat window's Jump to present recipe (here `.cui-chat__jump`): bottom-right instead of centred, fixed to
+  the window, no new-content dot.
+
+  Class mapping (source -> here), specificity kept in the source's order:
+    :root --c-back-to-top-edge / -y / -bottom  -> :root --cui-back-to-top-edge / -y / -bottom (a page sets -bottom on <html>)
+    --c-action-bar-clearance (Action bar's)    -> --cui-action-bar-clearance (TODO(open-question Q-BTT-3))
+    .c-back-to-top (.is-visible)               -> .cui-back-to-top ([data-visible])
+    .c-back-to-top i                           -> .cui-back-to-top__icon (ArrowUp, Regular)
+    html.c-back-to-top-shown                   -> html[data-cui-back-to-top-shown] (read by Toast.css)
+
+  No token, kept local: the safe-area fallback `0px` (env()'s own fallback, as the source) and the 640px breakpoint,
+  the DS's own (Toast's and Action bar's too).
+*/
+
+:root {
+  /* The resting gap from the window's bottom and right edges: spacing-24, spacing-12 on phones (as Toast). */
+  --cui-back-to-top-edge: var(--spacing-24);
+  /* The resolved bottom offset, declared once so the button and Toast's lift never disagree: the higher of the page's
+     own --cui-back-to-top-bottom (set on <html> above a permanent bottom bar) or the edge, plus the safe area; or an
+     open Action bar's clearance, which its script writes on <html>. */
+  --cui-back-to-top-y: max(
+    calc(var(--cui-back-to-top-bottom, var(--cui-back-to-top-edge)) + env(safe-area-inset-bottom, 0px)),
+    var(--cui-action-bar-clearance, 0px)
+  );
+}
+@media (max-width: 640px) {
+  :root { --cui-back-to-top-edge: var(--spacing-12); }
+}
+
+.cui-back-to-top {
+  --cui-back-to-top-move: var(--duration-base);
+  position: fixed;
+  right: calc(var(--cui-back-to-top-edge) + env(safe-area-inset-right, 0px));
+  bottom: var(--cui-back-to-top-y);
+  z-index: var(--z-float);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  padding: 0;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  box-shadow: var(--shadow-2);
+  color: var(--color-neutral-9);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--spacing-8));
+  /* Leaving: visibility waits for the whole fade, so a hidden button is never invisible but focusable. */
+  transition:
+    opacity var(--duration-base) var(--ease-settle),
+    transform var(--duration-base) var(--ease-settle),
+    visibility 0s linear var(--duration-base),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    bottom var(--cui-back-to-top-move) var(--ease-standard);
+}
+.cui-back-to-top__icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+/* A transparent 44px hit area; the 32px box never changes size. */
+.cui-back-to-top::after {
+  content: '';
+  position: absolute;
+  inset: calc((var(--hit-target-min) - var(--control-height-sm)) / -2);
+}
+.cui-back-to-top:hover {
+  background: var(--color-neutral-2);
+  box-shadow: var(--shadow-3);
+}
+.cui-back-to-top:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+/* Arriving: visibility flips at once, so it is focusable straight away. */
+.cui-back-to-top[data-visible] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    opacity var(--duration-base) var(--ease-settle),
+    transform var(--duration-base) var(--ease-settle),
+    visibility 0s linear 0s,
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    bottom var(--cui-back-to-top-move) var(--ease-standard);
+}
+
+/* Reduced motion: no 8px travel and no glide when an Action bar lifts it; the fade stays (the visibility timing
+   matters). */
+@media (prefers-reduced-motion: reduce) {
+  .cui-back-to-top,
+  .cui-back-to-top[data-visible] {
+    transform: none;
+    --cui-back-to-top-move: 0s;
+  }
+}

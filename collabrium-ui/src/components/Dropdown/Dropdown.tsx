@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  type CSSProperties,
   forwardRef,
   Fragment,
   useEffect,
@@ -173,6 +174,9 @@ export const Dropdown = forwardRef<HTMLElement, DropdownProps>(function Dropdown
 
   const [open, setOpen] = useState(false);
   const [above, setAbove] = useState(false);
+  // Where the panel sits on screen (it is position: fixed, so no container that hides its overflow clips it).
+  const [pos, setPos] = useState<{ left: number; top?: number; bottom?: number; width: number } | null>(null);
+  const aboveRef = useRef(false);
   const [active, setActive] = useState(-1);
   // Searchable: the typed query while searching; null shows the value.
   const [query, setQuery] = useState<string | null>(null);
@@ -228,6 +232,7 @@ export const Dropdown = forwardRef<HTMLElement, DropdownProps>(function Dropdown
     if (!canOpen) return;
     setOpen(true);
     setAbove(false);
+    aboveRef.current = false;
     const sel = rows.findIndex((r) => r.option && !r.disabled && isOn(r.option));
     setActive(sel >= 0 ? sel : firstEnabled());
   };
@@ -274,17 +279,27 @@ export const Dropdown = forwardRef<HTMLElement, DropdownProps>(function Dropdown
   };
 
   // Placement: below by default; above when the panel doesn't fit below and there is more room above. Checked when it
-  // opens and again on resize or scroll, but a panel that went up stays up until it closes.
+  // opens and again on resize or scroll, but a panel that went up stays up until it closes. The panel is fixed to the
+  // window at the trigger's place (8px off it), so a card, table or preview box that hides its overflow never clips it;
+  // it stays in the field's markup, so Tab order and focus are unchanged (decided 2026-11-10, as Q-DROP-4 foresaw).
   useLayoutEffect(() => {
     if (!open) return;
     const place = () => {
       const anchor = anchorRef.current?.getBoundingClientRect();
       const panel = panelRef.current;
       if (!anchor || !panel) return;
-      const h = panel.offsetHeight + 8;
+      const gap = 8;
+      const h = panel.offsetHeight + gap;
       const below = window.innerHeight - anchor.bottom;
       const aboveRoom = anchor.top;
-      setAbove((was) => was || (h > below && aboveRoom > below));
+      const up = aboveRef.current || (h > below && aboveRoom > below);
+      aboveRef.current = up;
+      setAbove(up);
+      setPos(
+        up
+          ? { left: anchor.left, bottom: window.innerHeight - anchor.top + gap, width: anchor.width }
+          : { left: anchor.left, top: anchor.bottom + gap, width: anchor.width },
+      );
     };
     place();
     window.addEventListener('resize', place);
@@ -604,6 +619,11 @@ export const Dropdown = forwardRef<HTMLElement, DropdownProps>(function Dropdown
           className="cui-dropdown__panel"
           data-above={above || undefined}
           hidden={!open}
+          style={
+            pos
+              ? ({ left: pos.left, top: pos.top ?? 'auto', bottom: pos.bottom ?? 'auto', '--cui-dropdown-anchor-w': `${pos.width}px` } as CSSProperties)
+              : undefined
+          }
           // A press inside the panel never takes focus from the trigger (the footer's buttons still click).
           onMouseDown={(e) => e.preventDefault()}
         >

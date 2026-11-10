@@ -212,7 +212,8 @@ export const ToolApproval = forwardRef<HTMLDivElement, ToolApprovalProps>(functi
             </p>
             <div className="cui-tool-approval__topbar">
               <Button variant="ghost" size="sm" iconOnly icon={CaretLeft} aria-label="Previous question" disabled={current <= 0} onClick={() => goTo(current - 1)} />
-              <span className="cui-tool-approval__indicator">
+              {/* Pagination's step indicator, shown at every width here (decided Q-PAG-8). */}
+              <span className="cui-pagination__indicator">
                 {current + 1} / {total}
               </span>
               <Button variant="ghost" size="sm" iconOnly icon={CaretRight} aria-label="Next question" disabled={isLast} onClick={() => goTo(current + 1)} />

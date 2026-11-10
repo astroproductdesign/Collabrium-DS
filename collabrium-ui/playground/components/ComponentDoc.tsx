@@ -4,10 +4,10 @@
 // sections, in the same order, and reads only from <Name>.docs.tsx.
 // A section with nothing in its docs field still shows its heading, with
 // "Coming soon." under it, so every page has the same structure.
-import { Badge, Card } from '../../src';
+import { Badge, Card, Table, type TableColumn } from '../../src';
 import { componentDocs } from '../app/_generated/components-docs';
 import { componentsMeta } from '../app/_generated/components-meta';
-import type { ComponentDocs, DocsAnatomyNode } from '../../src/components/docs.types';
+import type { ComponentDocs, DocsAnatomyNode, DocsKeyboard, DocsMotion, DocsProp } from '../../src/components/docs.types';
 import { componentKey, groups, hrefTo, type PageKey } from '../lib/site';
 import { CodeBlock } from './CodeBlock';
 import { ComingSoon, PrevNext, SectionHead, SOON } from './DocParts';
@@ -15,6 +15,51 @@ import { CopyButton } from './CopyButton';
 import { ExampleBlock } from './ExampleBlock';
 import { OnThisPage, type TocItem } from './OnThisPage';
 import { Prose } from './Prose';
+
+/* The docs' reference tables are the library's Table. Their order is deliberate, so they don't sort. */
+const propColumns: TableColumn<DocsProp>[] = [
+  {
+    key: 'name',
+    header: 'Prop',
+    sortable: false,
+    render: p => (
+      <>
+        <code>{p.name}</code>
+        {p.required && (
+          <span className="docs-required">
+            <Badge variant="neutral">required</Badge>
+          </span>
+        )}
+      </>
+    ),
+  },
+  { key: 'options', header: 'Options', sortable: false, render: p => <code>{p.options}</code> },
+  { key: 'default', header: 'Default', sortable: false, render: p => (p.default === '—' ? '—' : <code>{p.default}</code>) },
+  { key: 'description', header: 'Description', sortable: false, render: p => <Prose text={p.description} /> },
+];
+const keyColumns: TableColumn<DocsKeyboard>[] = [
+  {
+    key: 'keys',
+    header: 'Keys',
+    sortable: false,
+    render: k => (
+      <span className="docs-nowrap">
+        {k.keys.split(' / ').map((key, i) => (
+          <span key={key}>
+            {i > 0 && ' / '}
+            <kbd className="docs-kbd">{key}</kbd>
+          </span>
+        ))}
+      </span>
+    ),
+  },
+  { key: 'action', header: 'Action', sortable: false },
+];
+const motionColumns: TableColumn<DocsMotion>[] = [
+  { key: 'interaction', header: 'Interaction', sortable: false },
+  { key: 'motion', header: 'Motion', sortable: false },
+  { key: 'token', header: 'Token', sortable: false, render: m => <Prose text={m.token.replace(/(--[a-z0-9-]+)/g, '`$1`')} /> },
+];
 
 const INSTALL = 'npm install @collabrium/ui';
 const STYLES = `// app/layout.tsx
@@ -169,38 +214,8 @@ export function ComponentDoc({ slug }: { slug: string }) {
           {!docs.props?.length ? (
             <ComingSoon />
           ) : (
-          <div className="c-table-standalone-wrap docs-table-wrap">
-            <table className="c-table c-table-standalone">
-              <thead>
-                <tr>
-                  <th scope="col">Prop</th>
-                  <th scope="col">Options</th>
-                  <th scope="col">Default</th>
-                  <th scope="col">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {docs.props.map(p => (
-                  <tr key={p.name}>
-                    <td>
-                      <code>{p.name}</code>
-                      {p.required && (
-                        <span className="docs-required">
-                          <Badge variant="neutral">required</Badge>
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <code>{p.options}</code>
-                    </td>
-                    <td>{p.default === '—' ? '—' : <code>{p.default}</code>}</td>
-                    <td>
-                      <Prose text={p.description} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="docs-table-wrap">
+            <Table label="Props" columns={propColumns} rows={docs.props} getRowKey={p => p.name} />
           </div>
           )}
         </section>
@@ -256,30 +271,8 @@ export function ComponentDoc({ slug }: { slug: string }) {
               <Prose text={keyboard} />
             </p>
           ) : (
-          <div className="c-table-standalone-wrap docs-table-wrap">
-            <table className="c-table c-table-standalone">
-              <thead>
-                <tr>
-                  <th scope="col">Keys</th>
-                  <th scope="col">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(keyboard ?? []).map(k => (
-                  <tr key={k.keys}>
-                    <td className="docs-nowrap">
-                      {k.keys.split(' / ').map((key, i) => (
-                        <span key={key}>
-                          {i > 0 && ' / '}
-                          <kbd className="docs-kbd">{key}</kbd>
-                        </span>
-                      ))}
-                    </td>
-                    <td>{k.action}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="docs-table-wrap">
+            <Table label="Keyboard" columns={keyColumns} rows={keyboard ?? []} getRowKey={k => k.keys} />
           </div>
           )}
           <ul className="docs-notes">
@@ -302,27 +295,8 @@ export function ComponentDoc({ slug }: { slug: string }) {
           ) : !docs.motion?.length ? (
             <ComingSoon />
           ) : (
-          <div className="c-table-standalone-wrap docs-table-wrap">
-            <table className="c-table c-table-standalone">
-              <thead>
-                <tr>
-                  <th scope="col">Interaction</th>
-                  <th scope="col">Motion</th>
-                  <th scope="col">Token</th>
-                </tr>
-              </thead>
-              <tbody>
-                {docs.motion.map(m => (
-                  <tr key={m.interaction}>
-                    <td>{m.interaction}</td>
-                    <td>{m.motion}</td>
-                    <td>
-                      <Prose text={m.token.replace(/(--[a-z0-9-]+)/g, '`$1`')} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="docs-table-wrap">
+            <Table label="Motion" columns={motionColumns} rows={docs.motion} getRowKey={m => m.interaction} />
           </div>
           )}
         </section>

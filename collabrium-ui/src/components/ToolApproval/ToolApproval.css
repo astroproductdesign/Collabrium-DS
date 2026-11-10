@@ -2,10 +2,10 @@
   Tool approval — ported from collabrium-dls/components.css lines 5713–5860
   (.c-tool-approval*: the card, head, topbar, question, viewport, options,
   custom answer, footer and reduced motion), plus the base Card shell it is
-  built on (`.c-card`, line 276, and the `.c-card p` reset, line 287) and
-  Pagination's step indicator (`.c-pagination-indicator`, line 3764), both
-  copied here because Card and Pagination are not converted and this package
-  stays standalone. The options are the real Radio and Checkbox, the free-text
+  built on (`.c-card`, line 276, and the `.c-card p` reset, line 287), copied
+  here because Card was not converted when this was. The step count is
+  Pagination's own indicator (`.cui-pagination__indicator`), forced visible
+  (decided Q-PAG-8; the copy that stood in for it is gone). The options are the real Radio and Checkbox, the free-text
   answer is the real Input field and Textarea, and every button is the real
   Button (all converted). The slot rules (5813–5857, Rules 16, 17 and 19) belong
   to the Chat window that hosts the card and are not ported.
@@ -15,7 +15,7 @@
     .c-tool-approval-head                     -> __head
     .c-tool-approval-question                 -> __question
     .c-tool-approval-topbar                   -> __topbar
-    .c-pagination-indicator (forced visible)  -> __indicator
+    .c-pagination-indicator (forced visible)  -> .cui-pagination__indicator (Pagination's), forced visible
     .c-tool-approval-dismiss                  -> [data-part="dismiss"] on the Button
     .c-tool-approval-viewport / -body         -> __viewport / __body
     .c-tool-approval-options                  -> __options
@@ -84,13 +84,7 @@
   gap: var(--spacing-2);
 }
 /* Pagination's step indicator, forced visible at every width (it is Pagination's mobile fallback there). */
-.cui-tool-approval__indicator {
-  display: inline-flex;
-  padding: 0 var(--spacing-4);
-  font-size: var(--text-caption-size);
-  font-weight: var(--weight-bold);
-  color: var(--color-neutral-9);
-}
+.cui-tool-approval__topbar .cui-pagination__indicator { display: inline-flex; }
 .cui-tool-approval__topbar .cui-button[data-part="dismiss"] {
   flex: none;
   margin-left: var(--spacing-4);

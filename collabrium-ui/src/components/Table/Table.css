@@ -1,0 +1,391 @@
+/*
+  Table: ported from components.css `.c-table*` (1665–1777, plus 1589), standalone and embedded.
+  Sorting, selection, the bulk toolbar, the action column, frozen columns, loading, empty, sticky header and column
+  priority are "designed from scratch" in the DLS (the row and header anatomy is transcribed).
+
+  Class mapping (source -> here), specificity kept in the source's order:
+    .c-table-standalone-wrap / (embedded: none)  -> .cui-table (the root; [data-variant])
+    .c-table-scroll-x-inner / .c-table-scroll-x   -> .cui-table__scroll (always the inner form: TABLE-9)
+    .c-table                                      -> .cui-table__table
+    th / td / .num                                -> .cui-table__th / __td ([data-type="number"])
+    tr.is-interactive / .is-clickable / .is-selected -> .cui-table__row [data-interactive] [data-clickable] [data-selected]
+    .c-table-cell-icon                            -> .cui-table__cell-icon
+    .c-table-sort-th (.is-sorted, .no-sort) / -sort-icon -> .cui-table__th[data-sortable] [aria-sort] / .cui-table__sort-icon
+    .c-table-chk-col                              -> [data-col="select"]
+    .c-table-bulk-toolbar / -count / -actions / -danger -> .cui-table__bulk / __bulk-count / __bulk-actions / __bulk-danger
+    .c-table-action-col                           -> [data-col="actions"] ([data-count] 1–3)
+    .c-table-freeze-left / -right                 -> [data-freeze="left" | "right"]
+    .is-scrolled-left / -right                    -> .cui-table[data-scroll-left] / [data-scroll-right]
+    .c-table-skel-bar                             -> .cui-table__skel
+    @media (max-width:767px)                      -> same
+
+  No token, kept local (decided 2026-11-10, Q-TABLE-9):
+    --cui-table-edge-w 8px, --cui-table-edge-color rgba(189,189,189,.42)   the frozen columns' edge shadow: shadow-2's
+                                blur and colour, pointing sideways (decided 2026-11-10, Q-TABLE-16; the DS says shadow-1,
+                                which points down). Drawn as a gradient on a pseudo-element: Chrome doesn't paint
+                                box-shadow on cells of a border-collapse table, so the source's 2px 0 4px never showed
+                                (TABLE-16)
+    --cui-table-chk-w 40px, --cui-table-actions-1/2/3 40/72/104px   the DS's column widths; the content is wider, so the
+                                columns hug it (50px; 100px for two actions), as in the gallery (TABLE-3)
+    --cui-table-skel-h 14px     the skeleton bar's height
+    --cui-table-empty-h 240px   the empty body's minimum height (the DS's)
+    --cui-table-mobile-min 600px  the table's width below 768px (the DS's; no CSS in the source)
+    1024px / 767px              the DS's priority and mobile breakpoints
+*/
+
+.cui-table {
+  --cui-table-pad-y: var(--spacing-12);
+  --cui-table-pad-x: var(--spacing-16);
+  --cui-table-chk-w: 40px;
+  --cui-table-actions-1: 40px;
+  --cui-table-actions-2: 72px;
+  --cui-table-actions-3: 104px;
+  --cui-table-skel-h: 14px;
+  --cui-table-empty-h: 240px;
+  --cui-table-mobile-min: 600px;
+  --cui-table-edge-w: 8px;
+  --cui-table-edge-color: rgba(189, 189, 189, .42);
+  --cui-table-head-edge-color: rgba(189, 189, 189, .45);
+  /* The checkbox column's real width (it hugs the 18px box), for the first column's frozen offset. */
+  --cui-table-chk-real: calc(var(--choice-size) + var(--cui-table-pad-x) * 2);
+  position: relative;
+  min-width: 0;
+  font-family: var(--font-primary);
+}
+/* Standalone owns its container: 1px Neutral-3, radius-lg, Neutral-1, clipping the header to the radius. */
+.cui-table[data-variant="standalone"] {
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-neutral-1);
+}
+
+.cui-table__scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+/* Sticky header: the table scrolls inside its own box (`maxHeight`) and the header stays (decided 2026-11-10, Q-TABLE-7). */
+.cui-table[data-sticky] .cui-table__scroll { overflow-y: auto; }
+
+.cui-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: inherit;
+}
+
+.cui-table__th,
+.cui-table__td {
+  text-align: left;
+  padding: var(--cui-table-pad-y) var(--cui-table-pad-x);
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-table__body > .cui-table__row:last-child > .cui-table__td { border-bottom: none; }
+.cui-table__td {
+  font-size: var(--text-body2-size);
+  /* The source sets no line height (the page's); body2's 20px here (TABLE-4). */
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-medium);
+  color: var(--color-neutral-9);
+}
+.cui-table__td[data-type="number"],
+.cui-table__th[data-type="number"] { font-variant-numeric: tabular-nums; }
+/* Numbers, dates and statuses stay on one line, so a table that doesn't fit scrolls sideways rather than breaking
+   "31 Aug 2026" over three lines (decided 2026-11-10, Q-TABLE-12; the gallery forces a 1180px table instead). */
+.cui-table__td:is([data-type="number"], [data-type="date"], [data-type="status"]) { white-space: nowrap; }
+
+/* Rows: hover and selected only on an interactive row (row click, checkboxes or an action column). */
+.cui-table__row { transition: background-color var(--duration-fast) var(--ease-standard); }
+.cui-table__row[data-interactive]:hover { background: var(--color-neutral-2); }
+.cui-table__row[data-interactive][data-clickable] { cursor: pointer; }
+.cui-table__row[data-selected] { background: var(--color-neutral-2); }
+/* The selected row's 2px Obsidian line, drawn on its first cell: the source's inset box-shadow on the row is covered by
+   the opaque frozen first cell (TABLE-16). The first cell is always frozen, so it is positioned. */
+.cui-table__row[data-selected] > :first-child::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--border-width-md);
+  background: var(--color-obsidian);
+}
+.cui-table__cell-icon {
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+  vertical-align: calc(var(--spacing-2) * -1);
+  margin-right: var(--spacing-4);
+}
+/* Row click from the keyboard: the first column's content is a button that looks like the text (decided 2026-11-10, Q-TABLE-4). */
+.cui-table__row-open {
+  all: unset;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+}
+.cui-table__row-open:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Headers. Standalone: h5 (16px / 700), Neutral-9 on Neutral-2. Embedded: label3 uppercase, Neutral-5, no fill. */
+.cui-table__th {
+  /* The source sets no line height; the type tokens' here (TABLE-4). */
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+.cui-table[data-variant="standalone"] .cui-table__th {
+  background: var(--color-neutral-2);
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+}
+.cui-table[data-variant="embedded"] .cui-table__th {
+  background: none;
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--text-label3-tracking);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+
+/* Sorting: a button in the header (decided 2026-11-10, Q-TABLE-1); a press anywhere on the cell sorts. */
+.cui-table__th[data-sortable] {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+.cui-table__sort {
+  all: unset;
+  cursor: pointer;
+}
+.cui-table__sort::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.cui-table__sort:focus-visible::after {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-table__sort-icon {
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+  margin-left: var(--spacing-4);
+  color: var(--color-neutral-4);
+  vertical-align: calc(var(--spacing-2) / -2);
+}
+.cui-table[data-variant] .cui-table__th[aria-sort] { color: var(--color-neutral-9); }
+.cui-table__th[aria-sort] .cui-table__sort-icon { color: var(--color-neutral-9); }
+
+/* Checkbox column: the row's box shows on row hover, while any row is checked, and on keyboard focus (decided 2026-11-10, Q-TABLE-3);
+   the header's always shows. */
+.cui-table__th[data-col="select"],
+.cui-table__td[data-col="select"] { width: var(--cui-table-chk-w); }
+.cui-table__td[data-col="select"] .cui-checkbox {
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-table__row[data-interactive]:hover .cui-table__td[data-col="select"] .cui-checkbox,
+.cui-table[data-has-selection] .cui-table__td[data-col="select"] .cui-checkbox,
+.cui-table__td[data-col="select"] .cui-checkbox:focus-within { opacity: 1; }
+
+/* Bulk toolbar (standalone): over the header labels from 40px in, never over the header checkbox, as tall as the
+   header row. Fades in and drops 4px. */
+.cui-table__bulk {
+  position: absolute;
+  top: 0;
+  left: var(--cui-table-chk-w);
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  box-sizing: border-box;
+  padding: 0 var(--cui-table-pad-x);
+  background: var(--color-neutral-2);
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+  animation: cui-table-bulk-in var(--duration-fast) var(--ease-standard);
+}
+@keyframes cui-table-bulk-in {
+  from { opacity: 0; transform: translateY(calc(var(--spacing-4) * -1)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cui-table__bulk-count {
+  font-size: var(--text-label2-size);
+  line-height: var(--text-label2-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  white-space: nowrap;
+}
+.cui-table__bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+/* Danger ghost: Button ghost with Red text, as Filters' Clear all. */
+.cui-table__bulk-danger .cui-button { color: var(--color-red); }
+
+/* Action column: always visible, last, 1–3 ghost icon buttons 4px apart. */
+.cui-table__th[data-col="actions"],
+.cui-table__td[data-col="actions"] { white-space: nowrap; }
+.cui-table__th[data-col="actions"][data-count="1"], .cui-table__td[data-col="actions"][data-count="1"] { width: var(--cui-table-actions-1); }
+.cui-table__th[data-col="actions"][data-count="2"], .cui-table__td[data-col="actions"][data-count="2"] { width: var(--cui-table-actions-2); }
+.cui-table__th[data-col="actions"][data-count="3"], .cui-table__td[data-col="actions"][data-count="3"] { width: var(--cui-table-actions-3); }
+.cui-table__actions {
+  display: flex;
+  gap: var(--spacing-4);
+}
+.cui-table__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* Frozen columns: the checkbox, the first content column and the actions stay put while the rest scroll under. */
+.cui-table__th[data-freeze],
+.cui-table__td[data-freeze],
+.cui-table__tf[data-freeze] {
+  position: sticky;
+  z-index: 2;
+  background: var(--color-neutral-1);
+}
+.cui-table__th[data-freeze="left"],
+.cui-table__td[data-freeze="left"],
+.cui-table__tf[data-freeze="left"] { left: 0; }
+.cui-table[data-selectable] .cui-table__th[data-freeze="left"][data-first],
+.cui-table[data-selectable] .cui-table__td[data-freeze="left"][data-first],
+.cui-table[data-selectable] .cui-table__tf[data-freeze="left"][data-first] { left: var(--cui-table-chk-real); }
+.cui-table__th[data-freeze="right"],
+.cui-table__td[data-freeze="right"],
+.cui-table__tf[data-freeze="right"] { right: 0; }
+.cui-table .cui-table__tf[data-freeze] { background: var(--color-neutral-2); }
+.cui-table[data-variant="standalone"] .cui-table__th[data-freeze] { background: var(--color-neutral-2); }
+.cui-table[data-variant="embedded"] .cui-table__th[data-freeze] { background: var(--color-neutral-1); }
+.cui-table__row:hover .cui-table__td[data-freeze],
+.cui-table__row[data-selected] .cui-table__td[data-freeze] { background: var(--color-neutral-2); }
+/* Only an interactive row has a hover fill; a plain row's frozen cells stay Neutral-1. */
+.cui-table__row:not([data-interactive]):not([data-selected]):hover .cui-table__td[data-freeze] { background: var(--color-neutral-1); }
+/* The edge shadow shows only on the side with content scrolled under it. With checkboxes, the left shadow sits on the
+   first content column (the region's edge), not the checkbox. */
+.cui-table[data-scroll-left] [data-freeze="left"]:not([data-col="select"])::after,
+.cui-table[data-scroll-right] [data-freeze="right"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--cui-table-edge-w);
+  pointer-events: none;
+}
+.cui-table[data-scroll-left] [data-freeze="left"]:not([data-col="select"])::after {
+  left: 100%;
+  background: linear-gradient(to right, var(--cui-table-edge-color), transparent);
+}
+.cui-table[data-scroll-right] [data-freeze="right"]::before {
+  right: 100%;
+  background: linear-gradient(to left, var(--cui-table-edge-color), transparent);
+}
+
+/* Sticky header: on top of the frozen cells; shadow-1 once a row has scrolled under it. */
+.cui-table[data-sticky] .cui-table__th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+.cui-table[data-sticky] .cui-table__th[data-freeze] { z-index: 4; }
+/* shadow-1 under the header, as a gradient (box-shadow isn't painted on these cells: TABLE-16). */
+.cui-table[data-sticky][data-scroll-top] .cui-table__th::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: calc(var(--spacing-2) + var(--border-width-sm));
+  background: linear-gradient(to bottom, var(--cui-table-head-edge-color), transparent);
+  pointer-events: none;
+}
+/* With a sticky header, the total row stays at the bottom of the box. */
+.cui-table[data-sticky] .cui-table__tf {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+}
+.cui-table[data-sticky] .cui-table__tf[data-freeze] { z-index: 4; }
+
+/* Loading: skeleton bars, Neutral-2, radius-sm, left-aligned, Progress Bar's shimmer. */
+.cui-table__skel {
+  position: relative;
+  height: var(--cui-table-skel-h);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-2);
+  overflow: hidden;
+}
+.cui-table__skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) 40%, transparent), transparent);
+  animation: cui-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;
+}
+/* Real rows fade in after a load (the DS's skeleton-to-data transition). */
+.cui-table__body[data-reveal] { animation: cui-table-reveal var(--duration-fast) var(--ease-standard); }
+@keyframes cui-table-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Total row (designed here, not in the DLS; decided 2026-11-10, Q-TABLE-15, user): a 1px Neutral-3 line above, body2
+   bold Neutral-9, the cells' padding and alignment, and a Neutral-2 fill in both variants. */
+.cui-table__tf {
+  text-align: left;
+  padding: var(--cui-table-pad-y) var(--cui-table-pad-x);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+.cui-table__tf { background: var(--color-neutral-2); }
+.cui-table__tf[data-type="number"] { font-variant-numeric: tabular-nums; }
+.cui-table__tf:is([data-type="number"], [data-type="date"], [data-type="status"]) { white-space: nowrap; }
+
+/* Empty: the body keeps at least 240px, the empty state centred in it. */
+.cui-table__empty {
+  height: var(--cui-table-empty-h);
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Column priority: low hides first, at 1024px and below; medium at 768px and below. The DS has them the other way
+   round, so a low column outlasted a medium one (decided 2026-11-10, Q-TABLE-11). */
+@media (max-width: 1024px) {
+  .cui-table [data-priority="low"] { display: none; }
+}
+@media (max-width: 768px) {
+  .cui-table [data-priority="medium"] { display: none; }
+}
+
+/* Phones: 12px side padding; the table keeps 600px and scrolls sideways (the DS; TABLE-8). */
+@media (max-width: 767px) {
+  .cui-table { --cui-table-pad-x: var(--spacing-12); }
+  .cui-table__table { min-width: var(--cui-table-mobile-min); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-table__row,
+  .cui-table__td[data-col="select"] .cui-checkbox { transition: none; }
+  .cui-table__bulk,
+  .cui-table__body[data-reveal] { animation: none; }
+  .cui-table__skel::after { animation: none; background: var(--color-neutral-2); }
+}
+
+@media (forced-colors: active) {
+  .cui-table__row[data-selected] { outline: var(--border-width-md) solid Highlight; outline-offset: calc(var(--border-width-md) * -1); }
+  .cui-table__skel { border: var(--border-width-sm) solid GrayText; }
+  .cui-table__sort-icon { color: CanvasText; }
+}

@@ -49,6 +49,7 @@ The `ref` is forwarded to the root `<div>`.
 10. **The heading level follows the page.** Default 3; the look is always h4, as Card's title does. (Decided 2026-11-05.)
 11. **The inline link has a hover and a focus ring:** Neutral-7 on hover, as Button's link, and the DLS focus ring; it keeps link2 (500), so Button's link (label2, 700) isn't reused. (Decided 2026-11-05.)
 12. **One-off sizes stay local:** the 480px and 320px caps and the 240px floor. (Decided 2026-11-05.) The body cap is `--measure-sm` (360, was 380) and the link's underline offset `--spacing-4` (4, was 3). (Decided 2026-11-06.)
+13. **Inline, inside a Card, the card does the padding:** the empty state adds none (and isn't centred), so its text sits 16px in like the card's other content. In a list card (`padding="list"`) it adds 8px top and bottom and 16px at the sides, which comes to the same 16px. (Decided 2026-11-10.)
 
 ## Accessibility
 - The heading is a real heading (`headingLevel`), so the empty state appears in the page's outline.

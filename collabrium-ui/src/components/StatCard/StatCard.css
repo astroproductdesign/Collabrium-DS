@@ -1,0 +1,175 @@
+/*
+  Stat / KPI card — ported from collabrium-dls/components.css lines 3607–3648 (.c-stats, .c-stat, -top, -label,
+  -value and .hero, -trend and .up / .down / .flat / .period, -footer, .is-negative, .c-stat-secondary with its value,
+  .of and goal bar, -desc).
+
+  Reused, not copied: the tile is Card's own surface (.cui-card: Neutral-1, 1px Neutral-3, radius-lg, shadow-1, 16px
+  padding, 8px gap, flex column), which is exactly .c-stat's; the Interactive variant is Card's stretched title action
+  (.cui-card__action: shadow-2 on hover, the shadow-focus halo); the icon chip is Card's IconChip; the goal rail is
+  Progress-to-Goal Bar's in-table variant.
+
+  Mapping from the old classes:
+    .c-stats                         -> .cui-stat-grid
+    .c-stat                          -> .cui-card.cui-stat
+    .c-stat-top / -label / -value    -> .cui-stat__top / __label / __value
+    .c-stat-value.hero               -> __value[data-hero]
+    .c-stat-trend (.up/.down/.flat)  -> __trend[data-direction="up" | "down" | "flat"]
+    .c-stat-trend .period            -> __period
+    .c-stat-footer / -desc           -> __footer / __desc
+    .c-stat.is-negative              -> .cui-stat[data-negative]
+    .c-stat-secondary (.of)          -> .cui-stat[data-variant="secondary"] (__unit)
+    .c-goal-bar-labels b (achieved)  -> __achieved b
+    .icon-chip                       -> Card's .cui-icon-chip
+
+  Specificity follows the source: the base parts (0,1,0 there, 0,1,0 here), negative and secondary one step up.
+*/
+
+/* The row: as many columns as fit at 180px (no token: the DLS's literal, Stat only), 16px apart, equal height.
+   Kept as the DS's own grid; how it relates to App Shell's 4-column content grid is decided with App Shell (2026-11-10, Q-STAT-7). */
+.cui-stat-grid {
+  --cui-stat-grid-floor: 180px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--cui-stat-grid-floor), 1fr));
+  gap: var(--spacing-16);
+}
+
+/* The tile is Card's; the grid's 180px floor replaces Card's 240px (decided 2026-11-10, Q-STAT-1). */
+.cui-stat {
+  min-width: 0;
+}
+.cui-stat__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+}
+.cui-stat__label {
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+.cui-stat__value {
+  font-size: var(--text-h1-size);
+  font-weight: var(--text-h1-weight);
+  color: var(--color-neutral-9);
+}
+.cui-stat__value[data-hero] {
+  font-size: var(--text-display-size);
+}
+/* Top and bottom: the label and value stay at the top; whatever follows the value (trend, goal rail, sparkline,
+   description, footer) sits at the bottom, so the last lines line up across a row. The spare height opens between the
+   value and what follows; a tile that isn't stretched keeps the 8px gap. (Decided 2026-11-10; the DS keeps everything
+   at the top.) */
+.cui-stat__value + * {
+  margin-top: auto;
+}
+
+/* Trend: caption bold; Green up, Red down, Neutral-5 flat; the period in Neutral-5 regular. Green is the AA text green,
+   as for every text in the library. */
+.cui-stat__trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--text-caption-size);
+  /* The caption's 16px line, as the description and achieved lines, so the last lines of a row line up exactly
+     (the source leaves it at the page's line height; decided 2026-11-10). */
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+}
+.cui-stat__trend[data-direction="up"] {
+  color: var(--color-green-text);
+}
+.cui-stat__trend[data-direction="down"] {
+  color: var(--color-red);
+}
+.cui-stat__trend[data-direction="flat"] {
+  color: var(--color-neutral-5);
+}
+/* icon-micro (14px), as DESIGN-SYSTEM.md says; the CSS leaves it at the caption's 12px (decided 2026-11-10, Q-STAT-2). */
+.cui-stat__trend-icon {
+  flex: none;
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+}
+.cui-stat__period {
+  color: var(--color-neutral-5);
+  font-weight: var(--weight-regular);
+}
+.cui-stat__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cui-stat__footer {
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-12);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+  font-size: var(--text-caption-size);
+  /* The caption's 16px line, so a footer lines up with a neighbour's trend or description (decided 2026-11-10). */
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-stat__desc {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-regular);
+  color: var(--color-neutral-5);
+}
+
+/* Negative value: Card Selected's escalated border in Red, the padding 1px smaller so the tile never grows; the value turns Red. */
+.cui-stat[data-negative] {
+  border: var(--border-width-md) solid var(--color-red);
+  padding: calc(var(--spacing-16) - var(--border-width-sm));
+}
+.cui-stat[data-negative] .cui-stat__value {
+  color: var(--color-red);
+}
+
+/* Secondary: the value steps down to h4, with an optional unit in footnote type, 4px after it on the baseline. */
+.cui-stat[data-variant="secondary"] .cui-stat__value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-4);
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  font-weight: var(--text-h4-weight);
+}
+.cui-stat__unit {
+  font-size: var(--text-footnote-size);
+  line-height: var(--text-footnote-lh);
+  font-weight: var(--text-footnote-weight);
+  color: var(--color-neutral-5);
+}
+/* The goal rail: nothing sits above it here, so the in-table variant's label band collapses to the target line's overhang. */
+.cui-stat .cui-goal-bar[data-variant="table"] .cui-goal-bar__chart {
+  padding: var(--cui-goal-bar-overhang) 0 0;
+}
+.cui-stat .cui-goal-bar__tablelabel {
+  display: none;
+}
+.cui-stat__goal {
+  display: flex;
+  flex-direction: column;
+}
+/* The achieved line: the goal bar's label row (6px under the rail), caption, the percentage Neutral-9 bold, the rest
+   Neutral-5. The source's 3px after the figure is --spacing-4, and its 1.4 line height (16.8px) is the caption's 16px. */
+.cui-stat__achieved {
+  margin-top: var(--spacing-6);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-stat__achieved b {
+  margin-right: var(--spacing-4);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}

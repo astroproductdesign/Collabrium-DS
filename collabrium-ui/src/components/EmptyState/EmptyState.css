@@ -138,6 +138,20 @@
   outline-offset: var(--focus-ring-offset);
 }
 
+/*
+  Inline, inside a Card: the card already gives 16px, so the empty state adds none. In a list card (8px top and
+  bottom, no sides) it adds 8px top and bottom and 16px at the sides, so it still sits 16px in. The base rule's
+  `margin: 0 auto` is dropped too: in the card's flex column it shrank the box to its text and centred it. One class
+  higher than the variant rules (and the mobile 12px), so it wins at every width. Decided 2026-11-10.
+*/
+.cui-card > .cui-empty-state[data-variant="inline"] {
+  margin: 0;
+  padding: 0;
+}
+.cui-card[data-padding="list"] > .cui-empty-state[data-variant="inline"] {
+  padding: var(--spacing-8) var(--spacing-16);
+}
+
 /* Mobile (below 768px, the source's breakpoint): less padding, no caps, a 48px icon, stacked full-width actions. */
 @media (max-width: 767px) {
   .cui-empty-state[data-variant="fullpage"],

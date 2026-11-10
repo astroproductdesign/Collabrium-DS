@@ -1,0 +1,241 @@
+/*
+  Slider: ported from components.css `.c-slider*` (4491–4520). Designed from scratch in the DLS (no brand-deck source).
+
+  Class mapping (source -> here), specificity kept in the source's order:
+    .c-slider-group                          -> .cui-slider
+    .c-slider-label                          -> .cui-slider__label
+    .c-slider-static-value                   -> .cui-slider__value
+    .c-slider-rail (.c-slider-range)         -> .cui-slider__rail ([data-variant="range"] on the root)
+    .c-slider-track / -fill                  -> .cui-slider__track / __fill
+    .c-slider-input                          -> .cui-slider__input
+    .c-slider-tooltip (.is-visible, .is-hiding) -> .cui-slider__tooltip ([data-state="visible" | "hiding"])
+    .c-slider-minmax                         -> .cui-slider__limits
+    .c-slider-compact                        -> [data-size="compact"]
+    .c-slider-disabled                       -> [data-disabled]
+
+  SLIDER-1: five source rules list a ::-webkit- and a ::-moz- pseudo-element in one selector, which every browser
+  drops whole (the compact thumb, the hover shadow, the disabled thumb and cursor, reduced motion). Here each engine
+  gets its own rule, so they work as the CSS and the DS mean (decided 2026-11-10, Q-SLD-1).
+
+  No token, kept local (decided 2026-11-10, Q-SLD-6):
+    --cui-slider-rail 24px   the interactive box's height (the DS's "~24px" reference build); 44px on touch screens
+                             (decided 2026-11-10, Q-SLD-3). Nearest: --icon-md 24px (same value, an icon size) and
+                             --spacing-24; 44px has no token (nearest --spacing-40, 4px short).
+    --cui-slider-track 4px / compact 2px   track heights (the DS records them as one-offs, as Progress Bar's).
+                             Nearest: --spacing-4 / --spacing-2 (same values, spacing).
+  Tokens used for sizes the DS ties to them: the thumb is --icon-base (20px) and compact --icon-sm (16px, "matches
+  icon-sm" in the DS); its border --border-width-md (2px).
+*/
+
+.cui-slider {
+  --cui-slider-rail: 24px;
+  --cui-slider-track: 4px;
+  --cui-slider-thumb: var(--icon-base);
+  /* Thumb hit box, centred on the track's line (the DS: "centered on the track's own line"). */
+  --cui-slider-thumb-offset: calc((var(--cui-slider-rail) - var(--cui-slider-thumb)) / 2);
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.cui-slider[data-size="compact"] {
+  --cui-slider-track: 2px;
+  --cui-slider-thumb: var(--icon-sm);
+}
+/* Touch screens: the rail grows to 44px so a finger can hit it; the thumb and track look the same, and the slider is
+   20px taller. A mouse keeps 24px (decided 2026-11-10, Q-SLD-3). */
+@media (pointer: coarse) {
+  .cui-slider { --cui-slider-rail: 44px; }
+}
+
+/* Label: Input field's label, label1 (14px / 20px / 700), Neutral-9, 4px below. The source draws caption (12px); the
+   DS says it follows Input field's (decided 2026-11-10, Q-SLD-2). */
+.cui-slider__label {
+  display: block;
+  font-family: var(--font-primary);
+  font-size: var(--text-label1-size);
+  line-height: var(--text-label1-lh);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+  margin-bottom: var(--spacing-4);
+}
+
+/* Static value: caption, Neutral-9, right-aligned above the track's end. Replaces the tooltip. */
+.cui-slider__value {
+  display: flex;
+  justify-content: flex-end;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-9);
+  margin-bottom: var(--spacing-4);
+  font-variant-numeric: tabular-nums;
+}
+
+.cui-slider__rail {
+  position: relative;
+  height: var(--cui-slider-rail);
+}
+
+.cui-slider__track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: var(--cui-slider-track);
+  transform: translateY(-50%);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-3);
+}
+/* Fill: Obsidian, from the minimum to the thumb (single) or between the thumbs (range). Position comes from
+   --cui-slider-lo / --cui-slider-hi (0–100) set on the rail by the component. No transition: it follows the drag. */
+.cui-slider__fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  left: calc(var(--cui-slider-lo, 0) * 1%);
+  width: calc((var(--cui-slider-hi, 0) - var(--cui-slider-lo, 0)) * 1%);
+  background: var(--color-obsidian);
+  border-radius: var(--radius-pill);
+}
+
+.cui-slider__input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+}
+/* Range: the two stacked inputs only take pointer events on their thumbs; a press on the bare track is resolved by
+   the component (the nearer thumb moves). */
+.cui-slider[data-variant="range"] .cui-slider__input { pointer-events: none; }
+.cui-slider__input[data-top] { z-index: 2; }
+
+.cui-slider__input::-webkit-slider-runnable-track { background: transparent; height: 100%; }
+.cui-slider__input::-moz-range-track { background: transparent; height: 100%; border: none; }
+
+.cui-slider__input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  pointer-events: auto;
+  box-sizing: border-box;
+  width: var(--cui-slider-thumb);
+  height: var(--cui-slider-thumb);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+  border: var(--border-width-md) solid var(--color-obsidian);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  margin-top: var(--cui-slider-thumb-offset);
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+}
+.cui-slider__input::-moz-range-thumb {
+  pointer-events: auto;
+  box-sizing: border-box;
+  width: var(--cui-slider-thumb);
+  height: var(--cui-slider-thumb);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+  border: var(--border-width-md) solid var(--color-obsidian);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+/* Hover and drag: one shadow rung up (shadow-3), grab / grabbing. */
+.cui-slider__input:hover::-webkit-slider-thumb,
+.cui-slider__input:active::-webkit-slider-thumb { box-shadow: var(--shadow-3); }
+.cui-slider__input:hover::-moz-range-thumb,
+.cui-slider__input:active::-moz-range-thumb { box-shadow: var(--shadow-3); }
+.cui-slider__input:hover,
+.cui-slider__input:active { cursor: grab; }
+.cui-slider__input:active { cursor: grabbing; }
+
+/* Focus: Button's 2px Obsidian ring, 2px off the thumb, keyboard only. */
+.cui-slider__input:focus { outline: none; }
+.cui-slider__input:focus-visible::-webkit-slider-thumb {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-slider__input:focus-visible::-moz-range-thumb {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Disabled: 40% throughout (Button ghost's, not the 50% of the toggles), Neutral-3 fill, Neutral-4 thumb border, no
+   shadow, not-allowed. */
+.cui-slider[data-disabled] { opacity: .4; }
+.cui-slider[data-disabled] .cui-slider__fill { background: var(--color-neutral-3); }
+.cui-slider[data-disabled] .cui-slider__input { cursor: not-allowed; }
+.cui-slider[data-disabled] .cui-slider__input::-webkit-slider-thumb {
+  cursor: not-allowed;
+  border-color: var(--color-neutral-4);
+  box-shadow: none;
+}
+.cui-slider[data-disabled] .cui-slider__input::-moz-range-thumb {
+  cursor: not-allowed;
+  border-color: var(--color-neutral-4);
+  box-shadow: none;
+}
+
+/* Value tooltip: Tooltip's bubble, 8px above the rail, centred on the thumb's centre (decided 2026-11-10, Q-SLD-5: the
+   source centres it on the value's share of the full width, up to half a thumb off at the ends). Its sides are
+   Tooltip's 12px, not the source's 8px (decided 2026-11-10, Q-SLD-10). Fades in on hover, focus (Q-SLD-11) and drag;
+   fades out after --duration-base. It rises 12px above the slider's top and, near the ends, past its sides: give it
+   room in a box that clips (a list card, a scroll area). */
+.cui-slider__tooltip {
+  position: absolute;
+  bottom: calc(100% + var(--spacing-8));
+  left: calc(var(--cui-slider-thumb) / 2 + (100% - var(--cui-slider-thumb)) * var(--cui-slider-at, 0) / 100);
+  transform: translateX(-50%);
+  padding: var(--spacing-6) var(--spacing-12);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-7);
+  color: var(--color-neutral-1);
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  /* The source sets no line height (the page's); the caption's 16px here (SLIDER-4). */
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-slider__tooltip[data-state="visible"] { opacity: 1; transition-delay: 0s; }
+.cui-slider__tooltip[data-state="hiding"] { opacity: 0; transition-delay: var(--duration-base); }
+
+/* Min and max: caption, Neutral-5, at each end, 4px under the track's box. */
+.cui-slider__limits {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-4);
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+
+/* Reduced motion: the tooltip and the shadow change at once. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-slider__input::-webkit-slider-thumb { transition: none; }
+  .cui-slider__input::-moz-range-thumb { transition: none; }
+  .cui-slider__tooltip,
+  .cui-slider__tooltip[data-state] { transition: none; }
+}
+
+/* Forced colours: the system draws the native parts; keep the track, fill and thumb visible. */
+@media (forced-colors: active) {
+  .cui-slider__track { background: GrayText; }
+  .cui-slider__fill { background: Highlight; }
+  .cui-slider__input::-webkit-slider-thumb { background: Canvas; border-color: CanvasText; }
+  .cui-slider__input::-moz-range-thumb { background: Canvas; border-color: CanvasText; }
+  .cui-slider[data-disabled] .cui-slider__fill { background: GrayText; }
+  .cui-slider__tooltip { border: 1px solid CanvasText; }
+}

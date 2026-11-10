@@ -52,6 +52,8 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-p { margin: 0 0 var(--spacing-12); max-width: 68ch; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
 .docs-stack { display: grid; gap: var(--spacing-16); }
 .docs-stack > .docs-p { margin: 0; }
+/* A wrapping row of trigger buttons (Toast's live demo). */
+.docs-stack-row { display: flex; flex-wrap: wrap; gap: var(--spacing-8); }
 .docs-example { padding: var(--spacing-24); border-radius: var(--radius-lg); background: var(--color-canvas-warm-card); }
 .docs-example + .docs-example { margin-top: var(--spacing-16); }
 @media (max-width: 600px) { .docs-example { padding: var(--spacing-16); } }
@@ -108,8 +110,7 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 }
 
 /* ---------- Tables, rules, notes ---------- */
-.docs-table-wrap { overflow-x: auto; }
-.docs-table-wrap td { vertical-align: top; }
+.docs-table-wrap .cui-table__td { vertical-align: top; }
 .docs-required { margin-left: var(--spacing-8); }
 .docs-nowrap { white-space: nowrap; }
 .docs-rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--spacing-120) * 2.5)), 1fr)); gap: var(--spacing-16); }
@@ -368,5 +369,15 @@ a.cui-button { text-decoration: none; }
 
 /* Room under an example whose popover floats over the content below it (Search input's results panel). */
 .docs-popover-room { padding-bottom: calc(var(--spacing-120) * 2 + var(--spacing-40)); }
+/* Room around a Slider example for its value tooltip: 12px above the label and up to 40px past each end. */
+.docs-tip-room { padding: var(--spacing-24) var(--spacing-40) 0; }
 /* Room for a Multiple select panel: the 320px list, its 8px padding and the footer. */
 .docs-popover-room[data-room="tall"] { padding-bottom: calc(var(--spacing-120) * 3 + var(--spacing-40)); }
+
+/* A live readout under an example (Slider's range). */
+.docs-readout { margin: var(--spacing-12) 0 0; font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); }
+
+/* Back to top's docs: the page's scroll readout, and the card picture (the button shown, in place). */
+.docs-btt-readout { margin: var(--spacing-12) 0 0; font-size: var(--text-caption-size); color: var(--color-neutral-5); font-variant-numeric: tabular-nums; }
+.docs-btt-readout b { color: var(--color-neutral-9); }
+.docs-btt-thumb .cui-back-to-top { position: static; opacity: 1; visibility: visible; transform: none; }

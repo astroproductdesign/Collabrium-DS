@@ -162,40 +162,6 @@
 .c-nav-child:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:-2px;}
 .c-nav-child.active{background:var(--color-neutral-2); color:var(--color-neutral-9); font-weight:700;}
 
-/* ===== Table (base, standalone, embedded) — components.css lines 1662–1693 ===== */
-/* Table — consolidates the former "Table row" + "DataTable" into one
-   component (see DESIGN-SYSTEM.md's Table section). Anatomy below is
-   shared by both usage contexts:
-   - Standalone: table owns its own bordered/radius-lg container —
-     wrap markup in .c-table-standalone-wrap, table itself gets
-     .c-table-standalone (h5/700 header on Neutral-2 fill).
-   - Embedded: no container of its own, sits inside an existing surface
-     (a Card) — table gets .c-table-embedded (label3/uppercase/
-     Neutral-5 header), no wrap needed.
-   Every column is left-aligned, including numeric/status/checkbox/
-   actions — .num only adds tabular-figure digit alignment, never
-   right-set. */
-.c-table{width:100%; border-collapse:collapse; font-family:inherit;}
-.c-table th,.c-table td{text-align:left; padding:var(--spacing-12) var(--spacing-16); border-bottom:1px solid var(--color-neutral-3);}
-.c-table tbody tr:last-child td{border-bottom:none;}
-.c-table td{font-size:var(--text-body2-size); font-weight:500; color:var(--color-neutral-9);}
-.c-table td.num,.c-table th.num{font-variant-numeric:tabular-nums;}
-/* Row hover/selected only ever apply via .is-interactive — a purely
-   presentational row (no onRowClick, no checkbox, no action column)
-   gets no hover treatment at all; see Anatomy's Row hover rule. */
-.c-table tbody tr{transition:background-color var(--duration-fast) var(--ease-standard);}
-.c-table tbody tr.is-interactive:hover{background:var(--color-neutral-2);}
-.c-table tbody tr.is-interactive.is-clickable{cursor:pointer;}
-.c-table tbody tr.is-selected{background:var(--color-neutral-2); box-shadow:inset 2px 0 0 var(--color-obsidian);}
-.c-table-cell-icon{font-size:var(--icon-micro); vertical-align:-2px; margin-right:4px;}
-
-/* Standalone variant — owns the container */
-.c-table-standalone-wrap{position:relative; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow:hidden; background:var(--color-neutral-1);}
-.c-table-standalone thead th{background:var(--color-neutral-2); font-size:var(--text-h5-size); font-weight:var(--text-h5-weight); color:var(--color-neutral-9);}
-
-/* Embedded variant — no container, lives inside a Card/panel */
-.c-table-embedded thead th{background:none; font-size:var(--text-label3-size); font-weight:700; letter-spacing:var(--text-label3-tracking); text-transform:uppercase; color:var(--color-neutral-5);}
-
 /* ===== Utility: .sr-only — components.css lines 5213–5213 ===== */
 .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;}
 

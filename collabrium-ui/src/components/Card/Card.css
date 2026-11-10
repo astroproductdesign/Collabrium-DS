@@ -71,6 +71,13 @@
 .cui-card[data-padding="list"] > :is(.cui-card__header, .cui-card__footer) {
   padding-inline: var(--spacing-16);
 }
+/* The header and footer get the other 8px back at the edge, so a list card's title sits 16px down like every card's (decided 2026-11-10). */
+.cui-card[data-padding="list"] > .cui-card__header {
+  padding-top: var(--spacing-8);
+}
+.cui-card[data-padding="list"] > .cui-card__footer {
+  padding-bottom: var(--spacing-8);
+}
 .cui-card[data-surface="warm"] {
   background: var(--color-canvas-warm-card);
   border-color: transparent;
@@ -99,6 +106,18 @@
   gap: var(--spacing-12);
   /* No margin of its own: the card's 8px gap is all that sits between the header and what follows (the source's 16px margin plus that gap made 24px; DESIGN-SYSTEM.md 2624 says 16px). Decided 2026-10-30, Q-CARD-7: 8px. */
   margin-bottom: 0;
+}
+/* A header with an action (a borderless Dropdown, a "View all" link, a ⋯ menu): the action sits at the end of the title
+   row, and the title and action centre on each other (decided 2026-11-10). */
+.cui-card__header:has(> .cui-card__header-action) {
+  align-items: center;
+}
+.cui-card__header-action {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-left: auto;
 }
 .cui-card__heading {
   display: flex;
