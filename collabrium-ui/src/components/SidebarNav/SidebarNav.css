@@ -1,0 +1,902 @@
+/*
+  SidebarNav — ported from collabrium-dls/components.css lines 2652–2894 (.c-sidebar-shell, .c-sidebar and its header,
+  logos, sections, dividers, items, footer, scroll region, toggle; the Department strip .c-pod-*, its hover card; the
+  collapsed hover label; the account row and .c-user-menu; second-level .c-nav-*; the ≤768px card). The DS section is
+  DESIGN-SYSTEM.md 8163–8497.
+
+  Mapping from the old classes:
+    .c-sidebar-shell                     -> .cui-sidebar-nav ([data-collapsed] replaces .c-sidebar.is-collapsed)
+    .c-sidebar                           -> nav.cui-sidebar-nav__rail
+    .c-sidebar-header / -logo-home       -> .cui-sidebar-nav__header / a.__home ([data-swap] = .c-sidebar-logo-swap)
+    .c-sidebar-logo-live-wrap / -lockup / -fallback / -collapsed / -mark-wrap
+                                         -> __logo-live / __logo-lockup / __logo-fallback / __logo-collapsed / __logo-mark
+    .c-sidebar-section / -divider        -> __section / hr.__divider
+    .c-sidebar-item (.active, .soon, .parent-active-child, :disabled), span.label / .count
+                                         -> __item ([data-active], [data-soon], [data-active-child], :disabled),
+                                            __label / __count (+ __dot, collapsed) / __soon (Badge)
+    .c-nav-parent-toggle                 -> __caret
+    .c-nav-children (.is-open) / -inner  -> __children ([data-open]) / __children-inner
+    .c-nav-child (.active)               -> __child ([data-active], :disabled)
+    .c-sidebar-scroll (.is-swapping)     -> __scroll ([data-swapping])
+    .c-sidebar-footer                    -> __footer
+    .c-sidebar-toggle                    -> __toggle
+    .c-pod-strip (.is-overflow) / -scroller (.has-more-start/-end) / -row / -pill (.no-anim) / -chip (.is-current, .is-soon)
+                                         -> __strip ([data-overflow]) / __scroller ([data-more-start/-end]) / __row /
+                                            __pill ([data-animate]) / __chip ([data-current], [data-soon])
+    .c-pod-card (.is-visible) / -title / -desc
+                                         -> __card ([data-visible]) / __card-title / __card-desc
+    .c-sidebar-hover-label (.is-visible) -> __hover ([data-visible])
+    .c-sidebar-user / -avatar / -text / -name / -role
+                                         -> __user ([data-open]) / __avatar / __user-text / __user-name / __user-role
+    .c-user-menu / -item / -divider      -> __menu (role="menu") / __menu-item / __menu-divider
+    .c-sidebar-hover-text                -> the items' data-hover attribute
+
+  Specificity follows the source: item base, hover, focus, pressed, disabled, active; the collapsed rules after.
+
+  No token, kept local (the DS's own one-offs; decided 2026-11-11, Q-SBN-9):
+    --cui-sidebar-nav-w 240px            expanded width
+    --cui-sidebar-nav-rail 72px          collapsed width
+    --cui-sidebar-nav-child 36px         a child item's height
+    --cui-sidebar-nav-menu-w 240px       the account menu's width
+    --cui-sidebar-nav-live-w 118px / -live-h 22px / -live-crop 16px / -live-frame 53px
+                                         the live logo's crop of logo.html
+    --cui-sidebar-nav-home-max 170px     the logo link's widest
+    --cui-sidebar-nav-lockup 30px        a lockup's height
+    --cui-sidebar-nav-fallback 18px      the no-lockup name's size (22px line, weight 800)
+    --cui-sidebar-nav-chip-icon 18px     a department icon in its chip
+    --cui-sidebar-nav-chip-fixed 33px    a chip's width with more than 6 departments
+    --cui-sidebar-nav-card-max 280px     the department card's widest
+    --cui-sidebar-nav-caret 6px          its caret
+    --cui-sidebar-nav-fade 10px / .45    the strip's edge fade
+    --cui-sidebar-nav-toggle 28px / -toggle-icon 18px; collapsed 24px / 16px (control-height-xs / icon-sm)
+    --cui-sidebar-nav-toggle-y 32px      the toggle's centre, on the logo's row (33px collapsed)
+    --cui-sidebar-nav-thumb 6px          the menu's hover scrollbar
+    768px                                the phone step (in the media query)
+*/
+
+.cui-sidebar-nav {
+  --cui-sidebar-nav-w: 240px;
+  --cui-sidebar-nav-rail: 72px;
+  --cui-sidebar-nav-child: 36px;
+  --cui-sidebar-nav-menu-w: 240px;
+  --cui-sidebar-nav-live-w: 118px;
+  --cui-sidebar-nav-live-h: 22px;
+  --cui-sidebar-nav-live-crop: 16px;
+  --cui-sidebar-nav-live-frame: 53px;
+  --cui-sidebar-nav-home-max: 170px;
+  --cui-sidebar-nav-lockup: 30px;
+  --cui-sidebar-nav-fallback: 18px;
+  --cui-sidebar-nav-chip-icon: 18px;
+  --cui-sidebar-nav-chip-fixed: 33px;
+  --cui-sidebar-nav-card-max: 280px;
+  --cui-sidebar-nav-caret: 6px;
+  --cui-sidebar-nav-fade: 10px;
+  --cui-sidebar-nav-toggle: 28px;
+  --cui-sidebar-nav-toggle-icon: 18px;
+  --cui-sidebar-nav-toggle-y: 32px;
+  --cui-sidebar-nav-thumb: 6px;
+  position: relative;
+  display: inline-flex;
+  font-family: var(--font-primary);
+}
+
+/* The rail: 240px, 12px padding all round, 4px between items, radius-lg, never scrolls sideways. */
+.cui-sidebar-nav__rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  width: var(--cui-sidebar-nav-w);
+  min-height: 0;
+  padding: var(--spacing-12);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  /* shadow-1 on the page (the live build; decided 2026-11-11); the phone card lifts to shadow-3. */
+  box-shadow: var(--shadow-1);
+  overflow-x: clip;
+  transition: width var(--duration-slow) var(--ease-standard);
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__rail {
+  width: var(--cui-sidebar-nav-rail);
+}
+
+/* Header: the logo row, 8px top and sides, 16px under. */
+.cui-sidebar-nav__header {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: var(--spacing-8) var(--spacing-8) var(--spacing-16);
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__header {
+  justify-content: center;
+}
+/* Expanded, the header keeps clear of the toggle that sits over its right end; a logo beside a badge shrinks to fit
+   (drawn smaller inside its 30px box, so the header never changes height). */
+.cui-sidebar-nav:not([data-collapsed]) .cui-sidebar-nav__header {
+  padding-right: var(--cui-sidebar-nav-toggle);
+}
+.cui-sidebar-nav__home {
+  min-width: 0;
+}
+.cui-sidebar-nav__home:has(+ .cui-sidebar-nav__badge) .cui-sidebar-nav__logo-lockup {
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+/* A department's badge ("Beta") beside its logo, 8px after it; expanded only (decided 2026-11-11). */
+.cui-sidebar-nav__badge {
+  display: inline-flex;
+  flex: none;
+  margin-left: var(--spacing-8);
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__badge {
+  display: none;
+}
+.cui-sidebar-nav__home {
+  display: flex;
+  align-items: center;
+  max-width: var(--cui-sidebar-nav-home-max);
+  padding: var(--spacing-2) var(--spacing-4);
+  margin: calc(var(--spacing-2) * -1) calc(var(--spacing-4) * -1);
+  border-radius: var(--radius-sm);
+  color: var(--color-neutral-9);
+  text-decoration: none;
+}
+.cui-sidebar-nav__home:not([data-static]):hover {
+  background: var(--color-neutral-2);
+}
+.cui-sidebar-nav__home:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+/* Collabrium, expanded: logo.html, cropped of its own 16px top and bottom padding. */
+.cui-sidebar-nav__logo-live {
+  position: relative;
+  width: var(--cui-sidebar-nav-live-w);
+  height: var(--cui-sidebar-nav-live-h);
+  overflow: hidden;
+}
+.cui-sidebar-nav__logo-live iframe {
+  position: absolute;
+  top: calc(var(--cui-sidebar-nav-live-crop) * -1);
+  left: 0;
+  width: var(--cui-sidebar-nav-live-w);
+  height: var(--cui-sidebar-nav-live-frame);
+  border: 0;
+  pointer-events: none;
+}
+/* A department's lockup: 30px tall, laid out at the live mark's 22px so switching never moves the menu. */
+.cui-sidebar-nav__logo-lockup {
+  display: block;
+  height: var(--cui-sidebar-nav-lockup);
+  width: auto;
+  margin: calc(var(--spacing-4) * -1) 0;
+}
+.cui-sidebar-nav__logo-fallback {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--cui-sidebar-nav-fallback);
+  line-height: var(--cui-sidebar-nav-live-h);
+  font-weight: var(--weight-extrabold);
+  white-space: nowrap;
+}
+.cui-sidebar-nav__logo-fallback img {
+  flex: none;
+  width: var(--cui-sidebar-nav-live-h);
+  height: var(--cui-sidebar-nav-live-h);
+}
+.cui-sidebar-nav__logo-collapsed {
+  display: none;
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+.cui-sidebar-nav__logo-mark iframe {
+  display: block;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  border: 0;
+  pointer-events: none;
+}
+.cui-sidebar-nav[data-collapsed] :is(.cui-sidebar-nav__logo-live, .cui-sidebar-nav__logo-lockup, .cui-sidebar-nav__logo-fallback) {
+  display: none;
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__logo-collapsed {
+  display: block;
+}
+
+/* Section label and the hairline above every group but the first. */
+.cui-sidebar-nav__section {
+  flex-shrink: 0;
+  padding: var(--spacing-16) var(--spacing-8) var(--spacing-4);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+.cui-sidebar-nav__divider {
+  flex-shrink: 0;
+  margin: var(--spacing-8) 0 0;
+  border: none;
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-sidebar-nav[data-collapsed] :is(.cui-sidebar-nav__section, .cui-sidebar-nav__divider, .cui-sidebar-nav__count, .cui-sidebar-nav__soon) {
+  display: none;
+}
+/* Collapsed, a label is hidden from sight only, so each icon-only item keeps its name for screen readers. */
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Nav item: 40px (taller when the label wraps), 12px in, 12px icon gap, body1 500 Neutral-5. */
+.cui-sidebar-nav__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  min-height: var(--control-height-md);
+  flex-shrink: 0;
+  padding: 0 var(--spacing-12);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-5);
+  font-family: inherit;
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--weight-medium);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.cui-sidebar-nav__item:hover {
+  background: var(--color-neutral-2);
+}
+.cui-sidebar-nav__item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-sidebar-nav__item:active {
+  background: var(--color-neutral-3);
+}
+.cui-sidebar-nav__item:disabled {
+  color: var(--color-neutral-4);
+  background: transparent;
+  cursor: not-allowed;
+}
+.cui-sidebar-nav__icon {
+  flex: none;
+  width: var(--icon-base);
+  height: var(--icon-base);
+}
+/* Labels wrap, never truncate: 240px is a hard limit with no sideways scroll. */
+.cui-sidebar-nav__label {
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+.cui-sidebar-nav__count {
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-5);
+}
+.cui-sidebar-nav__item[data-active] {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-weight: var(--weight-bold);
+}
+/* Soon: Neutral-4, the icon at 40%, a "Soon" Badge trailing; no hover or focus (it's disabled). */
+.cui-sidebar-nav__item[data-soon] .cui-sidebar-nav__icon {
+  opacity: 0.4;
+}
+.cui-sidebar-nav__soon {
+  margin-left: auto;
+  display: inline-flex;
+}
+/* A parent with the active child: bold text, no fill (the fill stays on the child). */
+.cui-sidebar-nav__item[data-active-child] {
+  font-weight: var(--weight-bold);
+  background: transparent;
+  color: var(--color-neutral-9);
+}
+.cui-sidebar-nav__item[data-active-child]:hover {
+  background: var(--color-neutral-2);
+}
+.cui-sidebar-nav__caret {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+.cui-sidebar-nav__caret-icon {
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+  color: var(--color-neutral-5);
+}
+/* Collapsed: every icon centred in the 72px rail. A count becomes an 8px dot on the icon, in the department's
+   element colour (Neutral-9 without one; decided 2026-11-11, Q-SBN-3). A parent with the active child takes the
+   active fill, since its label (the only other signal) is hidden. */
+.cui-sidebar-nav__dot {
+  display: none;
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__item {
+  justify-content: center;
+  padding: 0;
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__dot {
+  display: block;
+  position: absolute;
+  top: calc(50% - var(--icon-base) / 2 - var(--spacing-2));
+  left: calc(50% + var(--icon-base) / 2 - var(--spacing-8) + var(--spacing-2));
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-9);
+  box-shadow: 0 0 0 var(--border-width-md) var(--color-neutral-1);
+}
+.cui-sidebar-nav__dot[data-element="fire"] { background: var(--color-orange); }
+.cui-sidebar-nav__dot[data-element="earth"] { background: var(--color-green); }
+.cui-sidebar-nav__dot[data-element="water"] { background: var(--color-navy); }
+.cui-sidebar-nav__dot[data-element="gold"] { background: var(--color-amber); }
+.cui-sidebar-nav__dot[data-element="wood"] { background: var(--color-salmon-pink); }
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__item[data-active-child] {
+  background: var(--color-neutral-2);
+}
+.cui-sidebar-nav[data-collapsed] :is(.cui-sidebar-nav__caret, .cui-sidebar-nav__children) {
+  display: none;
+}
+
+/* Children: one level, an accordion that grows to its real height (a 0fr → 1fr grid track). */
+.cui-sidebar-nav__children {
+  display: grid;
+  grid-template-rows: 0fr;
+  flex-shrink: 0;
+  transition: grid-template-rows var(--duration-slow) var(--ease-standard);
+}
+.cui-sidebar-nav__children[data-open] {
+  grid-template-rows: 1fr;
+}
+.cui-sidebar-nav__children-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-height: 0;
+  overflow: hidden;
+}
+/* Child item: 36px, full width, the indent is its own 16px left padding; body2, Neutral-5. */
+.cui-sidebar-nav__child {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 100%;
+  height: var(--cui-sidebar-nav-child);
+  padding: 0 var(--spacing-12) 0 var(--spacing-16);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-5);
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-sidebar-nav__child:hover {
+  background: var(--color-neutral-2);
+}
+.cui-sidebar-nav__child:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-sidebar-nav__child:active {
+  background: var(--color-neutral-3);
+}
+.cui-sidebar-nav__child[data-active] {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-weight: var(--weight-bold);
+}
+/* Disabled child: as a disabled item (the source has none; decided 2026-11-11, Q-SBN-5). */
+.cui-sidebar-nav__child:disabled {
+  color: var(--color-neutral-4);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* The menu region: the only part that scrolls; the header, strip and footer stay pinned. Its scrollbar shows only on
+   hover, as a thin overlay. Fades out and in when a department swaps it. */
+.cui-sidebar-nav__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-sidebar-nav__scroll::-webkit-scrollbar {
+  width: 0;
+}
+.cui-sidebar-nav__scroll:hover {
+  scrollbar-width: thin;
+}
+.cui-sidebar-nav__scroll:hover::-webkit-scrollbar {
+  width: var(--cui-sidebar-nav-thumb);
+}
+.cui-sidebar-nav__scroll:hover::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-3);
+  border-radius: var(--radius-pill);
+}
+.cui-sidebar-nav__scroll[data-swapping] {
+  opacity: 0;
+}
+
+/* Footer: pinned to the bottom, 16px above a 1px line. */
+.cui-sidebar-nav__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: var(--spacing-16);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+
+/* Toggle: outside the rail's clip. Expanded, on the logo's row at the right; collapsed, a 24px floating button
+   straddling the rail's edge. */
+.cui-sidebar-nav__toggle {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-neutral-5);
+  cursor: pointer;
+  top: var(--cui-sidebar-nav-toggle-y);
+  right: var(--spacing-8);
+  width: var(--cui-sidebar-nav-toggle);
+  height: var(--cui-sidebar-nav-toggle);
+  transform: translateY(-50%);
+}
+.cui-sidebar-nav__toggle:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+.cui-sidebar-nav__toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-sidebar-nav__toggle-icon {
+  width: var(--cui-sidebar-nav-toggle-icon);
+  height: var(--cui-sidebar-nav-toggle-icon);
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__toggle {
+  top: calc(var(--cui-sidebar-nav-toggle-y) + var(--border-width-sm));
+  right: calc((var(--spacing-12) - var(--spacing-2)) * -1);
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  box-shadow: var(--shadow-1);
+  color: var(--color-neutral-5);
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__toggle:hover {
+  background: var(--color-neutral-2);
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__toggle-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+/* Department strip: a Neutral-2 track of chips under the logo; the selected one sits on a white pill that slides. */
+.cui-sidebar-nav__strip {
+  flex: none;
+  margin-top: calc(var(--spacing-4) * -1);
+  padding: var(--spacing-4);
+  background: var(--color-neutral-2);
+  border-radius: var(--radius-md);
+}
+.cui-sidebar-nav[data-collapsed] :is(.cui-sidebar-nav__strip, .cui-sidebar-nav__divider[data-strip], .cui-sidebar-nav__card) {
+  display: none;
+}
+.cui-sidebar-nav__scroller {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  border-radius: var(--radius-sm);
+}
+.cui-sidebar-nav__scroller::-webkit-scrollbar {
+  display: none;
+}
+.cui-sidebar-nav__scroller[data-more-end] {
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--cui-sidebar-nav-fade)), rgb(0 0 0 / 0.45));
+}
+.cui-sidebar-nav__scroller[data-more-start] {
+  mask-image: linear-gradient(to left, #000 calc(100% - var(--cui-sidebar-nav-fade)), rgb(0 0 0 / 0.45));
+}
+.cui-sidebar-nav__scroller[data-more-start][data-more-end] {
+  mask-image: linear-gradient(
+    to right,
+    rgb(0 0 0 / 0.45),
+    #000 var(--cui-sidebar-nav-fade),
+    #000 calc(100% - var(--cui-sidebar-nav-fade)),
+    rgb(0 0 0 / 0.45)
+  );
+}
+.cui-sidebar-nav__row {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-4);
+}
+.cui-sidebar-nav__pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--color-neutral-1);
+  box-shadow: var(--shadow-1);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+.cui-sidebar-nav__pill[data-animate] {
+  transition:
+    transform var(--duration-base) var(--ease-standard),
+    width var(--duration-base) var(--ease-standard);
+}
+.cui-sidebar-nav__chip {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--control-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-9);
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-sidebar-nav__strip[data-overflow] .cui-sidebar-nav__chip {
+  flex: 0 0 var(--cui-sidebar-nav-chip-fixed);
+}
+.cui-sidebar-nav__chip img {
+  display: block;
+  width: var(--cui-sidebar-nav-chip-icon);
+  height: var(--cui-sidebar-nav-chip-icon);
+}
+/* Collabrium's rocket-launch: the one Phosphor chip, icon-base Neutral-9. */
+.cui-sidebar-nav__chip svg {
+  width: var(--icon-base);
+  height: var(--icon-base);
+}
+.cui-sidebar-nav__chip:not([data-current]):not([data-soon]):hover {
+  background: color-mix(in srgb, var(--color-neutral-3) 60%, transparent);
+}
+.cui-sidebar-nav__chip:not([data-soon]):active {
+  background: var(--color-neutral-3);
+}
+.cui-sidebar-nav__chip:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-sidebar-nav__chip[data-soon] {
+  cursor: not-allowed;
+}
+/* Coming soon: the element icon flattened to Neutral-4 (#bdbdbd) by a filter, not a grey copy. */
+.cui-sidebar-nav__chip[data-soon] img {
+  filter: contrast(0) brightness(1.48);
+}
+
+/* The department card: under the strip, left on its edge, a caret at the hovered chip. Outside the rail's clip. */
+.cui-sidebar-nav__card {
+  position: absolute;
+  z-index: var(--z-float);
+  width: max-content;
+  max-width: var(--cui-sidebar-nav-card-max);
+  padding: var(--spacing-12);
+  background: var(--color-neutral-7);
+  color: var(--color-neutral-1);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-3);
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(calc(var(--spacing-2) * -1));
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    visibility 0s linear var(--duration-fast);
+}
+.cui-sidebar-nav__card[data-visible] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition-delay: 0s;
+}
+.cui-sidebar-nav__card::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--cui-sidebar-nav-caret) * -1);
+  left: var(--cui-sidebar-nav-caret-x, var(--spacing-24));
+  margin-left: calc(var(--cui-sidebar-nav-caret) * -1);
+  border: var(--cui-sidebar-nav-caret) solid transparent;
+  border-top: 0;
+  border-bottom-color: var(--color-neutral-7);
+}
+.cui-sidebar-nav__card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-bold);
+}
+.cui-sidebar-nav__card-desc {
+  margin-top: var(--spacing-2);
+  font-size: var(--text-label2-size);
+  line-height: var(--text-label2-lh);
+  font-weight: var(--weight-regular);
+  color: var(--color-neutral-4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Collapsed hover label: Tooltip's bubble, built apart (fixed, so the scrolling menu never clips it). */
+.cui-sidebar-nav__hover {
+  position: fixed;
+  z-index: var(--z-float);
+  transform: translateY(-50%);
+  padding: var(--spacing-6) var(--spacing-12);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-7);
+  color: var(--color-neutral-1);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    visibility 0s linear var(--duration-fast);
+}
+.cui-sidebar-nav__hover[data-visible] {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+/* Account row, as the live build (decided 2026-11-11): as tall as its text with 8px top and bottom, a 32px avatar with
+   caption initials, the name and role wrapping instead of truncating, 4px under it. */
+.cui-sidebar-nav__user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  flex-shrink: 0;
+  padding: var(--spacing-8) var(--spacing-12);
+  margin-bottom: var(--spacing-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-sidebar-nav__user:hover,
+.cui-sidebar-nav__user[data-open] {
+  background: var(--color-neutral-2);
+}
+.cui-sidebar-nav__user:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-sidebar-nav__avatar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-bold);
+}
+.cui-sidebar-nav__user-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+.cui-sidebar-nav__user-name {
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  overflow-wrap: break-word;
+}
+.cui-sidebar-nav__user-role {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-regular);
+  color: var(--color-neutral-5);
+  overflow-wrap: break-word;
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__user {
+  justify-content: center;
+  padding: 0;
+  gap: 0;
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__user-text {
+  display: none;
+}
+
+/* Account menu: 240px whatever the rail's width, opening upward from the row, left edges flush. Fades and rises
+   4px (decided 2026-11-11, Q-SBN-6; the source has no motion). */
+.cui-sidebar-nav__menu {
+  position: fixed;
+  z-index: var(--z-menu);
+  width: var(--cui-sidebar-nav-menu-w);
+  padding: var(--spacing-4);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+}
+.cui-sidebar-nav__menu[hidden] {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cui-sidebar-nav__menu[data-open] {
+    animation: cui-sidebar-nav-menu-in var(--duration-fast) var(--ease-standard);
+  }
+}
+@keyframes cui-sidebar-nav-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-4));
+  }
+}
+.cui-sidebar-nav__menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  height: var(--control-height-md);
+  padding: 0 var(--spacing-12);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-9);
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  font-weight: var(--weight-medium);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.cui-sidebar-nav__menu-item:hover,
+.cui-sidebar-nav__menu-item:focus-visible {
+  background: var(--color-neutral-2);
+}
+/* Focus: Neutral-2 and the ring drawn inside, as Profile card's menu (the source has none; decided Q-PROFILE-2). */
+.cui-sidebar-nav__menu-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-sidebar-nav__menu-item:active {
+  background: var(--color-neutral-3);
+}
+.cui-sidebar-nav__menu-icon {
+  flex: none;
+  width: var(--icon-base);
+  height: var(--icon-base);
+}
+.cui-sidebar-nav__menu-divider {
+  margin: var(--spacing-4) 0;
+  border: none;
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+
+/* A department switch: the logo rises in. */
+@media (prefers-reduced-motion: no-preference) {
+  .cui-sidebar-nav__home[data-swap] {
+    animation: cui-sidebar-nav-logo-in var(--duration-base) var(--ease-standard);
+  }
+}
+@keyframes cui-sidebar-nav-logo-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-4));
+  }
+}
+
+/* Phones (768px and under): a content-sized card with shadow-3, capped to the window; collapsed, only its logo. */
+@media (max-width: 768px) {
+  .cui-sidebar-nav {
+    align-items: flex-start;
+  }
+  .cui-sidebar-nav__rail {
+    height: auto;
+    max-height: calc(100dvh - var(--spacing-32));
+    width: min(var(--cui-sidebar-nav-w), calc(100vw - var(--spacing-32)));
+    box-shadow: var(--shadow-3);
+  }
+  .cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__rail {
+    width: auto;
+    height: auto;
+    max-height: none;
+  }
+  .cui-sidebar-nav[data-collapsed] :is(.cui-sidebar-nav__item, .cui-sidebar-nav__scroll, .cui-sidebar-nav__footer) {
+    display: none;
+  }
+}
+
+/* Reduced motion: every transition here is instant (the source covered only the pill, card, menu fade and logo). */
+@media (prefers-reduced-motion: reduce) {
+  .cui-sidebar-nav__rail,
+  .cui-sidebar-nav__item,
+  .cui-sidebar-nav__child,
+  .cui-sidebar-nav__children,
+  .cui-sidebar-nav__scroll,
+  .cui-sidebar-nav__pill[data-animate],
+  .cui-sidebar-nav__chip,
+  .cui-sidebar-nav__card,
+  .cui-sidebar-nav__hover,
+  .cui-sidebar-nav__user {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .cui-sidebar-nav__item[data-active],
+  .cui-sidebar-nav__child[data-active],
+  .cui-sidebar-nav__chip[data-current] {
+    outline: var(--border-width-md) solid Highlight;
+    outline-offset: calc(var(--border-width-md) * -1);
+  }
+  .cui-sidebar-nav__pill {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+  .cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__dot {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}

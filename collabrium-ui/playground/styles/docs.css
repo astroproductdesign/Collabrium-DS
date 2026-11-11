@@ -15,7 +15,7 @@
 
 /* ---------- Shell ---------- */
 .docs-pane { position: relative; flex: 1; min-width: 0; overflow-y: auto; }
-a.c-sidebar-item, a.c-nav-child, a.c-back-button { text-decoration: none; }
+a.c-back-button { text-decoration: none; }
 [id] { scroll-margin-top: var(--spacing-24); }
 
 /* ---------- Page grid: article + "On this page" ---------- */
@@ -386,3 +386,13 @@ a.cui-button { text-decoration: none; }
 /* FileUploader: a narrow column (its stacked layout), and the card picture. */
 .docs-uploader-narrow { max-width: calc(var(--spacing-120) * 3); }
 .docs-uploader-thumb { width: calc(var(--spacing-120) * 2.5); pointer-events: none; }
+/* SidebarNav examples: a fixed-height column so the footer pins to the bottom and the menu scrolls. */
+.docs-sbn { display: flex; height: calc(var(--spacing-120) * 5); }
+.docs-sbn > .cui-sidebar-nav { height: 100%; }
+.docs-sbn-thumb { display: flex; height: calc(var(--spacing-120) * 1.6); overflow: hidden; pointer-events: none; }
+
+/* The site's sidebar is the library's SidebarNav: full height, with the header search icon beside the logo
+   (dls-site.css's .site-search-hdr, placed against this wrapper as it was against .c-sidebar-shell). */
+.docs-site-nav { position: relative; display: flex; height: 100%; }
+.docs-site-nav > .cui-sidebar-nav { height: 100%; }
+.cui-sidebar-nav[data-collapsed] ~ .site-search-hdr { display: none; }

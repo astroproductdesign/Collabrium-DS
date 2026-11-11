@@ -23,6 +23,8 @@ export * from './components/Chip';
 export * from './components/DatePicker';
 export * from './components/Dropdown';
 export * from './components/FileUploader';
+export * from './components/Filters';
+export * from './components/SidebarNav';
 export * from './components/ElementBadge';
 export * from './components/EmptyState';
 export * from './components/EntryCard';

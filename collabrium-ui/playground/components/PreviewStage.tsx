@@ -1,8 +1,12 @@
 'use client';
 
 // The live preview frame (DLS .comp-demo) with the Preview toolbar.
-// - Mobile width: narrows the frame to a phone width. Viewport media
-//   queries still see the real window; container-sized layouts respond.
+// - Mobile width: narrows the frame to a phone width and re-applies, inside
+//   the frame only, every `max-width` media rule a phone that wide would
+//   match (SidebarNav's card, Empty state's stacked actions…), since those
+//   queries otherwise still see the real window. Declarations measured in
+//   window units (vw, vh, dvh…) are left out: they'd size to the window,
+//   not the frame. Container-sized layouts respond on their own.
 // - Reduce motion: re-applies every `prefers-reduced-motion: reduce` rule
 //   from the loaded stylesheets inside the frame only, so each component
 //   shows its own reduced-motion behaviour without changing the OS
@@ -12,10 +16,14 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Switch } from './Switch';
 
-const MIRROR_ID = 'docs-reduced-motion-mirror';
+const MOTION_ID = 'docs-reduced-motion-mirror';
+const MOBILE_ID = 'docs-mobile-width-mirror';
+/** The phone width the Mobile width frame stands for (docs.css's --docs-mobile-width). */
+const MOBILE_WIDTH = 390;
 
-function ensureReducedMotionMirror() {
-  if (document.getElementById(MIRROR_ID)) return;
+/** Copies the matching media rules from the loaded stylesheets, scoped under `scope`, into one style element. */
+function mirrorMediaRules(id: string, matches: (media: MediaList) => boolean, scope: string, skipValue?: RegExp) {
+  if (document.getElementById(id)) return;
   const out: string[] = [];
   for (const sheet of Array.from(document.styleSheets)) {
     let rules: CSSRuleList;
@@ -25,30 +33,51 @@ function ensureReducedMotionMirror() {
       continue; // cross-origin (fonts, icons)
     }
     for (const rule of Array.from(rules)) {
-      if (!(rule instanceof CSSMediaRule) || !/prefers-reduced-motion:\s*reduce/.test(rule.media.mediaText)) continue;
+      if (!(rule instanceof CSSMediaRule) || !matches(rule.media)) continue;
       for (const inner of Array.from(rule.cssRules)) {
         if (!(inner instanceof CSSStyleRule)) continue;
         const selectors = inner.selectorText
           .split(',')
           .map(s => s.trim())
           .filter(s => !/^(html|:root|body)\b/.test(s))
-          .map(s => `[data-reduce-motion] ${s}`);
-        if (selectors.length) out.push(`${selectors.join(', ')}{${inner.style.cssText}}`);
+          .map(s => `${scope} ${s}`);
+        const decls = skipValue
+          ? Array.from(inner.style)
+              .filter(prop => !skipValue.test(inner.style.getPropertyValue(prop)))
+              .map(prop => `${prop}:${inner.style.getPropertyValue(prop)}${inner.style.getPropertyPriority(prop) ? ' !important' : ''}`)
+              .join(';')
+          : inner.style.cssText;
+        if (selectors.length && decls) out.push(`${selectors.join(', ')}{${decls}}`);
       }
     }
   }
   const style = document.createElement('style');
-  style.id = MIRROR_ID;
+  style.id = id;
   style.textContent = out.join('\n');
   document.head.appendChild(style);
 }
+
+/** Window-relative lengths: inside the narrowed frame they'd still measure the whole window. */
+const WINDOW_UNITS = /\d(?:[sld]?v[hwbi]|vmin|vmax)\b/;
+
+const isReducedMotion = (m: MediaList) => /prefers-reduced-motion:\s*reduce/.test(m.mediaText);
+
+/** A plain `(max-width: Npx)` query (and nothing else) that a phone MOBILE_WIDTH wide would match. */
+const isPhoneWidth = (m: MediaList) => {
+  const q = /^\(max-width:\s*(\d+(?:\.\d+)?)px\)$/.exec(m.mediaText.trim());
+  return !!q && Number(q[1]) >= MOBILE_WIDTH;
+};
 
 export function PreviewStage({ children, toolbar = false, label }: { children: ReactNode; toolbar?: boolean; label?: string }) {
   const [mobile, setMobile] = useState(false);
   const [reduce, setReduce] = useState(false);
   useEffect(() => {
-    if (reduce) ensureReducedMotionMirror();
+    if (reduce) mirrorMediaRules(MOTION_ID, isReducedMotion, '[data-reduce-motion]');
   }, [reduce]);
+  useEffect(() => {
+    // :where() keeps the copies at their source specificity; they sit after every sheet, like a media block at the end.
+    if (mobile) mirrorMediaRules(MOBILE_ID, isPhoneWidth, ':where(.docs-stage[data-mobile])', WINDOW_UNITS);
+  }, [mobile]);
   return (
     <div className="docs-preview">
       {toolbar && (
