@@ -1,8 +1,8 @@
 'use client';
 
 // "On this page": a sticky list of the page's sections that highlights the
-// one being read. Rows reuse the DLS sidebar's child-item style
-// (.c-nav-child), the closest existing pattern.
+// one being read. Rows reuse SidebarNav's child-item style
+// (.cui-sidebar-nav__child), the closest existing pattern.
 import { useEffect, useState } from 'react';
 
 export interface TocItem {
@@ -56,7 +56,8 @@ export function OnThisPage({ items }: { items: TocItem[] }) {
           <a
             key={it.id}
             href={`#${it.id}`}
-            className={`c-nav-child docs-toc-link${it.level === 2 ? ' is-sub' : ''}${current === it.id ? ' active' : ''}`}
+            className={`cui-sidebar-nav__child docs-toc-link${it.level === 2 ? ' is-sub' : ''}`}
+            data-active={current === it.id || undefined}
             aria-current={current === it.id ? 'location' : undefined}
           >
             {it.label}

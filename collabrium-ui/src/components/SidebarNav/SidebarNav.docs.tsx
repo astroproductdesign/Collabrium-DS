@@ -9,6 +9,8 @@ import {
   ChartLineUp,
   ClockCounterClockwise,
   FileText,
+  Folder,
+  CurrencyCircleDollar,
   Funnel,
   Gear,
   Globe,
@@ -47,7 +49,7 @@ export const usage = `import { SidebarNav } from '@collabrium/ui';
   activeId={active}
   onActiveChange={setActive}
   user={{ name: 'Bryan Wong', role: 'Head of Revenue' }}
-  userMenu={[{ id: 'settings', label: 'Settings', icon: Gear }, { id: 'out', label: 'Log out', icon: SignOut, divider: true }]}
+  userMenu={[{ id: 'logout', label: 'Log out', icon: SignOut }]}
   collapsedStorageKey="sidebar-collapsed"
 />`;
 
@@ -111,11 +113,48 @@ const MENUS: Record<string, SidebarNavSection[]> = {
   ex8: menu('ex8', [['Overview', [[House, 'Dashboard'], [ChartBar, 'Reports']]]]),
 };
 
-const user = { name: 'Bryan Wong', role: 'Head of Revenue' };
-const userMenu: SidebarNavMenuItem[] = [
-  { id: 'settings', label: 'Settings', icon: Gear },
-  { id: 'logout', label: 'Log out', icon: SignOut, divider: true },
+// Settings is a page, so it sits at the end of the main list; the account menu holds account actions (decided
+// 2026-11-11, as the live build).
+for (const [dept, sections] of Object.entries(MENUS)) {
+  const last = sections[sections.length - 1];
+  last.items.push({ id: `${dept}-settings`, label: 'Settings', icon: Gear });
+}
+
+const user = { name: 'Bryan Wong', role: 'Head of Revenue', email: 'bryan.wong@example.com' };
+const userMenu: SidebarNavMenuItem[] = [{ id: 'logout', label: 'Log out', icon: SignOut }];
+
+// A department in beta: the live Collab:Studio build's menu.
+const studioMenu: SidebarNavSection[] = [
+  {
+    id: 'studio',
+    items: [
+      { id: 'studio-dashboard', label: 'Dashboard', icon: House },
+      { id: 'studio-projects', label: 'Projects', icon: Folder },
+      { id: 'studio-finance', label: 'Finance', icon: CurrencyCircleDollar },
+      { id: 'studio-ai', label: 'AI Labs', icon: Lightbulb },
+      { id: 'studio-activity', label: 'Activity log', icon: ClockCounterClockwise },
+      { id: 'studio-settings', label: 'Settings', icon: Gear },
+    ],
+  },
 ];
+
+function BetaExample() {
+  const [active, setActive] = useState<string | null>('studio-dashboard');
+  return (
+    <div className="docs-sbn">
+      <SidebarNav
+        logo={{ kind: 'lockup', src: `${A}logo-lockups/collabStudio.svg`, iconSrc: `${A}SVG/fire.svg` }}
+        logoName="CollabStudio"
+        logoBadge="Beta"
+        sections={studioMenu}
+        activeId={active}
+        onActiveChange={setActive}
+        user={{ name: 'Gan Jia Yi', role: 'Admin', email: 'jia.yi@example.com' }}
+        userMenu={userMenu}
+      />
+    </div>
+  );
+}
 
 /** The department's home item: its first item that's a destination. */
 const homeOf = (sections: SidebarNavSection[]) => sections[0]?.items.find((i) => !i.soon && !i.children)?.id ?? null;
@@ -188,12 +227,12 @@ export const anatomy: DocsAnatomyNode[] = [
           { name: 'Section label', element: '.cui-sidebar-nav__section', description: 'Caption bold uppercase Neutral-5; a 1px Neutral-3 line above every group but the first.' },
           { name: 'Item', element: '.cui-sidebar-nav__item', description: '40px, a 20px Fill icon, body1 500 Neutral-5. Hover Neutral-2, pressed Neutral-3, active Neutral-2 with Neutral-9 bold. A count trails (an 8px dot when collapsed); "Soon" items are Neutral-4 with a Badge.' },
           { name: 'Children', element: '.cui-sidebar-nav__children', when: 'children', description: 'One level, opened inline by the parent (its caret flips); 36px body2 rows indented 16px. A parent with the active child is bold without a fill.' },
-          { name: 'Footer', element: '.cui-sidebar-nav__footer', description: 'Pinned to the bottom under a line: optional items, then the account row (36px initials avatar, name, role).' },
+          { name: 'Footer', element: '.cui-sidebar-nav__footer', description: 'Pinned to the bottom under a line: optional items, then the account row (32px initials avatar, name, role, both wrapping).' },
         ],
       },
       { name: 'Toggle', element: 'button.cui-sidebar-nav__toggle', description: 'On the logo\'s row; collapsed, a 24px floating button straddling the rail\'s edge.' },
       { name: 'Department card', element: '.cui-sidebar-nav__card', when: 'hover a chip', description: 'Neutral-7, the name (body2 bold) and its one line (label2, Neutral-4), a caret at the chip.' },
-      { name: 'Account menu', element: '.cui-sidebar-nav__menu[role="menu"]', description: '240px, opening upward from the account row: 40px items with 20px Fill icons, a hairline before Log out.' },
+      { name: 'Account menu', element: '.cui-sidebar-nav__menu[role="menu"]', description: '240px, opening upward from the account row: 40px items with 20px Fill icons (account actions, such as Log out).' },
       { name: 'Hover label', element: '.cui-sidebar-nav__hover', when: 'collapsed', description: 'Tooltip\'s bubble to the right of the hovered or focused icon.' },
     ],
   },
@@ -242,6 +281,20 @@ const [active, setActive] = useState('home-dashboard');
 />`,
   },
   {
+    id: 'beta',
+    title: 'A department in beta',
+    description: 'A live department that isn\'t final carries a Neutral Badge beside its logo (`badge` on a department, or `logoBadge`); its card shows it too. Settings is a page, so it\'s a main item; the account menu holds Log out. Hover the role for the sign-in address.',
+    render: () => <BetaExample />,
+    code: `<SidebarNav
+  logo={{ kind: 'lockup', src: '/logo-lockups/collabStudio.svg', iconSrc: '/SVG/fire.svg' }}
+  logoName="CollabStudio"
+  logoBadge="Beta"
+  sections={studioMenu}
+  user={{ name: 'Gan Jia Yi', role: 'Admin', email: 'jia.yi@example.com' }}
+  userMenu={[{ id: 'logout', label: 'Log out', icon: SignOut }]}
+/>`,
+  },
+  {
     id: 'collapsed',
     title: 'Collapsed',
     description: 'The 72px rail: icons centred, labels as a hover or focus label, counts as dots, the parent of the active child filled. Clicking a parent goes to its first child. The toggle floats on the edge. Remember the choice with `collapsedStorageKey`.',
@@ -255,11 +308,11 @@ export const props: DocsProp[] = [
   { name: 'activeId / defaultActiveId / onActiveChange', options: 'string | null / (id) => void', default: '— / null / —', description: 'The one active destination, an item or a child.' },
   { name: 'collapsed / defaultCollapsed / onCollapsedChange', options: 'boolean / (collapsed) => void', default: '— / false / —', description: 'The 72px rail.' },
   { name: 'collapsedStorageKey', options: 'string', default: '—', description: 'Remembers collapsed or expanded in the browser. `sidebarNavInitScript(key, id)` stops a flash on load.' },
-  { name: 'logo / logoName / logoHref', options: 'SidebarNavLogo / string / string', default: '— / "Collabrium" / —', description: 'The header logo without departments. `{ kind: \'live\', src, markSrc }`, `{ kind: \'lockup\', src, iconSrc }` or `{ kind: \'icon\', iconSrc }`, from the DLS logo library.' },
-  { name: 'departments', options: 'SidebarNavDepartment[]', default: '[]', description: '`{ id, name, description, icon, logo, element?, href?, soon? }`. The strip shows with 2 or more.' },
+  { name: 'logo / logoName / logoHref / logoBadge', options: 'SidebarNavLogo / string / string / string', default: '— / "Collabrium" / — / —', description: 'The header logo without departments. `{ kind: \'live\', src, markSrc }`, `{ kind: \'lockup\', src, iconSrc }` or `{ kind: \'icon\', iconSrc }`, from the DLS logo library.' },
+  { name: 'departments', options: 'SidebarNavDepartment[]', default: '[]', description: '`{ id, name, description, icon, logo, element?, href?, soon?, badge? }`. The strip shows with 2 or more. `badge` ("Beta") sits beside its logo.' },
   { name: 'department / defaultDepartment / onDepartmentChange', options: 'string / (id) => void', default: '— / the first / —', description: 'The selected department. In the product it comes from the address.' },
   { name: 'footerItems', options: 'SidebarNavItem[]', default: '[]', description: 'Items pinned in the footer above the account (Help).' },
-  { name: 'user / userMenu', options: '{ name, role, initials? } / SidebarNavMenuItem[]', default: '—', description: 'The account row and its menu (`{ id, label, icon, href?, onSelect?, divider? }`).' },
+  { name: 'user / userMenu', options: '{ name, role, email?, initials? } / SidebarNavMenuItem[]', default: '—', description: 'The account row and its menu (`{ id, label, icon, href?, onSelect?, divider? }`).' },
   { name: 'linkComponent', options: 'ElementType', default: "'a'", description: 'Renders `href` items: pass Next.js\'s `Link`.' },
   { name: 'label', options: 'string', default: '"Main"', description: 'Names the navigation landmark.' },
 ];

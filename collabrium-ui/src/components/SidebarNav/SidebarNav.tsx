@@ -92,6 +92,8 @@ export interface SidebarNavDepartment {
   href?: string;
   /** Confirmed, still being built: greyed, can't be picked, its card says "Soon". */
   soon?: boolean;
+  /** A short Neutral Badge beside its header logo and in its card, for a live department that is not final ("Beta"). */
+  badge?: string;
 }
 
 /** An action in the account menu. */
@@ -110,6 +112,8 @@ export interface SidebarNavMenuItem {
 export interface SidebarNavUser {
   name: string;
   role: string;
+  /** Shown as the role's hover title (the full sign-in address). */
+  email?: string;
   /** Override the initials worked out from the name (Profile card's rule: Malay particles skipped). */
   initials?: string;
 }
@@ -138,6 +142,8 @@ export interface SidebarNavProps extends NativeShellProps {
   logoName?: string;
   /** Where the logo links (the group home). */
   logoHref?: string;
+  /** A short Neutral Badge beside the logo without departments ("Beta"). */
+  logoBadge?: string;
   /** The Department strip, shown with 2 or more: Collabrium first, live departments, coming-soon ones last. */
   departments?: SidebarNavDepartment[];
   /** The selected department, controlled. In the product it comes from the address. */
@@ -240,6 +246,7 @@ export const SidebarNav = forwardRef<HTMLDivElement, SidebarNavProps>(function S
     logo,
     logoName = 'Collabrium',
     logoHref,
+    logoBadge,
     departments = [],
     department: departmentProp,
     defaultDepartment,
@@ -519,6 +526,7 @@ export const SidebarNav = forwardRef<HTMLDivElement, SidebarNavProps>(function S
   const headLogo = dept?.logo ?? logo;
   const headName = dept?.name ?? logoName;
   const headHref = dept?.href ?? logoHref;
+  const headBadge = dept ? dept.badge : logoBadge;
   const [logoKey, setLogoKey] = useState(0);
   const lastLogoDept = useRef(deptId);
   useEffect(() => {
@@ -631,6 +639,11 @@ export const SidebarNav = forwardRef<HTMLDivElement, SidebarNavProps>(function S
                 <LogoArt logo={headLogo} name={headName} />
               </span>
             )}
+            {headBadge && (
+              <span key={`b${logoKey}`} className="cui-sidebar-nav__badge">
+                <Badge variant="neutral">{headBadge}</Badge>
+              </span>
+            )}
           </div>
         )}
 
@@ -689,7 +702,9 @@ export const SidebarNav = forwardRef<HTMLDivElement, SidebarNavProps>(function S
                 </span>
                 <span className="cui-sidebar-nav__user-text">
                   <span className="cui-sidebar-nav__user-name">{user.name}</span>
-                  <span className="cui-sidebar-nav__user-role">{user.role}</span>
+                  <span className="cui-sidebar-nav__user-role" title={user.email}>
+                    {user.role}
+                  </span>
                 </span>
               </button>
             )}
@@ -722,7 +737,7 @@ export const SidebarNav = forwardRef<HTMLDivElement, SidebarNavProps>(function S
             <>
               <div className="cui-sidebar-nav__card-title">
                 {card.d.name}
-                {card.d.soon && <Badge variant="neutral">Soon</Badge>}
+                {card.d.soon ? <Badge variant="neutral">Soon</Badge> : card.d.badge && <Badge variant="neutral">{card.d.badge}</Badge>}
               </div>
               <div className="cui-sidebar-nav__card-desc">{card.d.description}</div>
             </>

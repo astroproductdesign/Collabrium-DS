@@ -33,12 +33,10 @@
 
   Specificity follows the source: item base, hover, focus, pressed, disabled, active; the collapsed rules after.
 
-  No token, kept local (the DS's own one-offs; TODO(open-question Q-SBN-9)):
+  No token, kept local (the DS's own one-offs; decided 2026-11-11, Q-SBN-9):
     --cui-sidebar-nav-w 240px            expanded width
     --cui-sidebar-nav-rail 72px          collapsed width
     --cui-sidebar-nav-child 36px         a child item's height
-    --cui-sidebar-nav-user 56px          the account row's height
-    --cui-sidebar-nav-avatar 36px        its avatar
     --cui-sidebar-nav-menu-w 240px       the account menu's width
     --cui-sidebar-nav-live-w 118px / -live-h 22px / -live-crop 16px / -live-frame 53px
                                          the live logo's crop of logo.html
@@ -60,8 +58,6 @@
   --cui-sidebar-nav-w: 240px;
   --cui-sidebar-nav-rail: 72px;
   --cui-sidebar-nav-child: 36px;
-  --cui-sidebar-nav-user: 56px;
-  --cui-sidebar-nav-avatar: 36px;
   --cui-sidebar-nav-menu-w: 240px;
   --cui-sidebar-nav-live-w: 118px;
   --cui-sidebar-nav-live-h: 22px;
@@ -95,6 +91,8 @@
   background: var(--color-neutral-1);
   border: var(--border-width-sm) solid var(--color-neutral-3);
   border-radius: var(--radius-lg);
+  /* shadow-1 on the page (the live build; decided 2026-11-11); the phone card lifts to shadow-3. */
+  box-shadow: var(--shadow-1);
   overflow-x: clip;
   transition: width var(--duration-slow) var(--ease-standard);
 }
@@ -111,6 +109,28 @@
 }
 .cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__header {
   justify-content: center;
+}
+/* Expanded, the header keeps clear of the toggle that sits over its right end; a logo beside a badge shrinks to fit
+   (drawn smaller inside its 30px box, so the header never changes height). */
+.cui-sidebar-nav:not([data-collapsed]) .cui-sidebar-nav__header {
+  padding-right: var(--cui-sidebar-nav-toggle);
+}
+.cui-sidebar-nav__home {
+  min-width: 0;
+}
+.cui-sidebar-nav__home:has(+ .cui-sidebar-nav__badge) .cui-sidebar-nav__logo-lockup {
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+/* A department's badge ("Beta") beside its logo, 8px after it; expanded only (decided 2026-11-11). */
+.cui-sidebar-nav__badge {
+  display: inline-flex;
+  flex: none;
+  margin-left: var(--spacing-8);
+}
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__badge {
+  display: none;
 }
 .cui-sidebar-nav__home {
   display: flex;
@@ -202,8 +222,19 @@
   border: none;
   border-top: var(--border-width-sm) solid var(--color-neutral-3);
 }
-.cui-sidebar-nav[data-collapsed] :is(.cui-sidebar-nav__section, .cui-sidebar-nav__divider, .cui-sidebar-nav__label, .cui-sidebar-nav__count, .cui-sidebar-nav__soon) {
+.cui-sidebar-nav[data-collapsed] :is(.cui-sidebar-nav__section, .cui-sidebar-nav__divider, .cui-sidebar-nav__count, .cui-sidebar-nav__soon) {
   display: none;
+}
+/* Collapsed, a label is hidden from sight only, so each icon-only item keeps its name for screen readers. */
+.cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* Nav item: 40px (taller when the label wraps), 12px in, 12px icon gap, body1 500 Neutral-5. */
@@ -298,7 +329,7 @@
   color: var(--color-neutral-5);
 }
 /* Collapsed: every icon centred in the 72px rail. A count becomes an 8px dot on the icon, in the department's
-   element colour (Neutral-9 without one; TODO(open-question Q-SBN-3)). A parent with the active child takes the
+   element colour (Neutral-9 without one; decided 2026-11-11, Q-SBN-3). A parent with the active child takes the
    active fill, since its label (the only other signal) is hidden. */
 .cui-sidebar-nav__dot {
   display: none;
@@ -383,7 +414,7 @@
   color: var(--color-neutral-9);
   font-weight: var(--weight-bold);
 }
-/* Disabled child: as a disabled item (the source has none; TODO(open-question Q-SBN-5)). */
+/* Disabled child: as a disabled item (the source has none; decided 2026-11-11, Q-SBN-5). */
 .cui-sidebar-nav__child:disabled {
   color: var(--color-neutral-4);
   background: transparent;
@@ -667,15 +698,16 @@
   transition-delay: 0s;
 }
 
-/* Account row: 56px, a 36px initials avatar, name (body2 bold) over role (caption), both truncating. */
+/* Account row, as the live build (decided 2026-11-11): as tall as its text with 8px top and bottom, a 32px avatar with
+   caption initials, the name and role wrapping instead of truncating, 4px under it. */
 .cui-sidebar-nav__user {
   display: flex;
   align-items: center;
   gap: var(--spacing-12);
   width: 100%;
-  height: var(--cui-sidebar-nav-user);
   flex-shrink: 0;
-  padding: 0 var(--spacing-12);
+  padding: var(--spacing-8) var(--spacing-12);
+  margin-bottom: var(--spacing-4);
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -697,12 +729,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--cui-sidebar-nav-avatar);
-  height: var(--cui-sidebar-nav-avatar);
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
   border-radius: var(--radius-pill);
   background: var(--color-neutral-2);
   color: var(--color-neutral-9);
-  font-size: var(--text-label2-size);
+  font-size: var(--text-caption-size);
   font-weight: var(--weight-bold);
 }
 .cui-sidebar-nav__user-text {
@@ -717,18 +749,14 @@
   line-height: var(--text-body2-lh);
   font-weight: var(--weight-bold);
   color: var(--color-neutral-9);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word;
 }
 .cui-sidebar-nav__user-role {
   font-size: var(--text-caption-size);
   line-height: var(--text-caption-lh);
   font-weight: var(--weight-regular);
   color: var(--color-neutral-5);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word;
 }
 .cui-sidebar-nav[data-collapsed] .cui-sidebar-nav__user {
   justify-content: center;
@@ -740,7 +768,7 @@
 }
 
 /* Account menu: 240px whatever the rail's width, opening upward from the row, left edges flush. Fades and rises
-   4px (TODO(open-question Q-SBN-6); the source has no motion). */
+   4px (decided 2026-11-11, Q-SBN-6; the source has no motion). */
 .cui-sidebar-nav__menu {
   position: fixed;
   z-index: var(--z-menu);
@@ -821,6 +849,9 @@
 
 /* Phones (768px and under): a content-sized card with shadow-3, capped to the window; collapsed, only its logo. */
 @media (max-width: 768px) {
+  .cui-sidebar-nav {
+    align-items: flex-start;
+  }
   .cui-sidebar-nav__rail {
     height: auto;
     max-height: calc(100dvh - var(--spacing-32));
