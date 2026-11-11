@@ -1,0 +1,407 @@
+/*
+  Action bar (Toolbar) — ported from collabrium-dls/components.css lines 3328–3572 (.c-action-bar*: the fixed layer,
+  the panel, the row, the avatar stack, head, actions, chips, the gated Primary, the AI shimmer, the spacer, the
+  ≤640px container layout, touch, reduced motion and forced colours).
+
+  Mapping from the old classes:
+    section.c-action-bar (.is-open, .is-instant)  -> section.cui-action-bar ([data-open], [data-instant])
+    .c-action-bar-users / -picks                  -> [data-variant="users" | "picks"]
+    .c-action-bar-ai                              -> [data-ai]
+    (demo wrapper .actionbar-demo, preview.html 328) -> [data-placement="inline"] (in flow, always shown)
+    .c-action-bar-panel / -main                   -> __panel / __main
+    .c-action-bar-wide / -narrow                  -> __wide / __narrow (the avatar copies; aria-hidden)
+    .c-action-bar-stack / -avatar                 -> __stack / __avatar
+    .c-action-bar-head / -title / -desc           -> __head / __title / __desc
+    .c-action-bar-actions / -clear                -> __actions / __clear (a wrapper round the Ghost Button)
+    .c-action-bar-list / -pick / -name            -> __list / __pick (on Chip's .cui-chip[data-kind="input"]) / __name
+    .c-action-bar .c-chip-remove                  -> .cui-action-bar .cui-chip__remove (Chip's ×)
+    .sr-only                                      -> __sr
+    .c-action-bar-spacer                          -> .cui-action-bar-spacer
+    --c-action-bar-inset-start / -lift / -clearance -> --cui-action-bar-inset-start (the host sets it on <html>) /
+                                                    -lift (the component, on the bar) / -clearance (the component, on <html>)
+    .c-action-bar .c-btn-primary[aria-disabled]   -> (none: Button's own aria-disabled rule gives the same Neutral-4 /
+                                                    Neutral-1 and not-allowed cursor)
+    c-prompt-bar-glow-move                        -> cui-prompt-bar-glow-move (PromptInputBar.css's keyframe, by name)
+    data-size-narrow="sm" (the script's swap)     -> the component sets the Buttons' size from the bar's width
+
+  No token, kept local (the source's one-offs, as the DS records them):
+    --cui-action-bar-max 880px        the panel's cap
+    --cui-action-bar-avatar 32px      the avatar (Search input's)
+    --cui-action-bar-overlap -10px    the avatar overlap
+    --cui-action-bar-glow -4px / 16px / .7  the AI glow's inset, blur and opacity (Prompt input bar's)
+    --cui-action-bar-hit -10px        the chip ×'s hit lift on coarse pointers
+    z-index 40                        --z-bar (the token now exists)
+    640px                             the container breakpoint (and the window step for the bottom offset)
+
+  Specificity: one class per part, plus one attribute for a variant or state, matching the source's
+  `.c-action-bar-users .c-action-bar-x` (0,2,0).
+*/
+
+.cui-action-bar {
+  --cui-action-bar-max: 880px;
+  --cui-action-bar-avatar: 32px;
+  --cui-action-bar-overlap: -10px;
+  --cui-action-bar-hit: -10px;
+  position: fixed;
+  left: var(--cui-action-bar-inset-start, 0px);
+  right: 0;
+  bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-bar);
+  box-sizing: border-box;
+  /* A page's own `section` styles never move it: no block padding or margin (the source sets only the sides). */
+  margin: 0;
+  padding-block: 0;
+  padding-inline: max(var(--spacing-16), env(safe-area-inset-left, 0px)) max(var(--spacing-16), env(safe-area-inset-right, 0px));
+  pointer-events: none;
+  container: cui-action-bar / inline-size;
+  visibility: hidden;
+  transform: translateY(calc(var(--cui-action-bar-lift, 0px) * -1));
+  transition: visibility 0s linear var(--duration-base), transform var(--duration-base) var(--ease-standard);
+}
+.cui-action-bar[data-open] {
+  visibility: visible;
+  transition: visibility 0s linear 0s, transform var(--duration-base) var(--ease-standard);
+}
+@media (max-width: 640px) {
+  .cui-action-bar {
+    bottom: calc(var(--spacing-12) + env(safe-area-inset-bottom, 0px));
+    padding-inline: max(var(--spacing-8), env(safe-area-inset-left, 0px)) max(var(--spacing-8), env(safe-area-inset-right, 0px));
+  }
+}
+/* In flow, always shown, at its resting place (the gallery's demo wrapper). */
+.cui-action-bar[data-placement="inline"] {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  padding: 0;
+  transform: none;
+}
+
+/* Panel: the Card/Modal surface on shadow-4, up to 880px, centred. */
+.cui-action-bar__panel {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--cui-action-bar-max);
+  margin-inline: auto;
+  padding: var(--spacing-16) var(--spacing-24);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-4);
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(calc(100% + var(--spacing-24)));
+  transition: transform var(--duration-base) var(--ease-standard), opacity var(--duration-base) var(--ease-standard);
+}
+.cui-action-bar[data-open] .cui-action-bar__panel {
+  opacity: 1;
+  transform: none;
+  transition-duration: var(--duration-slow);
+}
+.cui-action-bar[data-placement="inline"] .cui-action-bar__panel {
+  margin-inline: 0;
+}
+/* Restored on page load: settled, no entrance. */
+.cui-action-bar[data-instant],
+.cui-action-bar[data-instant] .cui-action-bar__panel {
+  transition: none;
+}
+
+/* The row: one line, never wraps, spacing-16 between parts. */
+.cui-action-bar__main {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--spacing-16);
+  min-width: 0;
+}
+
+/* The avatar copies: desktop's 4 + "+N" and the phone's 2 + "+N"; the container query shows one. */
+.cui-action-bar__wide {
+  display: flex;
+}
+.cui-action-bar__narrow {
+  display: none;
+}
+
+/* Avatar stack (users): 32px circles, a 2px Neutral-1 ring, overlapping by 10px; label3-size initials, 700. */
+.cui-action-bar__stack {
+  flex: none;
+  display: flex;
+}
+.cui-action-bar__avatar {
+  position: relative;
+  flex: none;
+  width: var(--cui-action-bar-avatar);
+  height: var(--cui-action-bar-avatar);
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-width-md) solid var(--color-neutral-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-family: var(--font-primary);
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+.cui-action-bar__avatar + .cui-action-bar__avatar {
+  margin-left: var(--cui-action-bar-overlap);
+}
+.cui-action-bar__avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Head: the title over one description line. Users: it takes the flexible space and gives it up first. Picks: its
+   natural width; the description never widens it. */
+.cui-action-bar__head {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.cui-action-bar[data-variant="picks"] .cui-action-bar__head {
+  flex: none;
+}
+.cui-action-bar[data-variant="picks"] .cui-action-bar__desc {
+  contain: inline-size;
+}
+.cui-action-bar__title {
+  margin: 0;
+  font-family: var(--font-primary);
+  font-size: var(--text-label2-size);
+  line-height: var(--text-label2-lh);
+  font-weight: var(--text-label2-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: var(--radius-sm);
+}
+.cui-action-bar__title:focus {
+  outline: none;
+}
+.cui-action-bar__title:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-action-bar__desc {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Actions: dismiss first, commit last; never shrink, never move. */
+.cui-action-bar__actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin-left: auto;
+}
+.cui-action-bar__clear {
+  display: inline-flex;
+}
+
+/* Chips (picks): Chip's grouping rule, wrapping in its own column, never scrolling. */
+.cui-action-bar__list {
+  flex: 1 1 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-4);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-action-bar__pick {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.cui-action-bar__name {
+  min-width: 0;
+  white-space: nowrap;
+}
+.cui-action-bar__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* AI shimmer (users): Prompt input bar's glow, its keyframe by name. ::before draws the surface through a 1px
+   transparent border for the moving gradient edge; ::after is the outer blurred glow. Both behind the content, in
+   the panel's own stacking context, so they travel with it. */
+.cui-action-bar[data-ai] .cui-action-bar__panel {
+  --cui-action-bar-glow-inset: -4px;
+  --cui-action-bar-glow-blur: 16px;
+  --cui-action-bar-glow-opacity: 0.7;
+  --cui-action-bar-gradient: linear-gradient(90deg, var(--color-fire-pastel) 0%, var(--color-wood-pastel) 20%, var(--color-earth-pastel) 40%, var(--color-water-pastel) 60%, var(--color-gold-pastel) 80%, var(--color-fire-pastel) 100%);
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  border-color: transparent;
+}
+.cui-action-bar[data-ai] .cui-action-bar__panel::before,
+.cui-action-bar[data-ai] .cui-action-bar__panel::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  animation: cui-prompt-bar-glow-move 4s linear infinite;
+}
+.cui-action-bar[data-ai] .cui-action-bar__panel::before {
+  z-index: -1;
+  inset: calc(var(--border-width-sm) * -1);
+  border: var(--border-width-sm) solid transparent;
+  border-radius: calc(var(--radius-lg) + var(--border-width-sm));
+  background:
+    linear-gradient(var(--color-neutral-1), var(--color-neutral-1)) padding-box,
+    var(--cui-action-bar-gradient) border-box;
+  background-size: 100% 100%, 200% 100%;
+}
+.cui-action-bar[data-ai] .cui-action-bar__panel::after {
+  z-index: -2;
+  inset: var(--cui-action-bar-glow-inset);
+  border-radius: calc(var(--radius-lg) - var(--cui-action-bar-glow-inset));
+  background-image: var(--cui-action-bar-gradient);
+  background-size: 200% 100%;
+  filter: blur(var(--cui-action-bar-glow-blur));
+  opacity: var(--cui-action-bar-glow-opacity);
+}
+
+/* Spacer: in flow at the end of the scrolling content, as tall as the open bar's clearance. */
+.cui-action-bar-spacer {
+  height: var(--cui-action-bar-clearance, 0px);
+}
+
+/* 640px or less (the bar's own width). Visual order follows DOM order.
+   Users: row 1 two avatars + "+N" and the title (the description hidden); row 2 Cancel left, Save + Create right,
+   sm, without leading icons, spacing-4 apart, wrapping only below a 360px phone.
+   Picks: row 1 the chips; row 2 the title and description left, Clear + Compare right. */
+@container cui-action-bar (max-width: 640px) {
+  .cui-action-bar__panel {
+    padding: var(--spacing-16);
+  }
+  .cui-action-bar .cui-action-bar__wide {
+    display: none;
+  }
+  .cui-action-bar .cui-action-bar__narrow {
+    display: inline-flex;
+  }
+  .cui-action-bar[data-variant="users"] .cui-action-bar__panel {
+    padding: var(--spacing-16) var(--spacing-12);
+  }
+  .cui-action-bar[data-variant="users"] .cui-action-bar__main {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "stack head" "actions actions";
+    gap: var(--spacing-12);
+  }
+  .cui-action-bar[data-variant="users"] .cui-action-bar__stack {
+    grid-area: stack;
+  }
+  .cui-action-bar[data-variant="users"] .cui-action-bar__head {
+    grid-area: head;
+  }
+  .cui-action-bar[data-variant="users"] .cui-action-bar__desc {
+    display: none;
+  }
+  .cui-action-bar[data-variant="users"] .cui-action-bar__actions {
+    grid-area: actions;
+    margin-left: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--spacing-4);
+  }
+  .cui-action-bar[data-variant="users"] .cui-action-bar__clear {
+    margin-right: auto;
+  }
+  .cui-action-bar[data-variant="picks"] .cui-action-bar__main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "list list" "head actions";
+    gap: var(--spacing-12) var(--spacing-16);
+  }
+  .cui-action-bar[data-variant="picks"] .cui-action-bar__list {
+    grid-area: list;
+  }
+  .cui-action-bar[data-variant="picks"] .cui-action-bar__head {
+    grid-area: head;
+    min-width: 0;
+  }
+  .cui-action-bar[data-variant="picks"] .cui-action-bar__actions {
+    grid-area: actions;
+  }
+}
+
+/* Touch: buttons stay sm; the chip × keeps its 24px box and lifts its hit area to 44px. */
+@media (hover: none), (pointer: coarse) {
+  .cui-action-bar__list {
+    gap: var(--spacing-20) var(--spacing-8);
+  }
+  .cui-action-bar .cui-chip__remove {
+    position: relative;
+  }
+  .cui-action-bar .cui-chip__remove::after {
+    content: "";
+    position: absolute;
+    inset: var(--cui-action-bar-hit);
+    border-radius: var(--radius-pill);
+  }
+}
+
+/* Reduced motion: no travel; a short opacity fade only. The AI glow stays, still. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-action-bar {
+    transition: visibility 0s linear var(--duration-fast);
+  }
+  .cui-action-bar[data-open] {
+    transition: none;
+  }
+  .cui-action-bar__panel,
+  .cui-action-bar[data-open] .cui-action-bar__panel {
+    transform: none;
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+  .cui-action-bar[data-ai] .cui-action-bar__panel::before,
+  .cui-action-bar[data-ai] .cui-action-bar__panel::after {
+    animation: none;
+  }
+}
+
+/* Forced colours: the 1px border carries the edge; a gated action is GrayText; the AI glow hides. */
+@media (forced-colors: active) {
+  .cui-action-bar .cui-button[aria-disabled="true"] {
+    color: GrayText;
+  }
+  .cui-action-bar[data-ai] .cui-action-bar__panel::before,
+  .cui-action-bar[data-ai] .cui-action-bar__panel::after {
+    display: none;
+  }
+  .cui-action-bar[data-ai] .cui-action-bar__panel {
+    background: Canvas;
+    border-color: CanvasText;
+  }
+}

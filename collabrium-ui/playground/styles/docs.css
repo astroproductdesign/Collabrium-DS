@@ -396,3 +396,18 @@ a.cui-button { text-decoration: none; }
 .docs-site-nav { position: relative; display: flex; height: 100%; }
 .docs-site-nav > .cui-sidebar-nav { height: 100%; }
 .cui-sidebar-nav[data-collapsed] ~ .site-search-hdr { display: none; }
+
+/* App Shell examples: a bounded frame the shell fills (fit="container"), 480px tall as the DLS gallery's; the grid
+   example sits on the canvas the shell would give it. */
+.docs-shell { height: calc(var(--spacing-120) * 4); overflow: hidden; border-radius: var(--radius-md); }
+.docs-shell--thumb { height: calc(var(--spacing-120) * 1.6); pointer-events: none; }
+.docs-canvas { padding: var(--spacing-24); background: var(--color-canvas-warm); border-radius: var(--radius-md); }
+
+/* Action bar live examples: the list's heading, the fallback focus target when the bar leaves. */
+.docs-demo-heading { margin: 0; font-size: var(--text-label1-size); line-height: var(--text-label1-lh); font-weight: var(--weight-bold); color: var(--color-neutral-9); }
+/* The page's sidebar width, so a fixed Action bar centres over the content (the DS leaves it to the page):
+   the rail's 16px inset plus 240px, or its 72px collapsed rail. Below 900px the rail is hidden. */
+@media (min-width: 901px) {
+  :root { --cui-action-bar-inset-start: calc(var(--spacing-16) + var(--spacing-120) * 2); }
+  :root:has(#siteSidebar[data-collapsed]) { --cui-action-bar-inset-start: calc(var(--spacing-16) + var(--spacing-24) * 3); }
+}

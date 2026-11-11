@@ -11,7 +11,9 @@ export { duration, ease, transition, slideDistance } from './motion';
 export { FadeIn, SlideUp, Collapse, type FadeInProps, type SlideUpProps, type CollapseProps } from './motion';
 
 // Components
+export * from './components/ActionBar';
 export * from './components/AdPlacementCard';
+export * from './components/AppShell';
 export * from './components/BackToTop';
 export * from './components/BackButton';
 export * from './components/Button';

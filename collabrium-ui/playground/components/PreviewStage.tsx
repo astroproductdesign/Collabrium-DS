@@ -82,7 +82,16 @@ export function PreviewStage({ children, toolbar = false, label }: { children: R
     <div className="docs-preview">
       {toolbar && (
         <div className="docs-preview-toolbar" role="group" aria-label={label ? `${label} preview options` : 'Preview options'}>
-          <Switch label="Mobile width" checked={mobile} onChange={setMobile} />
+          <Switch
+            label="Mobile width"
+            checked={mobile}
+            onChange={next => {
+              // Copy the rules in before the frame narrows, so a component that reads its own CSS when it resizes
+              // (App Shell's size step) already sees them.
+              if (next) mirrorMediaRules(MOBILE_ID, isPhoneWidth, ':where(.docs-stage[data-mobile])', WINDOW_UNITS);
+              setMobile(next);
+            }}
+          />
           <Switch label="Reduce motion" checked={reduce} onChange={setReduce} />
         </div>
       )}

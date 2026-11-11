@@ -21,6 +21,8 @@
 @import './components/FileUploader/FileUploader.css';
 @import './components/Filters/Filters.css';
 @import './components/SidebarNav/SidebarNav.css';
+@import './components/AppShell/AppShell.css';
+@import './components/ActionBar/ActionBar.css';
 @import './components/ElementBadge/ElementBadge.css';
 @import './components/EmptyState/EmptyState.css';
 @import './components/EntryCard/EntryCard.css';

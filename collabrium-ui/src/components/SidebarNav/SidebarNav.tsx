@@ -4,6 +4,7 @@ import {
   forwardRef,
   Fragment,
   useCallback,
+  useContext,
   useEffect,
   useId,
   useLayoutEffect,
@@ -17,6 +18,7 @@ import {
 } from 'react';
 import { CaretDown, CaretUp, type Icon } from '@phosphor-icons/react';
 import { Badge } from '../Badge';
+import { AppShellNavContext } from '../AppShell/context';
 import { profileInitials } from '../ProfileCard/ProfileCard';
 import type { WithoutStyling } from '../../utils/types';
 
@@ -169,11 +171,19 @@ const prefersReduced = () => typeof window !== 'undefined' && window.matchMedia(
 const MENU_FADE_MS = 140; // --duration-fast: the menu's fade out before a department's menu replaces it
 const EXPAND_MS = 400; // after --duration-slow's width change, bring the selected chip back into view
 
-/** Writes the stored state onto the shell before first paint, so a collapsed rail never flashes open. */
-export function sidebarNavInitScript(storageKey: string, shellId: string): string {
+/** App Shell's tablet step: below 1024px its nav starts collapsed (App Shell's CSS has the same query). */
+const SHELL_COLLAPSE_QUERY = '(max-width: 1023px)';
+
+/**
+ * Writes the starting state onto the shell before first paint, so a collapsed rail never flashes open: the stored
+ * state, or (`appShell`, for a rail inside App Shell) collapsed whenever the window is under 1024px wide. Pass `null`
+ * as the key when nothing is stored.
+ */
+export function sidebarNavInitScript(storageKey: string | null, shellId: string, options: { appShell?: boolean } = {}): string {
   const k = JSON.stringify(storageKey);
   const id = JSON.stringify(shellId);
-  return `try{if(localStorage.getItem(${k})==='1'){var s=document.getElementById(${id});if(s)s.setAttribute('data-collapsed','')}}catch(e){}`;
+  const shell = options.appShell ? `matchMedia(${JSON.stringify(SHELL_COLLAPSE_QUERY)}).matches||` : '';
+  return `try{if(${shell}(${k}&&localStorage.getItem(${k})==='1')){var s=document.getElementById(${id});if(s)s.setAttribute('data-collapsed','')}}catch(e){}`;
 }
 
 /** The gallery's toggle glyph: a panel with its divider and an arrow (the DS names Remix's sidebar-fold / -unfold). */
@@ -288,16 +298,27 @@ export const SidebarNav = forwardRef<HTMLDivElement, SidebarNavProps>(function S
     else if (ref) ref.current = el;
   };
 
-  // ---- collapsed, persisted ----
+  // ---- collapsed, persisted; inside App Shell, collapsed on a tablet or phone ----
+  const shellTier = useContext(AppShellNavContext);
   useLayoutEffect(() => {
-    if (!collapsedStorageKey || collapsedProp !== undefined) return;
-    try {
-      const v = localStorage.getItem(collapsedStorageKey);
-      if (v === '1' || v === '0') setOwnCollapsed(v === '1');
-    } catch {
-      /* storage blocked */
+    if (collapsedProp !== undefined) return;
+    if (shellTier === 'tablet' || shellTier === 'phone') {
+      setOwnCollapsed(true);
+      return;
     }
-  }, [collapsedStorageKey, collapsedProp]);
+    let next = defaultCollapsed;
+    if (collapsedStorageKey) {
+      try {
+        const v = localStorage.getItem(collapsedStorageKey);
+        if (v === '1' || v === '0') next = v === '1';
+      } catch {
+        /* storage blocked */
+      }
+    }
+    setOwnCollapsed(next);
+    // defaultCollapsed is a starting value: a later change doesn't reset the rail.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collapsedStorageKey, collapsedProp, shellTier]);
   const setCollapsed = (next: boolean) => {
     if (collapsedProp === undefined) setOwnCollapsed(next);
     onCollapsedChange?.(next);

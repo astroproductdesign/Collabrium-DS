@@ -25,7 +25,7 @@ Transcribed from the teammate's `SidebarNav.jsx`; the Department strip, its card
 | `sections` | `SidebarNavSection[]` | required | `{ id, label?, items }`. Item: `{ id, label, icon, href?, onSelect?, count?, soon?, disabled?, children?, defaultExpanded? }`. Child: `{ id, label, href?, onSelect?, disabled? }`. |
 | `activeId`, `defaultActiveId`, `onActiveChange` | string \| null, `(id) => void` | —, `null` | The one active destination, an item or a child. |
 | `collapsed`, `defaultCollapsed`, `onCollapsedChange` | boolean, `(collapsed) => void` | —, `false` | The 72px rail. |
-| `collapsedStorageKey` | string | — | Remembers collapsed or expanded in the browser. `sidebarNavInitScript(key, id)` in the page head stops a flash on load. |
+| `collapsedStorageKey` | string | — | Remembers collapsed or expanded in the browser. `sidebarNavInitScript(key, id)` in the page head stops a flash on load. Inside App Shell an uncontrolled rail is collapsed below 1024px; pass `{ appShell: true }` to the script there. |
 | `logo`, `logoName`, `logoHref`, `logoBadge` | `SidebarNavLogo`, string, string, string | —, `"Collabrium"`, —, — | The header logo without departments: `{ kind: 'live', src, markSrc }` (logo.html, logo-mark.html), `{ kind: 'lockup', src, iconSrc }`, `{ kind: 'icon', iconSrc }`. |
 | `departments` | `SidebarNavDepartment[]` | `[]` | `{ id, name, description, icon, logo, element?, href?, soon?, badge? }`. The strip shows with 2 or more; `badge` ("Beta") sits beside its logo. |
 | `department`, `defaultDepartment`, `onDepartmentChange` | string, `(id) => void` | —, the first, — | The selected department. In the product it comes from the address. |

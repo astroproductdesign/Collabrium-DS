@@ -40,7 +40,7 @@ The base surface for grouping content: dashboard tiles, list items, panels. Neut
 | `CardGrid` `columns` | `base`, `functional` | `base` | The narrowest a column gets: 240px, or 280px for cards that need more room. |
 
 ## Rules
-1. A card is 100% of its grid cell and never narrower than 240px. The grid, not the card, decides the number of columns (`repeat(auto-fill, minmax(240px, 1fr))`). In a row that mixes cards with different floors, use the largest. (DESIGN-SYSTEM.md 2670–2700.)
+1. A card is 100% of its grid cell and never narrower than 240px. The grid, not the card, decides the number of columns (`repeat(auto-fill, minmax(240px, 1fr))`). In a row that mixes cards with different floors, use the largest. (DESIGN-SYSTEM.md 2670–2700.) Inside App Shell's ContentGrid the floor doesn't apply: the box's span sets its width (decided 2026-11-11, Q-SHELL-8).
 2. Every card in a grid row is as tall as the tallest. Its own content stays at the top; the extra height is absorbed below. A card's call to action sits at the bottom of the card.
 3. A clickable card is made by its title: a real link (`href`) or button (`onClick`) stretched over the whole card, not a click handler on a `div`. The card raises to shadow-2 on hover and shows the shadow-focus halo when the title has keyboard focus. Other buttons inside the card stay separate and reachable. (Decided in review: Q-CARD-1.)
 4. The title is a real heading. The level is yours to set (3 by default) so the card fits the page's outline; the look is always h5. (Q-CARD-2.)
