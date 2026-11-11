@@ -1,0 +1,166 @@
+/*
+  App Shell — ported from collabrium-dls/components.css lines 2896–2976 (.c-shell, its nav placement, main column,
+  content region, the page header's gap, the ≤768px overlay and the content grid). Structure and placement only:
+  SidebarNav, PageHeader and every box keep their own styles.
+
+  Mapping from the old classes:
+    .c-shell                           -> .cui-app-shell (warm canvas; the window's height, or its parent's: data-fit)
+    .c-shell .c-sidebar-shell          -> .cui-app-shell__nav (the slot holding SidebarNav, inset 16px top/left/bottom)
+    .c-shell .c-sidebar                -> (none needed: SidebarNav's menu region already scrolls, header and strip pinned)
+    .c-shell-main                      -> .cui-app-shell__main
+    .c-shell-content                   -> main.cui-app-shell__content (the only part that scrolls)
+                                          + .cui-app-shell__inner (stacks regions 48px apart; [data-width="reading"])
+    .c-shell .c-pageheader (48px under)-> .cui-app-shell__header (the header slot; the 48px is the stack's gap)
+    .c-shell-grid                      -> .cui-content-grid
+    .c-shell-grid > .c-shell-span-N    -> .cui-content-grid__item[data-span="N"]
+
+  Differences from the source (MIGRATION-LOG SHELL-1 to SHELL-14; kept, decided 2026-11-11):
+    - The gallery's 480px demo height is the docs frame's, not the component's: `viewport` is 100dvh, `container`
+      is 100% of the parent (SHELL-2).
+    - Below 768px the nav slot is absolute in the shell, in both fits. The shell is the window and never scrolls,
+      so this sits exactly where the DS's `position: fixed` does, and works in a bounded frame too (SHELL-3).
+    - The overlay's z-index is --z-float (20), not the source's 5 (SHELL-4).
+    - Regions in the content stack 48px apart (--section-gap, the DS's Section gap); the source has no stacking rule
+      and its gallery spaces the grid with an inline 24px (SHELL-5).
+    - Reading width (1200px, --content-max-width) is the DS's Max-width row; the source has no rule (SHELL-6).
+    - A full-page Empty state fills the content region (SHELL-7, Q-EMPTY-3).
+
+  No token, kept local:
+    1023px / 768px              the tablet and phone steps (in the media queries; 768px is SidebarNav's)
+
+  Decided 2026-11-11 (Q-SHELL-1 to Q-SHELL-7, all as recommended): below 1024px the nav starts collapsed (the DS's
+  tablet tier, not in the CSS); at 768px and under the grid stacks to one column (no narrow layout in the CSS); the
+  rest of the differences above are kept. Q-SHELL-8: a box inside the grid fits its span (Card's 240px floor
+  doesn't apply there).
+
+  Specificity: every rule is one class (or one class and an attribute), as the source's are; nothing competes.
+*/
+
+.cui-app-shell {
+  /* The size step, read by the component (SidebarNav collapses below desktop). Set by the media queries below. */
+  --cui-app-shell-tier: desktop;
+  position: relative;
+  display: flex;
+  height: 100dvh;
+  background: var(--color-canvas-warm);
+  font-family: var(--font-primary);
+}
+.cui-app-shell[data-fit="container"] {
+  height: 100%;
+}
+
+/* The nav sits in the row, inset 16px from the top, left and bottom; the rail stretches to the shell's height less
+   those 32px. No right inset: the content's gutter is the gap. */
+.cui-app-shell__nav {
+  flex: 0 0 auto;
+  display: flex;
+  margin: var(--spacing-16) 0 var(--spacing-16) var(--spacing-16);
+}
+
+.cui-app-shell__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The content region: the only part that scrolls. 32px sides and bottom, 48px top. */
+.cui-app-shell__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--page-gutter);
+  padding-top: var(--section-gap);
+}
+.cui-app-shell__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  min-height: 100%;
+  /* A full-page Empty state fills what's left of the region instead of a whole window's height, so the region
+     doesn't scroll for it (Q-EMPTY-3: App Shell sets it). */
+  --cui-empty-state-fullpage-min-height: 0px;
+}
+.cui-app-shell__inner > .cui-empty-state[data-variant="fullpage"] {
+  flex: 1;
+}
+.cui-app-shell__inner[data-width="reading"] {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+}
+
+/* Tablets (1023px and under): the nav starts collapsed to its 72px rail; the person can still expand it (decided
+   2026-11-11, Q-SHELL-1). The rail itself is SidebarNav's; only the starting state is the shell's. */
+@media (max-width: 1023px) {
+  .cui-app-shell {
+    --cui-app-shell-tier: tablet;
+  }
+}
+
+/* Phones (768px and under): the nav floats over the content as SidebarNav's card, 16px from the top and left, with
+   no scrim; the content takes the full width and starts below the collapsed card. */
+@media (max-width: 768px) {
+  .cui-app-shell {
+    --cui-app-shell-tier: phone;
+  }
+  .cui-app-shell__nav {
+    position: absolute;
+    top: var(--spacing-16);
+    bottom: var(--spacing-16);
+    left: var(--spacing-16);
+    z-index: var(--z-float);
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0;
+    /* The slot runs the shell's height so the card can be capped to it; only the card itself takes clicks. */
+    pointer-events: none;
+  }
+  /* The card is never taller than the shell less its two 16px insets; its menu region scrolls past that. */
+  .cui-app-shell__nav > * {
+    flex-direction: column;
+    max-height: 100%;
+    pointer-events: auto;
+  }
+  /* Clears the collapsed card (16px inset + its height): spacing-120, the source's value. */
+  .cui-app-shell__content {
+    padding-top: var(--spacing-120);
+  }
+}
+
+/* Content grid: 4 equal columns (minmax(0, 1fr), so content can't widen one), 16px between boxes in a row (20px
+   optional), 24px between rows. Every box in a row stretches to the tallest. */
+.cui-content-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--spacing-16);
+  row-gap: var(--spacing-24);
+}
+.cui-content-grid[data-gap="20"] {
+  column-gap: var(--spacing-20);
+}
+/* The item is a one-cell grid, so the box inside it fills the stretched height. */
+.cui-content-grid__item {
+  display: grid;
+  min-width: 0;
+}
+/* The box fills its span exactly: Card's 240px floor doesn't apply here (it's CardGrid's, where it decides when a
+   column drops). Without this a 1-column card overlapped its neighbour under about 1,000px of content (decided
+   2026-11-11, Q-SHELL-8). Two classes, so it outranks any box's own one-class minimum. */
+.cui-content-grid .cui-content-grid__item > * {
+  min-width: 0;
+}
+.cui-content-grid__item[data-span="1"] { grid-column: span 1; }
+.cui-content-grid__item[data-span="2"] { grid-column: span 2; }
+.cui-content-grid__item[data-span="3"] { grid-column: span 3; }
+.cui-content-grid__item[data-span="4"] { grid-column: span 4; }
+
+/* Phones (768px and under): every box takes the full width, one per row, 24px apart, in the same order (decided
+   2026-11-11, Q-SHELL-2; the source keeps 4 columns, and the boxes overflowed). */
+@media (max-width: 768px) {
+  .cui-content-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cui-content-grid__item[data-span] {
+    grid-column: auto;
+  }
+}
