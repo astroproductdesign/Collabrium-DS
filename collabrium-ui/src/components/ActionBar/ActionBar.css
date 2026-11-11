@@ -48,6 +48,9 @@
   bottom: calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
   z-index: var(--z-bar);
   box-sizing: border-box;
+  /* A page's own `section` styles never move it: no block padding or margin (the source sets only the sides). */
+  margin: 0;
+  padding-block: 0;
   padding-inline: max(var(--spacing-16), env(safe-area-inset-left, 0px)) max(var(--spacing-16), env(safe-area-inset-right, 0px));
   pointer-events: none;
   container: cui-action-bar / inline-size;
