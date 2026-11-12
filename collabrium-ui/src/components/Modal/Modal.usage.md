@@ -25,6 +25,7 @@ Primary (commit). The page waits until the person answers or closes it.
 | `children` | text | **required** | The body: what the decision means. |
 | `actions` | Buttons | — | The footer: Secondary first, Primary on the right. Left out, there is no footer. |
 | `closeLabel` | text | `'Close'` | The close button's accessible name. |
+| `size` | `'default'` \| `'lg'` | `'default'` | `lg`: 760px (`--measure-prose`) for a form or record with several fields; the body scrolls between a pinned header and footer. (Added 2026-11-12, not in the DLS.) |
 | `id`, `aria-*`, `data-*` | native | — | Passed to the panel. `style` and `className` are not accepted. |
 
 The `ref` is forwarded to the panel (`role="dialog"`).

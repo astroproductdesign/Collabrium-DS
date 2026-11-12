@@ -41,6 +41,7 @@ The ref goes to the trigger `<button>`. `style` and `className` are not accepted
 7. **Single:** a pick sets the date and closes.
 8. **Range:** the first pick is the start, the second the end (an earlier day starts again). Apply (Primary, off until both are picked) sets it and closes; Cancel (Secondary), Escape or a click outside keeps the old range. The footer has a 1px Neutral-3 line and 16px above it, as Modal's.
 9. **Never fill a day on hover:** the Obsidian fill is only for chosen days and range ends.
+10. **Today inside a range** keeps the band: its rounded Obsidian outline is drawn over the Neutral-2, and today as a range end is the solid end. The outline never changes the day's box. (Decided 2026-11-12.)
 
 ## Accessibility
 - The trigger is a `<button>` with `aria-haspopup="dialog"` and `aria-expanded`, named by the label and the date it shows; `aria-invalid` and `aria-describedby` for an error or helper.

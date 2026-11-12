@@ -56,7 +56,8 @@ the open bar's clearance. The page sets `--cui-action-bar-inset-start` on
    at the end. Visual order is DOM order.
 4. **Title:** "{n} {noun} selected", label2, Neutral-9, tabular figures, one
    line; the count leads so a cut only takes the noun. **Description:**
-   caption, Neutral-5, one line with an ellipsis.
+   caption (12/16, 400: Caption's own weight, never the page's; decided
+   2026-11-12), Neutral-5, one line with an ellipsis.
 5. **Actions:** real Buttons, unmodified. The Ghost dismiss is sm; the
    commit buttons are md, and sm when the bar is 640px or narrower. Dismiss
    first, the one Primary last; 8px apart.
@@ -72,7 +73,9 @@ the open bar's clearance. The page sets `--cui-action-bar-inset-start` on
    description gives the reason ("Minimum 2 formats.") and Compare is gated;
    at 4 it states the cap ("Maximum 4 formats.").
 8. **Gating:** `aria-disabled` plus the reason in `aria-describedby`, never
-   `disabled`: the action stays focusable and ignores clicks.
+   `disabled`: the action stays focusable and ignores clicks. It takes
+   Button's own disabled look, Neutral-3 border included, so disabled reads
+   the same everywhere (decided 2026-11-12).
 9. **Phones (the bar 640px or narrower):** two rows. Users: two avatars + "+N"
    and the title (no description), then Cancel left and Save + Create right,
    sm, no leading icons, 4px apart. Picks: the chips, then the title and
@@ -88,6 +91,9 @@ the open bar's clearance. The page sets `--cui-action-bar-inset-start` on
 13. **Lift:** while a toast overlaps the panel, the bar rises clear of it by
     12px. The spacer ignores the lift.
 14. **Under a modal** the bar is inert with the rest of the page.
+15. **Its own box:** the bar resets its block padding and margin, so a page's
+    `section` styles can't move it (decided 2026-11-12). `placement="inline"`
+    shows it in flow for docs and design review (decided 2026-11-12).
 
 ## Accessibility
 - A `<section>` region named by `aria-label`; the title is a heading

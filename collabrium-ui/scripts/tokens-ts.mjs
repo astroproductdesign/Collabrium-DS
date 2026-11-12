@@ -44,7 +44,7 @@ export function build(vars) {
   const out = {
     color: {}, font: {}, weight: {}, text: {}, tracking: {}, spacing: {}, layout: {},
     radius: {}, borderWidth: {}, focus: {}, control: {}, measure: {}, layer: {}, leading: {}, shadow: {},
-    duration: {}, stagger: {}, ease: {}, icon: {},
+    duration: {}, stagger: {}, ease: {}, icon: {}, illustration: {},
   };
   const used = new Set();
   const take = (name, group, key, value) => { out[group][key] = value; used.add(name); };
@@ -78,6 +78,9 @@ export function build(vars) {
     else if ((m = /^--duration-(.+)$/.exec(name))) take(name, 'duration', camel(m[1]), ms(v));
     else if ((m = /^--ease-(.+)$/.exec(name))) take(name, 'ease', camel(m[1]), bezier(v));
     else if ((m = /^--icon-(.+)$/.exec(name))) take(name, 'icon', camel(m[1]), px(v));
+    else if ((m = /^--nav-rail-(.+)$/.exec(name))) take(name, 'layout', camel(`nav-rail-${m[1]}`), px(v));
+    else if ((m = /^--ill-(tile.*)$/.exec(name))) take(name, 'illustration', camel(m[1]), px(v));
+    else if ((m = /^--ill-(.+)$/.exec(name))) take(name, 'illustration', camel(m[1]), v);
   }
   const missed = [...vars.keys()].filter(n => !used.has(n));
   if (missed.length) throw new Error(`tokens.css has variables tokens-ts.mjs does not map: ${missed.join(', ')}`);

@@ -1,0 +1,362 @@
+/* Compare modal, ported from components.css 2462–2612 (.c-modal-compare*), a variant of Modal / dialog, plus the
+   placeholder grouping at 581–586 (the slot takes Media Ad Card's own placeholder). Loaded after MediaAdModal.css.
+
+   Mapping (same specificity order as the source):
+     .c-modal-compare-layer(.is-open, .is-shown), -scrim -> Media Ad Modal's .cui-media-ad-modal-layer and __scrim
+                                                (the source's recipe under its own prefix, identical; shared here)
+     html.c-modal-compare-locked             -> the shared page hold (Modal/holdPage.ts)
+     .c-modal.c-modal-compare                -> .cui-modal.cui-compare-modal
+     .is-swinging-open / -closed             -> [data-swing], in MediaAdModal.css's grouped rules (shared keyframes)
+     .c-modal-head, -titles, -title, close   -> Modal's .cui-modal__head, __titles, __title, the library's Button
+     -hint                                   -> __hint (rendered only while the table overflows)
+     -scrollwrap(.has-more-right)            -> __scrollwrap([data-more-right])
+     .c-modal-body.c-modal-compare-scroll    -> .cui-modal__body.cui-table.__scroll (.cui-table carries Table's padding
+       (.is-scrolled-left, .is-scrolled-top)    values) ([data-scrolled-left], [data-scrolled-top])
+     .c-table.c-modal-compare-table, th, td  -> Table's .cui-table__table, __th, __td (.cui-table__body, __row)
+     -stage, -frame, -slot, -placeholder     -> __stage, __frame, __slot, the card's .cui-media-ad-card__placeholder
+     -corner, -colhead, -colname, -colfamily -> __corner, __colhead, __colname, __colfamily
+     .is-empty, -sizes, -bench, td.is-highest -> [data-empty], __sizes, __bench, td[data-highest]
+     .c-badge-success.c-modal-compare-highest -> the library's Badge, variant success
+     .c-modal-foot, -export, -plan           -> Modal's .cui-modal__foot, the library's Buttons
+
+   One-offs the DS records, kept local: the 1120px cap, the 150 / 120px label column, the 200 / 180px column floor and
+   its 640px container breakpoint, the frozen-column shadow (Table's own value). */
+
+/* Panel: Modal's recipe plus the 1px Neutral-3 border; the widest reading surface in the system. A query container. */
+.cui-modal.cui-compare-modal {
+  --cui-compare-modal-max-width: 1120px; /* recorded one-off */
+  --cui-compare-modal-max-height: 800px; /* as Media Ad Modal */
+  --cui-compare-modal-label-w: 150px; /* recorded one-off */
+  --cui-compare-modal-col-min: 200px; /* recorded one-off */
+  /* The swing's timings, read by the grouped rules in MediaAdModal.css. */
+  --cui-media-ad-modal-open-duration: 0.8s;
+  --cui-media-ad-modal-open-ease: cubic-bezier(0.25, 0.9, 0.35, 1);
+  --cui-media-ad-modal-close-duration: 0.55s;
+  --cui-media-ad-modal-close-ease: cubic-bezier(0.3, 0.6, 0.35, 1);
+  position: relative;
+  container: cui-compare-modal / inline-size;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  max-width: var(--cui-compare-modal-max-width);
+  max-height: min(var(--cui-compare-modal-max-height), calc(100dvh - var(--spacing-60)));
+  box-sizing: border-box;
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+  transform-origin: top left;
+}
+
+/* Head: the title (an h4 at the h4 token, no description) and the Ghost icon-only sm close. */
+.cui-compare-modal .cui-modal__head {
+  flex: none;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-compare-modal__titles {
+  flex: 1;
+  min-width: 0;
+}
+.cui-compare-modal .cui-compare-modal__title {
+  margin: 0;
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  font-weight: var(--text-h4-weight);
+  letter-spacing: var(--text-h4-tracking);
+  color: var(--color-neutral-9);
+}
+.cui-compare-modal__title:focus {
+  outline: none;
+}
+.cui-compare-modal__title:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+.cui-compare-modal .cui-modal__head .cui-button {
+  flex: none;
+}
+
+/* Scroll hint: a strip under the head, only while the table overflows sideways. */
+.cui-compare-modal .cui-compare-modal__hint {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: var(--spacing-8) var(--spacing-16);
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+  background: var(--color-canvas-warm-card);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-compare-modal__hint svg {
+  flex: none;
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+}
+
+/* Scroll region: both axes, focusable, an inset focus ring. */
+.cui-compare-modal__scrollwrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cui-compare-modal .cui-compare-modal__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+}
+.cui-compare-modal__scroll:focus {
+  outline: none;
+}
+.cui-compare-modal__scroll:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+/* Right-edge fade: "more columns this way". */
+.cui-compare-modal__scrollwrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--spacing-32);
+  background: linear-gradient(to right, transparent, var(--color-neutral-1));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-compare-modal__scrollwrap[data-more-right]::after {
+  opacity: 1;
+}
+
+/* Table: Table's base cells; separate borders so sticky cells keep theirs; fixed layout, at least the label column
+   plus a floor per format. */
+.cui-table__table.cui-compare-modal__table {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  width: 100%;
+  min-width: calc(var(--cui-compare-modal-label-w) + var(--cui-compare-modal-cols, 4) * var(--cui-compare-modal-col-min));
+}
+/* The label column takes its stated width through the <colgroup>: a fixed layout reads widths from the first row
+   (the Media row), so the source's width on the corner cell never applied (decided 2026-11-12, Q-CMOD-4). */
+.cui-compare-modal__labelcol {
+  width: var(--cui-compare-modal-label-w);
+}
+.cui-compare-modal__table .cui-table__th,
+.cui-compare-modal__table .cui-table__td {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.cui-compare-modal__table .cui-table__td {
+  line-height: var(--text-body2-lh);
+  font-variant-numeric: tabular-nums;
+}
+/* Column dividers, a recorded deviation from Table's bottom-rule-only border: the column is the unit being read. */
+.cui-compare-modal__table .cui-table__td,
+.cui-compare-modal__table .cui-table__th[scope='col'] {
+  border-left: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-compare-modal__table .cui-table__th[scope='row'] + .cui-table__td,
+.cui-compare-modal__table .cui-compare-modal__corner + .cui-table__th {
+  border-left: 0;
+}
+.cui-compare-modal__table tbody tr:last-child > .cui-table__th {
+  border-bottom: none;
+}
+
+/* Header: the Media row, then the Format row, which is the column header. Only the Format row is sticky. */
+.cui-compare-modal__table .cui-table__th[scope='col'],
+.cui-compare-modal__corner {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--color-neutral-1);
+}
+.cui-compare-modal__table .cui-compare-modal__corner {
+  left: 0;
+  z-index: 3;
+  border-left: 0;
+  width: var(--cui-compare-modal-label-w);
+  box-sizing: border-box;
+  background: var(--color-canvas-warm-card);
+  border-right: var(--border-width-sm) solid var(--color-neutral-3);
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--text-label3-weight);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+/* Column header: the name at h5, then the family as plain body2 text. */
+.cui-compare-modal__table .cui-compare-modal__colname {
+  display: block;
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+}
+.cui-compare-modal__table .cui-compare-modal__colfamily {
+  display: block;
+  margin-top: var(--spacing-4);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-9);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Row headers: the fact labels, sticky left, Media Ad Modal's spec-label recipe. */
+.cui-compare-modal__table .cui-table__th[scope='row'] {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--color-canvas-warm-card);
+  border-right: var(--border-width-sm) solid var(--color-neutral-3);
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--text-label3-weight);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+
+/* Scroll shadows: Table's frozen-column value sideways, shadow-1 under the pinned Format row. */
+.cui-compare-modal__scroll {
+  --cui-compare-modal-frozen-shadow: 2px 0 4px var(--cui-table-head-edge-color); /* Table's recorded value */
+}
+.cui-compare-modal__scroll[data-scrolled-left] .cui-table__th[scope='row'],
+.cui-compare-modal__scroll[data-scrolled-left] .cui-compare-modal__corner {
+  box-shadow: var(--cui-compare-modal-frozen-shadow);
+}
+.cui-compare-modal__scroll[data-scrolled-top] .cui-table__th[scope='col'],
+.cui-compare-modal__scroll[data-scrolled-top] .cui-compare-modal__corner {
+  box-shadow: var(--shadow-1);
+}
+.cui-compare-modal__scroll[data-scrolled-top][data-scrolled-left] .cui-compare-modal__corner {
+  box-shadow: var(--cui-compare-modal-frozen-shadow), var(--shadow-1);
+}
+
+/* Media row: Media Ad Modal's Frame + Slot contract (16:10, clipped). */
+.cui-compare-modal__frame {
+  position: relative;
+  overflow: hidden;
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+}
+.cui-compare-modal__slot {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--color-neutral-2);
+}
+.cui-compare-modal__slot > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+.cui-compare-modal__slot > :is(img, video, picture, iframe, canvas) {
+  display: block;
+  object-fit: cover;
+  border: 0;
+}
+
+/* Fact cells */
+.cui-compare-modal__table .cui-table__td[data-empty] {
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+.cui-compare-modal__sizes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-compare-modal__bench {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-4) var(--spacing-8);
+}
+.cui-compare-modal__table .cui-table__td[data-highest] {
+  background: var(--color-earth-bg);
+}
+
+/* Foot: the exports left, the plan pushed right, 8px apart. */
+.cui-compare-modal .cui-modal__foot {
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+}
+.cui-compare-modal .cui-modal__foot > .cui-button[data-variant='primary'] {
+  margin-left: auto;
+}
+
+/* Narrow: the panel's own width. */
+@container cui-compare-modal (max-width: 640px) {
+  .cui-compare-modal__table {
+    --cui-compare-modal-label-w: 120px; /* recorded one-off */
+    --cui-compare-modal-col-min: 180px; /* recorded one-off */
+  }
+}
+@container cui-compare-modal (max-width: 480px) {
+  .cui-compare-modal .cui-modal__foot > .cui-button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .cui-compare-modal .cui-modal__foot > .cui-button[data-variant='primary'] {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+@media (max-width: 640px) {
+  .cui-media-ad-modal-layer .cui-compare-modal {
+    max-height: calc(100dvh - var(--spacing-16));
+  }
+}
+
+/* Touch: footer buttons 44px; the close stays 32px. */
+@media (hover: none), (pointer: coarse) {
+  .cui-compare-modal .cui-modal__foot .cui-button {
+    height: var(--hit-target-min);
+  }
+  .cui-compare-modal .cui-modal__head {
+    gap: var(--spacing-12);
+  }
+}
+
+/* Reduced motion: no swing (grouped in MediaAdModal.css); the fade appears without a transition. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-compare-modal__scrollwrap::after {
+    transition: none;
+  }
+}
+/* Forced colours: the Highest cell keeps an edge; the white fade is dropped. */
+@media (forced-colors: active) {
+  .cui-compare-modal__table .cui-table__td[data-highest] {
+    outline: var(--border-width-md) solid Highlight;
+    outline-offset: calc(var(--border-width-md) * -1);
+  }
+  .cui-compare-modal__scrollwrap::after {
+    display: none;
+  }
+}

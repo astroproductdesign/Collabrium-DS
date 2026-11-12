@@ -78,6 +78,14 @@ export function PreviewStage({ children, toolbar = false, label }: { children: R
     // :where() keeps the copies at their source specificity; they sit after every sheet, like a media block at the end.
     if (mobile) mirrorMediaRules(MOBILE_ID, isPhoneWidth, ':where(.docs-stage[data-mobile])', WINDOW_UNITS);
   }, [mobile]);
+  // A modal renders at <body> level, outside the frame, so the frame can't narrow it. While Mobile width is on, <html>
+  // says so, and docs.css caps the modal panels at the phone frame's width; their own container queries then give
+  // the phone layout.
+  useEffect(() => {
+    if (!mobile) return;
+    document.documentElement.setAttribute('data-docs-mobile', '');
+    return () => document.documentElement.removeAttribute('data-docs-mobile');
+  }, [mobile]);
   return (
     <div className="docs-preview">
       {toolbar && (

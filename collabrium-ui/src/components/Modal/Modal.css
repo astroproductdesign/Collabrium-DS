@@ -82,6 +82,26 @@
   border-top: var(--border-width-sm) solid var(--color-neutral-3);
 }
 
+/*
+  Large (size="lg", added 2026-11-12 at the user's request; not in the DLS): 760px (--measure-prose) for a form or a record
+  with several fields on desktop. The panel stops scrolling as a whole: the body scrolls between a pinned header and footer,
+  so the actions stay in view. On a narrow window it is still 100% wide.
+*/
+.cui-modal[data-size="lg"] {
+  --cui-modal-max-width: var(--measure-prose);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.cui-modal[data-size="lg"] .cui-modal__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+.cui-modal[data-size="lg"] :is(.cui-modal__head, .cui-modal__foot) {
+  flex: none;
+}
+
 /* Forced colours: the shadow isn't drawn, so the panel takes a 1px CanvasText border for an edge (decided 2026-11-05, Q-MODAL-7). */
 @media (forced-colors: active) {
   .cui-modal {

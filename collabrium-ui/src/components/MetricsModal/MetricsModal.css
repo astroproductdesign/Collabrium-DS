@@ -1,0 +1,240 @@
+/* Metrics modal, ported from components.css 2264–2459 (.c-modal-media-ad-metrics*), a modifier on Media Ad Modal.
+   Everything Media Ad Modal draws applies untouched (layer, scrim, z 300, the swing, the head, the slot and Replay,
+   the title row, section titles, the related tiles, the footer and the pressed toggle); this file adds only what
+   differs. Loaded after MediaAdModal.css.
+
+   Mapping (same specificity order as the source):
+     .c-modal.c-modal-media-ad.c-modal-media-ad-metrics -> .cui-modal.cui-media-ad-modal.cui-metrics-modal
+     -metrics-cols / -side / -main                      -> .cui-metrics-modal__cols / __side / __main
+     -metrics-clip (.is-playing, .is-ended)             -> .cui-metrics-modal__clip ([data-state="playing" | "ended"])
+     -metrics-size (.is-empty)                          -> .cui-metrics-modal__size ([data-empty])
+     -metrics-bars (.is-reset), -metrics-bar            -> .cui-metrics-modal__bars ([data-reset]), __bar
+     .c-progress-track.size-default / .c-progress-fill  -> Progress Bar's .cui-progress__track[data-size="default"] /
+                                                           .cui-progress__fill (--cui-metrics-modal-bar-w / -i)
+     -metrics-bar-value (.is-empty)                     -> .cui-metrics-modal__value ([data-empty])
+     -metrics-places, -metrics-place                    -> .cui-metrics-modal__places, __place
+     -metrics-relmeta                                   -> .cui-metrics-modal__relmeta
+     -metrics-add (on -compare)                         -> the footer's Button with aria-pressed (Media Ad Modal's)
+     -plan                                              -> the footer's other Button
+
+   One-offs the DS records, kept local: the 760px panel cap, the 220px side column, the 640px two-column threshold
+   (Compare modal's boundary; a container query can't read a custom property), the fit-content(40%) label column and
+   the centred narrow foot. */
+
+/* Panel: the 760px cap for two columns (Media Ad Modal is 600px). Three classes, to beat the variant's two. */
+.cui-modal.cui-media-ad-modal.cui-metrics-modal {
+  --cui-media-ad-modal-max-width: 760px; /* recorded one-off (DESIGN-SYSTEM.md, Metrics modal) */
+}
+
+/* Columns: one by default (media on top); two when the panel is wider than 640px, a 220px side and the main column,
+   24px apart. In two columns the side is sticky at the body's own top padding, so the media and the size stay in
+   view while the main column scrolls. */
+.cui-metrics-modal__cols {
+  --cui-metrics-modal-side: 220px; /* recorded one-off: 16:10 media at 220 is 137px tall */
+  display: flex;
+  flex-direction: column;
+}
+.cui-metrics-modal__side {
+  min-width: 0;
+  margin: 0 0 var(--spacing-20);
+}
+.cui-metrics-modal__main {
+  min-width: 0;
+}
+@container cui-media-ad-modal (width > 640px) {
+  .cui-metrics-modal__cols {
+    display: grid;
+    grid-template-columns: var(--cui-metrics-modal-side) minmax(0, 1fr);
+    gap: var(--spacing-24);
+    align-items: start;
+  }
+  .cui-metrics-modal__side {
+    margin: 0;
+    position: sticky;
+    /* The source's top is spacing-16 ("the body's own top padding, so the side rests exactly where it starts"), but
+       the sticky offset is measured inside the body's padding, which puts the side 16px below the title. 0 keeps it
+       where it starts (decided 2026-11-12, Q-MMOD-2). */
+    top: 0;
+  }
+}
+
+/* Clip: plays once on open and on every swap, fades in while playing, holds its last frame once ended. */
+.cui-media-ad-modal__slot > .cui-metrics-modal__clip {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+.cui-media-ad-modal__slot > .cui-metrics-modal__clip[data-state] {
+  opacity: 1;
+}
+
+/* Headline size: the figure at the h3 token, tabular, over the label in caption Neutral-5. Missing: "Not published"
+   in the empty style. An sr-only ", " separates the two for the dialog's description. */
+.cui-metrics-modal .cui-metrics-modal__size {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-metrics-modal__size b {
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  font-weight: var(--text-h3-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-metrics-modal__size[data-empty] b {
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+
+/* Tagline: there is no description here, so the gap to the first section is the description's 20px. */
+.cui-media-ad-modal.cui-metrics-modal .cui-media-ad-modal__tagline {
+  margin-bottom: var(--spacing-20);
+}
+
+/* Bars: Metrics card's recipe one type step up. Label body2 Neutral-5 in a fit-content(40%) column that wraps,
+   Progress Bar's default 8px track and Obsidian fill, the value body2-strong in a 4ch column. Rows are
+   display:contents, so every track starts on one line. */
+.cui-metrics-modal__bars {
+  --cui-metrics-modal-label-col: fit-content(40%); /* recorded one-off */
+  display: grid;
+  grid-template-columns: var(--cui-metrics-modal-label-col) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-8) var(--spacing-12);
+  margin: 0;
+}
+.cui-metrics-modal__bar {
+  display: contents;
+}
+.cui-metrics-modal__bar dt {
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+  overflow-wrap: anywhere;
+}
+.cui-metrics-modal__bar dd {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  margin: 0;
+  min-width: 0;
+}
+.cui-metrics-modal__bar dd > .cui-progress__track {
+  flex: 1;
+  min-width: 0;
+}
+.cui-metrics-modal__value {
+  --cui-metrics-modal-value-col: 4ch; /* the card's 4ch value column ("100%") */
+  flex: none;
+  min-width: var(--cui-metrics-modal-value-col);
+  text-align: right;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-strong-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-metrics-modal__value[data-empty] {
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+/* Fill: Progress Bar's, at its value. It grows in on open and on every swap ([data-reset] for one frame): the card's
+   timing, after duration-fast plus half an instant per row. */
+.cui-metrics-modal__bars .cui-progress__fill {
+  width: clamp(0%, var(--cui-metrics-modal-bar-w, 0%), 100%);
+  transition: width var(--duration-base) var(--ease-standard)
+    calc(var(--duration-fast) + var(--cui-metrics-modal-bar-i, 0) * var(--duration-instant) / 2);
+}
+.cui-metrics-modal__bars[data-reset] .cui-progress__fill {
+  width: 0;
+  transition: none;
+}
+
+/* Where they live: a two-column list, the name (body2-strong) and its categories (body2 Neutral-5), on one shared
+   grid; 8px rows, 16px columns, no dividers, at every width. */
+.cui-metrics-modal__places {
+  display: grid;
+  grid-template-columns: fit-content(40%) minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--spacing-8) var(--spacing-16);
+  margin: 0;
+}
+.cui-metrics-modal__place {
+  display: contents;
+}
+.cui-metrics-modal__place dt {
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-strong-weight);
+  color: var(--color-neutral-9);
+  overflow-wrap: anywhere;
+}
+.cui-metrics-modal__place dd {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+  overflow-wrap: anywhere;
+}
+
+/* Also see: the related tile plus a meta line ("14M · Entertainment"), aria-hidden (the name's hidden suffix reads the
+   same facts). The name gives up its bottom padding to it. */
+.cui-metrics-modal .cui-media-ad-modal__relname {
+  padding-bottom: 0;
+}
+.cui-metrics-modal__relmeta {
+  display: block;
+  padding: 0 var(--spacing-8) var(--spacing-8);
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--weight-regular);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Narrow foot (panel 480px or less): always stacked, the Add toggle centred at its natural width above a full-width
+   Primary. DOM order is unchanged, so reading and Tab order match. */
+@container cui-media-ad-modal (max-width: 480px) {
+  .cui-metrics-modal .cui-modal__foot {
+    flex-direction: column;
+    align-items: center;
+  }
+  .cui-metrics-modal .cui-modal__foot > .cui-button[aria-pressed] {
+    margin: 0;
+  }
+  .cui-media-ad-modal.cui-metrics-modal .cui-modal__foot > .cui-button:not([aria-pressed]) {
+    flex: none;
+    align-self: stretch;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Reduced motion: no clip (the still stays), no Replay, no bar growth. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-media-ad-modal__slot > .cui-metrics-modal__clip {
+    display: none;
+  }
+  .cui-metrics-modal .cui-media-ad-modal__replay {
+    display: none;
+  }
+  .cui-metrics-modal__bars .cui-progress__fill,
+  .cui-metrics-modal__bars[data-reset] .cui-progress__fill {
+    width: clamp(0%, var(--cui-metrics-modal-bar-w, 0%), 100%);
+    transition: none;
+  }
+}

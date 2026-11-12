@@ -1,1 +1,20 @@
+// @collabrium/ui/charts — the Chart.js set (the primary charts). Needs `chart.js`.
 export { setupCharts, seriesColors, maxBarThickness } from './chart-setup';
+export { ChartCard, ChartGrid } from './ChartCard';
+export type { ChartCardProps, ChartGridProps } from './ChartCard';
+export * from './ChartColorMapping';
+export { ChartThumbnail } from './lib/bare';
+export type { ChartTable } from './lib/ChartFrame';
+export type { ChartDatum, ChartSeries, CartesianChartProps, XYPoint, XYSeries, SeriesColorName, RampColorName } from './lib/theme';
+export * from './AreaChart';
+export * from './BarChart';
+export * from './BubbleChart';
+export * from './DoughnutChart';
+export * from './LineChart';
+export * from './MixedChart';
+export * from './PieChart';
+export * from './PolarAreaChart';
+export * from './RadarChart';
+export * from './ScatterChart';
+export * from './SparklineChart';
+export * from './StackedBarChart';

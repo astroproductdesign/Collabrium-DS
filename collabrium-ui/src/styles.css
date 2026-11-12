@@ -23,6 +23,7 @@
 @import './components/SidebarNav/SidebarNav.css';
 @import './components/AppShell/AppShell.css';
 @import './components/ActionBar/ActionBar.css';
+@import './components/Notes/Notes.css';
 @import './components/ElementBadge/ElementBadge.css';
 @import './components/EmptyState/EmptyState.css';
 @import './components/EntryCard/EntryCard.css';
@@ -35,8 +36,14 @@
 @import './components/MediaAdCard/MediaAdCard.css';
 @import './components/MetricsCard/MetricsCard.css';
 @import './components/Modal/Modal.css';
+@import './components/MediaAdModal/MediaAdModal.css';
+@import './components/MetricsModal/MetricsModal.css';
+@import './components/CompareModal/CompareModal.css';
+@import './components/Timeline/Timeline.css';
+@import './components/TutorialModal/TutorialModal.css';
 @import './components/PacingCard/PacingCard.css';
 @import './components/PageHeader/PageHeader.css';
+@import './components/PageHero/PageHero.css';
 @import './components/Pagination/Pagination.css';
 @import './components/BackToTop/BackToTop.css';
 @import './components/PermissionPrompt/PermissionPrompt.css';
@@ -63,5 +70,6 @@
 @import './components/Toast/Toast.css';
 @import './components/Tooltip/Tooltip.css';
 @import './components/ToolApproval/ToolApproval.css';
+@import './charts/charts.css';
 @import './charts-extra/charts-extra.css';
 @import './motion/motion.css';

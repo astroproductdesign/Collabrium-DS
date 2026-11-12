@@ -1,0 +1,637 @@
+/*
+  Notes — ported from collabrium-dls/components.css lines 1265–1589 (the pin colours, the cell, the single pin, the
+  stack, the peek, the panel with its grid, single-note view, tinted fill, resolved banner and note field, the
+  resolved pins, the stepped-aside pin and the add button).
+
+  Mapping from the old classes (the source kept them unprefixed; here they're cui- like the rest):
+    .ncell                         -> .cui-notes
+    .npin (--pin-rot)              -> .cui-notes__pin
+    .npin-stack (--n) / .npin-mini (--i) -> .cui-notes__stack / .cui-notes__mini
+    .npeek (.is-open, .is-static)  -> .cui-notes__peek ([data-open]; [data-static] for a picture)
+    .npk-row / -sw / -body / -t / -m -> __peek-row / __swatch / __peek-body / __peek-text / __peek-meta
+    .npanel (.is-open, .is-opening, .is-static) -> .cui-notes__panel ([data-opening]; [data-static])
+    .np-top / -eyebrow / -body / -kick / -title -> __top / __eyebrow / __body / __kick / __title
+    .np-grid / .np-card (-t, -m)   -> __grid / __card (__card-text, __card-meta)
+    .np-act / .np-del              -> __actions / __delete
+    .npanel .ava / .np-top b       -> __avatar / __name
+    .np-text / .np-by / .np-res    -> __text / __by / __resolved
+    .np-box                        -> __field
+    .npanel.is-tinted.el-N         -> __panel[data-tinted][data-colour]
+    .el-0 … .el-3 (--pf, --pi)     -> [data-colour="navy" | "pink" | "green" | "orange"] (the source's el-3 is the 1st
+                                      note's orange, el-1 the 2nd's pink, el-2 the 3rd's green, el-0 the 4th's navy)
+    .is-resolved                   -> [data-resolved]
+    .np-hidden                     -> [data-hidden]
+    .nadd.c-icon-btn / .np-del.c-icon-btn -> .cui-notes__icon-btn (.c-icon-btn's 32px box and hover, built here)
+    .c-btn in .np-act              -> the library's Button (sm)
+    .c-tooltip-wrap (the cap)      -> the library's Tooltip
+
+  No token, kept local (the DS records the first two as outside the scales):
+    --cui-notes-pin-w 48.94px, --cui-notes-pin-h 54.83px   the single pin
+    --cui-notes-mini-w 42px, -mini-h 48px, -step 16px, -tilt 12deg  the stack's card, its step and tilt (the DS's 3deg,
+                                    exaggerated; decided 2026-11-12, user)
+    --cui-notes-sw-w 28px, -sw-h 32px, -sw-r 8px, -sw-icon 11px   the peek's pin (16 × 32/48)
+    --cui-notes-peek-w 280px, --cui-notes-panel-w 340px, --cui-notes-field-h 132px
+    --cui-notes-meta-gap 5px, --cui-notes-meta-icon 12px, --cui-notes-del-icon 24px, --cui-notes-res-icon 14px
+    --cui-notes-off .38             the disabled controls' opacity
+    the glyph inks #BE2E00, #C23154, #007B52, #0051AE (the DS's table)
+    the colour-mix shares: 20% (resolved pin), 67% / 78% (resolved card / hover), 28% (tinted rules), 20% / 16% / 45% /
+    12% (tinted avatar, delete hover, Secondary edge, field focus), .94 (card hover brightness)
+  Tokens where the source wrote literals: the ink on a fill is --color-neutral-1 / --color-obsidian (the source kept
+  #FFFFFF / #2B2B2C literal against a dark mode the library's tokens don't have); --pin-rot's 2deg on the single pin
+  is the gallery's inline value.
+
+  Text set in a type style takes that style's own weight (body2 / caption: 400), not the page's 500: the source sets
+  none and inherits, which in the library's body1 page reads 500 (the rule decided for Action bar, Q-ABAR-4; NOTES-6).
+
+  Decided 2026-11-12 (Q-NOTES-1 to Q-NOTES-8, all as recommended): the behaviour from the DS text; "All notes" back
+  to the grid; "Pinned by"; the cap's wording; aria-disabled add buttons at the cap; forced-colours edges; the views
+  after a save or delete and a new note's colour; the API.
+
+  Specificity: one class per part plus one attribute for a colour or state, as the source's `.npin.el-3` /
+  `.np-card.is-resolved` (0,2,0); the tinted panel's descendants at (0,3,0) as `.npanel.is-tinted .np-x`.
+*/
+
+.cui-notes {
+  --cui-notes-pin-w: 48.94px;
+  --cui-notes-pin-h: 54.83px;
+  --cui-notes-mini-w: 42px;
+  --cui-notes-mini-h: 48px;
+  --cui-notes-step: 16px;
+  /* ±12°, exaggerated from the DS's ±3° so the pile reads at a glance (decided 2026-11-12, user). */
+  --cui-notes-tilt: 12deg;
+  --cui-notes-off: 0.38;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  vertical-align: middle;
+  font-family: var(--font-primary);
+}
+
+/* Colour comes from position. Each surface publishes its fill and glyph ink as --pf / --pi. */
+/* --pk is the ink on a solid fill: white, or Obsidian on green (the one fill white can't sit on). */
+:is(.cui-notes__pin, .cui-notes__mini, .cui-notes__swatch, .cui-notes__card, .cui-notes__panel)[data-colour="orange"] { --pf: var(--color-orange); --pi: #BE2E00; --pk: var(--color-neutral-1); }
+:is(.cui-notes__pin, .cui-notes__mini, .cui-notes__swatch, .cui-notes__card, .cui-notes__panel)[data-colour="pink"] { --pf: var(--color-salmon-pink); --pi: #C23154; --pk: var(--color-neutral-1); }
+:is(.cui-notes__pin, .cui-notes__mini, .cui-notes__swatch, .cui-notes__card, .cui-notes__panel)[data-colour="green"] { --pf: var(--color-green); --pi: #007B52; --pk: var(--color-obsidian); }
+:is(.cui-notes__pin, .cui-notes__mini, .cui-notes__swatch, .cui-notes__card, .cui-notes__panel)[data-colour="navy"] { --pf: var(--color-navy); --pi: #0051AE; --pk: var(--color-neutral-1); }
+
+/* The single pin (1 note), 48.94 × 54.83, tilted 2deg. */
+.cui-notes__pin {
+  width: var(--cui-notes-pin-w);
+  height: var(--cui-notes-pin-h);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--pf);
+  color: var(--pi);
+  cursor: pointer;
+  --pin-rot: 2deg;
+  transform: rotate(var(--pin-rot));
+  transition: box-shadow var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-notes__pin svg,
+.cui-notes__mini svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-notes__pin:hover {
+  box-shadow: var(--shadow-2);
+  transform: rotate(var(--pin-rot)) translateY(-1px);
+}
+.cui-notes__pin:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* The stack (2–4): 42 × 48 cards stepping 16px, so 26 + 16n wide, one card tall. */
+.cui-notes__stack {
+  position: relative;
+  width: calc(var(--cui-notes-mini-w) - var(--cui-notes-step) + var(--cui-notes-step) * var(--n, 2));
+  height: var(--cui-notes-mini-h);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-notes__stack:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-sm);
+}
+.cui-notes__mini {
+  position: absolute;
+  top: 0;
+  left: calc(var(--cui-notes-step) * var(--i, 0));
+  width: var(--cui-notes-mini-w);
+  height: var(--cui-notes-mini-h);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--pf);
+  color: var(--pi);
+  /* The first note sits on top; each later one tucks behind. */
+  z-index: calc(9 - var(--i, 0));
+  transform: rotate(var(--mini-tilt));
+  transition: transform var(--duration-base) var(--ease-settle);
+}
+/* Alternating tilt, the same angle each way. */
+.cui-notes__mini:nth-child(odd) { --mini-tilt: var(--cui-notes-tilt); }
+.cui-notes__mini:nth-child(even) { --mini-tilt: calc(-1 * var(--cui-notes-tilt)); }
+.cui-notes__stack:hover .cui-notes__mini,
+.cui-notes__stack:focus-visible .cui-notes__mini {
+  transform: rotate(0deg);
+}
+
+/* Resolved pins: the fill drops to a 20% tint, the glyph is a tick. */
+.cui-notes__pin[data-resolved],
+.cui-notes__mini[data-resolved],
+.cui-notes__swatch[data-resolved] {
+  background: color-mix(in srgb, var(--pf) 20%, var(--color-neutral-1));
+}
+
+/* While its panel is open the pin steps aside: opacity only, so it stays in the layout and the tab order. */
+.cui-notes__pin[data-hidden],
+.cui-notes__stack[data-hidden] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The add and delete buttons: .c-icon-btn's 32px box, radius-sm, Neutral-2 hover, and the source's focus halo. */
+.cui-notes__icon-btn {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-neutral-9);
+  cursor: pointer;
+  font-family: inherit;
+}
+.cui-notes__icon-btn:hover {
+  background: var(--color-neutral-2);
+}
+.cui-notes__icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+.cui-notes__add svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+/* At the cap: greyed, still focusable so its reason can be read. */
+.cui-notes__add[aria-disabled="true"] {
+  opacity: var(--cui-notes-off);
+  cursor: not-allowed;
+}
+.cui-notes__add[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+/* Peek: the notes as a list in a default Card, fixed and placed by script, never taking the pointer. */
+.cui-notes__peek {
+  --cui-notes-peek-w: 280px;
+  --cui-notes-sw-w: 28px;
+  --cui-notes-sw-h: 32px;
+  --cui-notes-sw-r: 8px;
+  --cui-notes-sw-icon: 11px;
+  position: fixed;
+  z-index: var(--z-menu);
+  box-sizing: border-box;
+  width: min(var(--cui-notes-peek-w), calc(100vw - var(--spacing-24)));
+  min-width: 0;
+  padding: var(--spacing-16);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  font-family: var(--font-primary);
+  display: none;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.cui-notes__peek[data-open] {
+  display: block;
+  opacity: 1;
+}
+.cui-notes__peek[data-static] {
+  position: static;
+  display: block;
+  opacity: 1;
+}
+.cui-notes__peek-row {
+  display: flex;
+  gap: var(--spacing-8);
+  align-items: flex-start;
+}
+.cui-notes__peek-row + .cui-notes__peek-row {
+  margin-top: var(--spacing-12);
+}
+.cui-notes__swatch {
+  flex: none;
+  width: var(--cui-notes-sw-w);
+  height: var(--cui-notes-sw-h);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--cui-notes-sw-r);
+  background: var(--pf);
+  color: var(--pi);
+}
+.cui-notes__swatch svg {
+  width: var(--cui-notes-sw-icon);
+  height: var(--cui-notes-sw-icon);
+}
+.cui-notes__peek-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+/* Two lines in the peek: it's a glance; the panel is where you read. */
+.cui-notes__peek-text {
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-9);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.cui-notes__peek-row[data-resolved] .cui-notes__peek-text {
+  text-decoration: line-through;
+}
+.cui-notes__peek-meta {
+  margin-top: var(--spacing-2);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+
+/* Panel: a positioned popover dialog, not a modal. No scrim; anchored to its row; grows out of its pin. */
+.cui-notes__panel {
+  --cui-notes-panel-w: 340px;
+  --cui-notes-field-h: 132px;
+  --cui-notes-meta-gap: 5px;
+  --cui-notes-meta-icon: 12px;
+  --cui-notes-del-icon: 24px;
+  --cui-notes-res-icon: 14px;
+  --cui-notes-off: 0.38;
+  position: fixed;
+  z-index: var(--z-panel);
+  box-sizing: border-box;
+  width: min(var(--cui-notes-panel-w), calc(100vw - var(--spacing-24)));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+  transform-origin: top left;
+}
+.cui-notes__panel:focus {
+  outline: none;
+}
+.cui-notes__panel[data-static] {
+  position: static;
+  max-height: none;
+  animation: none;
+}
+.cui-notes__panel[data-opening] {
+  animation: cui-notes-panel-in var(--duration-morph) var(--ease-morph);
+}
+@keyframes cui-notes-panel-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--nsw-dx, 0px), var(--nsw-dy, 0px)) scale(var(--nsw-sx, 0.1), var(--nsw-sy, 0.1));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Top: an eyebrow (and, on a note, the avatar and name on the same line), then an end-to-end rule. */
+.cui-notes__top {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16);
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-notes__eyebrow,
+.cui-notes__kick {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--color-neutral-5);
+}
+.cui-notes__eyebrow {
+  flex: none;
+  white-space: nowrap;
+}
+/* Search input's 32px avatar. */
+.cui-notes__avatar {
+  flex: none;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-size: var(--text-caption-size);
+  font-weight: 700;
+  font-style: normal;
+}
+.cui-notes__name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-label1-size);
+  line-height: var(--text-label1-lh);
+  font-weight: 700;
+  color: var(--color-neutral-9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cui-notes__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--spacing-16);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.cui-notes__title {
+  display: block;
+  margin-bottom: var(--spacing-12);
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  font-weight: var(--text-h4-weight);
+  letter-spacing: var(--text-h4-tracking);
+  color: var(--color-neutral-9);
+}
+
+/* The 2 × 2 grid; a lone note spans both columns. */
+.cui-notes__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-8);
+}
+.cui-notes__grid > :only-child {
+  grid-column: 1 / -1;
+}
+.cui-notes__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  text-align: left;
+  padding: var(--spacing-12);
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--pf);
+  color: var(--pk);
+  transition: filter var(--duration-fast) var(--ease-standard);
+}
+.cui-notes__card:hover {
+  filter: brightness(0.94);
+}
+.cui-notes__card:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+/* Resolved: the fill lightens to 67% of its colour over white; only the note text is struck. */
+.cui-notes__card[data-resolved] {
+  background: color-mix(in srgb, var(--pf) 67%, var(--color-neutral-1));
+}
+.cui-notes__card[data-resolved]:hover {
+  filter: none;
+  background: color-mix(in srgb, var(--pf) 78%, var(--color-neutral-1));
+}
+.cui-notes__card[data-resolved] .cui-notes__card-text {
+  text-decoration: line-through;
+}
+.cui-notes__card-text {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+.cui-notes__card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--cui-notes-meta-gap);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: 400;
+}
+.cui-notes__card-meta svg {
+  flex: none;
+  width: var(--cui-notes-meta-icon);
+  height: var(--cui-notes-meta-icon);
+}
+
+/* Actions: the primary on the right; delete pushed to the far left, away from it. */
+.cui-notes__actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-top: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-notes__delete {
+  margin-right: auto;
+}
+/* "All notes", back to the grid, sits beside delete on the left when the note was opened from the grid (decided
+   2026-11-12, Q-NOTES-2; not in the DS). */
+.cui-notes__delete:has(+ .cui-notes__back) {
+  margin-right: 0;
+}
+.cui-notes__back {
+  display: inline-flex;
+  margin-right: auto;
+}
+.cui-notes__delete svg {
+  width: var(--cui-notes-del-icon);
+  height: var(--cui-notes-del-icon);
+}
+.cui-notes__delete:hover {
+  background: var(--color-neutral-2);
+  color: var(--color-red);
+}
+/* The panel's disabled buttons (Save with nothing typed, Add a note at the cap): the source's 38% Obsidian. */
+.cui-notes__actions .cui-button[data-variant="primary"]:disabled,
+.cui-notes__actions .cui-button[data-variant="primary"][aria-disabled="true"] {
+  background: var(--color-obsidian);
+  color: var(--color-neutral-1);
+  border-color: transparent;
+  opacity: var(--cui-notes-off);
+  cursor: not-allowed;
+}
+
+/* A note: its text keeps the line breaks it was typed with; the date under it. */
+.cui-notes__text {
+  margin: 0 0 var(--spacing-12);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-9);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.cui-notes__by {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-notes__resolved {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  margin-top: var(--spacing-8);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-notes__resolved svg {
+  flex: none;
+  width: var(--cui-notes-res-icon);
+  height: var(--cui-notes-res-icon);
+  color: var(--color-green);
+}
+.cui-notes__resolved b {
+  font-weight: 700;
+  color: var(--color-neutral-9);
+}
+
+/* A note's panel takes the note's own colour; everything inside takes its ink. No opacity for hierarchy: these
+   fills have no contrast to spare. */
+.cui-notes__panel[data-tinted] {
+  background: var(--pf);
+  color: var(--pk);
+  border-color: transparent;
+}
+.cui-notes__panel[data-tinted] :is(.cui-notes__eyebrow, .cui-notes__kick, .cui-notes__by, .cui-notes__name, .cui-notes__title, .cui-notes__text, .cui-notes__resolved, .cui-notes__resolved b, .cui-notes__resolved svg) {
+  color: var(--pk);
+}
+.cui-notes__panel[data-tinted] .cui-notes__top {
+  border-bottom-color: color-mix(in srgb, var(--pk) 28%, transparent);
+}
+.cui-notes__panel[data-tinted] .cui-notes__actions {
+  border-top-color: color-mix(in srgb, var(--pk) 28%, transparent);
+}
+.cui-notes__panel[data-tinted] .cui-notes__avatar {
+  background: color-mix(in srgb, var(--pk) 20%, transparent);
+  color: var(--pk);
+}
+.cui-notes__panel[data-tinted] .cui-notes__delete {
+  color: var(--pk);
+}
+.cui-notes__panel[data-tinted] .cui-notes__delete:hover {
+  background: color-mix(in srgb, var(--pk) 16%, transparent);
+  color: var(--pk);
+}
+/* The Ghost "All notes" takes the ink, as delete does. */
+.cui-notes__panel[data-tinted] .cui-button[data-variant="ghost"] {
+  color: var(--pk);
+}
+.cui-notes__panel[data-tinted] .cui-button[data-variant="ghost"]:hover {
+  background: color-mix(in srgb, var(--pk) 16%, transparent);
+}
+/* On pink and green a Secondary's Neutral-3 edge is under 3:1, so it borrows the ink. Scoped here. */
+.cui-notes__panel[data-tinted] .cui-button[data-variant="secondary"] {
+  border-color: color-mix(in srgb, var(--pk) 45%, transparent);
+}
+
+/* The note field: not the input recipe. No border, no box: the note itself being written on, at the size and place
+   the read view puts the text. Its affordances are the caret and, for the keyboard, a soft inset of the ink. */
+.cui-notes__field {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--cui-notes-field-h);
+  resize: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--pk, var(--color-neutral-9));
+  background: none;
+  border: none;
+  border-radius: 0;
+  caret-color: var(--pk, var(--color-obsidian));
+}
+.cui-notes__field:focus {
+  outline: none;
+}
+.cui-notes__field::placeholder {
+  color: var(--pk, var(--color-neutral-5));
+  opacity: 0.6;
+}
+.cui-notes__field:focus-visible {
+  box-shadow: 0 0 0 var(--spacing-8) color-mix(in srgb, var(--pk) 12%, transparent);
+  border-radius: var(--spacing-4);
+  background: color-mix(in srgb, var(--pk) 12%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-notes__panel[data-opening] {
+    animation: none;
+  }
+}
+
+/* Forced colours: the fills drop out, so pins, stack cards, peek pins and grid cards keep a 1px CanvasText edge and
+   the tinted panel its border (decided 2026-11-12, Q-NOTES-6; the source has no rule). */
+@media (forced-colors: active) {
+  .cui-notes__pin,
+  .cui-notes__mini,
+  .cui-notes__swatch,
+  .cui-notes__card {
+    outline: var(--border-width-sm) solid CanvasText;
+    outline-offset: calc(var(--border-width-sm) * -1);
+  }
+  .cui-notes__panel[data-tinted] {
+    border-color: CanvasText;
+  }
+  /* The focus halo is a shadow, which forced colours drop: a 2px Highlight outline instead. */
+  .cui-notes__pin:focus-visible,
+  .cui-notes__stack:focus-visible,
+  .cui-notes__icon-btn:focus-visible,
+  .cui-notes__card:focus-visible,
+  .cui-notes__field:focus-visible {
+    outline: var(--focus-ring-width) solid Highlight;
+    outline-offset: var(--focus-ring-offset);
+  }
+}

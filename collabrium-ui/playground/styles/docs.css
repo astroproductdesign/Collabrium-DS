@@ -411,3 +411,81 @@ a.cui-button { text-decoration: none; }
   :root { --cui-action-bar-inset-start: calc(var(--spacing-16) + var(--spacing-120) * 2); }
   :root:has(#siteSidebar[data-collapsed]) { --cui-action-bar-inset-start: calc(var(--spacing-16) + var(--spacing-24) * 3); }
 }
+
+/* Notes example: a list of records, each with its notes cell, 90px wide (the widest stack) plus the add button. */
+.docs-notes-list { display: grid; gap: var(--spacing-12); }
+.docs-notes-row { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-16); padding: var(--spacing-12) var(--spacing-16); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-sm); background: var(--color-neutral-1); }
+.docs-notes-name { font-size: var(--text-body2-size); font-weight: var(--weight-bold); color: var(--color-neutral-9); }
+.docs-notes-thumb { display: flex; justify-content: center; padding: var(--spacing-16); pointer-events: none; }
+
+/* Charts: a single card at a third of a wide page, and the home card's picture. */
+.docs-chart-single { max-width: calc(var(--spacing-120) * 3.5); }
+.docs-chart-thumb { width: calc(var(--spacing-120) * 2.5); pointer-events: none; }
+/* Sparkline pages: the size of StatCard's slot. */
+.docs-spark { width: calc(var(--spacing-120) * 2); height: var(--spacing-48); }
+
+/* Chart color mapping page: swatch rows, from components.css 3855–3860 (.c-chartmap-row, -label, -swatch, -ramp).
+   The ramps are drawn as the steps the functions return, not a gradient; each swatch can carry its name below. */
+.docs-chartmap { display: flex; flex-direction: column; gap: var(--spacing-16); width: 100%; }
+.docs-chartmap-row { display: flex; align-items: flex-start; gap: var(--spacing-8); flex-wrap: wrap; }
+.docs-chartmap-label {
+  width: calc(var(--spacing-120) + var(--spacing-60)); flex: none; padding-top: var(--spacing-2);
+  font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--weight-bold); color: var(--color-neutral-5);
+}
+.docs-chartmap-swatches { display: flex; flex: 1; flex-wrap: wrap; gap: var(--spacing-8); min-width: calc(var(--spacing-120) + var(--spacing-40)); }
+.docs-chartmap-swatch { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-4); }
+.docs-chartmap-chip { width: calc(var(--spacing-24) + var(--spacing-4)); height: var(--spacing-20); border-radius: var(--spacing-4); }
+.docs-chartmap-name { font-size: var(--text-footnote-size); line-height: var(--text-footnote-lh); color: var(--color-neutral-5); white-space: nowrap; }
+.docs-chartmap-steps { display: flex; flex: 1; height: var(--spacing-20); border-radius: var(--spacing-4); overflow: hidden; }
+.docs-chartmap-steps > span { flex: 1; }
+.docs-chartmap--thumb { width: calc(var(--spacing-120) * 2.5); gap: var(--spacing-12); }
+.docs-chartmap--thumb .docs-chartmap-label { width: var(--spacing-120); }
+@media (forced-colors: active) {
+  .docs-chartmap-chip, .docs-chartmap-steps { forced-color-adjust: none; outline: 1px solid CanvasText; }
+}
+
+/* Tutorial Modal: the sample board the tour runs over, and the static cards laid out in place (as the DLS gallery's
+   .c-modal-stage .c-modal-tutorial{position:relative}). */
+.docs-tutorial-board { display: flex; flex-direction: column; gap: var(--spacing-16); width: 100%; }
+.docs-tutorial-head { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-12); flex-wrap: wrap; }
+.docs-tutorial-note { margin: 0; font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); }
+.docs-tutorial-stage { display: flex; flex-wrap: wrap; gap: var(--spacing-24); align-items: flex-start; }
+.docs-tutorial-stage .cui-tutorial__card { position: relative; flex: 0 1 auto; max-height: none; }
+.docs-tutorial-stage--thumb { pointer-events: none; }
+@media (max-width: 767px) {
+  .docs-tutorial-stage .cui-tutorial__card { position: relative; inset: auto !important; width: 100%; }
+}
+
+/* Modal thumbnails: the panel is width 100% up to its max, which collapses inside a thumbnail's shrink-wrapped box;
+   give it the panel's own width so ThumbFit scales the whole thing. */
+.docs-modal-thumb {
+  flex: none;
+  width: var(--cui-modal-max-width);
+}
+
+/* Media Ad Modal: the panel shown in place, as the DLS gallery's stage does. */
+.docs-mad-stage { display: flex; justify-content: center; width: 100%; }
+.docs-mad-stage .cui-media-ad-modal { max-height: var(--cui-media-ad-modal-max-height); }
+.docs-mad-stage--thumb { pointer-events: none; }
+.docs-mad-stage--thumb .cui-media-ad-modal { flex: none; width: var(--cui-media-ad-modal-max-width); max-height: calc(var(--spacing-120) * 4); }
+
+/* Mobile width reaches the modals: they render at <body> level, outside the narrowed frame. The panel takes the phone
+   frame's width less the layer's phone padding (8px a side, the modal's own ≤640px rule), and its container queries
+   give the phone layout (one column, stacked foot). Docs only. */
+html[data-docs-mobile] .cui-media-ad-modal-layer { padding: var(--spacing-8); }
+html[data-docs-mobile] .cui-media-ad-modal-layer .cui-media-ad-modal,
+html[data-docs-mobile] .cui-media-ad-modal-layer .cui-compare-modal,
+html[data-docs-mobile] .cui-modal-scrim .cui-modal {
+  max-width: calc(var(--docs-mobile-width) - var(--spacing-16));
+}
+
+/* Compare modal: the catalogue demo (cards, then the inline Action bar) and the thumbnail at the panel's width. */
+.docs-compare-demo { display: flex; flex-direction: column; gap: var(--spacing-16); width: 100%; }
+.docs-compare-demo__title { margin: 0; font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--text-h5-weight); }
+.docs-compare-demo__title:focus { outline: none; }
+.docs-mad-stage .cui-compare-modal { max-height: var(--cui-compare-modal-max-height); }
+.docs-compare-thumb .cui-compare-modal { flex: none; width: var(--cui-compare-modal-max-width); max-height: calc(var(--spacing-120) * 4); }
+
+/* Timeline's Card widget example: the host CSS the DS gives for the recipe, on the docs page only. */
+.docs-timeline-widget { width: 100%; max-width: 480px; }
+.docs-timeline-widget .cui-card { gap: var(--spacing-12); }

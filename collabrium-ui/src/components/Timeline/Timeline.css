@@ -1,0 +1,909 @@
+/*
+  Timeline: ported from components.css `.c-timeline*` (6365–6801), Stepper's read-only plan variant. ⚠️ Designed, not
+  transcribed, in the DLS. Built from Lists parts (the avatar lead and the bones), so it loads after List.css.
+
+  Class mapping (source -> here). A variant class on the root becomes a data attribute wrapped in :where(), so each rule
+  keeps the source's specificity and the same rule wins in every state:
+    .c-timeline                                 -> ol.cui-timeline
+    .c-timeline-sm / -md / -lg                  -> [data-size="sm" | (none) | "lg"]
+    .c-timeline-icon / -avatar                  -> [data-dot="icon" | "avatar"] (plain: none)
+    .c-timeline-left / -alternate / -alternate-reverse -> [data-position="left" | "alternate" | "alternate-reverse"]
+    .c-timeline-horizontal                      -> [data-orientation="horizontal"]
+    .c-timeline-has-opposite                    -> [data-opposite]
+    .c-timeline-date-above / -below, :has(.c-timeline-title) -> [data-date="above" | "below"]
+    .c-timeline-interactive, :has(a/button body) -> [data-interactive] (set by the component)
+    .c-timeline-item (.is-{status}, .is-end, .is-loading) -> li.cui-timeline__item ([data-status], [data-end], [data-loading])
+    -separator, -dot, -mark (.is-outlined), -badge, -connector (.is-partial) -> __separator, __dot, __mark
+                                                   ([data-outlined]), __badge, __connector ([data-partial])
+    -content, -body, -title, -heading, -desc (.is-expanded), -caption, -status, -date, -slot, -opposite
+                                                -> __content, __body, __title, __heading, __desc ([data-expanded]),
+                                                   __caption, __status, __date, __slot, __opposite
+    -more, -details-toggle, -details-caret, -details, -details-label, -details-files, -file
+                                                -> __more, __details-toggle, __details-caret, __details, __details-label,
+                                                   __details-files, __file (wrappers around the library's Button)
+    -bone, -state, -reveal                      -> __bone, __state, __reveal
+    .c-list-item-lead.is-avatar, .c-list-item-bone -> Lists' .cui-list-item__lead[data-type="avatar"], .cui-list-item__bone
+    .c-list-footer                              -> Lists' .cui-list-footer
+    .sr-only                                    -> __sr
+
+  One-offs the DS records, kept local: the 96px opposite column, the 11 / 12px badge glyphs, the 2px content line gap
+  (--spacing-2), the pulse (1.5x ambient, 3 runs, 0.6 opacity), the 62% / 38% bone widths (Lists').
+*/
+
+/* ---------- Root ---------- */
+.cui-timeline {
+  /* md is the default (no attribute). */
+  --cui-timeline-gap: var(--spacing-16);
+  --cui-timeline-dot: var(--spacing-12);
+  --cui-timeline-col: var(--spacing-16);
+  --cui-timeline-glyph: var(--icon-micro);
+  --cui-timeline-h-size: var(--text-body2-size);
+  --cui-timeline-lh: var(--text-body2-lh);
+  --cui-timeline-d-size: var(--text-body2-size);
+  --cui-timeline-d-lh: var(--text-body2-lh);
+  --cui-timeline-badge: var(--icon-micro);
+  --cui-timeline-badge-glyph: var(--text-label3-size); /* recorded one-off: 11px glyph at M */
+  --cui-timeline-bone-h: var(--spacing-48);
+  --cui-timeline-opp-w: calc(var(--spacing-48) * 2); /* recorded one-off: 96px, so dots line up */
+  --cui-timeline-content-gap: var(--spacing-12);
+  --cui-timeline-body-pad: 0px;
+  --cui-timeline-row: max(var(--cui-timeline-dot), var(--cui-timeline-lh));
+  --cui-timeline-dot-top: calc((var(--cui-timeline-row) - var(--cui-timeline-dot)) / 2);
+  /* Lists' bone widths, for the reused bones. */
+  --cui-list-bone-heading: 62%;
+  --cui-list-bone-line: 38%;
+  container: cui-timeline / inline-size;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+}
+.cui-timeline[hidden] {
+  display: none;
+}
+/* Icon and avatar dots are 24px in a 24px column at M. */
+.cui-timeline:where([data-dot="icon"], [data-dot="avatar"]) {
+  --cui-timeline-dot: var(--spacing-24);
+  --cui-timeline-col: var(--spacing-24);
+}
+/* S: plain dots only, 12px gap, caption description. */
+.cui-timeline:where([data-size="sm"]) {
+  --cui-timeline-gap: var(--spacing-12);
+  --cui-timeline-d-size: var(--text-caption-size);
+  --cui-timeline-d-lh: var(--text-caption-lh);
+  --cui-timeline-bone-h: var(--spacing-40);
+}
+/* L: body1 heading, 24px gap, 32px icon / avatar dots. */
+.cui-timeline:where([data-size="lg"]) {
+  --cui-timeline-gap: var(--spacing-24);
+  --cui-timeline-h-size: var(--text-body1-size);
+  --cui-timeline-lh: var(--text-body1-lh);
+  --cui-timeline-glyph: var(--icon-sm);
+  --cui-timeline-badge: var(--icon-sm);
+  --cui-timeline-badge-glyph: var(--text-caption-size); /* recorded one-off: 12px glyph at L */
+  --cui-timeline-bone-h: var(--spacing-60);
+}
+.cui-timeline:where([data-size="lg"]):is([data-dot="icon"], [data-dot="avatar"]) {
+  --cui-timeline-dot: var(--spacing-32);
+  --cui-timeline-col: var(--spacing-32);
+}
+
+/* Interactive: any clickable body. The box sits 16px from the separator and every body gets 8px inline padding, so
+   headings line up across clickable and static items. */
+.cui-timeline:where([data-interactive]) {
+  --cui-timeline-content-gap: var(--spacing-16);
+  --cui-timeline-body-pad: var(--spacing-8);
+}
+
+/* ---------- Item: a grid, opp | sep | content ---------- */
+.cui-timeline__item {
+  --cui-timeline-lead: 0px;
+  --cui-timeline-line: var(--color-neutral-3);
+  --cui-timeline-line-style: solid;
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  column-gap: var(--cui-timeline-content-gap);
+  grid-template-columns: var(--cui-timeline-col) minmax(0, 1fr);
+  grid-template-areas: 'sep content';
+}
+.cui-timeline__item[hidden] {
+  display: none;
+}
+.cui-timeline:where([data-opposite]) > .cui-timeline__item {
+  grid-template-columns: var(--cui-timeline-opp-w) var(--cui-timeline-col) minmax(0, 1fr);
+  grid-template-areas: 'opp sep content';
+}
+.cui-timeline:where([data-position="left"]) > .cui-timeline__item {
+  grid-template-columns: minmax(0, 1fr) var(--cui-timeline-col);
+  grid-template-areas: 'content sep';
+}
+.cui-timeline:where([data-position="left"])[data-opposite] > .cui-timeline__item {
+  grid-template-columns: minmax(0, 1fr) var(--cui-timeline-col) var(--cui-timeline-opp-w);
+  grid-template-areas: 'content sep opp';
+}
+
+/* ---------- Separator ---------- */
+.cui-timeline__separator {
+  grid-area: sep;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+.cui-timeline__dot {
+  --cui-list-lead: var(--cui-timeline-dot); /* sizes a reused Lists avatar / bone */
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cui-timeline-dot);
+  height: var(--cui-timeline-dot);
+  margin-top: calc(var(--cui-timeline-lead) + var(--cui-timeline-dot-top));
+  border-radius: var(--radius-pill);
+}
+/* The reused avatar's initials: Lists' S lead at M (label3), M lead at L (caption). */
+.cui-timeline__dot > .cui-list-item__lead[data-type="avatar"] {
+  font-size: var(--text-label3-size);
+}
+.cui-timeline:where([data-size="lg"]) .cui-timeline__dot > .cui-list-item__lead[data-type="avatar"] {
+  font-size: var(--text-caption-size);
+}
+/* Connector: from 4px under this dot to 4px above the next one. */
+.cui-timeline__connector {
+  position: relative;
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  width: 0;
+  min-height: var(--spacing-8);
+  margin-top: var(--spacing-4);
+  margin-bottom: calc(var(--spacing-4) - var(--cui-timeline-lead) - var(--cui-timeline-dot-top));
+  border-inline-start: var(--border-width-md) var(--cui-timeline-line-style) var(--cui-timeline-line);
+}
+/* Partial (current, optional): solid up to --cui-timeline-progress, dashed after. */
+.cui-timeline__connector[data-partial] {
+  border-inline-start: 0;
+  width: var(--border-width-md);
+}
+.cui-timeline__connector[data-partial]::before,
+.cui-timeline__connector[data-partial]::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  width: 0;
+}
+.cui-timeline__connector[data-partial]::before {
+  top: 0;
+  height: var(--cui-timeline-progress, 50%);
+  border-inline-start: var(--border-width-md) solid var(--cui-timeline-line);
+}
+.cui-timeline__connector[data-partial]::after {
+  top: var(--cui-timeline-progress, 50%);
+  bottom: 0;
+  border-inline-start: var(--border-width-md) dashed var(--color-neutral-4);
+}
+
+/* ---------- Mark: the painted circle (plain and icon dots) ---------- */
+.cui-timeline__mark {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-5);
+  color: var(--color-neutral-1);
+  font-size: var(--cui-timeline-glyph);
+  line-height: 1;
+}
+.cui-timeline__mark > svg {
+  width: 1em;
+  height: 1em;
+}
+.cui-timeline:where([data-dot="icon"]) .cui-timeline__mark {
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-8);
+}
+.cui-timeline__mark[data-outlined] {
+  background: var(--color-neutral-1);
+  border: var(--border-width-md) solid var(--color-neutral-5);
+  color: var(--color-neutral-5);
+}
+/* Avatar status badge: a small mark on the avatar's corner, overhanging by a quarter of itself. */
+.cui-timeline__badge {
+  position: absolute;
+  inset-inline-end: calc(var(--cui-timeline-badge) / -4);
+  bottom: calc(var(--cui-timeline-badge) / -4);
+  width: var(--cui-timeline-badge);
+  height: var(--cui-timeline-badge);
+  box-shadow: 0 0 0 var(--border-width-md) var(--color-neutral-1);
+  font-size: var(--cui-timeline-badge-glyph);
+}
+
+/* ---------- Status: dot paint, connector after, text ----------
+   Neutral-1 on Green, Neutral-1 on Red (3.66:1), Obsidian on Amber (7.13:1), Neutral-1 on Obsidian. */
+.cui-timeline__item[data-status="completed"] {
+  --cui-timeline-line: var(--color-green);
+}
+.cui-timeline__item[data-status="current"] {
+  --cui-timeline-line: var(--color-obsidian);
+  --cui-timeline-line-style: dashed;
+}
+.cui-timeline__item:is([data-status="upcoming"], [data-status="skipped"]) {
+  --cui-timeline-line: var(--color-neutral-4);
+  --cui-timeline-line-style: dashed;
+}
+.cui-timeline__item:is([data-status="overdue"], [data-status="blocked"]) {
+  --cui-timeline-line: var(--color-red);
+  --cui-timeline-line-style: dashed;
+}
+.cui-timeline__item[data-status="at-risk"] {
+  --cui-timeline-line: var(--color-amber);
+  --cui-timeline-line-style: dashed;
+}
+
+.cui-timeline__item[data-status="completed"] .cui-timeline__mark {
+  background: var(--color-green);
+  border: 0;
+  color: var(--color-neutral-1);
+}
+.cui-timeline__item[data-status="current"] .cui-timeline__mark {
+  background: var(--color-obsidian);
+  border: 0;
+  color: var(--color-neutral-1);
+}
+.cui-timeline__item[data-status="upcoming"] .cui-timeline__mark {
+  background: var(--color-neutral-1);
+  border: var(--border-width-md) solid var(--color-neutral-5);
+  color: var(--color-neutral-5);
+}
+.cui-timeline__item[data-status="overdue"] .cui-timeline__mark {
+  background: var(--color-red);
+  border: 0;
+  color: var(--color-neutral-1);
+}
+.cui-timeline__item[data-status="at-risk"] .cui-timeline__mark {
+  background: var(--color-amber);
+  border: 0;
+  color: var(--color-obsidian);
+}
+.cui-timeline__item[data-status="skipped"] .cui-timeline__mark {
+  background: var(--color-neutral-1);
+  border: var(--border-width-md) solid var(--color-neutral-4);
+  color: var(--color-neutral-5);
+}
+.cui-timeline__item[data-status="blocked"] .cui-timeline__mark {
+  background: var(--color-neutral-1);
+  border: var(--border-width-md) solid var(--color-red);
+  color: var(--color-red);
+}
+
+/* Current: a 2px Obsidian ring 2px off the dot, on the positioner (a reused avatar is never restyled). */
+.cui-timeline__item[data-status="current"] .cui-timeline__dot {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--border-width-md);
+}
+/* Pulse: an outline growing by its offset (outlines add no scrollable overflow), three runs, then the static ring. */
+.cui-timeline__item[data-status="current"] .cui-timeline__dot::after {
+  --cui-timeline-pulse-opacity: 0.6; /* recorded one-off */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-pill);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--border-width-md);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* 1.35s x 3 = about 4s, under WCAG 2.2.2's 5s (recorded one-off: 1.5x ambient, 3 runs, the CTA beacon's count). */
+  .cui-timeline__item[data-status="current"] .cui-timeline__dot::after {
+    animation: cui-timeline-pulse calc(var(--duration-ambient) * 1.5) var(--ease-standard) 3;
+  }
+}
+@keyframes cui-timeline-pulse {
+  0% {
+    opacity: var(--cui-timeline-pulse-opacity);
+    outline-offset: var(--border-width-md);
+  }
+  100% {
+    opacity: 0;
+    outline-offset: var(--spacing-8);
+  }
+}
+
+/* Text by status. */
+.cui-timeline__item[data-status="current"] .cui-timeline__heading {
+  font-weight: var(--weight-bold);
+}
+.cui-timeline__item:is([data-status="upcoming"], [data-status="skipped"]) .cui-timeline__heading {
+  color: var(--color-neutral-5);
+}
+
+/* ---------- Content ---------- */
+.cui-timeline__content {
+  --cui-timeline-justify: flex-start;
+  grid-area: content;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-top: calc((var(--cui-timeline-row) - var(--cui-timeline-lh)) / 2);
+  padding-bottom: var(--cui-timeline-gap);
+  text-align: start;
+}
+.cui-timeline__item:last-child > .cui-timeline__content {
+  padding-bottom: 0;
+}
+/* The line ends at the last item of every list. */
+.cui-timeline__item:last-child > .cui-timeline__separator > .cui-timeline__connector {
+  display: none;
+}
+.cui-timeline:where([data-position="left"]) > .cui-timeline__item > .cui-timeline__content {
+  text-align: end;
+  --cui-timeline-justify: flex-end;
+}
+.cui-timeline__body {
+  --cui-timeline-line-gap: var(--spacing-2); /* recorded one-off: Lists' content line gap */
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cui-timeline-line-gap);
+  margin: 0;
+  padding: 0 var(--cui-timeline-body-pad);
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  text-decoration: none;
+}
+.cui-timeline__heading {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: var(--cui-timeline-h-size);
+  line-height: var(--cui-timeline-lh);
+  font-weight: var(--weight-semibold);
+  color: var(--color-neutral-9);
+  overflow-wrap: anywhere;
+}
+.cui-timeline__desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  font-size: var(--cui-timeline-d-size);
+  line-height: var(--cui-timeline-d-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+  overflow-wrap: anywhere;
+}
+.cui-timeline__desc[data-expanded] {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: none;
+  overflow: visible;
+}
+.cui-timeline__caption {
+  display: block;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+}
+.cui-timeline__status {
+  font-weight: var(--weight-semibold);
+  color: var(--color-neutral-9);
+}
+.cui-timeline__slot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: var(--cui-timeline-justify);
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
+  min-width: 0;
+}
+/* Show more: the Ghost button's padding pulled back so its label lines up with the text. */
+.cui-timeline__more {
+  align-self: var(--cui-timeline-justify);
+  margin: var(--spacing-4) calc(var(--cui-timeline-body-pad) - var(--spacing-12)) 0;
+}
+
+/* ---------- Date in the content ---------- */
+.cui-timeline__date {
+  white-space: nowrap;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+}
+.cui-timeline__title {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--spacing-2);
+  min-width: 0;
+}
+.cui-timeline__title > .cui-timeline__date {
+  order: -1;
+}
+/* Date above: the extra line goes into the lead, so the dot still centres on the heading. */
+.cui-timeline:where([data-date="above"]) > .cui-timeline__item {
+  --cui-timeline-lead: calc(var(--text-caption-lh) + var(--spacing-2));
+}
+
+/* ---------- Details disclosure (M and L) ---------- */
+.cui-timeline__details-toggle {
+  align-self: var(--cui-timeline-justify);
+  margin: var(--spacing-4) calc(var(--cui-timeline-body-pad) - var(--spacing-12)) 0;
+}
+.cui-timeline__details-caret {
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.cui-timeline__details-toggle[data-expanded] .cui-timeline__details-caret {
+  transform: rotate(180deg);
+}
+.cui-timeline__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin: var(--spacing-4) var(--cui-timeline-body-pad) 0;
+  padding: var(--spacing-12);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-2);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-9);
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.cui-timeline__details[hidden] {
+  display: none;
+}
+.cui-timeline__details-label {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-semibold);
+  color: var(--color-neutral-5);
+}
+.cui-timeline__details p {
+  margin: 0;
+}
+.cui-timeline__details-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-timeline__details-files > li {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* The end of a filtered or partial list: the line stops here although hidden items follow. */
+.cui-timeline__item[data-end] > .cui-timeline__separator > .cui-timeline__connector {
+  display: none;
+}
+.cui-timeline__item[data-end] > .cui-timeline__content {
+  padding-bottom: 0;
+}
+
+/* Static file chip: Input Chip's container (24px, Neutral-2, 1px Neutral-3, pill), a Tier 2 file icon, no ×. */
+.cui-timeline__file {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  max-width: 100%;
+  box-sizing: border-box;
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-8);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-semibold);
+}
+.cui-timeline__file > svg {
+  flex: none;
+  width: var(--icon-micro);
+  height: var(--icon-micro);
+  color: var(--color-neutral-5);
+}
+.cui-timeline__file > span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Opposite content ---------- */
+.cui-timeline__opposite {
+  grid-area: opp;
+  min-width: 0;
+  padding-top: calc((var(--cui-timeline-row) - var(--text-caption-lh)) / 2);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--text-caption-weight);
+  color: var(--color-neutral-5);
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+.cui-timeline:where([data-position="left"]) > .cui-timeline__item > .cui-timeline__opposite {
+  text-align: start;
+}
+
+/* ---------- Clickable content ----------
+   Only the body is clickable. Inline: 8px padding, no negative margin. Block: 8px padding and a matching negative
+   margin, so the dot still centres on the heading. Lists' row states. */
+:is(a[href], button).cui-timeline__body {
+  margin-block: calc(var(--spacing-8) * -1);
+  margin-inline: 0;
+  padding: var(--spacing-8);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+@media (hover: hover) {
+  :is(a[href], button).cui-timeline__body:not(:focus-visible):hover {
+    background: var(--color-neutral-2);
+  }
+}
+:is(a[href], button).cui-timeline__body:focus-visible {
+  background: var(--color-neutral-2);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(var(--border-width-md) * -1);
+}
+:is(a[href], button).cui-timeline__body:active {
+  background: var(--color-neutral-3);
+  transition-duration: var(--duration-instant);
+}
+.cui-timeline__body[aria-current]:not([aria-current="false"]) {
+  background: var(--color-neutral-2);
+}
+.cui-timeline__body[aria-current]:not([aria-current="false"])::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: var(--spacing-8);
+  width: var(--border-width-md);
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+  pointer-events: none;
+}
+@media (pointer: coarse) {
+  :is(a[href], button).cui-timeline__body {
+    min-height: var(--hit-target-min);
+  }
+  :is(.cui-timeline__more, .cui-timeline__details-toggle, .cui-timeline__reveal, .cui-timeline__state, .cui-timeline__slot)
+    .cui-button {
+    position: relative;
+  }
+  :is(.cui-timeline__more, .cui-timeline__details-toggle, .cui-timeline__reveal) .cui-button::after,
+  .cui-timeline__slot .cui-button[data-size="sm"]::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--spacing-6) * -1); /* 32 + 6 + 6 = 44 */
+    border-radius: inherit;
+  }
+  .cui-timeline__slot .cui-button:not([data-size="sm"]):not([data-size="lg"])::after,
+  .cui-timeline__state .cui-button::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--spacing-2) * -1); /* 40 + 2 + 2 = 44 */
+    border-radius: inherit;
+  }
+}
+
+/* ---------- Loading ---------- */
+.cui-timeline__item[data-loading] {
+  pointer-events: none;
+}
+.cui-timeline__item[data-loading] .cui-timeline__body {
+  gap: var(--spacing-8);
+  padding-top: calc((var(--cui-timeline-lh) - var(--spacing-12)) / 2);
+}
+.cui-timeline__bone {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: var(--cui-timeline-bone-h);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-2);
+}
+.cui-timeline__bone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-neutral-5) 40%, transparent), transparent);
+  animation: cui-progress-shimmer var(--duration-ambient) var(--ease-standard) infinite;
+}
+.cui-timeline__item[data-loading] .cui-timeline__bone {
+  margin-top: calc((var(--spacing-12) - var(--cui-timeline-lh)) / 2);
+}
+
+/* ---------- Narrow: the opposite stacks above the heading (under 400px) ---------- */
+@container cui-timeline (max-width: 399px) {
+  .cui-timeline:where([data-opposite]) > .cui-timeline__item {
+    --cui-timeline-lead: calc(var(--text-caption-lh) + var(--spacing-2));
+    grid-template-columns: var(--cui-timeline-col) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 'sep opp' 'sep content';
+  }
+  .cui-timeline:where([data-position="left"])[data-opposite] > .cui-timeline__item {
+    grid-template-columns: minmax(0, 1fr) var(--cui-timeline-col);
+    grid-template-areas: 'opp sep' 'content sep';
+  }
+  .cui-timeline:where([data-opposite]) > .cui-timeline__item > .cui-timeline__opposite {
+    padding-top: 0;
+    margin-bottom: var(--spacing-2);
+    text-align: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cui-timeline:where([data-position="left"])[data-opposite] > .cui-timeline__item > .cui-timeline__opposite {
+    text-align: end;
+  }
+  .cui-timeline:where([data-opposite]) > .cui-timeline__item > .cui-timeline__content {
+    grid-row: 2;
+  }
+}
+
+/* ---------- Alternate / alternate-reverse (600px and up) ---------- */
+@container cui-timeline (min-width: 600px) {
+  .cui-timeline:where([data-position="alternate"], [data-position="alternate-reverse"]):not([data-orientation="horizontal"]) > .cui-timeline__item {
+    grid-template-columns: minmax(0, 1fr) var(--cui-timeline-col) minmax(0, 1fr);
+  }
+  .cui-timeline:where([data-position="alternate"]):not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(odd),
+  .cui-timeline:where([data-position="alternate-reverse"]):not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(even) {
+    grid-template-areas: 'opp sep content';
+  }
+  .cui-timeline:where([data-position="alternate"]):not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(even),
+  .cui-timeline:where([data-position="alternate-reverse"]):not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(odd) {
+    grid-template-areas: 'content sep opp';
+  }
+  .cui-timeline:where([data-position="alternate"]):not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(even) > .cui-timeline__content,
+  .cui-timeline:where([data-position="alternate-reverse"]):not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(odd) > .cui-timeline__content {
+    text-align: end;
+    --cui-timeline-justify: flex-end;
+  }
+  .cui-timeline:where([data-position="alternate"]):not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(even) > .cui-timeline__opposite,
+  .cui-timeline:where([data-position="alternate-reverse"]):not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(odd) > .cui-timeline__opposite {
+    text-align: start;
+  }
+}
+
+/* ---------- Alternate + opposite: the date goes above the heading, on the content's side ---------- */
+.cui-timeline:where([data-position="alternate"], [data-position="alternate-reverse"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item {
+  --cui-timeline-lead: calc(var(--text-caption-lh) + var(--spacing-2));
+  grid-template-columns: var(--cui-timeline-col) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 'sep opp' 'sep content';
+}
+.cui-timeline:where([data-position="alternate"], [data-position="alternate-reverse"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item > .cui-timeline__opposite {
+  padding-top: 0;
+  margin-bottom: var(--spacing-2);
+  text-align: start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cui-timeline:where([data-position="alternate"], [data-position="alternate-reverse"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item > .cui-timeline__content {
+  grid-row: 2;
+}
+@container cui-timeline (min-width: 600px) {
+  .cui-timeline:where([data-position="alternate"], [data-position="alternate-reverse"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item {
+    grid-template-columns: minmax(0, 1fr) var(--cui-timeline-col) minmax(0, 1fr);
+  }
+  .cui-timeline:where([data-position="alternate"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(odd),
+  .cui-timeline:where([data-position="alternate-reverse"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(even) {
+    grid-template-areas: '. sep opp' '. sep content';
+  }
+  .cui-timeline:where([data-position="alternate"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(even),
+  .cui-timeline:where([data-position="alternate-reverse"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(odd) {
+    grid-template-areas: 'opp sep .' 'content sep .';
+  }
+  .cui-timeline:where([data-position="alternate"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(even) > .cui-timeline__opposite,
+  .cui-timeline:where([data-position="alternate-reverse"])[data-opposite]:not([data-orientation="horizontal"]) > .cui-timeline__item:nth-child(odd) > .cui-timeline__opposite {
+    text-align: end;
+  }
+}
+
+/* ---------- Horizontal (600px and up; vertical below) ---------- */
+.cui-timeline:where([data-orientation="horizontal"]) {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.cui-timeline:where([data-orientation="horizontal"]) > .cui-timeline__item {
+  flex: 0 0 100%;
+}
+@container cui-timeline (min-width: 600px) {
+  .cui-timeline:where([data-orientation="horizontal"]) > .cui-timeline__item {
+    flex: 1 1 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas: 'sep' 'content';
+  }
+  .cui-timeline:where([data-orientation="horizontal"])[data-opposite] > .cui-timeline__item {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'opp' 'sep' 'content';
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) .cui-timeline__separator {
+    flex-direction: row;
+    align-items: center;
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) .cui-timeline__dot {
+    margin-top: 0;
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) .cui-timeline__connector {
+    width: auto;
+    height: 0;
+    min-height: 0;
+    min-width: var(--spacing-8);
+    margin: 0 var(--spacing-4);
+    border-inline-start: 0;
+    border-block-start: var(--border-width-md) var(--cui-timeline-line-style) var(--cui-timeline-line);
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) .cui-timeline__connector[data-partial] {
+    border-block-start: 0;
+    height: var(--border-width-md);
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) .cui-timeline__connector[data-partial]::before,
+  .cui-timeline:where([data-orientation="horizontal"]) .cui-timeline__connector[data-partial]::after {
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 0;
+    border-inline-start: 0;
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) .cui-timeline__connector[data-partial]::before {
+    inset-inline-start: 0;
+    width: var(--cui-timeline-progress, 50%);
+    border-block-start: var(--border-width-md) solid var(--cui-timeline-line);
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) .cui-timeline__connector[data-partial]::after {
+    inset-inline-start: var(--cui-timeline-progress, 50%);
+    inset-inline-end: 0;
+    border-block-start: var(--border-width-md) dashed var(--color-neutral-4);
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) > .cui-timeline__item > .cui-timeline__content {
+    padding-block: var(--spacing-12) 0;
+    padding-inline: 0 var(--spacing-16);
+    text-align: start;
+    --cui-timeline-justify: flex-start;
+  }
+  .cui-timeline:where([data-orientation="horizontal"]) > .cui-timeline__item > .cui-timeline__opposite {
+    padding-block: 0 var(--spacing-8);
+    padding-inline: 0 var(--spacing-16);
+    text-align: start;
+  }
+}
+
+/* ---------- Around the list ---------- */
+.cui-timeline__state {
+  min-width: 0;
+}
+.cui-timeline__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cui-timeline__bone::after {
+    animation: none;
+    background: none;
+  }
+  .cui-timeline__details-caret {
+    transition: none;
+  }
+}
+
+/* ---------- Forced colours ----------
+   Fills drop out, so status rides on shape, glyph and text; solid vs dashed lines survive (they are borders). */
+@media (forced-colors: active) {
+  .cui-timeline__mark,
+  .cui-timeline__connector,
+  .cui-timeline__connector::before,
+  .cui-timeline__connector::after {
+    forced-color-adjust: none;
+  }
+  .cui-timeline__item,
+  .cui-timeline__item:is([data-status="completed"], [data-status="overdue"], [data-status="blocked"], [data-status="at-risk"]) {
+    --cui-timeline-line: CanvasText;
+  }
+  .cui-timeline__item[data-status="current"] {
+    --cui-timeline-line: Highlight;
+  }
+  .cui-timeline__item:is([data-status="upcoming"], [data-status="skipped"]) {
+    --cui-timeline-line: GrayText;
+  }
+  .cui-timeline__connector[data-partial]::after {
+    border-color: GrayText;
+  }
+  .cui-timeline__mark,
+  .cui-timeline:where([data-dot="icon"]) .cui-timeline__mark,
+  .cui-timeline__item:is([data-status="completed"], [data-status="overdue"], [data-status="at-risk"]) .cui-timeline__mark {
+    background: CanvasText;
+    color: Canvas;
+    border-color: CanvasText;
+  }
+  .cui-timeline__mark[data-outlined],
+  .cui-timeline__item:is([data-status="upcoming"], [data-status="blocked"]) .cui-timeline__mark {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+  }
+  .cui-timeline__item[data-status="skipped"] .cui-timeline__mark {
+    background: Canvas;
+    color: GrayText;
+    border-color: GrayText;
+  }
+  .cui-timeline__item[data-status="current"] .cui-timeline__mark {
+    background: Highlight;
+    color: HighlightText;
+  }
+  .cui-timeline__badge {
+    box-shadow: 0 0 0 var(--border-width-md) Canvas;
+  }
+  .cui-timeline__item[data-status="current"] .cui-timeline__dot {
+    outline: var(--border-width-md) solid Highlight;
+    outline-offset: var(--border-width-md);
+  }
+  .cui-timeline__item[data-status="current"] .cui-timeline__dot::after {
+    outline-color: Highlight;
+  }
+  :is(a[href], button).cui-timeline__body:focus-visible {
+    outline-color: Highlight;
+  }
+  .cui-timeline__body[aria-current]:not([aria-current="false"])::after {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+  .cui-timeline__bone,
+  .cui-timeline__file,
+  .cui-timeline__details {
+    border: var(--border-width-sm) solid CanvasText;
+  }
+}
+@media (forced-colors: active) and (hover: hover) {
+  :is(a[href], button).cui-timeline__body:not(:focus-visible):hover {
+    outline: var(--border-width-sm) solid CanvasText;
+    outline-offset: calc(var(--border-width-sm) * -1);
+  }
+}

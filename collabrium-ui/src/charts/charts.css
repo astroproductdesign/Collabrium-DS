@@ -1,0 +1,142 @@
+/*
+  Charts layout (Chart.js) — ported from collabrium-dls/components.css lines 3836–3853 (.c-chart-grid, .c-chart-card
+  h5, .c-chart-canvas-wrap (.tall), .c-chart-table-wrap (.tall), .is-table-view, .c-chart-table-btn). The chart's
+  chrome and marks are Chart.js config (chart-setup.ts), not CSS.
+
+  Mapping from the old classes:
+    .c-chart-grid                      -> .cui-chart-grid
+    .c-card.c-chart-card               -> the library's Card + .cui-chart-card inside it (ChartCard)
+    .c-chart-card h5                   -> .cui-chart-card__title (h3 by default; the look is h5)
+    (the chart in it)                  -> figure.cui-chart (every chart's frame; data-view, data-height)
+    .c-chart-canvas-wrap (.tall)       -> .cui-chart__canvas ([data-height="tall"])
+    .c-chart-table-wrap (.tall)        -> .cui-chart__table
+    .c-chart-card.is-table-view        -> .cui-chart[data-view="table"]
+    .c-chart-table-btn                 -> .cui-chart__table-btn (around the library's Button, secondary sm)
+    .c-table.c-table-embedded.c-chart-table -> the library's Table, variant embedded
+
+  No token, kept local (decided 2026-10-30, Q-CHART-7, as Charts (extra)'s .cui-chartx):
+    --cui-chart-height 260px, --cui-chart-height-tall 300px   the plot's floor (on .cui-chart)
+    1100px / 640px                     the grid's steps (in the media queries)
+
+  Specificity: one class per part plus one attribute for a state, as the source's (0,2,0) state rules.
+*/
+
+.cui-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-16);
+}
+@media (max-width: 1100px) {
+  .cui-chart-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .cui-chart-grid { grid-template-columns: 1fr; }
+}
+/* A card stretches to its row; the chart area inside it takes what's left. */
+.cui-chart-grid > .cui-card {
+  height: 100%;
+  min-width: 0;
+}
+
+.cui-chart-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  /* The Card's own 8px gap, which the source's parts sit in directly (title 12 + 8, button 8 + 12). */
+  gap: var(--spacing-8);
+}
+.cui-chart-card__title {
+  margin: 0 0 var(--spacing-12);
+  font-family: var(--font-primary);
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  letter-spacing: var(--text-h5-tracking);
+  color: var(--color-neutral-9);
+}
+
+/* Every chart's frame: the plot fills its container, with a floor; the table takes the same footprint. */
+.cui-chart {
+  --cui-chart-height: 260px;
+  --cui-chart-height-tall: 300px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: var(--spacing-8);
+  min-width: 0;
+  font-family: var(--font-primary);
+}
+.cui-chart__canvas {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: var(--cui-chart-height);
+}
+.cui-chart[data-height="tall"] .cui-chart__canvas {
+  min-height: var(--cui-chart-height-tall);
+}
+.cui-chart__canvas canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+/* The table takes the plot's exact footprint, its content centred, so the toggle never moves the page. */
+.cui-chart__table {
+  display: none;
+  flex: 1 1 auto;
+  /* A fixed height (not a floor): rows past it scroll inside, so the card never grows (decided 2026-11-12, Q-CHL-1). */
+  height: var(--cui-chart-height);
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* Centred while it fits; a margin (not justify-content) so an overflowing table still scrolls from its first row. */
+.cui-chart__table > * {
+  margin-block: auto;
+}
+.cui-chart__table:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.cui-chart[data-height="tall"] .cui-chart__table {
+  height: var(--cui-chart-height-tall);
+}
+.cui-chart[data-view="table"] .cui-chart__canvas {
+  display: none;
+}
+.cui-chart[data-view="table"] .cui-chart__table {
+  display: flex;
+}
+.cui-chart__table-btn {
+  align-self: flex-start;
+  margin-top: var(--spacing-12);
+}
+
+/* Sparkline: fills StatCard's slot (or any box it's given); no chrome. */
+.cui-chart-spark {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: var(--spacing-32);
+}
+.cui-chart-spark canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ChartThumbnail: a bare picture of a chart's shape, for cards. No axes, labels, legend, tooltip or table
+   button (the frame leaves them out); only the marks, 120px tall. */
+.cui-chart-thumb {
+  width: 100%;
+}
+.cui-chart[data-bare] {
+  height: var(--spacing-120);
+}
+.cui-chart[data-bare] .cui-chart__canvas {
+  min-height: 0;
+}
