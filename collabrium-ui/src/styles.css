@@ -18,6 +18,7 @@
 @import './components/Chip/Chip.css';
 @import './components/Dropdown/Dropdown.css';
 @import './components/DatePicker/DatePicker.css';
+@import './components/TimePicker/TimePicker.css';
 @import './components/FileUploader/FileUploader.css';
 @import './components/Filters/Filters.css';
 @import './components/SidebarNav/SidebarNav.css';

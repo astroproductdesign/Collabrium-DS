@@ -1,0 +1,85 @@
+/*
+  Time picker. ⚠️ Designed from scratch: the DLS has no Time picker (added at the user's request, 2026-11-12, library
+  first; the DLS is owed it). Built from shipped parts, so it adds only what they don't have:
+    the field                  -> Input field's box, label, helper, error and disabled (.cui-input-field, __wrap,
+                                  __input, __icon--leading), as Date picker's; a Clock (Fill, Tier 2, as Date picker's
+                                  Calendar)
+    open                       -> Date picker's open look: a 2px Obsidian border while the list shows
+    the list                   -> Dropdown's panel, list and rows (.cui-dropdown__panel, __list, __row, __label, __meta,
+                                  __check): the popover convention, the hover / keyboard fill, the selected check
+    range                      -> two fields in a row, an en dash between them, under one label
+
+  No token, kept local (Q-TP-5 decided 2026-11-12):
+    --cui-timepicker-panel-min 200px   the list's narrowest width; it grows to its longest row ("11:45 AM  2 hrs 15
+                                       min") beside a half-width range field
+    --cui-dropdown-list-max 260px      about six and a half 38px rows under the list's 8px padding, so it always shows
+                                       that it scrolls
+*/
+
+.cui-timepicker {
+  --cui-timepicker-panel-min: 200px;
+  --cui-dropdown-list-max: calc(var(--spacing-40) * 6 + var(--spacing-20));
+}
+
+.cui-timepicker__icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.cui-timepicker__input {
+  font-variant-numeric: tabular-nums;
+}
+/* Open: a 2px Obsidian border, as Date picker's and Dropdown's (focus already draws it; this holds it while the pointer
+   is in the list). */
+.cui-timepicker__field[data-open] .cui-input-field__input {
+  border-width: var(--border-width-md);
+  border-color: var(--color-obsidian);
+  padding-left: calc(var(--cui-input-field-icon-pad) - var(--border-width-sm));
+}
+.cui-timepicker .cui-input-field__input:focus {
+  padding-left: calc(var(--cui-input-field-icon-pad) - var(--border-width-sm));
+}
+
+/* The list: as wide as its longest row (a time and its duration on one line), never narrower than the field or 200px.
+   Times line up (tabular figures). */
+.cui-timepicker__panel {
+  width: max-content;
+  min-width: max(var(--cui-dropdown-anchor-w), var(--cui-timepicker-panel-min));
+  max-width: calc(100vw - var(--spacing-16));
+}
+.cui-timepicker__panel :is(.cui-dropdown__label, .cui-dropdown__meta) {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.cui-timepicker__panel .cui-dropdown__row > .cui-dropdown__label {
+  flex: 1 1 auto;
+}
+
+/* Range: the two fields share the row, 8px either side of an en dash in Neutral-5. */
+.cui-timepicker__range {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+.cui-timepicker__range > .cui-timepicker__field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.cui-timepicker__dash {
+  flex: none;
+  font-family: var(--font-primary);
+  font-size: var(--text-body2-size);
+  color: var(--color-neutral-5);
+}
+
+.cui-timepicker__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

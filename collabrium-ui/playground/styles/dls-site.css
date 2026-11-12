@@ -330,3 +330,44 @@ table.spec td.token{font-family:monospace; color:var(--color-neutral-9); font-we
   .type-row{flex-direction:column; align-items:flex-start; gap:var(--spacing-4);}
   .type-meta{flex:none;}
 }
+
+/* ===== Illustration (Foundations) — preview.html lines 425–463 ===== */
+.illo-concept{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:var(--spacing-24); align-items:start; margin-bottom:var(--spacing-32);} /* stacks when the pane, not the screen, is narrow */
+.illo-ref{margin:0; max-width:420px; border:1px solid var(--color-neutral-3); border-radius:var(--radius-lg); overflow:hidden; background:var(--color-neutral-1);}
+.illo-ref:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.illo-ref .illo-frame{border:0; border-radius:0;}
+.illo-ref figcaption{padding:var(--spacing-12) var(--spacing-16); font-size:var(--text-body2-size); color:var(--color-neutral-5);}
+.illo-ref figcaption b{color:var(--color-neutral-9);}
+.illo-concept table.spec{margin-bottom:0;}
+.illo-dot{display:inline-block; width:10px; height:10px; border-radius:var(--radius-pill); flex:none;}
+.illo-toolbar{display:flex; flex-direction:column; gap:var(--spacing-12); margin-bottom:var(--spacing-16);}
+.illo-toolbar .c-search-input{max-width:320px;}
+.illo-tabs .c-tab{gap:6px; white-space:nowrap;}
+.illo-tabs .c-tab .count{font-size:var(--text-caption-size); color:var(--color-neutral-5);}
+.illo-panel-head{display:flex; align-items:center; flex-wrap:wrap; gap:var(--spacing-8); margin:0 0 var(--spacing-16); font-size:var(--text-body2-size); color:var(--color-neutral-5); min-height:24px;}
+.illo-panel-head b{color:var(--color-neutral-9);}
+.illo-swatch{width:20px; height:20px; border-radius:var(--radius-pill); flex:none;}
+.illo-panel-head.is-search .illo-swatch, .illo-panel-head.is-search code{display:none;}
+.illo-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, max(190px, calc((100% - 3 * var(--spacing-20)) / 4))), 1fr)); gap:var(--spacing-20); margin-bottom:var(--spacing-32);} /* cards at least 190px, never more than 4 a row: 3 on a 1280–1440px screen, 4 on wider ones */
+.illo-card{margin:0; display:flex; flex-direction:column; gap:var(--spacing-8); border-radius:var(--radius-md);}
+.illo-card[hidden]{display:none;}
+.illo-card:focus-visible{outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.illo-frame{position:relative; aspect-ratio:4/3; overflow:hidden; background:var(--color-canvas-warm); border:1px solid var(--color-neutral-3); border-radius:var(--radius-md);}
+.illo-frame img, .illo-frame video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;}
+.illo-frame video{opacity:0; transition:opacity var(--duration-fast) var(--ease-standard);}
+.illo-frame video.is-playing{opacity:1;}
+.illo-card figcaption{display:flex; align-items:center; gap:var(--spacing-4); min-height:32px;}
+.illo-name{flex:1; min-width:0; display:flex; flex-direction:column; font-size:var(--text-body2-size); font-weight:600; color:var(--color-neutral-9); line-height:1.3;}
+.illo-name small{display:none; align-items:center; gap:6px; font-size:var(--text-caption-size); font-weight:400; color:var(--color-neutral-5);}
+.illo-grid.is-searching .illo-name small{display:flex;}
+.illo-dl{flex:none; color:var(--color-neutral-5); text-decoration:none; opacity:0; transition:opacity var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);}
+.illo-dl i{font-size:var(--icon-base);}
+.illo-dl:hover{color:var(--color-neutral-9);}
+.illo-dl:focus-visible{opacity:1; outline:2px solid var(--color-obsidian); outline-offset:2px;}
+.illo-card:hover .illo-dl, .illo-card:focus-within .illo-dl{opacity:1;}
+@media (hover:none){ .illo-dl{opacity:1;} }
+.illo-list{margin:0 0 var(--spacing-32); padding-left:20px; display:flex; flex-direction:column; gap:var(--spacing-8); font-size:var(--text-body2-size); line-height:1.6; color:var(--color-neutral-9); max-width:75ch;}
+.illo-checklist{list-style:none; margin:0 0 var(--spacing-32); padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:var(--spacing-8) var(--spacing-24); font-size:var(--text-body2-size); line-height:1.5;}
+.illo-checklist li{display:flex; gap:var(--spacing-8); align-items:flex-start;}
+.illo-checklist i{color:var(--color-green); font-size:var(--icon-sm); margin-top:2px; flex:none;}
+@media (prefers-reduced-motion:reduce){ .illo-frame video{display:none;} .illo-dl{transition:none;} }

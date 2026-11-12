@@ -37,7 +37,7 @@ const donts: React.ReactNode[] = [
 export function GuidelinesSection({ level }: SectionProps) {
   const H3 = level === 1 ? 'h2' : 'h3';
   return (
-    <Section id="guidelines" level={level} kicker="07 · Reference" title="Guidelines" lede="The condensed, skimmable version of every rule in this system.">
+    <Section id="guidelines" level={level} kicker="08 · Reference" title="Guidelines" lede="The condensed, skimmable version of every rule in this system.">
       <div className="guide-cols">
         <div className="guide-col do">
           <H3>

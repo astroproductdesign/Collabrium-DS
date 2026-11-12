@@ -4,6 +4,15 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 
 ## Unreleased
 
+### Illustration (Foundation)
+- New: the Illustration foundation page and the illustration files. The 51 Audience characters (stills and 4-second loops), the reference image, `characters.json` and the characters bible now live in `playground/public/illustrations/`. Browse by category or search, hover to play a loop, and download a still or a loop.
+
+### Tabs
+- Fixed: tabs with counts no longer widen the page when the row scrolls sideways.
+
+### Time picker
+- New: `TimePicker` (designed from scratch; not yet in the DLS). Type any time (12:03 PM) or pick one from a list, every 15 minutes by default; one time, or a start and an end with each option's duration. 12-hour by default, 24-hour by prop; values are `HH:mm`. Also `formatTime` and `parseTime`.
+
 ### Timeline
 - New: `Timeline`, Stepper's read-only plan view. Items with seven statuses (completed, current, upcoming, overdue, at risk, skipped, blocked), joined by a line that follows each status; plain, icon or avatar dots; S / M / L; the date above, below or opposite; right, left, alternate or horizontal, each following the timeline's own width. Clickable items, Show more, Details, partial lists and loading. `TimelineFile` for file chips. An item's `step` keeps "Step n of total" right in a filtered list; the docs show the Card widget recipe.
 

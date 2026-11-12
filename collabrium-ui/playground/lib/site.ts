@@ -13,6 +13,7 @@ export const foundationPages: FoundationPage[] = [
   { slug: 'typography', title: 'Typography' },
   { slug: 'fonts', title: 'Fonts' },
   { slug: 'iconography', title: 'Iconography' },
+  { slug: 'illustration', title: 'Illustration' },
   { slug: 'spacing-shape', title: 'Spacing & Shape' },
   { slug: 'guidelines', title: 'Guidelines' },
 ];

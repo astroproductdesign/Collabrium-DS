@@ -184,6 +184,11 @@
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset-inset);
 }
+/* The tab holds its spoken pause, so the pause scrolls (and is clipped) with the row. Absolute against the outer
+   .cui-tabs, an off-screen tab's pause escaped the row and widened the page (fixed 2026-11-12, TABS-6). */
+.cui-tabs__tab:has(> .cui-tabs__spoken) {
+  position: relative;
+}
 .cui-tabs__spoken {
   position: absolute;
   width: 1px;
