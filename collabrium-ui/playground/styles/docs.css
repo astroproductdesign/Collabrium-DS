@@ -501,5 +501,5 @@ html[data-docs-mobile] .cui-modal-scrim .cui-modal {
 .docs-illo-lede { margin-bottom: var(--spacing-16); }
 .docs-illo-search { max-width: calc(var(--spacing-40) * 8); }
 .docs-illo-tabs[data-searching] { opacity: 0.4; }
-.docs-illo-tabs .illo-dot { margin-right: var(--spacing-2); }
+.docs-illo-tabs .illo-dot { margin-right: var(--spacing-8); }
 .illo-dl { display: inline-flex; }
