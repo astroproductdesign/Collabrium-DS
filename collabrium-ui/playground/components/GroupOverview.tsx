@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { ThumbFit } from './ThumbFit';
 import { Badge, Card, CardGrid, CardTitle } from '../../src';
 import { ChartThumbnail } from '../../src/charts-extra';
+import { ChartThumbnail as ChartJsThumbnail } from '../../src/charts';
 import { componentDocs, groupDocs } from '../app/_generated/components-docs';
 import { componentsMeta } from '../app/_generated/components-meta';
 import { componentKey, groups, hrefTo, type PageKey } from '../lib/site';
@@ -33,7 +34,8 @@ export function GroupOverview({ slug }: { slug: string }) {
   const current: PageKey = `components/${slug}`;
 
   // Charts appear as bare shapes on their cards: no axes, labels or legend.
-  const bare = (node: ReactNode) => (slug === 'charts-extra' ? <ChartThumbnail>{node}</ChartThumbnail> : node);
+  const bare = (node: ReactNode) =>
+    slug === 'charts-extra' ? <ChartThumbnail>{node}</ChartThumbnail> : slug === 'charts' ? <ChartJsThumbnail>{node}</ChartJsThumbnail> : node;
 
   const real: PartCard[] = group.parts.map(partSlug => {
     const meta = componentsMeta.find(c => c.slug === partSlug)!;

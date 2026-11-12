@@ -1,0 +1,215 @@
+/*
+  Page hero — ported from Workdesk's project hero (workdesk.html, .wd-hero, lines 202–226 and the 640px rule at 261),
+  not from components.css: the DLS has no page hero. Illustration rules follow DESIGN-SYSTEM.md › Illustration.
+
+  Mapping from the old classes:
+    .wd-hero                -> .cui-page-hero
+    .wd-hero-top            -> .cui-page-hero__top
+    .wd-hero-id             -> .cui-page-hero__id
+    .wd-hero-icon           -> .cui-page-hero__tile
+    .wd-ill (+ .p .k .a .t) -> .cui-page-hero__art (same inner classes)
+    .wd-hero-text           -> .cui-page-hero__text
+    .wd-hero-status         -> .cui-page-hero__status
+    .wd-health (+ .dot)     -> .cui-page-hero__pill (+ __dot), tone in data-tone
+    .wd-hero h1             -> .cui-page-hero__title
+    .wd-hero-desc           -> .cui-page-hero__desc
+    .wd-hero-actions        -> .cui-page-hero__actions
+    .wd-hero-progress-head  -> .cui-page-hero__progress-head
+    .wd-hero-pct            -> .cui-page-hero__pct
+    .wd-hero-track (+ span) -> .cui-page-hero__track (+ __fill)
+
+  The 24px under the hero (.wd-hero margin-bottom) is the page layout's, not the component's.
+  Nothing is interactive inside the hero itself, so there are no state rules; actions are real Buttons.
+*/
+
+.cui-page-hero {
+  /* No token: the text block's preferred width before the actions wrap under it (Workdesk's 520px). */
+  --cui-page-hero-text-basis: 520px;
+  /* No token: the ink-doodle stroke (DLS Illustration: monoline, about 1.75 at tile size). */
+  --cui-page-hero-stroke: 1.75px;
+  /* No token: the description's line length (Workdesk's 60ch; --measure-prose is 760px, too wide here). */
+  --cui-page-hero-desc-measure: 60ch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-24);
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--color-water-bg), var(--color-water-bg-strong));
+  font-family: var(--font-primary);
+}
+
+.cui-page-hero__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+.cui-page-hero__id {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-16);
+  flex: 1 1 var(--cui-page-hero-text-basis);
+  min-width: 0;
+}
+
+/* Illustration tile: DLS --ill-tile, --radius-md, a Neutral-1 border on --ill-paper */
+.cui-page-hero__tile {
+  flex: none;
+  display: flex;
+  width: var(--ill-tile);
+  height: var(--ill-tile);
+  border-radius: var(--radius-md);
+  background: var(--ill-paper);
+  border: var(--border-width-md) solid var(--color-neutral-1);
+  overflow: hidden;
+}
+.cui-page-hero__art {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--ill-ink);
+  stroke-width: var(--cui-page-hero-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cui-page-hero__art * {
+  vector-effect: non-scaling-stroke;
+}
+.cui-page-hero__art .p { fill: var(--ill-paper); }
+.cui-page-hero__art .k { fill: var(--ill-ink); }
+.cui-page-hero__art .a { fill: var(--ill-accent); }
+.cui-page-hero__art .t { fill: var(--ill-tint); stroke: none; }
+
+.cui-page-hero__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cui-page-hero__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  color: var(--color-neutral-5);
+}
+.cui-page-hero__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-12);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-9);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+}
+.cui-page-hero__dot {
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-4);
+}
+.cui-page-hero__pill[data-tone='success'] .cui-page-hero__dot { background: var(--color-green); }
+.cui-page-hero__pill[data-tone='warning'] .cui-page-hero__dot { background: var(--color-amber); }
+.cui-page-hero__pill[data-tone='error'] .cui-page-hero__dot { background: var(--color-red); }
+.cui-page-hero__pill[data-tone='info'] .cui-page-hero__dot { background: var(--color-navy); }
+.cui-page-hero__pill[data-tone='purple'] .cui-page-hero__dot { background: var(--color-purple); }
+
+.cui-page-hero__title {
+  margin: var(--spacing-8) 0 var(--spacing-4);
+  font-weight: var(--text-h1-weight);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-lh);
+  letter-spacing: var(--text-h1-tracking);
+  color: var(--color-neutral-9);
+  overflow-wrap: anywhere;
+}
+/* The title with no status row above it starts at the top of the text block */
+.cui-page-hero__text > .cui-page-hero__title:first-child {
+  margin-top: 0;
+}
+.cui-page-hero__desc {
+  margin: 0;
+  max-width: var(--cui-page-hero-desc-measure);
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--text-body1-weight);
+  color: var(--color-neutral-5);
+}
+.cui-page-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--element-gap);
+}
+
+.cui-page-hero__progress-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-8);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-page-hero__pct {
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  font-weight: var(--text-h3-weight);
+  color: var(--color-neutral-9);
+}
+.cui-page-hero__pct small {
+  margin-left: var(--spacing-2);
+  font-size: var(--text-body2-size);
+  font-weight: var(--weight-bold);
+}
+.cui-page-hero__track {
+  height: var(--spacing-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+  overflow: hidden;
+}
+.cui-page-hero__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--color-water-pastel), var(--color-navy));
+  transition: width var(--duration-reveal) var(--ease-standard);
+}
+
+@media (max-width: 640px) {
+  .cui-page-hero {
+    padding: var(--spacing-16);
+  }
+  .cui-page-hero__tile {
+    width: var(--icon-hero);
+    height: var(--icon-hero);
+  }
+  .cui-page-hero__accents {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-page-hero__fill {
+    transition: none;
+  }
+}
+
+/* Forced colours: the tint and gradient drop out, so the hero keeps an outline and the bar a solid fill */
+@media (forced-colors: active) {
+  .cui-page-hero {
+    border: var(--border-width-sm) solid CanvasText;
+  }
+  .cui-page-hero__track {
+    border: var(--border-width-sm) solid CanvasText;
+  }
+  .cui-page-hero__fill {
+    background: Highlight;
+  }
+}

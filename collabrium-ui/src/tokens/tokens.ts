@@ -12,6 +12,7 @@ export const tokens = {
     salmonPink: '#FF7A90',
     green: '#00C26E',
     navy: '#1473E6',
+    navyDeep: '#1053A3',
     amber: '#FFA425',
     obsidian: '#2B2B2C',
     purple: '#9F56FF',
@@ -28,6 +29,7 @@ export const tokens = {
     neutral1: '#ffffff',
     canvasWarm: '#FCFAF5',
     canvasWarmCard: '#FAF7F2',
+    canvasWarmCardHover: '#F6F3ED',
     fireBg: '#FFEEE9',
     fireBgStrong: '#FFDED3',
     earthBg: '#E6F9F1',
@@ -55,6 +57,7 @@ export const tokens = {
     navyTintBorder: 'rgba(20, 115, 230, .28)',
     greenText: '#007d47',
     amberText: '#9a5c00',
+    navyText: '#0F5FC2',
   },
   font: {
     primary: '\'Mulish\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif',
@@ -199,6 +202,8 @@ export const tokens = {
     sectionGap: 48,
     pageGutter: 32,
     contentMaxWidth: 1200,
+    navRailWidth: 96,
+    navRailTile: 56,
   },
   radius: {
     xs: 6,
@@ -292,6 +297,14 @@ export const tokens = {
     lg: 32,
     empty: 48,
     hero: 64,
+  },
+  illustration: {
+    ink: '#17163A',
+    paper: '#FFFFFF',
+    accent: '#1473E6',
+    tint: '#E8F1FD',
+    tile: 96,
+    tileSm: 48,
   },
 } as const;
 

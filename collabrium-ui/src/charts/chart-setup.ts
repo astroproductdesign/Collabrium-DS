@@ -55,18 +55,32 @@ export function setupCharts(): void {
   // Axes (lines 4228–4231): no axis borders; the value axis carries the
   // only gridline (Neutral-3); the category axis has none.
   // Gridline width: 1px, the `sm` border width (decided 2026-10-30, Q-CHART-1).
-  for (const type of ['category', 'linear', 'logarithmic', 'time', 'timeseries'] as const) {
-    const scale = d.scales[type];
-    scale.border.display = false;
-    scale.grid.color = color.neutral3;
-    scale.grid.lineWidth = borderWidth.sm;
-    scale.title.font = fontOf(text.label2);
-    scale.title.color = color.neutral5;
-  }
-  d.scales.category.grid.display = false;
+  // Chart.js keeps the options every axis shares on `defaults.scale`; `defaults.scales[type]` holds only each type's
+  // own, deep-merged over it. (Writing border / grid / title per type failed: those objects don't exist there.)
+  // Typed as the cartesian scale's options, which carry border and title (the radial scale's type has neither).
+  const scale = d.scale as unknown as { border: object; grid: object; title: object };
+  scale.border = { ...scale.border, display: false };
+  scale.grid = { ...scale.grid, color: color.neutral3, lineWidth: borderWidth.sm };
+  scale.title = { ...scale.title, font: fontOf(text.label2), color: color.neutral5 };
+  // The category axis has no gridline (merged over the shared grid above).
+  d.scales.category = { ...d.scales.category, grid: { ...d.scales.category?.grid, display: false } } as typeof d.scales.category;
   // Axis numbers shorten (500k, 1.2M); the tooltip keeps the full value (decided 2026-10-30, Q-CHART-6).
   const compact = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
-  d.scales.linear.ticks.callback = value => (typeof value === 'number' ? compact.format(value) : value);
+  d.scales.linear = {
+    ...d.scales.linear,
+    ticks: { ...d.scales.linear?.ticks, callback: (value: number | string) => (typeof value === 'number' ? compact.format(value) : value) },
+  } as typeof d.scales.linear;
+
+  // Radial charts (radar, polar area; Marks): grid rings and angle lines Neutral-3; tick numbers footnote on an opaque
+  // Neutral-1 backdrop with spacing-4 padding, drawn above the marks (z 1) so a fill never swallows them; point
+  // labels footnote, Neutral-5.
+  d.scales.radialLinear = {
+    ...d.scales.radialLinear,
+    grid: { ...d.scales.radialLinear?.grid, color: color.neutral3, lineWidth: borderWidth.sm },
+    angleLines: { ...d.scales.radialLinear?.angleLines, color: color.neutral3, lineWidth: borderWidth.sm },
+    ticks: { ...d.scales.radialLinear?.ticks, z: 1, backdropColor: color.neutral1, backdropPadding: spacing[4], font: fontOf(text.footnote), color: color.neutral5 },
+    pointLabels: { ...d.scales.radialLinear?.pointLabels, font: fontOf(text.footnote), color: color.neutral5 },
+  } as typeof d.scales.radialLinear;
 
   // Legend (line 4235).
   d.plugins.legend.position = 'bottom';
@@ -77,6 +91,16 @@ export function setupCharts(): void {
   d.plugins.legend.labels.boxWidth = 12;
   d.plugins.legend.labels.boxHeight = 12;
   d.plugins.legend.labels.padding = spacing[16];
+  // A dashed series' marker is a short dashed line, not a circle: past seven series the dash is the only thing
+  // telling two series of one colour apart, and the DS's circular swatch would hide it.
+  // The DS gives every legend item a circle; dashed series get this line instead (decided 2026-11-12, Q-CMAP-3).
+  const baseLabels = Chart.defaults.plugins.legend.labels.generateLabels;
+  d.plugins.legend.labels.generateLabels = (chart) =>
+    baseLabels(chart).map((item) => {
+      const ds = item.datasetIndex === undefined ? undefined : chart.data.datasets[item.datasetIndex];
+      const dash = (ds as { borderDash?: number[] } | undefined)?.borderDash;
+      return dash && dash.length ? { ...item, pointStyle: 'line', lineDash: dash, lineWidth: borderWidth.md } : item;
+    });
 
   // Tooltip (lines 4232–4234).
   // cornerRadius 8 and padding 10 are literals in the DLS. Decided 2026-10-30

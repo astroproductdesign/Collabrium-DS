@@ -40,7 +40,9 @@ export * from './components/MediaAdCard';
 export * from './components/MetricsCard';
 export * from './components/Modal';
 export * from './components/PacingCard';
+export * from './components/Notes';
 export * from './components/PageHeader';
+export * from './components/PageHero';
 export * from './components/Pagination';
 export * from './components/PermissionPrompt';
 export * from './components/PriceSummaryCard';
@@ -66,6 +68,7 @@ export * from './components/Thinking';
 export * from './components/Toast';
 export * from './components/Tooltip';
 export * from './components/ToolApproval';
+export * from './components/TutorialModal';
 
 // Utilities
 export type { WithoutStyling } from './utils';

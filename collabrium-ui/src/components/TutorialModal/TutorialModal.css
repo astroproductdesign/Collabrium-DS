@@ -1,0 +1,245 @@
+/* Tutorial Modal, ported from components.css 1790–2031 (.c-modal-tutorial*), a variant of Modal / dialog.
+   A numbered walkthrough that spotlights one part of the page at a time and explains it in a short card that grows
+   out of whatever it describes.
+
+   Mapping (same specificity order as the source):
+     .c-modal-tutorial-layer(.is-open)   -> .cui-tutorial (rendered only while open)
+     html.c-modal-tutorial-locked        -> html[data-cui-tutorial-locked]
+     .c-modal-tutorial-spot(.is-none)    -> .cui-tutorial__spot([data-none])
+     .c-modal-tutorial(.is-opening)      -> .cui-tutorial__card([data-opening])
+     .c-modal-tutorial.is-docked-top     -> .cui-tutorial__card[data-docked-top]
+     .c-modal-tutorial-close             -> .cui-tutorial__close (around the library's Button, ghost sm icon-only,
+                                            which matches .c-icon-btn, as Modal's close does: D-133)
+     .c-modal-tutorial-kicker / -title / -body / -actions -> .cui-tutorial__kicker / __title / __body / __actions
+     .c-modal-tutorial-actions .c-btn    -> .cui-tutorial__actions .cui-button
+
+   The lock, the focus trap, the click guard, placement, the FLIP's numbers and docking to the top are the script's
+   (TutorialModal.tsx); CSS cannot enforce the authoring rules (a step points only at something visible). */
+
+/* Layer: one fixed root owning the tour, so the card and the spotlight share a coordinate space and no ancestor's
+   overflow clips them. --z-tour (1100): above everything this system paints, Toast included. It takes every pointer
+   event; a click on it ends the tour. */
+.cui-tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-tour);
+  display: block;
+}
+
+/* The lock. padding-right is written by the script with the scrollbar's measured width. */
+html[data-cui-tutorial-locked] {
+  overflow: hidden;
+}
+
+/* Spotlight: the scrim is the cut-out, one element whose hole travels from step to step. 2px Obsidian ring 2px out.
+   Its radius is the target's own plus the 6px pad (written by the script), radius-sm for a square target. */
+.cui-tutorial__spot {
+  position: absolute;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 9999px var(--shadow-overlay);
+  outline: var(--border-width-md) solid var(--color-obsidian);
+  outline-offset: 2px;
+  pointer-events: none;
+  transition:
+    top var(--duration-morph) var(--ease-morph),
+    left var(--duration-morph) var(--ease-morph),
+    width var(--duration-morph) var(--ease-morph),
+    height var(--duration-morph) var(--ease-morph),
+    border-radius var(--duration-morph) var(--ease-morph);
+}
+/* A step with no target (the intro, the sign-off, a missing target) dims the whole page and centres the card. */
+.cui-tutorial__spot[data-none] {
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  background: var(--shadow-overlay);
+}
+
+/* Card: Modal's panel recipe as it ships (Neutral-1, radius-lg, shadow-modal) at 340px. max-height is unconditional:
+   the card never hides copy. */
+.cui-tutorial__card {
+  --cui-tutorial-width: 340px; /* No token; kept at the source's value (decided 2026-11-12, Q-TUT-1). components.css 1879. */
+  position: absolute;
+  width: min(var(--cui-tutorial-width), calc(100vw - var(--spacing-32)));
+  max-height: calc(100vh - var(--spacing-32));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-neutral-1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  padding: var(--spacing-20);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  transform-origin: 0 0;
+  font-family: var(--font-primary);
+}
+.cui-tutorial__card:focus {
+  outline: none;
+}
+.cui-tutorial__card:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* FLIP entrance: the card grows out of the box it describes (--tut-dx/dy/sx/sy from the script; scale clamped at 1,
+   always a growth). With no target the defaults grow it from its own corner. */
+.cui-tutorial__card[data-opening] {
+  animation: cui-tutorial-in var(--duration-morph) var(--ease-morph) both;
+}
+@keyframes cui-tutorial-in {
+  from {
+    opacity: 0.4;
+    transform: translate(var(--tut-dx, 0px), var(--tut-dy, 0px)) scale(var(--tut-sx, 0.2), var(--tut-sy, 0.2));
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1, 1);
+  }
+}
+
+.cui-tutorial__close {
+  position: absolute;
+  top: var(--spacing-8);
+  right: var(--spacing-8);
+}
+
+/* Counter: the eyebrow recipe, tabular figures so it doesn't jitter between steps. "n of total". */
+.cui-tutorial__kicker {
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--text-label3-weight);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+}
+/* Title: an h4 at h4's size, Modal's head exactly. Two lines at most as an authoring rule, never clamped. */
+.cui-tutorial__title {
+  margin: 0;
+  padding-right: var(--spacing-24);
+  overflow-wrap: anywhere;
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  font-weight: var(--text-h4-weight);
+  letter-spacing: var(--text-h4-tracking);
+  color: var(--color-neutral-9);
+}
+/* Body: body2 at 1.6, Neutral-5. Four lines at most, never clamped; it is the part that scrolls when the card
+   outgrows the viewport, so the counter, title, footer and × stay put. */
+.cui-tutorial__body {
+  --cui-tutorial-body-lh: 1.6; /* No token; kept at the source's 1.6, not body2's 20px (decided 2026-11-12, Q-TUT-1). components.css 1950. */
+  margin: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+  font-size: var(--text-body2-size);
+  line-height: var(--cui-tutorial-body-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+
+/* Footer: Modal's order (dismissal left of commit), right-aligned, 8px apart, no divider. */
+.cui-tutorial__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-4);
+}
+
+/* Docked at 767px and below: the card leaves the target and takes the bottom of the viewport, full width inside the
+   16px gutter; the spotlight alone marks what the step is about. The !importants beat the script's inline top/left. */
+@media (max-width: 767px) {
+  .cui-tutorial__card {
+    position: fixed;
+    width: auto;
+    left: var(--spacing-16) !important;
+    right: var(--spacing-16);
+    top: auto !important;
+    bottom: calc(var(--spacing-16) + env(safe-area-inset-bottom));
+    max-height: calc(100vh - var(--spacing-32) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+  /* No FLIP when docked: it rises 12px from the edge it belongs to. */
+  .cui-tutorial__card[data-opening] {
+    animation-name: cui-tutorial-dock;
+  }
+  @keyframes cui-tutorial-dock {
+    from {
+      opacity: 0;
+      transform: translateY(var(--spacing-12));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  /* Docked to the top when the bottom card would cover its own target: the card gives way, never the target. */
+  .cui-tutorial__card[data-docked-top] {
+    top: calc(var(--spacing-16) + env(safe-area-inset-top)) !important;
+    bottom: auto;
+  }
+  .cui-tutorial__card[data-docked-top][data-opening] {
+    animation-name: cui-tutorial-dock-top;
+  }
+  @keyframes cui-tutorial-dock-top {
+    from {
+      opacity: 0;
+      transform: translateY(calc(var(--spacing-12) * -1));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Touch: the footer buttons take a real 44px height (lifted hit areas 8px apart would meet); the × keeps its 32px box
+   and lifts its hit area 6px each side. */
+@media (hover: none), (pointer: coarse) {
+  .cui-tutorial__actions .cui-button {
+    height: var(--hit-target-min);
+    padding: 0 var(--spacing-16);
+  }
+  .cui-tutorial__close .cui-button {
+    position: relative;
+  }
+  .cui-tutorial__close .cui-button::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--spacing-6) * -1);
+  }
+}
+
+/* Reduced motion: travel drops, the sequence stays. The spotlight jumps; the card cross-fades in. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-tutorial__spot {
+    transition: none;
+  }
+  .cui-tutorial__card[data-opening],
+  .cui-tutorial__card[data-docked-top][data-opening] {
+    animation: cui-tutorial-fade var(--duration-fast) var(--ease-standard) both;
+  }
+  @keyframes cui-tutorial-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* Not in the source (decided 2026-11-12, Q-TUT-6). Forced colours: the scrim's shadow and fill drop out, so the ring keeps a Highlight outline and the card an edge. */
+@media (forced-colors: active) {
+  .cui-tutorial__spot {
+    outline-color: Highlight;
+  }
+  .cui-tutorial__card {
+    border: var(--border-width-sm) solid CanvasText;
+  }
+}

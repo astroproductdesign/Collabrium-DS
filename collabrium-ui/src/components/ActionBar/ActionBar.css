@@ -33,6 +33,9 @@
     z-index 40                        --z-bar (the token now exists)
     640px                             the container breakpoint (and the window step for the bottom offset)
 
+  Decided 2026-11-12 (Q-ABAR-1 to Q-ABAR-6, all as recommended): the behaviour built from the DS text, `inline`
+  placement, Button's own gated look, the description at Caption's weight, the root's block reset, the API.
+
   Specificity: one class per part, plus one attribute for a variant or state, matching the source's
   `.c-action-bar-users .c-action-bar-x` (0,2,0).
 */
@@ -200,6 +203,8 @@
   margin: 0;
   font-size: var(--text-caption-size);
   line-height: var(--text-caption-lh);
+  /* Caption's own weight, not the page's: the source sets none (decided 2026-11-12, Q-ABAR-4). */
+  font-weight: var(--text-caption-weight);
   color: var(--color-neutral-5);
   white-space: nowrap;
   overflow: hidden;

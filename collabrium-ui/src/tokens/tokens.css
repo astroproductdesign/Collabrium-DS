@@ -2,7 +2,7 @@
   Collabrium design tokens — @collabrium/ui
 
   Copied from the Collabrium DLS tokens.css (collabrium-dls/tokens.css,
-  DLS v0.9.127). Same names, same values. Only this header was rewritten;
+  DLS v0.9.132). Same names, same values. Only this header was rewritten;
   the per-group comments are kept because they carry usage rules.
 
   Do not edit values here by hand. If a token changes in the DLS, copy the
@@ -14,6 +14,10 @@
   --color-salmon-pink: #FF7A90;
   --color-green: #00C26E;
   --color-navy: #1473E6;
+  /* Deep Navy: Navy mixed about 30% toward Neutral-9. The navigation rail's
+     hover tile, and its fill in dark mode, where full-strength Navy glows.
+     Never for text or small marks. */
+  --color-navy-deep: #1053A3;
   --color-amber: #FFA425;
   --color-obsidian: #2B2B2C;      /* the only primary-action color */
 
@@ -40,6 +44,7 @@
      their own documented values, mostly --color-neutral-1 white. */
   --color-canvas-warm: #FCFAF5;
   --color-canvas-warm-card: #FAF7F2;
+  --color-canvas-warm-card-hover: #F6F3ED;  /* one step darker, for a hovered warm card; keeps AA for status text */
 
   /* Elemental background tints — the ONLY permitted coloured backgrounds.
      A surface may take a background colour, but only the lightest shade
@@ -84,6 +89,8 @@
      tint and on white), a decision of 2026-10-26. */
   --color-green-text: #007d47;
   --color-amber-text: #9a5c00;
+  /* Navy as text on its tint: full-strength Navy is about 4.0:1 there */
+  --color-navy-text: #0F5FC2;
 
   /* Fonts */
   --font-primary: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -219,6 +226,12 @@
   --hit-target-min: 44px;    /* the smallest comfortable touch row */
   --choice-size: 18px;       /* checkbox and radio box */
 
+  /* Navigation rail — the icon-only primary navigation. The rail's width and
+     the square tile behind each item; neither matches a spacing step or a
+     control height. */
+  --nav-rail-width: 96px;
+  --nav-rail-tile: 56px;
+
   /* Elevation — the source deck specifies a real shadow ladder, all
      built on Neutral-4 (soft grey), never black. Cards/dialogs use
      these regularly, not as an exception. */
@@ -266,4 +279,14 @@
   --icon-lg: 32px;
   --icon-empty: 48px;
   --icon-hero: 64px;
+
+  /* Illustration — ink-doodle drawings only (empty states, project tiles).
+     --ill-accent is Navy's value and --ill-tint is Water-bg's, held as their
+     own tokens so a theme can swap illustration colours alone. */
+  --ill-ink: #17163A;
+  --ill-paper: #FFFFFF;
+  --ill-accent: #1473E6;
+  --ill-tint: #E8F1FD;
+  --ill-tile: 96px;     /* square tile that frames a small illustration */
+  --ill-tile-sm: 48px;  /* the same tile at card size */
 }
