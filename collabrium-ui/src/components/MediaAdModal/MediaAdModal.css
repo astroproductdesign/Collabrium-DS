@@ -80,22 +80,26 @@
   color: var(--color-neutral-9);
   transform-origin: top left;
 }
-.cui-media-ad-modal-layer .cui-media-ad-modal {
+.cui-media-ad-modal-layer .cui-media-ad-modal,
+.cui-media-ad-modal-layer .cui-compare-modal {
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-standard);
 }
-.cui-media-ad-modal-layer[data-shown] .cui-media-ad-modal {
+.cui-media-ad-modal-layer[data-shown] .cui-media-ad-modal,
+.cui-media-ad-modal-layer[data-shown] .cui-compare-modal {
   opacity: 1;
 }
 
 /* Swing: FLIP from the opening card's box (--mad-* written by the script). The 48deg swing is kept from the source by
    decision, a recorded exception to Chat window's 10deg fold; its counter-rotation past rest is dropped. The close
-   ends fully transparent; when the card is off screen the script skips the fold and fades. Compare modal will share
-   these keyframes. */
-.cui-media-ad-modal[data-swing='open'] {
+   ends fully transparent; when the card is off screen the script skips the fold and fades. Shared with Compare modal,
+   as the source groups them (its panel declares the same timing properties). */
+.cui-media-ad-modal[data-swing='open'],
+.cui-compare-modal[data-swing='open'] {
   animation: cui-media-ad-modal-swing-open var(--cui-media-ad-modal-open-duration) var(--cui-media-ad-modal-open-ease) both;
 }
-.cui-media-ad-modal[data-swing='close'] {
+.cui-media-ad-modal[data-swing='close'],
+.cui-compare-modal[data-swing='close'] {
   animation: cui-media-ad-modal-swing-close var(--cui-media-ad-modal-close-duration) var(--cui-media-ad-modal-close-ease) both;
 }
 @keyframes cui-media-ad-modal-swing-open {
@@ -555,7 +559,8 @@
 
 /* Reduced motion: no swing (the panel fades), the bar isn't animated, no hover shadow ease. */
 @media (prefers-reduced-motion: reduce) {
-  .cui-media-ad-modal[data-swing] {
+  .cui-media-ad-modal[data-swing],
+  .cui-compare-modal[data-swing] {
     animation: none;
   }
   .cui-media-ad-modal__bench .cui-progress__fill {

@@ -38,6 +38,8 @@
 @import './components/Modal/Modal.css';
 @import './components/MediaAdModal/MediaAdModal.css';
 @import './components/MetricsModal/MetricsModal.css';
+@import './components/CompareModal/CompareModal.css';
+@import './components/Timeline/Timeline.css';
 @import './components/TutorialModal/TutorialModal.css';
 @import './components/PacingCard/PacingCard.css';
 @import './components/PageHeader/PageHeader.css';

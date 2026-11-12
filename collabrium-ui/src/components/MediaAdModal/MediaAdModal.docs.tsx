@@ -124,6 +124,8 @@ const billboard: MediaAdFormat = {
 };
 
 const formats = [swipe, scratch, outstream, billboard];
+/** The sample formats, shared with Compare modal's docs. */
+export const sampleFormats = formats;
 const byId = (id: string) => formats.find(f => f.id === id) ?? swipe;
 
 // A unit with most of its data missing: what "never blank" looks like.

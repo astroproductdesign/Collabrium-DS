@@ -45,5 +45,4 @@ export const rules: GroupOverviewDocs['rules'] = [
 ];
 
 export const comingSoon: GroupOverviewDocs['comingSoon'] = [
-  { title: 'Compare modal', summary: 'Two to four formats read side by side; collects no input and commits nothing in place.' },
 ];

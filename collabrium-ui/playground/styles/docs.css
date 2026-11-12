@@ -474,6 +474,18 @@ a.cui-button { text-decoration: none; }
    give the phone layout (one column, stacked foot). Docs only. */
 html[data-docs-mobile] .cui-media-ad-modal-layer { padding: var(--spacing-8); }
 html[data-docs-mobile] .cui-media-ad-modal-layer .cui-media-ad-modal,
+html[data-docs-mobile] .cui-media-ad-modal-layer .cui-compare-modal,
 html[data-docs-mobile] .cui-modal-scrim .cui-modal {
   max-width: calc(var(--docs-mobile-width) - var(--spacing-16));
 }
+
+/* Compare modal: the catalogue demo (cards, then the inline Action bar) and the thumbnail at the panel's width. */
+.docs-compare-demo { display: flex; flex-direction: column; gap: var(--spacing-16); width: 100%; }
+.docs-compare-demo__title { margin: 0; font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--text-h5-weight); }
+.docs-compare-demo__title:focus { outline: none; }
+.docs-mad-stage .cui-compare-modal { max-height: var(--cui-compare-modal-max-height); }
+.docs-compare-thumb .cui-compare-modal { flex: none; width: var(--cui-compare-modal-max-width); max-height: calc(var(--spacing-120) * 4); }
+
+/* Timeline's Card widget example: the host CSS the DS gives for the recipe, on the docs page only. */
+.docs-timeline-widget { width: 100%; max-width: 480px; }
+.docs-timeline-widget .cui-card { gap: var(--spacing-12); }

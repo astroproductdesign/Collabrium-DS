@@ -6,7 +6,7 @@ import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsProp, DocsRul
 export const title = 'Stepper';
 
 export const description =
-  'Progress through a multi-step flow (onboarding, a multi-page form, a checkout) as an ordered list of steps. Each step\'s state comes from one `currentStep`: Completed, Active or Upcoming, with Error and Warning as flags on top. Read-only.';
+  'Progress through a multi-step flow (onboarding, a multi-page form, a checkout) as an ordered list of steps. Each step\'s state comes from one `currentStep`: Completed, Active or Upcoming, with Error and Warning as flags on top. Read-only. For a plan whose items each have their own status, use its read-only plan variant, Timeline.';
 
 export const usage = `import { Stepper } from '@collabrium/ui';
 

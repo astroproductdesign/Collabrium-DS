@@ -4,6 +4,16 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 
 ## Unreleased
 
+### Timeline
+- New: `Timeline`, Stepper's read-only plan view. Items with seven statuses (completed, current, upcoming, overdue, at risk, skipped, blocked), joined by a line that follows each status; plain, icon or avatar dots; S / M / L; the date above, below or opposite; right, left, alternate or horizontal, each following the timeline's own width. Clickable items, Show more, Details, partial lists and loading. `TimelineFile` for file chips. An item's `step` keeps "Step n of total" right in a filtered list; the docs show the Card widget recipe.
+
+### Date picker
+- Fixed: today inside a selected range. Mid-range it no longer breaks the band with a square box (it keeps the band, with its rounded outline on top), and as the range's start it no longer leaves a thin white line in the band.
+
+### Compare modal
+- New: `CompareModal`, two to four ad formats side by side: one column per format, nine facts in order, the highest published benchmark marked "Highest", then Export PDF, Export Excel and "Send to a media plan". The labels and the format row stay put while the table scrolls both ways. Opens from the Action bar's Compare and swings out of it. In the Modals group, which is now complete.
+- Media Ad Modal and Metrics modal: a cancelled closing animation can no longer leave the page held.
+
 ### Metrics modal
 - New: `MetricsModal`, the detail view a Metrics card opens into: the media and headline size on a sticky side, the title and category, every bar of the breakdown (growing in), where the audience lives, what it reads about and related items, with Add and "Use in a media plan". Two columns above a 640px panel. Every data-specific string comes from `labels`. Closing returns focus to the card for the item showing. In the Modals group.
 - Media Ad Modal: its layer, head and related tiles are shared with Metrics modal (no change in behaviour).

@@ -203,10 +203,20 @@
 .cui-datepicker__cell:hover .cui-datepicker__day {
   background: var(--color-neutral-2);
 }
-/* Today: a 1px Obsidian outline only, never filled (after hover, as the source, so today shows no hover fill). */
+/* Today: a 1px Obsidian outline only, never filled (after hover, as the source, so today shows no hover fill).
+   The outline is drawn over the day (::before), not as its border, so it never changes the day's box: inside a range,
+   today keeps the band's Neutral-2 and shows its rounded outline on it, and at either end the band meets it with no
+   1px gap (decided 2026-11-12, Q-DP-12). */
 .cui-datepicker__cell[data-today] .cui-datepicker__day {
-  border: var(--border-width-sm) solid var(--color-obsidian);
   background: transparent;
+}
+.cui-datepicker__cell[data-today] .cui-datepicker__day::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: var(--border-width-sm) solid var(--color-obsidian);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
 }
 .cui-datepicker__cell[data-state="selected"] .cui-datepicker__day {
   background: var(--color-obsidian);
