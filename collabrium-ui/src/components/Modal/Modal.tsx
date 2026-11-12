@@ -15,8 +15,11 @@ import { X } from '@phosphor-icons/react';
 import { tokens } from '../../tokens/tokens';
 import type { WithoutStyling } from '../../utils/types';
 import { Button } from '../Button';
+import { holdPage } from './holdPage';
 
 export type ModalHeadingLevel = 2 | 3 | 4 | 5 | 6;
+/** `default`: one decision, 420px. `lg`: a form or a record with several fields, 760px, with the body scrolling between a pinned header and footer. */
+export type ModalSize = 'default' | 'lg';
 
 type NativeDivProps = WithoutStyling<Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'title' | 'role'>>;
 
@@ -38,38 +41,14 @@ export interface ModalProps extends NativeDivProps {
   actions?: ReactNode;
   /** The close button's accessible name. Default "Close". */
   closeLabel?: string;
+  /**
+   * The panel's width. `default` (420px) for one decision; `lg` (760px, `--measure-prose`) for a form or record with
+   * several fields on a desktop screen. On `lg` the body scrolls and the header and footer stay pinned. Default `default`.
+   */
+  size?: ModalSize;
 }
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-/**
- * Holds the page still while a modal is open, the three ways Media Ad Modal does (decided 2026-11-05, Q-MODAL-4):
- * `overflow: hidden` on <html> with the scrollbar's width padded back, wheel and touchmove blocked outside the panel
- * (iOS ignores overflow alone), and every other child of <body> made `inert`. Returns the undo.
- */
-function holdPage(layer: HTMLElement) {
-  const html = document.documentElement;
-  const gap = window.innerWidth - html.clientWidth;
-  const before = { overflow: html.style.overflow, paddingRight: html.style.paddingRight };
-  html.style.overflow = 'hidden';
-  if (gap > 0) html.style.paddingRight = `${gap}px`;
-  const block = (event: Event) => {
-    if (!(event.target instanceof Node) || !layer.contains(event.target) || event.target === layer) event.preventDefault();
-  };
-  document.addEventListener('wheel', block, { passive: false });
-  document.addEventListener('touchmove', block, { passive: false });
-  const others = [...document.body.children].filter(
-    (el): el is HTMLElement => el instanceof HTMLElement && el !== layer && !el.inert,
-  );
-  others.forEach(el => (el.inert = true));
-  return () => {
-    html.style.overflow = before.overflow;
-    html.style.paddingRight = before.paddingRight;
-    document.removeEventListener('wheel', block);
-    document.removeEventListener('touchmove', block);
-    others.forEach(el => (el.inert = false));
-  };
-}
 
 /**
  * Collabrium Modal / dialog: one focused decision in a 400px panel over a scrim. A title with a close button, a body,
@@ -78,7 +57,7 @@ function holdPage(layer: HTMLElement) {
  * Ported from components.css `.c-modal` (1782–1788).
  */
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
-  { open, onClose, title, headingLevel = 2, children, actions, closeLabel = 'Close', ...rest },
+  { open, onClose, title, headingLevel = 2, children, actions, closeLabel = 'Close', size = 'default', ...rest },
   ref,
 ) {
   const titleId = useId();
@@ -165,6 +144,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
           else if (ref) ref.current = node;
         }}
         className="cui-modal"
+        data-size={size === 'lg' ? 'lg' : undefined}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

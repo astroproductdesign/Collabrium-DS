@@ -22,7 +22,8 @@ import { Tag, type TagVariant } from '../Tag';
 export type MediaAdFamily = 'interactive' | 'gamification' | 'video' | 'social' | 'high-impact' | 'display';
 
 /** The family mapping, fixed by the DLS: element colours label kinds of format here, not departments. */
-const FAMILIES: Record<MediaAdFamily, { label: string; tag: TagVariant }> = {
+/** Exported for Media Ad Modal (internal; not part of the package API). */
+export const FAMILIES: Record<MediaAdFamily, { label: string; tag: TagVariant }> = {
   interactive: { label: 'Interactive', tag: 'water' },
   gamification: { label: 'Gamification', tag: 'fire' },
   video: { label: 'Video', tag: 'wood' },

@@ -11,6 +11,9 @@ import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsP
 
 export const title = 'Tutorial Modal';
 
+// A part of the Modals group (user's request, 2026-11-12).
+export const group = 'Modals';
+
 export const description =
   'A numbered walkthrough of a page. One part is spotlighted at a time and explained in a short card that grows out of it; the reader moves with Back and Next. The page is locked while it runs, and the ×, Escape or the scrim end it. A variant of Modal.';
 

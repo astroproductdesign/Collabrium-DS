@@ -1,0 +1,573 @@
+/* Media Ad Modal, ported from components.css 2033–2259 (.c-modal-media-ad*), a variant of Modal / dialog, plus the
+   placeholder grouping at 581–586 (the slot takes Media Ad Card's own placeholder, so the two can't drift).
+   The detail view a Media Ad Card opens into: media, title and family Tag, tagline, six spec cells, supported sizes,
+   benchmark, industries, "Also consider", and a footer of Compare, Live demo and "Use in a media plan".
+
+   Mapping (same specificity order as the source):
+     .c-modal-media-ad-layer(.is-open)      -> .cui-media-ad-modal-layer (rendered only while open or closing)
+     .is-shown                              -> [data-shown]; nothing responds while closing: [data-closing]
+     .c-modal-media-ad-scrim                -> .cui-media-ad-modal-layer__scrim
+     html.c-modal-media-ad-locked           -> written inline by the shared page hold (Modal/holdPage.ts)
+     .c-modal.c-modal-media-ad              -> .cui-modal.cui-media-ad-modal (Modal's panel, as it ships)
+     .is-swinging-open / -closed            -> [data-swing="open"] / [data-swing="close"]
+     .c-modal-head / -body / -foot          -> Modal's .cui-modal__head / __body / __foot, set under the variant
+     -crumbs(-parent, -current), -nav       -> __crumbs(-parent, -current), __nav
+     -frame, -slot, -replay, -placeholder   -> __frame, __slot, __replay (a wrapper around the library's Button),
+                                               and the card's .cui-media-ad-card__placeholder
+     -titlerow, -title, -tagline, -desc     -> __titlerow, __title, __tagline, __desc
+     -specs, -spec, dd.is-empty             -> __specs, __spec, dd[data-empty]
+     -section(-title), -note, .c-banner     -> __section(-title), __note, __note-banner (around InfoBanner neutral)
+     -sizes, -size(-box, -label, -chip)     -> __sizes, __size(-box, -label, -chip)
+     -bench(-value), .c-progress-fill       -> __bench(-value), the library's ProgressBar (.cui-progress__fill)
+     .c-chip-group / .c-chip-input          -> the library's InputChipGroup, static (no onRemove)
+     -related, -relcard, -relthumb, -relname -> __related, __relcard, __relthumb, __relname
+     -compare(aria-pressed)                 -> the footer's Button with aria-pressed (the only one)
+     .c-btn-secondary[aria-disabled]        -> .cui-button[data-variant="secondary"][aria-disabled="true"]
+     .sr-only                               -> __sr
+
+   Icons are Phosphor Regular (Tier 1, controls): arrow-left, arrow-right, x, caret-right, plus / check,
+   arrow-square-out, compass-tool, arrow-clockwise. */
+
+/* Layer: one fixed root owning scrim + panel at <body> level. --z-modal (300): above Chat window (95), below Command
+   brief's scrim (400), Toast (1000) and Tutorial Modal (1100). */
+.cui-media-ad-modal-layer {
+  --cui-media-ad-modal-perspective: 1200px; /* recorded one-off (DESIGN-SYSTEM.md, Media Ad Modal) */
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-16);
+  perspective: var(--cui-media-ad-modal-perspective);
+}
+.cui-media-ad-modal-layer[data-closing] {
+  pointer-events: none;
+}
+.cui-media-ad-modal-layer__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--shadow-overlay);
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+.cui-media-ad-modal-layer[data-shown] .cui-media-ad-modal-layer__scrim {
+  opacity: 1;
+  transition-duration: var(--duration-reveal);
+}
+
+/* Panel: Modal's recipe as it ships plus the spec's 1px Neutral-3 border. 100% up to 600px, so the layer's padding
+   gives min(600px, 100vw − spacing-32). A query container, so the narrow layout follows the panel. */
+.cui-modal.cui-media-ad-modal {
+  --cui-media-ad-modal-max-width: 600px; /* no token: Modal's "wider for forms" (DESIGN-SYSTEM.md, Media Ad Modal) */
+  --cui-media-ad-modal-max-height: 800px; /* no token (components.css 2084) */
+  /* The swing: recorded one-off timings and curves, the same as Chat window's fold. */
+  --cui-media-ad-modal-open-duration: 0.8s;
+  --cui-media-ad-modal-open-ease: cubic-bezier(0.25, 0.9, 0.35, 1);
+  --cui-media-ad-modal-close-duration: 0.55s;
+  --cui-media-ad-modal-close-ease: cubic-bezier(0.3, 0.6, 0.35, 1);
+  position: relative;
+  container: cui-media-ad-modal / inline-size;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  max-width: var(--cui-media-ad-modal-max-width);
+  max-height: min(var(--cui-media-ad-modal-max-height), calc(100dvh - var(--spacing-60)));
+  box-sizing: border-box;
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  font-family: var(--font-primary);
+  color: var(--color-neutral-9);
+  transform-origin: top left;
+}
+.cui-media-ad-modal-layer .cui-media-ad-modal {
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+.cui-media-ad-modal-layer[data-shown] .cui-media-ad-modal {
+  opacity: 1;
+}
+
+/* Swing: FLIP from the opening card's box (--mad-* written by the script). The 48deg swing is kept from the source by
+   decision, a recorded exception to Chat window's 10deg fold; its counter-rotation past rest is dropped. The close
+   ends fully transparent; when the card is off screen the script skips the fold and fades. Compare modal will share
+   these keyframes. */
+.cui-media-ad-modal[data-swing='open'] {
+  animation: cui-media-ad-modal-swing-open var(--cui-media-ad-modal-open-duration) var(--cui-media-ad-modal-open-ease) both;
+}
+.cui-media-ad-modal[data-swing='close'] {
+  animation: cui-media-ad-modal-swing-close var(--cui-media-ad-modal-close-duration) var(--cui-media-ad-modal-close-ease) both;
+}
+@keyframes cui-media-ad-modal-swing-open {
+  0% {
+    transform: translate(var(--mad-dx, 0px), var(--mad-dy, 0px)) scale(var(--mad-sx, 0.2), var(--mad-sy, 0.2));
+    opacity: 0.4;
+  }
+  45% {
+    transform: translate(calc(var(--mad-dx, 0px) * 0.5), calc(var(--mad-dy, 0px) * 0.5)) scale(0.7)
+      rotateY(calc(48deg * var(--mad-dir, 1))) rotateZ(calc(-7deg * var(--mad-dir, 1)));
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes cui-media-ad-modal-swing-close {
+  0% {
+    transform: none;
+    opacity: 1;
+  }
+  50% {
+    transform: translate(calc(var(--mad-dx, 0px) * 0.5), calc(var(--mad-dy, 0px) * 0.5)) scale(0.7)
+      rotateY(calc(45deg * var(--mad-dir, 1))) rotateZ(calc(-6deg * var(--mad-dir, 1)));
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--mad-dx, 0px), var(--mad-dy, 0px)) scale(var(--mad-sx, 0.2), var(--mad-sy, 0.2));
+    opacity: 0;
+  }
+}
+
+/* Head: Modal's head, carrying the breadcrumb, nav and close instead of the title (the title sits under the media). */
+.cui-media-ad-modal .cui-modal__head {
+  flex: none;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-media-ad-modal__crumbs {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-media-ad-modal__crumbs-parent {
+  flex: none;
+  white-space: nowrap;
+}
+.cui-media-ad-modal__crumbs svg {
+  flex: none;
+  width: var(--text-caption-size);
+  height: var(--text-caption-size);
+}
+.cui-media-ad-modal__crumbs-current {
+  min-width: 0;
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cui-media-ad-modal__nav {
+  flex: none;
+  display: flex;
+  gap: var(--spacing-4);
+}
+.cui-media-ad-modal .cui-modal__head .cui-button {
+  flex: none;
+}
+
+/* Body: Modal's body; it alone scrolls. */
+.cui-media-ad-modal .cui-modal__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--spacing-16) var(--spacing-24) var(--spacing-24);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+}
+
+/* Frame + Slot: Media Ad Card's slot contract (ratio + clip), no zoom. 16:10 is the card's recorded ratio. */
+.cui-media-ad-modal__frame {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 var(--spacing-16);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+}
+.cui-media-ad-modal__slot,
+.cui-media-ad-modal__relthumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--color-neutral-2);
+}
+.cui-media-ad-modal__slot > *,
+.cui-media-ad-modal__relthumb > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+.cui-media-ad-modal__slot > :is(img, video, picture, iframe, canvas),
+.cui-media-ad-modal__relthumb > :is(img, video, picture, iframe, canvas) {
+  display: block;
+  object-fit: cover;
+  border: 0;
+}
+/* The placeholder is the card's; only the thumbnail's icon is smaller. */
+.cui-media-ad-modal__relthumb .cui-media-ad-card__placeholder svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+/* Replay: a Secondary sm Button in the Frame's corner, a sibling of the Slot (Slot children are stretched). */
+.cui-media-ad-modal__replay {
+  position: absolute;
+  right: var(--spacing-12);
+  bottom: var(--spacing-12);
+  z-index: 2;
+}
+
+/* Title row: an h3 at the h3 token (Modal's title level); section titles are h4. The Tag never shrinks and is centred
+   on the title's first line. The title wraps, never clamps. */
+.cui-media-ad-modal__titlerow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  margin: 0 0 var(--spacing-4);
+}
+.cui-media-ad-modal__titlerow .cui-tag {
+  flex: none;
+  margin-top: calc((var(--text-h3-lh) - var(--control-height-xs)) / 2);
+}
+.cui-media-ad-modal .cui-media-ad-modal__title {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-lh);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-tracking);
+  color: var(--color-neutral-9);
+}
+.cui-media-ad-modal__title:focus {
+  outline: none;
+}
+.cui-media-ad-modal__title:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+.cui-media-ad-modal .cui-media-ad-modal__tagline {
+  margin: 0 0 var(--spacing-8);
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--text-body1-weight);
+  color: var(--color-neutral-5);
+}
+.cui-media-ad-modal .cui-media-ad-modal__desc {
+  margin: 0 0 var(--spacing-20);
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-9);
+}
+.cui-media-ad-modal__tagline + .cui-media-ad-modal__specs {
+  margin-top: var(--spacing-16);
+}
+
+/* Specs: six cells, always six, always this order; the card's vocabulary. A missing value takes [data-empty]. */
+.cui-media-ad-modal__specs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-12) var(--spacing-16);
+  margin: 0 0 var(--spacing-20);
+  padding: var(--spacing-16);
+  background: var(--color-canvas-warm-card);
+  border-radius: var(--radius-md);
+}
+.cui-media-ad-modal__spec {
+  min-width: 0;
+}
+.cui-media-ad-modal__spec dt {
+  margin: 0 0 var(--spacing-4);
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--text-label3-weight);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+.cui-media-ad-modal__spec dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-strong-weight);
+  color: var(--color-neutral-9);
+  font-variant-numeric: tabular-nums;
+}
+.cui-media-ad-modal__spec dd[data-empty] {
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+
+/* Sections: title to content is spacing-16, spacing-20 between sections. */
+.cui-media-ad-modal__section {
+  margin: 0 0 var(--spacing-20);
+}
+.cui-media-ad-modal__section:last-child {
+  margin-bottom: 0;
+}
+.cui-media-ad-modal .cui-media-ad-modal__section-title {
+  margin: 0 0 var(--spacing-16);
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--text-label3-weight);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-neutral-5);
+}
+.cui-media-ad-modal .cui-media-ad-modal__note {
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+.cui-media-ad-modal__note-banner {
+  margin: 0 0 var(--spacing-20);
+}
+
+/* Supported sizes: a small sample, not a ruler. One shared scale (96 × 64px, a 6px short-side minimum), written
+   inline by the script. Swatches are aria-hidden; the text label is what gets read. */
+.cui-media-ad-modal__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--spacing-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-media-ad-modal__size {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+}
+.cui-media-ad-modal__size-box {
+  --cui-media-ad-modal-swatch-radius: 2px; /* recorded one-off (DESIGN-SYSTEM.md, Media Ad Modal) */
+  display: block;
+  box-sizing: border-box;
+  background: var(--color-water-bg-strong);
+  border: var(--border-width-sm) solid var(--color-navy);
+  border-radius: var(--cui-media-ad-modal-swatch-radius);
+}
+.cui-media-ad-modal__size-label {
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--text-label3-weight);
+  color: var(--color-neutral-5);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* A size that isn't W×H ("16:9 in-content"): a dashed text chip; the dashed edge says "fluid". */
+.cui-media-ad-modal__size-chip {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-xs);
+  padding: 0 var(--spacing-8);
+  box-sizing: border-box;
+  border: var(--border-width-sm) dashed var(--color-neutral-4);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+}
+
+/* Benchmark: the value first; the Progress Bar is decorative (aria-hidden) and eases in from 0. */
+.cui-media-ad-modal__bench {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+.cui-media-ad-modal .cui-media-ad-modal__bench-value {
+  margin: 0;
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  font-variant-numeric: tabular-nums;
+}
+.cui-media-ad-modal__bench-value b {
+  font-weight: var(--text-body2-strong-weight);
+  color: var(--color-neutral-9);
+}
+.cui-media-ad-modal__bench-value span {
+  margin-left: var(--spacing-4);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+.cui-media-ad-modal__bench .cui-progress__fill {
+  transition: width var(--duration-reveal) var(--ease-flow) var(--duration-fast);
+}
+
+/* Industries: the library's static Input Chip group. */
+.cui-media-ad-modal .cui-chip-group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Also consider: three related formats, each a real <button> titled with the full name (the visible name truncates). */
+.cui-media-ad-modal__related {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cui-media-ad-modal__relcard {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-1);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow var(--duration-base) var(--ease-settle);
+}
+.cui-media-ad-modal__relcard:hover {
+  box-shadow: var(--shadow-2);
+}
+.cui-media-ad-modal__relcard:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-media-ad-modal__relcard .cui-media-ad-modal__relthumb {
+  border-bottom: var(--border-width-sm) solid var(--color-neutral-3);
+}
+.cui-media-ad-modal__relname {
+  display: block;
+  padding: var(--spacing-8);
+  font-size: var(--text-label3-size);
+  line-height: var(--text-label3-lh);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Foot: Modal's footer at the spec's spacing-8 gap (Modal ships 12; the DS records the drift). Compare isn't part of
+   the commit pair, so it is pushed far left. */
+.cui-media-ad-modal .cui-modal__foot {
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+}
+.cui-media-ad-modal .cui-modal__foot > .cui-button[aria-pressed] {
+  margin-right: auto;
+}
+/* Pressed: Badge Selected's pairing (Neutral-1 + an inset Obsidian edge), so the button never changes size and the
+   footer never shows two Primary-looking buttons. */
+.cui-media-ad-modal .cui-modal__foot > .cui-button[aria-pressed='true'] {
+  background: var(--color-neutral-1);
+  box-shadow: inset 0 0 0 var(--border-width-sm) var(--color-obsidian);
+}
+.cui-media-ad-modal .cui-modal__foot > .cui-button[aria-pressed='true']:hover {
+  background: var(--color-neutral-2);
+}
+/* Live demo off: Button's Secondary-disabled row (Neutral-3 border, Neutral-4 text) via aria-disabled, so it stays
+   focusable and its reason can be reached by keyboard. */
+.cui-media-ad-modal .cui-button[data-variant='secondary'][aria-disabled='true'],
+.cui-media-ad-modal .cui-button[data-variant='secondary'][aria-disabled='true']:hover,
+.cui-media-ad-modal .cui-button[data-variant='secondary'][aria-disabled='true']:active {
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-4);
+  border-color: var(--color-neutral-3);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.cui-media-ad-modal__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Narrow: follows the panel's width, so a phone and a narrow panel get the same layout. */
+@container cui-media-ad-modal (max-width: 480px) {
+  .cui-media-ad-modal .cui-modal__body {
+    padding: var(--spacing-16);
+  }
+  .cui-media-ad-modal__specs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cui-media-ad-modal__related {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cui-media-ad-modal .cui-modal__foot > .cui-button:not([aria-pressed]) {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+@media (max-width: 640px) {
+  .cui-media-ad-modal-layer {
+    padding: var(--spacing-8);
+  }
+  .cui-media-ad-modal-layer .cui-media-ad-modal {
+    max-height: calc(100dvh - var(--spacing-16));
+  }
+}
+
+/* Touch: footer buttons 44px (Tutorial Modal's rule). The head's icon buttons stay 32px and are spaced 12px apart
+   instead of lifting their hit areas, which would overlap. */
+@media (hover: none), (pointer: coarse) {
+  .cui-media-ad-modal .cui-modal__foot .cui-button {
+    height: var(--hit-target-min);
+  }
+  .cui-media-ad-modal .cui-modal__head,
+  .cui-media-ad-modal__nav {
+    gap: var(--spacing-12);
+  }
+}
+
+/* Reduced motion: no swing (the panel fades), the bar isn't animated, no hover shadow ease. */
+@media (prefers-reduced-motion: reduce) {
+  .cui-media-ad-modal[data-swing] {
+    animation: none;
+  }
+  .cui-media-ad-modal__bench .cui-progress__fill {
+    transition: none;
+  }
+  .cui-media-ad-modal__relcard {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .cui-media-ad-modal .cui-modal__foot > .cui-button[aria-pressed='true'] {
+    outline: var(--border-width-md) solid Highlight;
+  }
+}

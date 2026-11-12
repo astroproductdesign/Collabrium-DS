@@ -4,6 +4,14 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 
 ## Unreleased
 
+### Metrics modal
+- New: `MetricsModal`, the detail view a Metrics card opens into: the media and headline size on a sticky side, the title and category, every bar of the breakdown (growing in), where the audience lives, what it reads about and related items, with Add and "Use in a media plan". Two columns above a 640px panel. Every data-specific string comes from `labels`. Closing returns focus to the card for the item showing. In the Modals group.
+- Media Ad Modal: its layer, head and related tiles are shared with Metrics modal (no change in behaviour).
+
+### Media Ad Modal
+- New: `MediaAdModal`, the detail view a Media Ad Card opens into: media, name and family, six spec cells (never blank), supported sizes drawn to one scale, the benchmark, industries and "Also consider", with Compare, Live demo and "Use in a media plan". It swings out of the card and folds back into it; ← and → step through the list; the page is held still while it is open. In the Modals group.
+- Modal: the page hold is shared with Media Ad Modal (no change in behaviour).
+
 ### Tutorial Modal
 - New: `TutorialModal`, a numbered walkthrough. A spotlight rings one part of the page at a time and a 340px card grows out of it; Back and Next move through the stops. The page is locked while it runs; the ×, Escape or the scrim end it. The card docks to the bottom at 767px and below.
 
@@ -12,6 +20,7 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 - Every Chart.js chart: a dashed series' legend marker is a short dashed line, so it can be told from the solid series of the same colour.
 
 ### Docs site
+- Modals is now a group, like Charts: Modal / dialog and Tutorial Modal are its parts, with Compare modal, Media Ad Modal and Metrics modal as Coming soon. The Modal thumbnail shows the whole panel.
 - The Charts overview's cards show each chart as a bare shape: no axes, gridlines, labels, legend or "View as table" button, like Charts (extra)'s. `ChartThumbnail` (in `@collabrium/ui/charts`) does it.
 - Every page now fits a 320px phone screen; before, each was about 50px wider. Below 480px the top bar takes the content's 16px gutter and drops its Download link (the home page keeps its own), and the product name can shorten with an ellipsis. The anatomy tree indents 12px per level on phones, and its condition badges may wrap rather than run past the screen.
 - A preview wider than its box (a 280px card on a phone) now scrolls inside the box instead of widening the page.
@@ -21,6 +30,7 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 - Preview files for Motion batches 3 to 5 now render every example from their docs file.
 
 ### Changed
+- Modal takes `size="lg"`: a 760px panel (`--measure-prose`) for a form or record with several fields on desktop, with the body scrolling between a pinned header and footer. Default size unchanged. Added at the user's request; not in the DLS.
 - Tokens synced to DLS v0.9.132: adds `--color-navy-deep`, `--color-canvas-warm-card-hover`, `--color-navy-text`, `--nav-rail-width`, `--nav-rail-tile` and the Illustration tokens (`--ill-ink`, `--ill-paper`, `--ill-accent`, `--ill-tint`, `--ill-tile`, `--ill-tile-sm`). `tokens.ts` gains an `illustration` group, and `layout` gains `navRailWidth` and `navRailTile`.
 - Card: a list card's (`padding="list"`) header now sits 16px from the top and its footer 16px from the bottom, so titles line up with neighbouring cards. `CardHeader` takes an `action`: one control at the end of the title row, such as a borderless Dropdown.
 - Empty state: an inline empty state inside a Card no longer adds its own padding or centres itself; its text sits 16px in, like the card's other content.

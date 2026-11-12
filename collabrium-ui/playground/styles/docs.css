@@ -455,3 +455,25 @@ a.cui-button { text-decoration: none; }
 @media (max-width: 767px) {
   .docs-tutorial-stage .cui-tutorial__card { position: relative; inset: auto !important; width: 100%; }
 }
+
+/* Modal thumbnails: the panel is width 100% up to its max, which collapses inside a thumbnail's shrink-wrapped box;
+   give it the panel's own width so ThumbFit scales the whole thing. */
+.docs-modal-thumb {
+  flex: none;
+  width: var(--cui-modal-max-width);
+}
+
+/* Media Ad Modal: the panel shown in place, as the DLS gallery's stage does. */
+.docs-mad-stage { display: flex; justify-content: center; width: 100%; }
+.docs-mad-stage .cui-media-ad-modal { max-height: var(--cui-media-ad-modal-max-height); }
+.docs-mad-stage--thumb { pointer-events: none; }
+.docs-mad-stage--thumb .cui-media-ad-modal { flex: none; width: var(--cui-media-ad-modal-max-width); max-height: calc(var(--spacing-120) * 4); }
+
+/* Mobile width reaches the modals: they render at <body> level, outside the narrowed frame. The panel takes the phone
+   frame's width less the layer's phone padding (8px a side, the modal's own ≤640px rule), and its container queries
+   give the phone layout (one column, stacked foot). Docs only. */
+html[data-docs-mobile] .cui-media-ad-modal-layer { padding: var(--spacing-8); }
+html[data-docs-mobile] .cui-media-ad-modal-layer .cui-media-ad-modal,
+html[data-docs-mobile] .cui-modal-scrim .cui-modal {
+  max-width: calc(var(--docs-mobile-width) - var(--spacing-16));
+}

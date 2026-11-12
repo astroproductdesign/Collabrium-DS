@@ -7,6 +7,9 @@ import type { DocsAccessibility, DocsAnatomyNode, DocsExample, DocsMotion, DocsP
 
 export const title = 'Modal / dialog';
 
+// A part of the Modals group (user's request, 2026-11-12).
+export const group = 'Modals';
+
 export const description =
   'One focused decision, asked over the page: a 420px panel on a scrim with a title, a short body, and a footer of Secondary (cancel) then Primary (commit).';
 
@@ -60,7 +63,7 @@ function Demo() {
 
 // A still picture of the panel for the home grid and search; the real modal only exists while open.
 export const thumbnail = () => (
-  <div className="cui-modal" aria-hidden="true">
+  <div className="cui-modal docs-modal-thumb" aria-hidden="true">
     <div className="cui-modal__head">
       <span className="cui-modal__title">Archive this workspace?</span>
     </div>
@@ -125,6 +128,7 @@ export const props: DocsProp[] = [
   { name: 'children', options: 'ReactNode', default: '—', required: true, description: 'The body: what the decision means, in a sentence or two.' },
   { name: 'actions', options: 'ReactNode', default: '—', description: 'The footer\'s Buttons: Secondary first, Primary on the right. Left out, there is no footer.' },
   { name: 'closeLabel', options: 'string', default: '\'Close\'', description: 'The close button\'s accessible name.' },
+  { name: 'size', options: "'default' | 'lg'", default: "'default'", description: 'lg: 760px for a form or record with several fields; the body scrolls between a pinned header and footer.' },
   { name: 'id, aria-*, data-*', options: 'native', default: '—', description: 'Passed to the panel. `style` and `className` are not accepted. The ref is forwarded to the panel.' },
 ];
 
