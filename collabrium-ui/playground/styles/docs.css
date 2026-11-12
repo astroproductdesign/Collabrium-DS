@@ -489,3 +489,8 @@ html[data-docs-mobile] .cui-modal-scrim .cui-modal {
 /* Timeline's Card widget example: the host CSS the DS gives for the recipe, on the docs page only. */
 .docs-timeline-widget { width: 100%; max-width: 480px; }
 .docs-timeline-widget .cui-card { gap: var(--spacing-12); }
+
+/* Time picker: a range is two fields wide; the date-and-time pair shares a row and aligns on the boxes. */
+.docs-timepicker-range { max-width: calc(var(--spacing-120) * 3.5); }
+.docs-timepicker-pair { align-items: flex-start; }
+.docs-timepicker-pair > .docs-field { flex: 1 1 calc(var(--spacing-120) * 1.5); }
