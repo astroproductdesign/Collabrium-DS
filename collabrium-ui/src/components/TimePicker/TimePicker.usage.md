@@ -26,7 +26,7 @@ icon) and Dropdown's panel and rows.
 | `mode` | `'single' \| 'range'` | `'single'` | One time, or a start and an end. |
 | `value` / `defaultValue` | `'HH:mm'` \| `{ start, end }` \| `null` | — | Always 24-hour `HH:mm`. |
 | `onValueChange` | `(value) => void` | — | A picked or typed time (`null` when cleared); a range on every change (`end` empty until picked). |
-| `step` | `5 \| 10 \| 15 \| 20 \| 30 \| 60` | `30` | Minutes between listed times. |
+| `step` | `5 \| 10 \| 15 \| 20 \| 30 \| 60` | `15` | Minutes between listed times. Typed times off the step are kept. |
 | `min` / `max` | `'HH:mm'` | `'00:00'` / `'23:59'` | The earliest and latest time. |
 | `hourCycle` | `12 \| 24` | `12` | "9:30 AM" or "09:30". |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Input field's heights. |
@@ -41,7 +41,7 @@ Also exported: `formatTime(value, hourCycle)` and `parseTime(text)`.
    chosen time (or the time nearest now). Typing jumps the list to the
    matching time. Enter picks the highlighted time, or keeps what was typed.
 2. **What can be typed:** "9", "930", "9:30", "9.30", "2:15pm", "2p",
-   "14:15", "12am". Without AM or PM the hour is read on the 24-hour clock
+   "14:15", "12am", "12:03pm". Without AM or PM the hour is read on the 24-hour clock
    ("9" is 9:00 AM, "15" is 3:00 PM). A typed time off the step is kept; one
    that isn't a time, or is outside min / max, puts the field back.
 3. **The value is `HH:mm`**, whatever the clock shown. 12-hour by default, as
@@ -75,7 +75,7 @@ import { TimePicker } from '@collabrium/ui';
 
 <TimePicker label="Start time" value={time} onValueChange={setTime} />
 
-<TimePicker mode="range" label="Meeting" step={15} min="08:00" max="20:00"
+<TimePicker mode="range" label="Meeting" min="08:00" max="20:00"
   value={slot} onValueChange={setSlot} />
 ```
 

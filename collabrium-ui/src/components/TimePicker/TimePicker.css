@@ -9,7 +9,7 @@
                                   __check): the popover convention, the hover / keyboard fill, the selected check
     range                      -> two fields in a row, an en dash between them, under one label
 
-  No token, kept local:
+  No token, kept local (Q-TP-5 decided 2026-11-12):
     --cui-timepicker-panel-min 200px   the list's narrowest width; it grows to its longest row ("11:45 AM  2 hrs 15
                                        min") beside a half-width range field
     --cui-dropdown-list-max 260px      about six and a half 38px rows under the list's 8px padding, so it always shows

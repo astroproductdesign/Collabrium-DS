@@ -14,7 +14,7 @@ export const usage = `import { TimePicker } from '@collabrium/ui';
 
 <TimePicker label="Start time" value={time} onValueChange={setTime} />
 
-<TimePicker mode="range" label="Meeting" step={15} min="08:00" max="20:00"
+<TimePicker mode="range" label="Meeting" min="08:00" max="20:00"
   value={slot} onValueChange={setSlot} />`;
 
 function Single() {
@@ -33,7 +33,6 @@ function Range() {
       <TimePicker
         mode="range"
         label="Meeting"
-        step={15}
         min="08:00"
         max="20:00"
         value={slot}
@@ -80,7 +79,7 @@ export const examples: DocsExample[] = [
   {
     id: 'single',
     title: 'One time',
-    description: 'Click or press ↓ to open the list at the chosen time; ↑ ↓ move, Enter picks. Or type: "9", "930", "2:15pm", "14:15". A typed time stays when it is a real time inside the limits; anything else goes back.',
+    description: 'Click or press ↓ to open the list at the chosen time; ↑ ↓ move, Enter picks. Or type any time, on the list or not: "9", "930", "12:03pm", "14:15". A typed time stays when it is a real time inside the limits; anything else goes back.',
     render: () => <Single />,
     code: `<TimePicker label="Start time" value={time} onValueChange={setTime} />`,
   },
@@ -89,7 +88,7 @@ export const examples: DocsExample[] = [
     title: 'Range',
     description: 'A start and an end, every 15 minutes between 8:00 AM and 8:00 PM. The end\'s list starts after the start and shows how long each option runs. Moving the start keeps the duration.',
     render: () => <Range />,
-    code: `<TimePicker mode="range" label="Meeting" step={15} min="08:00" max="20:00"
+    code: `<TimePicker mode="range" label="Meeting" min="08:00" max="20:00"
   value={slot} onValueChange={setSlot} />`,
   },
   {
@@ -135,7 +134,7 @@ export const props: DocsProp[] = [
   { name: 'mode', options: "'single' | 'range'", default: "'single'", description: 'One time, or a start and an end.' },
   { name: 'value / defaultValue', options: "'HH:mm' | { start, end } | null", default: '—', description: 'Always 24-hour `HH:mm`, whatever the clock shown.' },
   { name: 'onValueChange', options: '(value) => void', default: '—', description: 'A picked or typed time (`null` when cleared); a range on every change.' },
-  { name: 'step', options: '5 | 10 | 15 | 20 | 30 | 60', default: '30', description: 'Minutes between the listed times. Typed times off the step are kept.' },
+  { name: 'step', options: '5 | 10 | 15 | 20 | 30 | 60', default: '15', description: 'Minutes between the listed times. Typed times off the step (12:03 PM) are kept.' },
   { name: 'min / max', options: "'HH:mm'", default: "'00:00' / '23:59'", description: 'The earliest and latest time.' },
   { name: 'hourCycle', options: '12 | 24', default: '12', description: '"9:30 AM" or "09:30".' },
   { name: 'size', options: "'sm' | 'md' | 'lg'", default: "'md'", description: "Input field's heights." },
@@ -146,7 +145,7 @@ export const props: DocsProp[] = [
 
 export const rules: DocsRules = {
   do: [
-    'Use the step people book in: 30 minutes for most meetings, 15 for short calls, 60 for shifts.',
+    'Keep the 15-minute default for most bookings; use 30 for long meetings, 60 for shifts. People can still type an exact time.',
     'Set min and max to the hours that make sense (opening hours, a working day).',
     'Store and send `HH:mm`; show the clock your readers use (12-hour by default).',
     'Pair it with a Date picker for a date and a time: they share the field.',

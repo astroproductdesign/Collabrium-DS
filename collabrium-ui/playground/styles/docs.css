@@ -494,3 +494,12 @@ html[data-docs-mobile] .cui-modal-scrim .cui-modal {
 .docs-timepicker-range { max-width: calc(var(--spacing-120) * 3.5); }
 .docs-timepicker-pair { align-items: flex-start; }
 .docs-timepicker-pair > .docs-field { flex: 1 1 calc(var(--spacing-120) * 1.5); }
+
+/* Illustration (Foundation): the DLS site's .illo-* rules are in dls-site.css; these fit the library's Search input,
+   Tabs and Button into them. The search is 320px wide (.illo-toolbar .c-search-input), the tabs dim to 40% while a
+   search runs (the DLS script's inline opacity), and each download Button sits in the .illo-dl slot. */
+.docs-illo-lede { margin-bottom: var(--spacing-16); }
+.docs-illo-search { max-width: calc(var(--spacing-40) * 8); }
+.docs-illo-tabs[data-searching] { opacity: 0.4; }
+.docs-illo-tabs .illo-dot { margin-right: var(--spacing-2); }
+.illo-dl { display: inline-flex; }

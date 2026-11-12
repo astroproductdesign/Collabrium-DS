@@ -27,6 +27,7 @@ export interface TimeRange {
   end: TimeValue;
 }
 
+// Q-TP-2 decided 2026-11-12: the API (HH:mm values, step, min / max, hourCycle, mode); step defaults to 15 (user, 2026-11-12).
 interface TimePickerBaseProps {
   /** The visible label. Always required (it names the field for screen readers too). */
   label: ReactNode;
@@ -36,7 +37,7 @@ interface TimePickerBaseProps {
   placeholder?: string;
   /** Input field's heights: `sm` 32px, `md` 40px (default), `lg` 48px. */
   size?: 'sm' | 'md' | 'lg';
-  /** Minutes between the times in the list. Default 30. Any typed time inside min / max is accepted too. */
+  /** Minutes between the times in the list. Default 15. Any typed time inside min / max is accepted too, on the step or not ("12:03pm"). */
   step?: 5 | 10 | 15 | 20 | 30 | 60;
   /** The earliest time, `HH:mm`. Default "00:00". */
   min?: TimeValue;
@@ -111,6 +112,7 @@ function formatDuration(minutes: number) {
 /**
  * Reads what was typed: "9", "930", "9:30", "9.30", "9:30pm", "9p", "21:30", "12am". Without AM or PM the hour is read on
  * the 24-hour clock ("9" is 9:00 AM, "15" is 3:00 PM). Returns null when it isn't a time.
+ * Q-TP-1 decided 2026-11-12: "3" reads 3:00 AM on a 12-hour field.
  */
 export function parseTime(text: string): TimeValue | null {
   const t = text.trim().toLowerCase().replace(/\s+/g, '');
@@ -193,6 +195,7 @@ function TimeField({
     const i = options.findIndex(o => toMin(o.value) >= n);
     return i === -1 ? options.length - 1 : i;
   };
+  // Q-TP-4 decided 2026-11-12: with no value, the list opens on the time nearest now (highlighted, not chosen).
   const openList = () => {
     if (disabled || open) return;
     const now = new Date();
@@ -388,7 +391,7 @@ export const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(function
     label,
     hideLabel = false,
     size = 'md',
-    step = 30,
+    step = 15,
     min = '00:00',
     max = '23:59',
     hourCycle = 12,
@@ -444,7 +447,8 @@ export const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(function
     if (r.value === undefined) setOwnRange(next);
     r.onValueChange?.(next);
   };
-  /** A new start keeps the duration when an end was set, inside max; an end at or before the start is dropped. */
+  /** A new start keeps the duration when an end was set, inside max; an end at or before the start is dropped.
+   * Q-TP-3 decided 2026-11-12. */
   const setStart = (v: TimeValue | null) => {
     if (!v) {
       setPair({ start: '', end: pair?.end ?? '' });
