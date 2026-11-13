@@ -1,0 +1,263 @@
+/*
+  Collabrium — Tailwind v4 theme mapping.
+  Import tokens.css first, then map into @theme so Tailwind utilities
+  (bg-orange, rounded-sm, p-4, etc.) resolve to Collabrium's tokens.
+  Hand-maintained alongside tokens.css — regenerate if the token tables
+  in DESIGN-SYSTEM.md change.
+
+  Covers all 208 tokens.css tokens, including the full typography scale
+  (every text-*/weight-*/tracking-* token), the 8 icon-size tokens, the
+  4 shadow variants, the 5 semantic spacing aliases, the 5 -bg-strong
+  element tint steps, the pastel and status-tint colours, the focus ring,
+  control sizes and measures, and the motion durations, staggers and
+  easings — verify token count still matches on next edit.
+*/
+
+@import "tailwindcss";
+@import url("tokens.css");
+
+@theme {
+  /* Color */
+  --color-orange: var(--color-orange);
+  --color-salmon-pink: var(--color-salmon-pink);
+  --color-green: var(--color-green);
+  --color-navy: var(--color-navy);
+  --color-amber: var(--color-amber);
+  --color-obsidian: var(--color-obsidian);
+  --color-purple: var(--color-purple);
+  --color-turquoise: var(--color-turquoise);
+  --color-red: var(--color-red);
+  --color-neutral-9: var(--color-neutral-9);
+  --color-neutral-8: var(--color-neutral-8);
+  --color-neutral-7: var(--color-neutral-7);
+  --color-neutral-6: var(--color-neutral-6);
+  --color-neutral-5: var(--color-neutral-5);
+  --color-neutral-4: var(--color-neutral-4);
+  --color-neutral-3: var(--color-neutral-3);
+  --color-neutral-2: var(--color-neutral-2);
+  --color-neutral-1: var(--color-neutral-1);
+  --color-canvas-warm: var(--color-canvas-warm);
+  --color-canvas-warm-card: var(--color-canvas-warm-card);
+  --color-fire-bg: var(--color-fire-bg);
+  --color-fire-bg-strong: var(--color-fire-bg-strong);
+  --color-earth-bg: var(--color-earth-bg);
+  --color-earth-bg-strong: var(--color-earth-bg-strong);
+  --color-water-bg: var(--color-water-bg);
+  --color-water-bg-strong: var(--color-water-bg-strong);
+  --color-gold-bg: var(--color-gold-bg);
+  --color-gold-bg-strong: var(--color-gold-bg-strong);
+  --color-wood-bg: var(--color-wood-bg);
+  --color-wood-bg-strong: var(--color-wood-bg-strong);
+  --color-purple-bg: var(--color-purple-bg);
+  --color-purple-bg-strong: var(--color-purple-bg-strong);
+  --color-fire-pastel: var(--color-fire-pastel);
+  --color-wood-pastel: var(--color-wood-pastel);
+  --color-earth-pastel: var(--color-earth-pastel);
+  --color-water-pastel: var(--color-water-pastel);
+  --color-gold-pastel: var(--color-gold-pastel);
+
+  /* Color — status tints and AA text colours */
+  --color-green-tint: var(--color-green-tint);
+  --color-green-tint-border: var(--color-green-tint-border);
+  --color-red-tint: var(--color-red-tint);
+  --color-red-tint-border: var(--color-red-tint-border);
+  --color-amber-tint: var(--color-amber-tint);
+  --color-amber-tint-border: var(--color-amber-tint-border);
+  --color-navy-tint: var(--color-navy-tint);
+  --color-navy-tint-border: var(--color-navy-tint-border);
+  --color-green-text: var(--color-green-text);
+  --color-amber-text: var(--color-amber-text);
+
+  /* Typography — font family */
+  --font-primary: var(--font-primary);
+  --font-secondary: var(--font-secondary);
+
+  /* Typography — weight scale */
+  --weight-extralight: var(--weight-extralight);
+  --weight-light: var(--weight-light);
+  --weight-regular: var(--weight-regular);
+  --weight-medium: var(--weight-medium);
+  --weight-semibold: var(--weight-semibold);
+  --weight-bold: var(--weight-bold);
+  --weight-extrabold: var(--weight-extrabold);
+  --weight-black: var(--weight-black);
+
+  /* Typography — type scale */
+  --text-display-size: var(--text-display-size);
+  --text-display-lh: var(--text-display-lh);
+  --text-display-weight: var(--text-display-weight);
+  --text-display-tracking: var(--text-display-tracking);
+  --text-display-size-lg: var(--text-display-size-lg);
+  --text-display-lh-lg: var(--text-display-lh-lg);
+  --text-h1-size: var(--text-h1-size);
+  --text-h1-lh: var(--text-h1-lh);
+  --text-h1-weight: var(--text-h1-weight);
+  --text-h1-tracking: var(--text-h1-tracking);
+  --text-h1-size-lg: var(--text-h1-size-lg);
+  --text-h1-lh-lg: var(--text-h1-lh-lg);
+  --text-h2-size: var(--text-h2-size);
+  --text-h2-lh: var(--text-h2-lh);
+  --text-h2-weight: var(--text-h2-weight);
+  --text-h2-tracking: var(--text-h2-tracking);
+  --text-h2-size-lg: var(--text-h2-size-lg);
+  --text-h2-lh-lg: var(--text-h2-lh-lg);
+  --text-h3-size: var(--text-h3-size);
+  --text-h3-lh: var(--text-h3-lh);
+  --text-h3-weight: var(--text-h3-weight);
+  --text-h3-tracking: var(--text-h3-tracking);
+  --text-h3-size-lg: var(--text-h3-size-lg);
+  --text-h3-lh-lg: var(--text-h3-lh-lg);
+  --text-h4-size: var(--text-h4-size);
+  --text-h4-lh: var(--text-h4-lh);
+  --text-h4-weight: var(--text-h4-weight);
+  --text-h4-tracking: var(--text-h4-tracking);
+  --text-h4-size-lg: var(--text-h4-size-lg);
+  --text-h4-lh-lg: var(--text-h4-lh-lg);
+  --text-h5-size: var(--text-h5-size);
+  --text-h5-lh: var(--text-h5-lh);
+  --text-h5-weight: var(--text-h5-weight);
+  --text-h5-tracking: var(--text-h5-tracking);
+  --text-body1-size: var(--text-body1-size);
+  --text-body1-lh: var(--text-body1-lh);
+  --text-body1-weight: var(--text-body1-weight);
+  --text-body1-tracking: var(--text-body1-tracking);
+  --text-body1-strong-weight: var(--text-body1-strong-weight);
+  --text-body2-size: var(--text-body2-size);
+  --text-body2-lh: var(--text-body2-lh);
+  --text-body2-weight: var(--text-body2-weight);
+  --text-body2-tracking: var(--text-body2-tracking);
+  --text-body2-lh-lg: var(--text-body2-lh-lg);
+  --text-body2-strong-weight: var(--text-body2-strong-weight);
+  --text-label1-size: var(--text-label1-size);
+  --text-label1-lh: var(--text-label1-lh);
+  --text-label1-weight: var(--text-label1-weight);
+  --text-label1-tracking: var(--text-label1-tracking);
+  --text-label2-size: var(--text-label2-size);
+  --text-label2-lh: var(--text-label2-lh);
+  --text-label2-weight: var(--text-label2-weight);
+  --text-label2-tracking: var(--text-label2-tracking);
+  --text-label3-size: var(--text-label3-size);
+  --text-label3-lh: var(--text-label3-lh);
+  --text-label3-weight: var(--text-label3-weight);
+  --text-label3-tracking: var(--text-label3-tracking);
+  --text-link1-size: var(--text-link1-size);
+  --text-link1-lh: var(--text-link1-lh);
+  --text-link1-weight: var(--text-link1-weight);
+  --text-link1-tracking: var(--text-link1-tracking);
+  --text-link2-size: var(--text-link2-size);
+  --text-link2-lh: var(--text-link2-lh);
+  --text-link2-weight: var(--text-link2-weight);
+  --text-link2-tracking: var(--text-link2-tracking);
+  --text-footnote-size: var(--text-footnote-size);
+  --text-footnote-lh: var(--text-footnote-lh);
+  --text-footnote-weight: var(--text-footnote-weight);
+  --text-footnote-tracking: var(--text-footnote-tracking);
+  --text-caption-size: var(--text-caption-size);
+  --text-caption-lh: var(--text-caption-lh);
+  --text-caption-weight: var(--text-caption-weight);
+  --text-caption-tracking: var(--text-caption-tracking);
+
+  /* Typography — tracking */
+  --tracking-eyebrow: var(--tracking-eyebrow);
+  --leading-prose: var(--leading-prose);
+
+  /* Spacing */
+  --spacing-2: var(--spacing-2);
+  --spacing-4: var(--spacing-4);
+  --spacing-6: var(--spacing-6);
+  --spacing-8: var(--spacing-8);
+  --spacing-12: var(--spacing-12);
+  --spacing-16: var(--spacing-16);
+  --spacing-20: var(--spacing-20);
+  --spacing-24: var(--spacing-24);
+  --spacing-32: var(--spacing-32);
+  --spacing-40: var(--spacing-40);
+  --spacing-48: var(--spacing-48);
+  --spacing-60: var(--spacing-60);
+  --spacing-120: var(--spacing-120);
+  --card-padding: var(--card-padding);
+  --element-gap: var(--element-gap);
+  --section-gap: var(--section-gap);
+  --page-gutter: var(--page-gutter);
+  --content-max-width: var(--content-max-width);
+  --measure-sm: var(--measure-sm);
+  --measure-md: var(--measure-md);
+  --measure-lg: var(--measure-lg);
+  --measure-prose: var(--measure-prose);
+
+  /* Layers */
+  --z-float: var(--z-float);
+  --z-bar: var(--z-bar);
+  --z-menu: var(--z-menu);
+  --z-panel: var(--z-panel);
+  --z-chat: var(--z-chat);
+  --z-modal: var(--z-modal);
+  --z-brief: var(--z-brief);
+  --z-tooltip: var(--z-tooltip);
+  --z-toast: var(--z-toast);
+  --z-tour: var(--z-tour);
+
+  /* Radius */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+  --radius-link: var(--radius-link);
+
+  /* Border width, focus ring, control sizes */
+  --border-width-sm: var(--border-width-sm);
+  --border-width-md: var(--border-width-md);
+  --focus-ring-width: var(--focus-ring-width);
+  --focus-ring-color: var(--focus-ring-color);
+  --focus-ring-offset: var(--focus-ring-offset);
+  --focus-ring-offset-inset: var(--focus-ring-offset-inset);
+  --control-height-xs: var(--control-height-xs);
+  --control-height-sm: var(--control-height-sm);
+  --control-height-md: var(--control-height-md);
+  --control-height-lg: var(--control-height-lg);
+  --hit-target-min: var(--hit-target-min);
+  --choice-size: var(--choice-size);
+
+  /* Elevation */
+  --shadow-hairline: var(--shadow-hairline);
+  --shadow-1: var(--shadow-1);
+  --shadow-2: var(--shadow-2);
+  --shadow-3: var(--shadow-3);
+  --shadow-4: var(--shadow-4);
+  --shadow-inset: var(--shadow-inset);
+  --shadow-focus: var(--shadow-focus);
+  --shadow-overlay: var(--shadow-overlay);
+  --shadow-modal: var(--shadow-modal);
+
+  /* Motion */
+  --duration-instant: var(--duration-instant);
+  --duration-fast: var(--duration-fast);
+  --duration-base: var(--duration-base);
+  --duration-slow: var(--duration-slow);
+  --duration-ambient: var(--duration-ambient);
+  --duration-morph: var(--duration-morph);
+  --duration-reveal: var(--duration-reveal);
+  --duration-pulse: var(--duration-pulse);
+  --duration-blink: var(--duration-blink);
+  --stagger-sm: var(--stagger-sm);
+  --stagger-md: var(--stagger-md);
+  --ease-standard: var(--ease-standard);
+  --ease-settle: var(--ease-settle);
+  --ease-flow: var(--ease-flow);
+  --ease-flare: var(--ease-flare);
+  --ease-precise: var(--ease-precise);
+  --ease-grow: var(--ease-grow);
+  --ease-morph: var(--ease-morph);
+  --ease-reveal: var(--ease-reveal);
+
+  /* Icon sizes */
+  --icon-xs: var(--icon-xs);
+  --icon-micro: var(--icon-micro);
+  --icon-sm: var(--icon-sm);
+  --icon-base: var(--icon-base);
+  --icon-md: var(--icon-md);
+  --icon-lg: var(--icon-lg);
+  --icon-empty: var(--icon-empty);
+  --icon-hero: var(--icon-hero);
+}
