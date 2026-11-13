@@ -1,0 +1,9 @@
+node_modules/
+dist/
+playground/.next/
+playground/out/
+playground/next-env.d.ts
+*.tsbuildinfo
+.DS_Store
+playground/app/_generated/
+playground/public/collabrium-dls-v2.0.zip

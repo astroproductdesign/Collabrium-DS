@@ -1,0 +1,533 @@
+/*
+  Docs site layout — new playground CSS. Token variables only.
+  Everything visual that the DLS already defines comes from
+  dls-components.css and dls-site.css (copied, same class names). This
+  file only lays those pieces out and covers what the DLS has no style
+  for (listed in the playground report): the page grid, the "On this
+  page" column, code blocks, the anatomy tree, breadcrumbs, inline code
+  and kbd.
+*/
+
+:root {
+  /* Preview toolbar "Mobile width". No token exists for a phone width. */
+  --docs-mobile-width: 390px;
+}
+
+/* ---------- Shell ---------- */
+.docs-pane { position: relative; flex: 1; min-width: 0; overflow-y: auto; }
+a.c-back-button { text-decoration: none; }
+[id] { scroll-margin-top: var(--spacing-24); }
+
+/* ---------- Page grid: article + "On this page" ---------- */
+/* Fills the pane at any screen size; paragraphs keep their own reading measure (68ch). */
+.docs-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--spacing-48); padding-bottom: var(--spacing-120); }
+.docs-page.has-toc { grid-template-columns: minmax(0, 1fr) calc(var(--spacing-120) * 2); }
+.docs-article { min-width: 0; }
+.docs-aside { min-width: 0; }
+@media (max-width: 1200px) {
+  .docs-page.has-toc { grid-template-columns: minmax(0, 1fr); }
+  .docs-aside { display: none; }
+}
+
+/* ---------- Page header ---------- */
+/* The DLS rule is written for h2 (h2.section-title); pages use one h1 as the title, with the same look. */
+h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight-semibold); margin: 0 0 var(--spacing-24); font-size: var(--text-h1-size); line-height: var(--text-h1-lh); letter-spacing: var(--text-h1-tracking); }
+.docs-header { padding-top: var(--spacing-48); }
+.docs-title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-16); margin-bottom: var(--spacing-16); }
+.docs-title-row .section-title { margin: 0; }
+.docs-title-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-12); min-width: 0; }
+.docs-title-actions { display: flex; align-items: center; gap: var(--spacing-8); }
+.docs-lede { margin-bottom: var(--spacing-16); }
+.docs-labels { display: flex; flex-wrap: wrap; gap: var(--spacing-8); }
+.docs-breadcrumb ol { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-8); margin: 0 0 var(--spacing-16); padding: 0; list-style: none; font-size: var(--text-label2-size); line-height: var(--text-label2-lh); color: var(--color-neutral-5); }
+.docs-breadcrumb li + li::before { content: '/'; margin-right: var(--spacing-8); color: var(--color-neutral-4); }
+.docs-breadcrumb a { color: var(--color-neutral-5); text-decoration: none; border-radius: var(--spacing-4); }
+.docs-breadcrumb a:hover { color: var(--color-neutral-9); text-decoration: underline; }
+.docs-breadcrumb a:focus-visible { outline: var(--border-width-md) solid var(--color-obsidian); outline-offset: var(--border-width-md); }
+.docs-breadcrumb [aria-current] { color: var(--color-neutral-9); font-weight: var(--weight-bold); }
+
+/* ---------- Sections ---------- */
+.docs-h2 { margin: 0; font-size: var(--text-h4-size); line-height: var(--text-h4-lh); font-weight: var(--text-h4-weight); }
+.docs-h3 { margin: 0 0 var(--spacing-4); font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--text-h5-weight); }
+.docs-p { margin: 0 0 var(--spacing-12); max-width: 68ch; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
+.docs-stack { display: grid; gap: var(--spacing-16); }
+.docs-stack > .docs-p { margin: 0; }
+/* A wrapping row of trigger buttons (Toast's live demo). */
+.docs-stack-row { display: flex; flex-wrap: wrap; gap: var(--spacing-8); }
+.docs-example { padding: var(--spacing-24); border-radius: var(--radius-lg); background: var(--color-canvas-warm-card); }
+.docs-example + .docs-example { margin-top: var(--spacing-16); }
+@media (max-width: 600px) { .docs-example { padding: var(--spacing-16); } }
+
+/* ---------- Preview ---------- */
+.docs-preview-toolbar { display: flex; flex-wrap: wrap; gap: var(--spacing-24); margin-bottom: var(--spacing-12); }
+.docs-switch .text .label { font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--weight-bold); }
+/* The DLS Switch has no focus style (MIGRATION-LOG); the DLS control focus recipe, applied to its track. */
+.docs-switch:has(input:focus-visible) .c-switch-track { outline: var(--border-width-md) solid var(--color-obsidian); outline-offset: var(--border-width-md); }
+.docs-stage { min-width: 0; }
+.docs-stage[data-mobile] { max-width: var(--docs-mobile-width); margin-inline: auto; }
+/* A preview wider than the box (a card with a 280px floor on a phone) scrolls inside the box, not the page. The padding and matching negative margin leave room for shadows and focus rings at the edges. */
+.docs-stage-inner { min-width: 0; overflow-x: auto; padding: var(--spacing-12); margin: calc(var(--spacing-12) * -1); }
+/* A board column's worth of tiles that hug their content (Campaign card), as the gallery's .campaign-cards-grid. */
+.docs-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--spacing-120) * 2)), 1fr)); gap: var(--spacing-16); align-items: start; }
+/* A mock page of ad slots for Ad Placement Card: a top banner, the article and a rail, and a feed slot. */
+.docs-placement-map { display: grid; grid-template-columns: 2fr 1fr; grid-template-areas: "top top" "article side" "feed side"; gap: var(--spacing-12); max-width: calc(var(--spacing-120) * 4); padding: var(--spacing-16); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); background: var(--color-neutral-1); }
+.docs-placement-slot { min-height: var(--spacing-48); padding: var(--spacing-8); border: var(--border-width-sm) dashed var(--color-navy); border-radius: var(--radius-sm); background: var(--color-water-bg); color: var(--color-navy); font: inherit; font-size: var(--text-caption-size); font-weight: var(--weight-bold); cursor: pointer; }
+.docs-placement-slot:hover { background: var(--color-water-bg-strong); }
+.docs-placement-slot:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+.docs-placement-slot[data-slot="top"] { grid-area: top; }
+.docs-placement-slot[data-slot="article"] { grid-area: article; min-height: calc(var(--spacing-48) * 2); }
+.docs-placement-slot[data-slot="side"] { grid-area: side; }
+.docs-placement-slot[data-slot="feed"] { grid-area: feed; }
+.docs-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-12); }
+.docs-row--beacon { padding-block: var(--spacing-12); }
+.docs-status { font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); }
+
+/* ---------- Code ---------- */
+.docs-code { overflow: hidden; background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); }
+.docs-code-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-12); padding: var(--spacing-8) var(--spacing-8) var(--spacing-8) var(--spacing-16); border-bottom: var(--border-width-sm) solid var(--color-neutral-2); background: var(--color-canvas-warm); }
+.docs-code-label { font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--weight-bold); color: var(--color-neutral-5); }
+/* .codearea (copied) sets a monospace face; the DLS font rule is Mulish only. */
+.docs-code-body.codearea { margin: 0; padding: var(--spacing-16); font-family: var(--font-primary); font-size: var(--text-body2-size); line-height: var(--text-body2-lh-lg); white-space: pre; overflow-x: auto; }
+.docs-code-body:focus-visible { outline: var(--border-width-md) solid var(--color-obsidian); outline-offset: calc(var(--border-width-md) * -1); }
+.docs-article code, .docs-toc code { font-family: var(--font-primary); font-size: var(--text-label2-size); font-weight: var(--weight-semibold); padding: 0 var(--spacing-4); border-radius: var(--spacing-4); background: var(--color-neutral-2); color: var(--color-neutral-9); }
+.docs-code-body code, .docs-foundation .docs-code-body code { padding: 0; background: none; font-size: inherit; font-weight: inherit; }
+.docs-kbd { display: inline-block; padding: 0 var(--spacing-4); font-family: var(--font-primary); font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--weight-bold); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--spacing-4); background: var(--color-neutral-1); color: var(--color-neutral-9); }
+
+/* ---------- Anatomy tree ---------- */
+.docs-tree { margin: 0; padding: 0; list-style: none; }
+.docs-tree .docs-tree { margin-top: var(--spacing-8); padding-left: var(--spacing-20); border-left: var(--border-width-sm) solid var(--color-neutral-3); }
+.docs-tree-node + .docs-tree-node { margin-top: var(--spacing-8); }
+.docs-tree-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-8); }
+.docs-tree-name { font-size: var(--text-body2-size); line-height: var(--text-body2-lh); font-weight: var(--weight-bold); }
+.docs-tree-desc { margin: var(--spacing-4) 0 0; max-width: 68ch; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
+/*
+  A "when" badge never wraps (Badge's rule), so a long condition four levels deep (Task Rows) was wider than a phone.
+  Here only: it may take its row's width and wrap, still a pill; and on phones each level indents 12px, not 20px.
+*/
+.docs-tree-row .cui-badge { max-width: 100%; height: auto; min-height: var(--cui-badge-height); padding-block: var(--spacing-2); line-height: var(--text-caption-lh); white-space: normal; }
+@media (max-width: 480px) {
+  .docs-tree .docs-tree { padding-left: var(--spacing-12); }
+}
+
+/* ---------- Tables, rules, notes ---------- */
+.docs-table-wrap .cui-table__td { vertical-align: top; }
+.docs-required { margin-left: var(--spacing-8); }
+.docs-nowrap { white-space: nowrap; }
+.docs-rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--spacing-120) * 2.5)), 1fr)); gap: var(--spacing-16); }
+.docs-rules .cui-card { min-width: 0; }
+.docs-rules .guide-col h3 { font-size: var(--text-h5-size); line-height: var(--text-h5-lh); }
+.docs-notes { margin: var(--spacing-16) 0 0; padding-left: var(--spacing-20); display: grid; gap: var(--spacing-8); font-size: var(--text-body2-size); line-height: var(--text-body2-lh); }
+
+/* ---------- Previous / next ---------- */
+.docs-pn { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--spacing-16); margin-top: var(--spacing-48); }
+.docs-pn-link { min-width: 0; overflow-wrap: anywhere; padding: var(--spacing-12) var(--spacing-16); border: var(--border-width-sm) solid var(--color-neutral-3); text-align: left; }
+.docs-pn-link.is-next { text-align: right; margin-left: auto; }
+.docs-pn-dir { display: block; font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--text-caption-weight); color: var(--color-neutral-5); }
+.docs-pn-arrow { padding: var(--spacing-8); }
+.docs-pn-step { display: flex; align-items: center; gap: var(--spacing-4); }
+
+/* ---------- On this page ---------- */
+.docs-toc { position: sticky; top: var(--spacing-24); padding-top: var(--spacing-48); }
+.docs-toc-title { margin: 0 0 var(--spacing-8); padding-left: var(--spacing-16); font-size: var(--text-label3-size); line-height: var(--text-label3-lh); font-weight: var(--text-label3-weight); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--color-neutral-5); }
+.docs-toc-list { display: flex; flex-direction: column; gap: var(--spacing-4); }
+.docs-toc-link.is-sub { padding-left: var(--spacing-32); }
+
+/* ---------- Home ---------- */
+.docs-card-link { color: inherit; text-decoration: none; }
+.docs-card-head { display: flex; align-items: center; gap: var(--spacing-12); }
+.docs-card-icon { font-size: var(--icon-md); color: var(--color-neutral-9); }
+/* ---------- Group overview (AI Native) ---------- */
+.docs-card-desc { margin: var(--spacing-8) 0 0; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
+.docs-card-soon { display: block; margin-top: var(--spacing-12); }
+.docs-flow { list-style: none; counter-reset: flow; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--spacing-16); max-width: 68ch; }
+.docs-flow li { counter-increment: flow; display: grid; grid-template-columns: var(--spacing-24) 1fr; column-gap: var(--spacing-12); align-items: baseline; }
+.docs-flow li::before { content: counter(flow); grid-row: 1 / span 2; font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--weight-bold); color: var(--color-neutral-5); }
+.docs-flow-title { font-size: var(--text-body1-size); line-height: var(--text-body1-lh); font-weight: var(--weight-bold); color: var(--color-neutral-9); }
+.docs-flow-desc { grid-column: 2; font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-5); }
+
+/* Every card picture is the same box; ThumbFit scales what is inside to fit it. */
+.docs-comp-thumb { position: relative; height: calc(var(--spacing-120) + var(--spacing-32)); padding: var(--spacing-16); margin-bottom: var(--spacing-4); overflow: hidden; border-radius: var(--radius-md); background: var(--color-canvas-warm-card); }
+.docs-thumb-wide { flex: none; width: calc(var(--spacing-120) * 4); }
+.docs-thumb-wide[data-narrow] { width: calc(var(--spacing-120) * 2.5); }
+.docs-comp-thumb__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: safe center; gap: var(--spacing-8); width: 100%; transform-origin: top left; }
+
+/* ---------- Foundation sections ---------- */
+/* Overrides for copied DLS rules that set a monospace face: the DLS font rule is Mulish only. */
+.type-meta, .fontcard dd, table.spec td.token, .elevation-swatch .label, .icon-sample span { font-family: var(--font-primary); }
+.docs-foundation code { font-family: var(--font-primary); font-size: var(--text-label2-size); font-weight: var(--weight-semibold); padding: 0 var(--spacing-4); border-radius: var(--spacing-4); background: var(--color-neutral-2); color: var(--color-neutral-9); }
+/* Inline styles on the DLS site, as classes. */
+.docs-flush { margin: 0; }
+.docs-flush-icon { margin-right: 0; }
+.docs-lede-inline { margin: var(--spacing-16) 0; }
+.docs-lede-tight { margin: 0 0 var(--spacing-16); }
+.docs-elevation-name { display: block; color: var(--color-neutral-9); }
+.docs-bar-cell { width: calc(var(--spacing-120) + var(--spacing-20)); }
+.docs-type-toggle { margin-top: var(--spacing-16); }
+/* Below 600px the copied rule stacks each type row (align-items:flex-start), so the sample no longer
+   shrinks and pushes the page sideways (the DLS site has the same overflow). Let it fill the row and truncate. */
+@media (max-width: 600px) { .type-sample { align-self: stretch; max-width: 100%; } }
+.docs-foundation-page > section { padding-top: var(--spacing-48); border-bottom: none; }
+
+/* ---------- Color Palette ---------- */
+.docs-color-group { margin-top: var(--spacing-32); }
+.docs-color-group:first-of-type { margin-top: var(--spacing-8); }
+.docs-color-group > .swatch-group-label { margin-top: 0; }
+/* The DLS resets the first group label with :first-of-type, which with real
+   headings also catches labels that sit after a table (Spacing › Elevation).
+   Keep the 32px gap above every label except one straight after the lede. */
+.docs-foundation > .swatch-group-label:first-of-type { margin-top: var(--spacing-32); }
+.docs-foundation > .lede + .swatch-group-label { margin-top: 0; }
+.docs-group-note { text-transform: none; letter-spacing: 0; font-weight: var(--weight-regular); color: var(--color-neutral-5); }
+.swatch .meta .hex { font-family: var(--font-primary); }
+.swatch .meta .hex code { font-size: var(--text-caption-size); }
+.docs-swatch-copy { position: absolute; top: var(--spacing-8); right: var(--spacing-8); opacity: 0; transition: opacity var(--duration-fast) var(--ease-standard); }
+.swatch .fill:hover .docs-swatch-copy, .docs-swatch-copy:focus-within { opacity: 1; }
+@media (hover: none) { .docs-swatch-copy { opacity: 1; } }
+
+/* Top bar: on phones the crumb keeps only the product name, so it never wraps under the version flag. */
+.topbar .crumb { white-space: nowrap; }
+.docs-crumb-prefix { display: contents; }
+@media (max-width: 600px) { .docs-crumb-prefix { display: none; } }
+
+/* ---------- Below 900px: the page scrolls, not the pane (as on the DLS site) ---------- */
+@media (max-width: 900px) {
+  html, body { height: auto; }
+  .app-shell { display: block; }
+  .docs-pane { overflow-y: visible; }
+  .shell { padding: 0 var(--spacing-16); }
+}
+
+/* Foundation: focus ring preview (Spacing & Shape) and the prose-leading sample (Typography). Tokens only. */
+.docs-focus-demo {
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-2);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  margin: var(--spacing-4);
+}
+.docs-focus-demo[data-inset] {
+  outline-offset: var(--focus-ring-offset-inset);
+}
+.docs-prose-sample {
+  max-width: var(--measure-md);
+  margin: 0 0 var(--spacing-24);
+  color: var(--color-neutral-9);
+}
+
+/* Motion docs: a fixed-height stage so showing and hiding a sample never moves the page, and the sample itself. */
+.docs-motion-stage { min-height: var(--spacing-120); display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-12); overflow: hidden; }
+.docs-motion-sample {
+  margin: 0;
+  padding: var(--spacing-16);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  color: var(--color-neutral-9);
+}
+/* On a card the loop has no button, so the stage needs no row for one. */
+.docs-motion-loop { min-height: var(--spacing-60); justify-content: center; }
+
+/* Motion docs: the still picture of a cursor trail on a card, and a stage tall enough to hover in. */
+.docs-trail { display: flex; align-items: center; gap: var(--spacing-4); min-height: var(--spacing-60); }
+.docs-trail__dot { display: block; border-radius: var(--radius-pill); background: var(--color-navy); }
+.docs-trail__ring { display: block; width: var(--spacing-24); height: var(--spacing-24); border-radius: var(--radius-pill); border: var(--border-width-sm) solid var(--color-navy); background: var(--color-navy-tint); }
+.docs-motion-hover { min-height: var(--spacing-120); display: flex; align-items: center; justify-content: center; padding: var(--spacing-24); }
+
+/* Motion docs: stills for the sticky reveal and page transition cards. */
+.docs-sticky-picture { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); width: 100%; max-width: var(--spacing-120); align-items: center; }
+.docs-sticky-picture__steps { display: grid; gap: var(--spacing-8); }
+.docs-sticky-picture__line { display: block; height: var(--spacing-8); border-radius: var(--radius-pill); background: var(--color-neutral-4); }
+.docs-sticky-picture__line[data-on] { background: var(--color-neutral-9); }
+.docs-sticky-picture__panel { display: block; height: var(--spacing-60); border-radius: var(--radius-sm); background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); }
+.docs-stairs-picture { display: flex; height: var(--spacing-60); width: var(--spacing-120); overflow: hidden; border-radius: var(--radius-sm); }
+.docs-stairs-picture span { flex: 1 1 0; background: var(--color-neutral-9); border-right: var(--border-width-sm) solid var(--color-neutral-7); }
+.docs-bar-picture { width: var(--spacing-120); height: var(--spacing-4); background: var(--color-neutral-3); border-radius: var(--radius-pill); overflow: hidden; }
+.docs-bar-picture span { display: block; width: 60%; height: 100%; background: var(--color-navy); }
+.docs-scroll-box { height: var(--spacing-120); overflow-y: auto; padding: var(--spacing-12); background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); }
+.docs-scroll-box:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+.docs-mouse-box { display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.docs-stagger-row { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--spacing-8); }
+.docs-focus-blur-picture { display: flex; gap: var(--spacing-8); font-size: var(--text-h5-size); font-weight: var(--text-h5-weight); color: var(--color-neutral-9); }
+.docs-focus-blur-picture > span:not(:first-child) { filter: blur(var(--spacing-4)); opacity: .35; }
+
+/* Motion docs: the faces of the sample cards, and a stage with room for cards that fan out of their box. */
+.docs-card-face { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: var(--spacing-8); font-size: var(--text-label2-size); font-weight: var(--text-h5-weight); color: var(--color-neutral-9); background: var(--color-canvas-warm-card); }
+.docs-card-face[data-hue="orange"] { background: var(--color-fire-bg-strong); }
+.docs-card-face[data-hue="navy"] { background: var(--color-water-bg-strong); }
+.docs-card-face[data-hue="green"] { background: var(--color-earth-bg-strong); }
+.docs-card-face[data-hue="amber"] { background: var(--color-gold-bg-strong); }
+.docs-card-face[data-hue="salmonPink"] { background: var(--color-wood-bg-strong); }
+.docs-card-face[data-hue="purple"] { background: var(--color-purple-bg-strong); }
+.docs-card-face[data-hue="turquoise"] { background: var(--color-neutral-2); }
+.docs-card-stage[data-wrap] { flex-wrap: wrap; gap: var(--spacing-32); }
+.docs-card-stage[data-wrap] .cui-card-scale { width: auto; }
+.docs-card-stage { display: flex; align-items: center; justify-content: center; min-height: calc(var(--spacing-120) * 3); padding: var(--spacing-60) var(--spacing-32); overflow-x: auto; }
+/* Card thumbnails: a fixed canvas big enough for the widest layout (a fanned stack), which the card picture then scales to fit. */
+.docs-card-thumb { overflow: hidden; display: flex; flex: none; align-items: center; justify-content: center; width: calc(var(--spacing-120) * 3.5); min-height: calc(var(--spacing-120) * 2.25); }
+.docs-card-thumb__inner { display: contents; }
+
+/* Outline pictures for the bigger components' cards (src/components/docs-outline.docs.tsx): neutral boxes and bars. */
+.docs-sk { display: flex; flex-direction: column; gap: var(--spacing-8); }
+.docs-sk-card { width: calc(var(--spacing-120) * 1.6); padding: var(--spacing-12); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); background: var(--color-neutral-1); box-shadow: var(--shadow-1); }
+.docs-sk-window { flex-direction: row; gap: 0; width: calc(var(--spacing-120) * 2.4); height: calc(var(--spacing-120) * 1.1); overflow: hidden; border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); background: var(--color-neutral-1); box-shadow: var(--shadow-1); }
+.docs-sk-rail { display: flex; flex: none; flex-direction: column; gap: var(--spacing-8); width: 30%; padding: var(--spacing-12); border-right: var(--border-width-sm) solid var(--color-neutral-3); }
+.docs-sk-thread { display: flex; flex: 1; flex-direction: column; gap: var(--spacing-8); min-width: 0; padding: var(--spacing-12); }
+.docs-sk-composer { margin-top: auto; }
+.docs-sk-box { display: flex; flex-direction: column; gap: var(--spacing-6); padding: var(--spacing-8); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-sm); }
+.docs-sk-row { display: flex; align-items: center; gap: var(--spacing-8); }
+.docs-sk-row[data-end] { justify-content: flex-end; }
+.docs-sk-bar { display: block; height: var(--spacing-6); border-radius: var(--radius-pill); background: var(--color-neutral-3); }
+.docs-sk-bar[data-w="s"] { width: 24%; }
+.docs-sk-bar[data-w="m"] { width: 45%; }
+.docs-sk-bar[data-w="l"] { width: 65%; }
+.docs-sk-bar[data-w="xl"] { width: 90%; }
+.docs-sk-dot { flex: none; width: var(--spacing-12); height: var(--spacing-12); border-radius: var(--radius-pill); background: var(--color-neutral-3); }
+.docs-sk-btn { flex: none; width: var(--spacing-32); height: var(--spacing-16); border: var(--border-width-sm) solid var(--color-neutral-4); border-radius: var(--radius-sm); }
+.docs-sk-btn[data-solid] { border-color: var(--color-neutral-9); background: var(--color-neutral-9); }
+
+/* Looping outline pictures for the hooks' cards (docs-shared.docs.tsx). Neutral outlines; a still picture under reduced motion. */
+.docs-hk { position: relative; flex: none; border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); background: var(--color-neutral-1); box-shadow: var(--shadow-1); --hk-loop: calc(var(--duration-pulse) * 2); }
+.docs-hk-mouse { width: calc(var(--spacing-120) * 1.6); height: calc(var(--spacing-120) * .9); overflow: hidden; }
+.docs-hk-line { position: absolute; background: var(--color-neutral-4); animation-duration: var(--hk-loop); animation-timing-function: var(--ease-flow); animation-iteration-count: infinite; }
+.docs-hk-line--x { top: 0; bottom: 0; left: 45%; width: var(--border-width-sm); animation-name: docs-hk-x; }
+.docs-hk-line--y { left: 0; right: 0; top: 45%; height: var(--border-width-sm); animation-name: docs-hk-y; }
+.docs-hk-dot { position: absolute; left: 45%; top: 45%; width: var(--spacing-12); height: var(--spacing-12); margin: calc(var(--spacing-6) * -1) 0 0 calc(var(--spacing-6) * -1); border-radius: var(--radius-pill); background: var(--color-neutral-9); animation: docs-hk-x var(--hk-loop) var(--ease-flow) infinite, docs-hk-y var(--hk-loop) var(--ease-flow) infinite; }
+.docs-hk-readout { position: absolute; left: var(--spacing-8); bottom: var(--spacing-8); display: flex; width: 40%; flex-direction: column; gap: var(--spacing-4); }
+@keyframes docs-hk-x { 0%, 100% { left: 15%; } 25% { left: 70%; } 50% { left: 40%; } 75% { left: 85%; } }
+@keyframes docs-hk-y { 0%, 100% { top: 22%; } 25% { top: 60%; } 50% { top: 78%; } 75% { top: 30%; } }
+
+.docs-hk-pair { display: flex; gap: var(--spacing-12); }
+.docs-hk-pane { display: flex; align-items: center; justify-content: center; width: calc(var(--spacing-120) * .8); height: calc(var(--spacing-120) * .9); overflow: hidden; }
+.docs-hk-chip { width: var(--spacing-24); height: var(--spacing-24); border-radius: var(--radius-sm); background: var(--color-neutral-9); animation-duration: var(--hk-loop); animation-timing-function: var(--ease-standard); animation-iteration-count: infinite; }
+.docs-hk-chip--travel { animation-name: docs-hk-travel; }
+.docs-hk-chip--fade { animation-name: docs-hk-fade; }
+@keyframes docs-hk-travel { 0%, 100% { opacity: 0; transform: translateX(calc(var(--spacing-24) * -1)); } 25%, 70% { opacity: 1; transform: none; } 90% { opacity: 0; transform: translateX(var(--spacing-24)); } }
+@keyframes docs-hk-fade { 0%, 100% { opacity: 0; } 25%, 70% { opacity: 1; } 90% { opacity: 0; } }
+
+.docs-hk-scroll { --hk-loop: calc(var(--duration-pulse) * 2.5); width: calc(var(--spacing-120)); height: calc(var(--spacing-120) * .9); overflow: hidden; }
+.docs-hk-scroll__content { display: flex; flex-direction: column; gap: var(--spacing-12); padding: var(--spacing-16) var(--spacing-16) var(--spacing-16) var(--spacing-12); animation: docs-hk-scrolling var(--hk-loop) var(--ease-flow) infinite alternate; }
+.docs-hk-scroll__progress { position: absolute; z-index: 1; top: 0; left: 0; right: 0; height: var(--spacing-4); background: var(--color-neutral-9); transform-origin: left; animation: docs-hk-progress var(--hk-loop) var(--ease-flow) infinite alternate; }
+.docs-hk-scroll__thumb { position: absolute; top: var(--spacing-12); right: var(--spacing-4); width: var(--spacing-4); height: var(--spacing-32); border-radius: var(--radius-pill); background: var(--color-neutral-4); animation: docs-hk-thumb var(--hk-loop) var(--ease-flow) infinite alternate; }
+@keyframes docs-hk-scrolling { to { transform: translateY(calc(var(--spacing-60) * -1)); } }
+@keyframes docs-hk-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes docs-hk-thumb { to { transform: translateY(calc(var(--spacing-48) + var(--spacing-8))); } }
+
+.docs-hk-row { display: flex; gap: var(--spacing-8); }
+.docs-hk-item { width: var(--spacing-32); height: var(--spacing-32); border-color: var(--color-neutral-4); border-radius: var(--radius-sm); animation: docs-hk-rise var(--hk-loop) var(--ease-settle) infinite; animation-delay: calc(var(--i) * var(--duration-slow) * .6); }
+@keyframes docs-hk-rise { 0% { opacity: 0; transform: translateY(var(--spacing-12)); } 12%, 70% { opacity: 1; transform: none; } 85%, 100% { opacity: 0; transform: translateY(var(--spacing-12)); } }
+
+.docs-hk-haptic { display: flex; align-items: center; gap: var(--spacing-8); }
+.docs-hk-phone { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-8); width: calc(var(--spacing-60) + var(--spacing-8)); height: calc(var(--spacing-120) * .95); padding: var(--spacing-16) var(--spacing-8); border-color: var(--color-neutral-5); border-radius: var(--radius-lg); animation: docs-hk-buzz var(--hk-loop) linear infinite; }
+.docs-hk-phone__button { width: var(--spacing-16); height: var(--spacing-16); margin: auto auto 0; border: var(--border-width-sm) solid var(--color-neutral-4); border-radius: var(--radius-pill); }
+.docs-hk-wave { width: var(--spacing-8); height: var(--spacing-32); border: var(--border-width-md) solid var(--color-neutral-5); animation: docs-hk-pulse var(--hk-loop) linear infinite; }
+.docs-hk-wave--l { border-right: none; border-radius: var(--radius-pill) 0 0 var(--radius-pill); }
+.docs-hk-wave--r { border-left: none; border-radius: 0 var(--radius-pill) var(--radius-pill) 0; }
+.docs-hk-wave--inner { height: var(--spacing-20); margin-inline: calc(var(--spacing-4) * -1); }
+@keyframes docs-hk-buzz { 0%, 24%, 100% { transform: none; } 3%, 9%, 17% { transform: translateX(calc(var(--spacing-2) * -1)); } 6%, 12%, 21% { transform: translateX(var(--spacing-2)); } }
+@keyframes docs-hk-pulse { 0%, 24%, 100% { opacity: .25; } 2%, 22% { opacity: 1; } 14% { opacity: .25; } 15% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .docs-hk-line, .docs-hk-dot, .docs-hk-chip, .docs-hk-scroll__content, .docs-hk-scroll__progress, .docs-hk-scroll__thumb, .docs-hk-item, .docs-hk-phone, .docs-hk-wave { animation: none; }
+  .docs-hk-scroll__progress { transform: scaleX(.5); }
+}
+
+/* Download: the home page's call to action (a link drawn with the library's Button classes) and the top bar's link. */
+.docs-download { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-12) var(--spacing-16); margin: var(--spacing-24) 0 var(--spacing-32); }
+.docs-download .docs-status { margin: 0; max-width: 56ch; }
+a.cui-button { text-decoration: none; }
+.topbar-download { margin-left: auto; margin-right: var(--spacing-12); font-size: var(--text-label2-size); line-height: var(--text-label2-lh); font-weight: var(--weight-bold); color: var(--color-neutral-9); text-decoration: none; border-radius: var(--radius-xs); padding: var(--spacing-4) var(--spacing-8); }
+.topbar-download + .flag { margin-left: 0; }
+.topbar-download:hover { background: var(--color-neutral-2); }
+.topbar-download:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+
+/*
+  Top bar on phones: the mark, the name, Download and the version flag can't shrink, and together they needed ~400px,
+  so every page was wider than a 320px screen. Below 480px the bar takes the content's 16px gutter and drops Download
+  (the home page has its own Download button); the name shortens with an ellipsis as a last resort.
+*/
+.topbar { min-width: 0; }
+.topbar .crumb { min-width: 0; overflow: hidden; }
+.topbar .crumb b { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.topbar .flag { flex: none; }
+@media (max-width: 480px) {
+  .topbar { padding: 0 var(--spacing-16); }
+  .topbar-download { display: none; }
+  .topbar-download + .flag { margin-left: auto; }
+}
+
+/* Lists: example grid. */
+.docs-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: var(--spacing-24);
+  align-items: start;
+}
+
+/* Room under an example whose popover floats over the content below it (Search input's results panel). */
+.docs-popover-room { padding-bottom: calc(var(--spacing-120) * 2 + var(--spacing-40)); }
+/* Room around a Slider example for its value tooltip: 12px above the label and up to 40px past each end. */
+.docs-tip-room { padding: var(--spacing-24) var(--spacing-40) 0; }
+/* Room for a Multiple select panel: the 320px list, its 8px padding and the footer. */
+.docs-popover-room[data-room="tall"] { padding-bottom: calc(var(--spacing-120) * 3 + var(--spacing-40)); }
+
+/* A live readout under an example (Slider's range). */
+.docs-readout { margin: var(--spacing-12) 0 0; font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); }
+
+/* Back to top's docs: the page's scroll readout, and the card picture (the button shown, in place). */
+.docs-btt-readout { margin: var(--spacing-12) 0 0; font-size: var(--text-caption-size); color: var(--color-neutral-5); font-variant-numeric: tabular-nums; }
+.docs-btt-readout b { color: var(--color-neutral-9); }
+.docs-btt-thumb .cui-back-to-top { position: static; opacity: 1; visibility: visible; transform: none; }
+/* A field at a form's width (Date picker), rather than the stage's full width. */
+.docs-field { max-width: calc(var(--spacing-120) * 2.5); }
+/* FileUploader: a narrow column (its stacked layout), and the card picture. */
+.docs-uploader-narrow { max-width: calc(var(--spacing-120) * 3); }
+.docs-uploader-thumb { width: calc(var(--spacing-120) * 2.5); pointer-events: none; }
+/* SidebarNav examples: a fixed-height column so the footer pins to the bottom and the menu scrolls. */
+.docs-sbn { display: flex; height: calc(var(--spacing-120) * 5); }
+.docs-sbn > .cui-sidebar-nav { height: 100%; }
+.docs-sbn-thumb { display: flex; height: calc(var(--spacing-120) * 1.6); overflow: hidden; pointer-events: none; }
+
+/* The site's sidebar is the library's SidebarNav: full height, with the header search icon beside the logo
+   (dls-site.css's .site-search-hdr, placed against this wrapper as it was against .c-sidebar-shell). */
+.docs-site-nav { position: relative; display: flex; height: 100%; }
+.docs-site-nav > .cui-sidebar-nav { height: 100%; }
+.cui-sidebar-nav[data-collapsed] ~ .site-search-hdr { display: none; }
+
+/* App Shell examples: a bounded frame the shell fills (fit="container"), 480px tall as the DLS gallery's; the grid
+   example sits on the canvas the shell would give it. */
+.docs-shell { height: calc(var(--spacing-120) * 4); overflow: hidden; border-radius: var(--radius-md); }
+.docs-shell--thumb { height: calc(var(--spacing-120) * 1.6); pointer-events: none; }
+.docs-canvas { padding: var(--spacing-24); background: var(--color-canvas-warm); border-radius: var(--radius-md); }
+
+/* Action bar live examples: the list's heading, the fallback focus target when the bar leaves. */
+.docs-demo-heading { margin: 0; font-size: var(--text-label1-size); line-height: var(--text-label1-lh); font-weight: var(--weight-bold); color: var(--color-neutral-9); }
+/* The page's sidebar width, so a fixed Action bar centres over the content (the DS leaves it to the page):
+   the rail's 16px inset plus 240px, or its 72px collapsed rail. Below 900px the rail is hidden. */
+@media (min-width: 901px) {
+  :root { --cui-action-bar-inset-start: calc(var(--spacing-16) + var(--spacing-120) * 2); }
+  :root:has(#siteSidebar[data-collapsed]) { --cui-action-bar-inset-start: calc(var(--spacing-16) + var(--spacing-24) * 3); }
+}
+
+/* Notes example: a list of records, each with its notes cell, 90px wide (the widest stack) plus the add button. */
+.docs-notes-list { display: grid; gap: var(--spacing-12); }
+.docs-notes-row { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-16); padding: var(--spacing-12) var(--spacing-16); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-sm); background: var(--color-neutral-1); }
+.docs-notes-name { font-size: var(--text-body2-size); font-weight: var(--weight-bold); color: var(--color-neutral-9); }
+.docs-notes-thumb { display: flex; justify-content: center; padding: var(--spacing-16); pointer-events: none; }
+
+/* Charts: a single card at a third of a wide page, and the home card's picture. */
+.docs-chart-single { max-width: calc(var(--spacing-120) * 3.5); }
+.docs-chart-thumb { width: calc(var(--spacing-120) * 2.5); pointer-events: none; }
+/* Sparkline pages: the size of StatCard's slot. */
+.docs-spark { width: calc(var(--spacing-120) * 2); height: var(--spacing-48); }
+
+/* Chart color mapping page: swatch rows, from components.css 3855–3860 (.c-chartmap-row, -label, -swatch, -ramp).
+   The ramps are drawn as the steps the functions return, not a gradient; each swatch can carry its name below. */
+.docs-chartmap { display: flex; flex-direction: column; gap: var(--spacing-16); width: 100%; }
+.docs-chartmap-row { display: flex; align-items: flex-start; gap: var(--spacing-8); flex-wrap: wrap; }
+.docs-chartmap-label {
+  width: calc(var(--spacing-120) + var(--spacing-60)); flex: none; padding-top: var(--spacing-2);
+  font-size: var(--text-caption-size); line-height: var(--text-caption-lh); font-weight: var(--weight-bold); color: var(--color-neutral-5);
+}
+.docs-chartmap-swatches { display: flex; flex: 1; flex-wrap: wrap; gap: var(--spacing-8); min-width: calc(var(--spacing-120) + var(--spacing-40)); }
+.docs-chartmap-swatch { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-4); }
+.docs-chartmap-chip { width: calc(var(--spacing-24) + var(--spacing-4)); height: var(--spacing-20); border-radius: var(--spacing-4); }
+.docs-chartmap-name { font-size: var(--text-footnote-size); line-height: var(--text-footnote-lh); color: var(--color-neutral-5); white-space: nowrap; }
+.docs-chartmap-steps { display: flex; flex: 1; height: var(--spacing-20); border-radius: var(--spacing-4); overflow: hidden; }
+.docs-chartmap-steps > span { flex: 1; }
+.docs-chartmap--thumb { width: calc(var(--spacing-120) * 2.5); gap: var(--spacing-12); }
+.docs-chartmap--thumb .docs-chartmap-label { width: var(--spacing-120); }
+@media (forced-colors: active) {
+  .docs-chartmap-chip, .docs-chartmap-steps { forced-color-adjust: none; outline: 1px solid CanvasText; }
+}
+
+/* Tutorial Modal: the sample board the tour runs over, and the static cards laid out in place (as the DLS gallery's
+   .c-modal-stage .c-modal-tutorial{position:relative}). */
+.docs-tutorial-board { display: flex; flex-direction: column; gap: var(--spacing-16); width: 100%; }
+.docs-tutorial-head { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-12); flex-wrap: wrap; }
+.docs-tutorial-note { margin: 0; font-size: var(--text-caption-size); line-height: var(--text-caption-lh); color: var(--color-neutral-5); }
+.docs-tutorial-stage { display: flex; flex-wrap: wrap; gap: var(--spacing-24); align-items: flex-start; }
+.docs-tutorial-stage .cui-tutorial__card { position: relative; flex: 0 1 auto; max-height: none; }
+.docs-tutorial-stage--thumb { pointer-events: none; }
+@media (max-width: 767px) {
+  .docs-tutorial-stage .cui-tutorial__card { position: relative; inset: auto !important; width: 100%; }
+}
+
+/* Modal thumbnails: the panel is width 100% up to its max, which collapses inside a thumbnail's shrink-wrapped box;
+   give it the panel's own width so ThumbFit scales the whole thing. */
+.docs-modal-thumb {
+  flex: none;
+  width: var(--cui-modal-max-width);
+}
+
+/* Media Ad Modal: the panel shown in place, as the DLS gallery's stage does. */
+.docs-mad-stage { display: flex; justify-content: center; width: 100%; }
+.docs-mad-stage .cui-media-ad-modal { max-height: var(--cui-media-ad-modal-max-height); }
+.docs-mad-stage--thumb { pointer-events: none; }
+.docs-mad-stage--thumb .cui-media-ad-modal { flex: none; width: var(--cui-media-ad-modal-max-width); max-height: calc(var(--spacing-120) * 4); }
+
+/* Mobile width reaches the modals: they render at <body> level, outside the narrowed frame. The panel takes the phone
+   frame's width less the layer's phone padding (8px a side, the modal's own ≤640px rule), and its container queries
+   give the phone layout (one column, stacked foot). Docs only. */
+html[data-docs-mobile] .cui-media-ad-modal-layer { padding: var(--spacing-8); }
+html[data-docs-mobile] .cui-media-ad-modal-layer .cui-media-ad-modal,
+html[data-docs-mobile] .cui-media-ad-modal-layer .cui-compare-modal,
+html[data-docs-mobile] .cui-modal-scrim .cui-modal {
+  max-width: calc(var(--docs-mobile-width) - var(--spacing-16));
+}
+
+/* Compare modal: the catalogue demo (cards, then the inline Action bar) and the thumbnail at the panel's width. */
+.docs-compare-demo { display: flex; flex-direction: column; gap: var(--spacing-16); width: 100%; }
+.docs-compare-demo__title { margin: 0; font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--text-h5-weight); }
+.docs-compare-demo__title:focus { outline: none; }
+.docs-mad-stage .cui-compare-modal { max-height: var(--cui-compare-modal-max-height); }
+.docs-compare-thumb .cui-compare-modal { flex: none; width: var(--cui-compare-modal-max-width); max-height: calc(var(--spacing-120) * 4); }
+
+/* Timeline's Card widget example: the host CSS the DS gives for the recipe, on the docs page only. */
+.docs-timeline-widget { width: 100%; max-width: 480px; }
+.docs-timeline-widget .cui-card { gap: var(--spacing-12); }
+
+/* Time picker: a range is two fields wide; the date-and-time pair shares a row and aligns on the boxes. */
+.docs-timepicker-range { max-width: calc(var(--spacing-120) * 3.5); }
+.docs-timepicker-pair { align-items: flex-start; }
+.docs-timepicker-pair > .docs-field { flex: 1 1 calc(var(--spacing-120) * 1.5); }
+
+/* Illustration (Foundation): the DLS site's .illo-* rules are in dls-site.css; these fit the library's Search input,
+   Tabs and Button into them. The search is 320px wide (.illo-toolbar .c-search-input), the tabs dim to 40% while a
+   search runs (the DLS script's inline opacity), and each download Button sits in the .illo-dl slot. */
+.docs-illo-lede { margin-bottom: var(--spacing-16); }
+.docs-illo-search { max-width: calc(var(--spacing-40) * 8); }
+.docs-illo-tabs[data-searching] { opacity: 0.4; }
+.docs-illo-tabs .illo-dot { margin-right: var(--spacing-8); }
+.illo-dl { display: inline-flex; }
+
+/* Tokens (Foundation): the format tabs, the file's note beside its Download, and a code view that scrolls inside a
+   page-high box rather than running 300 lines down the page. */
+.docs-tokens-tabs { margin-bottom: var(--spacing-16); }
+.docs-tokens-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-12); margin-bottom: var(--spacing-12); }
+.docs-tokens-head > .docs-p { margin: 0; flex: 1 1 calc(var(--spacing-120) * 3); }
+.docs-tokens-code .docs-code-body { max-height: calc(var(--spacing-120) * 4); overflow: auto; }
+
+/* Get started (Foundation): numbered steps, each a heading, its note and its code. */
+.docs-steps { margin: 0 0 var(--spacing-32); padding-left: var(--spacing-24); display: flex; flex-direction: column; gap: var(--spacing-32); }
+.docs-steps > li::marker { font-weight: var(--weight-extrabold); color: var(--color-neutral-9); }
+.docs-steps > li > * { margin-bottom: 0; }
+.docs-steps > li > * + * { margin-top: var(--spacing-12); }
+.docs-steps > li::marker { font-size: var(--text-h5-size); }
+.docs-step-title { margin: 0; font-size: var(--text-h5-size); line-height: var(--text-h5-lh); font-weight: var(--weight-extrabold); color: var(--color-neutral-9); }
+
+/* Get started: the manual route, folded away under the three steps. A native <details>, so it opens with Enter or
+   Space and needs no script; the caret turns as it opens (no turn under reduced motion). */
+.docs-manual { border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-md); background: var(--color-neutral-1); }
+.docs-manual > summary { display: flex; align-items: center; gap: var(--spacing-8); min-height: var(--hit-target-min); padding: 0 var(--spacing-16); cursor: pointer; list-style: none; font-size: var(--text-body2-size); font-weight: var(--weight-bold); color: var(--color-neutral-9); border-radius: var(--radius-md); }
+.docs-manual > summary::-webkit-details-marker { display: none; }
+.docs-manual > summary::before { content: ""; width: var(--spacing-6); height: var(--spacing-6); border-right: var(--border-width-md) solid currentColor; border-bottom: var(--border-width-md) solid currentColor; transform: rotate(-45deg); transition: transform var(--duration-fast) var(--ease-standard); flex: none; }
+.docs-manual[open] > summary::before { transform: rotate(45deg); }
+.docs-manual > summary:hover { background: var(--color-neutral-2); }
+.docs-manual > summary:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset-inset); }
+.docs-manual-body { padding: 0 var(--spacing-16) var(--spacing-16); display: flex; flex-direction: column; gap: var(--spacing-12); }
+.docs-manual-body > .docs-p { margin: 0; }
+@media (prefers-reduced-motion: reduce) { .docs-manual > summary::before { transition: none; } }
