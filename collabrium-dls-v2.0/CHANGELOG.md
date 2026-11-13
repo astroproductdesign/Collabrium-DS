@@ -6,7 +6,7 @@ All notable changes to @collabrium/ui. Dates are YYYY-MM-DD.
 
 ### Next.js server rendering
 - Fixed: importing `@collabrium/ui` into a Next.js page no longer fails the build with "createContext is not a function". Components that render on the server (Back button, Campaign card, ElementBadge, Lists, Stat card, Stepper) now take their icons from Phosphor's server-safe entry, and the Checkbox, Radio and App Shell contexts are client modules.
-- Tested end to end: a fresh Next.js 15 app, set up as `CLAUDE.md` says, builds and renders a dashboard (App Shell, SidebarNav, PageHeader, Stat cards, Card, Table, Badge, Button).
+- Tested end to end: fresh Next.js 15.5 and 16.4 apps (React 19.3, TypeScript 7 on 16), set up as `CLAUDE.md` says, each builds and renders a dashboard (App Shell, SidebarNav, PageHeader, Stat cards, Card, Table, Badge, Button).
 - Docs: pages that use the components start with `'use client';` (icons are passed as components), the logo files are copied into the app's `public/`, and the docs site runs with `npm run playground:dev`.
 
 ### Get started
