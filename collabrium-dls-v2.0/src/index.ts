@@ -45,7 +45,6 @@ export * from './components/Modal';
 export * from './components/PacingCard';
 export * from './components/Notes';
 export * from './components/PageHeader';
-export * from './components/PageHero';
 export * from './components/Pagination';
 export * from './components/PermissionPrompt';
 export * from './components/PriceSummaryCard';

@@ -19,7 +19,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <span className="docs-crumb-prefix">
             Design System <span aria-hidden="true">/</span>
           </span>{' '}
-          <b>Collabrium UI</b>
+          <b>Collabrium DLS 2.0</b>
         </span>
         <a className="topbar-download" href={assetHref(current, 'collabrium-dls-v2.0.zip')} download="collabrium-dls-v2.0.zip">
           Download

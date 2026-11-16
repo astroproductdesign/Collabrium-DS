@@ -1,6 +1,6 @@
 import { ChangelogPage } from '../../components/Changelog';
 
-export const metadata = { title: 'Changelog · Collabrium UI' };
+export const metadata = { title: 'Changelog · Collabrium DLS 2.0' };
 
 export default function ChangelogRoute() {
   return (

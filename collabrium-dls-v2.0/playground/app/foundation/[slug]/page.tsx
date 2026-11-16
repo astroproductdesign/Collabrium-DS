@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const page = foundationPages.find(p => p.slug === slug);
-  return { title: page ? `${page.title} · Collabrium UI` : 'Collabrium UI' };
+  return { title: page ? `${page.title} · Collabrium DLS 2.0` : 'Collabrium DLS 2.0' };
 }
 
 export default async function FoundationRoute({ params }: { params: Promise<{ slug: string }> }) {

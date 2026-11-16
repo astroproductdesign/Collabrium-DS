@@ -18,7 +18,7 @@ export function HomePage() {
           <iframe src="logo.html" title="Collabrium animated logo" scrolling="no" tabIndex={-1} />
         </div>
         {/* Not shown: the logo above is the visual title. Kept for screen readers and the page outline. */}
-        <h1 className="sr-only">Collabrium UI</h1>
+        <h1 className="sr-only">Collabrium DLS 2.0</h1>
         <p className="hero-tagline">
           The Collabrium design system as React components for Next.js. Plain CSS on the Collabrium tokens, typed props
           for every visual choice, and accessibility and motion built in.
