@@ -23,11 +23,11 @@ const outFile = join(root, 'playground', 'public', 'collabrium-dls-v2.0.zip');
 const folder = 'collabrium-dls-v2.0';
 
 const skipDir = new Set(['node_modules', 'dist', '.next', 'out', '_generated', 'review-drafts', '.git', '.vercel', '.turbo']);
-// Maintainer-only files stay out: the build history (MIGRATION-LOG.md, review-drafts/) and the side-by-side
+// Maintainer-only files stay out: the build history (MIGRATION-LOG.md, CHANGELOG.md, review-drafts/) and the side-by-side
 // preview pages (*.preview.tsx). The zip is for teams building with the system (see CLAUDE.md).
 const skipFile = f =>
   f === '.DS_Store' || f.endsWith('.tsbuildinfo') || f.startsWith('.env') || f === 'collabrium-dls-v2.0.zip' ||
-  f === 'MIGRATION-LOG.md' || f.endsWith('.preview.tsx');
+  f === 'MIGRATION-LOG.md' || f === 'CHANGELOG.md' || f.endsWith('.preview.tsx');
 
 const files = [];
 const walk = dir => {
