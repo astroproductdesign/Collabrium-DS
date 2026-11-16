@@ -15,7 +15,7 @@ const MANUAL = `# 1. In the collabrium-dls-v2.0 folder
 npm run setup
 
 # 2. In your app
-npm install ../collabrium-dls-v2.0/collabrium-ui-0.1.0.tgz
+npm install ../collabrium-dls-v2.0/collabrium-ui.tgz
 npm install @phosphor-icons/react`;
 
 const LAYOUT = `// app/layout.tsx

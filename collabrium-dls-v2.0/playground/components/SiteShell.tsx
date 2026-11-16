@@ -5,6 +5,7 @@
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { assetHref, foundationPages, hrefTo, pageKeyFromPathname } from '../lib/site';
+import { currentVersion } from '../app/_generated/changelog';
 import { SearchDialog, openSearch } from './SearchDialog';
 import { Sidebar } from './Sidebar';
 
@@ -23,7 +24,10 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <a className="topbar-download" href={assetHref(current, 'collabrium-dls-v2.0.zip')} download="collabrium-dls-v2.0.zip">
           Download
         </a>
-        <span className="flag">@collabrium/ui 0.1.0</span>
+        {/* The version is the newest CHANGELOG.md entry (scripts/gen-changelog.mjs), so it can't fall behind. */}
+        <a className="flag" href={hrefTo(current, 'changelog')} title="See what changed">
+          @collabrium/ui {currentVersion}
+        </a>
       </header>
 
       <SearchDialog current={current} />
@@ -43,6 +47,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 </a>
               ))}
               <a href={hrefTo(current, '', 'components')}>Components</a>
+              <a href={hrefTo(current, 'changelog')}>Changelog</a>
             </div>
           </nav>
           <div className="shell">{children}</div>

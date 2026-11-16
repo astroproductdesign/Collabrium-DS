@@ -16,7 +16,6 @@ export const foundationPages: FoundationPage[] = [
   { slug: 'fonts', title: 'Fonts' },
   { slug: 'iconography', title: 'Iconography' },
   { slug: 'illustration', title: 'Illustration' },
-  { slug: 'photography', title: 'Photography' },
   { slug: 'spacing-shape', title: 'Spacing & Shape' },
   { slug: 'accessibility', title: 'Accessibility' },
   { slug: 'tokens', title: 'Tokens' },
@@ -77,6 +76,7 @@ export function assetHref(from: PageKey, file: string): string {
 export function pageOrder(): { key: PageKey; title: string; group: string }[] {
   return [
     { key: '', title: 'Home', group: 'Home' },
+    { key: 'changelog', title: 'Changelog', group: 'Reference' },
     ...foundationPages.map(p => ({ key: `foundation/${p.slug}`, title: p.title, group: 'Foundation' })),
     ...componentSequence(),
   ];
