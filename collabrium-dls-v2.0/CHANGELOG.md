@@ -17,6 +17,28 @@ phrase to name its subject, and end the entry with the files it touched. Only
 `**bold**`, `` `code` `` and `[links](url)` render. Keep lines to 78
 characters.
 
+## v0.1.93 · 2026-11-16 · A rule for work from other projects
+
+The repo's `CLAUDE.md` now says that work from another project never adds to
+the design system. Nothing in the package changes.
+
+**Why.** On 12 November a session building a personal dashboard in another
+folder wrote `PageHero` into this library, added Modal's `size="lg"` and
+synced the tokens from a DLS copy outside this repo, because the dashboard
+builds against this folder. Page hero was removed in v0.1.92. Modal's large
+size stays, and the tokens are left as they are for now.
+
+**The rule.** A gap found in another project is built in that project, then
+brought here as a draft in `drafts/` for review and the three-file change. A
+waived review covers that project's own code, never the system. The
+library's tokens are synced only from this repo's `collabrium-dls/`. Changes
+in either package that a session didn't make are asked about before they're
+committed.
+
+Files: `CLAUDE.md` (repo root, "Work from other projects"); `CHANGELOG.md`;
+`package.json` and `package-lock.json`. The version moves from 0.1.92 to
+0.1.93.
+
 ## v0.1.92 · 2026-11-16 · Page hero removed
 
 `PageHero` is gone from the package and the docs site, at the design lead's

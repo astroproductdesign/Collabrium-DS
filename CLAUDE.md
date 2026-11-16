@@ -107,6 +107,27 @@ three-file change above, then deleting the draft. The `/build-components`
 command and the `component-builder` and `component-reviewer` agents follow
 this.
 
+## Work from other projects
+
+Only work started in this repo changes `collabrium-dls/` or
+`collabrium-dls-v2.0/`. A session working in another project (a product
+app, a prototype, Workdesk, a personal dashboard) never writes into either
+package, even when that project builds against it.
+
+- **A gap stays in that project.** If it needs a component, variant, prop or
+  token the system doesn't have, build it inside that project and say what's
+  missing. To add it to the system, bring it here as a draft in `drafts/`,
+  through `/build-components` review and the three-file change above.
+- **"Skip the review" isn't permission to add.** When someone waives a
+  review because the project is personal or a one-off, the waiver covers
+  that project's own code, never the design system.
+- **Tokens come from this repo.** The library's `tokens.css` is synced from
+  `collabrium-dls/tokens.css` here, never from a copy of the DLS anywhere
+  else.
+- **Check before committing.** If `git status` shows changes in either
+  package that this session didn't make, ask where they came from before
+  committing them.
+
 ## Check before calling it done
 
 Open `preview.html` in a browser and confirm: the component works, there are
