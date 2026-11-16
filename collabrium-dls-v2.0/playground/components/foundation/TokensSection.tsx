@@ -63,7 +63,7 @@ export function TokensSection({ base, level }: SectionProps) {
     <Section
       id="tokens"
       level={level}
-      kicker="11 · Reference"
+      kicker="10 · Reference"
       title="Tokens"
       lede={
         <>

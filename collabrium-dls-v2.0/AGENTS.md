@@ -33,7 +33,7 @@ the design system yet, do it yourself. Run these from the app's folder:
 
 ```bash
 npm run setup --prefix ../collabrium-dls-v2.0          # installs, builds and packs the design system
-npm install ../collabrium-dls-v2.0/collabrium-ui-0.1.0.tgz
+npm install ../collabrium-dls-v2.0/collabrium-ui.tgz
 npm install @phosphor-icons/react
 # charts only:  npm install chart.js react-chartjs-2   (or recharts for charts-extra)
 ```

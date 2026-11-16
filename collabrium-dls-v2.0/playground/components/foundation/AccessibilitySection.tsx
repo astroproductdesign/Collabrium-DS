@@ -17,7 +17,7 @@ export function AccessibilitySection({ level }: SectionProps) {
     <Section
       id="accessibility"
       level={level}
-      kicker="10 · Foundations"
+      kicker="09 · Foundations"
       title="Accessibility"
       lede="Collabrium targets WCAG 2.1 AA. These rules hold for every screen and every component; each component's page covers its own keyboard and screen-reader behaviour."
     >

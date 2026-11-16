@@ -4,7 +4,7 @@
 // Components as parents whose children are the pages. Collapsed state is remembered (sidebarNavInitScript stops a
 // flash on load). Search: an icon beside the logo while expanded; a row at the top of the collapsed rail.
 import { useLayoutEffect, useState } from 'react';
-import { Cube, House, MagnifyingGlass, SquaresFour } from '@phosphor-icons/react';
+import { ClockCounterClockwise, Cube, House, MagnifyingGlass, SquaresFour } from '@phosphor-icons/react';
 import { SidebarNav, sidebarNavInitScript, type SidebarNavSection } from '../../src';
 import { assetHref, foundationPages, hrefTo, navItems, type PageKey } from '../lib/site';
 import { openSearch } from './SearchDialog';
@@ -38,7 +38,7 @@ export function Sidebar({ current }: { current: PageKey }) {
   const activeComponent = navItems.find(
     (c) => current === `components/${c.slug}` || (c.kind === 'group' && current.startsWith(`components/${c.slug}/`)),
   );
-  const activeId = current === '' ? 'home' : current.startsWith('foundation/') ? current : activeComponent ? `components/${activeComponent.slug}` : null;
+  const activeId = current === '' ? 'home' : current === 'changelog' ? 'changelog' : current.startsWith('foundation/') ? current : activeComponent ? `components/${activeComponent.slug}` : null;
 
   const sections: SidebarNavSection[] = [
     {
@@ -49,6 +49,7 @@ export function Sidebar({ current }: { current: PageKey }) {
           ? [{ id: 'search', label: 'Search', icon: MagnifyingGlass, onSelect: () => openSearch(document.activeElement as HTMLElement) }]
           : []),
         { id: 'home', label: 'Home', icon: House, href: link('') },
+        { id: 'changelog', label: 'Changelog', icon: ClockCounterClockwise, href: link('changelog') },
       ],
     },
     {

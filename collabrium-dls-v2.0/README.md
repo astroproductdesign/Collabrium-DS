@@ -19,10 +19,10 @@ CLAUDE.md first and follow it." It sets everything up.
 
 ```bash
 # 1. In this folder, once (and again whenever you take a new version)
-npm run setup                # installs, builds and packs: writes collabrium-ui-0.1.0.tgz
+npm run setup                # installs, builds and packs: writes collabrium-ui.tgz
 
 # 2. In your app
-npm install ../collabrium-dls-v2.0/collabrium-ui-0.1.0.tgz
+npm install ../collabrium-dls-v2.0/collabrium-ui.tgz
 npm install @phosphor-icons/react
 ```
 
