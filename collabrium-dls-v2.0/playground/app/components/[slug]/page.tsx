@@ -14,7 +14,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const title = navMeta.find(n => n.slug === slug)?.title;
-  return { title: title ? `${title} · Collabrium UI` : 'Collabrium UI' };
+  return { title: title ? `${title} · Collabrium DLS 2.0` : 'Collabrium DLS 2.0' };
 }
 
 export default async function ComponentRoute({ params }: { params: Promise<{ slug: string }> }) {

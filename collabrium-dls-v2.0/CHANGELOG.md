@@ -17,6 +17,41 @@ phrase to name its subject, and end the entry with the files it touched. Only
 `**bold**`, `` `code` `` and `[links](url)` render. Keep lines to 78
 characters.
 
+## v0.1.92 · 2026-11-16 · Page hero removed
+
+`PageHero` is gone from the package and the docs site, at the design lead's
+request.
+
+**What goes.** The component, its CSS, its 20 illustration motifs, its docs
+page and its usage file, with its export from `@collabrium/ui`, its import in
+`styles.css` and its row in `CATALOG.md`. It was built from Workdesk's project
+hero and was never in the DLS, so the DLS doesn't change. A page about one
+subject opens with `PageHeader`, with a `ProgressBar` below it where progress
+matters. An app that imports `PageHero` will fail to build until it moves to
+`PageHeader`.
+
+Files: `src/components/PageHero/` (deleted); `src/index.ts`;
+`src/styles.css`; `CATALOG.md`; `MIGRATION-LOG.md` (row 74, D-176);
+`CHANGELOG.md`; `package.json` and `package-lock.json`. The version moves from
+0.1.91 to 0.1.92.
+
+## v0.1.91 · 2026-11-16 · The docs site is Collabrium DLS 2.0
+
+The docs site names the system Collabrium DLS 2.0, after the project folder,
+wherever it said Collabrium UI.
+
+**Where.** The top bar reads "Design System / Collabrium DLS 2.0". The first
+link in the breadcrumb on every component page and group overview, the browser
+tab titles ("Button · Collabrium DLS 2.0") and the home page's screen-reader
+heading say Collabrium DLS 2.0 too. The npm package is still `@collabrium/ui`,
+so the version flag, the imports and the install line don't change. Earlier
+entries keep the old names as history.
+
+Files: `playground/components/` (SiteShell, ComponentDoc, GroupOverview,
+HomePage); `playground/app/` (layout and the changelog, foundation and
+component page titles); `CHANGELOG.md`; `package.json` and
+`package-lock.json`. The version moves from 0.1.90 to 0.1.91.
+
 ## v0.1.90 · 2026-11-16 · Photography removed; a Changelog page
 
 The Photography foundation is gone, and the docs site gains a Changelog page,
