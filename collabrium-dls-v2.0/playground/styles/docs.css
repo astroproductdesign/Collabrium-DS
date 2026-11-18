@@ -54,6 +54,8 @@ h1.section-title { font-family: var(--font-secondary); font-weight: var(--weight
 .docs-stack > .docs-p { margin: 0; }
 /* A wrapping row of trigger buttons (Toast's live demo). */
 .docs-stack-row { display: flex; flex-wrap: wrap; gap: var(--spacing-8); }
+/* Button, AI target example: the text the AI will change. */
+.docs-ai-field { margin: 0; padding: var(--spacing-12) var(--spacing-16); font-size: var(--text-body2-size); line-height: var(--text-body2-lh); color: var(--color-neutral-9); }
 .docs-example { padding: var(--spacing-24); border-radius: var(--radius-lg); background: var(--color-canvas-warm-card); }
 .docs-example + .docs-example { margin-top: var(--spacing-16); }
 @media (max-width: 600px) { .docs-example { padding: var(--spacing-16); } }

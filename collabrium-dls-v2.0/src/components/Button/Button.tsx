@@ -4,22 +4,26 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
   type ButtonHTMLAttributes,
   type MouseEvent,
   type ReactNode,
   type Ref,
+  type RefObject,
 } from 'react';
-import { ArrowDown, ArrowRight, SpinnerGap, type Icon } from '@phosphor-icons/react';
+import { ArrowDown, ArrowRight, Sparkle, SpinnerGap, type Icon } from '@phosphor-icons/react';
+import { tokens } from '../../tokens/tokens';
 import type { WithoutStyling } from '../../utils/types';
 
 /**
  * Visual variants. `primary`, `secondary` and `ghost` are in components.css;
  * `danger` and `link` are in DESIGN-SYSTEM.md's table with no CSS, and their
- * states are defined here (approved 2026-10-26).
+ * states are defined here (approved 2026-10-26). `ai` is v2.0 only, from the
+ * product's AI pill (added 2026-11-18).
  */
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link' | 'ai';
 /** Sizes: sm 32px, md 40px, lg 48px tall. */
 export type ButtonSize = 'sm' | 'md' | 'lg';
 /** Phosphor weight for a leading icon. */
@@ -43,6 +47,7 @@ interface ButtonBaseProps extends NativeButtonProps {
    * - `ghost`: low-emphasis actions, toolbar and table-row actions (no fill).
    * - `danger`: a destructive commit (delete, revoke): Red fill, white text. Never the beacon.
    * - `link`: an inline, text-level action: underlined text with no height or padding. Ignores `size`; not available icon-only.
+   * - `ai`: hands a task to CollabAI. The AI gradient on the border, a sparkle, the label and a tint; see `AiButtonProps`.
    */
   variant: ButtonVariant;
   /** Height and type size. `md` (40px) is the default; `sm` (32px) for dense rows and toolbars; `lg` (48px) for prominent standalone actions. Ignored by `link`, which has no height or padding. */
@@ -59,7 +64,9 @@ interface ButtonBaseProps extends NativeButtonProps {
   loading?: boolean;
 }
 
-export interface LabelledButtonProps extends ButtonBaseProps {
+export interface LabelledButtonProps extends Omit<ButtonBaseProps, 'variant'> {
+  /** Any variant except `ai`, which has its own props (`AiButtonProps`). */
+  variant: Exclude<ButtonVariant, 'ai'>;
   /** The visible label. Keep it a short verb phrase ("Save brief"). */
   children: ReactNode;
   iconOnly?: false;
@@ -83,11 +90,37 @@ export interface LabelledButtonProps extends ButtonBaseProps {
   beacon?: ButtonBeacon;
   /** Called when the beacon starts or stops, with the reason. */
   onBeaconChange?: (state: { armed: boolean; reason: ButtonBeaconReason }) => void;
+  aiTarget?: never;
+}
+
+/**
+ * The AI button: for an action that hands a task to CollabAI. Always
+ * labelled, always with the gradient sparkle (no other icon, arrow or
+ * beacon). `loading` shows the working state: the label stays and the
+ * gradient drifts, instead of a spinner.
+ */
+export interface AiButtonProps extends Omit<ButtonBaseProps, 'variant'> {
+  variant: 'ai';
+  /** The visible label, naming what CollabAI will do ("Rewrite summary with CollabAI"). */
+  children: ReactNode;
+  /**
+   * Optional: the area CollabAI will change. On click, a copy of the
+   * sparkle flies from the button to it. Wrap that area in `AiTarget` and
+   * set its `active` while the AI works. No flight under reduced motion.
+   */
+  aiTarget?: RefObject<HTMLElement | null>;
+  iconOnly?: false;
+  icon?: never;
+  leadingIcon?: never;
+  leadingIconWeight?: never;
+  trailingArrow?: never;
+  beacon?: never;
+  onBeaconChange?: never;
 }
 
 export interface IconOnlyButtonProps extends Omit<ButtonBaseProps, 'variant'> {
-  /** Any variant except `link`, which has no fixed height to square against. */
-  variant: Exclude<ButtonVariant, 'link'>;
+  /** Any variant except `link`, which has no fixed height to square against, and `ai`, which is always labelled. */
+  variant: Exclude<ButtonVariant, 'link' | 'ai'>;
   /** Square button with no visible label. Not available for links. */
   iconOnly: true;
   /** The Phosphor icon, e.g. `DotsThree`, `X`, `PencilSimple`, `Trash`. Must be a functional (Tier 1) icon; it always renders Regular. */
@@ -100,12 +133,53 @@ export interface IconOnlyButtonProps extends Omit<ButtonBaseProps, 'variant'> {
   trailingArrow?: never;
   beacon?: never;
   onBeaconChange?: never;
+  aiTarget?: never;
 }
 
-export type ButtonProps = LabelledButtonProps | IconOnlyButtonProps;
+export type ButtonProps = LabelledButtonProps | IconOnlyButtonProps | AiButtonProps;
 
 /* One beacon per page, across every button: arming one disarms the other. */
 let activeBeacon: { disarm: (reason: ButtonBeaconReason) => void } | null = null;
+
+/*
+  The sparkle flight (variant="ai" with aiTarget): a copy of the sparkle
+  arcs from the button to the target's centre, growing and turning, then
+  fades as it lands. --duration-reveal x2 on --ease-flow. The copy is
+  aria-hidden and takes no clicks. While it flies, the target holds back
+  its ring (data-landing), so the ring lights up as the sparkle lands.
+  Skipped under reduced motion.
+*/
+function flySparkle(from: Element, to: HTMLElement) {
+  if (typeof window === 'undefined' || !('animate' in from)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const a = from.getBoundingClientRect();
+  const b = to.getBoundingClientRect();
+  const flier = from.cloneNode(true) as SVGElement;
+  flier.removeAttribute('class');
+  flier.setAttribute('class', 'cui-button__ai-flight');
+  flier.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(flier);
+  const x1 = b.left + b.width / 2 - a.width / 2;
+  const y1 = b.top + b.height / 2 - a.height / 2;
+  const lift = Math.min(tokens.spacing[60], Math.abs(y1 - a.top) / 2 + a.height);
+  const [p1, p2, p3, p4] = tokens.ease.flow;
+  const animation = flier.animate(
+    [
+      { transform: `translate(${a.left}px, ${a.top}px) scale(1) rotate(0deg)`, opacity: 1 },
+      { transform: `translate(${(a.left + x1) / 2}px, ${Math.min(a.top, y1) - lift}px) scale(1.8) rotate(90deg)`, opacity: 1, offset: 0.55 },
+      { transform: `translate(${(a.left + 3 * x1) / 4}px, ${(Math.min(a.top, y1) - lift + 3 * y1) / 4}px) scale(1.2) rotate(150deg)`, opacity: 1, offset: 0.8 },
+      { transform: `translate(${x1}px, ${y1}px) scale(0.6) rotate(180deg)`, opacity: 0 },
+    ],
+    { duration: tokens.duration.reveal * 2, easing: `cubic-bezier(${p1}, ${p2}, ${p3}, ${p4})` },
+  );
+  to.setAttribute('data-landing', '');
+  const done = () => {
+    flier.remove();
+    to.removeAttribute('data-landing');
+  };
+  animation.onfinish = done;
+  animation.oncancel = done;
+}
 
 function setRef<T>(ref: Ref<T> | undefined, value: T | null) {
   if (typeof ref === 'function') ref(value);
@@ -130,10 +204,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     trailingArrow,
     beacon = 'off',
     onBeaconChange,
+    aiTarget,
     children,
     onClick,
     ...rest
-  } = props as Omit<LabelledButtonProps, 'iconOnly'> & { iconOnly?: boolean; icon?: Icon };
+  } = props as Omit<LabelledButtonProps, 'iconOnly' | 'variant' | 'aiTarget'> & {
+    variant: ButtonVariant;
+    iconOnly?: boolean;
+    icon?: Icon;
+    aiTarget?: RefObject<HTMLElement | null>;
+  };
+  const isAi = variant === 'ai';
+  const aiGradientId = `cui-ai-${useId().replace(/:/g, '')}`;
+  const aiIconRef = useRef<SVGSVGElement | null>(null);
 
   const innerRef = useRef<HTMLButtonElement | null>(null);
   const ref = useCallback(
@@ -197,10 +280,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       event.preventDefault();
       return;
     }
+    if (isAi && aiTarget?.current && aiIconRef.current) flySparkle(aiIconRef.current, aiTarget.current);
     onClick?.(event);
   };
 
-  const LeadingIcon = iconOnly ? icon : leadingIcon;
+  const LeadingIcon = isAi ? undefined : iconOnly ? icon : leadingIcon;
   const Arrow = trailingArrow === 'down' ? ArrowDown : trailingArrow === 'right' ? ArrowRight : null;
 
   return (
@@ -219,6 +303,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       aria-busy={loading || undefined}
       aria-disabled={loading || rest['aria-disabled'] || undefined}
     >
+      {isAi && (
+        <Sparkle
+          ref={aiIconRef}
+          className="cui-button__icon cui-button__ai-icon"
+          weight="fill"
+          color={`url(#${aiGradientId})`}
+          aria-hidden="true"
+          focusable="false"
+        >
+          <defs>
+            <linearGradient id={aiGradientId} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" className="cui-button__ai-stop" data-stop="1" />
+              <stop offset="0.5" className="cui-button__ai-stop" data-stop="2" />
+              <stop offset="1" className="cui-button__ai-stop" data-stop="3" />
+            </linearGradient>
+          </defs>
+        </Sparkle>
+      )}
       {LeadingIcon && (
         <LeadingIcon
           className="cui-button__icon"
@@ -236,7 +338,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
           focusable="false"
         />
       )}
-      {loading && <SpinnerGap className="cui-button__spinner" aria-hidden="true" focusable="false" />}
+      {loading && !isAi && <SpinnerGap className="cui-button__spinner" aria-hidden="true" focusable="false" />}
     </button>
   );
 });

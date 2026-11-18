@@ -3,9 +3,10 @@
 // Button preview: every variant, size and state, with the OLD HTML + CSS
 // (collabrium-dls/components.css) rendered beside it for visual comparison.
 // Used by the playground only; never part of the package build.
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { CheckCircle, DotsThree, Plus, Trash } from '@phosphor-icons/react';
 import { Button, type ButtonBeaconReason } from './Button';
+import { AiTarget } from './AiTarget';
 
 // Copied verbatim from collabrium-dls/components.css lines 31–126 (Button + CTA beacon)
 // for side-by-side comparison only. Never shipped in the package.
@@ -227,6 +228,47 @@ function LoadingRow() {
   return <Compare row={row} />;
 }
 
+function AiRow() {
+  const target = useRef<HTMLDivElement>(null);
+  const [working, setWorking] = useState(false);
+  const row: Row = {
+    id: 'ai',
+    label: 'AI (v2.0 only)',
+    note: 'From the product\'s AI pill. Gradient border, sparkle, label and 7% tint; hover shimmers the solid gradient; loading is the working drift; aiTarget flies the sparkle to an AiTarget. Hover, pressed and the flight are designed from scratch.',
+    next: (
+      <div className="pg-stack">
+        <div className="pg-inline">
+          {sizes.map(s => (
+            <Button key={s} variant="ai" size={s}>Work with CollabAI</Button>
+          ))}
+        </div>
+        <div className="pg-inline">
+          <Button variant="ai" loading>CollabAI is working</Button>
+          <Button variant="ai" disabled>Work with CollabAI</Button>
+        </div>
+        <AiTarget ref={target} active={working}>
+          <p className="pg-row-note">A four-week push across social and in-app placements.</p>
+        </AiTarget>
+        <div className="pg-inline">
+          <Button
+            variant="ai"
+            aiTarget={target}
+            loading={working}
+            onClick={() => {
+              setWorking(true);
+              window.setTimeout(() => setWorking(false), 3000);
+            }}
+          >
+            {working ? 'CollabAI is rewriting' : 'Rewrite with CollabAI'}
+          </Button>
+        </div>
+      </div>
+    ),
+    old: null,
+  };
+  return <Compare row={row} />;
+}
+
 export function ButtonPreview() {
   return (
     <>
@@ -236,6 +278,7 @@ export function ButtonPreview() {
       ))}
       <BeaconDemo />
       <LoadingRow />
+      <AiRow />
     </>
   );
 }

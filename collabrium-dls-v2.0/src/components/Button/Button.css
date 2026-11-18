@@ -291,3 +291,165 @@
   /* Same specificity as the nod rules above, and later, so it wins (as in the source). */
   .cui-button[data-variant="primary"][data-beacon="on"]:where(:not([data-icon-only], :disabled, [aria-disabled="true"])) > .cui-button__arrow[data-arrow] { animation: none; }
 }
+
+/* =========================================================
+   AI — variant="ai" (v2.0 only; added 2026-11-18). For an action that hands
+   a task to CollabAI. Colours from the product's AI pill (.ai-pill): one
+   gradient of --color-ai-1 → -2 → -3, left to right, on the border, the
+   sparkle, the label and a 7% tint. Size, padding, radius, type and focus
+   are the Button's own.
+   - Hover: the solid gradient, shimmering left to right (two pulses, 2.8s).
+     Label and sparkle turn Neutral-1. ⚠️ Designed from scratch.
+   - Pressed: the shimmer holds and darkens 12% toward Neutral-9.
+     ⚠️ Designed from scratch.
+   - Loading ("working", as the product's .ai-pill.pointer-events-none): the
+     label stays, no spinner; label and a 9% tint drift on a 14s loop
+     (ten pulses).
+   - Disabled: no gradient. Neutral-1 surface, Neutral-3 border, Neutral-4
+     label and sparkle.
+   - Reduced motion: nothing moves; the gradients stay.
+   Contrast (accepted 2026-11-18): the gradient label is about 3.7:1 on the
+   tint, white on the solid gradient about 4.0:1, both below 4.5:1.
+   ========================================================= */
+.cui-button[data-variant="ai"] {
+  --cui-button-ai-tint: 7%;
+  --cui-button-ai-gradient: linear-gradient(90deg, var(--color-ai-1), var(--color-ai-2), var(--color-ai-3));
+  /* The run (1 → 2 → 3 → 2 → 1) at 200% width loops without a seam. */
+  --cui-button-ai-run: linear-gradient(90deg, var(--color-ai-1), var(--color-ai-2), var(--color-ai-3), var(--color-ai-2), var(--color-ai-1));
+  --cui-button-ai-fill: linear-gradient(90deg,
+    color-mix(in srgb, var(--color-ai-1) var(--cui-button-ai-tint), var(--color-neutral-1)),
+    color-mix(in srgb, var(--color-ai-2) var(--cui-button-ai-tint), var(--color-neutral-1)),
+    color-mix(in srgb, var(--color-ai-3) var(--cui-button-ai-tint), var(--color-neutral-1)));
+  --cui-button-ai-run-fill: linear-gradient(90deg,
+    color-mix(in srgb, var(--color-ai-1) var(--cui-button-ai-tint), var(--color-neutral-1)),
+    color-mix(in srgb, var(--color-ai-2) var(--cui-button-ai-tint), var(--color-neutral-1)),
+    color-mix(in srgb, var(--color-ai-3) var(--cui-button-ai-tint), var(--color-neutral-1)),
+    color-mix(in srgb, var(--color-ai-2) var(--cui-button-ai-tint), var(--color-neutral-1)),
+    color-mix(in srgb, var(--color-ai-1) var(--cui-button-ai-tint), var(--color-neutral-1)));
+  --cui-button-ai-press: color-mix(in srgb, var(--color-neutral-9) 12%, transparent);
+  --cui-button-ai-shimmer: calc(var(--duration-pulse) * 2);
+  --cui-button-ai-drift: calc(var(--duration-pulse) * 10);
+
+  /* The tint fills the padding box; the full gradient shows through the
+     transparent 1px border. */
+  border: var(--border-width-sm) solid transparent;
+  background: var(--cui-button-ai-fill) padding-box, var(--cui-button-ai-gradient) border-box;
+  color: var(--color-neutral-9);
+}
+.cui-button[data-variant="ai"] .cui-button__label {
+  background: var(--cui-button-ai-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.cui-button__ai-stop[data-stop="1"] { stop-color: var(--color-ai-1); }
+.cui-button__ai-stop[data-stop="2"] { stop-color: var(--color-ai-2); }
+.cui-button__ai-stop[data-stop="3"] { stop-color: var(--color-ai-3); }
+
+/* Hover and pressed: the solid gradient, shimmering left to right. */
+.cui-button[data-variant="ai"]:is(:hover, :active):where(:not([data-loading], :disabled, [aria-disabled="true"])) {
+  background: var(--cui-button-ai-run) 0 0 / 200% 100% repeat-x border-box;
+  color: var(--color-neutral-1);
+  animation: cui-button-ai-shimmer var(--cui-button-ai-shimmer) linear infinite;
+}
+.cui-button[data-variant="ai"]:is(:hover, :active):where(:not([data-loading], :disabled, [aria-disabled="true"])) .cui-button__label {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+.cui-button[data-variant="ai"]:is(:hover, :active):where(:not([data-loading], :disabled, [aria-disabled="true"])) .cui-button__ai-icon {
+  fill: currentColor;
+}
+.cui-button[data-variant="ai"]:active:where(:not([data-loading], :disabled, [aria-disabled="true"])) {
+  background:
+    linear-gradient(var(--cui-button-ai-press), var(--cui-button-ai-press)) border-box,
+    var(--cui-button-ai-run) 0 0 / 200% 100% repeat-x border-box;
+  animation-play-state: paused;
+}
+@keyframes cui-button-ai-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: 0 0; }
+}
+
+/* Loading = working: the label stays (overrides the shared opacity rule),
+   no spinner (Button.tsx renders none for ai), and everything drifts. */
+.cui-button[data-variant="ai"][data-loading] > * { opacity: 1; }
+.cui-button[data-variant="ai"][data-loading] {
+  --cui-button-ai-tint: 9%;
+  background:
+    var(--cui-button-ai-run-fill) 0 0 / 200% 100% repeat-x padding-box,
+    var(--cui-button-ai-gradient) border-box;
+  animation: cui-button-ai-drift var(--cui-button-ai-drift) linear infinite;
+}
+.cui-button[data-variant="ai"][data-loading] .cui-button__label {
+  background: var(--cui-button-ai-run) 0 0 / 200% 100% repeat-x;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: cui-button-ai-drift-label var(--cui-button-ai-drift) linear infinite;
+}
+@keyframes cui-button-ai-drift { to { background-position: 200% 0, 0 0; } }
+@keyframes cui-button-ai-drift-label { to { background-position: 200% 0; } }
+
+/* Disabled: no gradient anywhere. Later than the shared disabled rule, same
+   specificity, so it wins. */
+.cui-button[data-variant="ai"]:disabled,
+.cui-button[data-variant="ai"][aria-disabled="true"]:where(:not([data-loading])) {
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-4);
+  border-color: var(--color-neutral-3);
+}
+.cui-button[data-variant="ai"]:is(:disabled, [aria-disabled="true"]:not([data-loading])) .cui-button__label {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+.cui-button[data-variant="ai"]:is(:disabled, [aria-disabled="true"]:not([data-loading])) .cui-button__ai-icon {
+  fill: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-button[data-variant="ai"],
+  .cui-button[data-variant="ai"] .cui-button__label { animation: none !important; }
+}
+
+/* Forced colours: the browser drops the gradients; show plain system text
+   and a system edge, so the label never turns invisible. */
+@media (forced-colors: active) {
+  .cui-button[data-variant="ai"] { border-color: ButtonText; }
+  .cui-button[data-variant="ai"] .cui-button__label {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
+  .cui-button[data-variant="ai"] .cui-button__ai-icon { fill: currentColor; }
+}
+
+/* The sparkle in flight (Button.tsx, aiTarget). Fixed to the viewport,
+   moved by the Web Animations API, above floating UI. */
+.cui-button__ai-flight {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  pointer-events: none;
+  z-index: var(--z-tooltip);
+}
+
+/* AiTarget: the area the AI will change. A transparent 2px edge at rest, so
+   lighting it up never shifts the layout; while active, the AI gradient
+   ring and a 7% tint. */
+.cui-ai-target {
+  border: var(--border-width-md) solid transparent;
+  border-radius: var(--radius-md);
+}
+.cui-ai-target[data-active] {
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--color-ai-1) 7%, var(--color-neutral-1)),
+      color-mix(in srgb, var(--color-ai-2) 7%, var(--color-neutral-1)),
+      color-mix(in srgb, var(--color-ai-3) 7%, var(--color-neutral-1))) padding-box,
+    linear-gradient(90deg, var(--color-ai-1), var(--color-ai-2), var(--color-ai-3)) border-box;
+}
+/* While the sparkle is still flying in, hold the ring back (Button.tsx). */
+.cui-ai-target[data-active][data-landing] { background: none; }
+@media (forced-colors: active) {
+  .cui-ai-target[data-active] { border-color: Highlight; }
+}
