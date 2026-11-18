@@ -17,6 +17,29 @@ phrase to name its subject, and end the entry with the files it touched. Only
 `**bold**`, `` `code` `` and `[links](url)` render. Keep lines to 78
 characters.
 
+## v0.1.94 · 2026-11-18 · Tool approval: an answered variant
+
+Tool approval has an answered variant: a read-only record, in the AI's turn,
+of what the person answered, so the thread keeps the decisions it was given.
+
+**How it works.** Pass `answers` (what `onSend` returned) with the same
+`questions`, and the card renders the record instead of asking. A header
+reads "Question" and `Answered · 1 question` and opens or closes the record,
+which starts open. Below it, a flat card lists every question at once with
+each option: the chosen ones filled and bold, the rest Neutral-5. A typed
+answer shows as a chosen "Something else:" row, and a question with no
+answer says "Skipped". `onSend` and `onDismiss` can't be passed with it.
+
+**What changes in the rules.** The live card still closes for good. Rule 13
+said nothing stays behind; the answered record is now the one exception,
+shown only after a Send, never after a dismiss. The DLS has no such record.
+
+Files: `src/components/ToolApproval/` (`ToolApproval.tsx`,
+`ToolApproval.css`, `ToolApproval.docs.tsx`, `ToolApproval.preview.tsx`,
+`ToolApproval.usage.md`, `index.ts`); `CATALOG.md`; `MIGRATION-LOG.md`
+(row 12, TOOL-9, D-177); `CHANGELOG.md`; `package.json` and
+`package-lock.json`. The version moves from 0.1.93 to 0.1.94.
+
 ## v0.1.93 · 2026-11-16 · A rule for work from other projects
 
 The repo's `CLAUDE.md` now says that work from another project never adds to

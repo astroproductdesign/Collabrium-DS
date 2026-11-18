@@ -176,3 +176,200 @@
     transition: none;
   }
 }
+
+/*
+  Answered variant (added 2026-11-18, the design lead's request; not in the
+  DLS). A read-only record in the AI's turn of what the person answered: a
+  header that opens and closes it, the way Thinking's does, over a flat card
+  listing every question at once. The live card's shell (padding, border,
+  shadow, arrival) moves onto the inner card, without the shadow: it sits in
+  the thread, not over it. Every value is a token.
+*/
+.cui-tool-approval[data-answered] {
+  gap: var(--spacing-4);
+  height: auto;
+  padding: 0;
+  overflow: visible;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  animation: none;
+}
+
+/* The header: the one control. Thinking's header recipe (hover fill, focus ring), at the 44px hit target. */
+.cui-tool-approval__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  align-self: flex-start;
+  min-height: var(--hit-target-min);
+  margin: 0 calc(var(--spacing-6) * -1);
+  padding: 0 var(--spacing-6);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.cui-tool-approval__toggle:hover {
+  background: var(--color-neutral-2);
+}
+.cui-tool-approval__toggle:active {
+  background: var(--color-neutral-3);
+}
+.cui-tool-approval__toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+.cui-tool-approval__toggle-title {
+  flex: none;
+  font-size: var(--text-label1-size);
+  line-height: var(--text-label1-lh);
+  font-weight: var(--text-label1-weight);
+  color: var(--color-neutral-9);
+}
+.cui-tool-approval__toggle-summary {
+  font-size: var(--text-body2-size);
+  line-height: var(--text-body2-lh);
+  font-weight: var(--text-body2-weight);
+  color: var(--color-neutral-5);
+}
+.cui-tool-approval__chevron {
+  flex: none;
+  font-size: var(--icon-micro);
+  color: var(--color-neutral-5);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.cui-tool-approval[data-expanded] .cui-tool-approval__chevron {
+  transform: rotate(180deg);
+}
+
+/* Open and close: 0fr to 1fr grid rows plus opacity (Thinking's trace). */
+.cui-tool-approval__collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--duration-base) var(--ease-settle),
+    opacity var(--duration-base) var(--ease-settle);
+}
+.cui-tool-approval[data-expanded] .cui-tool-approval__collapse {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.cui-tool-approval__collapse-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The record card: the live card's shell, flat. */
+.cui-tool-approval__record {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-16);
+  background: var(--color-neutral-1);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-lg);
+}
+.cui-tool-approval__entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+/* The question: the live card's heading type. */
+.cui-tool-approval__entry-question {
+  margin: 0;
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-lh);
+  font-weight: var(--text-h5-weight);
+  color: var(--color-neutral-9);
+}
+.cui-tool-approval__answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A row: the box or circle, then the label. Not chosen: Neutral-5. Chosen: bold, Neutral-9. */
+.cui-tool-approval__answer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-8);
+}
+.cui-tool-approval__answer-label {
+  min-width: 0;
+  font-size: var(--text-body1-size);
+  line-height: var(--text-body1-lh);
+  font-weight: var(--weight-regular);
+  color: var(--color-neutral-5);
+  overflow-wrap: anywhere;
+}
+.cui-tool-approval__answer[data-chosen] .cui-tool-approval__answer-label {
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-9);
+}
+.cui-tool-approval__answer-prefix {
+  font-weight: var(--weight-regular);
+}
+
+/* Radio's circle and dot, drawn without an input (Radio's own values: choice-size, an 8px dot, Obsidian when chosen). */
+.cui-tool-approval__circle {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--choice-size);
+  height: var(--choice-size);
+  margin-top: var(--spacing-2);
+  border: var(--border-width-sm) solid var(--color-neutral-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-1);
+}
+.cui-tool-approval__dot {
+  display: none;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-obsidian);
+}
+.cui-tool-approval__answer[data-chosen] .cui-tool-approval__circle {
+  border-color: var(--color-obsidian);
+}
+.cui-tool-approval__answer[data-chosen] .cui-tool-approval__dot {
+  display: block;
+}
+
+.cui-tool-approval__skipped {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--color-neutral-5);
+}
+
+.cui-tool-approval__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cui-tool-approval__collapse,
+  .cui-tool-approval__chevron,
+  .cui-tool-approval__toggle {
+    transition: none;
+  }
+}

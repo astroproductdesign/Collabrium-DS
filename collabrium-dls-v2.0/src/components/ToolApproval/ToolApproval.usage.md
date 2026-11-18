@@ -5,8 +5,9 @@ A card the AI shows mid-task when it needs the person to make one or more
 decisions before the task can go on. It asks one question at a time, from a
 set of provided options (one or several) plus an always-available written
 answer, with a step count to page through. Once sent, skipped through or
-dismissed it closes for good. It is part of AI Native, which has eight parts;
-this is the sixth converted.
+dismissed it closes for good. Its answered variant is a read-only record, in
+the AI's turn, of what the person answered. It is part of AI Native, which
+has eight parts; this is the sixth converted.
 
 ## Use when
 - The AI cannot carry out the requested task without a decision only the person can make, and each decision is a discrete point the task is blocked on.
@@ -27,6 +28,8 @@ this is the sixth converted.
 | `questions[].options` | `{ label, description? }[]` | **required** | The provided options. Every question also carries a written "Something else…" answer. |
 | `onSend` | `(answers: ToolApprovalAnswer[]) => void` | — | Called once, with every answer: the `question`, the `selected` labels and the typed `custom` text. A skipped question has neither. The card has then closed. |
 | `onDismiss` | `() => void` | — | Called when the person presses ×. The card has then closed, with no progress kept. |
+| `answers` | `ToolApprovalAnswer[]` | — | What `onSend` returned, in the same order as `questions`. Giving it renders the answered variant. Not with `onSend` or `onDismiss`. |
+| `defaultExpanded` | `boolean` | `true` | Answered variant only. Start with the record open or closed; the reader's chevron wins from then on. |
 | `id`, `aria-*`, `data-*` | native | — | Passed to the root `<div>`. `style` and `className` are not accepted. |
 
 The `ref` is forwarded to the root `<div>`.
@@ -41,18 +44,20 @@ The component owns the rules that are local to it:
 6. **Skip always moves forward** without an answer (Rule 7), and sends on the last question as Continue would.
 7. **Previous and Next move freely**, answered or not (Rule 8).
 8. **The dismiss × is always there** (Rule 9), never disabled or hidden.
-9. **Closing is final, however it happens** (Rules 10 to 13). Dismiss and Send both close the card outright: it renders nothing, with no confirmation, no read-only copy, no progress kept and no way back. Only a new instance, for a genuinely new decision, shows it again.
+9. **Closing is final, however it happens** (Rules 10 to 13). Dismiss and Send both close the card outright: it renders nothing, with no confirmation, no progress kept and no way back. Only a new instance, for a genuinely new decision, shows it again. The answered record (below) is a separate, read-only instance; it never reopens the card.
 10. **The height morphs between questions, and never snaps** (Rule 11).
 11. **Reduced motion drops the height morph and the entrances and keeps the sequence** (Rule 15).
+12. **The answered variant is read-only** (added 2026-11-18). Given `answers`, it shows every question at once with each provided option: the chosen ones filled and bold, the rest empty and Neutral-5. A typed answer is a chosen "Something else:" row; a question with no answer says "Skipped". Its header ("Question", then `Answered · 2 questions`) opens and closes it, and it starts open.
 
 The host (your code) owns the rest:
-12. **Raise one only for a decision the task is blocked on** (Rule 1).
-13. **Never stack two** (Rule 14). A second waits until the first is answered, skipped through or dismissed.
-14. **Pin it just above the composer, scrolled behind** (Rule 16). The thread scrolls underneath it; no scrim, no dimming, no blocking. It is its own floating card, not part of the composer's footer.
-15. **Match the composer's width exactly** (Rule 17). 360px is the standalone width; the Chat window sets the composer's width when it is converted.
-16. **While it is open the composer's Send becomes Stop, and its placeholder "Or reply directly"** (Rule 18). Stop interrupts the AI's task and closes the card; the × closes only the card, and the task keeps running. Put both back the moment it closes.
-17. **Size it to the question and clamp it to the chat window** (Rule 19): never taller than the active question needs, scrolling inside if the window is short.
-18. **Move focus back to the composer when it closes**, from `onSend` and `onDismiss`.
+13. **Raise one only for a decision the task is blocked on** (Rule 1).
+14. **Never stack two** (Rule 14). A second waits until the first is answered, skipped through or dismissed.
+15. **Pin it just above the composer, scrolled behind** (Rule 16). The thread scrolls underneath it; no scrim, no dimming, no blocking. It is its own floating card, not part of the composer's footer.
+16. **Match the composer's width exactly** (Rule 17). 360px is the standalone width; the Chat window sets the composer's width when it is converted.
+17. **While it is open the composer's Send becomes Stop, and its placeholder "Or reply directly"** (Rule 18). Stop interrupts the AI's task and closes the card; the × closes only the card, and the task keeps running. Put both back the moment it closes.
+18. **Size it to the question and clamp it to the chat window** (Rule 19): never taller than the active question needs, scrolling inside if the window is short.
+19. **Move focus back to the composer when it closes**, from `onSend` and `onDismiss`.
+20. **After a Send, show the answered variant in the AI's turn**, with the same `questions` and the `answers` from `onSend`. After a dismiss, show nothing: there is nothing to record.
 
 ## Accessibility
 - The options are native radios (`role="radiogroup"`) or native checkboxes (`role="group"`), named by the question.
@@ -62,12 +67,14 @@ The host (your code) owns the rest:
 - Icon-only buttons are named: "Previous question", "Next question", "Dismiss".
 - Closing removes the card and the focused control; move focus to the composer yourself.
 - No live region.
+- Answered variant: the header is a button with `aria-expanded` that controls the record, and its only stop. Each question names its list; a chosen option reads as "Consideration, chosen". The boxes and circles are drawn and hidden from assistive tech. A closed record is inert.
 
 ## Motion
 - **Arrival:** the card fades in (`duration-reveal`, `ease-reveal`).
 - **A new question:** the question and its options rise 4px and fade in (`duration-slow`, `ease-settle`) while the height morphs (`duration-morph`, `ease-morph`).
 - **The written answer opening:** the Textarea rises and fades in while the height morphs.
-- **Reduced motion:** the height morph and the entrances go.
+- **The answered record opening or closing:** it grows or shrinks and fades (`duration-base`, `ease-settle`); the chevron turns (`duration-fast`).
+- **Reduced motion:** the height morph and the entrances go, and the answered record opens and closes at once.
 
 ## Example
 
@@ -86,6 +93,9 @@ const questions: ToolApprovalQuestion[] = [
 ];
 
 <ToolApproval questions={questions} onSend={answers => save(answers)} onDismiss={() => composerRef.current?.focus()} />
+
+// Later, in the AI's turn: the answered record.
+<ToolApproval questions={questions} answers={savedAnswers} />
 ```
 
 ## Replaces

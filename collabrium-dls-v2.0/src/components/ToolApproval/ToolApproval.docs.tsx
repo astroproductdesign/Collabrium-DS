@@ -14,7 +14,7 @@ export const title = 'Tool approval';
 export const group = 'AI Native';
 
 export const description =
-  'A card the AI shows mid-task when it needs the person to decide something before it can go on: one question at a time, with provided options and an always-available written answer, closing for good once sent, skipped through or dismissed.';
+  'A card the AI shows mid-task when it needs the person to decide something before it can go on: one question at a time, with provided options and an always-available written answer, closing for good once sent, skipped through or dismissed. Its answered variant keeps a read-only record of the answers in the thread.';
 
 export const usage = `import { ToolApproval, type ToolApprovalQuestion } from '@collabrium/ui';
 
@@ -97,6 +97,24 @@ export const anatomy: DocsAnatomyNode[] = [
       { name: 'Footer', element: 'div.cui-tool-approval__footer', description: 'Skip (Ghost) and Continue or Send (Primary), right-aligned.' },
     ],
   },
+  {
+    name: 'Answered',
+    element: '<div>.cui-tool-approval[data-answered]',
+    description: 'The read-only record, given `answers`. No shell of its own: a header over a flat card.',
+    children: [
+      { name: 'Header', element: 'button.cui-tool-approval__toggle', description: '"Question" (Label-1, Neutral-9), the summary (Body-2, Neutral-5: `Answered · 2 questions`) and a chevron. Opens and closes the record; 44px tall.' },
+      {
+        name: 'Record',
+        element: 'div.cui-tool-approval__record',
+        description: 'The card: Neutral-1, a 1px Neutral-3 border, radius-lg, 16px padding, no shadow. Every question at once, 16px apart.',
+        children: [
+          { name: 'Question', element: 'p.cui-tool-approval__entry-question', description: 'Heading-5 type, Neutral-9, as on the live card.' },
+          { name: 'Answers', element: 'ul.cui-tool-approval__answers', description: 'Every provided option: Checkbox\'s box (`multiple`) or a radio circle (`single`), drawn, not controls. Chosen rows are filled and bold Neutral-9; the rest are empty and Neutral-5. A typed answer is a chosen "Something else:" row.' },
+          { name: 'Skipped', element: 'p.cui-tool-approval__skipped', description: 'Caption, Neutral-5, under a question with no answer.' },
+        ],
+      },
+    ],
+  },
 ];
 
 function DecisionExample({ questions, id }: { questions: ToolApprovalQuestion[]; id: string }) {
@@ -136,6 +154,30 @@ function DecisionExample({ questions, id }: { questions: ToolApprovalQuestion[];
     </div>
   );
 }
+
+const campaign: ToolApprovalQuestion[] = [
+  {
+    question: 'What should the campaign achieve?',
+    type: 'multiple',
+    options: [{ label: 'Awareness' }, { label: 'Consideration' }, { label: 'Conversion' }],
+  },
+  {
+    question: 'Who should own the outreach?',
+    type: 'single',
+    options: [{ label: 'Account exec' }, { label: 'Sales lead' }],
+  },
+  {
+    question: 'Which channels should the reminder go out on?',
+    type: 'multiple',
+    options: [{ label: 'Email' }, { label: 'SMS' }, { label: 'In-app notification' }],
+  },
+];
+
+const campaignAnswers: ToolApprovalAnswer[] = [
+  { question: 'What should the campaign achieve?', selected: ['Consideration'], custom: '' },
+  { question: 'Who should own the outreach?', selected: [], custom: 'Whoever closed the last renewal' },
+  { question: 'Which channels should the reminder go out on?', selected: [], custom: '' },
+];
 
 export const examples: DocsExample[] = [
   {
@@ -190,6 +232,21 @@ function Decision() {
 
 <ToolApproval questions={questions} onSend={answers => save(answers)} onDismiss={close} />`,
   },
+  {
+    id: 'answered',
+    title: 'Answered',
+    description: 'Once the person sends, the live card closes and the AI\'s turn shows this read-only record of what they answered: every question at once, the chosen options filled and bold, a typed answer as "Something else", and "Skipped" where there was no answer. The header opens and closes it; it starts open. Show it only after a Send: a dismissed card leaves nothing behind.',
+    render: () => <ToolApproval questions={campaign} answers={campaignAnswers} />,
+    code: `// In the AI's turn, once onSend has given you the answers:
+<ToolApproval questions={questions} answers={answers} />
+
+// answers, as onSend returns them:
+[
+  { question: 'What should the campaign achieve?', selected: ['Consideration'], custom: '' },
+  { question: 'Who should own the outreach?', selected: [], custom: 'Whoever closed the last renewal' },
+  { question: 'Which channels should the reminder go out on?', selected: [], custom: '' },
+]`,
+  },
 ];
 
 export const props: DocsProp[] = [
@@ -199,6 +256,8 @@ export const props: DocsProp[] = [
   { name: 'questions[].options', options: '{ label, description? }[]', default: '—', required: true, description: 'The provided options. Every question also carries a written "Something else…" answer.' },
   { name: 'onSend', options: '(answers: ToolApprovalAnswer[]) => void', default: '—', description: 'Called once, with every answer, when it is sent. Each answer has the `question`, the `selected` labels and the typed `custom` text; a skipped question has neither. The card has then closed for good.' },
   { name: 'onDismiss', options: '() => void', default: '—', description: 'Called when the person presses ×. The card has then closed for good, with no progress kept. The task behind it keeps running. Move focus back to the composer yourself.' },
+  { name: 'answers', options: 'ToolApprovalAnswer[]', default: '—', description: 'What `onSend` returned, in the same order as `questions`. Giving it renders the answered variant, a read-only record for the AI\'s turn. Not with `onSend` or `onDismiss`.' },
+  { name: 'defaultExpanded', options: 'boolean', default: 'true', description: 'Answered variant only. Start with the record open or closed; the reader\'s chevron wins from then on.' },
   { name: 'id, aria-*, data-*, …', options: 'native', default: '—', description: 'Passed to the root `<div>`. `style` and `className` are not accepted. The ref is forwarded to the root.' },
 ];
 
@@ -208,6 +267,7 @@ export const rules: DocsRules = {
     'Ask one thing per question, in a sentence, and give options that are different from each other.',
     'Keep the dismiss ×: the card is a clarifying prompt, not a gate.',
     'Raise it again as a new instance when the AI needs another decision later.',
+    'Once it is sent, show the answered variant in the AI\'s turn, with the same questions and the answers `onSend` gave you.',
     'Pin it just above the composer at the composer\'s width, and let the thread scroll behind it.',
     'While it is open, change the composer\'s Send to Stop and its placeholder to "Or reply directly", and put both back when it closes.',
   ],
@@ -215,7 +275,7 @@ export const rules: DocsRules = {
     'Don\'t use it as a general form, or to collect input the task is not blocked on.',
     'Don\'t stack a second one while one is open.',
     'Don\'t disable or hide the dismiss to force an answer.',
-    'Don\'t keep a confirmation, a read-only copy or a reopen button after it closes.',
+    'Don\'t leave the live card, a confirmation or a reopen button behind after it closes. The answered record is the only trace, and only after a Send.',
     'Don\'t put a scrim over the thread or block it.',
     'Don\'t let a question hold both a chosen option and typed text.',
   ],
@@ -227,6 +287,7 @@ export const accessibility: DocsAccessibility = {
     { keys: 'Arrow keys', action: 'Move between the radios of a single-choice question.' },
     { keys: 'Space', action: 'Chooses the focused radio or toggles the focused checkbox.' },
     { keys: 'Enter', action: 'In the one-line written answer, with an answer in it, moves on or sends (on the last question it sends). In the open Textarea it starts a new line.' },
+    { keys: 'Enter or Space', action: 'Answered variant: on the header, opens or closes the record. The header is its only stop.' },
   ],
   notes: [
     'The options are a native radio group or a group of native checkboxes, named by the question (`role="radiogroup"` or `role="group"` with the question as its label).',
@@ -236,6 +297,7 @@ export const accessibility: DocsAccessibility = {
     'The icon-only buttons have names: "Previous question", "Next question", "Dismiss".',
     'Closing removes the card and whatever had focus. Move focus back to the composer yourself, from `onSend` and `onDismiss`.',
     'No live region: nothing in the card announces itself.',
+    'Answered variant: the header is a button with `aria-expanded`, controlling the record. Each question names its list of options; a chosen option is read as "Consideration, chosen". The boxes and circles are drawn and hidden from assistive tech, not controls. A closed record is inert.',
   ],
 };
 
@@ -244,5 +306,6 @@ export const motion: DocsMotion[] = [
   { interaction: 'A new question', motion: 'The question and its options rise 4px and fade in, while the card\'s height grows or shrinks to fit.', token: '--duration-slow · --ease-settle · --duration-morph · --ease-morph' },
   { interaction: 'The written answer opens', motion: 'The one-line field is swapped for a Textarea, which rises and fades in while the card grows.', token: '--duration-slow · --ease-settle · --duration-morph' },
   { interaction: 'Hover on an option', motion: 'The row\'s fill fades to Neutral-2.', token: '--duration-fast · --ease-standard' },
-  { interaction: 'Reduced motion', motion: 'The height morph and the entrances go. The same questions, in the same order, still get asked.', token: '—' },
+  { interaction: 'The answered record opens or closes', motion: 'Grows or shrinks and fades, while the chevron turns.', token: '--duration-base · --ease-settle · --duration-fast' },
+  { interaction: 'Reduced motion', motion: 'The height morph and the entrances go, and the answered record opens and closes at once. The same questions, in the same order, still get asked.', token: '—' },
 ];
