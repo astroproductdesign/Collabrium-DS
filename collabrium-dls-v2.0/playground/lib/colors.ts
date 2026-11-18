@@ -40,6 +40,16 @@ export const colorGroups: ColorGroup[] = [
     ],
   },
   {
+    id: 'ai-gradient',
+    title: 'AI gradient',
+    note: 'always the three together, left to right, as one gradient; never one alone',
+    swatches: [
+      { name: 'AI 1', token: 'ai1', description: 'Gradient start (raspberry): AI Button, AI target ring' },
+      { name: 'AI 2', token: 'ai2', description: 'Gradient middle (violet): AI Button, AI target ring' },
+      { name: 'AI 3', token: 'ai3', description: 'Gradient end (blue): AI Button, AI target ring' },
+    ],
+  },
+  {
     id: 'functional',
     title: 'Functional',
     swatches: [

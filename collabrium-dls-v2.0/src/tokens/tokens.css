@@ -25,6 +25,15 @@
   --color-purple: #9F56FF;
   --color-turquoise: #00D9D9;
 
+  /* AI gradient — CollabAI's three hues, from the product's AI pill. Always
+     used together, in this order, left to right, as one gradient: the AI
+     Button's border, sparkle, label and tint, and the ring on the area the
+     AI will change. Never one alone, never to classify, never for
+     "click me" (Obsidian stays the only primary action). Added 2026-11-18. */
+  --color-ai-1: #D9467A;
+  --color-ai-2: #9B5DE5;
+  --color-ai-3: #3D7BEA;
+
   /* Functional */
   --color-red: #FD3343;
 
