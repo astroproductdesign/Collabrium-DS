@@ -136,8 +136,10 @@ respected.
 
 ## Branches
 
-One branch per change, named `DDMMYY-topic-name`. Check `main` before
-bumping the version. Never commit or push to `main` unless asked.
+The design lead manages branches by hand. Work on whatever branch is
+checked out; don't create, switch, rename or delete branches unless asked.
+Check `main` before bumping the version. Never commit or push to `main`
+unless asked.
 
 ## Illustrations
 

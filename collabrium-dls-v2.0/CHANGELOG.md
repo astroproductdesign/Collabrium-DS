@@ -17,6 +17,20 @@ phrase to name its subject, and end the entry with the files it touched. Only
 `**bold**`, `` `code` `` and `[links](url)` render. Keep lines to 78
 characters.
 
+## v0.1.95 · 2026-11-18 · Branches are managed by hand
+
+The repo's `CLAUDE.md` no longer asks for one branch per change named
+`DDMMYY-topic-name`. Nothing in the package changes.
+
+**Why.** The design lead wants to manage branches by hand. Claude now works
+on whatever branch is checked out and doesn't create, switch, rename or
+delete branches unless asked. Checking `main` before a version bump, never
+committing or pushing to `main` unless asked, and a changelog entry for
+every change all stay as they were.
+
+Files: `CLAUDE.md` (repo root, "Branches"); `CHANGELOG.md`; `package.json`
+and `package-lock.json`. The version moves from 0.1.94 to 0.1.95.
+
 ## v0.1.94 · 2026-11-18 · Tool approval: an answered variant
 
 Tool approval has an answered variant: a read-only record, in the AI's turn,
