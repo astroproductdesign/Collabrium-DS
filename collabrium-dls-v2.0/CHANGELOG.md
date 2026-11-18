@@ -17,6 +17,18 @@ phrase to name its subject, and end the entry with the files it touched. Only
 `**bold**`, `` `code` `` and `[links](url)` render. Keep lines to 78
 characters.
 
+## v0.1.96 · 2026-11-18 · Tool approval demos show the answered record
+
+On the Tool approval docs page, pressing Send in the live demos now swaps the
+card for its answered record, the way a chat thread would. Before, the demos
+ended in a line of text, so the record was only visible in its own example
+further down. Dismissing still leaves nothing but a note. The component
+itself doesn't change.
+
+Files: `src/components/ToolApproval/ToolApproval.docs.tsx`; `CHANGELOG.md`;
+`package.json` and `package-lock.json`. The version moves from 0.1.95 to
+0.1.96.
+
 ## v0.1.95 · 2026-11-18 · Branches are managed by hand
 
 The repo's `CLAUDE.md` no longer asks for one branch per change named

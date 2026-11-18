@@ -120,17 +120,25 @@ export const anatomy: DocsAnatomyNode[] = [
 function DecisionExample({ questions, id }: { questions: ToolApprovalQuestion[]; id: string }) {
   const [round, setRound] = useState(0);
   const [outcome, setOutcome] = useState<string | null>(null);
-  const describe = (answers: ToolApprovalAnswer[]) =>
-    answers.map(a => `${a.question} ${a.custom ? `"${a.custom}"` : a.selected.length ? a.selected.join(', ') : '(skipped)'}`).join(' · ');
+  const [sent, setSent] = useState<ToolApprovalAnswer[] | null>(null);
   return (
     <div className="docs-stack">
       {outcome === null ? (
         <ToolApproval
           key={`${id}-${round}`}
           questions={questions}
-          onSend={answers => setOutcome(`Sent. ${describe(answers)}`)}
-          onDismiss={() => setOutcome('Dismissed. The task behind it keeps running.')}
+          onSend={answers => {
+            setSent(answers);
+            setOutcome('sent');
+          }}
+          onDismiss={() => {
+            setSent(null);
+            setOutcome('Dismissed. The task behind it keeps running, and nothing is recorded.');
+          }}
         />
+      ) : sent ? (
+        // After a Send, the host shows the answered record in the AI's turn.
+        <ToolApproval key={`${id}-${round}-answered`} questions={questions} answers={sent} />
       ) : (
         <div className="docs-row">
           <span className="docs-status">{outcome}</span>
@@ -183,7 +191,7 @@ export const examples: DocsExample[] = [
   {
     id: 'single',
     title: 'Two single-choice questions',
-    description: 'Choosing an option moves on to the next question by itself, once the choice has had a moment to register. The step count and arrows page freely. Skip moves forward without an answer. On the last question, choosing an option only enables Send: sending is always pressing Send. Once sent or dismissed the card is gone for good; "Raise a new decision" only starts this demo again, as a new instance would.',
+    description: 'Choosing an option moves on to the next question by itself, once the choice has had a moment to register. The step count and arrows page freely. Skip moves forward without an answer. On the last question, choosing an option only enables Send: sending is always pressing Send. Once sent or dismissed the card is gone for good. Send it and the answered record takes its place, as it would in the AI\'s turn; dismiss it and nothing is left. "Raise a new decision" only starts this demo again, as a new instance would.',
     render: () => <DecisionExample id="single" questions={renewals} />,
     code: `import { useState } from 'react';
 
@@ -216,7 +224,7 @@ function Decision() {
   {
     id: 'multiple',
     title: 'A multiple-choice question',
-    description: 'More than one option can be chosen, so it never moves on by itself: Continue (or Send on the last question) waits for the person. Continue and Send stay disabled until the question has an answer.',
+    description: 'More than one option can be chosen, so it never moves on by itself: Continue (or Send on the last question) waits for the person. Continue and Send stay disabled until the question has an answer. Send it to see the answered record.',
     render: () => <DecisionExample id="multiple" questions={channels} />,
     code: `const questions: ToolApprovalQuestion[] = [
   {
