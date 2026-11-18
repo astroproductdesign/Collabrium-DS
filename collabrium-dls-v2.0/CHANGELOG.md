@@ -17,6 +17,46 @@ phrase to name its subject, and end the entry with the files it touched. Only
 `**bold**`, `` `code` `` and `[links](url)` render. Keep lines to 78
 characters.
 
+## v0.1.97 · 2026-11-18 · AI button and the AI gradient colours
+
+Button has a new `ai` variant for actions that hand a task to CollabAI. It
+takes its colours from the product's AI pill and everything else from
+Button: the same sizes, radius, type and focus ring. Three new colour
+tokens carry its gradient, and an optional sparkle flight shows where the
+AI's change will land. v2.0 only: the DLS is left unchanged on purpose.
+
+**AI gradient tokens.** `--color-ai-1` (#D9467A), `--color-ai-2` (#9B5DE5)
+and `--color-ai-3` (#3D7BEA), always used together, left to right, as one
+gradient. They have their own group on the Color Palette page and are in
+the Tailwind and JSON exports.
+
+**The AI button.** `<Button variant="ai">` puts the gradient on the border,
+a Phosphor Sparkle (Fill), the label and a 7% tint. Hover fills it with the
+solid gradient, shimmering left to right, with a white label and sparkle;
+pressed holds the shimmer and darkens it 12%. `loading` is the working
+state from the product: the label stays, and the label and a 9% tint drift
+on a 14s loop. Disabled drops the gradient. It is always labelled: no other
+icon, arrow, beacon or icon-only form.
+
+**Sparkle flight.** Optional. Wrap the area the AI will change in the new
+`AiTarget` and pass its ref to `aiTarget`. On click the sparkle arcs from
+the button to that area, and its gradient ring lights up as the sparkle
+lands. `AiTarget active` shows the ring and sets `aria-busy`.
+
+**Designed from scratch.** Hover, pressed and the flight are not in the
+product's CSS. Contrast below AA is accepted: the gradient label is about
+3.7:1 on its tint, and white on the hover gradient about 4.0:1. Reduced
+motion stops the shimmer, the drift and the flight; the gradients stay.
+Decision D-178 in `MIGRATION-LOG.md`.
+
+Files: `src/components/Button/` (`Button.tsx`, `Button.css`, new
+`AiTarget.tsx`, `index.ts`, `Button.docs.tsx`, `Button.preview.tsx`,
+`Button.usage.md`); `src/tokens/tokens.css` and `tokens.ts`;
+`playground/lib/colors.ts`; `playground/public/tokens/` (`tailwind.css`,
+`tokens.css`, `tokens.json`); `playground/styles/docs.css`; `CATALOG.md`;
+`MIGRATION-LOG.md`; `CHANGELOG.md`; `package.json` and `package-lock.json`.
+The version moves from 0.1.96 to 0.1.97.
+
 ## v0.1.96 · 2026-11-18 · Tool approval demos show the answered record
 
 On the Tool approval docs page, pressing Send in the live demos now swaps the
