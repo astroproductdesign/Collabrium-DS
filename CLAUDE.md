@@ -65,13 +65,39 @@ export (`src-json`), including the JSON's `"version"`.
 
 ## Version and changelog
 
-- Follow the **Version rule** at the top of `DESIGN-SYSTEM.md`'s Changelog:
-  check `main` for the newest entry, number yours one past it, and update
-  the stamp at the top of the file.
-- Changelog entries are plain paragraphs; only `**bold**`, `` `code` `` and
-  `[links](#anchor)` render. Keep lines to 78 characters.
-- Ask before adding a changelog entry — the design lead confirms a change
-  first.
+**Every change gets a changelog entry, with no exceptions.** That covers
+components, tokens, foundations, docs pages, assets, illustrations, removals
+and fixes, however small. The entry and its version bump are part of the
+same change and the same branch, never a follow-up. A change with no entry
+isn't done.
+
+There are two changelogs, one per package. A change that touches both gets
+an entry in each.
+
+- **`collabrium-dls/`**: the Changelog section at the end of
+  `DESIGN-SYSTEM.md`. Follow its **Version rule**: check `main` for the
+  newest entry, number yours one past it, and update the stamp at the top
+  of the file. `preview.html` reads its version flags from that entry.
+- **`collabrium-dls-v2.0/`**: `CHANGELOG.md`. Number the entry one past the
+  newest on `main` and set `package.json`'s `"version"` to match.
+  `MIGRATION-LOG.md` is the maintainers' working file, not a changelog:
+  record decisions there as well, never instead.
+- **The version flag must match the changelog.** Three places carry the
+  version and they always agree: the newest `CHANGELOG.md` entry,
+  `package.json`'s `"version"`, and the top-bar flag on the docs site
+  (`<a class="flag">@collabrium/ui 0.1.90</a>`). The flag is generated from
+  the newest entry by `scripts/gen-changelog.mjs`: never type a version
+  into `SiteShell.tsx`. The build fails if `package.json` and the changelog
+  disagree. After building, open the docs site and confirm the flag shows
+  the new entry's version and links to the Changelog page.
+
+Entries are dated, plain paragraphs: say what changed and why, and end with
+the files touched. Only `**bold**`, `` `code` `` and `[links](#anchor)`
+render. Keep lines to 78 characters.
+
+Draft the entry with the change and show it to the user before committing:
+the design lead confirms the wording. Confirming the wording is not
+permission to skip the entry.
 
 ## Drafts
 
@@ -81,6 +107,27 @@ three-file change above, then deleting the draft. The `/build-components`
 command and the `component-builder` and `component-reviewer` agents follow
 this.
 
+## Work from other projects
+
+Only work started in this repo changes `collabrium-dls/` or
+`collabrium-dls-v2.0/`. A session working in another project (a product
+app, a prototype, Workdesk, a personal dashboard) never writes into either
+package, even when that project builds against it.
+
+- **A gap stays in that project.** If it needs a component, variant, prop or
+  token the system doesn't have, build it inside that project and say what's
+  missing. To add it to the system, bring it here as a draft in `drafts/`,
+  through `/build-components` review and the three-file change above.
+- **"Skip the review" isn't permission to add.** When someone waives a
+  review because the project is personal or a one-off, the waiver covers
+  that project's own code, never the design system.
+- **Tokens come from this repo.** The library's `tokens.css` is synced from
+  `collabrium-dls/tokens.css` here, never from a copy of the DLS anywhere
+  else.
+- **Check before committing.** If `git status` shows changes in either
+  package that this session didn't make, ask where they came from before
+  committing them.
+
 ## Check before calling it done
 
 Open `preview.html` in a browser and confirm: the component works, there are
@@ -89,8 +136,10 @@ respected.
 
 ## Branches
 
-One branch per change, named `DDMMYY-topic-name`. Check `main` before
-bumping the version. Never commit or push to `main` unless asked.
+The design lead manages branches by hand. Work on whatever branch is
+checked out; don't create, switch, rename or delete branches unless asked.
+Check `main` before bumping the version. Never commit or push to `main`
+unless asked.
 
 ## Illustrations
 

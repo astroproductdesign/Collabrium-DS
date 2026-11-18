@@ -1,6 +1,6 @@
 {
   "name": "@collabrium/ui",
-  "version": "0.1.0",
+  "version": "0.1.96",
   "description": "Collabrium design language system as React components for Next.js (App Router).",
   "license": "UNLICENSED",
   "private": true,
@@ -35,14 +35,14 @@
     "./tokens.css": "./dist/tokens.css"
   },
   "scripts": {
-    "setup": "npm install && npm run build && npm pack",
+    "setup": "npm install && npm run build && npm pack && node scripts/rename-pack.mjs",
     "build": "tsup",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "check:tokens": "node scripts/check-tokens.mjs",
     "playground:dev": "npm run playground:registry && npm run playground:download && next dev playground --port 3100",
     "playground:build": "npm run playground:registry && npm run playground:download && next build playground && node scripts/relative-export.mjs playground/out",
     "check": "npm run check:tokens && npm run typecheck && npm run build && npm run playground:build",
-    "playground:registry": "node scripts/gen-docs-registry.mjs && node scripts/gen-token-exports.mjs",
+    "playground:registry": "node scripts/gen-docs-registry.mjs && node scripts/gen-token-exports.mjs && node scripts/gen-changelog.mjs",
     "playground:download": "node scripts/make-download.mjs"
   },
   "peerDependencies": {

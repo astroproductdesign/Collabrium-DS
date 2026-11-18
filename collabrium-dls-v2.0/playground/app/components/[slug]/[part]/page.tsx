@@ -12,7 +12,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; part: string }> }) {
   const { part } = await params;
   const meta = componentsMeta.find(c => c.slug === part);
-  return { title: meta ? `${meta.title} · Collabrium UI` : 'Collabrium UI' };
+  return { title: meta ? `${meta.title} · Collabrium DLS 2.0` : 'Collabrium DLS 2.0' };
 }
 
 export default async function PartRoute({ params }: { params: Promise<{ slug: string; part: string }> }) {

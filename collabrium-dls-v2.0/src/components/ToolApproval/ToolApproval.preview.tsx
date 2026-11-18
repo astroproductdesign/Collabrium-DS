@@ -5,7 +5,7 @@
 // comparison. Never part of the package build.
 import type { ReactNode } from 'react';
 import { ToolApproval } from './ToolApproval';
-import type { ToolApprovalQuestion } from './ToolApproval';
+import type { ToolApprovalAnswer, ToolApprovalQuestion } from './ToolApproval';
 
 // Copied verbatim from collabrium-dls/components.css: .c-card (276, 287),
 // .c-pagination-indicator (3764), c-thinking-row-in (5452), .c-choice and the
@@ -29,6 +29,17 @@ const checkboxQuestion: ToolApprovalQuestion = {
   options: [{ label: 'Email', description: 'Sent from the account owner' }, { label: 'SMS' }],
 };
 
+const answeredQuestions: ToolApprovalQuestion[] = [
+  { question: 'What should the campaign achieve?', type: 'multiple', options: [{ label: 'Awareness' }, { label: 'Consideration' }, { label: 'Conversion' }] },
+  radioQuestion,
+  checkboxQuestion,
+];
+const answeredAnswers: ToolApprovalAnswer[] = [
+  { question: answeredQuestions[0].question, selected: ['Consideration'], custom: '' },
+  { question: radioQuestion.question, selected: [], custom: 'Pull forward only the larger renewal' },
+  { question: checkboxQuestion.question, selected: [], custom: '' },
+];
+
 // Mirrors render() in preview.html (23785–23870) so the old column is the markup the DLS gallery builds.
 function oldCard(q: ToolApprovalQuestion, n: number, total: number, chosen: number[] = [], last = false) {
   const options = q.options
@@ -50,7 +61,8 @@ interface Row {
   label: string;
   note?: string;
   next: ReactNode;
-  old: string;
+  /** The DLS markup, or nothing where the DLS has no equivalent. */
+  old?: string;
 }
 
 const rows: Row[] = [
@@ -67,6 +79,12 @@ const rows: Row[] = [
     next: <ToolApproval questions={[checkboxQuestion]} />,
     old: oldCard(checkboxQuestion, 1, 1, [], true),
   },
+  {
+    id: 'answered',
+    label: 'Answered: one chosen, one typed, one skipped',
+    note: 'New in the library (2026-11-18); the DLS has no answered record, so there is nothing to compare against.',
+    next: <ToolApproval questions={answeredQuestions} answers={answeredAnswers} />,
+  },
 ];
 
 function Compare({ row }: { row: Row }) {
@@ -81,7 +99,11 @@ function Compare({ row }: { row: Row }) {
         </div>
         <div className="pg-col" data-col="old">
           <p className="pg-col-label">Old HTML + CSS · components.css</p>
-          <div className="pg-specimen" dangerouslySetInnerHTML={{ __html: row.old }} />
+          {row.old !== undefined ? (
+            <div className="pg-specimen" dangerouslySetInnerHTML={{ __html: row.old }} />
+          ) : (
+            <p className="pg-row-note">No equivalent in components.css.</p>
+          )}
         </div>
       </div>
     </section>

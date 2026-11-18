@@ -53,7 +53,9 @@ it with the flagged issues.
 
 Step 5 — if I later promote a component, it goes into
 `collabrium-dls/` as one change across all three files (DESIGN-SYSTEM.md,
-components.css and its preview.html demo), per the root CLAUDE.md. Then set
+components.css and its preview.html demo), per the root CLAUDE.md, with a
+changelog entry and version bump in the same change (root CLAUDE.md,
+"Version and changelog"). Then set
 its row to data-status="promoted" and delete the draft from `drafts/`.
 
 Never mark a row drafted before the file exists, and never build a

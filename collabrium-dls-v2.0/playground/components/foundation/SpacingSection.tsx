@@ -125,7 +125,7 @@ export function SpacingSection({ level }: SectionProps) {
     <Section
       id="spacing-shape"
       level={level}
-      kicker="09 · Foundations"
+      kicker="08 · Foundations"
       title="Spacing & Shape"
       lede="4pt base grid. Collabrium is a product surface, not a marketing page — most layouts run full-bleed within the app shell rather than centering. Radius is per-surface, not one flat scale."
     >

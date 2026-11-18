@@ -1,7 +1,7 @@
 'use client';
 
-import { forwardRef, useEffect, useId, useLayoutEffect, useRef, useState, type HTMLAttributes, type Ref } from 'react';
-import { CaretLeft, CaretRight, X } from '@phosphor-icons/react';
+import { forwardRef, useEffect, useId, useLayoutEffect, useRef, useState, type HTMLAttributes, type ReactNode, type Ref } from 'react';
+import { CaretDown, CaretLeft, CaretRight, Check, X } from '@phosphor-icons/react';
 import type { WithoutStyling } from '../../utils/types';
 import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
@@ -43,12 +43,16 @@ export interface ToolApprovalAnswer {
 
 type NativeDivProps = WithoutStyling<Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'color'>>;
 
-export interface ToolApprovalProps extends NativeDivProps {
+interface ToolApprovalBaseProps extends NativeDivProps {
   /** The decisions, in order. One shows at a time. Never a general-purpose form: each is a point the AI's task is blocked on. */
   questions: ToolApprovalQuestion[];
+}
+
+/** The live card: asks the questions, then closes for good. */
+export interface ToolApprovalOpenProps extends ToolApprovalBaseProps {
   /**
    * Called once, with every answer, when the person presses Send on the last question (or Skip on it). The card has
-   * then closed for good: it renders nothing and cannot be reopened.
+   * then closed for good: it renders nothing and cannot be reopened. Keep the answers to show the answered record.
    */
   onSend?: (answers: ToolApprovalAnswer[]) => void;
   /**
@@ -56,7 +60,24 @@ export interface ToolApprovalProps extends NativeDivProps {
    * Stop: the task behind the card keeps running. Move focus back to the composer yourself.
    */
   onDismiss?: () => void;
+  answers?: never;
+  defaultExpanded?: never;
 }
+
+/**
+ * The answered variant: a read-only record, in the AI's turn, of what the person answered. Pass the same
+ * `questions` and the `answers` that `onSend` gave you, in the same order.
+ */
+export interface ToolApprovalAnsweredProps extends ToolApprovalBaseProps {
+  /** What `onSend` returned. Giving it turns the card into the answered record. */
+  answers: ToolApprovalAnswer[];
+  /** Start with the record open (the default) or closed. The reader's chevron wins from then on. */
+  defaultExpanded?: boolean;
+  onSend?: never;
+  onDismiss?: never;
+}
+
+export type ToolApprovalProps = ToolApprovalOpenProps | ToolApprovalAnsweredProps;
 
 /** A moment for the choice to register before a `single` question moves on. */
 const ADVANCE_DELAY_MS = 480;
@@ -83,8 +104,17 @@ function setRef<T>(ref: Ref<T> | undefined, value: T | null) {
  * only for a decision the task is blocked on (Rule 1), never two at once
  * (Rule 14), pin it above the composer at the composer's width (Rules 16, 17
  * and 19), and swap the composer's Send to Stop while it is open (Rule 18).
+ *
+ * Given `answers`, it renders the answered variant instead: a read-only record
+ * of every question and what was chosen, for the AI's turn in the thread
+ * (added 2026-11-18, not in the DLS).
  */
-export const ToolApproval = forwardRef<HTMLDivElement, ToolApprovalProps>(function ToolApproval(
+export const ToolApproval = forwardRef<HTMLDivElement, ToolApprovalProps>(function ToolApproval(props, ref) {
+  return props.answers ? <ToolApprovalRecord {...props} ref={ref} /> : <ToolApprovalCard {...props} ref={ref} />;
+});
+
+/** The live card. */
+const ToolApprovalCard = forwardRef<HTMLDivElement, ToolApprovalOpenProps>(function ToolApprovalCard(
   { questions, onSend, onDismiss, ...rest },
   ref,
 ) {
@@ -193,7 +223,9 @@ export const ToolApproval = forwardRef<HTMLDivElement, ToolApprovalProps>(functi
     }
   }, [customOpen, current]);
 
-  if (closed) return null; // Rule 13: closed is closed. No confirmation, no copy of the questions, no way back.
+  // Rule 13: closed is closed. No confirmation and no way back. The answered record is the host's to show, from
+  // the answers `onSend` gave it, as a separate `answers` instance in the AI's turn (decided 2026-11-18).
+  if (closed) return null;
 
   const groupName = `${uid}-q${current}`;
   const openCustom = customOpen[current];
@@ -295,3 +327,98 @@ export const ToolApproval = forwardRef<HTMLDivElement, ToolApprovalProps>(functi
     </div>
   );
 });
+
+/**
+ * The answered variant (added 2026-11-18): once the person has sent, the host shows this in the AI's turn, so the
+ * thread keeps a record of what was asked and answered. Every question shows at once, read-only: each provided
+ * option with its box or circle, the chosen ones filled and bold, a typed answer as a chosen "Something else" row,
+ * and "Skipped" under a question with no answer. A header names it and opens or closes it, the way Thinking's does.
+ */
+const ToolApprovalRecord = forwardRef<HTMLDivElement, ToolApprovalAnsweredProps>(function ToolApprovalRecord(
+  { questions, answers, defaultExpanded = true, ...rest },
+  ref,
+) {
+  const uid = useId();
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const total = questions.length;
+  const answerFor = (index: number): ToolApprovalAnswer => answers[index] ?? { question: questions[index].question, selected: [], custom: '' };
+  const isAnswered = (answer: ToolApprovalAnswer) => answer.selected.length > 0 || answer.custom.trim() !== '';
+  const answeredCount = questions.filter((_, i) => isAnswered(answerFor(i))).length;
+  const noun = total === 1 ? 'question' : 'questions';
+  const summary =
+    answeredCount === total
+      ? `Answered · ${total} ${noun}`
+      : answeredCount === 0
+        ? `Skipped · ${total} ${noun}`
+        : `Answered · ${answeredCount} of ${total} ${noun}`;
+
+  return (
+    <div {...rest} ref={ref} className="cui-tool-approval" data-answered="" data-expanded={expanded || undefined}>
+      <button
+        type="button"
+        className="cui-tool-approval__toggle"
+        aria-expanded={expanded}
+        aria-controls={`${uid}-record`}
+        onClick={() => setExpanded(!expanded)}
+      >
+        <span className="cui-tool-approval__toggle-title">{total === 1 ? 'Question' : 'Questions'}</span>
+        <span className="cui-tool-approval__toggle-summary">{summary}</span>
+        <CaretDown className="cui-tool-approval__chevron" aria-hidden="true" focusable="false" />
+      </button>
+      {/* inert while closed, so the hidden record is out of the tab order and the accessibility tree. */}
+      <div className="cui-tool-approval__collapse" id={`${uid}-record`} inert={!expanded}>
+        <div className="cui-tool-approval__collapse-inner">
+          <div className="cui-tool-approval__record">
+            {questions.map((q, qi) => {
+              const answer = answerFor(qi);
+              const custom = answer.custom.trim();
+              const headingId = `${uid}-q${qi}`;
+              return (
+                <div className="cui-tool-approval__entry" key={qi}>
+                  <p className="cui-tool-approval__entry-question" id={headingId}>
+                    {q.question}
+                  </p>
+                  <ul className="cui-tool-approval__answers" aria-labelledby={headingId}>
+                    {q.options.map(option => (
+                      <RecordRow key={option.label} type={q.type} chosen={answer.selected.includes(option.label)}>
+                        {option.label}
+                      </RecordRow>
+                    ))}
+                    {custom && (
+                      <RecordRow type={q.type} chosen>
+                        <span className="cui-tool-approval__answer-prefix">Something else: </span>
+                        {custom}
+                      </RecordRow>
+                    )}
+                  </ul>
+                  {!isAnswered(answer) && <p className="cui-tool-approval__skipped">Skipped</p>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+/** One read-only row: Checkbox's drawn box, or a radio circle, then the label. Not a control. */
+function RecordRow({ type, chosen, children }: { type: ToolApprovalQuestion['type']; chosen: boolean; children: ReactNode }) {
+  return (
+    <li className="cui-tool-approval__answer" data-chosen={chosen || undefined}>
+      {type === 'multiple' ? (
+        <span className="cui-checkbox__box" data-state={chosen ? 'checked' : 'unchecked'} aria-hidden="true">
+          <Check className="cui-checkbox__glyph cui-checkbox__check" weight="regular" focusable="false" />
+        </span>
+      ) : (
+        <span className="cui-tool-approval__circle" aria-hidden="true">
+          <span className="cui-tool-approval__dot" />
+        </span>
+      )}
+      <span className="cui-tool-approval__answer-label">
+        {children}
+        {chosen && <span className="cui-tool-approval__sr">, chosen</span>}
+      </span>
+    </li>
+  );
+}

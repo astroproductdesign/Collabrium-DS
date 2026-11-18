@@ -8,7 +8,7 @@ import { SiteShell } from '../components/SiteShell';
 import { sidebarInitScript } from '../components/Sidebar';
 
 export const metadata: Metadata = {
-  title: 'Collabrium UI',
+  title: 'Collabrium DLS 2.0',
   description: 'The Collabrium design system as React components for Next.js.',
 };
 

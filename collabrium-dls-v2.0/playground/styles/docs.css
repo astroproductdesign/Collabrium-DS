@@ -533,3 +533,13 @@ html[data-docs-mobile] .cui-modal-scrim .cui-modal {
 .docs-manual-body { padding: 0 var(--spacing-16) var(--spacing-16); display: flex; flex-direction: column; gap: var(--spacing-12); }
 .docs-manual-body > .docs-p { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .docs-manual > summary::before { transition: none; } }
+
+/* Version flag: a link to the Changelog. A 44px hit area around the small pill; focus ring as everywhere else. */
+a.flag { position: relative; text-decoration: none; }
+a.flag::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; min-height: var(--hit-target-min); transform: translateY(-50%); }
+a.flag:hover { text-decoration: underline; }
+a.flag:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+
+/* Changelog: the paragraphs under each entry's Details. */
+.docs-changelog-body .docs-p { margin: 0 0 var(--spacing-12); }
+.docs-changelog-body .docs-p:last-child { margin-bottom: 0; }

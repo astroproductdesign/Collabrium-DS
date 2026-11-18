@@ -76,7 +76,7 @@ export function GroupOverview({ slug }: { slug: string }) {
           <nav aria-label="Breadcrumb" className="docs-breadcrumb">
             <ol>
               <li>
-                <a href={hrefTo(current, '')}>Collabrium UI</a>
+                <a href={hrefTo(current, '')}>Collabrium DLS 2.0</a>
               </li>
               <li>
                 <a href={hrefTo(current, '', 'components')}>Components</a>

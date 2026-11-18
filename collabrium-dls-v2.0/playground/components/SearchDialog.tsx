@@ -46,6 +46,7 @@ export function openSearch(trigger?: HTMLElement | null) {
 function buildIndex(): Item[] {
   const items: Omit<Item, 'hay'>[] = [
     { kind: 'section', scope: 'foundation', title: 'Home', crumb: 'Home', to: '' },
+    { kind: 'section', scope: 'foundation', title: 'Changelog', crumb: 'Reference', to: 'changelog' },
     ...foundationPages.map(p => ({ kind: 'section' as const, scope: 'foundation' as const, title: p.title, crumb: 'Foundation', to: `foundation/${p.slug}` })),
     // Stand-alone components and each group's overview (AI Native) ...
     ...navItems.map(n => ({ kind: 'component' as const, scope: 'components' as const, title: n.title, crumb: 'Components', to: `components/${n.slug}` })),
