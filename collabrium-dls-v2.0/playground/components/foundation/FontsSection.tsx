@@ -59,8 +59,8 @@ export function FontsSection({ base, level }: SectionProps) {
             <dt>Fallback</dt><dd>Georgia, Times New Roman</dd>
           </dl>
           <p>
-            Not a heading-size token — a deliberate overlay for brand-statement moments only: pitch-deck ledes, brand story
-            copy, pull quotes, hero display numerals. Never mix fonts inside one sentence (emphasis is weight, not a font
+            Not a heading-size token — for decks and marketing pages only: pitch-deck ledes, brand story copy, pull quotes,
+            hero display numerals. Never on a product screen: there, large numbers and page titles are Mulish too. Never mix fonts inside one sentence (emphasis is weight, not a font
             swap); never in a dense numeric column; one hero per view.
           </p>
         </div>

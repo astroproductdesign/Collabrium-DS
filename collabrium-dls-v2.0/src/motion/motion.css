@@ -342,3 +342,36 @@
   .cui-time-machine__sub::before{background: GrayText;}
   .cui-time-machine__mark[data-current] .cui-time-machine__tick{background: Highlight;}
 }
+
+/* Parallax: a scene whose layers move at different speeds. ⚠️ Designed from
+   scratch (the user's request, 2026-11-20), from the Parallax principle on
+   motion.zajno.com; no code or visuals copied. The travel is set in
+   Parallax.tsx from spacing tokens. */
+.cui-parallax{position: relative; overflow: hidden; isolation: isolate; background: var(--color-canvas-warm); border-radius: var(--radius-lg);}
+.cui-parallax__layer{position: relative; will-change: transform;}
+.cui-parallax__layer[data-depth="back"]{position: absolute; inset: 0; z-index: 0; pointer-events: none;}
+.cui-parallax__layer[data-depth="mid"]{z-index: 1;}
+.cui-parallax__layer[data-depth="front"]{z-index: 2;}
+
+/* Mask reveal: media opens through a moving shape, once. ⚠️ Designed from
+   scratch (the user's request, 2026-11-20), from the Masking principle on
+   motion.zajno.com; no code or visuals copied. */
+.cui-mask-reveal{
+  --cui-mask-duration: calc(var(--duration-reveal) * 2);
+  display: block; overflow: hidden; border-radius: var(--radius-lg); background: var(--color-canvas-warm);
+}
+.cui-mask-reveal > *{display: block; width: 100%; height: auto; transition: clip-path var(--cui-mask-duration) var(--ease-reveal);}
+.cui-mask-reveal[data-shape="circle"] > *{clip-path: circle(0% at 50% 50%);}
+.cui-mask-reveal[data-shape="wipe"][data-from="left"] > *{clip-path: inset(0 100% 0 0);}
+.cui-mask-reveal[data-shape="wipe"][data-from="right"] > *{clip-path: inset(0 0 0 100%);}
+.cui-mask-reveal[data-shape="wipe"][data-from="below"] > *{clip-path: inset(100% 0 0 0);}
+.cui-mask-reveal[data-shape="capsule"] > *{clip-path: inset(40% 35% round var(--radius-pill));}
+.cui-mask-reveal[data-shape="circle"][data-revealed] > *{clip-path: circle(75% at 50% 50%);}
+.cui-mask-reveal[data-shape="wipe"][data-revealed] > *{clip-path: inset(0 0 0 0);}
+.cui-mask-reveal[data-shape="capsule"][data-revealed] > *{clip-path: inset(0 0 round var(--radius-lg));}
+
+@media (prefers-reduced-motion: reduce){
+  .cui-parallax__layer{transform: none !important;}
+  .cui-mask-reveal > *{clip-path: none !important; opacity: 0; transition: opacity var(--duration-base) var(--ease-standard);}
+  .cui-mask-reveal[data-revealed] > *{opacity: 1;}
+}

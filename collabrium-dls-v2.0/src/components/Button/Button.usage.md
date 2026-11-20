@@ -48,6 +48,19 @@ The `ref` is forwarded to the `<button>` element.
 `div` attributes except `style` and `className`. Its `ref` goes to the
 button's `aiTarget`.
 
+**`ButtonRow`** lays out a row of Buttons. Props: `align` (`'end'` default,
+`'start'`, `'center'`, `'split'`), `leading` (with `split`: the far-left
+action), `stack` (`'phone'` default: full-width, Primary on top at 640px
+and under; `'never'`), `children` (the Buttons, Primary last), and native
+`div` attributes except `style` and `className`.
+
+```tsx
+<ButtonRow>
+  <Button variant="secondary">Cancel</Button>
+  <Button variant="primary">Save brief</Button>
+</ButtonRow>
+```
+
 ## Rules
 1. **One Primary per screen or card region.** If two actions feel equally important, one of them is Secondary.
 2. **Obsidian is the only action colour.** No element or department colours on buttons.
@@ -76,6 +89,7 @@ button's `aiTarget`.
     - Disabled drops the gradient: white surface, Neutral-3 border, Neutral-4 label and sparkle.
     - Contrast: the gradient label is about 3.7:1 on its tint and white on the hover gradient about 4.0:1, below the 4.5:1 AA target for 16px text. Accepted 2026-11-18.
 12. **Show where an AI change lands** with `aiTarget` and `AiTarget` when the area isn't obvious. Light the target only while CollabAI works on it, and never move focus to it.
+13. **A row of actions at the end of a form, panel or card is right-aligned, Primary last**: wrap it in `ButtonRow`, never a hand-made flex row. Secondary or Ghost first, Primary last, `--element-gap` between. At 640px and under it stacks full-width with Primary on top (only the visual order flips; the tab order stays as written). A separate action (Delete, Back) goes in `leading` with `align="split"`. Use a component's own action slot where it has one (Modal `actions`, ActionBar, PageHeader). `start` or `center` only where a component says so: a CTA that follows its text (Hero card, feature Card) and centred blocks; chat message actions are laid out by the chat. (Added 2026-11-20; `ButtonRow` ⚠️ designed from scratch.)
 
 ## Accessibility
 - Renders a native `<button type="button">`, so Enter and Space work and it is in the tab order.

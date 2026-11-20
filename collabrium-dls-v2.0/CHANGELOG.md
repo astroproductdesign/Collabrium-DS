@@ -17,6 +17,81 @@ phrase to name its subject, and end the entry with the files it touched. Only
 `**bold**`, `` `code` `` and `[links](url)` render. Keep lines to 78
 characters.
 
+## v0.1.100 · 2026-11-20 · Button row
+
+A new `ButtonRow`, part of Button, lays out a row of Buttons so a screen
+never does it by hand. ⚠️ Designed from scratch. v2.0 only: the DLS is
+left unchanged on purpose.
+
+**Layout.** Buttons sit `--element-gap` (8px) apart, right-aligned by
+default, Primary last. `align="split"` puts a `leading` action (Delete,
+Back) on the far left, away from the main pair. `start` and `center` are
+for the places a component allows them, such as a CTA under its text.
+
+**Phones.** At 640px and under the row stacks one full-width button per
+line, Primary on top, as Permission prompt does. Only the visual order
+flips; the tab order stays as written. `stack="never"` keeps the buttons'
+own width.
+
+**Rules.** The action-row rule from v0.1.99 now names `ButtonRow`, in the
+catalog, `CLAUDE.md`, `AGENTS.md` and Button's usage file.
+
+Files: `src/components/Button/ButtonRow.tsx`, `Button.css`, `index.ts`,
+`Button.docs.tsx`, `Button.usage.md`, `Button.preview.tsx`,
+`playground/styles/docs.css`, `CATALOG.md`, `CLAUDE.md`, `AGENTS.md`,
+`MIGRATION-LOG.md`, `package.json`.
+
+## v0.1.99 · 2026-11-20 · Clearer rules for buttons, filter search and fonts
+
+Product builds were coming out inconsistent: action buttons left-aligned,
+filter bars with search looking unlike those without, and headings or big
+numbers sometimes in Source Serif. The components were fine; the guidance
+left room to guess. These rules close it. v2.0 only.
+
+**Action rows.** A row of actions at the end of a form, panel or card is
+right-aligned, Primary last, with `--element-gap` between. Use a
+component's own action slot where it has one (Modal, ActionBar,
+PageHeader). Left or centred only where a component says so: a CTA under
+its text, and chat message actions.
+
+**Search with filters.** A search box next to filter triggers is always
+`Filters search`, never a `SearchInput` beside `Filters`. Both catalog rows
+and both usage files now say so.
+
+**Fonts.** Product screens use Mulish only, including large numbers and
+page titles. Source Serif 4 is for decks and marketing pages. The
+`--font-secondary` token is unchanged.
+
+Files: `CATALOG.md`, `CLAUDE.md`, `AGENTS.md`,
+`src/components/Button/Button.usage.md`, `Button.docs.tsx`,
+`src/components/Filters/Filters.usage.md`,
+`src/components/SearchInput/SearchInput.usage.md`,
+`playground/components/foundation/` (Guidelines, Fonts, Typography),
+`MIGRATION-LOG.md`, `package.json`.
+
+## v0.1.98 · 2026-11-20 · Parallax and Mask reveal
+
+Two new motion pieces, ⚠️ designed from scratch from the Parallax and
+Masking principles on motion.zajno.com. That site shares no code and is
+all rights reserved, so only the ideas are used: every value is a
+Collabrium token. v2.0 only: the DLS is left unchanged on purpose.
+
+**Parallax.** `Parallax` holds `ParallaxLayer`s at a `depth` of `back`,
+`mid` or `front`, anywhere in your own layout. As the page scrolls the back
+layer drifts 48px with it and the front 24px against it; as the mouse moves
+over it each layer leans away, the front most. `trigger` picks `scroll`,
+`pointer` or `both`. Touch never leans it, and reduced motion stills it.
+
+**Mask reveal.** `MaskReveal` opens an image or video through a `circle`,
+a `wipe` (`from` left, right or below) or a `capsule`, once, as it scrolls
+into view, over `--duration-reveal` × 2 on `--ease-reveal`. Reduced motion
+swaps the shape for a fade.
+
+Files: `src/motion/Parallax/`, `src/motion/MaskReveal/`,
+`src/motion/index.ts`, `src/motion/motion.css`,
+`playground/styles/docs.css`, `CATALOG.md`, `MIGRATION-LOG.md`,
+`package.json`.
+
 ## v0.1.97 · 2026-11-18 · AI button and the AI gradient colours
 
 Button has a new `ai` variant for actions that hand a task to CollabAI. It

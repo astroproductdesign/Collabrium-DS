@@ -16,6 +16,7 @@ button once there is text. Three variants:
 ## Don't use when
 - **The choice is from a short, known list.** Use Dropdown (not converted yet) or Radio.
 - **It's any other single-line value.** Use Input field.
+- **It sits beside Filters.** Use Filters' own `search` instead, so the box matches the filter triggers.
 
 ## Props
 

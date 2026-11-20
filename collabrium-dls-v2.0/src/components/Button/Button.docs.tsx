@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { ArrowClockwise, CheckCircle, DotsThree, PencilSimple, Plus, Trash } from '@phosphor-icons/react';
 import { Button, type ButtonBeaconReason } from './Button';
 import { AiTarget } from './AiTarget';
+import { ButtonRow } from './ButtonRow';
 import type {
   DocsAccessibility,
   DocsAnatomyNode,
@@ -53,6 +54,14 @@ export const anatomy: DocsAnatomyNode[] = [
     name: 'AI target',
     element: '<div>.cui-ai-target',
     description: 'AiTarget: wraps the area an AI button will change. A transparent 2px edge at rest; the AI gradient ring and a 7% tint while active, with aria-busy.',
+  },
+  {
+    name: 'Button row',
+    element: '<div>.cui-button-row',
+    description: 'ButtonRow: lays out a row of Buttons, 8px apart (--element-gap), right-aligned by default, Primary last. No look of its own. At 640px and under it stacks them full-width, Primary on top.',
+    children: [
+      { name: 'Leading', element: 'div.cui-button-row__leading', when: 'align="split" with leading', description: 'The separate action on the far left (Delete, Back). Last on a phone.' },
+    ],
   },
 ];
 
@@ -288,6 +297,58 @@ const [working, setWorking] = useState(false);
   Next: audience
 </Button>`,
   },
+  {
+    id: 'button-row',
+    title: 'A row of actions',
+    description: 'Wrap the actions at the end of a form, panel or card in `ButtonRow`: right-aligned, 8px apart, Primary last. On a phone (640px and under) each button takes a full-width row, Primary on top; the tab order stays as written.',
+    render: () => (
+      <div className="docs-button-row-demo">
+        <p className="docs-button-row-demo__text">Save the brief to share it with your team.</p>
+        <ButtonRow>
+          <Button variant="secondary">Cancel</Button>
+          <Button variant="primary">Save brief</Button>
+        </ButtonRow>
+      </div>
+    ),
+    code: `<ButtonRow>
+  <Button variant="secondary">Cancel</Button>
+  <Button variant="primary">Save brief</Button>
+</ButtonRow>`,
+  },
+  {
+    id: 'button-row-split',
+    title: 'A row with a separate action',
+    description: '`align="split"` puts `leading` on the far left, away from the main pair: an action that is not part of the choice, such as Delete or Back. On a phone it goes to the bottom.',
+    render: () => (
+      <div className="docs-button-row-demo">
+        <p className="docs-button-row-demo__text">Draft: Q3 awareness push. Last edited 2 hours ago.</p>
+        <ButtonRow align="split" leading={<Button variant="ghost">Delete draft</Button>}>
+          <Button variant="secondary">Save for later</Button>
+          <Button variant="primary">Submit for review</Button>
+        </ButtonRow>
+      </div>
+    ),
+    code: `<ButtonRow align="split" leading={<Button variant="ghost">Delete draft</Button>}>
+  <Button variant="secondary">Save for later</Button>
+  <Button variant="primary">Submit for review</Button>
+</ButtonRow>`,
+  },
+  {
+    id: 'button-row-start',
+    title: 'A call to action under its text',
+    description: '`align="start"` and `"center"` only where a component says so: a CTA that follows its text starts under it. `stack="never"` keeps a single button at its own width on a phone.',
+    render: () => (
+      <div className="docs-button-row-demo">
+        <p className="docs-button-row-demo__text">Plan next quarter from last quarter’s results.</p>
+        <ButtonRow align="start" stack="never">
+          <Button variant="primary">Start planning</Button>
+        </ButtonRow>
+      </div>
+    ),
+    code: `<ButtonRow align="start" stack="never">
+  <Button variant="primary">Start planning</Button>
+</ButtonRow>`,
+  },
 ];
 
 export const props: DocsProp[] = [
@@ -307,11 +368,15 @@ export const props: DocsProp[] = [
   { name: 'aiTarget', options: 'RefObject<HTMLElement | null>', default: '—', description: 'With `variant="ai"` only. The area CollabAI will change (wrap it in `AiTarget`). On click the sparkle flies there. No flight under reduced motion.' },
   { name: 'AiTarget active', options: 'boolean', default: 'false', description: 'On `AiTarget`: true while CollabAI works on the area. Shows the gradient ring and tint and sets `aria-busy`. Set it together with the button\'s `loading`.' },
   { name: 'type', options: "'button' | 'submit' | 'reset'", default: "'button'", description: 'Set `submit` for a form\'s submit action.' },
+  { name: 'ButtonRow align', options: "'end' | 'start' | 'center' | 'split'", default: "'end'", description: 'On `ButtonRow`. `end` for the end of a form, panel or card; `split` puts `leading` on the far left; `start` and `center` only where a component says so.' },
+  { name: 'ButtonRow leading', options: 'ReactNode', default: '—', description: 'On `ButtonRow`, with `align="split"`: the separate action (Delete, Back) on the far left.' },
+  { name: 'ButtonRow stack', options: "'phone' | 'never'", default: "'phone'", description: 'On `ButtonRow`. `phone`: at 640px and under, one full-width button per row, Primary on top. `never`: buttons keep their width.' },
 ];
 
 export const rules: DocsRules = {
   do: [
     'Keep one Primary per screen or card region.',
+    'Lay out a row of actions with `ButtonRow`: right-aligned at the end of a form, panel or card, Primary last; `start` or `center` only where a component says so (a CTA under its text).',
     'Use a short verb phrase for the label ("Save brief").',
     'Give every icon-only button an `aria-label` and a functional (Tier 1) icon.',
     'Use `loading` while an action runs, instead of disabling the button.',

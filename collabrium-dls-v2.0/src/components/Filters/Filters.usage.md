@@ -17,6 +17,7 @@ filter**, one "Filter" trigger listing every dimension.
 - **Switching between a handful of views of the same data.** Use Tabs or Segmented control.
 - **One quick toggle above a short list.** Use a Filter chip group (Chip).
 - **Picking a value for a form.** Use Dropdown (Multiple select).
+- **Never put a Search input beside Filters.** A search box next to filter triggers is always `search` on Filters, so it matches the triggers (32px, same row).
 
 ## Props
 

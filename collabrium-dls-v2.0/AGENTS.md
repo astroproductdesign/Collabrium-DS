@@ -102,8 +102,14 @@ Client Components". Client pages are still rendered on the server first.
   Amber, Purple) classify things; they never mean "click me".
 - **The page background is Canvas warm** (`--color-canvas-warm`); cards and
   fields keep their own white.
-- **Mulish only** in the product, headings included. Source Serif 4 is for
-  brand moments (a pull quote, a hero numeral), never in components.
+- **Product screens use Mulish only, including large numbers and page
+  titles.** Source Serif 4 is for decks and marketing pages, never a
+  product screen or a component.
+- **A row of actions at the end of a form, panel or card is
+  right-aligned, Primary last:** wrap the Buttons in `ButtonRow`, never
+  your own flex row. Use a component's own action slot where it has one
+  (Modal, ActionBar, PageHeader). `align="start"` or `"center"` only where
+  a component says so (a CTA under its text).
 - **Icons are Phosphor**, passed as components (`leadingIcon={Plus}`), not
   strings. Regular for controls and actions, Fill for status and decoration.
 - **Errors are bold `--color-red` text; success is `--color-green`**, always

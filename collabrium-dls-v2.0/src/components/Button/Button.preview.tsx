@@ -7,6 +7,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { CheckCircle, DotsThree, Plus, Trash } from '@phosphor-icons/react';
 import { Button, type ButtonBeaconReason } from './Button';
 import { AiTarget } from './AiTarget';
+import { ButtonRow } from './ButtonRow';
 
 // Copied verbatim from collabrium-dls/components.css lines 31–126 (Button + CTA beacon)
 // for side-by-side comparison only. Never shipped in the package.
@@ -269,6 +270,35 @@ function AiRow() {
   return <Compare row={row} />;
 }
 
+function ButtonRowRow() {
+  const row: Row = {
+    id: 'button-row',
+    label: 'Button row (v2.0 only)',
+    note: 'Right-aligned, Primary last, 8px apart; split puts a separate action far left; start and center for the exceptions. At 640px and under it stacks full-width, Primary on top. Designed from scratch.',
+    next: (
+      <div className="pg-stack">
+        <ButtonRow>
+          <Button variant="secondary">Cancel</Button>
+          <Button variant="primary">Save brief</Button>
+        </ButtonRow>
+        <ButtonRow align="split" leading={<Button variant="ghost">Delete draft</Button>}>
+          <Button variant="secondary">Save for later</Button>
+          <Button variant="primary">Submit for review</Button>
+        </ButtonRow>
+        <ButtonRow align="start" stack="never">
+          <Button variant="primary" size="sm">Start planning</Button>
+        </ButtonRow>
+        <ButtonRow align="center">
+          <Button variant="secondary">Import</Button>
+          <Button variant="primary">New campaign</Button>
+        </ButtonRow>
+      </div>
+    ),
+    old: null,
+  };
+  return <Compare row={row} />;
+}
+
 export function ButtonPreview() {
   return (
     <>
@@ -279,6 +309,7 @@ export function ButtonPreview() {
       <BeaconDemo />
       <LoadingRow />
       <AiRow />
+      <ButtonRowRow />
     </>
   );
 }
