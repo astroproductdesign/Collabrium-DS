@@ -543,3 +543,31 @@ a.flag:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-c
 /* Changelog: the paragraphs under each entry's Details. */
 .docs-changelog-body .docs-p { margin: 0 0 var(--spacing-12); }
 .docs-changelog-body .docs-p:last-child { margin-bottom: 0; }
+
+/* Motion docs: the Parallax demo scene. Text beside the art, never over it;
+   the back-layer shapes stay on the text side, so the illustration sits on
+   plain Canvas warm. */
+.docs-parallax-hero { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-32); align-items: center; padding: var(--spacing-48) var(--spacing-40); }
+.docs-parallax-hero__title { margin: 0 0 var(--spacing-12); font-size: var(--text-h2-size); line-height: var(--text-h2-lh); font-weight: var(--text-h2-weight); color: var(--color-neutral-9); }
+.docs-parallax-hero__text { margin: 0 0 var(--spacing-20); font-size: var(--text-body1-size); line-height: var(--text-body1-lh); color: var(--color-neutral-5); }
+.docs-parallax-hero__art { display: block; width: 100%; height: auto; border-radius: var(--radius-md); }
+.docs-parallax-shape { position: absolute; border-radius: var(--radius-pill); filter: blur(var(--spacing-24)); opacity: .7; aspect-ratio: 1; }
+.docs-parallax-shape[data-shape="1"] { width: 36%; left: -10%; top: -14%; background: var(--color-fire-pastel); }
+.docs-parallax-shape[data-shape="2"] { width: 20%; left: 18%; bottom: -16%; background: var(--color-gold-pastel); }
+@media (max-width: 640px) {
+  .docs-parallax-hero { grid-template-columns: 1fr; padding: var(--spacing-32) var(--spacing-20); }
+  .docs-parallax-hero__title { font-size: var(--text-h3-size); line-height: var(--text-h3-lh); }
+  .docs-parallax-shape[data-shape="1"] { width: 60%; }
+  .docs-parallax-shape[data-shape="2"] { width: 36%; left: 55%; top: 6%; bottom: auto; }
+}
+.docs-parallax-thumb { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); align-items: center; padding: var(--spacing-20); min-width: var(--spacing-120); }
+.docs-parallax-thumb__line { display: block; height: var(--spacing-8); border-radius: var(--radius-pill); background: var(--color-neutral-9); }
+.docs-parallax-thumb__tile { display: block; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); }
+
+/* Motion docs: Mask reveal frames. */
+.docs-mask-frame { width: 100%; max-width: calc(var(--spacing-120) * 4); }
+.docs-mask-thumb { width: calc(var(--spacing-120) * 1.5); }
+
+/* Button docs: a card-like surface so a ButtonRow shows where it sits. */
+.docs-button-row-demo { width: 100%; padding: var(--spacing-24); background: var(--color-neutral-1); border: var(--border-width-sm) solid var(--color-neutral-3); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+.docs-button-row-demo__text { margin: 0 0 var(--spacing-20); color: var(--color-neutral-5); }

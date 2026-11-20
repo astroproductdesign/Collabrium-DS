@@ -42,7 +42,7 @@ export function TypographySection({ level }: SectionProps) {
       lede={
         <>
           17-step type scale, Primary (Mulish) for everything functional <b>and every heading</b> (800 ExtraBold),
-          Secondary (Source Serif 4) reserved for deliberate brand-statement moments only. Sourced from a teammate&apos;s
+          Secondary (Source Serif 4) for decks and marketing pages only: product screens are Mulish throughout, large numbers and page titles included. Sourced from a teammate&apos;s
           fuller deck extraction, not guessed — but still not brand-team signed off.
         </>
       }

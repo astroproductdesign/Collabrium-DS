@@ -453,3 +453,28 @@
 @media (forced-colors: active) {
   .cui-ai-target[data-active] { border-color: Highlight; }
 }
+
+/* =========================================================
+   ButtonRow: a row of Buttons. ⚠️ Designed from scratch (the user's
+   request, 2026-11-20), from the action-row rule (right-aligned, Primary
+   last) and Permission prompt's Rule 10 (phones stack full-width, Primary
+   on top). No look of its own.
+   ========================================================= */
+.cui-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--element-gap);
+}
+.cui-button-row[data-align="start"] { justify-content: flex-start; }
+.cui-button-row[data-align="center"] { justify-content: center; }
+.cui-button-row__leading { display: flex; gap: var(--element-gap); margin-inline-end: auto; }
+/* Phones: one full-width button per row, Primary (last in the source) on
+   top. Only the visual order flips; the tab order stays as written. */
+@media (max-width: 640px) {
+  .cui-button-row[data-stack="phone"] { flex-direction: column-reverse; align-items: stretch; }
+  .cui-button-row[data-stack="phone"] .cui-button-row__leading { flex-direction: column; margin-inline-end: 0; }
+  .cui-button-row[data-stack="phone"] > .cui-button,
+  .cui-button-row[data-stack="phone"] .cui-button-row__leading > .cui-button { width: 100%; justify-content: center; }
+}

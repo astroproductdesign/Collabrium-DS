@@ -6,7 +6,7 @@ const dos: React.ReactNode[] = [
   <>Use Obsidian as the only primary-action fill — one Primary button per screen.</>,
   <>Use the warm canvas (#FCFAF5) as the page background for every screen — product/dashboard and brand/editorial alike. Component fills (cards, inputs, etc.) keep their own values, mostly Neutral-1 white.</>,
   <>Use Mulish for 100% of UI text <b>and every heading</b> — headings at weight 800, letter-spacing 0.</>,
-  <>Reserve Source Serif 4 for genuine brand-statement moments only (deck ledes, pull quotes, hero numerals), never as a heading-token swap, never below ~18–20px.</>,
+  <>Product screens use Mulish only, including large numbers and page titles. Source Serif 4 is for decks and marketing pages (ledes, pull quotes, hero numerals there), never a heading-token swap, never below ~18–20px.</>,
   <>Use the tinted-fill + bordered pattern for every Badge, and darken Success/Warning text (<code>#007d47</code>, <code>#9a5c00</code>) so it clears AA.</>,
   <>Map department/element colors 1:1 from the Color Palette table — don&apos;t invent one.</>,
   <>Tint a surface only with the element that already owns its content, and only at the -bg (8%) or -bg-strong (16%) step.</>,

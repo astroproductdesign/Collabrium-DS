@@ -43,3 +43,5 @@ export { CardCoverFlow, type CardCoverFlowProps } from './CardCoverFlow';
 export { CardTimeMachine, type CardTimeMachineProps } from './CardTimeMachine';
 export type { CardItem } from './lib/cards';
 export type { CardSize } from './lib/CardScale';
+export { Parallax, ParallaxLayer, type ParallaxProps, type ParallaxLayerProps, type ParallaxTrigger, type ParallaxDepth } from './Parallax';
+export { MaskReveal, type MaskRevealProps, type MaskShape } from './MaskReveal';
