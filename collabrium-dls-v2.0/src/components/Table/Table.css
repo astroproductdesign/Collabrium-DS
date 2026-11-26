@@ -70,7 +70,7 @@
 .cui-table__table {
   width: 100%;
   border-collapse: collapse;
-  font-family: inherit;
+  font-family: var(--font-primary);
 }
 
 .cui-table__th,

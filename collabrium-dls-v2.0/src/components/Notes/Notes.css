@@ -174,7 +174,7 @@
   background: transparent;
   color: var(--color-neutral-9);
   cursor: pointer;
-  font-family: inherit;
+  font-family: var(--font-primary);
 }
 .cui-notes__icon-btn:hover {
   background: var(--color-neutral-2);
@@ -409,7 +409,7 @@
   padding: var(--spacing-12);
   border-radius: var(--radius-sm);
   border: none;
-  font-family: inherit;
+  font-family: var(--font-primary);
   cursor: pointer;
   background: var(--pf);
   color: var(--pk);
@@ -583,7 +583,7 @@
   resize: none;
   padding: 0;
   margin: 0;
-  font-family: inherit;
+  font-family: var(--font-primary);
   font-size: var(--text-body2-size);
   line-height: var(--text-body2-lh);
   font-weight: var(--text-body2-weight);

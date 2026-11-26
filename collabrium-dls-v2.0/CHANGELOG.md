@@ -17,6 +17,38 @@ phrase to name its subject, and end the entry with the files it touched. Only
 `**bold**`, `` `code` `` and `[links](url)` render. Keep lines to 78
 characters.
 
+## v0.1.101 · 2026-11-26 · Clean app setup, and fonts from the token
+
+A test app built with `create-next-app` showed why product screens drifted
+from the system: the starter's `globals.css` sets its own body font (Arial),
+a white background and a dark mode, and components that took their font from
+the page followed it. The setup now removes the starter's styling, and every
+component sets its font from the token itself.
+
+**Setup.** `CLAUDE.md`, `AGENTS.md` and `README.md` give the exact
+`create-next-app` command (no Tailwind), and say to delete the starter's
+`app/globals.css` and replace its `layout.tsx`. The Phosphor install line
+says why the app needs it.
+
+**Fonts from the token.** Badge, Back to top, Radio card, Stat card, Switch
+and Tag now set `font-family: var(--font-primary)` on their outer element,
+and 29 `font-family: inherit` rules in component CSS now use the token too.
+Button, Badge and the rest keep the primary font even on a page that sets
+another one, and changing the primary font is one token. Motion text effects
+still take the font of the heading they wrap.
+
+**Illustration bible.** The library's copy now names its own folder
+(`playground/public/illustrations/`) and records new characters here, in
+`CHANGELOG.md`.
+
+**Maintainers.** The repo's rules, the `/build-components` command and its
+builder and reviewer agents now work on this library only; the v1 system is
+retired. They sit outside the package.
+
+Files: `CLAUDE.md`, `AGENTS.md`, `README.md`, `src/components/*/*.css`,
+`playground/public/illustrations/illustration-characters-bible.md`,
+`package.json`.
+
 ## v0.1.100 · 2026-11-20 · Button row
 
 A new `ButtonRow`, part of Button, lays out a row of Buttons so a screen

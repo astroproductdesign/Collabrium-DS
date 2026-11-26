@@ -3,9 +3,10 @@ description: Reads an HTML file, scores which sections need to become components
 ---
 
 Read the HTML file at: $ARGUMENTS
-Also read `collabrium-dls/components.css` and `collabrium-dls/DESIGN-SYSTEM.md`
-(Guidelines, Component Rules and the component index) so you know what
-already exists. Follow the rules in the repo's root CLAUDE.md.
+Also read `collabrium-dls-v2.0/CATALOG.md` and list `collabrium-dls-v2.0/src/components/`
+so you know what already exists (open a component's `usage.md` when a section
+looks close to it). Follow the rules in the repo's root CLAUDE.md. Never use
+`collabrium-dls/`: it is the retired v1 system.
 
 Read `drafts/component-backlog.html` FIRST (create it with an empty table if
 it doesn't exist yet). Its table is the running list: one <tr>
@@ -52,11 +53,12 @@ don't auto-fix. I decide whether to send it back for a fix or accept
 it with the flagged issues.
 
 Step 5 — if I later promote a component, it goes into
-`collabrium-dls/` as one change across all three files (DESIGN-SYSTEM.md,
-components.css and its preview.html demo), per the root CLAUDE.md, with a
-changelog entry and version bump in the same change (root CLAUDE.md,
-"Version and changelog"). Then set
-its row to data-status="promoted" and delete the draft from `drafts/`.
+`collabrium-dls-v2.0/` as one change across every place the root CLAUDE.md
+lists under "One change, every place" (the component's folder, its exports
+and stylesheet import, its CATALOG.md row, CLAUDE.md and AGENTS.md if the
+rules for product teams change), with a CHANGELOG.md entry and version bump
+in the same change (root CLAUDE.md, "Version and changelog"). Then set its
+row to data-status="promoted" and delete the draft from `drafts/`.
 
 Never mark a row drafted before the file exists, and never build a
 component that is not queued in the backlog.

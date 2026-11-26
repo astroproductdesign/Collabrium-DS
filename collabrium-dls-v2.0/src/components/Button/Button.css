@@ -38,7 +38,7 @@
   --cui-button-danger-active: color-mix(in srgb, var(--color-red) 78%, var(--color-neutral-9));
   --cui-button-link-underline-offset: var(--spacing-4); /* was 3px (decided 2026-11-06, token audit) */
 
-  font-family: inherit;
+  font-family: var(--font-primary);
   font-weight: var(--weight-bold);
   border: none;
   cursor: pointer;

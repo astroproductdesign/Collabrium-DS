@@ -103,7 +103,7 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
-  font-family: inherit;
+  font-family: var(--font-primary);
   font-size: var(--text-h5-size);
   line-height: var(--text-h5-lh);
   font-weight: var(--text-h5-weight);

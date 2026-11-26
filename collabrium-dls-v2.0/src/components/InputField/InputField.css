@@ -104,7 +104,7 @@
   border: var(--border-width-sm) solid var(--color-neutral-3);
   border-radius: var(--radius-sm);
   background: var(--color-neutral-1);
-  font-family: inherit;
+  font-family: var(--font-primary);
   font-size: var(--text-body2-size);
   color: var(--color-neutral-9);
 }

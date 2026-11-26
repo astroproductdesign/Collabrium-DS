@@ -27,14 +27,29 @@ screen needs, stop and say so (see "When something is missing").
 
 ## Set up
 
-If there's no app yet, create a Next.js app first (App Router,
-TypeScript) in its own folder beside this one. If the app isn't set up with
-the design system yet, do it yourself. Run these from the app's folder:
+If there's no app yet, create one beside this folder, without Tailwind.
+Run this from the folder that holds `collabrium-dls-v2.0`:
+
+```bash
+npx create-next-app@latest my-app --ts --app --no-tailwind --eslint --no-src-dir
+```
+
+**Then remove the starter's styling.** It sets its own body font (Arial),
+background and text colour, and adds a dark mode the system doesn't have,
+so your page, your own text and some components lose the system's look:
+
+- Delete `app/globals.css`. If you need CSS for your own layout, start a
+  new file that uses tokens only and never styles `html` or `body`.
+- Replace `app/layout.tsx` with the layout below (no Geist fonts).
+- Don't add Tailwind: its reset restyles headings, lists and buttons.
+
+If the app isn't set up with the design system yet, do it yourself. Run
+these from the app's folder:
 
 ```bash
 npm run setup --prefix ../collabrium-dls-v2.0          # installs, builds and packs the design system
 npm install ../collabrium-dls-v2.0/collabrium-ui.tgz
-npm install @phosphor-icons/react
+npm install @phosphor-icons/react                       # your app imports icons itself
 # charts only:  npm install chart.js react-chartjs-2   (or recharts for charts-extra)
 ```
 
@@ -42,7 +57,7 @@ Install the packed `.tgz`, never the folder itself: the folder has its own
 copy of React for its docs site, and the app would load React twice. Run
 `setup` again whenever this folder is updated.
 
-Then add the stylesheet and the font to the root layout:
+Then make this the whole root layout (it replaces the starter's):
 
 ```tsx
 // app/layout.tsx

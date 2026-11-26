@@ -28,6 +28,7 @@
 */
 
 .cui-radio-card-group {
+  font-family: var(--font-primary);
   container: cui-radio-card / inline-size;
 }
 /* A hidden legend still names the group (the gallery's demo names it with aria-label instead). */
@@ -68,6 +69,7 @@
 
 /* Card: composes .cui-card on the same <label>. Only additions here. */
 .cui-radio-card {
+  font-family: var(--font-primary);
   /* Radio's circle sizes, declared here because the circle has no .cui-radio around it. */
   --cui-radio-size: var(--choice-size);
   --cui-radio-nudge: var(--spacing-2);

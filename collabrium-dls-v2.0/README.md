@@ -60,6 +60,8 @@ for `@collabrium/ui/charts-extra`.
 
    This works because the base styles set `body { font-family: var(--font-primary) }`, and the variable set on `<body>` wins over the token's default. Headings use weight 800, so include it.
 
+   **Starting from `create-next-app`?** Create the app with `--no-tailwind`, delete the starter's `app/globals.css` and replace its `layout.tsx` with the one above. The starter's CSS sets its own body font (Arial), background and colours, and a dark mode the system doesn't have.
+
 3. **Use components:**
 
    ```tsx
