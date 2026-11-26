@@ -252,7 +252,7 @@ A character joins the set only if every line is true.
 
 ## 8. Files and folders
 
-Everything lives in `collabrium-dls/illustrations/`:
+Everything lives in `collabrium-dls-v2.0/playground/public/illustrations/`:
 
 | Path | What it is |
 |---|---|
@@ -310,8 +310,8 @@ export.
 **A character:** write the subject line (§4 Step 1), generate with the
 reference attached, pass every line of §6, export the web versions (§9), add
 both files under the character's id (§8), and add its entry to
-`characters.json` in its category. Then record it in `DESIGN-SYSTEM.md`'s
-Changelog, following its Version rule.
+`characters.json` in its category. Then record it in `CHANGELOG.md`,
+following its Version rule.
 
 **A category:** choose and record its body colour in §2 and in
 `characters.json` before any character in it is drawn.
@@ -321,6 +321,10 @@ its colour rule, before any of its characters is drawn. Anatomy, ink,
 background, motion and the checklist carry over unchanged.
 
 ---
+
+**v1.3** — 2026-11-26. Became the v2.0 library's own copy: paths point to
+`collabrium-dls-v2.0/playground/public/illustrations/`, and new characters
+are recorded in `CHANGELOG.md`. The retired v1 copy is left as it was.
 
 **v1.2** — 2026-10-29. Became Collabrium's house illustration style, with
 Audience characters as its first family. Added: before-you-generate rule, the

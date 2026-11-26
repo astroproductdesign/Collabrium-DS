@@ -27,6 +27,7 @@
 */
 
 .cui-switch {
+  font-family: var(--font-primary);
   /*
     No token has these four, so they are local. The thumb's left edge when on is derived (width minus
     thumb minus inset = 19px) so the three can never disagree.

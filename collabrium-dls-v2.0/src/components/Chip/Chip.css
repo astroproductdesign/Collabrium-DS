@@ -120,7 +120,7 @@
   border: 1px solid var(--color-neutral-3);
   color: var(--color-neutral-5);
   cursor: pointer;
-  font-family: inherit;
+  font-family: var(--font-primary);
 }
 .cui-chip[data-kind='overflow']:hover {
   color: var(--color-neutral-9);
@@ -156,7 +156,7 @@
   background: var(--color-neutral-1);
   border: 1px solid var(--color-neutral-3);
   cursor: pointer;
-  font-family: inherit;
+  font-family: var(--font-primary);
 }
 .cui-chip[data-kind='filter']:hover:not([data-active]):not([data-disabled]) {
   background: var(--color-neutral-2);

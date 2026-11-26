@@ -33,6 +33,7 @@
 }
 
 .cui-back-to-top {
+  font-family: var(--font-primary);
   --cui-back-to-top-move: var(--duration-base);
   position: fixed;
   right: calc(var(--cui-back-to-top-edge) + env(safe-area-inset-right, 0px) + var(--cui-back-to-top-gutter, 0px));

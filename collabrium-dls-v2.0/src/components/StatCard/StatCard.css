@@ -27,6 +27,7 @@
 /* The row: as many columns as fit at 180px (no token: the DLS's literal, Stat only), 16px apart, equal height.
    Kept as the DS's own grid; how it relates to App Shell's 4-column content grid is decided with App Shell (2026-11-10, Q-STAT-7). */
 .cui-stat-grid {
+  font-family: var(--font-primary);
   --cui-stat-grid-floor: 180px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--cui-stat-grid-floor), 1fr));
@@ -35,6 +36,7 @@
 
 /* The tile is Card's; the grid's 180px floor replaces Card's 240px (decided 2026-11-10, Q-STAT-1). */
 .cui-stat {
+  font-family: var(--font-primary);
   min-width: 0;
 }
 .cui-stat__top {

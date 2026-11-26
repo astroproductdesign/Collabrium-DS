@@ -18,6 +18,7 @@
 */
 
 .cui-badge {
+  font-family: var(--font-primary);
   /*
     The tints and the Success and Warning text colours come from tokens. The
     22px height has no token (Badge only).
